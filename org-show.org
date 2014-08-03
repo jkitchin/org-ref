@@ -1,0 +1,679 @@
+#+TITLE: org-show - simple presentations in org-mode
+#+AUTHOR: John Kitchin
+
+There are several options for "presenting" from org-mode. Here are the options I found.
+
+https://github.com/rlister/org-present
+https://github.com/eschulte/epresent
+
+https://github.com/yjwen/org-reveal
+https://github.com/takaxp/org-tree-slide/
+https://github.com/tucasp/org-presie
+
+http://orgmode.org/worg/exporters/beamer/tutorial.html
+http://orgmode.org/worg/org-tutorials/non-beamer-presentations.html#sec-3
+
+The one I like the best is discussed here: http://sachachua.com/blog/2013/04/how-to-present-using-org-mode-in-emacs/. I like it best because you can edit the slides as you go, execute arbitrary emacs code, and it is still pretty simple. I used Sacha's code as the basis for org-show. There is a lot of similarity.
+
+elisp:org-show-mode
+
+elisp:org-show-start-slideshow
+
+* org-show
+You can have: 
+
+1. code run
+2. split to show slide and full image
+3. plain text
+
+** Title slide							      :slide:
+#+BEGIN_SRC emacs-lisp-slide
+(org-show-animate '("Welcome to the org-show" "John Kitchin"))
+#+END_SRC
+
+** Presentations in org-mode					      :slide:
+This should be easy
+
+1. Create your org-file. Tag headlines with :slide:
+2. Enter org-show-mode, press f5. Use PageUp and PageDn to navigate slides
+3. Go back and forth from the presentation to other files in Emacs or other software.
+4. Edit yours slides as you go, e.g. to demonstrate something 
+5. Totally interactive, run code, etc...
+
+org-show is based on this blog post: http://sachachua.com/blog/2013/04/how-to-present-using-org-mode-in-emacs/
+
+Thanks Sacha!
+** Test out some themes						      :slide:
+
+[[elisp:(load-theme 'my)]] [[elisp:(disable-theme 'my)]]
+
+[[elisp:(load-theme 'adwaita)]] [[elisp:(disable-theme 'adwaita)]]
+
+[[elisp:(load-theme 'deeper-blue)]] [[elisp:(disable-theme 'deeper-blue)]]
+
+[[elisp:(load-theme 'light-blue)]] [[elisp:(disable-theme 'light-blue)]]
+
+[[elisp:(load-theme 'manoj-dark)]] [[elisp:(disable-theme 'manoj-dark)]]
+
+[[elisp:(load-theme 'misterioso)]] [[elisp:(disable-theme 'misterioso)]]
+
+[[elisp:(load-theme 'tango)]] [[elisp:(disable-theme 'tango)]]
+
+[[elisp:(load-theme 'tango-dark)]] [[elisp:(disable-theme 'tango-dark)]]
+
+[[elisp:(load-theme 'tsdh-dark)]] [[elisp:(disable-theme 'tsdh-dark)]]
+
+[[elisp:(load-theme 'tsdh-light)]] [[elisp:(disable-theme 'tsdh-light)]]
+
+[[elisp:(load-theme 'wheatgrass)]] [[elisp:(disable-theme 'wheatgrass)]]
+
+[[elisp:(load-theme 'whiteboard)]] [[elisp:(disable-theme 'whiteboard)]]
+
+[[elisp:(load-theme 'wombat)]] [[elisp:(disable-theme 'wombat)]]
+
+[[elisp:(load-theme 'solarized-light t)]] [[elisp:(disable-theme 'solarized-light)]] 
+
+[[elisp:(load-theme 'solarized-dark t)]] [[elisp:(disable-theme 'solarized-dark)]]
+
+[[elisp:(load-theme 'zenburn t)]] [[elisp:(disable-theme 'zenburn)]]
+
+[[elisp:(load-theme 'anti-zenburn t)]] [[elisp:(disable-theme 'anti-zenburn)]]
+
+** Equations							      :slide:
+It should be easy to show equations like this  $\int_0^x \frac{1}{2} \sin x dx = 6$.
+
+It is. Maybe you prefer equation environments?
+
+\begin{equation}
+e^x = 55
+\end{equation}
+
+Want to see the equation source? [[elisp:(org-ctrl-c-ctrl-c)][click here]]
+
+Back to equations: C-c C-x C-l
+** Figures							      :slide:
+
+Figures should show up in two panes.
+The left pane shows the slide. The right pane shows the figure, scaled to fit in the window.
+
+Here is a little screen capture:
+[[./taskbar.png]]
+
+** Need a more complicated layout?				      :slide:
+Write some code to generate it, and put it in an emacs-lisp-slide block. org-show will run it and show you the result
+
+#+BEGIN_SRC emacs-lisp
+(delete-other-windows)
+(split-window-right)
+(other-window 1)
+(find-file "taskbar.png")
+(split-window-below)
+(other-window 1)
+(find-file "doi-utils.org")
+#+END_SRC
+
+#+RESULTS:
+: #<buffer doi-utils.org>
+
+#+BEGIN_EXAMPLE
+,#+BEGIN_SRC emacs-lisp-slide
+(delete-other-windows)
+(split-window-right)
+(other-window 1)
+(find-file "taskbar.png")
+(split-window-below)
+(other-window 1)
+(find-file "doi-utils.org")
+,#+END_SRC
+#+END_EXAMPLE
+
+** A complicated layout						      :slide:
+#+BEGIN_SRC emacs-lisp-slide
+(delete-other-windows)
+(split-window-right)
+(other-window 1)
+(find-file "taskbar.png")
+(split-window-below)
+(other-window 1)
+(find-file "doi-utils.org")
+#+END_SRC
+** Code blocks should be runnable and editable			      :slide:
+
+#+BEGIN_SRC python
+print 6 + 62
+#+END_SRC
+
+
+They are.
+** We can use many languages					      :slide:
+(of course, you must have them installed on your computer)
+
+#+BEGIN_SRC emacs-lisp
+(+ 6 6)
+#+END_SRC
+
+
+#+BEGIN_SRC R 
+sum(c(6, 6))
+#+END_SRC
+
+
+
+#+BEGIN_SRC perl :results output
+print 6 + 6
+#+END_SRC
+
+
+#+BEGIN_SRC ruby
+print 6 + 6
+#+END_SRC
+
+#+RESULTS:
+
+
+** Interactivity is important	
+We get it.
+*** Snake							      :slide:
+#+BEGIN_SRC emacs-lisp-slide
+(snake)
+#+END_SRC
+
+*** tetris							      :slide:
+
+#+BEGIN_SRC emacs-lisp-slide
+(when (and (boundp 'snake-buffer-name) (get-buffer snake-buffer-name))
+  (kill-buffer snake-buffer-name))
+(delete-other-windows)
+(tetris)
+#+END_SRC
+
+
+*** doctor							      :slide:
+#+BEGIN_SRC emacs-lisp-slide
+(doctor)
+#+END_SRC
+
+
+*** Become a graffiti artist					      :slide:
+#+BEGIN_SRC emacs-lisp-slide
+(progn
+  (switch-to-buffer (get-buffer-create "*artist*"))
+  (erase-buffer)
+  (artist-mode 1)
+  (menu-bar-mode 1)
+  (text-scale-set 0)
+  (artist-select-op-spray-can))
+#+END_SRC
+
+
+*** Or draw lines						      :slide:
+#+BEGIN_SRC emacs-lisp-slide
+(progn
+  (switch-to-buffer (get-buffer-create "*artist*"))
+  (artist-select-op-line))
+#+END_SRC
+
+** No seriously, we can do real work!				      :slide:
+   :PROPERTIES:
+   :CUSTOM_ID: sec:data-tab-code
+   :END:
+
+Use this table as a data source.
+#+tblname: tab-data
+| x |  y |
+|---+----|
+| 1 |  1 |
+| 2 |  4 |
+| 3 |  9 |
+| 4 | 16 |
+
+#+BEGIN_SRC python :var data=tab-data
+import matplotlib.pyplot as plt
+import numpy as np
+d = np.array(data)
+plt.plot(d[:,0], d[:,1])
+plt.show()
+#+END_SRC  
+
+#+RESULTS:
+
+You can make links to a table like this: ref:tab-data.
+** Interactive links						      :slide:
+<<beginning>>
+
+You can have links that take you to places: [[beginning]], [[end]], to a [[#sec:data-tab-code][section]],
+
+Or links that are functional: cite:mehta-2014-ident-poten. 
+
+Or that run code [[elisp:(message "Hello %s" user-full-name)]]
+
+Or links to info: [[info:org#External%20links][info:org#External links]]
+
+Or to open a [[http://kitchingroup.cheme.cmu.edu][website]].
+
+<<end>>
+** Conclusions							      :slide:
+That is the end!
+
+#+BEGIN_SRC emacs-lisp-slide
+(org-show-animate '("That's the end of the org-show." "Thank you for your attention!" "http://github.com/jkitchin/jmax"))
+#+END_SRC
+
+
+* The code
+
+** The header
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+;;; org-show.el --- Summary
+;; Copyright(C) 2014 John Kitchin
+
+;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
+;; Contributions from Sacha Chua.
+;; This file is not currently part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program ; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
+
+;;; Commentary:
+;; A simple mode for presenting org-files as slide-shows
+#+END_SRC
+
+** Some basic setup
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defvar org-show-presentation-file nil "File containing the presentation.")
+(defvar org-show-slide-tag "slide" "Tag that marks slides.")
+(defvar org-show-slide-tag-regexp (concat ":" (regexp-quote org-show-slide-tag) ":"))
+(defvar org-show-latex-scale 4.0 "scale for latex preview")
+
+(defvar org-show-original-latex-scale
+  (plist-get org-format-latex-options :scale)
+  "Original scale for latex preview, so we can reset it.")
+
+(defvar org-show-text-scale 4 "scale for text in presentation")
+(defvar org-show-current-slide-number 1 "holds current slide number")
+
+(defvar org-show-mogrify-p (executable-find "mogrify"))
+
+(defvar org-show-tags-column -60 "column position to move tags to in slide mode")
+(defvar org-show-original-tags-column org-tags-column "Save value so we can change back to it")
+
+(when org-show-mogrify-p (require 'eimp))
+
+
+#+END_SRC
+
+** Make a minor mode and menu
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(require 'easymenu)
+
+(defvar org-show-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [next] 'org-show-next-slide)
+    (define-key map [prior] 'org-show-previous-slide)
+    
+    (define-key map [f5] 'org-show-start-slideshow)
+    (define-key map [f6] 'org-show-execute-slide)
+    (define-key map (kbd "C--") 'org-show-decrease-text-size)
+    (define-key map (kbd "C-=") 'org-show-increase-text-size)
+    (define-key map (kbd "\e\eg") 'org-show-goto-slide)
+    (define-key map (kbd "\e\et") 'org-show-toc)
+    (define-key map (kbd "\e\eq") 'org-show-stop-slideshow)
+    map)
+  "Keymap for org-show-mode.")
+
+(easy-menu-define my-menu org-show-mode-map "My own menu"
+  '("org-show"
+    ["Start slide show" org-show-start-slideshow t]
+    ["Next slide" org-show-next-slide t]
+    ["Previous slide" org-show-previous-slide t]
+    ["Open this slide" org-show-open-slide t]
+    ["Goto slide" org-show-goto-slide t]
+    ["Table of contents" org-show-toc t]
+    ["Stop slide show"  org-show-stop-slideshow t]
+))
+
+
+(define-minor-mode org-show-mode
+  "Minor mode for org-show
+
+\\{org-show-mode-map}"
+  :lighter " org-show"
+  :global t
+  :keymap org-show-mode-map)
+#+END_SRC
+
+** Prepare and show the slide 
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+
+(defvar org-show-temp-images '() "list of temporary images")
+
+(defun org-show-execute-slide ()
+  "Process slide at point.
+  If it contains an Emacs Lisp source block, evaluate it.
+  If it contains an image, view it in a split buffer
+  Else, focus on that buffer.
+  Hide all drawers."
+  (interactive)
+  (setq org-show-presentation-file (expand-file-name (buffer-name)))
+  (delete-other-windows)  
+
+  ;; make sure nothing is folded. This seems to be necessary to
+  ;; prevent an error on narrowing then trying to make latex fragments
+  ;; I think.
+  (org-cycle '(64))
+
+  (org-narrow-to-subtree)
+  (visual-line-mode 1)
+  (let ((heading-text (nth 4 (org-heading-components)))
+        (org-format-latex-options (plist-put org-format-latex-options :scale org-show-latex-scale)))
+
+    (set-frame-name (format "%-180s%15s%s" heading-text "slide " (cdr (assoc heading-text org-show-slide-titles))))
+
+    ;; preview equations in the current subtree
+    (org-preview-latex-fragment '(4))
+    (message "") ; clear minibuffer
+    (cond
+
+     ;; view images if there is one. WE only do this this for the first one.
+     ((and (goto-char (point-min))
+           (re-search-forward "\\[\\[\\(.*\\.\\(jpg\\|gif\\|png\\)\\)" nil t))
+      
+      (unless (file-exists-p "org-show-images")
+	(make-directory "org-show-images"))
+      
+      (let* ((png-file (match-string 1))
+	     (temp-png (expand-file-name (concat "org-show-images/" (secure-hash 'sha1
+					    (with-temp-buffer
+					      (insert-file-contents png-file)
+					      (buffer-string))) ".png"))))
+
+        (add-to-list 'org-show-temp-images temp-png)
+	(unless (file-exists-p temp-png)
+	  (copy-file png-file temp-png t))
+      
+	(split-window-right)      
+      
+	(other-window 1)
+	(find-file temp-png)
+        (when org-show-mogrify-p
+          (eimp-fit-image-width-to-window nil)))
+                  
+      (other-window 1) ; back to slide
+      (goto-char (point-min))
+      (text-scale-set org-show-text-scale)
+      (org-display-inline-images)
+      (org-cycle-hide-drawers t)
+      (org-show-subtree))
+
+     ;; find and execute source code blocks.
+     ;; you can either have images, or code. Not both.
+     ;; Only code blocks of type emacs-lisp-slide are used.
+     ((and (goto-char (point-min))
+           (re-search-forward "#\\+begin_src emacs-lisp-slide" nil t))
+      (let ((info (org-babel-get-src-block-info)))
+        (unwind-protect
+            (eval (read (concat "(progn " (nth 1 info) ")"))))))
+
+     ;; plain text slides
+     (t
+      (switch-to-buffer (current-buffer))
+      (text-scale-set org-show-text-scale)
+      (org-show-subtree)
+      (org-cycle-hide-drawers t)
+      (org-display-inline-images)
+      (delete-other-windows)))))
+#+END_SRC
+
+** Next and previous slides
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-next-slide ()
+  "Goto next slide in presentation"
+  (interactive)
+  (find-file org-show-presentation-file)
+  (widen)
+  (if (<= (+ org-show-current-slide-number 1) (length org-show-slide-titles))
+      (progn
+	(setq org-show-current-slide-number (+ org-show-current-slide-number 1))
+	(org-show-goto-slide org-show-current-slide-number))
+    (org-show-goto-slide org-show-current-slide-number)
+    (message "This is the end. My only friend the end.  Jim Morrison.")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-previous-slide ()
+  "Goto previous slide in the list"
+  (interactive)
+  (find-file org-show-presentation-file)
+  (widen)
+  (if (> (- org-show-current-slide-number 1) 0)
+      (progn
+	(setq org-show-current-slide-number (- org-show-current-slide-number 1))
+	(org-show-goto-slide org-show-current-slide-number))
+    (org-show-goto-slide org-show-current-slide-number)
+    (message "Once upon a time...")))
+#+END_SRC
+
+** Open this slide
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-open-slide ()
+ "Start show at this slide"
+ (setq org-show-presentation-file (expand-file-name (buffer-name))) 
+ (org-show-initialize)
+ (let ((n (cdr (assoc (nth 4 (org-heading-components)) org-show-slide-titles))))
+   (setq org-show-current-slide-number n)
+   (org-show-goto-slide n)))
+#+END_SRC
+
+** Starting the show
+We need some functions for convenient starting and stopping.
+
+On starting, we want to map the slides so we can get slide numbers for navigation and to display them on the frame. We also make the slide tags invisible. We set some temporary key bindings. These need to be global because sometimes we navigate out of the slideshow buffer, and we want page up and down to go to the next slides no matter where we are.
+
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defvar org-show-slide-list '() "List of slide numbers and markers to each slide")
+(defvar org-show-slide-titles '() "List of titles and slide numbers for each slide")
+
+(defun org-show-initialize ()
+  ;; make slide lists for future navigation. rerun this if you change slide order
+  (setq  org-show-slide-titles '()
+         org-show-temp-images '()
+         org-show-slide-list '())
+     
+  (let ((n 0))
+    (org-map-entries
+     (lambda ()
+       (when (string-match-p ":slide:" (or (nth 5 (org-heading-components)) ""))
+	 (setq n (+ n 1))
+         
+	 (add-to-list 'org-show-slide-titles 
+		      (cons (nth 4 (org-heading-components)) n) t)
+
+	 (add-to-list 'org-show-slide-list 
+		      (cons n (set-marker (make-marker) (point))) t))))))
+
+(defun org-show-start-slideshow ()
+  "Start the slide show, at the beginning"
+  (interactive)
+    
+  (setq org-show-presentation-file (expand-file-name (buffer-name)))
+  (beginning-of-buffer)
+  (setq org-tags-column org-show-tags-column)
+  (org-set-tags-command '(4) t)
+
+  (org-show-initialize)
+  ;; hide slide tags
+  (save-excursion
+    (while (re-search-forward ":slide:" nil t)
+      (overlay-put
+       (make-overlay (match-beginning 0)(match-end 0))
+       'invisible 'slide)))
+  (add-to-invisibility-spec 'slide)
+  (beginning-of-buffer)
+  (delete-other-windows)
+  (org-show-mode 1)
+  (setq org-show-current-slide-number 1)
+  (org-show-goto-slide 1))
+#+END_SRC
+
+** Stop the show
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-stop-slideshow ()
+  (interactive)
+  ;; make slide tag visible again
+  (remove-from-invisibility-spec 'slide)
+
+  ;; reset latex scale
+  (plist-put org-format-latex-options :scale org-show-original-latex-scale)
+
+  ;; clean up temp images
+  (mapcar (lambda (x)
+	    (let ((bname (file-name-nondirectory x)))
+	      (when (get-buffer bname)
+                (set-buffer bname) 
+                (save-buffer)
+		(kill-buffer bname)))
+
+	    (when (file-exists-p x)
+	      (delete-file x)))
+	  org-show-temp-images)
+  (setq org-show-temp-images '())
+
+  ;; ;; clean up miscellaneous buffers
+  (when (get-buffer "*Animation*") (kill-buffer "*Animation*"))
+
+  (when org-show-presentation-file (find-file org-show-presentation-file))
+  (widen)
+  (text-scale-set 0)
+  (delete-other-windows)
+  (setq org-show-presentation-file nil)
+  (setq org-show-current-slide-number 1)
+  (set-frame-name (if (buffer-file-name)
+                   (abbreviate-file-name (buffer-file-name))))
+  (setq org-tags-column org-show-original-tags-column)
+  (org-set-tags-command '(4) t)
+
+  (org-show-mode -1))
+
+(defalias 'stop 'org-show-stop-slideshow)
+#+END_SRC
+
+** Goto a slide
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-goto-slide (n)
+ "Goto slide N"
+ (interactive "nSlide number: ")
+ (message "Going to slide %s" n)
+ (find-file org-show-presentation-file)
+ (setq org-show-current-slide-number n)
+ (widen)
+ (goto-char (cdr (assoc n org-show-slide-list)))
+ (org-show-execute-slide))
+#+END_SRC
+
+** Table of contents
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-toc ()
+  (interactive)
+  (let ((links) (c-b (buffer-name)) (n))
+    (save-excursion
+      (widen)
+      (mapcar
+       (lambda (x)
+	 (setq n (car x))
+	 (goto-char (cdr x))
+	 (add-to-list
+	  'links
+	  (format " [[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-execute-slide))][%2s %s]]\n\n"
+		  (marker-buffer (cdr x))
+		  (marker-position (cdr x))
+		  (car x)
+		  (nth 4 (org-heading-components))) t))
+	      org-show-slide-list))
+    
+    (switch-to-buffer "*List of Slides*")
+    (org-mode)
+    (erase-buffer)
+    
+    (insert (mapconcat 'identity links ""))
+  
+    ;(setq buffer-read-only t)
+    (use-local-map (copy-keymap org-mode-map))
+    (local-set-key "q" #'(lambda () (interactive) (kill-buffer)))))
+#+END_SRC
+
+** Utilities
+It seems like we might animate enough to have a function
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(require 'animate)
+
+(defun org-show-animate (strings)
+  "Animate STRINGS in an *Animation* buffer"
+  (switch-to-buffer (get-buffer-create
+                     (or animation-buffer-name
+                         "*Animation*")))
+  (erase-buffer)
+  (text-scale-set 6)
+  (let* ((vpos (/ (- 20
+		     1 ;; For the mode-line
+		     (1- (length strings)) 
+		     (length strings))
+		  2))
+	 (width 43)
+	 hpos)
+    (while strings
+      (setq hpos (/ (- width (length (car strings))) 2))
+      (when (> 0 hpos) (setq hpos 0))
+      (when (> 0 vpos) (setq vpos 0))
+      (animate-string (car strings) vpos hpos)
+      (setq vpos (1+ vpos))
+      (setq strings (cdr strings)))))
+#+END_SRC
+
+dynamic rescalling of text size
+
+#+BEGIN_SRC emacs-lisp :tangle org-show.el
+(defun org-show-increase-text-size (&optional arg)
+  "Increase text size. Bound to \\[org-show-increase-text-size].
+
+With prefix ARG, set `org-show-text-scale' so subsquent slides are the same text size."
+  (interactive "P")
+  (text-scale-increase 1.5)
+  (when arg
+    (setq org-show-text-scale (* org-show-text-scale 1.5))))
+
+(defun org-show-decrease-text-size (&optional arg)
+  "Increase text size. Bound to \\[org-show-decrease-text-size].
+
+With prefix ARG, set `org-show-text-scale' so subsquent slides are the same text size."
+  (interactive "P")
+  (text-scale-decrease 1.5)
+  (when arg
+    (setq org-show-text-scale (/ org-show-text-scale 1.5)))
+)
+#+END_SRC
+
+** End
+#+BEGIN_SRC emacs-lisp  :tangle org-show.el
+(provide 'org-show)
+#+END_SRC
+* build
+[[elisp:(org-babel-load-file "org-show.org")]]
