@@ -1002,30 +1002,34 @@ to get a comma, or the beginning of the link. that delimits the
 keyword we clicked on. We also strip the text properties."
   (interactive)
   (let* ((object (org-element-context))	 
-	 (link-string (org-element-property :path object)))    
-    
-    ;; we need the link path start and end
-    (save-excursion
-      (goto-char (org-element-property :begin object))
-      (search-forward link-string nil nil 1)
-      (setq link-string-beginning (match-beginning 0))
-      (setq link-string-end (match-end 0)))
+	 (link-string (org-element-property :path object)))
 
-    ;; The key is the text between commas, or the link boundaries
-    (save-excursion
-      (if (search-forward "," link-string-end t 1)
-	  (setq key-end (- (match-end 0) 1)) ; we found a match
-	(setq key-end link-string-end))) ; no comma found so take the end
-    ;; and backward to previous comma from point which defines the start character
-    (save-excursion
-      (if (search-backward "," link-string-beginning 1 1)
-	  (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-	(setq key-beginning link-string-beginning))) ; no match found
-    ;; save the key we clicked on.
-    (setq bibtex-key (org-ref-strip-string (buffer-substring key-beginning key-end)))
-    (set-text-properties 0 (length bibtex-key) nil bibtex-key)
-    bibtex-key
-    ))
+    (if (not (org-element-property :contents-begin object))
+	;; this means no description in the link
+	(progn	  
+	  ;; we need the link path start and end
+	  (save-excursion
+	    (goto-char (org-element-property :begin object))
+	    (search-forward link-string nil nil 1)
+	    (setq link-string-beginning (match-beginning 0))
+	    (setq link-string-end (match-end 0)))
+
+	  ;; The key is the text between commas, or the link boundaries
+	  (save-excursion
+	    (if (search-forward "," link-string-end t 1)
+		(setq key-end (- (match-end 0) 1)) ; we found a match
+	      (setq key-end link-string-end))) ; no comma found so take the end
+	  ;; and backward to previous comma from point which defines the start character
+	  (save-excursion
+	    (if (search-backward "," link-string-beginning 1 1)
+		(setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+	      (setq key-beginning link-string-beginning))) ; no match found
+	  ;; save the key we clicked on.
+	  (setq bibtex-key (org-ref-strip-string (buffer-substring key-beginning key-end)))
+	  (set-text-properties 0 (length bibtex-key) nil bibtex-key)
+	  bibtex-key)
+      ;; link with description. assume only one key
+      link-string)))
 #+END_SRC
 
 We also need to find which bibliography file that key is in. For that, we need to know which bibliography files are referred to in the file. If none are specified with a bibliography link, we use the default bibliography. This function searches for a bibliography link, and then the LaTeX bibliography link. We also consider the addbibresource link which is used with biblatex.
