@@ -473,7 +473,7 @@ Now we define a function that fills in that template from the metadata.
 	  doi (plist-get results :DOI)
 	  url (plist-get results :URL))
     (cond
-     ((string= type "journal-article")
+     ((or (string= type "journal-article") (string= type "article-journal"))
       (doi-utils-expand-template "@article{,
   author = 	 {%{author}},
   title = 	 {%{title}},
