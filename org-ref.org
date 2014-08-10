@@ -93,7 +93,7 @@ There are some variables needed later to tell this library where you store your 
 
 (defcustom org-ref-bibliography-entry-format
   "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>."
-  "string to format an entry. Just the reference, no numbering at the beginning, etc..."
+  "string to format an entry. Just the reference, no numbering at the beginning, etc... see the `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
 #+END_SRC
