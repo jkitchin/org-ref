@@ -335,14 +335,14 @@ until one is found"
 : doi-utils-get-pdf-url
 
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (doi-utils-get-pdf-url "10.1126/science.1158722")
 #+END_SRC
 
 #+RESULTS:
 : http://www.sciencemag.org/content/321/5890/792.full.pdf
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (doi-utils-get-pdf-url  "10.1021/nl500037x")
 #+END_SRC
 
@@ -350,7 +350,7 @@ until one is found"
 : http://pubs.acs.org/doi/pdf/10.1021/nl500037x
 
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (doi-utils-get-pdf-url  "10.1002/anie.201402680")
 #+END_SRC
 
@@ -424,7 +424,7 @@ I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 : doi-utils-get-json-metadata
 
 For example:
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (doi-utils-get-json-metadata "10.1103/PhysRevLett.99.016105")
 #+END_SRC
 
@@ -492,7 +492,7 @@ Now we define a function that fills in that template from the metadata.
 : doi-utils-doi-to-bibtex-string
 
 To see that in action:
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (doi-utils-doi-to-bibtex-string "10.1103/PhysRevLett.99.016105")
 #+END_SRC
 
@@ -647,7 +647,7 @@ The updating function looks like this. We get all the keys from the json plist m
 (provide 'doi-utils)
 #+END_SRC
 * load
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (org-babel-load-file "doi-utils.org")
 #+END_SRC
 
