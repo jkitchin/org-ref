@@ -92,7 +92,8 @@ There are some variables needed later to tell this library where you store your 
   :group 'org-ref)
 
 (defcustom org-ref-bibliography-entry-format
-  "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>."
+  '(("article" . "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>.")
+    ("book" . "%a, %t, %u (%y)."))
   "string to format an entry. Just the reference, no numbering at the beginning, etc... see the `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
@@ -263,6 +264,7 @@ It is also possible to access all other BibTeX database fields:
 %B booktitle, abbreviated          %T title, abbreviated
 %U url
 %D doi
+%S series
 
 Usually, only %l is needed.  The other stuff is mainly for the echo area
 display, and for (setq reftex-comment-citations t).
@@ -324,6 +326,7 @@ environment, only %l is available."
                                (org-ref-reftex-get-bib-field "pages" entry)
                                "[- .]+")))
                ((= l ?s) (org-ref-reftex-get-bib-field "school" entry))
+               ((= l ?S) (org-ref-reftex-get-bib-field "series" entry))
                ((= l ?u) (org-ref-reftex-get-bib-field "publisher" entry))
                ((= l ?U) (org-ref-reftex-get-bib-field "url" entry))
                ((= l ?r) (org-ref-reftex-get-bib-field "address" entry))
@@ -350,7 +353,7 @@ environment, only %l is available."
   "returns a string for the bibliography entry corresponding to key, and formatted according to `org-ref-bibliography-entry-format'"
 
   (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-	(file) (entry))
+	(file) (entry) (bibtex-entry) (entry-type))
 
     (setq file (catch 'result
 		 (loop for file in org-ref-bibliography-files do
@@ -361,7 +364,9 @@ environment, only %l is available."
     (with-temp-buffer
       (insert-file-contents file)
       (bibtex-search-entry key nil 0)
-      (setq entry  (org-ref-reftex-format-citation (bibtex-parse-entry) org-ref-bibliography-entry-format)))
+      (setq bibtex-entry (bibtex-parse-entry))
+      (setq entry-type (cdr (assoc "=type=" bibtex-entry)))
+      (setq entry  (org-ref-reftex-format-citation bibtex-entry (cdr (assoc entry-type org-ref-bibliography-entry-format)))))
     entry))
 #+END_SRC
 
@@ -379,7 +384,7 @@ Here is how to use the function. You call it with point in an entry in a bibtex 
 
 I am not sure why full author names are not used.
 
-This code provides some functions to generate a simple sorted bibliography in html. First we get all the keys in the bufer.
+This code provides some functions to generate a simple sorted bibliography in html. First we get all the keys in the buffer.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-bibtex-keys ()
@@ -1496,55 +1501,6 @@ org-mode already defines a store link function for bibtex entries. It does not s
     (car org-stored-links)))
 #+END_SRC
 
-** An html bibliography
-This code provides some functions to generate a simple bibliography in html.
-
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
-(defun org-ref-get-bibtex-keys ()
-  "return a list of unique keys in the buffer"
-  (interactive)
-  (let ((keys '()))
-    (org-element-map (org-element-parse-buffer) 'link
-      (lambda (link)       
-	(let ((plist (nth 1 link)))			     
-	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
-	    (dolist 
-		(key 
-		 (org-ref-split-and-strip-string (plist-get plist ':path)))
-	      (when (not (-contains? keys key))
-		(setq keys (append keys (list key)))))))))
-    keys))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
-(defun org-ref-get-bibtex-entry-html (key)
- (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-       (file) (entry))
-
-   (setq file (catch 'result
-		(loop for file in org-ref-bibliography-files do
-		      (if (org-ref-key-in-file-p key (file-truename file)) 
-			  (throw 'result file)))))
-   (if file (with-temp-buffer
-              (insert-file-contents file)
-              (prog1
-                  (bibtex-search-entry key nil 0)
-                (setq entry  (org-ref-bib-html-citation)))
-              (format "<li><a id=\"%s\">[%s] %s</a></li>" key key entry)))))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el 
-(defun org-ref-get-html-bibliography ()
-  "Create an html bibliography when there are keys"
-  (let ((keys (org-ref-get-bibtex-keys)))
-    (when keys
-      (concat "<h1>Bibliography</h1>
-<ul>"
-	      (mapconcat (lambda (x) (org-ref-get-bibtex-entry-html x)) keys "\n")
-	      "\n</ul>"))))
-#+END_SRC
 
 * Utilities
 ** create simple text citation from bibtex entry
