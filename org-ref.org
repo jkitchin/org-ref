@@ -439,6 +439,79 @@ Now, we map over the whole list of keys, and the whole bibliography, formatted a
 
 I do not have plans to make a numbered bibliography with numbered citations anytime soon. This will require changing the way the citation links are exported, and keeping track of the numbers.
 
+*** An org bibliography
+You can export an org-file to an org-file or org-buffer (org-org-epxort-as-org). In this case, it would be useful convert the cite links to links to custom_ids, and the bibliography link to a first-level heading Bibliography with org-bibtex like headings for each entry. This code should enable this. Right now, it does not appear to work for org export though.
+
+First, we get the string for a single entry.
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defun org-ref-get-bibtex-entry-org (key)
+  "returns an org string for the bibliography entry corresponding to key"
+  (let ((org-ref-bibliography-files (org-ref-find-bibliography))
+	(file) (entry) (bibtex-entry) (entry-type) (format))
+
+    (setq file (catch 'result
+		 (loop for file in org-ref-bibliography-files do
+		       (if (org-ref-key-in-file-p key (file-truename file)) 
+			   (throw 'result file)
+			 (message "%s not found in %s" key (file-truename file))))))
+
+    (with-temp-buffer
+      (insert-file-contents file)
+      (bibtex-search-entry key nil 0)
+      (setq entry (bibtex-parse-entry))
+      (format "** %s - %s
+  :PROPERTIES:
+  %s
+  :END:
+" (org-ref-reftex-get-bib-field "author" entry)
+(org-ref-reftex-get-bib-field "title" entry)
+(concat "   :CUSTOM_ID: " (org-ref-reftex-get-bib-field "=key=" entry) "\n"
+	(mapconcat (lambda (element) (format "   :%s: %s"
+					     (upcase (car element))
+					     (cdr element)))
+		   entry
+		   "\n"))))))
+#+END_SRC
+
+Now, we loop over the keys, and combine all the entries into a bibliography.
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el 
+(defun org-ref-get-org-bibliography ()
+  "Create an org bibliography when there are keys"
+  (let ((keys (org-ref-get-bibtex-keys)))
+    (when keys
+      (concat "* Bibliography
+"
+	      (mapconcat (lambda (x) (org-ref-get-bibtex-entry-org x)) keys "\n")
+	      "\n"))))
+#+END_SRC
+
+*** An ascii bibliography
+
+This function gets the html for one entry.
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defun org-ref-get-bibtex-entry-ascii (key)
+  "returns an ascii string for the bibliography entry corresponding to key"
+
+  (format "[%s] %s" key (org-ref-get-bibtex-entry-citation key)))
+#+END_SRC
+
+Now, we map over the whole list of keys, and the whole bibliography, formatted as an unordered list.
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el 
+(defun org-ref-get-ascii-bibliography ()
+  "Create an html bibliography when there are keys"
+  (let ((keys (org-ref-get-bibtex-keys)))
+    (when keys
+      (concat 
+"Bibliography
+=============
+"
+	      (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys "\n")
+	      "\n"))))
+#+END_SRC
+
+
 *** the links
 We use a link for the bibliography so that we can click on it to open the bibliography file. The link may have more than one bibliography file in it, separated by commas. Clicking opens the file under the cursor. The bibliographies should be full filenames with the bib extension. Clicking on this link makes reftex-default-bibliography local and sets it to the list of files in the link. We need this to use reftex's searching capability.
 
@@ -490,6 +563,8 @@ We use a link for the bibliography so that we can click on it to open the biblio
 		     ;; formatting code
 		   (lambda (keyword desc format)
 		     (cond
+		      ((eq format 'org) (org-ref-get-org-bibliography))
+                      ((eq format 'ascii) (org-ref-get-ascii-bibliography))
 		      ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
 			 ;; write out the latex bibliography command
@@ -501,10 +576,12 @@ We use a link for the bibliography so that we can click on it to open the biblio
 		   (lambda (arg) (message "Nothing implemented for clicking here."))
 		   (lambda (keyword desc format)
 		     (cond
+                      ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
 		       ;; write out the latex bibliography command
-		       (format "\\printbibliography" keyword)))))
+		       (format "\\printbibliography" keyword))
+)))
 #+END_SRC
 
 We also create a bibliographystyle link. There is nothing to do on clicking here, and we create it for consistency. This sets the style for latex export, so use something appropriate there, e.g. unsrt, plain, plainnat, ...
@@ -1360,6 +1437,19 @@ We will want to generate formatting functions for each citation type. The reason
 (defmacro org-ref-make-format-function (type)
   `(defun ,(intern (format "org-ref-format-%s" type)) (keyword desc format)
      (cond
+      ((eq format 'org)
+       (mapconcat
+	(lambda (key)
+	  (format "[[#%s][%s]]" key key))
+	(org-ref-split-and-strip-string keyword) ","))
+
+      ((eq format 'ascii)
+       (concat "["
+	       (mapconcat
+		(lambda (key)
+		  (format "%s" key))
+		(org-ref-split-and-strip-string keyword) ",") "]"))
+	
       ((eq format 'html) 
        (mapconcat 
 	(lambda (key) 
