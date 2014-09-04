@@ -294,8 +294,11 @@ That is the end!
 ** Some basic setup
 #+BEGIN_SRC emacs-lisp :tangle org-show.el
 (defvar org-show-presentation-file nil "File containing the presentation.")
+
 (defvar org-show-slide-tag "slide" "Tag that marks slides.")
+
 (defvar org-show-slide-tag-regexp (concat ":" (regexp-quote org-show-slide-tag) ":"))
+
 (defvar org-show-latex-scale 4.0 "scale for latex preview")
 
 (defvar org-show-original-latex-scale
@@ -303,16 +306,23 @@ That is the end!
   "Original scale for latex preview, so we can reset it.")
 
 (defvar org-show-text-scale 4 "scale for text in presentation")
+
 (defvar org-show-current-slide-number 1 "holds current slide number")
 
 (defvar org-show-mogrify-p (executable-find "mogrify"))
 
 (defvar org-show-tags-column -60 "column position to move tags to in slide mode")
+
 (defvar org-show-original-tags-column org-tags-column "Save value so we can change back to it")
 
+(defvar *org-show-flyspell-mode* (when (boundp flyspell-mode)
+				   (flyspell-mode))
+  "whether flyspell mode is enabled at beginning of show")
+
+(defvar *org-show-running* nil
+  "Flag for if the show is running")
+
 (when org-show-mogrify-p (require 'eimp))
-
-
 #+END_SRC
 
 ** Make a minor mode and menu
@@ -353,7 +363,24 @@ That is the end!
 \\{org-show-mode-map}"
   :lighter " org-show"
   :global t
-  :keymap org-show-mode-map)
+  :keymap org-show-mode-map
+
+  (if org-show-mode
+      ;; we are in org-show mode
+      (progn
+	;; turn off flyspell mode
+	(if flyspell-mode
+	    (progn
+	      (setq *org-show-flyspell-mode* t)
+	      (flyspell-mode-off))
+	  (setq *org-show-flyspell-mode* nil)))
+    ;; we are leaving flyspell mode
+    (when  *org-show-flyspell-mode*
+      (flyspell-mode-on))
+    
+    ;; close the show.
+    (when *org-show-running*
+       (org-show-stop-slideshow))))
 #+END_SRC
 
 ** Prepare and show the slide 
@@ -513,6 +540,7 @@ On starting, we want to map the slides so we can get slide numbers for navigatio
   "Start the slide show, at the beginning"
   (interactive)
     
+  (setq *org-show-running* t)
   (setq org-show-presentation-file (expand-file-name (buffer-name)))
   (beginning-of-buffer)
   (setq org-tags-column org-show-tags-column)
@@ -570,7 +598,7 @@ On starting, we want to map the slides so we can get slide numbers for navigatio
                    (abbreviate-file-name (buffer-file-name))))
   (setq org-tags-column org-show-original-tags-column)
   (org-set-tags-command '(4) t)
-
+  (setq *org-show-running* nil)
   (org-show-mode -1))
 
 (defalias 'stop 'org-show-stop-slideshow)
