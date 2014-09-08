@@ -26,12 +26,12 @@ You can have:
 2. split to show slide and full image
 3. plain text
 
-** Title slide							      :slide:
+** Title slide                                                        :slide:
 #+BEGIN_SRC emacs-lisp-slide
 (org-show-animate '("Welcome to the org-show" "John Kitchin"))
 #+END_SRC
 
-** Presentations in org-mode					      :slide:
+** Presentations in org-mode                                          :slide:
 This should be easy
 
 1. Create your org-file. Tag headlines with :slide:
@@ -43,7 +43,7 @@ This should be easy
 org-show is based on this blog post: http://sachachua.com/blog/2013/04/how-to-present-using-org-mode-in-emacs/
 
 Thanks Sacha!
-** Test out some themes						      :slide:
+** Test out some themes                                               :slide:
 
 [[elisp:(load-theme 'my)]] [[elisp:(disable-theme 'my)]]
 
@@ -79,7 +79,7 @@ Thanks Sacha!
 
 [[elisp:(load-theme 'anti-zenburn t)]] [[elisp:(disable-theme 'anti-zenburn)]]
 
-** Equations							      :slide:
+** Equations                                                          :slide:
 It should be easy to show equations like this  $\int_0^x \frac{1}{2} \sin x dx = 6$.
 
 It is. Maybe you prefer equation environments?
@@ -91,7 +91,7 @@ e^x = 55
 Want to see the equation source? [[elisp:(org-ctrl-c-ctrl-c)][click here]]
 
 Back to equations: C-c C-x C-l
-** Figures							      :slide:
+** Figures                                                            :slide:
 
 Figures should show up in two panes.
 The left pane shows the slide. The right pane shows the figure, scaled to fit in the window.
@@ -99,7 +99,7 @@ The left pane shows the slide. The right pane shows the figure, scaled to fit in
 Here is a little screen capture:
 [[./taskbar.png]]
 
-** Need a more complicated layout?				      :slide:
+** Need a more complicated layout?                                    :slide:
 Write some code to generate it, and put it in an emacs-lisp-slide block. org-show will run it and show you the result
 
 #+BEGIN_SRC emacs-lisp
@@ -127,7 +127,7 @@ Write some code to generate it, and put it in an emacs-lisp-slide block. org-sho
 ,#+END_SRC
 #+END_EXAMPLE
 
-** A complicated layout						      :slide:
+** A complicated layout                                               :slide:
 #+BEGIN_SRC emacs-lisp-slide
 (delete-other-windows)
 (split-window-right)
@@ -137,7 +137,7 @@ Write some code to generate it, and put it in an emacs-lisp-slide block. org-sho
 (other-window 1)
 (find-file "doi-utils.org")
 #+END_SRC
-** Code blocks should be runnable and editable			      :slide:
+** Code blocks should be runnable and editable                        :slide:
 
 #+BEGIN_SRC python
 print 6 + 62
@@ -145,7 +145,7 @@ print 6 + 62
 
 
 They are.
-** We can use many languages					      :slide:
+** We can use many languages                                          :slide:
 (of course, you must have them installed on your computer)
 
 #+BEGIN_SRC emacs-lisp
@@ -173,12 +173,12 @@ print 6 + 6
 
 ** Interactivity is important	
 We get it.
-*** Snake							      :slide:
+*** Snake                                                             :slide:
 #+BEGIN_SRC emacs-lisp-slide
 (snake)
 #+END_SRC
 
-*** tetris							      :slide:
+*** tetris                                                            :slide:
 
 #+BEGIN_SRC emacs-lisp-slide
 (when (and (boundp 'snake-buffer-name) (get-buffer snake-buffer-name))
@@ -188,13 +188,13 @@ We get it.
 #+END_SRC
 
 
-*** doctor							      :slide:
+*** doctor                                                            :slide:
 #+BEGIN_SRC emacs-lisp-slide
 (doctor)
 #+END_SRC
 
 
-*** Become a graffiti artist					      :slide:
+*** Become a graffiti artist                                          :slide:
 #+BEGIN_SRC emacs-lisp-slide
 (progn
   (switch-to-buffer (get-buffer-create "*artist*"))
@@ -206,14 +206,14 @@ We get it.
 #+END_SRC
 
 
-*** Or draw lines						      :slide:
+*** Or draw lines                                                     :slide:
 #+BEGIN_SRC emacs-lisp-slide
 (progn
   (switch-to-buffer (get-buffer-create "*artist*"))
   (artist-select-op-line))
 #+END_SRC
 
-** No seriously, we can do real work!				      :slide:
+** No seriously, we can do real work!                                 :slide:
    :PROPERTIES:
    :CUSTOM_ID: sec:data-tab-code
    :END:
@@ -238,7 +238,7 @@ plt.show()
 #+RESULTS:
 
 You can make links to a table like this: ref:tab-data.
-** Interactive links						      :slide:
+** Interactive links                                                  :slide:
 <<beginning>>
 
 You can have links that take you to places: [[beginning]], [[end]], to a [[#sec:data-tab-code][section]],
@@ -252,7 +252,7 @@ Or links to info: [[info:org#External%20links][info:org#External links]]
 Or to open a [[http://kitchingroup.cheme.cmu.edu][website]].
 
 <<end>>
-** Conclusions							      :slide:
+** Conclusions                                                        :slide:
 That is the end!
 
 #+BEGIN_SRC emacs-lisp-slide
@@ -322,7 +322,7 @@ That is the end!
 (defvar *org-show-running* nil
   "Flag for if the show is running")
 
-(when org-show-mogrify-p (require 'eimp))
+(when org-show-mogrify-p (ignore-errors (require 'eimp)))
 #+END_SRC
 
 ** Make a minor mode and menu
