@@ -1182,11 +1182,9 @@ Now, we can see if an entry is in a file.
 (defun org-ref-key-in-file-p (key filename)
   "determine if the key is in the file"
   (interactive "skey: \nsFile: ")
-
-  (with-temp-buffer
-    (insert-file-contents filename)
-    (prog1
-        (bibtex-search-entry key nil 0))))
+  (save-current-buffer
+    (let ((bibtex-files (list filename)))
+      (bibtex-search-entry key t))))
 #+END_SRC
 
 Finally, we want to know which file the key is in.
