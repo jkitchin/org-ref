@@ -443,7 +443,7 @@ That is the end!
       (other-window 1) ; back to slide
       (goto-char (point-min))
       (text-scale-set org-show-text-scale)
-      (org-display-inline-images)
+      (org-remove-inline-images)
       (org-cycle-hide-drawers t)
       (org-show-subtree))
 
@@ -568,6 +568,9 @@ On starting, we want to map the slides so we can get slide numbers for navigatio
   (interactive)
   ;; make slide tag visible again
   (remove-from-invisibility-spec 'slide)
+
+  ;; Redisplay inline images
+  (org-display-inline-images)
 
   ;; reset latex scale
   (plist-put org-format-latex-options :scale org-show-original-latex-scale)
