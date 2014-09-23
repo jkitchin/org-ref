@@ -568,7 +568,7 @@ We use a link for the bibliography so that we can click on it to open the biblio
 		      ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
 			 ;; write out the latex bibliography command
-		       (format "\\bibliography{%s}" (replace-regexp-in-string  "\\.bib" "" keyword))))))
+		       (format "\\bibliography{%s}" (replace-regexp-in-string  "\\.bib" "" (expand-file-name keyword)))))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
@@ -579,9 +579,9 @@ We use a link for the bibliography so that we can click on it to open the biblio
                       ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
-		       ;; write out the latex bibliography command
-		       (format "\\printbibliography" keyword))
-)))
+		       ;; write out the biblatex bibliography command
+		       "\\printbibliography"))
+))
 #+END_SRC
 
 We also create a bibliographystyle link. There is nothing to do on clicking here, and we create it for consistency. This sets the style for latex export, so use something appropriate there, e.g. unsrt, plain, plainnat, ...
