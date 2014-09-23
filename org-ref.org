@@ -1723,8 +1723,9 @@ construct the heading by hand."
     ;; put new entry in notes if we don't find it.
     (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
 	(progn
-	  (show-subtree)
-	  (outline-previous-visible-heading 1))
+	  (org-show-entry)
+	  (outline-previous-visible-heading 1)
+	  (recenter-top-bottom 0))
       ;; no entry found, so add one	
       (insert (format "\n** TODO %s - %s" year title))
       (insert (format"
