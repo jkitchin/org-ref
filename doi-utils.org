@@ -451,6 +451,7 @@ Now we define a function that fills in that template from the metadata.
 	results
 	author
 	title
+	booktitle
 	journal
 	year
 	volume
@@ -485,6 +486,20 @@ Now we define a function that fills in that template from the metadata.
   doi =          {%{doi}},
   url =          {%{url}},
 }"))
+     
+     ((string= type "proceedings-article")
+      (setq booktitle (plist-get results :container-title))
+      (doi-utils-expand-template "@inproceedings{,
+  author = 	 {%{author}},
+  title = 	 {%{title}},
+  booktitle =    {%{booktitle}},
+  year = 	 {%{year}},
+  month = 	 {%{month}},
+  pages = 	 {%{pages}},
+  doi =          {%{doi}},
+  url =          {%{url}},
+}"))
+     
     (t (message-box "%s not supported yet." type)))))
 #+END_SRC
 
