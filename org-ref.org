@@ -1096,7 +1096,18 @@ keyword we clicked on. We also strip the text properties."
   (interactive)
   (let* ((object (org-element-context))	 
 	 (link-string (org-element-property :path object)))
+    (message "%s" object)
 
+    ;; you may click on the part before the citations. here we make
+    ;; sure to move to the beginning so you get the first citation.
+    (let ((cp (point)))
+      (goto-char (org-element-property :begin object))
+      (search-forward link-string (org-element-property :end object))
+      (goto-char (match-beginning 0))
+      ;; check if we clicked before the path and move as needed.
+      (unless (< cp (point))
+	(goto-char cp)))
+	
     (if (not (org-element-property :contents-begin object))
 	;; this means no description in the link
 	(progn	  
