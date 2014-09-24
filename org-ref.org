@@ -1733,6 +1733,7 @@ construct the heading by hand."
     (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
 	(progn
 	  (org-show-entry)
+          (show-children)
 	  (outline-previous-visible-heading 1)
 	  (recenter-top-bottom 0))
       ;; no entry found, so add one	
