@@ -1096,8 +1096,6 @@ keyword we clicked on. We also strip the text properties."
   (interactive)
   (let* ((object (org-element-context))	 
 	 (link-string (org-element-property :path object)))
-    (message "%s" object)
-
     ;; you may click on the part before the citations. here we make
     ;; sure to move to the beginning so you get the first citation.
     (let ((cp (point)))
