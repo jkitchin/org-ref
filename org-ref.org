@@ -1725,7 +1725,7 @@ construct the heading by hand."
     
     ;; now look for entry in the notes file
     (if  org-ref-bibliography-notes
-	(find-file org-ref-bibliography-notes)
+	(find-file-other-window org-ref-bibliography-notes)
       (error "org-ref-bib-bibliography-notes is not set to anything"))
     
     (goto-char (point-min))
@@ -1733,7 +1733,10 @@ construct the heading by hand."
     (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
 	(progn
 	  (org-show-entry)
+          (show-branches)
           (show-children)
+          (org-cycle '(64))
+          ;(org-tree-to-indirect-buffer)
 	  (outline-previous-visible-heading 1)
 	  (recenter-top-bottom 0))
       ;; no entry found, so add one	
