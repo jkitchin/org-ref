@@ -2256,6 +2256,7 @@ I like convenience. Here are some aliases for faster typing.
 (defalias 'orp 'org-ref-open-pdf-at-point)
 (defalias 'oru 'org-ref-open-url-at-point)
 (defalias 'orn 'org-ref-open-notes-at-point)
+(defalias 'ornr 'org-ref-open-notes-from-reftex)
 
 (defalias 'orib 'org-ref-insert-bibliography-link)
 (defalias 'oric 'org-ref-insert-cite-link)
