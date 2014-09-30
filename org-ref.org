@@ -1761,6 +1761,25 @@ key author journal year volume pages doi url key org-ref-pdf-directory key))
 (save-buffer))))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defun org-ref-open-notes-from-reftex ()
+  "Call reftex, and open notes for selected entry."
+  (interactive)
+  (let ((bibtex-key )))
+
+    ;; now look for entry in the notes file
+    (if  org-ref-bibliography-notes
+	(find-file-other-window org-ref-bibliography-notes)
+      (error "org-ref-bib-bibliography-notes is not set to anything"))
+    
+    (goto-char (point-min))
+    
+    (re-search-forward (format
+			":Custom_ID: %s$"
+			(first (reftex-citation t)) nil 'end))
+    (funcall org-ref-open-notes-function))
+#+END_SRC
+
 ** open url in browser from bibtex
 
 We bind this to a key here [[*key%20bindings%20for%20utilities][key bindings for utilities]].
