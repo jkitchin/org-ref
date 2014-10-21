@@ -151,6 +151,8 @@ This next variable determines the citation types that are available in org-ref. 
     "footcites" "footcitetexts"
     "smartcites" "Smartcites" "textcites" "Textcites"
     "supercites" "autocites" "Autocites"
+    ;; for the bibentry package
+    "bibentry"
     )
   "List of citation types known in org-ref"
   :type '(repeat :tag "List of citation types" string)
@@ -578,8 +580,12 @@ We use a link for the bibliography so that we can click on it to open the biblio
                       ((eq format 'ascii) (org-ref-get-ascii-bibliography))
 		      ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
-			 ;; write out the latex bibliography command
-		       (format "\\bibliography{%s}" (replace-regexp-in-string  "\\.bib" "" (expand-file-name keyword)))))))
+		       ;; write out the latex bibliography command		       
+		       (format "\\bibliography{%s}" (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
+												      (mapcar 'expand-file-name
+													      (split-string keyword ","))
+												      ",")))))))
+									       
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
@@ -881,6 +887,7 @@ At the moment, ref links are not usable for section links. You need [[#CUSTOM_ID
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
      (error "%s not found" label))
+   (org-show-entry)
    (message "go back with (org-mark-ring-goto) `C-c &`"))
  ;formatting
  (lambda (keyword desc format)
