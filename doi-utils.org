@@ -411,13 +411,17 @@ I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-get-json-metadata (doi)
+
   (let ((url-request-method "GET") 
-       (url-mime-accept-string "application/citeproc+json")
-       (json-object-type 'plist))
+	(url-mime-accept-string "application/citeproc+json")
+	(json-object-type 'plist)
+	(json-data))
     (with-current-buffer
 	(url-retrieve-synchronously
 	 (concat "http://dx.doi.org/" doi))
-      (json-read-from-string (buffer-substring url-http-end-of-headers (point-max))))))       
+      (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
+      (message "%s" json-data)
+      (json-read-from-string json-data))))
 #+END_SRC
 
 #+RESULTS:
@@ -553,7 +557,8 @@ It may be you are in some other place when you want to add a bibtex entry. This 
   (find-file (car org-ref-default-bibliography))
   (end-of-buffer)
   (insert "\n\n")
-  (doi-utils-insert-bibtex-entry-from-doi doi))
+  (doi-utils-insert-bibtex-entry-from-doi doi)
+  (save-buffer))
 #+END_SRC
 
 It may be you want to just highlight a doi, and then add it. Here is that function.
@@ -578,7 +583,7 @@ I wrote this code because it is pretty common for me to copy bibtex entries from
 There is not bibtex set field function, so I wrote this one.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
-(defun bibtex-set-field (field value)
+(defun bibtex-set-field (field value &optional nodelim)
   "set field to value in bibtex file. create field if it does not exist"
   (interactive "sfield: \nsvalue: ")
   (bibtex-beginning-of-entry)
@@ -589,7 +594,7 @@ There is not bibtex set field function, so I wrote this one.
 	  (goto-char (car (cdr found)))
 	  (when value
 	    (bibtex-kill-field)
-	    (bibtex-make-field field)
+	    (bibtex-make-field field nil nil nodelim)
 	    (backward-char)
 	    (insert value)))
       ;; make a new field
@@ -598,7 +603,7 @@ There is not bibtex set field function, so I wrote this one.
       (forward-line) (beginning-of-line)
       (bibtex-next-field nil)
       (forward-char)
-      (bibtex-make-field field)
+      (bibtex-make-field field nil nil nodelim)
       (backward-char)
       (insert value))))
 #+END_SRC
@@ -657,6 +662,128 @@ The updating function looks like this. We get all the keys from the json plist m
       (org-ref-clean-bibtex-entry t)
     (org-ref-clean-bibtex-entry)))
 #+END_SRC
+* DOI functions for WOS
+I came across this API http://wokinfo.com/media/pdf/OpenURL-guide.pdf to make links to the things I am interested in here. Based on that document, here are three links based on a doi:10.1021/jp047349j that take you to different Web Of Science (WOS) pages.
+
+
+1. go to article in WOS: http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/10.1021/jp047349j
+2. citing articles: http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F10.1021/jp047349j&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes
+3. related articles: http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F10.1021/jp047349j&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes
+
+These are pretty easy to construct, so we can write functions that will create them and open the url in our browser. There are some other options that could be considered, but since we usually have a doi, it seems like the best way to go for creating the links. Here are the functions.
+
+#+BEGIN_SRC emacs-lisp  :tangle doi-utils.el
+(defun doi-utils-wos (doi)
+  "Open Web of Science entry for DOI"
+  (interactive "sDOI: ")
+  (browse-url
+   (format
+    "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/%s" doi)))
+
+(defun doi-utils-wos-citing (doi)
+  "Open Web of Science citing articles entry. May be empty if none are found"
+  (interactive "sDOI: ")
+  (browse-url
+   (concat
+    "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
+    doi
+    "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes")))
+
+(defun doi-utils-wos-related (doi)
+  "Open Web of Science related articles page."
+  (interactive "sDOI: ")
+  (browse-url
+   (concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
+	   doi
+	   "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes")))
+
+#+END_SRC
+
+* A new doi link for org-mode
+The idea is to add a menu to the doi link, so rather than just clicking to open the article, you can do other things.
+1. open doi
+2. open in wos
+3. open citing articles
+4. open related articles
+5. open bibtex entry
+6. get bibtex entry
+
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el :results silent
+(defun doi-utils-open (doi)
+ (interactive "sDOI: ")
+ (browse-url (concat "http://dx.doi.org/" doi)))
+
+
+(defun doi-utils-open-bibtex (doi)
+  "Search through `reftex-default-bibliography' for DOI."
+  (interactive "sDOI: ")
+  (catch 'file
+    (dolist (f reftex-default-bibliography)
+      (find-file f)
+      (when (search-forward doi (point-max) t)
+	(bibtex-beginning-of-entry)
+	(throw 'file t)))))
+
+
+(defun doi-utils-crossref (doi)
+  "Search DOI in CrossRef."
+  (interactive "sDOI: ")
+  (browse-url
+   (format
+    "http://search.crossref.org/?q=%s" doi)))
+
+
+(defun doi-utils-google-scholar (doi)
+  "Google scholar the word at point or selection."
+  (interactive "sDOI: ")
+  (browse-url
+   (format
+    "http://scholar.google.com/scholar?q=%s" doi)))
+
+
+(defvar doi-link-menu-funcs '()
+ "Functions to run in doi menu. Each entry is a list of (key menu-name function). 
+The function must take one argument, the doi.")
+
+(setq doi-link-menu-funcs
+      '(("o" "pen" doi-utils-open)
+	("w" "os" doi-utils-wos)
+	("c" "iting articles" doi-utils-wos-citing)
+	("r" "elated articles" doi-utils-wos-related)
+        ("s" "Google Scholar" doi-utils-google-scholar)
+        ("f" "CrossRef DOI" doi-utils-crossref)
+	("b" "open in bibtex" doi-utils-open-bibtex)
+	("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
+
+
+(defun doi-link-menu (link-string)
+   "Generate the link menu message, get choice and execute it. 
+Options are stored in `doi-link-menu-funcs'."
+   (interactive)
+   (message
+   (concat
+    (mapconcat
+     (lambda (tup)
+       (concat "[" (elt tup 0) "]"
+	       (elt tup 1) " "))
+     doi-link-menu-funcs "") ": "))
+   (let* ((input (read-char-exclusive))
+	  (choice (assoc
+		   (char-to-string input) doi-link-menu-funcs)))
+     (when choice
+       (funcall
+	(elt 
+	 choice
+	 2)
+	link-string))))
+
+(org-add-link-type
+ "doi"
+ 'doi-link-menu)
+#+END_SRC
+
+doi:10.1021/jp047349j 
+
 * end of file
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (provide 'doi-utils)
