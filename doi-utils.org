@@ -551,14 +551,20 @@ org-ref, and tries to download the corresponding pdf."
 It may be you are in some other place when you want to add a bibtex entry. This next function will open the first entry in org-ref-default-bibliography go to the end, and add the entry. You can sort it later.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
-(defun doi-utils-add-bibtex-entry-from-doi (doi)
-  "add entry to end of first entry in `org-ref-default-bibliography'."
-  (interactive "sDOI: ")
-  (find-file (car org-ref-default-bibliography))
-  (end-of-buffer)
-  (insert "\n\n")
-  (doi-utils-insert-bibtex-entry-from-doi doi)
-  (save-buffer))
+(defun doi-utils-add-bibtex-entry-from-doi (doi bibfile)
+  "add entry to end a file in `org-ref-default-bibliography'."
+  (interactive
+   (list
+    (read-string "DOI: ")
+    (ido-completing-read "Bibfile: " org-ref-default-bibliography)))
+  (find-file bibfile)
+  (goto-char (point-min))
+  (if (search-forward doi nil t)
+      (message "%s is already in this file" doi)
+    (end-of-buffer)
+    (insert "\n\n")
+    (doi-utils-insert-bibtex-entry-from-doi doi)
+    (save-buffer)))
 #+END_SRC
 
 It may be you want to just highlight a doi, and then add it. Here is that function.
@@ -741,6 +747,15 @@ The idea is to add a menu to the doi link, so rather than just clicking to open 
     "http://scholar.google.com/scholar?q=%s" doi)))
 
 
+(defun doi-utils-pubmed (doi)
+  "Pubmed the word at point or selection."
+  (interactive "sDOI: ")
+  (browse-url
+   (format
+    "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s"
+    (url-hexify-string doi))))
+
+
 (defvar doi-link-menu-funcs '()
  "Functions to run in doi menu. Each entry is a list of (key menu-name function). 
 The function must take one argument, the doi.")
@@ -751,7 +766,8 @@ The function must take one argument, the doi.")
 	("c" "iting articles" doi-utils-wos-citing)
 	("r" "elated articles" doi-utils-wos-related)
         ("s" "Google Scholar" doi-utils-google-scholar)
-        ("f" "CrossRef DOI" doi-utils-crossref)
+        ("f" "CrossRef" doi-utils-crossref)
+        ("p" "ubmed" doi-utils-pubmed)
 	("b" "open in bibtex" doi-utils-open-bibtex)
 	("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
 
@@ -782,7 +798,7 @@ Options are stored in `doi-link-menu-funcs'."
  'doi-link-menu)
 #+END_SRC
 
-doi:10.1021/jp047349j 
+doi:10.1021/jp047349j  
 
 * end of file
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
