@@ -552,11 +552,14 @@ It may be you are in some other place when you want to add a bibtex entry. This 
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-add-bibtex-entry-from-doi (doi bibfile)
-  "add entry to end a file in `org-ref-default-bibliography'."
+  "add entry to end of a file in `org-ref-default-bibliography' or in the current directory ending with .bib."
   (interactive
    (list
     (read-string "DOI: ")
-    (ido-completing-read "Bibfile: " org-ref-default-bibliography)))
+    (ido-completing-read
+     "Bibfile: "
+     (append org-ref-default-bibliography
+	     (f-entries "." (lambda (f) (f-ext? f "bib")))))))
   (find-file bibfile)
   (goto-char (point-min))
   (if (search-forward doi nil t)
