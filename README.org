@@ -1,8 +1,8 @@
 #+TITLE: org-ref: citations, cross-references, indexes, glossaries and bibtex utilities for org-mode
 
-You should read [[./org-ref.org]]. It contains all documentation and installation instructions.
+[[./org-ref.org]] contains all documentation and installation instructions.
 
-[[./doi-utils.org]] contains functions for downloading bibtex entries from  a DOI, and redefines the org-mode doi link so it has more functionality.
+[[./doi-utils.org]] contains functions for downloading bibtex entries from  a DOI, and redefines the org-mode doi link so it has more functionality. 
 
 [[./jmax-bibtex.el]] contains some utility functions:
 
@@ -15,3 +15,10 @@ You should read [[./org-ref.org]]. It contains all documentation and installatio
 4. Function to replace non-ascii characters in bibtex entries
 
 5. Functions to replace journal names with @string entries, and corresponding short/long names.
+
+To install this, add the org-ref repo directory to your load-path, and 
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "path-to-org-ref")
+(require 'jmax-bibtex)
+#+END_SRC
