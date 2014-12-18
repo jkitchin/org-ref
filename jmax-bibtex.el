@@ -408,6 +408,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
   (interactive)
   (doi-utils-pubmed (jmax-bibtex-entry-doi)))
 
+
 (defun jmax-bibtex-pdf (doi)
   "thin wrapper to get `jmax-bibtex' to open pdf"
   (interactive)
