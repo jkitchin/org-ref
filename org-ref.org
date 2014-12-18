@@ -2649,8 +2649,11 @@ I like convenience. Here are some aliases for faster typing.
 #+END_SRC
 
 * Build								   :noexport:
+This code will tangle the elisp code out to org-ref.el and load it.
 
 [[elisp:(progn (org-babel-tangle) (load-file "org-ref.el"))]]
+
+Alternatively you may use:
 
 [[elisp:(org-babel-load-file "org-ref.org")]]
 
