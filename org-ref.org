@@ -1521,6 +1521,172 @@ you select your option with a single key press."
      (t (message "")))))    
 #+END_SRC
 
+
+This is a rewrite of the cite action.
+#+BEGIN_SRC emacs-lisp  :tangle org-ref.el
+
+(defvar org-ref-cite-menu-funcs '()
+ "Functions to run on cite click menu. Each entry is a list of (key menu-name function). 
+The function must take no arguments and work on the key at point.")
+
+(defvar org-ref-user-cite-menu-funcs
+  '(("C" "rossref" org-ref-crossref-at-point))
+  "user-defined functions to run on bibtex key at point.")
+
+(defun org-ref-get-doi-at-point ()
+  "Get doi for key at point."
+  (interactive)
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+	 (key (car results))
+	 (bibfile (cdr results)))
+    (save-excursion
+      (with-temp-buffer
+        (insert-file-contents bibfile)
+        (bibtex-search-entry key)
+          (bibtex-autokey-get-field "doi")))))
+  
+;; functions that operate on key at point for click menu
+(defun org-ref-wos-at-point ()
+  "open the doi in wos for bibtex key under point."
+  (interactive)
+  (doi-utils-wos (org-ref-get-doi-at-point)))
+
+
+(defun org-ref-wos-citing-at-point ()
+  "open the doi in wos citing articles for bibtex key under point."
+  (interactive)
+  (doi-utils-wos-citing (org-ref-get-doi-at-point)))
+
+
+(defun org-ref-wos-related-at-point ()
+  "open the doi in wos related articles for bibtex key under point."
+  (interactive)
+  (doi-utils-wos-related (org-ref-get-doi-at-point)))
+
+
+(defun org-ref-google-scholar-at-point ()
+  "open the doi in google scholar for bibtex key under point."
+  (interactive)
+  (doi-utils-google-scholar (org-ref-get-doi-at-point)))
+
+
+(defun org-ref-pubmed-at-point ()
+  "open the doi in pubmed for bibtex key under point."
+  (interactive)
+  (doi-utils-pubmed (org-ref-get-doi-at-point)))
+
+
+(defun org-ref-crossref-at-point ()
+  "open the doi in crossref for bibtex key under point."
+  (interactive)
+  (doi-utils-crossref (org-ref-get-doi-at-point)))
+
+
+(defun org-ref-cite-onclick-minibuffer-menu (&optional link-string)
+  "action when a cite link is clicked on.
+Provides a menu of context sensitive actions. If the bibtex entry has a pdf, you get an option to open it. If there is a doi, you get a lot of options."
+  (interactive)
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+	 (key (car results))
+         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
+         (bibfile (cdr results))
+	 (url (save-excursion
+		(with-temp-buffer
+		  (insert-file-contents bibfile)
+		  (bibtex-search-entry key)		
+		  (bibtex-autokey-get-field "url"))))
+	 (doi (save-excursion
+		(with-temp-buffer
+		  (insert-file-contents bibfile)
+		  (bibtex-search-entry key)
+		  ;; I like this better than bibtex-url which does not always find
+		  ;; the urls		  
+		  (bibtex-autokey-get-field "doi")))))
+
+    (when (string= "" doi) (setq doi nil))
+    (when (string= "" url) (setq url nil))
+    (setq org-ref-cite-menu-funcs '())
+	 
+    ;; open action
+    (when
+	bibfile
+      (add-to-list 
+       'org-ref-cite-menu-funcs
+       '("o" "pen" org-ref-open-citation-at-point)))
+
+    ;; pdf
+    (when (file-exists-p pdf-file)
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("p" "df" org-ref-open-pdf-at-point) t))
+
+    ;; notes
+    (add-to-list
+     'org-ref-cite-menu-funcs
+     '("n" "otes" org-ref-open-notes-at-point) t)
+
+    ;; url
+    (when (or url doi)
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("u" "rl" org-ref-open-url-at-point) t))
+
+    ;; doi funcs
+    (when doi
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("w" "os" org-ref-wos-at-point) t)
+
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("c" "iting" org-ref-wos-citing-at-point) t)
+
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("r" "elated" org-ref-wos-related-at-point) t)
+      
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("g" "oogle scholar" org-ref-google-scholar-at-point) t)
+
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       '("P" "ubmed" org-ref-pubmed-at-point) t))
+
+    (add-to-list
+     'org-ref-cite-menu-funcs
+     '("q" "uit" (lambda ())) t)
+
+    ;; add user functions
+    (dolist (tup org-ref-user-cite-menu-funcs)
+      (add-to-list
+       'org-ref-cite-menu-funcs
+       tup t))
+      
+    ;; now we make a menu
+    ;; construct menu string as a message
+    (message
+     (concat
+      (mapconcat
+       (lambda (tup)
+	 (concat "[" (elt tup 0) "]"
+		 (elt tup 1) " "))
+       org-ref-cite-menu-funcs "") ": "))
+    ;; get the input
+    (let* ((input (read-char-exclusive))
+	   (choice (assoc
+		    (char-to-string input) org-ref-cite-menu-funcs)))
+      ;; now run the function (2nd element in choice)
+      (when choice
+	(funcall
+	 (elt 
+	  choice
+	  2))))))
+#+END_SRC
+
+
+
+
 *** A function to format a cite link
 
 Next, we define a formatting function for the cite link. This is done so that the cite link definition is very short, and easy to change. You just need to specify the functions in the definition. This function is deprecated. The formatting is defined later automatically.
