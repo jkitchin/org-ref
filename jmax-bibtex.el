@@ -431,9 +431,11 @@ The function must take one argument, the doi.")
 
 (defun jmax-bibtex ()
   "Menu command to run in a bibtex entry.
-Functions from `jmax-bibtex-menu-funcs'."
+Functions from `jmax-bibtex-menu-funcs'. They all rely on the
+entry having a doi."
   
   (interactive)
+  ;; construct menu string as a message
   (message
    (concat
     (mapconcat
