@@ -1539,15 +1539,16 @@ Provides a menu of context sensitive actions. If the bibtex entry has a pdf, you
        'org-ref-cite-menu-funcs
        '("P" "ubmed" org-ref-pubmed-at-point) t))
 
-    (add-to-list
-     'org-ref-cite-menu-funcs
-     '("q" "uit" (lambda ())) t)
-
     ;; add user functions
     (dolist (tup org-ref-user-cite-menu-funcs)
       (add-to-list
        'org-ref-cite-menu-funcs
        tup t))
+
+    ;; finally quit
+    (add-to-list
+     'org-ref-cite-menu-funcs
+     '("q" "uit" (lambda ())) t)
       
     ;; now we make a menu
     ;; construct menu string as a message
