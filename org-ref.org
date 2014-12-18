@@ -1322,66 +1322,6 @@ Finally, we want to know which file the key is in.
    (cons key file)))
 #+END_SRC
 
-**** Creating the menu for when we click on a key
-     :PROPERTIES:
-     :ID:       d7b7530b-802f-42b1-b61e-1e77da33e278
-     :END:
-When we click on a cite link, we want to get a menu in the minibuffer. We need to create a string for this. We want a citation, and some options that depend on the key. We want to know if the key is found, if there is a pdf, if etc... Here we create that string.
-
-#+BEGIN_SRC emacs-lisp  :tangle org-ref.el
-(defun org-ref-get-menu-options ()
-  "returns a dynamically determined string of options for the citation under point.
-
-we check to see if there is pdf, and if the key actually exists in the bibliography"
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
-         (bibfile (cdr results))
-	 m1 m2 m3 m4 m5 menu-string)
-    (setq m1 (if bibfile		 
-		 "(o)pen"
-	       "(No key found)"))
-
-    (setq m3 (if (file-exists-p pdf-file)
-		 "(p)df"
-		     "(No pdf found)"))
-
-    (setq m4 (if (not
-                  (and bibfile
-                       (string= (catch 'url
-                                  (progn
-
-                                    (with-temp-buffer
-                                      (insert-file-contents bibfile)
-                                      (bibtex-search-entry key)
-                                      (when (not
-                                             (string= (setq url (bibtex-autokey-get-field "url")) ""))
-                                        (throw 'url url))
-
-                                      (when (not
-                                             (string= (setq url (bibtex-autokey-get-field "doi")) ""))
-                                        (throw 'url url))))) "")))
-               "(u)rl" "(no url found)"))
-    (setq m5 "(n)otes")
-    (setq m2 (if bibfile
-		 (progn
-                   (setq citation (progn
-                                    (with-temp-buffer
-                                      (insert-file-contents bibfile)
-                                      (bibtex-search-entry key)
-                                      (concat
-				       (org-ref-bib-citation)
-				       "\n"
-				       "in: " bibfile)
-				      )))
-                   citation)
-	       "no key found"))
-
-    (setq menu-string (mapconcat 'identity (list m2 "\n" m1 m3 m4 m5 "(m)enu" "(q)uit") "  "))
-    menu-string))
-#+END_SRC
-
 **** convenience functions to act on citation at point
      :PROPERTIES:
      :ID:       af0b2a82-a7c9-4c08-9dac-09f93abc4a92
@@ -1465,73 +1405,18 @@ We need some convenience functions to open act on the citation at point. These w
 #+END_SRC
 
 **** the actual minibuffer menu
-Now, we create the menu.
-
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
-(defun org-ref-cite-onclick-minibuffer-menu (&optional link-string)
-  "use a minibuffer to select options for the citation under point.
-
-you select your option with a single key press."
-  (interactive)
-  (let* ((choice (read-char (org-ref-get-menu-options)))
-	 (results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-	 (cb (current-buffer))
-         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
-         (bibfile (cdr results)))
-
-    (cond
-     ;; open
-     ((= choice ?o)
-      (find-file bibfile)
-       (bibtex-search-entry key))
-
-     ;; cite
-     ((= choice ?c)
-      (org-ref-citation-at-point))      
-
-     ;; quit
-     ((or 
-      (= choice ?q) ; q
-      (= choice ?\ )) ; space
-      ;; this clears the minibuffer
-      (message ""))
-
-     ;; pdf
-     ((= choice ?p)
-      (org-ref-open-pdf-at-point))
-
-     ;; notes
-     ((= choice ?n)
-      (org-ref-open-notes-at-point))
-
-     ;; url
-     ((= choice ?u)
-      (org-ref-open-url-at-point))
-
-     ;; jmax-bibtex menu
-     ((= choice ?m)
-      (save-window-excursion
-        (set-buffer (find-file-noselect bibfile))
-	;; get to bibtex entry and use menu there
-	(bibtex-search-entry key)
-	(jmax-bibtex)))
-
-     ;; anything else we just quit.
-     (t (message "")))))    
-#+END_SRC
-
-
-This is a rewrite of the cite action.
+Now, we create the menu. This is a rewrite of the cite action. This makes the function extendable by users.
+ 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
-
 (defvar org-ref-cite-menu-funcs '()
  "Functions to run on cite click menu. Each entry is a list of (key menu-name function). 
-The function must take no arguments and work on the key at point.")
+The function must take no arguments and work on the key at point. Do not modify this variable, it is set to empty in the menu click function, and functions are conditionally added to it.")
+
 
 (defvar org-ref-user-cite-menu-funcs
   '(("C" "rossref" org-ref-crossref-at-point))
   "user-defined functions to run on bibtex key at point.")
+
 
 (defun org-ref-get-doi-at-point ()
   "Get doi for key at point."
@@ -1545,6 +1430,7 @@ The function must take no arguments and work on the key at point.")
         (bibtex-search-entry key)
           (bibtex-autokey-get-field "doi")))))
   
+
 ;; functions that operate on key at point for click menu
 (defun org-ref-wos-at-point ()
   "open the doi in wos for bibtex key under point."
@@ -1683,9 +1569,6 @@ Provides a menu of context sensitive actions. If the bibtex entry has a pdf, you
 	  choice
 	  2))))))
 #+END_SRC
-
-
-
 
 *** A function to format a cite link
 
