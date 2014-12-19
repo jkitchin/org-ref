@@ -1554,11 +1554,20 @@ Provides a menu of context sensitive actions. If the bibtex entry has a pdf, you
     ;; construct menu string as a message
     (message
      (concat
+      (let* ((results (org-ref-get-bibtex-key-and-file))
+	     (key (car results))
+	     (bibfile (cdr results)))
+	(save-excursion
+	  (with-temp-buffer
+	    (insert-file-contents bibfile)
+	    (bibtex-search-entry key)
+	    (org-ref-bib-citation))))
+      "\n"
       (mapconcat
        (lambda (tup)
 	 (concat "[" (elt tup 0) "]"
 		 (elt tup 1) " "))
-       org-ref-cite-menu-funcs "") ": "))
+       org-ref-cite-menu-funcs "")))
     ;; get the input
     (let* ((input (read-char-exclusive))
 	   (choice (assoc
@@ -1570,6 +1579,9 @@ Provides a menu of context sensitive actions. If the bibtex entry has a pdf, you
 	  choice
 	  2))))))
 #+END_SRC
+
+#+RESULTS:
+: org-ref-cite-onclick-minibuffer-menu
 
 *** A function to format a cite link
 
