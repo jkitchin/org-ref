@@ -1,5 +1,7 @@
 #+TITLE: org-ref: citations, cross-references, indexes, glossaries and bibtex utilities for org-mode
 
+See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch?v=JyvpSVl4_dg for examples of org-ref in action.
+
 [[./org-ref.org]] contains all documentation and installation instructions.
 
 [[./doi-utils.org]] contains functions for downloading bibtex entries from  a DOI, and redefines the org-mode doi link so it has more functionality. 
