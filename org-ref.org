@@ -1428,7 +1428,9 @@ The function must take no arguments and work on the key at point. Do not modify 
       (with-temp-buffer
         (insert-file-contents bibfile)
         (bibtex-search-entry key)
-          (bibtex-autokey-get-field "doi")))))
+	(bibtex-autokey-get-field "doi")
+	;; in case doi is a url, remove the url part.
+	(replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
   
 
 ;; functions that operate on key at point for click menu
