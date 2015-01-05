@@ -53,7 +53,7 @@ For PMID there is one interactive function that inserts a bibtex entry: pubmed-i
 A PMID is a number that identifies an entry in the Pubmed database.  The PMID is a unique reference number for PubMed citations. The PMID is a distinctly different number from the PMCID and is used only for PubMed records.
 
 
-#+BEGIN_SRC emacs-lisp :tangle pubmed.el
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el :results silent
 (org-add-link-type
  "pmid"
  ;; clicking
@@ -61,11 +61,14 @@ A PMID is a number that identifies an entry in the Pubmed database.  The PMID is
  ;; formatting
 (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "")); no output for html
+    ((eq format 'html)
+     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s\">pmid:%s</a>" keyword keyword)); no output for html
     ((eq format 'latex)
      ;; write out the latex command
      (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}" keyword)))))
 #+END_SRC
+
+
 
 ** Get MEDLINE metadata
 We can get bibliographic metadata from a pmid. Here we get the MEDLINE text. The website wraps the data in <pre></pre> tags.
@@ -525,7 +528,7 @@ A PMCID starts with PMC and is followed by numbers. The PMCID is a unique refere
 
 Here we define a new link. Clicking on it simply opens a webpage to the article.
 
-#+BEGIN_SRC emacs-lisp :tangle pubmed.el
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el :results silent
 (org-add-link-type
  "pmcid"
  ;; clicking
@@ -534,7 +537,7 @@ Here we define a new link. Clicking on it simply opens a webpage to the article.
 (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/%s\">" keyword))
+     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/%s\">pmcid:%s</a>" keyword keyword))
     ((eq format 'latex)
      (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/%s}" keyword)))))
 #+END_SRC
@@ -542,7 +545,7 @@ Here we define a new link. Clicking on it simply opens a webpage to the article.
 * NIHMSID 
 The NIHMSID is a preliminary article identifier that applies only to manuscripts deposited through the NIHMS system. The NIHMSID is only valid for compliance reporting for 90 days after the publication date of an article. Once the Web version of the NIHMS submission is approved for inclusion in PMC and the corresponding citation is in PubMed, the article will also be assigned a PMCID.
 
-#+BEGIN_SRC emacs-lisp :tangle pubmed.el
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el :results silent
 (org-add-link-type
  "nihmsid"
  ;; clicking
@@ -550,15 +553,14 @@ The NIHMSID is a preliminary article identifier that applies only to manuscripts
  ;; formatting
 (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "")); no output for html
+    ((eq format 'html)
+     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid//%s\">nihmsid:%s</a>" keyword keyword))
     ((eq format 'latex)
      ;; write out the latex command
-     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid//%s}" keyword)))))
+     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}" keyword)))))
 #+END_SRC
 
-#+RESULTS:
-| lambda | (link-string)         | (browse-url (format http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s link-string))                                                               |
-| lambda | (keyword desc format) | (cond ((eq format (quote html)) (format )) ((eq format (quote latex)) (format \url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid//%s} keyword))) |
+
 
 
 * End of code
