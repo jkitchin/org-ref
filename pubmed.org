@@ -16,10 +16,11 @@ and nihmsid:NIHMS395714
 
 See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers.
 
+For PMID there is one interactive function that inserts a bibtex entry: pubmed-insert-bibtex-from-pmid.
 
 
 * Header
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el
 ;;; pubmed.el --- Links and functions to interact with pubmed databases.
 
 ;; Copyright(C) 2015 John Kitchin
@@ -44,11 +45,8 @@ See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of 
 
 ;;; Commentary:
 ;;
-;; Lisp code to setup bibliography cite, ref and label org-mode links.
-;; also sets up reftex for org-mode. The links are clickable and do
-;; things that are useful. You should really read org-ref.org for details.
-;;
-;; Package-Requires: ((dash))
+;; Lisp code to interact with pubmed databases, links to pubmed
+;; identifiers. See pubmed.org.
 #+END_SRC
 
 * PMID (from PubMed) link and functions
@@ -236,7 +234,7 @@ Issues:
 #+BEGIN_SRC emacs-lisp
 (defun pubmed-pmid-to-bibtex (pmid)
   "Convert a PMID to a bibtex entry."
-  (let* ((data (org-ref-parse-medline pmid))
+  (let* ((data (pubmed-parse-medline pmid))
 	 (type (cdr (assoc "PT" data)))
 	 (title (cdr (assoc "TI" data)))
 	 (authors (mapconcat 'cdr
@@ -541,7 +539,6 @@ Here we define a new link. Clicking on it simply opens a webpage to the article.
      (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/%s}" keyword)))))
 #+END_SRC
 
-
 * NIHMSID 
 The NIHMSID is a preliminary article identifier that applies only to manuscripts deposited through the NIHMS system. The NIHMSID is only valid for compliance reporting for 90 days after the publication date of an article. Once the Web version of the NIHMS submission is approved for inclusion in PMC and the corresponding citation is in PubMed, the article will also be assigned a PMCID.
 
@@ -564,12 +561,10 @@ The NIHMSID is a preliminary article identifier that applies only to manuscripts
 | lambda | (keyword desc format) | (cond ((eq format (quote html)) (format )) ((eq format (quote latex)) (format \url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid//%s} keyword))) |
 
 
-
 * End of code
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el
 (provide 'pubmed)
 #+END_SRC
-
 
 * Build								   :noexport:
 This code will tangle the elisp code out to pubmed.el and load it.
