@@ -47,6 +47,19 @@ For PMID there is one interactive function that inserts a bibtex entry: pubmed-i
 ;;
 ;; Lisp code to interact with pubmed databases, links to pubmed
 ;; identifiers. See pubmed.org.
+;;;
+;; This library provides links that go to pubmed resources, e.g.
+;;
+;; pmcid:PMC3498956
+;;
+;; pmid:23162369
+;;
+;; and nihmsid:NIHMS395714
+;;
+;; See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers.
+;;
+;; For PMID there is one interactive function that inserts a bibtex
+;; entry: `pubmed-insert-bibtex-from-pmid`.
 #+END_SRC
 
 * PMID (from PubMed) link and functions
