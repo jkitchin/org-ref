@@ -1,4 +1,6 @@
 #+TITLE: Links and functions for Pubmed and NIH databases
+#+AUTHOR: John Kitchin
+#+DATE: January 5, 2015
 
 * Introduction
 
