@@ -18,6 +18,7 @@ See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of 
 
 For PMID there is one interactive function that inserts a bibtex entry: pubmed-insert-bibtex-from-pmid.
 
+This library is complementary to [[./doi-utils.org]].
 
 * Header
 #+BEGIN_SRC emacs-lisp :tangle pubmed.el
