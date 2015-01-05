@@ -230,10 +230,6 @@ We can parse this into a data structure
 ** PMID to bibtex entry
 The point of parsing the MEDLINE text is so we can make bibtex entries. We only support Journal articles for now.
 
-Issues:
-1. The year is not quite right, it has the month in it.
-2. I do not use all the fields.
-
 #+BEGIN_SRC emacs-lisp
 (defun pubmed-pmid-to-bibtex (pmid)
   "Convert a PMID to a bibtex entry."
