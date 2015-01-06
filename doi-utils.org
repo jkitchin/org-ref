@@ -168,7 +168,7 @@ we just change /abs/ to /pdf/.
     (replace-regexp-in-string "/abs/" "/pdf/" *doi-utils-redirect*)))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (acs-pdf-url  "http://pubs.acs.org/doi/abs/10.1021/nl500037x")
 #+END_SRC
 
