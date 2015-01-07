@@ -5,7 +5,8 @@
  ;; formatting
 (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "")); no output for html
+    ((eq format 'html)
+     (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>" keyword  keyword))
     ((eq format 'latex)
      ;; write out the latex command
      (format "\\url{http://arxiv.org/abs/%s}" keyword)))))
