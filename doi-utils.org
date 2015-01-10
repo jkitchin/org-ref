@@ -45,9 +45,9 @@ The principle commands you will use from here are:
 #+END_SRC
 
 * Getting pdf files from a DOI
-The idea here is simple. When you visit http://dx.doi.org/doi, you get redirected to the journal site. Once you have the url for the article, you can usually compute the url to the pdf, or find it in the page. Then you simply download it. 
+The idea here is simple. When you visit http://dx.doi.org/doi, you get redirected to the journal site. Once you have the url for the article, you can usually compute the url to the pdf, or find it in the page. Then you simply download it.
 
-There are some subtleties in doing this that are described here. To get the redirect, we have to use url-retrieve, and a callback function. The callback does not return anything, so we communicate through global variables. url-retrieve is asynchronous, so we have to make sure to wait for it to finish. 
+There are some subtleties in doing this that are described here. To get the redirect, we have to use url-retrieve, and a callback function. The callback does not return anything, so we communicate through global variables. url-retrieve is asynchronous, so we have to make sure to wait for it to finish.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defvar *doi-utils-waiting* t
@@ -76,8 +76,8 @@ To actually get the redirect we use url-retrieve like this.
   ;; we are going to wait until the url-retrieve is done
   (setq *doi-utils-waiting* t)
   ;; start with no redirect. it will be set in the callback.
-  (setq *doi-utils-redirect* nil) 
-  (url-retrieve 
+  (setq *doi-utils-redirect* nil)
+  (url-retrieve
    (format "http://dx.doi.org/%s" doi)
    'doi-utils-redirect-callback)
   ; I suspect we need to wait here for the asynchronous process to
@@ -190,7 +190,7 @@ we just change /abs/ to /pdf/.
     (concat (replace-regexp-in-string "/stable/" "/stable/pdfplus/" *doi-utils-redirect*) ".pdf")))
 #+END_SRC
 
-** AIP 
+** AIP
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun aip-pdf-url (*doi-utils-redirect*)
   (when (string-match "^http://scitation.aip.org" *doi-utils-redirect*)
@@ -295,7 +295,7 @@ http://www.pnas.org/content/early/2014/05/08/1319030111.full.pdf+html?with-ds=ye
        'aps-pdf-url
        'science-pdf-url
        'nature-pdf-url
-       'wiley-pdf-url	     
+       'wiley-pdf-url
        'springer-pdf-url
        'acs-pdf-url
        'iop-pdf-url
@@ -317,7 +317,7 @@ http://www.pnas.org/content/early/2014/05/08/1319030111.full.pdf+html?with-ds=ye
 calculated. Loops through the functions in `doi-utils-pdf-url-functions'
 until one is found"
   (doi-utils-get-redirect doi)
-  
+
   (unless *doi-utils-redirect*
     (error "No redirect found for %s" doi))
   (message "applying functions")
@@ -369,11 +369,11 @@ page. you must have permission to access the pdf. We open the pdf
 at the end."
   (interactive)
   (save-excursion
-    (bibtex-beginning-of-entry) 
+    (bibtex-beginning-of-entry)
     (let (;; get doi, removing http://dx.doi.org/ if it is there.
 	  (doi (replace-regexp-in-string
 		"http://dx.doi.org/" ""
-		(bibtex-autokey-get-field "doi")))	       
+		(bibtex-autokey-get-field "doi")))
 	  (key)
 	  (pdf-url)
 	  (pdf-file)
@@ -398,7 +398,7 @@ at the end."
 		      (message "%s" (buffer-string))
 		      (delete-file pdf-file))
 		  (message "%s saved" pdf-file)))
-	
+
 	      (when (file-exists-p pdf-file)
 		(org-open-file pdf-file)))
 	  (message "No pdf-url found for %s at %s" doi *doi-utils-redirect* ))
@@ -412,7 +412,7 @@ I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-get-json-metadata (doi)
 
-  (let ((url-request-method "GET") 
+  (let ((url-request-method "GET")
 	(url-mime-accept-string "application/citeproc+json")
 	(json-object-type 'plist)
 	(json-data))
@@ -480,30 +480,30 @@ Now we define a function that fills in that template from the metadata.
     (cond
      ((or (string= type "journal-article") (string= type "article-journal"))
       (doi-utils-expand-template "@article{,
-  author = 	 {%{author}},
-  title = 	 {%{title}},
-  journal = 	 {%{journal}},
-  year = 	 {%{year}},
-  volume = 	 {%{volume}},
-  number = 	 {%{issue}},
-  pages = 	 {%{pages}},
+  author =	 {%{author}},
+  title =	 {%{title}},
+  journal =	 {%{journal}},
+  year =	 {%{year}},
+  volume =	 {%{volume}},
+  number =	 {%{issue}},
+  pages =	 {%{pages}},
   doi =          {%{doi}},
   url =          {%{url}},
 }"))
-     
+
      ((string= type "proceedings-article")
       (setq booktitle (plist-get results :container-title))
       (doi-utils-expand-template "@inproceedings{,
-  author = 	 {%{author}},
-  title = 	 {%{title}},
+  author =	 {%{author}},
+  title =	 {%{title}},
   booktitle =    {%{booktitle}},
-  year = 	 {%{year}},
-  month = 	 {%{month}},
-  pages = 	 {%{pages}},
+  year =	 {%{year}},
+  month =	 {%{month}},
+  pages =	 {%{pages}},
   doi =          {%{doi}},
   url =          {%{url}},
 }"))
-     
+
     (t (message-box "%s not supported yet." type)))))
 #+END_SRC
 
@@ -518,13 +518,13 @@ To see that in action:
 #+RESULTS:
 #+begin_example
 @article{,
-  author = 	 {F. Abild-Pedersen and J. Greeley and F. Studt and J. Rossmeisl and T. Munter and P. Moses and E. Skúlason and T. Bligaard and J. Nørskov},
-  title = 	 {Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces},
-  journal = 	 {Phys. Rev. Lett.},
-  year = 	 {2007},
-  volume = 	 {99},
-  number = 	 {1},
-  pages = 	 {nil},
+  author =	 {F. Abild-Pedersen and J. Greeley and F. Studt and J. Rossmeisl and T. Munter and P. Moses and E. Skúlason and T. Bligaard and J. Nørskov},
+  title =	 {Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces},
+  journal =	 {Phys. Rev. Lett.},
+  year =	 {2007},
+  volume =	 {99},
+  number =	 {1},
+  pages =	 {nil},
   doi =          {10.1103/physrevlett.99.016105},
   url =          {http://dx.doi.org/10.1103/PhysRevLett.99.016105},
 }
@@ -578,9 +578,13 @@ It may be you want to just highlight a doi, and then add it. Here is that functi
   (interactive "r")
   (let ((doi (buffer-substring start end)))
     (find-file (car org-ref-default-bibliography))
-    (end-of-buffer)
-    (insert "\n")
-    (doi-utils-insert-bibtex-entry-from-doi doi)))
+    (goto-char (point-min))
+    (if (search-forward doi nil t)
+	(message "%s is already in this file" doi)
+      (end-of-buffer)
+      (insert "\n\n")
+      (doi-utils-insert-bibtex-entry-from-doi doi)
+      (save-buffer))))
 #+END_SRC
 
 #+RESULTS:
@@ -642,13 +646,13 @@ The updating function looks like this. We get all the keys from the json plist m
 		       (elt
 			(elt
 			 (plist-get
-			  (plist-get results :issued) :date-parts) 0) 0)))	
+			  (plist-get results :issued) :date-parts) 0) 0)))
 	(volume (plist-get results :volume))
 	(number (or (plist-get results :issue) ""))
 	(pages (or (plist-get results :page) ""))
 	(url (or (plist-get results :URL) ""))
 	(doi (plist-get results :DOI)))
-    
+
     ;; map the json fields to bibtex fields. The code each field is mapped to is evaluated.
     (setq mapping '((:author . (bibtex-set-field "author" author))
 		    (:title . (bibtex-set-field "title" title))
@@ -665,7 +669,7 @@ The updating function looks like this. We get all the keys from the json plist m
      (lambda (key)
        (eval (cdr (assoc key mapping))))
      (plist-get-keys results)))
-  
+
   ; reclean entry, but keep key if it exists.
   (if (bibtex-key-in-head)
       (org-ref-clean-bibtex-entry t)
@@ -760,7 +764,7 @@ The idea is to add a menu to the doi link, so rather than just clicking to open 
 
 
 (defvar doi-link-menu-funcs '()
- "Functions to run in doi menu. Each entry is a list of (key menu-name function). 
+ "Functions to run in doi menu. Each entry is a list of (key menu-name function).
 The function must take one argument, the doi.")
 
 (setq doi-link-menu-funcs
@@ -776,7 +780,7 @@ The function must take one argument, the doi.")
 
 
 (defun doi-link-menu (link-string)
-   "Generate the link menu message, get choice and execute it. 
+   "Generate the link menu message, get choice and execute it.
 Options are stored in `doi-link-menu-funcs'."
    (interactive)
    (message
@@ -791,7 +795,7 @@ Options are stored in `doi-link-menu-funcs'."
 		   (char-to-string input) doi-link-menu-funcs)))
      (when choice
        (funcall
-	(elt 
+	(elt
 	 choice
 	 2)
 	link-string))))
@@ -801,7 +805,7 @@ Options are stored in `doi-link-menu-funcs'."
  'doi-link-menu)
 #+END_SRC
 
-doi:10.1021/jp047349j  
+doi:10.1021/jp047349j
 
 * end of file
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
@@ -814,4 +818,3 @@ doi:10.1021/jp047349j
 
 #+RESULTS:
 : Loaded doi-utils.el
-
