@@ -177,6 +177,8 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("ņ" . "{\\\\c{n}}")
 	("å" . "{\\\\aa}")
 	("ö" . "{\\\\\"o}")
+	("Á" . "{\\\\'A}")
+	("á" . "{\\\\'a}")
 	("í" . "{\\\\'i}")
 	("ó" . "{\\\\'o}")
 	("ó" . "{\\\\'o}")
@@ -259,7 +261,7 @@ all the title entries in articles."
 	(setf (car words) (s-capitalize (car words))))
 
       (setq title (mapconcat 'identity words " "))
-      
+
       ;; Capitalize letters after a dash
       (while
 	  (string-match "[a-zA-Z]-\\([a-z]\\)" title start)
@@ -267,7 +269,7 @@ all the title entries in articles."
 	  (setf (substring title (match-beginning 1) (match-end 1))
 		(format "%s" (upcase char)))
 	  (setq start (match-end 1))))
-	    
+
       ;; this is defined in doi-utils
       (bibtex-set-field
        "title"
@@ -299,7 +301,7 @@ all the title entries in articles."
 			 word
 		       (s-downcase word)))
 		   words))
-      
+
       ;; capitalize first word
       (setf (car words) (s-capitalize (car words)))
 
@@ -314,7 +316,7 @@ all the title entries in articles."
 ;;		(format "{%s}" (upcase char)))
 		(format "%s" (upcase char)))
 	  (setq start (match-end 1))))
-	    
+
       ;; this is defined in doi-utils
       (bibtex-set-field
        "title" title)
@@ -415,15 +417,18 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
   "thin wrapper to get `jmax-bibtex' to open pdf"
   (interactive)
   (org-ref-open-bibtex-pdf))
-  
+
 
 
 (defvar jmax-bibtex-menu-funcs '()
- "Functions to run in doi menu. Each entry is a list of (key menu-name function). 
+ "Functions to run in doi menu. Each entry is a list of (key menu-name function).
 The function must take one argument, the doi.")
 
 (setq jmax-bibtex-menu-funcs
       '(("p" "df" jmax-bibtex-pdf)
+	("C" "opy" (lambda (doi)
+		     (kill-new (org-ref-bib-citation))
+		     (bury-buffer)))
 	("w" "os" doi-utils-wos)
 	("c" "iting articles" doi-utils-wos-citing)
 	("r" "elated articles" doi-utils-wos-related)
@@ -435,7 +440,7 @@ The function must take one argument, the doi.")
   "Menu command to run in a bibtex entry.
 Functions from `jmax-bibtex-menu-funcs'. They all rely on the
 entry having a doi."
-  
+
   (interactive)
   ;; construct menu string as a message
   (message
@@ -450,7 +455,7 @@ entry having a doi."
 		  (char-to-string input) jmax-bibtex-menu-funcs)))
     (when choice
       (funcall
-       (elt 
+       (elt
 	choice
 	2)
        (jmax-bibtex-entry-doi)
