@@ -120,6 +120,13 @@ There are some variables needed later to tell this library where you store your 
    'org-ref-open-pdf-at-point
 "User-defined function to open a pdf from a link. The function must get the key at point, and derive a path to the pdf file, then open it. The default function is `org-ref-open-pdf-at-point'."
   :type 'function)
+
+
+(defcustom org-ref-insert-cite-function
+  'org-ref-insert-cite-link
+  "Function to call to insert citation links."
+ :type 'function)
+
 #+END_SRC
 
 This next variable determines the citation types that are available in org-ref. Links for each one are automatically generated, and completion functions are automatically generated. Users may add to this list in their own init files.
@@ -197,7 +204,7 @@ We setup reftex here. We use a custom insert cite link function defined here: [[
 	 )
     (make-local-variable 'reftex-cite-format)
     (setq reftex-cite-format 'org)
-    (define-key org-mode-map (kbd org-ref-insert-cite-key) 'org-ref-insert-cite-link))
+    (define-key org-mode-map (kbd org-ref-insert-cite-key) org-ref-insert-cite-function))
 
 (add-hook 'org-mode-hook 'org-mode-reftex-setup)
 
@@ -1793,6 +1800,8 @@ inserted. Use a prefix arg to get a menu of citation types."
       (reftex-citation)))
   )
 #+END_SRC
+cite:zhou-2004-first-lda-u,paier-2006-errat,boes-2015-estim-bulk
+
 
 #+RESULTS:
 : org-ref-insert-cite-link
@@ -2749,6 +2758,69 @@ I like convenience. Here are some aliases for faster typing.
 
 (defalias 'orcb 'org-ref-clean-bibtex-entry)
 #+END_SRC
+* Helm interface
+[[https://github.com/tmalsburg/helm-bibtex][helm-bibtex]] is a very cool interface to bibtex files. Out of the box though, it is not super convenient for org-ref. Here, we modify it to make it fit our workflow and extend it where needed.
+
+1. Make the default action to insert selected keys.
+2. Make open entry second action
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(setq helm-source-bibtex
+      '((name                                      . "BibTeX entries")
+	(init                                      . helm-bibtex-init)
+	(candidates                                . helm-bibtex-candidates)
+	(filtered-candidate-transformer            . helm-bibtex-candidates-formatter)
+	(action . (("Insert citation"              . helm-bibtex-insert-citation)
+		   ("Show entry"                   . helm-bibtex-show-entry)
+		   ("Open PDF file (if present)"   . helm-bibtex-open-pdf)
+		   ("Open URL or DOI in browser"   . helm-bibtex-open-url-or-doi)
+		   ("Insert reference"             . helm-bibtex-insert-reference)
+		   ("Insert BibTeX key"            . helm-bibtex-insert-key)
+		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
+		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
+		   ("Edit notes"                   . helm-bibtex-edit-notes)
+		   ))))
+#+END_SRC
+
+Now, let us define a function that inserts the cite links:
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+
+(defun helm-bibtex-format-org-ref (keys)
+  "insert selected KEYS as cite link. Append KEYS if you are on a link."
+  (let* ((object (org-element-context)))
+    (cond
+     ;; case where we are in a link
+     ((and (equal (org-element-type object) 'link)
+	   (-contains? org-ref-cite-types (org-element-property :type object)))
+      (goto-char link-string-end)
+      ;; sometimes there are spaces at the end of the link
+      ;; this code moves point pack until no spaces are there
+      (while (looking-back " ") (backward-char))
+      (insert (concat "," (mapconcat 'identity keys ","))))
+
+     ;; We are next to a link, and we want to append
+     ((save-excursion
+	(backward-char)
+	(and (equal (org-element-type (org-element-context)) 'link)
+	     (-contains? org-ref-cite-types (org-element-property :type (org-element-context)))))
+      (while (looking-back " ") (backward-char))
+      (insert (concat "," (mapconcat 'identity keys ","))))
+
+     ;; insert fresh link
+     (t
+      (insert
+       (concat org-ref-default-citation-link
+	       ":"
+	       (s-join keys ",")))))))
+
+(setq helm-bibtex-format-citation-functions
+      '((org-mode . helm-bibtex-format-org-ref)))
+
+(setq org-ref-insert-cite-function 'helm-bibtex)
+
+(require 'helm-bibtex)
+#+END_SRC
+
+
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (provide 'org-ref)
