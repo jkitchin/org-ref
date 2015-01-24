@@ -1477,12 +1477,13 @@ Prompt for NEW-FILE includes bib files in org-ref-default-bibliography, and bib 
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
-	 (bibfile (cdr results)))
+	 (bibfile (cdr results))
+         doi)
     (save-excursion
       (with-temp-buffer
         (insert-file-contents bibfile)
         (bibtex-search-entry key)
-	(bibtex-autokey-get-field "doi")
+	(setq doi (bibtex-autokey-get-field "doi"))
 	;; in case doi is a url, remove the url part.
 	(replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
 
@@ -2124,7 +2125,8 @@ And at the end of the document put \makeglossaries.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-bib-citation ()
-  "from a bibtex entry, create and return a simple citation string."
+  "From a bibtex entry, create and return a simple citation string.
+This assumes you are in an article."
 
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
@@ -2828,21 +2830,126 @@ Now, let us define a function that inserts the cite links:
 ** A helm click menu
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
-
-
-(setq org-ref-helm-cite-click-source
- '((name . "org-ref actions")
-   (candidates . (("open" . org-ref-open-citation-at-point)
-		  ("pdf" . org-ref-open-pdf-at-point)
-		  ("notes" . org-ref-open-notes-at-point)))
-   (action . (lambda (f) (funcall f)))))
-
-(defun org-ref-cite-click-helm ()
+(defun test ()
   (interactive)
-  (helm :sources '(org-ref-helm-cite-click-source)))
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+	 (key (car results))
+	 (bibfile (cdr results)))
+    (save-excursion
+      (with-temp-buffer
+	(insert-file-contents bibfile)
+	(bibtex-search-entry key)
+	(org-ref-bib-citation)))))
+
+(defun org-ref-cite-candidates ()
+  "Generate the list of possible candidates.
+Check for pdf and doi, and add appropriate functions."
+  (interactive)
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+	 (key (car results))
+         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
+         (bibfile (cdr results))
+	 (url (save-excursion
+		(with-temp-buffer
+		  (insert-file-contents bibfile)
+		  (bibtex-search-entry key)
+		  (bibtex-autokey-get-field "url"))))
+	 (doi (save-excursion
+		(with-temp-buffer
+		  (insert-file-contents bibfile)
+		  (bibtex-search-entry key)
+		  ;; I like this better than bibtex-url which does not always find
+		  ;; the urls
+		  (bibtex-autokey-get-field "doi"))))
+	 (candidates `(			;;the first candidate is a brief summary
+		       (,(save-excursion
+			   (with-temp-buffer
+			     (insert-file-contents bibfile)
+			     (bibtex-search-entry key))
+			   (org-ref-bib-citation)) . org-ref-citation-at-point)
+		       ("Open bibtex entry" . org-ref-open-citation-at-point))))
+
+    (message-box "doi = \"%s\"" doi)
+    (when (file-exists-p pdf-file)
+      (add-to-list
+       'candidates
+       '("Open pdf" . org-ref-open-pdf-at-point)
+       t
+       ))
+
+    (add-to-list
+     'candidates
+     '("Open notes" . org-ref-open-notes-at-point)
+     t)
+
+    (when (or url doi)
+      (add-to-list
+       'candidates
+       '("Open in browser" . org-ref-open-url-at-point)
+       t))
+
+    (when doi
+      (mapc (lambda (x)
+	      (add-to-list 'candidates x t))
+	    `(("WOS" . org-ref-wos-at-point)
+	      ("Related articles in WOS" . org-ref-wos-related-at-point)
+	      ("Citing articles in WOS" . org-ref-wos-citing-at-point)
+	      ("Google Scholar" . org-ref-google-scholar-at-point)
+	      ("Pubmed" . org-ref-pubmed-at-point)
+	      ("Crossref" . org-ref-crossref-at-point)
+	      )))
+
+    (add-to-list
+     'candidates
+     '("Copy formatted citation to clipboard" . org-ref-copy-entry-as-summary)
+     t)
+
+    (add-to-list
+     'candidates
+     '("Copy key to clipboard" . (lambda ()
+				  (kill-new
+				   (car (org-ref-get-bibtex-key-and-file)))))
+     t)
+
+    (add-to-list
+     'candidates
+     '("Copy bibtex entry to file" . org-ref-copy-entry-at-point-to-file)
+     t)
+
+    (add-to-list
+     'candidates
+     '("Email" . (lambda ()
+		  (save-excursion
+		    (org-ref-open-citation-at-point)
+		    (email-bibtex-entry))))
+     t)
+  ;; finally return a numbered list of the candidates
+  (loop for i from 0
+	for cell in candidates
+	collect (cons (format "%2s. %s" i (car cell))
+		      (cdr cell)))))
+
+(defun org-ref-cite-click-helm (key)
+  "subtle points.
+1. get name and candidates before entering helm because we need the org-buffer.
+2. switch back to the org buffer before evaluating the action. most of them need the point and buffer."
+  (interactive)
+  (let ((name (test))
+	(candidates (org-ref-cite-candidates))
+	(cb (current-buffer)))
+
+    (helm :sources `(((name . ,name)
+		      (candidates . ,candidates)
+		      (action . (lambda (f)
+				  (switch-to-buffer cb)
+				  (funcall f))))
+		     ))))
 
 (setq  org-ref-cite-onclick-function 'org-ref-cite-click-helm)
 #+END_SRC
+
+#+RESULTS:
+: org-ref-cite-click-helm
 
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
