@@ -123,14 +123,14 @@ There are some variables needed later to tell this library where you store your 
 
 
 (defcustom org-ref-insert-cite-function
-  'org-ref-insert-cite-link
-  "Function to call to insert citation links."
+  'helm-bibtex
+  "Function to call to insert citation links. The default is `helm-bibtex'. org-ref modifies helm-bibtex a little bit to give org-mode citations, and to reorder default actions. You may use `org-ref-insert-cite-link' if you like the reftex interface."
  :type 'function)
 
 
 (defcustom org-ref-cite-onclick-function
-  'org-ref-cite-onclick-minibuffer-menu
-  "Function that runs when you click on a cite link. The function must take no arguments"
+  'org-ref-cite-click-helm
+  "Function that runs when you click on a cite link. The function must take no arguments. You may also use `org-ref-cite-onclick-minibuffer-menu' if you do not like helm."
  :type 'function)
 #+END_SRC
 
@@ -2790,7 +2790,6 @@ I like convenience. Here are some aliases for faster typing.
 
 Now, let us define a function that inserts the cite links:
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
-
 (defun helm-bibtex-format-org-ref (keys)
   "insert selected KEYS as cite link. Append KEYS if you are on a link."
   (let* ((object (org-element-context)))
@@ -2821,8 +2820,6 @@ Now, let us define a function that inserts the cite links:
 
 (setq helm-bibtex-format-citation-functions
       '((org-mode . helm-bibtex-format-org-ref)))
-
-(setq org-ref-insert-cite-function 'helm-bibtex)
 
 (require 'helm-bibtex)
 #+END_SRC
@@ -2862,14 +2859,10 @@ Check for pdf and doi, and add appropriate functions."
 		  ;; the urls
 		  (bibtex-autokey-get-field "doi"))))
 	 (candidates `(			;;the first candidate is a brief summary
-		       (,(save-excursion
-			   (with-temp-buffer
-			     (insert-file-contents bibfile)
-			     (bibtex-search-entry key))
-			   (org-ref-bib-citation)) . org-ref-citation-at-point)
+		       ("Quit" . org-ref-citation-at-point)
 		       ("Open bibtex entry" . org-ref-open-citation-at-point))))
 
-    (message-box "doi = \"%s\"" doi)
+
     (when (file-exists-p pdf-file)
       (add-to-list
        'candidates
@@ -2918,7 +2911,7 @@ Check for pdf and doi, and add appropriate functions."
 
     (add-to-list
      'candidates
-     '("Email" . (lambda ()
+     '("Email bibtex entry and pdf" . (lambda ()
 		  (save-excursion
 		    (org-ref-open-citation-at-point)
 		    (email-bibtex-entry))))
@@ -2928,6 +2921,18 @@ Check for pdf and doi, and add appropriate functions."
 	for cell in candidates
 	collect (cons (format "%2s. %s" i (car cell))
 		      (cdr cell)))))
+
+
+(defvar org-ref-helm-user-candidates '()
+  "List of user-defined candidates to act when clicking on a cite link.
+This is a list of cons cells '((\"description\" . action)). The action function should not take an argument, and should assume point is on the cite key of interest.
+")
+
+;; example of adding your own function
+(add-to-list
+ 'org-ref-helm-user-candidates
+ '("Example" . (lambda () (message-box "You did it!")))
+ t)
 
 (defun org-ref-cite-click-helm (key)
   "subtle points.
@@ -2943,9 +2948,12 @@ Check for pdf and doi, and add appropriate functions."
 		      (action . (lambda (f)
 				  (switch-to-buffer cb)
 				  (funcall f))))
+		     ((name . "User functions")
+		      (candidates . ,org-ref-helm-user-candidates)
+		      (action . (lambda (f)
+				  (switch-to-buffer cb)
+				  (funcall f))))
 		     ))))
-
-(setq  org-ref-cite-onclick-function 'org-ref-cite-click-helm)
 #+END_SRC
 
 #+RESULTS:
