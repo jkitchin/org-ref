@@ -127,6 +127,11 @@ There are some variables needed later to tell this library where you store your 
   "Function to call to insert citation links."
  :type 'function)
 
+
+(defcustom org-ref-cite-onclick-function
+  'org-ref-cite-onclick-minibuffer-menu
+  "Function that runs when you click on a cite link. The function must take no arguments"
+ :type 'function)
 #+END_SRC
 
 This next variable determines the citation types that are available in org-ref. Links for each one are automatically generated, and completion functions are automatically generated. Users may add to this list in their own init files.
@@ -1734,7 +1739,7 @@ and the completion function."
   (eval-expression
    `(org-add-link-type
      ,type
-     'org-ref-cite-onclick-minibuffer-menu
+     org-ref-cite-onclick-function
      (quote ,(intern (format "org-ref-format-%s" type)))))
 
   ;; create the completion function
@@ -2820,6 +2825,24 @@ Now, let us define a function that inserts the cite links:
 (require 'helm-bibtex)
 #+END_SRC
 
+** A helm click menu
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+
+
+(setq org-ref-helm-cite-click-source
+ '((name . "org-ref actions")
+   (candidates . (("open" . org-ref-open-citation-at-point)
+		  ("pdf" . org-ref-open-pdf-at-point)
+		  ("notes" . org-ref-open-notes-at-point)))
+   (action . (lambda (f) (funcall f)))))
+
+(defun org-ref-cite-click-helm ()
+  (interactive)
+  (helm :sources '(org-ref-helm-cite-click-source)))
+
+(setq  org-ref-cite-onclick-function 'org-ref-cite-click-helm)
+#+END_SRC
 
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
