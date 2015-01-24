@@ -177,6 +177,8 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("ņ" . "{\\\\c{n}}")
 	("å" . "{\\\\aa}")
 	("ö" . "{\\\\\"o}")
+	("Á" . "{\\\\'A}")
+	("á" . "{\\\\'a}")
 	("í" . "{\\\\'i}")
 	("ó" . "{\\\\'o}")
 	("ó" . "{\\\\'o}")
@@ -425,6 +427,9 @@ The function must take one argument, the doi.")
 
 (setq jmax-bibtex-menu-funcs
       '(("p" "df" jmax-bibtex-pdf)
+	("C" "opy" (lambda (doi)
+		     (kill-new (org-ref-bib-citation))
+		     (bury-buffer)))
 	("w" "os" doi-utils-wos)
 	("c" "iting articles" doi-utils-wos-citing)
 	("r" "elated articles" doi-utils-wos-related)
