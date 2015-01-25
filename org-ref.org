@@ -218,11 +218,35 @@ We setup reftex here. We use a custom insert cite link function defined here: [[
 	 ;; I do not remember why I put this next line in. It doesn't
 	 ;; work for org-files. Nothing very bad happens, but it gives
 	 ;; an annoying error. Commenting it out for now.
-         ;(reftex-parse-all)
+         ;(reftex-parse-all
 	 )
     (make-local-variable 'reftex-cite-format)
-    (setq reftex-cite-format 'org)
-    (define-key org-mode-map (kbd org-ref-insert-cite-key) org-ref-insert-cite-function))
+    (setq reftex-cite-format 'org))
+
+;; define key for inserting citations
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-cite-function)
+
+(when org-ref-show-citation-on-enter
+ (setq org-ref-message-timer
+       (run-with-idle-timer 0.5 t 'org-ref-link-message)))
+
+(defun org-ref-show-link-messages ()
+  "Turn on link messages. You will see a message in the
+minibuffer when on a cite, ref or label link."
+  (interactive)
+  (setq org-ref-message-timer
+	(run-with-idle-timer 0.5 t 'org-ref-link-message))
+  )
+(defun org-ref-cancel-link-messages ()
+  "Stop showing messages in minibuffer when on a link."
+  (interactive)
+  (cancel-timer org-ref-message-timer))
+
+;; this approach caused the selected region to not be highlighted any more.
+; (add-hook 'post-command-hook 'org-ref-link-message))
+; (remove-hook 'post-command-hook 'org-ref-link-message))
 
 (add-hook 'org-mode-hook 'org-mode-reftex-setup)
 
@@ -2742,10 +2766,6 @@ ref:test citep:test  label:rett
 		  (when (or (= count 0)
 			    (> count 1))
 		    "s")))))))))
-
-
-(when org-ref-show-citation-on-enter
- (add-hook 'post-command-hook 'org-ref-link-message))
 #+END_SRC
 
 * Aliases
