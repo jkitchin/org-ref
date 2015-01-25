@@ -2825,7 +2825,6 @@ Technically, this function should return a string that is inserted by helm. This
 		   (helm :sources `((name . "link types")
 				    (candidates . ,org-ref-cite-types)
 				    (action . (lambda (x) x))))
-                  (ido-completing-read "Type: " org-ref-cite-types)
                org-ref-default-citation-link)
 	       ":"
 	       (s-join "," keys))))))
