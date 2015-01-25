@@ -2827,8 +2827,8 @@ Technically, this function should return a string that is inserted by helm. This
                org-ref-default-citation-link)
 	       ":"
 	       (s-join "," keys))))))
-;; return empty string for helm
-"")
+  ;; return empty string for helm
+  "")
 
 (setq helm-bibtex-format-citation-functions
       '((org-mode . helm-bibtex-format-org-ref)))
