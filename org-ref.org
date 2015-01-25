@@ -52,7 +52,7 @@ The only external require is reftex-cite
 (require 'reftex-cite)
 (require 'dash)
 (require 'helm)
-(require 'helm-bibtex
+(require 'helm-bibtex)
 #+END_SRC
 
 ** Custom variables
