@@ -2047,7 +2047,6 @@ And at the end of the document put \makeglossaries.
 #+END_SRC
 
 
-
 * Utilities
 ** create simple text citation from bibtex entry
 
@@ -2677,7 +2676,7 @@ Sometimes it may be helpful to manually change the order of citations. These fun
 #+END_SRC
 
 ** Lightweight messages about links
-To get a lighter weight message about the label, ref and cite links, we define a function that gives us the minibuffer message, without the menu. We add it to a hook that updates after every command, including cursor movements.
+To get a lighter weight message about the label, ref and cite links, we define a function that gives us the minibuffer message, without the menu. We run this in an idle timer.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-label-context (label)
@@ -2820,7 +2819,7 @@ Technically, this function should return a string that is inserted by helm. This
 	   (-contains?
 	    org-ref-cite-types
 	    (org-element-property :type object)))
-      (message-box "in a link")
+      ;;(message-box "in a link")
       (goto-char (org-element-property :end object))
       ;; sometimes there are spaces at the end of the link
       ;; this code moves point pack until no spaces are there
@@ -2835,14 +2834,14 @@ Technically, this function should return a string that is inserted by helm. This
 	     (-contains?
 	      org-ref-cite-types
 	      (org-element-property :type (org-element-context)))))
-      (message-box "at end of a link")
+      ;;(message-box "at end of a link")
       ;; (goto-char (org-element-property :end object))
       (while (looking-back " ") (backward-char))
       (insert (concat "," (mapconcat 'identity keys ","))))
 
      ;; insert fresh link
      (t
-      (message-box "fresh link")
+      ;;(message-box "fresh link")
       (insert
        (concat (if helm-current-prefix-arg
 		   (helm :sources `((name . "link types")
