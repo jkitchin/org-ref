@@ -2716,8 +2716,8 @@ ref:test citep:test  label:rett
   (interactive)
   (let* ((object (org-element-context))
 	 (type (org-element-property :type object)))
-
-    (cond
+    (save-excursion
+      (cond
      ;; cite links
      ((-contains? org-ref-cite-types type)
       (message (org-ref-get-citation-string-at-point)))
@@ -2741,7 +2741,7 @@ ref:test citep:test  label:rett
 		  " occurence"
 		  (when (or (= count 0)
 			    (> count 1))
-		    "s"))))))))
+		    "s")))))))))
 
 
 (when org-ref-show-citation-on-enter
