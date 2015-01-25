@@ -2863,6 +2863,11 @@ Technically, this function should return a string that is inserted by helm. This
     (helm-bibtex)))
 
 (require 'helm-bibtex)
+
+(mapc (lambda (x) (add-to-list 'helm-bibtex-fallback-options x t))
+  '(("Crossref" . "http://search.crossref.org/?q=%s")
+    ("Scopus" . "http://www.scopus.com/scopus/search/submit/xadvanced.url?searchfield=TITLE-ABS-KEY(%s)")
+    ("Open Web of Science" . (lambda () (browse-url "http://apps.webofknowledge.com")))))
 #+END_SRC
 
 ** A helm click menu
