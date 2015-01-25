@@ -2879,12 +2879,12 @@ Checks for pdf and doi, and add appropriate functions."
     (when (string= doi "") (setq doi nil))
     (when (string= url "") (setq url nil))
 
+    ;; Conditional pdf functions
     (if (file-exists-p pdf-file)
 	(add-to-list
 	 'candidates
 	 '("Open pdf" . org-ref-open-pdf-at-point)
-	 t
-	 )
+	 t)
       (add-to-list
        'candidates
        '("Try to get pdf" . (lambda ()
@@ -2900,6 +2900,7 @@ Checks for pdf and doi, and add appropriate functions."
      '("Open notes" . org-ref-open-notes-at-point)
      t)
 
+    ;; conditional url and doi functions
     (when (or url doi)
       (add-to-list
        'candidates
