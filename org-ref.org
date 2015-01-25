@@ -2679,8 +2679,6 @@ Sometimes it may be helpful to manually change the order of citations. These fun
 ** Lightweight messages about links
 To get a lighter weight message about the label, ref and cite links, we define a function that gives us the minibuffer message, without the menu. We add it to a hook that updates after every command, including cursor movements.
 
-ref:test citep:test  label:rett
-
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-label-context (label)
   "Return a string of context around a label."
@@ -2738,34 +2736,35 @@ ref:test citep:test  label:rett
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
   (interactive)
-  (let* ((object (org-element-context))
-	 (type (org-element-property :type object)))
-    (save-excursion
-      (cond
-     ;; cite links
-     ((-contains? org-ref-cite-types type)
-      (message (org-ref-get-citation-string-at-point)))
+  (when (eq major-mode 'org-mode)
+    (let* ((object (org-element-context))
+	   (type (org-element-property :type object)))
+      (save-excursion
+	(cond
+	 ;; cite links
+	 ((-contains? org-ref-cite-types type)
+	  (message (org-ref-get-citation-string-at-point)))
 
-     ;; message some context about the label we are referring to
-     ((string= type "ref")
-      (message (org-ref-get-label-context
-		(org-element-property :path object))))
-
-     ((string= type "eqref")
-      (message (org-ref-get-label-context
-		(org-element-property :path object))))
-
-     ;; message the count
-     ((string= type "label")
-      (let ((count (org-ref-count-labels
+	 ;; message some context about the label we are referring to
+	 ((string= type "ref")
+	  (message (org-ref-get-label-context
 		    (org-element-property :path object))))
-        ;; get plurality on occurrence correct
-	(message (concat
-		  (number-to-string count)
-		  " occurence"
-		  (when (or (= count 0)
-			    (> count 1))
-		    "s")))))))))
+
+	 ((string= type "eqref")
+	  (message (org-ref-get-label-context
+		    (org-element-property :path object))))
+
+	 ;; message the count
+	 ((string= type "label")
+	  (let ((count (org-ref-count-labels
+			(org-element-property :path object))))
+	    ;; get plurality on occurrence correct
+	    (message (concat
+		      (number-to-string count)
+		      " occurence"
+		      (when (or (= count 0)
+				(> count 1))
+			"s"))))))))))
 #+END_SRC
 
 * Aliases
