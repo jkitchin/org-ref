@@ -2727,6 +2727,10 @@ ref:test citep:test  label:rett
       (message (org-ref-get-label-context
 		(org-element-property :path object))))
 
+     ((string= type "eqref")
+      (message (org-ref-get-label-context
+		(org-element-property :path object))))
+
      ;; message the count
      ((string= type "label")
       (let ((count (org-ref-count-labels
