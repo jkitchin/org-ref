@@ -2795,7 +2795,6 @@ Now, let us define a function that inserts the cite links:
   "Insert selected KEYS as cite link. Append KEYS if you are on a link.
 Technically, this function should return a string that is inserted by helm. This function does the insertion and gives helm an empty string to insert. This lets us handle appending to a link properly."
   (let* ((object (org-element-context)))
-  (message-box "prefix is %s" helm-current-prefix-arg)
     (cond
      ;; case where we are in a link
      ((and (equal (org-element-type object) 'link)
