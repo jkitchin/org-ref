@@ -2874,14 +2874,26 @@ Checks for pdf and doi, and add appropriate functions."
 		  (bibtex-autokey-get-field "doi"))))
 	 (candidates `(("Quit" . org-ref-citation-at-point)
 		       ("Open bibtex entry" . org-ref-open-citation-at-point))))
+    ;; for some reason, when there is no doi or url, they are returned as "". I
+    ;; prefer nil so we correct this here.
+    (when (string= doi "") (setq doi nil))
+    (when (string= url "") (setq url nil))
 
-
-    (when (file-exists-p pdf-file)
+    (if (file-exists-p pdf-file)
+	(add-to-list
+	 'candidates
+	 '("Open pdf" . org-ref-open-pdf-at-point)
+	 t
+	 )
       (add-to-list
        'candidates
-       '("Open pdf" . org-ref-open-pdf-at-point)
-       t
-       ))
+       '("Try to get pdf" . (lambda ()
+			      (save-window-excursion
+				(org-ref-open-citation-at-point)
+                                (bibtex-beginning-of-entry)
+				(doi-utils-get-bibtex-entry-pdf))))
+       t))
+
 
     (add-to-list
      'candidates
