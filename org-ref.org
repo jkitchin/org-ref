@@ -2652,7 +2652,6 @@ Sometimes it may be helpful to manually change the order of citations. These fun
 (add-hook 'org-shiftleft-hook (lambda () (org-ref-swap-citation-link -1)))
 #+END_SRC
 
-
 ** Lightweight messages about links
 To get a lighter weight message about the label, ref and cite links, we define a function that gives us the minibuffer message, without the menu. We add it to a hook that updates after every command, including cursor movements.
 
@@ -2666,17 +2665,38 @@ ref:test citep:test  label:rett
       (goto-char (point-min))
       (when (re-search-forward
 	     (format "label:%s\\b" label) nil t)
-	(throw 'result (thing-at-point 'paragraph)))
+	(throw 'result (buffer-substring
+			(progn
+			  (previous-line)
+			  (beginning-of-line)
+			  (point))
+			(progn
+			  (forward-line 4)
+			  (point)))))
 
       (goto-char (point-min))
       (when (re-search-forward
 	     (format "\\label{%s}" label) nil t)
-	(throw 'result  (thing-at-point 'paragraph)))
+	(throw 'result (buffer-substring
+			(progn
+			  (previous-line)
+			  (beginning-of-line)
+			  (point))
+			(progn
+			  (forward-line 4)
+			  (point)))))
 
       (goto-char (point-min))
       (when (re-search-forward
 	     (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
-	(throw 'result (thing-at-point 'paragraph)))
+	(throw 'result (buffer-substring
+			(progn
+			  (previous-line)
+			  (beginning-of-line)
+			  (point))
+			(progn
+			  (forward-line 4)
+			  (point)))))
 
       (goto-char (point-min))
       (when (re-search-forward
@@ -2689,6 +2709,7 @@ ref:test citep:test  label:rett
 			(progn
 			  (forward-line 4)
 			  (point))))))))
+
 
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
@@ -2703,7 +2724,6 @@ ref:test citep:test  label:rett
 
      ;; message some context about the label we are referring to
      ((string= type "ref")
-;; (message-box "%s" (org-element-property :path object))
       (message (org-ref-get-label-context
 		(org-element-property :path object))))
 
@@ -2711,12 +2731,14 @@ ref:test citep:test  label:rett
      ((string= type "label")
       (let ((count (org-ref-count-labels
 		    (org-element-property :path object))))
+        ;; get plurality on occurrence correct
 	(message (concat
 		  (number-to-string count)
 		  " occurence"
 		  (when (or (= count 0)
 			    (> count 1))
 		    "s"))))))))
+
 
 (when org-ref-show-citation-on-enter
  (add-hook 'post-command-hook 'org-ref-link-message))
