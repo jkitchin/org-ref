@@ -128,8 +128,8 @@ There are some variables needed later to tell this library where you store your 
 
 
 (defcustom org-ref-insert-cite-function
-  'helm-bibtex
-  "Function to call to insert citation links. The default is `helm-bibtex'. org-ref modifies helm-bibtex a little bit to give org-mode citations, and to reorder default actions. You may use `org-ref-insert-cite-link' if you like the reftex interface."
+  'org-ref-helm-insert-cite-link
+  "Function to call to insert citation links. The default is `org-ref-helm-insert-cite-link' which uses `helm-bibtex'. org-ref modifies helm-bibtex a little bit to give org-mode citations, and to reorder default actions. You may use `org-ref-insert-cite-link' if you like the reftex interface."
  :type 'function
  :group 'org-ref)
 
@@ -894,18 +894,21 @@ The label link provides a way to create labels in org-mode. We make it clickable
 *************** END
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
+
+(defun org-ref-count-labels (label)
+  (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max) t)
+     ;; for tblname, it is not enough to get word boundary
+     ;; tab-little and tab-little-2 match then.
+     (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)
+     (count-matches (format "\\label{%s}\\b" label) (point-min) (point-max) t)
+     ;; this is the org-format #+label:
+     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)))
+
 (org-add-link-type
  "label"
  (lambda (label)
    "on clicking count the number of label tags used in the buffer. A number greater than one means multiple labels!"
-   (message (format "%s occurences"
-		    (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max) t)
-                       ;; for tblname, it is not enough to get word boundary
-                       ;; tab-little and tab-little-2 match then.
-                       (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)
-		       (count-matches (format "\\label{%s}\\b" label) (point-min) (point-max) t)
-                       ;; this is the org-format #+label:
-		       (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)))))
+   (message (format "%s occurences" (org-ref-count-labels label))))
  (lambda (keyword desc format)
    (cond
     ((eq format 'html) (format "(<label>%s</label>)" path))
@@ -2648,6 +2651,77 @@ Sometimes it may be helpful to manually change the order of citations. These fun
 (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
 (add-hook 'org-shiftleft-hook (lambda () (org-ref-swap-citation-link -1)))
 #+END_SRC
+
+
+** Lightweight messages about links
+To get a lighter weight message about the label, ref and cite links, we define a function that gives us the minibuffer message, without the menu. We add it to a hook that updates after every command, including cursor movements.
+
+ref:test citep:test  label:rett
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defun org-ref-get-label-context (label)
+  "Return a string of context around a label."
+  (save-excursion
+    (catch 'result
+      (goto-char (point-min))
+      (when (re-search-forward
+	     (format "label:%s\\b" label) nil t)
+	(throw 'result (thing-at-point 'paragraph)))
+
+      (goto-char (point-min))
+      (when (re-search-forward
+	     (format "\\label{%s}" label) nil t)
+	(throw 'result  (thing-at-point 'paragraph)))
+
+      (goto-char (point-min))
+      (when (re-search-forward
+	     (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
+	(throw 'result (thing-at-point 'paragraph)))
+
+      (goto-char (point-min))
+      (when (re-search-forward
+	     (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
+	(throw 'result (buffer-substring
+			(progn
+			  (previous-line)
+			  (beginning-of-line)
+			  (point))
+			(progn
+			  (forward-line 4)
+			  (point))))))))
+
+(defun org-ref-link-message ()
+  "Print a minibuffer message about the link that point is on."
+  (interactive)
+  (let* ((object (org-element-context))
+	 (type (org-element-property :type object)))
+
+    (cond
+     ;; cite links
+     ((-contains? org-ref-cite-types type)
+      (message (org-ref-get-citation-string-at-point)))
+
+     ;; message some context about the label we are referring to
+     ((string= type "ref")
+;; (message-box "%s" (org-element-property :path object))
+      (message (org-ref-get-label-context
+		(org-element-property :path object))))
+
+     ;; message the count
+     ((string= type "label")
+      (let ((count (org-ref-count-labels
+		    (org-element-property :path object))))
+	(message (concat
+		  (number-to-string count)
+		  " occurence"
+		  (when (or (= count 0)
+			    (> count 1))
+		    "s"))))))))
+
+(when org-ref-show-citation-on-enter
+ (add-hook 'post-command-hook 'org-ref-link-message))
+#+END_SRC
+
 * Aliases
 I like convenience. Here are some aliases for faster typing.
 
@@ -2692,13 +2766,16 @@ I like convenience. Here are some aliases for faster typing.
 Now, let us define a function that inserts the cite links:
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun helm-bibtex-format-org-ref (keys)
-  "insert selected KEYS as cite link. Append KEYS if you are on a link."
+  "Insert selected KEYS as cite link. Append KEYS if you are on a link.
+Technically, this function should return a string that is inserted by helm. This function does the insertion and gives helm an empty string to insert. This lets us handle appending to a link properly."
   (let* ((object (org-element-context)))
     (cond
      ;; case where we are in a link
      ((and (equal (org-element-type object) 'link)
-	   (-contains? org-ref-cite-types (org-element-property :type object)))
-      (goto-char link-string-end)
+	   (-contains?
+	    org-ref-cite-types
+	    (org-element-property :type object)))
+      (goto-char (org-element-property :end object))
       ;; sometimes there are spaces at the end of the link
       ;; this code moves point pack until no spaces are there
       (while (looking-back " ") (backward-char))
@@ -2708,27 +2785,41 @@ Now, let us define a function that inserts the cite links:
      ((save-excursion
 	(backward-char)
 	(and (equal (org-element-type (org-element-context)) 'link)
-	     (-contains? org-ref-cite-types (org-element-property :type (org-element-context)))))
+	     (-contains?
+	      org-ref-cite-types
+	      (org-element-property :type (org-element-context)))))
+      (goto-char (org-element-property :end object))
       (while (looking-back " ") (backward-char))
       (insert (concat "," (mapconcat 'identity keys ","))))
 
      ;; insert fresh link
      (t
       (insert
-       (concat org-ref-default-citation-link
+       (concat (if helm-current-prefix-arg
+                  (ido-completing-read "Type: " org-ref-cite-types)
+               org-ref-default-citation-link)
 	       ":"
-	       (s-join keys ",")))))))
+	       (s-join "," keys))))))
+;; return empty string for helm
+"")
 
 (setq helm-bibtex-format-citation-functions
       '((org-mode . helm-bibtex-format-org-ref)))
+
+(defun org-ref-helm-insert-cite-link ()
+  "org-ref function to use helm on the bibliography defined in the org-file."
+  (interactive)
+  (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
+    (helm-bibtex)))
 
 (require 'helm-bibtex)
 #+END_SRC
 
 ** A helm click menu
-
+This code provides a helm interface to things you can do when you click on a citation link. This is an alternative to the minibuffer menu.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-citation-string-at-point ()
+  "Get a string of a formatted citation"
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
@@ -2740,8 +2831,8 @@ Now, let us define a function that inserts the cite links:
 	(org-ref-bib-citation)))))
 
 (defun org-ref-cite-candidates ()
-  "Generate the list of possible candidates.
-Check for pdf and doi, and add appropriate functions."
+  "Generate the list of possible candidates for click actions on a cite link.
+Checks for pdf and doi, and add appropriate functions."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
@@ -2759,8 +2850,7 @@ Check for pdf and doi, and add appropriate functions."
 		  ;; I like this better than bibtex-url which does not always find
 		  ;; the urls
 		  (bibtex-autokey-get-field "doi"))))
-	 (candidates `(			;;the first candidate is a brief summary
-		       ("Quit" . org-ref-citation-at-point)
+	 (candidates `(("Quit" . org-ref-citation-at-point)
 		       ("Open bibtex entry" . org-ref-open-citation-at-point))))
 
 
@@ -2859,20 +2949,6 @@ This is a list of cons cells '((\"description\" . action)). The action function 
 
 #+RESULTS:
 : org-ref-cite-click-helm
-
-To get a lighter weight message about the cite link, we define a function that gives us the minibuffer message, without the menu. We add it to a hook that updates after every command, including cursor movements.
-
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
-(defun org-ref-cite-link-p () (interactive)
-       (let* ((object (org-element-context))
-	      (type (org-element-property :type object)))
-	 ;;   We only want this to work on citation links
-	 (when (-contains? org-ref-cite-types type)
-	   (message (org-ref-get-citation-string-at-point)))))
-
-(when org-ref-show-citation-on-enter
- (add-hook 'post-command-hook 'org-ref-cite-link-p))
-#+END_SRC
 
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
