@@ -2821,6 +2821,7 @@ Technically, this function should return a string that is inserted by helm. This
 	   (-contains?
 	    org-ref-cite-types
 	    (org-element-property :type object)))
+      (message-box "in a link")
       (goto-char (org-element-property :end object))
       ;; sometimes there are spaces at the end of the link
       ;; this code moves point pack until no spaces are there
@@ -2828,18 +2829,21 @@ Technically, this function should return a string that is inserted by helm. This
       (insert (concat "," (mapconcat 'identity keys ","))))
 
      ;; We are next to a link, and we want to append
+     ;; next to a link means one character back is on a link.
      ((save-excursion
 	(backward-char)
 	(and (equal (org-element-type (org-element-context)) 'link)
 	     (-contains?
 	      org-ref-cite-types
 	      (org-element-property :type (org-element-context)))))
-      (goto-char (org-element-property :end object))
+      (message-box "at end of a link")
+      ;; (goto-char (org-element-property :end object))
       (while (looking-back " ") (backward-char))
       (insert (concat "," (mapconcat 'identity keys ","))))
 
      ;; insert fresh link
      (t
+      (message-box "fresh link")
       (insert
        (concat (if helm-current-prefix-arg
 		   (helm :sources `((name . "link types")
