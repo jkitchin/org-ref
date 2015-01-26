@@ -1144,14 +1144,35 @@ If you are on a label link, replace it."
 		     ;; no matching selection creates a new label
 		     ((name . "Create new label")
 		      (dummy)
-		      ;; default action creates a new label
+		      ;; default action creates a new label, or replaces old one
 		      (action .  (lambda (label)
 				   (switch-to-buffer ,cb)
-				   (insert
-				    (concat
-				     "label:"
-				     (or label
-					 helm-pattern))))))))))
+				   (let* ((object (org-element-context))
+					  (last-char (save-excursion
+						       (goto-char (org-element-property :end object))
+						       (backward-char)
+						       (if (looking-at " ")
+							   " "
+							 ""))))
+				     (if (-contains? '("label")
+						     (org-element-property :type object))
+					 ;; we are on a link, so replace it.
+					 (setf
+					  (buffer-substring
+					   (org-element-property :begin object)
+					   (org-element-property :end object))
+					  (concat
+					   (replace-regexp-in-string
+					    (org-element-property :path object)
+					    helm-pattern
+					    (org-element-property :raw-link object))
+					   last-char))
+				       ;; new link
+				       (insert
+					(concat
+					 "label:"
+					 (or label
+					     helm-pattern))))))))))))
 #+END_SRC
 
 Now we create the completion function. This works from the org-machinery, e.g. if you type C-c C-l to insert a link, and use completion by pressing tab.
