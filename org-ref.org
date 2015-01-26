@@ -1102,17 +1102,49 @@ Now, we can put all the labels together which will give us a list of candidates.
 Let us make a helm function to insert a label link. This will help you enter unique labels.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-helm-insert-label-link ()
-  "Insert a label link. helm just shows you what labels already exist."
+  "Insert a label link. helm just shows you what labels already exist.
+If you are on a label link, replace it."
   (interactive)
   (let* ((labels (org-ref-get-labels))
 	 (cb (current-buffer)))
     (helm :sources `(((name . "Existing labels")
 		      (candidates . ,labels)
+		      ;; default action is to open to the label
 		      (action . (lambda (label)
 				  ;; unfortunately I do not have markers here
-				  (org-open-link-from-string (format "ref:%s" label)))))
+				  (org-open-link-from-string (format "ref:%s" label))))
+		      ;; if you select a label, replace current one
+		      (action . (lambda (label)
+				  (switch-to-buffer ,cb)
+				  (cond
+				   ;;  no prefix or on a link
+				   ((equal helm-current-prefix-arg nil)
+				    (let* ((object (org-element-context))
+					   (last-char (save-excursion
+							(goto-char (org-element-property :end object))
+							(backward-char)
+							(if (looking-at " ")
+							    " "
+							  ""))))
+				      (when (-contains? '("label")
+							(org-element-property :type object))
+					  ;; we are on a link, so replace it.
+					(setf
+					   (buffer-substring
+					    (org-element-property :begin object)
+					    (org-element-property :end object))
+					   (concat
+					    (replace-regexp-in-string
+					     (org-element-property :path object)
+					     label
+					     (org-element-property :raw-link object))
+					    last-char)))))
+				   ;; no prefix options defined
+				   ))))
+		     ;; no matching selection creates a new label
 		     ((name . "Create new label")
 		      (dummy)
+		      ;; default action creates a new label
 		      (action .  (lambda (label)
 				   (switch-to-buffer ,cb)
 				   (insert
@@ -1168,6 +1200,7 @@ Use C-u to insert a different kind of ref link.
 							   (split-string context "\n")
 							   "\n"
 							   ) "\n\n") label)))
+		      ;; default action to replace or insert ref link.
 		      (action . (lambda (label)
 				  (switch-to-buffer ,cb)
 
@@ -1208,9 +1241,6 @@ Use C-u to insert a different kind of ref link.
 						       (action . (lambda (x) x))))
 				      ":" label)))
 				   ))))))))
-
-
-
 #+END_SRC
 
 #+RESULTS:
@@ -3154,7 +3184,13 @@ In the helm-bibtex buffer, C-u will give you a helm menu to select a new link ty
 
 C-u C-u will change the key at point to the selected keys.
 "
-  (let* ((object (org-element-context)))
+  (let* ((object (org-element-context))
+	 (last-char (save-excursion
+		      (goto-char (org-element-property :end object))
+		      (backward-char)
+		      (if (looking-at " ")
+			  " "
+			""))))
     (cond
      ;; case where we are in a link
      ((and (equal (org-element-type object) 'link)
@@ -3179,7 +3215,7 @@ C-u C-u will change the key at point to the selected keys.
 		(org-element-property :raw-link object)
 		)
 	       ;; replace space at end to avoid collapsing into next word.
-	       " ")))
+	       last-char)))
        (t
 	(message "Not found"))))
 
@@ -3211,11 +3247,19 @@ C-u C-u will change the key at point to the selected keys.
 (setq helm-bibtex-format-citation-functions
       '((org-mode . helm-bibtex-format-org-ref)))
 
-(defun org-ref-helm-insert-cite-link ()
-  "org-ref function to use helm on the bibliography defined in the org-file."
-  (interactive)
-  (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
-    (helm-bibtex)))
+(defun org-ref-helm-insert-cite-link (arg)
+  "org-ref function to use helm-bibtex to insert a citation link.
+With one prefix arg, insert a ref link.
+With two prefix args, insert a label link."
+  (interactive "P")
+  (cond
+   ((equal arg nil)
+     (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
+       (helm-bibtex)))
+   ((equal arg '(4))
+    (org-ref-helm-insert-ref-link))
+   ((equal arg '(16))
+    (org-ref-helm-insert-label-link))))
 
 (require 'helm-bibtex)
 
