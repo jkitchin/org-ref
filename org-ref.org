@@ -3133,13 +3133,11 @@ To get a lighter weight message about the label, ref and cite links, we define a
 	    ;; we find the one clicked on. we want to
 	    ;; search forward to next comma from point
 	    (save-excursion
-              (goto-char link-string-beginning)
 	      (if (search-forward "," link-string-end 1 1)
 		  (setq key-end (- (match-end 0) 1)) ; we found a match
 		(setq key-end (point)))) ; no comma found so take the point
 	    ;; and backward to previous comma from point
 	    (save-excursion
-              (goto-char link-string-beginning)
 	      (if (search-backward "," link-string-beginning 1 1)
 		  (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
 		(setq key-beginning (point)))) ; no match found
