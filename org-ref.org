@@ -1145,17 +1145,21 @@ Another alternative ref insertion is to use helm.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-helm-insert-ref-link ()
   "Helm menu to insert ref links to labels in the document.
+If you are on link, replace with newly selected label.
 Use C-u to insert a different kind of ref link.
-C-u C-u to replace the current ref with selection"
+"
   (interactive)
   (let* ((labels (org-ref-get-labels))
 	 (contexts (mapcar 'org-ref-get-label-context labels))
 	 (cb (current-buffer)))
 
-    (helm :sources `(((name . "Available labels to ref")
+    (helm :input (thing-at-point 'word)
+	  :sources `(((name . "Available labels to ref")
 		      (candidates . ,(loop for label in labels
 					   for context in contexts
-;; we do some kludgy adding spaces and bars to make it "easier" to see in helm.
+					   ;; we do some kludgy adding spaces
+					   ;; and bars to make it "easier" to
+					   ;; see in helm.
 					   collect (cons (concat
 							  label "\n"
 							  (mapconcat
@@ -1168,11 +1172,33 @@ C-u C-u to replace the current ref with selection"
 				  (switch-to-buffer ,cb)
 
 				  (cond
-				   ;;  no prefix
+				   ;;  no prefix or on a link
 				   ((equal helm-current-prefix-arg nil)
-				     (insert
-				      (concat
-				       "ref:" label)))
+				    (let* ((object (org-element-context))
+					   (last-char (save-excursion
+							(goto-char (org-element-property :end object))
+							(backward-char)
+							(if (looking-at " ")
+							    " "
+							  ""))))
+				      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+						      (org-element-property :type object))
+					  ;; we are on a link, so replace it.
+					  (setf
+					   (buffer-substring
+					    (org-element-property :begin object)
+					    (org-element-property :end object))
+					   (concat
+					    (replace-regexp-in-string
+					     (org-element-property :path object)
+					     label
+					     (org-element-property :raw-link object))
+					    last-char))
+					;; insert a new link
+					(insert
+					 (concat
+					  "ref:" label))
+					)))
 				   ;; one prefix, alternate ref link
 				   ((equal helm-current-prefix-arg '(4))
 				    (insert
@@ -1181,26 +1207,7 @@ C-u C-u to replace the current ref with selection"
 						       (candidates . ("ref" "eqref" "pageref" "nameref"))
 						       (action . (lambda (x) x))))
 				      ":" label)))
-				   ;; two prefixes, replace current label
-				   ((equal helm-current-prefix-arg '(16))
-				    ;; get link
-				    (let* ((object (org-element-context))
-					   (last-char (save-excursion
-							(goto-char (org-element-property :end object))
-							(backward-char)
-							(if (looking-at " ")
-							    " "
-							  ""))))
-				      (setf
-				       (buffer-substring
-					(org-element-property :begin object)
-					(org-element-property :end object))
-				       (concat
-					(replace-regexp-in-string
-					 (org-element-property :path object)
-					 label
-					 (org-element-property :raw-link object))
-					last-char))))))))))))
+				   ))))))))
 
 
 
