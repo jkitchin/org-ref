@@ -3131,8 +3131,6 @@ C-u C-u will change the key at point to the selected keys.
 	(insert (concat "," (mapconcat 'identity keys ","))))
        ;; double prefix, replace key at point
        ((equal helm-current-prefix-arg '(16))
-		     (car (org-ref-get-bibtex-key-and-file))
-		     (mapconcat 'identity keys ","))
 	(setf (buffer-substring
 	       (org-element-property :begin object)
 	       (org-element-property :end object))
