@@ -3122,12 +3122,15 @@ To get a lighter weight message about the label, ref and cite links, we define a
 		 (link-string (org-element-property :path object))
 		 (link-string-beginning)
 		 (link-string-end))
-
 	    (save-excursion
 	      (goto-char (org-element-property :begin object))
 	      (search-forward link-string nil nil 1)
 	      (setq link-string-beginning (match-beginning 0))
 	      (setq link-string-end (match-end 0)))
+
+	     ;; make sure we are in link and not before the :
+	    (when (> link-string-beginning (point))
+	      (goto-char link-string-beginning))
 
 	    ;; now if we have comma separated bibliographies
 	    ;; we find the one clicked on. we want to
@@ -3136,6 +3139,7 @@ To get a lighter weight message about the label, ref and cite links, we define a
 	      (if (search-forward "," link-string-end 1 1)
 		  (setq key-end (- (match-end 0) 1)) ; we found a match
 		(setq key-end (point)))) ; no comma found so take the point
+
 	    ;; and backward to previous comma from point
 	    (save-excursion
 	      (if (search-backward "," link-string-beginning 1 1)
