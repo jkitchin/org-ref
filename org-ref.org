@@ -1100,7 +1100,7 @@ Now, we can put all the labels together which will give us a list of candidates.
 #+END_SRC
 
 Let us make a helm function to insert a label link. This will help you enter unique labels.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-helm-insert-label-link ()
   "Insert a label link. helm just shows you what labels already exist."
   (interactive)
@@ -1142,7 +1142,7 @@ Alternatively, you may want to just call a function that inserts a link with com
 
 Another alternative ref insertion is to use helm.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-helm-insert-ref-link ()
   "Helm menu to insert ref links to labels in the document.
 Use C-u to insert a different kind of ref link."
