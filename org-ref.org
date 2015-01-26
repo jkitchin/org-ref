@@ -3107,6 +3107,12 @@ To get a lighter weight message about the label, ref and cite links, we define a
 				(> count 1))
 			"s")))))
 
+	 ((string= type "custom-id")
+	  (save-excursion
+	    (org-open-link-from-string
+	     (format "[[#%s]]" (org-element-property :path object)))
+	    (message "%s" (org-get-heading))))
+
          ;; check if the bibliography files exist.
 	 ((string= type "bibliography")
 	  (let* ((bibfile)
