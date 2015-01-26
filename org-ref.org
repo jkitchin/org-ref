@@ -3069,13 +3069,6 @@ To get a lighter weight message about the label, ref and cite links, we define a
 			(progn
 			  (forward-line 4)
 			  (point)))))
-
-      ;; maybe we have a CUSTOM-ID
-      (org-map-entries
-       (lambda () (when (string=
-			 label
-			 (org-entry-get (point) "CUSTOM_ID"))
-		    (throw 'result (org-get-heading)))))
       (beep)
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
