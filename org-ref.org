@@ -3131,7 +3131,6 @@ C-u C-u will change the key at point to the selected keys.
 	(insert (concat "," (mapconcat 'identity keys ","))))
        ;; double prefix, replace key at point
        ((equal helm-current-prefix-arg '(16))
-	(message-box "Replacing %s with %s"
 		     (car (org-ref-get-bibtex-key-and-file))
 		     (mapconcat 'identity keys ","))
 	(setf (buffer-substring
@@ -3146,7 +3145,7 @@ C-u C-u will change the key at point to the selected keys.
 	       ;; replace space at end to avoid collapsing into next word.
 	       " ")))
        (t
-	(message-box "Not found"))))
+	(message "Not found"))))
 
      ;; We are next to a link, and we want to append
      ;; next to a link means one character back is on a link.
