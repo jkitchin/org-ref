@@ -599,7 +599,6 @@ We use a link for the bibliography so that we can click on it to open the biblio
 		     (let* ((bibfile)
 			    ;; object is the link you clicked on
 			    (object (org-element-context))
-
 			    (link-string-beginning)
 			    (link-string-end))
 
@@ -913,20 +912,24 @@ In long documents, a list of figures is not uncommon. Here we create a clickable
 #+END_SRC
 ** label
 
-The label link provides a way to create labels in org-mode. We make it clickable because we want to make sure labels are unique. This code will tell you how many instances of a label are found.  We search for label links, LaTeX labels, and the org-mode format for labels. We probably should search for tblnames too.
-*************** TODO search tblnames, custom_ids and check for case sensitivity
-*************** END
+The label link provides a way to create labels in org-mode. We make it clickable because we want to make sure labels are unique. This code will tell you how many instances of a label are found.  We search for label links, LaTeX labels, and org-mode format for labels, tblnames too.
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
-
 (defun org-ref-count-labels (label)
+  "Counts number of matches for label in the document"
   (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max) t)
      ;; for tblname, it is not enough to get word boundary
      ;; tab-little and tab-little-2 match then.
      (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)
      (count-matches (format "\\label{%s}\\b" label) (point-min) (point-max) t)
      ;; this is the org-format #+label:
-     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)))
+     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)
+     (let ((custom-id-count 0))
+       (org-map-entries
+	(lambda ()
+	  (when (string= label  (org-entry-get (point) "CUSTOM_ID"))
+	    (setq custom-id-count (+ 1 custom-id-count)))))
+       custom-id-count)))
 
 (org-add-link-type
  "label"
@@ -1096,6 +1099,29 @@ Now, we can put all the labels together which will give us a list of candidates.
 	(append matches (org-ref-get-org-labels) (org-ref-get-latex-labels) (org-ref-get-tblnames) (org-ref-get-custom-ids))))))
 #+END_SRC
 
+Let us make a helm function to insert a label link. This will help you enter unique labels.
+#+BEGIN_SRC emacs-lisp
+(defun org-ref-helm-insert-label-link ()
+  "Insert a label link. helm just shows you what labels already exist."
+  (interactive)
+  (let* ((labels (org-ref-get-labels))
+	 (cb (current-buffer)))
+    (helm :sources `(((name . "Existing labels")
+		      (candidates . ,labels)
+		      (action . (lambda (label)
+				  ;; unfortunately I do not have markers here
+				  (org-open-link-from-string (format "ref:%s" label)))))
+		     ((name . "Create new label")
+		      (dummy)
+		      (action .  (lambda (label)
+				   (switch-to-buffer ,cb)
+				   (insert
+				    (concat
+				     "label:"
+				     (or label
+					 helm-pattern))))))))))
+#+END_SRC
+
 Now we create the completion function. This works from the org-machinery, e.g. if you type C-c C-l to insert a link, and use completion by pressing tab.
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
@@ -1113,6 +1139,44 @@ Alternatively, you may want to just call a function that inserts a link with com
  (interactive)
  (insert (org-ref-complete-link)))
 #+END_SRC
+
+Another alternative ref insertion is to use helm.
+
+#+BEGIN_SRC emacs-lisp
+(defun org-ref-helm-insert-ref-link ()
+  "Helm menu to insert ref links to labels in the document.
+Use C-u to insert a different kind of ref link."
+  (interactive)
+  (let* ((labels (org-ref-get-labels))
+	 (contexts (mapcar 'org-ref-get-label-context labels))
+	 (cb (current-buffer)))
+
+    (helm :sources `(((name . "Available labels to ref")
+		      (candidates . ,(loop for label in labels
+					   for context in contexts
+;; we do some kludgy adding spaces and bars to make it "easier" to see in helm.
+					   collect (cons (concat
+							  label "\n"
+							  (mapconcat
+							   (lambda (x)
+							     (concat "   |" x))
+							   (split-string context "\n")
+							   "\n"
+							   ) "\n\n") label)))
+		      (action . (lambda (label)
+				  (switch-to-buffer ,cb)
+				  (insert
+				   (concat
+				    (if helm-current-prefix-arg
+					(helm :sources '((name . "Ref link types")
+							 (candidates . ("ref" "eqref" "pageref" "nameref"))
+							 (action . (lambda (x) x))))
+				      "ref")
+				    ":" label)))))))))
+#+END_SRC
+
+#+RESULTS:
+: org-ref-helm-insert-ref-link
 
 ** pageref
 
@@ -2046,7 +2110,6 @@ And at the end of the document put \makeglossaries.
      (format "\\Glspl{%s}" path)))))
 #+END_SRC
 
-
 * Utilities
 ** create simple text citation from bibtex entry
 
@@ -2387,6 +2450,9 @@ If no bibliography is in the buffer the `reftex-default-bibliography' is used."
 #+END_SRC
 
 ** Find bad cite links
+   :PROPERTIES:
+   :ID:       8515E800-EDA0-4B2A-85FD-55B6FF849203
+   :END:
 Depending on how you enter citations, you may have citations with no corresponding bibtex entry. This function finds them and gives you a clickable table to navigate to them.
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
@@ -2443,6 +2509,190 @@ Makes a new buffer with clickable links."
           (kill-buffer "*Missing citations*"))
       (message "No bad cite links found"))))
 #+END_SRC
+
+** helm interface to org-ref
+In [[id:8515E800-EDA0-4B2A-85FD-55B6FF849203][Find bad cite links]] we wrote a function that finds bad links and creates a buffer of links to them.
+
+Here we develop a similar idea, but instead of an org-buffer with links, we create helm sources for bad cite links, bad ref links, and multiple labels.
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defun org-ref-bad-cite-candidates ()
+  "Returns a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
+  (let* ((cp (point))			; save to return to later
+	 (bibtex-files (org-ref-find-bibliography))
+         (bibtex-file-path (mapconcat
+			    (lambda (x)
+			      (file-name-directory (file-truename x)))
+			    bibtex-files ":"))
+	 (bibtex-keys (mapcar (lambda (x) (car x))
+			      (bibtex-global-key-alist)))
+	 (bad-citations '()))
+
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(let ((plist (nth 1 link)))
+	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
+	    (dolist (key (org-ref-split-and-strip-string (plist-get plist ':path)) )
+	      (when (not (index key bibtex-keys))
+		(goto-char (plist-get plist ':begin))
+		(re-search-forward key)
+		(push (cons key (point-marker)) bad-citations)))
+	      ))))
+    (goto-char cp)
+    bad-citations))
+
+;; It seems I forgot I already defined this earlier!
+;; (defun org-ref-get-labels ()
+;;   "Returns a list of known labels in the org document. These include label links, latex labels, label tags, and table names. The list contains all labels, not just unique ones.
+;; "
+;;   (let ((cp (point))
+;;	(labels '()))
+;;     (goto-char (point-min))
+;;     (while (re-search-forward "[^#+]label:\\(.*\\)\\s-" nil t)
+;;       (push  (match-string 1) labels))
+
+;;     (goto-char (point-min))
+;;     (while (re-search-forward "\\label{\\(.*\\)}\\s-?" nil t)
+;;       (push (match-string 1) labels))
+
+;;     (goto-char (point-min))
+;;     (while (re-search-forward "^#\\+label:\\s-*\\(.*\\)" nil t)
+;;       (push (match-string 1) labels))
+
+;;     (goto-char (point-min))
+;;     (while (re-search-forward "^#\\+tblname:\\s-*\\(.*\\)" nil t)
+;;       (push (match-string 1) labels))
+;;     ;; check for CUSTOM_ID
+;;     (org-map-entries
+;;      (lambda ()
+;;        (when (org-entry-get (point) "CUSTOM_ID")
+;;	 (push (org-entry-get (point) "CUSTOM_ID") labels))))
+;;     ;; return to original place
+;;     (goto-char cp)
+;;     labels))
+
+
+(defun org-ref-bad-ref-candidates ()
+  "Returns a list of conses (ref . marker) where ref is a ref link that does not point to anything (i.e. a label)."
+  ;; first get a list of legitimate labels
+  (let ((cp (point))
+	(labels (org-ref-get-labels))
+	(bad-refs '()))
+    ;; now loop over ref links
+    (goto-char (point-min))
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(let ((plist (nth 1 link)))
+	  (when (or  (equal (plist-get plist ':type) "ref")
+		     (equal (plist-get plist ':type) "eqref")
+		     (equal (plist-get plist ':type) "pageref")
+		     (equal (plist-get plist ':type) "nameref"))
+	    (unless (-contains? labels (plist-get plist :path))
+	      (goto-char (plist-get plist :begin))
+	      (add-to-list
+	       'bad-refs
+	       (cons (plist-get plist :path)
+		     (point-marker))))))))
+    (goto-char cp)
+    bad-refs))
+
+
+(defun org-ref-bad-label-candidates ()
+  "Return a list of labels where label is multiply defined."
+  (let ((labels (org-ref-get-labels))
+	(multiple-labels '()))
+    (when (not (= (length labels)
+		  (length (-uniq labels))))
+      (dolist (label labels)
+	(when (> (-count (lambda (a)
+			   (equal a label))
+			 labels) 1)
+	  ;; this is a multiply defined label.
+	  (let ((cp (point)))
+	    (goto-char (point-min))
+	    (while (re-search-forward
+		    (format  "[^#+]label:%s\\s-" label) nil t)
+	      (push (cons label (point-marker)) multiple-labels))
+
+	    (goto-char (point-min))
+	    (while (re-search-forward
+		    (format  "\\label{%s}\\s-?" label) nil t)
+	      (push (cons label (point-marker)) multiple-labels))
+
+	    (goto-char (point-min))
+	    (while (re-search-forward
+		    (format  "^#\\+label:\\s-*%s" label) nil t)
+	      (push (cons label (point-marker)) multiple-labels))
+
+	    (goto-char (point-min))
+	    (while (re-search-forward
+		    (format   "^#\\+tblname:\\s-*%s" label) nil t)
+	      (push (cons label (point-marker)) multiple-labels))
+	    (goto-char cp)))))
+      multiple-labels))
+#+END_SRC
+
+#+RESULTS:
+: org-ref-bad-label-candidates
+
+Now, we have a functions for candidates, we can make helm sources for each one, and then run a helm command to view them.
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defun org-ref ()
+  "Opens a helm interface to actions for org-ref.
+Shows bad citations, ref links and labels"
+  (interactive)
+  (let ((cb (current-buffer))
+	(bad-citations (org-ref-bad-cite-candidates))
+	(bad-refs (org-ref-bad-ref-candidates))
+	(bad-labels (org-ref-bad-label-candidates)))
+
+    (helm :sources `(((name . "Bad citations")
+		       (candidates . ,bad-citations)
+		       (action . (lambda (marker)
+				   (switch-to-buffer (marker-buffer marker))
+				   (goto-char marker))))
+		     ;;
+		     ((name . "Bad Labels")
+		      (candidates . ,bad-labels)
+		      (action . (lambda (marker)
+				   (switch-to-buffer (marker-buffer marker))
+				   (goto-char marker))))
+		     ;;
+		     ((name . "Bad ref links")
+		      (candidates . ,bad-refs)
+		      (action . (lambda (marker)
+					  (switch-to-buffer (marker-buffer marker))
+					  (goto-char marker))))
+		     ;;
+		     ((name . "Utilities")
+		      (candidates . (("Check buffer again" . org-ref)
+				     ("Insert citation" . helm-bibtex)
+				     ("Insert label link" . org-ref-helm-insert-label-link)
+				     ("Insert ref link" . org-ref-helm-insert-ref-link)
+				     ("List of figures" . org-ref-list-of-figures)
+				     ("List of tables" . org-ref-list-of-tables)
+				     ("Table of contents" . nil)
+				     ))
+		      (action . (lambda (x)
+				  (switch-to-buffer ,cb)
+				  (funcall x))))
+		     ;;
+		     ((name . "Export functions")
+		      (candidates . (("Extract cited entries" . org-ref-extract-bibtex-entries)
+				     ("Export to html and open" . (lambda () (org-open-file (org-html-export-to-html))))
+				     ("Export to pdf and open" . (lambda ()
+								   (org-open-file (org-latex-export-to-pdf))))
+				     ("Export to manuscript pdf and open" . ox-manuscript-export-and-build-and-open)
+				     ("Export submission manuscript pdf and open" . ox-manuscript-build-submission-manuscript-and-open)
+
+				     ))
+		      (action . (lambda (x)
+				  (switch-to-buffer ,cb)
+				  (funcall x))))
+		      ))))
+#+END_SRC
+
 
 ** Finding non-ascii characters
 I like my bibtex files to be 100% ascii. This function finds the non-ascii characters so you can replace them.
@@ -2729,7 +2979,16 @@ To get a lighter weight message about the label, ref and cite links, we define a
 			  (point))
 			(progn
 			  (forward-line 4)
-			  (point))))))))
+			  (point)))))
+
+      ;; maybe we have a CUSTOM-ID
+      (org-map-entries
+       (lambda () (when (string=
+			 label
+			 (org-entry-get (point) "CUSTOM_ID"))
+		    (throw 'result (org-get-heading)))))
+      (beep)
+      (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
 
 (defun org-ref-link-message ()
@@ -2758,12 +3017,52 @@ To get a lighter weight message about the label, ref and cite links, we define a
 	  (let ((count (org-ref-count-labels
 			(org-element-property :path object))))
 	    ;; get plurality on occurrence correct
+            (when (> count 1) (beep))
 	    (message (concat
 		      (number-to-string count)
 		      " occurence"
 		      (when (or (= count 0)
 				(> count 1))
-			"s"))))))))))
+			"s")))))
+
+         ;; check if the bibliography files exist.
+	 ((string= type "bibliography")
+	  (let* ((bibfile)
+		 ;; object is the link you clicked on
+		 (object (org-element-context))
+		 (link-string (org-element-property :path object))
+		 (link-string-beginning)
+		 (link-string-end))
+
+	    (save-excursion
+	      (goto-char (org-element-property :begin object))
+	      (search-forward link-string nil nil 1)
+	      (setq link-string-beginning (match-beginning 0))
+	      (setq link-string-end (match-end 0)))
+
+	    ;; now if we have comma separated bibliographies
+	    ;; we find the one clicked on. we want to
+	    ;; search forward to next comma from point
+	    (save-excursion
+              (goto-char link-string-beginning)
+	      (if (search-forward "," link-string-end 1 1)
+		  (setq key-end (- (match-end 0) 1)) ; we found a match
+		(setq key-end (point)))) ; no comma found so take the point
+	    ;; and backward to previous comma from point
+	    (save-excursion
+              (goto-char link-string-beginning)
+	      (if (search-backward "," link-string-beginning 1 1)
+		  (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+		(setq key-beginning (point)))) ; no match found
+	    ;; save the key we clicked on.
+	    (setq bibfile
+		  (org-ref-strip-string
+		   (buffer-substring key-beginning key-end)))
+	    (if (file-exists-p bibfile)
+		(message "%s exists." bibfile)
+              (beep)
+	      (message "!!! %s NOT FOUND !!!" bibfile))))
+	 )))))
 #+END_SRC
 
 * Aliases
@@ -2811,7 +3110,12 @@ Now, let us define a function that inserts the cite links:
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun helm-bibtex-format-org-ref (keys)
   "Insert selected KEYS as cite link. Append KEYS if you are on a link.
-Technically, this function should return a string that is inserted by helm. This function does the insertion and gives helm an empty string to insert. This lets us handle appending to a link properly."
+Technically, this function should return a string that is inserted by helm. This function does the insertion and gives helm an empty string to insert. This lets us handle appending to a link properly.
+
+In the helm-bibtex buffer, C-u will give you a helm menu to select a new link type for the selected entries.
+
+C-u C-u will change the key at point to the selected keys.
+"
   (let* ((object (org-element-context)))
     (cond
      ;; case where we are in a link
@@ -2819,12 +3123,30 @@ Technically, this function should return a string that is inserted by helm. This
 	   (-contains?
 	    org-ref-cite-types
 	    (org-element-property :type object)))
-      ;;(message-box "in a link")
-      (goto-char (org-element-property :end object))
-      ;; sometimes there are spaces at the end of the link
-      ;; this code moves point pack until no spaces are there
-      (while (looking-back " ") (backward-char))
-      (insert (concat "," (mapconcat 'identity keys ","))))
+      (cond
+       ;; no prefix. append keys
+       ((equal helm-current-prefix-arg nil)
+	(goto-char (org-element-property :end object))
+	(while (looking-back " ") (backward-char))
+	(insert (concat "," (mapconcat 'identity keys ","))))
+       ;; double prefix, replace key at point
+       ((equal helm-current-prefix-arg '(16))
+	(message-box "Replacing %s with %s"
+		     (car (org-ref-get-bibtex-key-and-file))
+		     (mapconcat 'identity keys ","))
+	(setf (buffer-substring
+	       (org-element-property :begin object)
+	       (org-element-property :end object))
+	      (concat
+	       (replace-regexp-in-string
+		(car (org-ref-get-bibtex-key-and-file)) ; key
+		(mapconcat 'identity keys ",")		; new keys
+		(org-element-property :raw-link object)
+		)
+	       ;; replace space at end to avoid collapsing into next word.
+	       " ")))
+       (t
+	(message-box "Not found"))))
 
      ;; We are next to a link, and we want to append
      ;; next to a link means one character back is on a link.
@@ -2843,7 +3165,7 @@ Technically, this function should return a string that is inserted by helm. This
      (t
       ;;(message-box "fresh link")
       (insert
-       (concat (if helm-current-prefix-arg
+       (concat (if (equal helm-current-prefix-arg '(4))
 		   (helm :sources `((name . "link types")
 				    (candidates . ,org-ref-cite-types)
 				    (action . (lambda (x) x))))
@@ -2864,10 +3186,19 @@ Technically, this function should return a string that is inserted by helm. This
 
 (require 'helm-bibtex)
 
-(mapc (lambda (x) (add-to-list 'helm-bibtex-fallback-options x t))
-  '(("Crossref" . "http://search.crossref.org/?q=%s")
-    ("Scopus" . "http://www.scopus.com/scopus/search/submit/xadvanced.url?searchfield=TITLE-ABS-KEY(%s)")
-    ("Open Web of Science" . (lambda () (browse-url "http://apps.webofknowledge.com")))))
+;; add our own fallback entries where we want them. These appear in reverse order of adding in the menu
+(setq helm-bibtex-fallback-options
+      (-insert-at 1 '("Crossref" . "http://search.crossref.org/?q=%s") helm-bibtex-fallback-options))
+
+(setq helm-bibtex-fallback-options
+      (-insert-at
+       1
+       '("Scopus" . "http://www.scopus.com/scopus/search/submit/xadvanced.url?searchfield=TITLE-ABS-KEY(%s)")
+       helm-bibtex-fallback-options))
+
+(setq helm-bibtex-fallback-options
+      (-insert-at 1 '("Open Web of Science" . (lambda () (browse-url "http://apps.webofknowledge.com")))
+		  helm-bibtex-fallback-options))
 #+END_SRC
 
 ** A helm click menu
@@ -2879,11 +3210,14 @@ This code provides a helm interface to things you can do when you click on a cit
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
 	 (bibfile (cdr results)))
-    (save-excursion
-      (with-temp-buffer
-	(insert-file-contents bibfile)
-	(bibtex-search-entry key)
-	(org-ref-bib-citation)))))
+    (if bibfile
+	(save-excursion
+	  (with-temp-buffer
+	    (insert-file-contents bibfile)
+	    (bibtex-search-entry key)
+	    (org-ref-bib-citation)))
+      (beep)
+      "!!! No entry found !!!" )))
 
 (defun org-ref-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
