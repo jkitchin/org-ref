@@ -2614,13 +2614,21 @@ Makes a new buffer with clickable links."
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
 	(let ((plist (nth 1 link)))
-	  (when (equal (plist-get plist ':type) "cite")
-	    (dolist (key (org-ref-split-and-strip-string (plist-get plist ':path)) )
+	  (when (-contains? org-ref-cite-types (plist-get plist :type))
+	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
 	      (when (not (index key bibtex-keys))
-		(setq bad-citations (append bad-citations
-					    `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
-						       key (buffer-name)(plist-get plist ':begin)))))
-		))))))
+		(message-box "%s" link)
+		(setq
+		 bad-citations
+		 (append
+		  bad-citations
+		  `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
+			     key
+			     (buffer-name)
+			     (plist-get plist :begin)))))
+		)))))
+      ;; set with-affilates to t to get citations in a caption
+      nil nil nil t)
 
     (if bad-citations
       (progn
