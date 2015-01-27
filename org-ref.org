@@ -934,7 +934,7 @@ The label link provides a way to create labels in org-mode. We make it clickable
      ;; for tblname, it is not enough to get word boundary
      ;; tab-little and tab-little-2 match then.
      (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max))
-     (count-matches (format "\\label{%s}\\b" label) (point-min) (point-max))
+     (count-matches (format "\\label{%s}" label) (point-min) (point-max))
      ;; this is the org-format #+label:
      (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max))
      (let ((custom-id-count 0))
@@ -3121,12 +3121,18 @@ To get a lighter weight message about the label, ref and cite links, we define a
 
 	 ;; message some context about the label we are referring to
 	 ((string= type "ref")
-	  (message (org-ref-get-label-context
-		    (org-element-property :path object))))
+	  (message "%scount: %s"
+		   (org-ref-get-label-context
+		    (org-element-property :path object))
+		   (org-ref-count-labels
+			(org-element-property :path object))))
 
 	 ((string= type "eqref")
-	  (message (org-ref-get-label-context
-		    (org-element-property :path object))))
+	  (message "%scount: %s"
+		   (org-ref-get-label-context
+		    (org-element-property :path object))
+		   (org-ref-count-labels
+			(org-element-property :path object))))
 
 	 ;; message the count
 	 ((string= type "label")
