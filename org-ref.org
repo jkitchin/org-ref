@@ -2667,45 +2667,17 @@ Here we develop a similar idea, but instead of an org-buffer with links, we crea
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
 	(let ((plist (nth 1 link)))
-	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
-	    (dolist (key (org-ref-split-and-strip-string (plist-get plist ':path)) )
+	  (when (-contains? org-ref-cite-types (plist-get plist :type))
+	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)) )
 	      (when (not (index key bibtex-keys))
-		(goto-char (plist-get plist ':begin))
+		(goto-char (plist-get plist :begin))
 		(re-search-forward key)
 		(push (cons key (point-marker)) bad-citations)))
-	      ))))
+	    )))
+      ;; add with-affiliates to get cites in caption
+      nil nil nil t)
     (goto-char cp)
     bad-citations))
-
-;; It seems I forgot I already defined this earlier!
-;; (defun org-ref-get-labels ()
-;;   "Returns a list of known labels in the org document. These include label links, latex labels, label tags, and table names. The list contains all labels, not just unique ones.
-;; "
-;;   (let ((cp (point))
-;;	(labels '()))
-;;     (goto-char (point-min))
-;;     (while (re-search-forward "[^#+]label:\\(.*\\)\\s-" nil t)
-;;       (push  (match-string 1) labels))
-
-;;     (goto-char (point-min))
-;;     (while (re-search-forward "\\label{\\(.*\\)}\\s-?" nil t)
-;;       (push (match-string 1) labels))
-
-;;     (goto-char (point-min))
-;;     (while (re-search-forward "^#\\+label:\\s-*\\(.*\\)" nil t)
-;;       (push (match-string 1) labels))
-
-;;     (goto-char (point-min))
-;;     (while (re-search-forward "^#\\+tblname:\\s-*\\(.*\\)" nil t)
-;;       (push (match-string 1) labels))
-;;     ;; check for CUSTOM_ID
-;;     (org-map-entries
-;;      (lambda ()
-;;        (when (org-entry-get (point) "CUSTOM_ID")
-;;	 (push (org-entry-get (point) "CUSTOM_ID") labels))))
-;;     ;; return to original place
-;;     (goto-char cp)
-;;     labels))
 
 
 (defun org-ref-bad-ref-candidates ()
