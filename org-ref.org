@@ -485,7 +485,7 @@ This code provides some functions to generate a simple sorted bibliography in ht
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-bibtex-keys ()
-  "return a list of unique keys in the buffer."
+  "Return a list of unique keys in the buffer."
   (let ((keys '()))
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
@@ -495,7 +495,9 @@ This code provides some functions to generate a simple sorted bibliography in ht
 		(key
 		 (org-ref-split-and-strip-string (plist-get plist ':path)))
 	      (when (not (-contains? keys key))
-		(setq keys (append keys (list key)))))))))
+		(setq keys (append keys (list key))))))))
+      ;; set with-affiliated to get keys in captions
+      nil nil nil t)
     ;; Sort keys alphabetically
     (setq keys (cl-sort keys 'string-lessp :key 'downcase))
     keys))
