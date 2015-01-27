@@ -1063,7 +1063,7 @@ It would be nice to use completion to enter a ref link, where a list of labels i
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-org-labels ()
- "find #+LABEL: labels"
+ "Return a list of #+LABEL: labels."
   (save-excursion
     (goto-char (point-min))
     (let ((matches '()))
@@ -1074,7 +1074,7 @@ matches)))
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-custom-ids ()
- "return a list of custom_id properties in the buffer"
+ "Return a list of custom_id properties in the buffer."
  (let ((results '()) custom_id)
    (org-map-entries
     (lambda ()
@@ -1099,6 +1099,7 @@ Finally, we get the table names.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-tblnames ()
+  "Return list of table names in the buffer."
   (org-element-map (org-element-parse-buffer 'element) 'table
     (lambda (table)
       (org-element-property :name table))))
@@ -1108,7 +1109,8 @@ Now, we can put all the labels together which will give us a list of candidates.
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
 (defun org-ref-get-labels ()
-  "returns a list of labels in the buffer that you can make a ref link to. this is used to auto-complete ref links."
+  "Returns a list of labels in the buffer that you can make a ref link to.
+This is used to auto-complete ref links and in helm menus."
   (save-excursion
     (save-restriction
       (widen)
@@ -1124,7 +1126,7 @@ Now, we can put all the labels together which will give us a list of candidates.
 		(org-ref-get-custom-ids))))))
 #+END_SRC
 
-Let us make a helm function to insert a label link. This will help you enter unique labels.
+Let us make a helm function to insert a label link. This will help you enter unique labels by showing matching labels until they are all gone and you are left with a unique one. If you are on a link, it means you want to replace it.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-helm-insert-label-link ()
   "Insert a label link. helm just shows you what labels already exist.
@@ -1200,7 +1202,7 @@ If you are on a label link, replace it."
 					     helm-pattern))))))))))))
 #+END_SRC
 
-Now we create the completion function. This works from the org-machinery, e.g. if you type C-c C-l to insert a link, and use completion by pressing tab.
+Now we create a completion function. This works from the org-machinery, e.g. if you type C-c C-l to insert a link, and use completion by pressing tab.
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
 (defun org-ref-complete-link (&optional arg)
