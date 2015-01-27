@@ -3279,8 +3279,7 @@ C-u C-u will change the key at point to the selected keys.
 	       last-char))
 	;; and we want to go to the end of the new link
 	(goto-char
-	 (org-element-property :end (org-element-context)))
-	)
+	 (org-element-property :end (org-element-context))))
        (t
 	(message "Not found"))))
 
