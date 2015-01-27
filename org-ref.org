@@ -1114,9 +1114,14 @@ Now, we can put all the labels together which will give us a list of candidates.
       (widen)
       (goto-char (point-min))
       (let ((matches '()))
-	(while (re-search-forward "label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
+        ;; these are the label:stuff  kinds
+	(while (re-search-forward "[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
 	  (add-to-list 'matches (match-string-no-properties 1) t))
-	(append matches (org-ref-get-org-labels) (org-ref-get-latex-labels) (org-ref-get-tblnames) (org-ref-get-custom-ids))))))
+	(append matches
+		(org-ref-get-org-labels)
+		(org-ref-get-latex-labels)
+		(org-ref-get-tblnames)
+		(org-ref-get-custom-ids))))))
 #+END_SRC
 
 Let us make a helm function to insert a label link. This will help you enter unique labels.
@@ -1220,10 +1225,14 @@ Another alternative ref insertion is to use helm.
   "Helm menu to insert ref links to labels in the document.
 If you are on link, replace with newly selected label.
 Use C-u to insert a different kind of ref link.
+Use C-u C-u to insert a [[#custom-id]] link
 "
   (interactive)
   (let* ((labels (org-ref-get-labels))
-	 (contexts (mapcar 'org-ref-get-label-context labels))
+	 (bs (buffer-string))
+	 (contexts (with-temp-buffer
+		     (insert bs)
+		     (mapcar 'org-ref-get-label-context labels)))
 	 (cb (current-buffer)))
 
     (helm :input (thing-at-point 'word)
@@ -1281,6 +1290,10 @@ Use C-u to insert a different kind of ref link.
 						       (candidates . ("ref" "eqref" "pageref" "nameref"))
 						       (action . (lambda (x) x))))
 				      ":" label)))
+				   ;; two prefixes, insert section custom-id link
+				   ((equal helm-current-prefix-arg '(16))
+				    (insert
+				     (format "[[#%s]]" label)))
 				   ))))))))
 #+END_SRC
 
@@ -3089,7 +3102,6 @@ To get a lighter weight message about the label, ref and cite links, we define a
 			(progn
 			  (forward-line 4)
 			  (point)))))
-      (beep)
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
 
@@ -3119,7 +3131,6 @@ To get a lighter weight message about the label, ref and cite links, we define a
 	  (let ((count (org-ref-count-labels
 			(org-element-property :path object))))
 	    ;; get plurality on occurrence correct
-            (when (> count 1) (beep))
 	    (message (concat
 		      (number-to-string count)
 		      " occurence"
@@ -3170,7 +3181,6 @@ To get a lighter weight message about the label, ref and cite links, we define a
 		   (buffer-substring key-beginning key-end)))
 	    (if (file-exists-p bibfile)
 		(message "%s exists." bibfile)
-              (beep)
 	      (message "!!! %s NOT FOUND !!!" bibfile))))
 	 )))))
 #+END_SRC
@@ -3335,7 +3345,6 @@ This code provides a helm interface to things you can do when you click on a cit
 	    (insert-file-contents bibfile)
 	    (bibtex-search-entry key)
 	    (org-ref-bib-citation)))
-      (beep)
       "!!! No entry found !!!" )))
 
 (defun org-ref-cite-candidates ()
