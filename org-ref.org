@@ -12,6 +12,7 @@ This document is an experiment at creating a literate program to provide similar
 4. Exportable links to LaTeX
 5. Utility functions for dealing with bibtex files and org-files
 
+Some additional features include
 1. Get minibuffer messages for the cite/ref/label link under point
 
 With helm integration (default) you can:
@@ -1296,7 +1297,8 @@ Use C-u C-u to insert a [[#custom-id]] link
 				   ((equal helm-current-prefix-arg '(16))
 				    (insert
 				     (format "[[#%s]]" label)))
-				   ))))))))
+				   ))
+			      ))))))
 #+END_SRC
 
 #+RESULTS:
@@ -3272,10 +3274,13 @@ C-u C-u will change the key at point to the selected keys.
 	       (replace-regexp-in-string
 		(car (org-ref-get-bibtex-key-and-file)) ; key
 		(mapconcat 'identity keys ",")		; new keys
-		(org-element-property :raw-link object)
-		)
+		(org-element-property :raw-link object))
 	       ;; replace space at end to avoid collapsing into next word.
-	       last-char)))
+	       last-char))
+	;; and we want to go to the end of the new link
+	(goto-char
+	 (org-element-property :end (org-element-context)))
+	)
        (t
 	(message "Not found"))))
 
