@@ -12,6 +12,19 @@ This document is an experiment at creating a literate program to provide similar
 4. Exportable links to LaTeX
 5. Utility functions for dealing with bibtex files and org-files
 
+1. Get minibuffer messages for the cite/ref/label link under point
+
+With helm integration (default) you can:
+
+1. C-c ] to insert a citation link
+  in helm-bibtex
+   - Enter to insert or append citation(s)
+   - C-u Enter to insert an alternative cite link
+   - C-u C-u Enter to replace the citation at point
+2. C-u C-c ] to insert a ref link with helm completion
+3. C-u C-u C-c ] to insert a label with completion
+4. M-x org-ref to get a helm completion buffer with link checks, utilities and export options
+
 ** Header
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 ;;; org-ref.el --- setup bibliography, cite, ref and label org-mode links.
@@ -917,17 +930,17 @@ The label link provides a way to create labels in org-mode. We make it clickable
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
 (defun org-ref-count-labels (label)
   "Counts number of matches for label in the document"
-  (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max) t)
+  (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max))
      ;; for tblname, it is not enough to get word boundary
      ;; tab-little and tab-little-2 match then.
-     (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)
-     (count-matches (format "\\label{%s}\\b" label) (point-min) (point-max) t)
+     (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max))
+     (count-matches (format "\\label{%s}\\b" label) (point-min) (point-max))
      ;; this is the org-format #+label:
-     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max) t)
+     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max))
      (let ((custom-id-count 0))
        (org-map-entries
 	(lambda ()
-	  (when (string= label  (org-entry-get (point) "CUSTOM_ID"))
+	  (when (string= label (org-entry-get (point) "CUSTOM_ID"))
 	    (setq custom-id-count (+ 1 custom-id-count)))))
        custom-id-count)))
 
@@ -935,7 +948,14 @@ The label link provides a way to create labels in org-mode. We make it clickable
  "label"
  (lambda (label)
    "on clicking count the number of label tags used in the buffer. A number greater than one means multiple labels!"
-   (message (format "%s occurences" (org-ref-count-labels label))))
+   (let ((count (org-ref-count-labels label)))
+   (message (format "%s occurence%s"
+		    count
+		    (if (or (= count 0)
+			      (> count 1))
+			"s"
+		      ""))
+		    (org-ref-count-labels label))))
  (lambda (keyword desc format)
    (cond
     ((eq format 'html) (format "(<label>%s</label>)" path))
