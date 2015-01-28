@@ -3320,8 +3320,7 @@ With two prefix args, insert a label link."
        helm-bibtex-fallback-options))
 
 (setq helm-bibtex-fallback-options
-      (-insert-at 1 '("Open Web of Science" . (lambda () (browse-url "http://apps.webofknowledge.com")))
-		  helm-bibtex-fallback-options))
+      (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") helm-bibtex-fallback-options))
 #+END_SRC
 
 ** A helm click menu
