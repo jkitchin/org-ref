@@ -1961,7 +1961,7 @@ We will want to generate formatting functions for each citation type. The reason
 	 (format "[%s]"
 		 (mapconcat
 		  (lambda (key) (concat "@" key))
-		  (org-ref-split-and-strip-string keyword) ","
+		  (org-ref-split-and-strip-string keyword)
 		  "; "))))))))
 #+END_SRC
 
