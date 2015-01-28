@@ -1944,7 +1944,25 @@ We will want to generate formatting functions for each citation type. The reason
 	 ;; bibtex format
        (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
 	       (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
-	       "}"))))))
+	       "}")))
+      ;; for markdown we generate pandoc citations
+      ((eq format 'md)
+       (cond
+	(desc  ;; pre and or post text
+	 (let* ((text (split-string desc "::"))
+		(pre (car text))
+		(post (cadr text)))
+	   (concat
+	    (format "[@%s," keyword)
+	    (when pre (format " %s" pre))
+	    (when post (format ", %s" post))
+	    "]")))
+	(t
+	 (format "[%s]"
+		 (mapconcat
+		  (lambda (key) (concat "@" key))
+		  (org-ref-split-and-strip-string keyword) ","
+		  "; "))))))))
 #+END_SRC
 
 
