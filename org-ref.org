@@ -242,26 +242,6 @@ We setup reftex here. We use a custom insert cite link function defined here: [[
   (kbd org-ref-insert-cite-key)
   org-ref-insert-cite-function)
 
-(when org-ref-show-citation-on-enter
- (setq org-ref-message-timer
-       (run-with-idle-timer 0.5 t 'org-ref-link-message)))
-
-(defun org-ref-show-link-messages ()
-  "Turn on link messages. You will see a message in the
-minibuffer when on a cite, ref or label link."
-  (interactive)
-  (setq org-ref-message-timer
-	(run-with-idle-timer 0.5 t 'org-ref-link-message))
-  )
-(defun org-ref-cancel-link-messages ()
-  "Stop showing messages in minibuffer when on a link."
-  (interactive)
-  (cancel-timer org-ref-message-timer))
-
-;; this approach caused the selected region to not be highlighted any more.
-; (add-hook 'post-command-hook 'org-ref-link-message))
-; (remove-hook 'post-command-hook 'org-ref-link-message))
-
 (add-hook 'org-mode-hook 'org-mode-reftex-setup)
 
 (eval-after-load 'reftex-vars
@@ -296,6 +276,83 @@ You can define a new citation link like this:
 #+BEGIN_SRC emacs-lisp :tangle no
 (org-ref-define-citation-link "citez" ?z)
 #+END_SRC
+
+** Messages for link at cursor
+Here we setup code that shows you a context message for the element under the cursor when emacs is idle.
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+
+(when org-ref-show-citation-on-enter
+ (setq org-ref-message-timer
+       (run-with-idle-timer 0.5 t 'org-ref-link-message)))
+
+(defun org-ref-show-link-messages ()
+  "Turn on link messages. You will see a message in the
+minibuffer when on a cite, ref or label link."
+  (interactive)
+  (setq org-ref-message-timer
+	(run-with-idle-timer 0.5 t 'org-ref-link-message))
+  )
+(defun org-ref-cancel-link-messages ()
+  "Stop showing messages in minibuffer when on a link."
+  (interactive)
+  (cancel-timer org-ref-message-timer))
+
+;; this approach caused the selected region to not be highlighted any more.
+; (add-hook 'post-command-hook 'org-ref-link-message))
+; (remove-hook 'post-command-hook 'org-ref-link-message))
+#+END_SRC
+
+** Messages for context under mouse pointer
+Sometimes, when reading a document, I actually use the mouse more than the cursor. This code enables the mouse cursor to trigger a message in the minibuffer about what is under the cursor. I run this on a timer.
+
+The basic idea here is to get the mouse position, and if we can determine there is a character that (point) can move to, we move (point) and run the org-ref-link-message function. Since this runs on a timer, we store the last mouse position, and only run the function when the mouse has moved to avoid getting messages every time the timer runs.
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defvar org-ref-last-mouse-pos nil
+ "Stores last mouse position for use in `org-ref-mouse-message'.")
+
+(defun org-ref-can-move-p ()
+  "See if a character is under the mouse. If so return the position for `goto-char'."
+  (let* ((line (cddr org-ref-last-mouse-pos))
+	 (col  (cadr org-ref-last-mouse-pos)))
+    (save-excursion
+      (goto-char (window-start))
+      (forward-line line)
+      (if
+	  (> (- (line-end-position) (line-beginning-position)) col)
+	  (progn  (forward-char col) (point))
+	nil))))
+
+
+(defun org-ref-mouse-message ()
+  "Display message for link under mouse cursor"
+  (interactive)
+  (when (not (equal (mouse-position) org-ref-last-mouse-pos))
+    (setq org-ref-last-mouse-pos (mouse-position))
+    (let ((p (org-ref-can-move-p)))
+      (when p
+	  (save-excursion
+	    (goto-char p)
+	    (org-ref-link-message))))))
+
+(defvar org-ref-mouse-message-interval 0.5
+  "How often to run the mouse message timer in seconds")
+
+(defun org-ref-mouse-messages-on ()
+  "Turn on mouse messages."
+  (interactive)
+  (setq org-ref-message-timer-mouse
+       (run-at-time "0.5 sec" org-ref-mouse-message-interval 'org-ref-mouse-message)))
+
+
+(defun org-ref-mouse-messages-off ()
+  "Turn off mouse messages"
+  (interactive)
+  (cancel-timer org-ref-message-timer-mouse))
+#+END_SRC
+
+#+RESULTS:
+: org-ref-mouse-messages-off
 
 * Links
 Most of this library is the creation of functional links to help with references and citations.
