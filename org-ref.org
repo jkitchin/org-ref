@@ -2545,8 +2545,8 @@ Here is the python script for uploading.
 *************** TODO document how to get the cookies
 *************** END
 
-
-#+BEGIN_SRC python :tangle upload_bibtex_citeulike.py
+# :tangle upload_bibtex_citeulike.py
+#+BEGIN_SRC python
 #!python
 import pickle, requests, sys
 
