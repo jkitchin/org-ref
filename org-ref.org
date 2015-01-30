@@ -280,22 +280,29 @@ You can define a new citation link like this:
 ** Messages for link at cursor
 Here we setup code that shows you a context message for the element under the cursor when emacs is idle.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(defvar org-ref-message-timer nil
+  "Variable to store the link message timer in.")
+
 
 (when org-ref-show-citation-on-enter
  (setq org-ref-message-timer
        (run-with-idle-timer 0.5 t 'org-ref-link-message)))
 
+
 (defun org-ref-show-link-messages ()
   "Turn on link messages. You will see a message in the
 minibuffer when on a cite, ref or label link."
   (interactive)
-  (setq org-ref-message-timer
-	(run-with-idle-timer 0.5 t 'org-ref-link-message))
-  )
+  (or org-ref-message-timer
+      (setq org-ref-message-timer
+	    (run-with-idle-timer 0.5 t 'org-ref-link-message))))
+
+
 (defun org-ref-cancel-link-messages ()
   "Stop showing messages in minibuffer when on a link."
   (interactive)
-  (cancel-timer org-ref-message-timer))
+  (cancel-timer org-ref-message-timer)
+  (setq org-ref-message-timer nil))
 
 ;; this approach caused the selected region to not be highlighted any more.
 ; (add-hook 'post-command-hook 'org-ref-link-message))
