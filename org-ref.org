@@ -284,11 +284,6 @@ Here we setup code that shows you a context message for the element under the cu
   "Variable to store the link message timer in.")
 
 
-(when org-ref-show-citation-on-enter
- (setq org-ref-message-timer
-       (run-with-idle-timer 0.5 t 'org-ref-link-message)))
-
-
 (defun org-ref-show-link-messages ()
   "Turn on link messages. You will see a message in the
 minibuffer when on a cite, ref or label link."
@@ -303,6 +298,10 @@ minibuffer when on a cite, ref or label link."
   (interactive)
   (cancel-timer org-ref-message-timer)
   (setq org-ref-message-timer nil))
+
+
+(when org-ref-show-citation-on-enter
+  (org-ref-show-link-messages))
 
 ;; this approach caused the selected region to not be highlighted any more.
 ; (add-hook 'post-command-hook 'org-ref-link-message))
