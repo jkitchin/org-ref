@@ -335,20 +335,31 @@ The basic idea here is to get the mouse position, and if we can determine there 
 	    (goto-char p)
 	    (org-ref-link-message))))))
 
+
+(defvar org-ref-message-timer-mouse nil
+  "Store mouse timer.")
+
+
 (defvar org-ref-mouse-message-interval 0.5
   "How often to run the mouse message timer in seconds")
+
 
 (defun org-ref-mouse-messages-on ()
   "Turn on mouse messages."
   (interactive)
-  (setq org-ref-message-timer-mouse
-       (run-at-time "0.5 sec" org-ref-mouse-message-interval 'org-ref-mouse-message)))
+  (or org-ref-message-timer-mouse
+      (setq org-ref-message-timer-mouse
+	    (run-at-time "0.5 sec"
+			 org-ref-mouse-message-interval
+			 'org-ref-mouse-message))))
 
 
 (defun org-ref-mouse-messages-off ()
   "Turn off mouse messages"
   (interactive)
-  (cancel-timer org-ref-message-timer-mouse))
+  (cancel-timer org-ref-message-timer-mouse)
+  (setq org-ref-message-timer-mouse nil)
+  (message "Mouse messages are off"))
 #+END_SRC
 
 #+RESULTS:
