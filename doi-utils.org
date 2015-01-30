@@ -411,7 +411,7 @@ I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-get-json-metadata (doi)
-
+  "Try to get json metadata for DOI. Open the DOI in a browser if we do not get it."
   (let ((url-request-method "GET")
 	(url-mime-accept-string "application/citeproc+json")
 	(json-object-type 'plist)
@@ -420,8 +420,11 @@ I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 	(url-retrieve-synchronously
 	 (concat "http://dx.doi.org/" doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
-      (message "%s" json-data)
-      (json-read-from-string json-data))))
+      (if (string-match "Resource not found" json-data)
+	  (progn
+	    (browse-url (concat "http://dx.doi.org/" doi))
+	    (error "Resource not found. Opening website."))
+	(json-read-from-string json-data)))))
 #+END_SRC
 
 #+RESULTS:
