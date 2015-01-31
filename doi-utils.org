@@ -567,7 +567,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
 		     (cond
 		      ;; If region is active and it starts like a doi we want it.
 		      ((and  (region-active-p)
-			     ((s-match "^10" (buffer-susbstring
+                             (s-match "^10" (buffer-substring
 					      (region-beginning)
 					      (region-end))))
 		       (buffer-susbstring (region-beginning) (region-end)))
@@ -578,7 +578,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
 		      ;; otherwise, we have no initial input. You
 		      ;; will have to type it in.
 		      (t
-		       nil))))
+		       nil)))
 	 ;;  now get the bibfile to add it to
 	 (ido-completing-read
 	  "Bibfile: "
