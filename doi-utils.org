@@ -539,7 +539,7 @@ That is just the string for the entry. To be useful, we need a function that ins
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
   "insert bibtex entry from a doi. Also cleans entry using
 org-ref, and tries to download the corresponding pdf."
-  (interactive "sDOI: ")
+  (interactive "sDOI :")
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
   (if (bibtex-key-in-head nil)
@@ -555,32 +555,40 @@ It may be you are in some other place when you want to add a bibtex entry. This 
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-add-bibtex-entry-from-doi (doi bibfile)
-  "add entry to end of a file in `org-ref-default-bibliography' or in the current directory ending with .bib."
+  "Add entry to end of a file in in the current directory ending
+with .bib or in `org-ref-default-bibliography'. If you have an
+active region that starts like a DOI, that will be the initial
+prompt. If no region is selected and the first entry of the
+kill-ring starts like a DOI, then that is the intial
+prompt. Otherwise, you have to type or pste in a DOI."
   (interactive
-   (list
-    (read-string "DOI: ")
-    (ido-completing-read
-     "Bibfile: "
-     (append org-ref-default-bibliography
-	     (f-entries "." (lambda (f) (f-ext? f "bib")))))))
-  (find-file bibfile)
-  (goto-char (point-min))
-  (if (search-forward doi nil t)
-      (message "%s is already in this file" doi)
-    (end-of-buffer)
-    (insert "\n\n")
-    (doi-utils-insert-bibtex-entry-from-doi doi)
-    (save-buffer)))
-#+END_SRC
-
-It may be you want to just highlight a doi, and then add it. Here is that function.
-
-#+BEGIN_SRC emacs-lisp  :tangle doi-utils.el
-(defun doi-utils-add-bibtex-entry-from-region (start end)
-  "add entry assuming region is a doi to end of first entry in `org-ref-default-bibliography'."
-  (interactive "r")
-  (let ((doi (buffer-substring start end)))
-    (find-file (car org-ref-default-bibliography))
+   (list (read-input "DOI: "
+		     ;; now set initial input
+		     (cond
+		      ;; If region is active and it starts like a doi we want it.
+		      ((and  (region-active-p)
+			     ((s-match "^10" (buffer-susbstring
+					      (region-beginning)
+					      (region-end))))
+		       (buffer-susbstring (region-beginning) (region-end)))
+		      ;; if the first entry in the kill-ring looks
+		      ;; like a DOI, let's use it.
+		      ((if (s-match "^10" (car kill-ring))
+			   (car kill-ring)))
+		      ;; otherwise, we have no initial input. You
+		      ;; will have to type it in.
+		      (t
+		       nil))))
+	 ;;  now get the bibfile to add it to
+	 (ido-completing-read
+	  "Bibfile: "
+	  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+		  org-ref-default-bibliography))))
+  ;; Wrap in save-window-excursion to restore your window arrangement after this
+  ;; is done.
+  (save-window-excursion
+    (find-file bibfile)
+    ;; Check if the doi already exists
     (goto-char (point-min))
     (if (search-forward doi nil t)
 	(message "%s is already in this file" doi)
@@ -590,8 +598,6 @@ It may be you want to just highlight a doi, and then add it. Here is that functi
       (save-buffer))))
 #+END_SRC
 
-#+RESULTS:
-: doi-utils-add-bibtex-entry-from-region
 
 * Updating bibtex entries
 I wrote this code because it is pretty common for me to copy bibtex entries from ASAP articles that are incomplete, e.g. no page numbers because it is not in print yet. I wanted a convenient way to update an entry from its DOI. Basically, we get the metadata, and update the fields in the entry.
