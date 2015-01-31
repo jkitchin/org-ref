@@ -903,7 +903,56 @@ error."
 
 
 
+* Adding a bibtex entry from a crossref query
 
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
+(defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
+  (interactive (list
+		(read-input
+		 "Query: "
+		 ;; now set initial input
+		 (cond
+		  ;; If region is active assume we want it
+		  ((region-active-p)
+		   (buffer-susbstring (region-beginning) (region-end)))
+		  ;; type or paste it in
+		  (t
+		   nil)))
+		(ido-completing-read
+		 "Bibfile: "
+		 (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+			 org-ref-default-bibliography))))
+  (let* ((json-string)
+	 (json-data)
+	 (doi))
+
+    (with-current-buffer
+	(url-retrieve-synchronously
+	 (concat
+	  "http://search.crossref.org/dois?q="
+	  (url-hexify-string query)))
+      (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
+      (setq json-data (json-read-from-string json-string)))
+
+    (let* ((name (format "Crossref hits for %s" query))
+	   (helm-candidates (mapcar (lambda (x)
+				      (cons
+				       (concat
+					(cdr (assoc 'fullCitation x))
+					" "
+					(cdr (assoc 'doi x)))
+				       (cdr (assoc 'doi x))))
+				      json-data))
+	   (source `((name . ,name)
+		     (candidates . ,helm-candidates)
+		     ;; just return the candidate
+		     (action . (("Insert bibtex entry" . (lambda (doi)
+							   (doi-utils-add-bibtex-entry-from-doi
+							    (replace-regexp-in-string "^http://dx.doi.org/" "" doi))))
+				("Open url" . (lambda (doi)
+						(browse-url doi))))))))
+      (helm :sources '(source)))))
+#+END_SRC
 
 ** json
 
@@ -1197,6 +1246,17 @@ Here is a list of helm candidates
  ...)
 #+END_SRC
 
+
+* ISBN utility
+This is not really a doi utility, but I am putting it here for now since it is just a single function. It looks up an ISBN and takes you to a page that has a bibtex entry. I am not crazy about that, but I have not found an isbn metadata source yet.
+
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
+(defun isbn-to-bibtex (isbn)
+ "Search lead.to for ISBN bibtex entry. You have to copy the entry if it is on the page to your bibtex file."
+ (interactive "ISBN: ")
+(browse-url
+(format "http://lead.to/amazon/en/?key=%s+&si=all&op=bt&bn=&so=sa&ht=us" isbn)))
+#+END_SRC
 * end of file
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (provide 'doi-utils)
