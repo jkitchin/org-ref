@@ -904,6 +904,7 @@ error."
 
 
 * Adding a bibtex entry from a crossref query
+The idea here is to perform a query on Crossref, get a helm buffer of candidates, and select the entry(ies) you want to add to your bibtex file. You can select a region, e.g. a free form citation, or set of words, or you can type the query in by hand.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
