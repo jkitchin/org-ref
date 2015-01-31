@@ -570,7 +570,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
                              (s-match "^10" (buffer-substring
 					      (region-beginning)
 					      (region-end))))
-		       (buffer-susbstring (region-beginning) (region-end)))
+		       (buffer-substring (region-beginning) (region-end)))
 		      ;; if the first entry in the kill-ring looks
 		      ;; like a DOI, let's use it.
 		      ((if (s-match "^10" (car kill-ring))
@@ -914,7 +914,7 @@ error."
 		 (cond
 		  ;; If region is active assume we want it
 		  ((region-active-p)
-		   (buffer-susbstring (region-beginning) (region-end)))
+		   (buffer-substring (region-beginning) (region-end)))
 		  ;; type or paste it in
 		  (t
 		   nil)))
@@ -1248,15 +1248,97 @@ Here is a list of helm candidates
 
 
 * ISBN utility
-This is not really a doi utility, but I am putting it here for now since it is just a single function. It looks up an ISBN and takes you to a page that has a bibtex entry. I am not crazy about that, but I have not found an isbn metadata source yet.
+These are not really doi utilities, but for now I am putting them here.
+
+I found this on the web. It can be handy, but the bibtex entry has a lot of stuff in it.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
-(defun isbn-to-bibtex (isbn)
+(defun isbn-to-bibtex-lead (isbn)
  "Search lead.to for ISBN bibtex entry. You have to copy the entry if it is on the page to your bibtex file."
  (interactive "ISBN: ")
 (browse-url
 (format "http://lead.to/amazon/en/?key=%s+&si=all&op=bt&bn=&so=sa&ht=us" isbn)))
 #+END_SRC
+
+Here we get isbn metadata and build a bibtex entry.
+http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
+
+
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
+(defun isbn-to-bibtex (isbn bibfile)
+  "Get bibtex entry for ISBN and insert it into BIBFILE unless an
+entry with the generated key already exists in the file. "
+  (interactive
+   (list
+    (read-input
+     "ISBN: "
+     ;; now set initial input
+     (cond
+      ;; If region is active assume we want it
+      ((region-active-p)
+       (buffer-substring (region-beginning) (region-end)))
+      ;; if first entry in kill ring starts with a number assume it is an isbn
+      ;; and use it as the guess
+      ((if (s-match "^[0-9]" (car kill-ring))
+	   (car kill-ring)))
+      ;; type or paste it in
+      (t
+       nil)))
+    (ido-completing-read
+     "Bibfile: "
+     (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+	     org-ref-default-bibliography))))
+
+  (let* ((results (with-current-buffer
+		      (url-retrieve-synchronously
+		       (format
+			"http://xisbn.worldcat.org/webservices/xid/isbn/%s?method=getMetadata&format=json&fl=*"
+			isbn))
+		    (json-read-from-string
+		     (buffer-substring url-http-end-of-headers (point-max)))))
+	 (status (cdr (nth 1 results)))
+	 (metadata (aref (cdar results) 0))
+	 (new-entry)
+	 (new-key))
+
+    (unless (string= "ok" status)
+      (error "Status is %s" status))
+
+    (setq new-entry
+	  (concat "\n@book{,\n"
+		  (mapconcat
+		   'identity
+		   (loop for field in (-sort 'string-lessp (mapcar 'car metadata))
+			 collect
+			 (format "  %s={%s}," field (cdr (assoc field metadata))))
+		   "\n")
+		  "\n}\n"))
+
+    ;; build entry in temp buffer to get the key
+    (setq new-entry (with-temp-buffer
+		      (insert new-entry)
+		      (org-ref-clean-bibtex-entry)
+		      (setq new-key (bibtex-key-in-head))
+		      (buffer-string)))
+    (find-file bibfile)
+    (goto-char (point-min))
+    (when (search-forward new-key nil t)
+      (beep)
+      (setq new-key (read-input
+		     (format  "%s already exists. Enter new key (C-g to cancel): " new-key)
+		     new-key)))
+    (goto-char (point-max))
+    (insert new-entry)
+    ;; set key
+    (bibtex-beginning-of-entry)
+    (re-search-forward bibtex-entry-maybe-empty-head)
+    (if (match-beginning bibtex-key-in-head)
+	(delete-region (match-beginning bibtex-key-in-head)
+		       (match-end bibtex-key-in-head)))
+    (insert new-key)
+    (bibtex-fill-entry)))
+#+END_SRC
+
 * end of file
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (provide 'doi-utils)
