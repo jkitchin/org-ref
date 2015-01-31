@@ -1268,15 +1268,16 @@ http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun isbn-to-bibtex (isbn bibfile)
   "Get bibtex entry for ISBN and insert it into BIBFILE unless an
-entry with the generated key already exists in the file. "
+entry with the generated key already exists in the file."
   (interactive
    (list
     (read-input
      "ISBN: "
      ;; now set initial input
      (cond
-      ;; If region is active assume we want it
-      ((region-active-p)
+      ;; If region is active and it starts with a number, we use it
+      ((and  (region-active-p)
+	     (s-match "^[0-9]" (buffer-substring (region-beginning) (region-end))))
        (buffer-substring (region-beginning) (region-end)))
       ;; if first entry in kill ring starts with a number assume it is an isbn
       ;; and use it as the guess
@@ -1302,9 +1303,12 @@ entry with the generated key already exists in the file. "
 	 (new-entry)
 	 (new-key))
 
+    ;; check if we got something
     (unless (string= "ok" status)
       (error "Status is %s" status))
 
+    ;; construct an alphabetically sorted bibtex entry. I assume ISBN numbers go
+    ;; with book entries.
     (setq new-entry
 	  (concat "\n@book{,\n"
 		  (mapconcat
@@ -1315,7 +1319,7 @@ entry with the generated key already exists in the file. "
 		   "\n")
 		  "\n}\n"))
 
-    ;; build entry in temp buffer to get the key
+    ;; build entry in temp buffer to get the key so we can check for duplicates
     (setq new-entry (with-temp-buffer
 		      (insert new-entry)
 		      (org-ref-clean-bibtex-entry)
@@ -1330,15 +1334,18 @@ entry with the generated key already exists in the file. "
 		     new-key)))
     (goto-char (point-max))
     (insert new-entry)
-    ;; set key
+    ;; set key. It is simplest to just replace it, even if it is the same.
     (bibtex-beginning-of-entry)
     (re-search-forward bibtex-entry-maybe-empty-head)
     (if (match-beginning bibtex-key-in-head)
 	(delete-region (match-beginning bibtex-key-in-head)
 		       (match-end bibtex-key-in-head)))
     (insert new-key)
-    (bibtex-fill-entry)))
+    (bibtex-fill-entry)
+    (save-buffer)))
 #+END_SRC
+
+
 
 * end of file
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
