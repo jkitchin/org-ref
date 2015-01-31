@@ -834,7 +834,9 @@ Here is our example bibtex entry.
   number =	 6,
   pages =	 1996,
   year =	 2014,
-  doi =		 {10.1039/c3ee43874k},
+  doi =		 {10.1039/c3ee43874k,
+  url =		 {http://dx.doi.org/10.1039/c3ee43874k}},
+
 }
 
 
@@ -845,47 +847,55 @@ The idea is to query Crossref in a way that is likely to give us a hit relevant 
 According to http://search.crossref.org/help/api we can send a query with a free form citation that may give us something back. We do this to get a list of candidates, and run a helm command to get the doi.
 
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-crossref-citation-query ()
+  "Query Crossref with the title of the bibtex entry at point to
+get a list of possible matches. This opens a helm buffer to
+select an entry. The default action inserts a doi and url field
+in the bibtex entry at point. The second action opens the doi
+url. If there is already a doi field, the function raises an
+error."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
-	 (title  (reftex-get-bib-field "title" entry))
 	 (json-string)
 	 (json-data)
 	 (doi))
     (unless (string= ""(reftex-get-bib-field "doi" entry))
       (error "Entry already has a doi field"))
-    ;; clean up title for the crossref query
-    (setq title (replace-regexp-in-string "\n\\|\t\\|\s+" " " title))
 
     (with-current-buffer
 	(url-retrieve-synchronously
 	 (concat
 	  "http://search.crossref.org/dois?q="
-	  (url-hexify-string title)))
+	  (url-hexify-string (org-ref-bib-citation))))
       (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
       (setq json-data (json-read-from-string json-string)))
 
-    (let* ((name (format "Crossref hits for %s" title))
+    (let* ((name (format "Crossref hits for %s" (org-ref-bib-citation)))
 	   (helm-candidates (mapcar (lambda (x)
 				      (cons
-				       (cdr (assoc 'fullCitation x))
+				       (concat
+					(cdr (assoc 'fullCitation x))
+					" "
+					(cdr (assoc 'doi x)))
 				       (cdr (assoc 'doi x))))
 				      json-data))
 	   (source `((name . ,name)
 		     (candidates . ,helm-candidates)
 		     ;; just return the candidate
-		     (action . (lambda (candidate)
-				 candidate )))))
-      (setq doi
-	    (helm :sources '(source)))
-
-      (when doi
-	(bibtex-make-field "doi")
-	(backward-char)
-        ;; crossref returns doi url, but I prefer only a doi for the doi field
-	(insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi))))))
+		     (action . (("Insert doi and url field" . (lambda (doi)
+								(bibtex-make-field "doi")
+								(backward-char)
+								;; crossref returns doi url, but I prefer only a doi for the doi field
+								(insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi))
+								(when (string= ""(reftex-get-bib-field "url" entry))
+								  (bibtex-make-field "url")
+								  (backward-char)
+								  (insert doi))))
+				("Open url" . (lambda (doi)
+						(browse-url doi))))))))
+      (helm :sources '(source)))))
 #+END_SRC
 
 #+RESULTS:
