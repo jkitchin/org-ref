@@ -949,7 +949,7 @@ The idea here is to perform a query on Crossref, get a helm buffer of candidates
 		     ;; just return the candidate
 		     (action . (("Insert bibtex entry" . (lambda (doi)
 							   (doi-utils-add-bibtex-entry-from-doi
-							    (replace-regexp-in-string "^http://dx.doi.org/" "" doi))))
+							    (replace-regexp-in-string "^http://dx.doi.org/" "" doi) ,bibtex-file)))
 				("Open url" . (lambda (doi)
 						(browse-url doi))))))))
       (helm :sources '(source)))))
