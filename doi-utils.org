@@ -915,7 +915,9 @@ The idea here is to perform a query on Crossref, get a helm buffer of candidates
 		 (cond
 		  ;; If region is active assume we want it
 		  ((region-active-p)
-		   (buffer-substring (region-beginning) (region-end)))
+		   (replace-regexp-in-string
+		    "\n" " "
+		    (buffer-substring (region-beginning) (region-end))))
 		  ;; type or paste it in
 		  (t
 		   nil)))
@@ -935,7 +937,9 @@ The idea here is to perform a query on Crossref, get a helm buffer of candidates
       (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
       (setq json-data (json-read-from-string json-string)))
 
-    (let* ((name (format "Crossref hits for %s" query))
+    (let* ((name (format "Crossref hits for %s"
+			 ;; remove carriage returns. they cause problems in helm.
+			 (replace-regexp-in-string "\n" " " query)))
 	   (helm-candidates (mapcar (lambda (x)
 				      (cons
 				       (concat
