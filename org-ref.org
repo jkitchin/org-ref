@@ -392,35 +392,58 @@ citenum:sokalski-2012-optim-ta,zhang-2011-spatial-tio2,li-2012-heter-ceram,li-20
   "When non-nil, change colors of links"
   :group 'org-ref)
 
+
 (defcustom org-ref-cite-color
   "forest green"
   "Color of cite like links"
   :group 'org-ref)
+
 
 (defcustom org-ref-ref-color
   "royal blue"
   "Color of ref like links"
   :group 'org-ref)
 
+
 (defcustom org-ref-label-color
   "black"
   "Color of label links"
   :group 'org-ref)
 
+
 (defvar org-ref-cite-re nil
  "regexp for cite links")
+
 
 (setq org-ref-cite-re
   (concat "\\(" (mapconcat 'identity org-ref-cite-types "\\|") "\\)"
   ":\\([a-zA-Z0-9-_:]*,?\\)*"))
 
-(setq org-ref-cite-color "red" org-ref-colorize-links t)
+
+(setq org-ref-label-re
+      "label:\\([a-zA-Z0-9-_:]*,?\\)*")
+
+
+(setq org-ref-ref-re
+      "ref:\\([a-zA-Z0-9-_:]*,?\\)*")
+
+
 (defface org-ref-cite-face
-  `((t (:inherit org-link :foreground "red")))
+  `((t (:inherit org-link :foreground ,org-ref-cite-color)))
+  "Color for cite links")
+
+(defface org-ref-label-face
+  `((t (:inherit org-link :foreground ,org-ref-label-color)))
+  "Color for cite links")
+
+(defface org-ref-ref-face
+  `((t (:inherit org-link :foreground ,org-ref-ref-color)))
   "Color for cite links")
 
 (when org-ref-colorize-links
-  (highlight-regexp org-ref-cite-re 'org-ref-cite-face))
+  (highlight-regexp org-ref-cite-re 'org-ref-cite-face)
+  (highlight-regexp org-ref-label-re 'org-ref-label-face)
+  (highlight-regexp org-ref-ref-re 'org-ref-ref-face))
 #+END_SRC
 
 #+RESULTS:
