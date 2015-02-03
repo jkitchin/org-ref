@@ -437,15 +437,18 @@ label:test
 
 (defface org-ref-cite-face
   `((t (:inherit org-link :foreground ,org-ref-cite-color)))
-  "Color for cite links")
+  "Color for cite-like links in org-ref.")
+
 
 (defface org-ref-label-face
   `((t (:inherit org-link :foreground ,org-ref-label-color)))
-  "Color for cite links")
+  "Color for ref links in org-ref.")
+
 
 (defface org-ref-ref-face
   `((t (:inherit org-link :foreground ,org-ref-ref-color)))
-  "Color for cite links")
+  "Face for ref links in org-ref.")
+
 
 (when org-ref-colorize-links
   (highlight-regexp org-ref-cite-re 'org-ref-cite-face)
