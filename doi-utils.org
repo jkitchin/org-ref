@@ -1260,7 +1260,7 @@ I found this on the web. It can be handy, but the bibtex entry has a lot of stuf
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun isbn-to-bibtex-lead (isbn)
  "Search lead.to for ISBN bibtex entry. You have to copy the entry if it is on the page to your bibtex file."
- (interactive "ISBN: ")
+ (interactive "sISBN: ")
 (browse-url
 (format "http://lead.to/amazon/en/?key=%s+&si=all&op=bt&bn=&so=sa&ht=us" isbn)))
 #+END_SRC
