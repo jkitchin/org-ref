@@ -371,6 +371,61 @@ The basic idea here is to get the mouse position, and if we can determine there 
 #+RESULTS:
 : org-ref-mouse-messages-off
 
+** Color-coded links
+Here we make the org-ref links a different color.
+
+citations are green
+refs are blue
+labels are black
+
+mailto:john
+
+cite:sokalski-2012-optim-ta,zhang-2011-spatial-tio2,li-2012-heter-ceram,li-2013-photoc
+
+cite*:sokalski-2012-optim-ta,zhang-2011-spatial-tio2,li-2012-heter-ceram,li-2013-photoc
+
+citenum:sokalski-2012-optim-ta,zhang-2011-spatial-tio2,li-2012-heter-ceram,li-2013-photoc
+
+#+BEGIN_SRC emacs-lisp
+(defcustom org-ref-colorize-links
+  nil
+  "When non-nil, change colors of links"
+  :group 'org-ref)
+
+(defcustom org-ref-cite-color
+  "forest green"
+  "Color of cite like links"
+  :group 'org-ref)
+
+(defcustom org-ref-ref-color
+  "royal blue"
+  "Color of ref like links"
+  :group 'org-ref)
+
+(defcustom org-ref-label-color
+  "black"
+  "Color of label links"
+  :group 'org-ref)
+
+(defvar org-ref-cite-re nil
+ "regexp for cite links")
+
+(setq org-ref-cite-re
+  (concat "\\(" (mapconcat 'identity org-ref-cite-types "\\|") "\\)"
+  ":\\([a-zA-Z0-9-_:]*,?\\)*"))
+
+(setq org-ref-cite-color "red" org-ref-colorize-links t)
+(defface org-ref-cite-face
+  `((t (:inherit org-link :foreground "red")))
+  "Color for cite links")
+
+(when org-ref-colorize-links
+  (highlight-regexp org-ref-cite-re 'org-ref-cite-face))
+#+END_SRC
+
+#+RESULTS:
+
+
 * Links
 Most of this library is the creation of functional links to help with references and citations.
 ** General utilities
