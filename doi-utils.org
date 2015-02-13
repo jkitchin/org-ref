@@ -451,6 +451,92 @@ We can use that data to construct a bibtex entry. We do that by defining a templ
 
 Now we define a function that fills in that template from the metadata.
 
+As different bibtex types share common keys, it is advantageous to separate data extraction from json, and the formatting of the bibtex entry.
+
+#+BEGIN_SRC emacs-lisp :notangle doi-utils.el
+(defmacro defpar (name &optional value)
+  `(progn (defvar ,name)
+          (setf ,name ,value)))
+
+(defpar doi-utils-json-metadata-extract
+    '((type       (plist-get results :type))
+      (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
+                   (plist-get results :author) " and "))
+      (title      (plist-get results :title))
+      (journal    (plist-get results :container-title))
+      (volume     (plist-get results :volume))
+      (issue      (plist-get results :issue))
+      (number     (plist-get results :issue))
+      (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
+      (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
+      (pages      (plist-get results :page))
+      (doi        (plist-get results :DOI))
+      (url        (plist-get results :URL))
+      (booktitle  (plist-get results :container-title))))
+#+END_SRC
+
+Next, we need to define the different bibtex types. Each type has a bibtex type (for output) and the type as provided in the doi record. Finally, we have to declare the fields we want to output.
+
+#+BEGIN_SRC emacs-lisp :notangle doi-utils.el
+(defvar doi-utils-bibtex-type-generators nil)
+
+(defun concat-prepare (lst &optional acc)
+  "Given a list `lst' of strings and other expressions, which are
+intented to passed to `concat', concat any subsequent strings,
+minimising the number of arguments being passed to `concat'
+without changing the results."
+  (cond ((null lst) (nreverse acc))
+        ((and (stringp (car lst))
+              (stringp (car acc)))
+         (concat-prepare (cdr lst) (cons (concat (car acc) (car lst))
+                                         (cdr acc))))
+        (t (concat-prepare (cdr lst) (cons (car lst) acc)))))
+
+
+(defmacro doi-utils-def-bibtex-type (name matching-types &rest fields)
+  "Define a BibTeX type identified by (symbol) `name' with
+`fields' (given as symbols), matching to retrieval expressions in
+`doi-utils-json-metadata-extract'. This type will only be used
+when the `:type' parameter in the JSON metadata is contained in
+`matching-types' - a list of strings."
+  `(push (lambda (type results)
+           (when (or ,@(mapcar (lambda (match-type) `(string= type ,match-type)) matching-types))
+             (let ,(mapcar (lambda (field) (or (assoc field doi-utils-json-metadata-extract)
+                                          (error "unknown bibtex field type %s" field)))
+                           fields)
+               (concat
+                ,@(concat-prepare
+                   (-flatten
+                    (list (concat "@" (symbol-name name) "{,\n")
+                          ;; there seems to be some bug with mapcan,
+                          ;; so we fall back to flatten
+                          (mapcar (lambda (field)
+                                    `(,(concat "  " (symbol-name field) " = {")
+                                       ,field
+                                       "},\n"))
+                                  fields)
+                          "}\n")))))))
+         doi-utils-bibtex-type-generators))
+
+(doi-utils-def-bibtex-type article ("journal-article" "article-journal")
+                           author title journal year volume number pages doi url)
+
+(doi-utils-def-bibtex-type inproceedings ("proceedings-article")
+                           author title booktitle year month pages doi url)
+#+END_SRC
+
+With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
+#+BEGIN_SRC emacs-lisp :notangle doi-utils.el
+(defun doi-utils-doi-to-bibtex-string (doi)
+  "return a bibtex entry as a string for the doi. Only articles are currently supported"
+  (let* ((results (doi-utils-get-json-metadata doi))
+         (type (plist-get results :type)))
+    (format "%s" results) ; json-data
+    (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
+    (message-box "%s not supported yet." type)))
+#+END_SRC
+
+
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-doi-to-bibtex-string (doi)
   "return a bibtex entry as a string for the doi. Only articles are currently supported"
