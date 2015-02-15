@@ -397,6 +397,7 @@ label:test
   "When non-nil, change colors of links"
   :group 'org-ref)
 
+
 (defcustom org-ref-cite-color
   "forest green"
   "Color of cite like links"
