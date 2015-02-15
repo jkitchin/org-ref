@@ -391,7 +391,7 @@ ref:test
 
 label:test
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defcustom org-ref-colorize-links
   t
   "When non-nil, change colors of links"
