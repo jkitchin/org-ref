@@ -4,7 +4,7 @@ See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch
 
 [[./org-ref.org]] contains all documentation and installation instructions.
 
-[[./doi-utils.org]] contains functions for downloading bibtex entries from  a DOI, and redefines the org-mode doi link so it has more functionality. 
+[[./doi-utils.org]] contains functions for downloading bibtex entries from  a DOI, and redefines the org-mode doi link so it has more functionality.
 
 [[./jmax-bibtex.el]] contains some utility functions:
 
@@ -18,9 +18,77 @@ See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch
 
 5. Functions to replace journal names with @string entries, and corresponding short/long names.
 
-To install this, add the org-ref repo directory to your load-path, and 
+To install this, add the org-ref repo directory to your load-path, and
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "path-to-org-ref")
 (require 'jmax-bibtex)
+#+END_SRC
+
+* Installation
+You should clone this repository somewhere.
+
+Here is how I load org-ref. This code is in my init.el file.
+
+#+BEGIN_SRC emacs-lisp
+;; remember this directory
+(defconst starter-kit-dir (file-name-directory (or load-file-name (buffer-file-name)))
+    "Directory where the starterkit is installed.")
+
+;;;;;;; org path for loadable org-files
+(defvar org-load-path
+  (list (file-name-as-directory
+	 (expand-file-name "org" starter-kit-dir)))
+  "List of directories to find org-files that `org-babel-load-file' can load code from.")
+
+(defun org-require (feature)
+  "Load a FEATURE from an org-file.
+FEATURE is a symbol, and it is loaded from an org-file by the name of FEATURE.org, that is in the `org-load-path'.  The FEATURE is loaded from `org-babel-load-file'."
+  (let ((org-file (concat (symbol-name feature) ".org"))
+	(path))
+
+    ;; find the org-file
+    (catch 'result
+      (loop for dir in org-load-path do
+	    (when (file-exists-p
+		   (setq path
+			 (expand-file-name
+			  org-file
+			  dir)))
+	      (throw 'result path))))
+    (let ((default-directory (file-name-directory path)))
+      (org-babel-load-file path))))
+
+;; https://github.com/jkitchin/org-ref
+;; for loading org-files
+(add-to-list 'org-load-path
+	     (expand-file-name "org-ref" starter-kit-dir))
+
+;; for loading emacs-lisp files
+(add-to-list 'load-path
+	     (expand-file-name "org-ref" starter-kit-dir))
+
+(org-require 'org-ref)
+(org-require 'doi-utils)
+(org-require 'pubmed)
+(require 'jmax-bibtex)
+#+END_SRC
+
+
+You should set these variables. Here is an example of how mine are set in an init.el file.
+#+BEGIN_SRC emacs-lisp
+(setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+
+;; see org-ref for use of these variables
+(setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
+      org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+      org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
+#+END_SRC
+
+You may want to set some convenient keys for working in your bibtex file:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key [f10] 'org-ref-open-bibtex-notes)
+(global-set-key [f11] 'org-ref-open-bibtex-pdf)
+(global-set-key [f12] 'org-ref-open-in-browser)
 #+END_SRC
