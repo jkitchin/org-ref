@@ -1167,7 +1167,8 @@ Here is a list of helm candidates
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
+
 (((fullCitation . "Ann M. Deml, Vladan Stevanovi\304\207, Christopher L. Muhich, Charles B. Musgrave, Ryan O'Hayre, 2014, 'Oxide enthalpy of formation and band gap energy as accurate descriptors of oxygen vacancy formation energetics', <i>Energy &amp; Environmental Science</i>, vol. 7, no. 6, p. 1996")
   (year . "2014")
   (coins . "ctx_ver=Z39.88-2004&amp;rft_id=info%3Adoi%2Fhttp%3A%2F%2Fdx.doi.org%2F10.1039%2Fc3ee43874k&amp;rfr_id=info%3Asid%2Fcrossref.org%3Asearch&amp;rft.atitle=Oxide+enthalpy+of+formation+and+band+gap+energy+as+accurate+descriptors+of+oxygen+vacancy+formation+energetics&amp;rft.jtitle=Energy+%26+Environmental+Science&amp;rft.date=2014&amp;rft.volume=7&amp;rft.issue=6&amp;rft.spage=1996&amp;rft.aufirst=Ann+M.&amp;rft.aulast=Deml&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.au=Ann+M.+Deml&amp;rft.au=+Vladan+Stevanovi%C4%87&amp;rft.au=+Christopher+L.+Muhich&amp;rft.au=+Charles+B.+Musgrave&amp;rft.au=+Ryan+O%27Hayre")
@@ -1362,25 +1363,3 @@ entry with the generated key already exists in the file."
 
 #+RESULTS:
 : Loaded doi-utils.el
-
-
-
-
-
-#+BEGIN_SRC emacs-lisp
-(setq data '(("John" . "john@email.com")
-             ("Jim" . "jim@email.com")
-             ("Jane" . "jane@email.com")
-             ("Jill" . "jill@email.com")))
-
-(setq some-helm-source
-      `((name . "HELM at the Emacs")
-        (candidates . ,(mapcar 'car data))
-        (action . (lambda (candidate)
-                    (message-box "%s" (cdr (assoc candidate data)))))))
-
-(message-box "you chose %s" (helm :sources '(some-helm-source)))
-#+END_SRC
-
-#+RESULTS:
-: you chose jim@email.com
