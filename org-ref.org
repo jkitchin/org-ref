@@ -1713,7 +1713,6 @@ Now, we can see if an entry is in a file.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-key-in-file-p (key filename)
   "determine if the key is in the file"
-  (interactive "skey: \nsFile: ")
   (save-current-buffer
     (let ((bibtex-files (list filename)))
       ;; This is something I am trying because when the bibtex file is open, and
