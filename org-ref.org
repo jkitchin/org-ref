@@ -1716,6 +1716,13 @@ Now, we can see if an entry is in a file.
   (interactive "skey: \nsFile: ")
   (save-current-buffer
     (let ((bibtex-files (list filename)))
+      ;; This is something I am trying because when the bibtex file is open, and
+      ;; you have added to it, the only way I find to get the update to update
+      ;; is to close it and reopen it. or to save it and revert it.
+      (when (get-file-buffer filename)
+	(set-buffer (get-file-buffer filename))
+	(save-buffer)
+	(revert-buffer t t))
       (bibtex-search-entry key t))))
 #+END_SRC
 
@@ -3521,6 +3528,7 @@ This code provides a helm interface to things you can do when you click on a cit
 	    (bibtex-search-entry key)
 	    (org-ref-bib-citation)))
       "!!! No entry found !!!" )))
+
 
 (defun org-ref-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
