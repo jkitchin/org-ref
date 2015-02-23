@@ -155,6 +155,7 @@ There are some variables needed later to tell this library where you store your 
  :type 'function
  :group 'org-ref)
 
+
 (defcustom org-ref-show-citation-on-enter t
   "If non-nil add a hook function to show the citation summary in
   the minibuffer just by putting the cursor in a link"
