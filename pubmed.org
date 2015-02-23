@@ -199,52 +199,16 @@ We can parse this into a data structure
 #+RESULTS:
 : pubmed-parse-medline
 
-#+BEGIN_SRC emacs-lisp :results code
+#+BEGIN_SRC emacs-lisp  :tangle no
 (pubmed-parse-medline "23162369")
 #+END_SRC
 
-#+RESULTS:
-#+BEGIN_SRC emacs-lisp
-(("PMID" . "23162369")
- ("OWN" . "NLM")
- ("STAT" . "Publisher")
- ("DA" . "20121119")
- ("IS" . "1040-726X (Print)")
- ("IS" . "1040-726X (Linking)")
- ("VI" . "24")
- ("IP" . "4")
- ("DP" . "2012 Dec")
- ("TI" . "Transformational Teaching: Theoretical Underpinnings, Basic Principles, and Core \n      Methods.")
- ("PG" . "569-608")
- ("AB" . "Approaches to classroom instruction have evolved considerably over the past 50\n      years. This progress has been spurred by the development of several learning\n      principles and methods of instruction, including active learning,\n      student-centered learning, collaborative learning, experiential learning, and\n      problem-based learning. In the present paper, we suggest that these seemingly\n      different strategies share important underlying characteristics and can be viewed\n      as complimentary components of a broader approach to classroom instruction called\n      transformational teaching. Transformational teaching involves creating dynamic\n      relationships between teachers, students, and a shared body of knowledge to\n      promote student learning and personal growth. From this perspective, instructors \n      are intellectual coaches who create teams of students who collaborate with each\n      other and with their teacher to master bodies of information. Teachers assume the\n      traditional role of facilitating students' acquisition of key course concepts,\n      but do so while enhancing students' personal development and attitudes toward\n      learning. They accomplish these goals by establishing a shared vision for a\n      course, providing modeling and mastery experiences, challenging and encouraging\n      students, personalizing attention and feedback, creating experiential lessons\n      that transcend the boundaries of the classroom, and promoting ample opportunities\n      for preflection and reflection. We propose that these methods are synergistically\n      related and, when used together, maximize students' potential for intellectual\n      and personal growth.")
- ("FAU" . "Slavich, George M")
- ("AU" . "Slavich GM")
- ("AD" . "Cousins Center for Psychoneuroimmunology and Department of Psychiatry and\n      Biobehavioral Sciences, University of California, Los Angeles, UCLA Medical Plaza\n      300, Room 3156, Los Angeles, CA 90095-7076, USA.")
- ("FAU" . "Zimbardo, Philip G")
- ("AU" . "Zimbardo PG")
- ("LA" . "ENG")
- ("GR" . "R01 AG026364/AG/NIA NIH HHS/United States")
- ("GR" . "T32 MH019925/MH/NIMH NIH HHS/United States")
- ("PT" . "JOURNAL ARTICLE")
- ("DEP" . "20120724")
- ("TA" . "Educ Psychol Rev")
- ("JT" . "Educational psychology review")
- ("JID" . "9885342")
- ("PMC" . "PMC3498956")
- ("MID" . "NIHMS395714")
- ("EDAT" . "2012/11/20 06:00")
- ("MHDA" . "2012/11/20 06:00")
- ("CRDT" . "2012/11/20 06:00")
- ("PHST" . "2012/07/24 [epublish]")
- ("AID" . "10.1007/s10648-012-9199-6 [doi]")
- ("PST" . "ppublish")
- ("SO" . "\nSO  - "))
-#+END_SRC
+
 
 ** PMID to bibtex entry
 The point of parsing the MEDLINE text is so we can make bibtex entries. We only support Journal articles for now.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el
 (defun pubmed-pmid-to-bibtex (pmid)
   "Convert a PMID to a bibtex entry."
   (let* ((data (pubmed-parse-medline pmid))
@@ -325,7 +289,7 @@ The point of parsing the MEDLINE text is so we can make bibtex entries. We only 
 
 And we probably want to be able to insert a bibtex entry
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle pubmed.el
 (defun pubmed-insert-bibtex-from-pmid (pmid)
  "Insert a bibtex entry at point derived from PMID.
 You must clean the entry after insertion."
