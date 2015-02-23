@@ -3681,9 +3681,9 @@ _o_: Open entry   _e_: Email entry and pdf
   ("r" org-ref-wos-related-at-point nil)
   ("c" org-ref-wos-citing-at-point nil)
   ("g" org-ref-google-scholar-at-point nil)
-  ("p" org-ref-pubmed-at-point nil)
+  ("P" org-ref-pubmed-at-point nil)
   ("C" org-ref-crossref-at-point nil)
-  ("s" org-ref-copy-entry-as-summary nil)
+  ("K" org-ref-copy-entry-as-summary nil)
   ("k" (progn
 	 (kill-new
 	  (car (org-ref-get-bibtex-key-and-file)))) nil)
