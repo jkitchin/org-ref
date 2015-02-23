@@ -3699,10 +3699,6 @@ _o_: Open entry   _e_: Email entry and pdf
 	   (email-bibtex-entry)) nil)))
 #+END_SRC
 
-#+RESULTS:
-: org-ref-cite-hydra/body
-
-cite:oberhofer-2013-first
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (provide 'org-ref)
