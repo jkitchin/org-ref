@@ -3662,6 +3662,42 @@ This is a list of cons cells '((\"description\" . action)). The action function 
 #+RESULTS:
 : org-ref-cite-click-helm
 
+** A hydra click interface
+I like hydra a lot. Here we define a hydra menu you might like for the link click action.
+
+#+BEGIN_SRC emacs-lisp
+(defhydra org-ref-cite-hydra (:color blue)
+  "
+_p_: Open pdf     _w_: WOS          _g_: Google Scholar _s_: Copy citation to clipboard
+_u_: Open url     _r_: WOS related  _p_: Pubmed         _k_: Copy key to clipboard
+_n_: Open notes   _c_: WOS citing   _C_: Crossref       _f_: Copy bibtex entry to file
+_o_: Open entry   _e_: Email entry and pdf
+"
+  ("o" org-ref-open-citation-at-point nil)
+  ("p" org-ref-open-pdf-at-point nil)
+  ("n" org-ref-open-notes-at-point nil)
+  ("u" org-ref-open-url-at-point nil)
+  ("w" org-ref-wos-at-point nil)
+  ("r" org-ref-wos-related-at-point nil)
+  ("c" org-ref-wos-citing-at-point nil)
+  ("g" org-ref-google-scholar-at-point nil)
+  ("p" org-ref-pubmed-at-point nil)
+  ("C" org-ref-crossref-at-point nil)
+  ("s" org-ref-copy-entry-as-summary nil)
+  ("k" (progn
+	 (kill-new
+	  (car (org-ref-get-bibtex-key-and-file)))) nil)
+  ("f" org-ref-copy-entry-at-point-to-file nil)
+
+  ("e" (save-excursion
+	 (org-ref-open-citation-at-point)
+	 (email-bibtex-entry)) nil))
+#+END_SRC
+
+#+RESULTS:
+: org-ref-cite-hydra/body
+
+cite:oberhofer-2013-first
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (provide 'org-ref)
