@@ -104,7 +104,7 @@ We can get bibliographic metadata from a pmid. Here we get the MEDLINE text. The
 : pubmed-get-medline
 
 Here is sample output:
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (pubmed-get-medline "23162369")
 #+END_SRC
 
@@ -119,7 +119,7 @@ IS  - 1040-726X (Linking)
 VI  - 24
 IP  - 4
 DP  - 2012 Dec
-TI  - Transformational Teaching: Theoretical Underpinnings, Basic Principles, and Core 
+TI  - Transformational Teaching: Theoretical Underpinnings, Basic Principles, and Core
       Methods.
 PG  - 569-608
 AB  - Approaches to classroom instruction have evolved considerably over the past 50
@@ -131,7 +131,7 @@ AB  - Approaches to classroom instruction have evolved considerably over the pas
       as complimentary components of a broader approach to classroom instruction called
       transformational teaching. Transformational teaching involves creating dynamic
       relationships between teachers, students, and a shared body of knowledge to
-      promote student learning and personal growth. From this perspective, instructors 
+      promote student learning and personal growth. From this perspective, instructors
       are intellectual coaches who create teams of students who collaborate with each
       other and with their teacher to master bodies of information. Teachers assume the
       traditional role of facilitating students' acquisition of key course concepts,
@@ -291,7 +291,7 @@ The point of parsing the MEDLINE text is so we can make bibtex entries. We only 
 #+begin_example
 @article{,
  author = {Slavich, George M and Zimbardo, Philip G},
- title = {Transformational Teaching: Theoretical Underpinnings, Basic Principles, and Core 
+ title = {Transformational Teaching: Theoretical Underpinnings, Basic Principles, and Core
       Methods.},
  abstract = {Approaches to classroom instruction have evolved considerably over the past 50
       years. This progress has been spurred by the development of several learning
@@ -302,7 +302,7 @@ The point of parsing the MEDLINE text is so we can make bibtex entries. We only 
       as complimentary components of a broader approach to classroom instruction called
       transformational teaching. Transformational teaching involves creating dynamic
       relationships between teachers, students, and a shared body of knowledge to
-      promote student learning and personal growth. From this perspective, instructors 
+      promote student learning and personal growth. From this perspective, instructors
       are intellectual coaches who create teams of students who collaborate with each
       other and with their teacher to master bodies of information. Teachers assume the
       traditional role of facilitating students' acquisition of key course concepts,
@@ -401,8 +401,8 @@ We can also get xml of the MEDLINE data. The web page here also wraps the xml in
     (goto-char (point-min))
     (while (search-forward "&gt;" nil t)
       (replace-match ">"))
-    (goto-char (point-min))   
-			   
+    (goto-char (point-min))
+
     (let ((p1 (search-forward "<pre>"))
 	  (p2 (search-forward "</pre>")))
       (buffer-substring (+ 1 p1) (- p2 6)))))
@@ -552,7 +552,7 @@ Here we define a new link. Clicking on it simply opens a webpage to the article.
      (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/%s}" keyword)))))
 #+END_SRC
 
-* NIHMSID 
+* NIHMSID
 The NIHMSID is a preliminary article identifier that applies only to manuscripts deposited through the NIHMS system. The NIHMSID is only valid for compliance reporting for 90 days after the publication date of an article. Once the Web version of the NIHMS submission is approved for inclusion in PMC and the corresponding citation is in PubMed, the article will also be assigned a PMCID.
 
 #+BEGIN_SRC emacs-lisp :tangle pubmed.el :results silent
@@ -582,6 +582,3 @@ The NIHMSID is a preliminary article identifier that applies only to manuscripts
 This code will tangle the elisp code out to pubmed.el and load it.
 
 [[elisp:(org-babel-load-file "pubmed.org")]]
-
-
-
