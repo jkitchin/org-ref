@@ -3669,7 +3669,7 @@ I like hydra a lot. Here we define a hydra menu you might like for the link clic
 (defhydra org-ref-cite-hydra (:color blue)
   "
 _p_: Open pdf     _w_: WOS          _g_: Google Scholar _s_: Copy citation to clipboard
-_u_: Open url     _r_: WOS related  _p_: Pubmed         _k_: Copy key to clipboard
+_u_: Open url     _r_: WOS related  _P_: Pubmed         _k_: Copy key to clipboard
 _n_: Open notes   _c_: WOS citing   _C_: Crossref       _f_: Copy bibtex entry to file
 _o_: Open entry   _e_: Email entry and pdf
 "
