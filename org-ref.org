@@ -151,7 +151,7 @@ There are some variables needed later to tell this library where you store your 
 
 (defcustom org-ref-cite-onclick-function
   'org-ref-cite-click-helm
-  "Function that runs when you click on a cite link. The function must take no arguments. You may also use `org-ref-cite-onclick-minibuffer-menu' if you do not like helm."
+  "Function that runs when you click on a cite link. The function must take no arguments. You may also use `org-ref-cite-onclick-minibuffer-menu' if you do not like helm. If you like `hydra', consider using `org-ref-cite-hydra'."
  :type 'function
  :group 'org-ref)
 
@@ -3665,7 +3665,10 @@ This is a list of cons cells '((\"description\" . action)). The action function 
 ** A hydra click interface
 I like hydra a lot. Here we define a hydra menu you might like for the link click action.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+(require 'hydra)
+(setq hydra-is-helpful t)
+
 (defhydra org-ref-cite-hydra (:color blue)
   "
 _p_: Open pdf     _w_: WOS          _g_: Google Scholar _K_: Copy citation to clipboard
