@@ -1776,14 +1776,14 @@ We need some convenience functions to open act on the citation at point. These w
         (catch 'done
           (let ((url (bibtex-autokey-get-field "url")))
             (when  url
-              (browse-url url)
+              (browse-url (s-trim url))
               (throw 'done nil)))
 
           (let ((doi (bibtex-autokey-get-field "doi")))
             (when doi
               (if (string-match "^http" doi)
                   (browse-url doi)
-                (browse-url (format "http://dx.doi.org/%s" doi)))
+                (browse-url (format "http://dx.doi.org/%s" (s-trim doi))))
               (throw 'done nil))))))))
 
 
