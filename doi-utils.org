@@ -1148,7 +1148,7 @@ The idea here is to perform a query on Crossref, get a helm buffer of candidates
 #+END_EXAMPLE
 
 
-#+BEGIN_SRC emacs-lisp :var data=json  :results value raw
+#+BEGIN_SRC emacs-lisp :var data=json  :results value raw :tangle no
 (let ((json-object-type 'plist)
       (json (json-read-from-string data)))
 (aref json 0))
@@ -1160,7 +1160,7 @@ The idea here is to perform a query on Crossref, get a helm buffer of candidates
 
 
 Here is a list of helm candidates
-#+BEGIN_SRC emacs-lisp :var data=json :results code
+#+BEGIN_SRC emacs-lisp :var data=json :results code :tangle no
 (let (;(json-object-type 'plist)
       (json (json-read-from-string data)))
   (mapcar (lambda (x) (cons (assoc 'fullCitation x) x)) json))
