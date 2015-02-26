@@ -412,7 +412,7 @@ label:test
 
 
 (defcustom org-ref-label-color
-  "black"
+  "dark magenta"
   "Color of label links"
   :group 'org-ref)
 
