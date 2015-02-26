@@ -452,7 +452,7 @@ label:test
   `((t (:inherit org-link :foreground ,org-ref-ref-color)))
   "Face for ref links in org-ref.")
 
-
+(global-hi-lock-mode 1)
 (when org-ref-colorize-links
   (highlight-regexp org-ref-cite-re 'org-ref-cite-face)
   (highlight-regexp org-ref-label-re 'org-ref-label-face)
