@@ -438,6 +438,14 @@ For example:
 #+RESULTS:
 | :volume | 99 | :indexed | (:timestamp 1399964115538.0 :date-parts [[2014 5 13]]) | :publisher | American Physical Society (APS) | :source | CrossRef | :URL | http://dx.doi.org/10.1103/PhysRevLett.99.016105 | :ISSN | [0031-9007 1079-7114] | :DOI | 10.1103/physrevlett.99.016105 | :type | journal-article | :title | Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces | :issue | 1 | :deposited | (:timestamp 1313712000000.0 :date-parts [[2011 8 19]]) | :reference-count | 26 | :container-title | Phys. Rev. Lett. | :author | [(:given F. :family Abild-Pedersen) (:given J. :family Greeley) (:given F. :family Studt) (:given J. :family Rossmeisl) (:given T. :family Munter) (:given P. :family Moses) (:given E. :family Skúlason) (:given T. :family Bligaard) (:given J. :family Nørskov)] | :prefix | http://id.crossref.org/prefix/10.1103 | :score | 1.0 | :issued | (:date-parts [[2007 7]]) | :subject | [Physics and Astronomy(all)] | :subtitle | [] |
 
+or for a book:
+#+BEGIN_SRC emacs-lisp :tangle no
+(doi-utils-get-json-metadata "10.1007/978-1-4612-4968-9")
+#+END_SRC
+
+#+RESULTS:
+| :member | nil | :indexed | (:timestamp 1423773021494 :date-parts [[2015 2 12]]) | :publisher | Springer New York | :source | CrossRef | :URL | http://dx.doi.org/10.1007/978-1-4612-4968-9 | :ISBN | [http://id.crossref.org/isbn/978-0-387-96347-1 http://id.crossref.org/isbn/978-1-4612-4968-9] | :ISSN | [0172-6056] | :DOI | 10.1007/978-1-4612-4968-9 | :type | book | :title | Constructive Combinatorics | :deposited | (:timestamp 1378684800000 :date-parts [[2013 9 9]]) | :reference-count | 0 | :container-title | Undergraduate Texts in Mathematics | :author | [(:given Dennis :family Stanton) (:given Dennis :family White)] | :prefix | none | :score | 1.0 | :issued | (:date-parts [[1986]]) | :subtitle | [] |
+
 We can use that data to construct a bibtex entry. We do that by defining a template, and filling it in. I wrote this template expansion code which makes it easy to substitute values like %{} in emacs lisp.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
@@ -463,7 +471,10 @@ As different bibtex types share common keys, it is advantageous to separate data
       (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
                    (plist-get results :author) " and "))
       (title      (plist-get results :title))
+      (subtitle   (plist-get results :subtitle))
       (journal    (plist-get results :container-title))
+      (series     (plist-get results :container-title))
+      (publisher  (plist-get results :publisher))
       (volume     (plist-get results :volume))
       (issue      (plist-get results :issue))
       (number     (plist-get results :issue))
@@ -523,6 +534,9 @@ when the `:type' parameter in the JSON metadata is contained in
 
 (doi-utils-def-bibtex-type inproceedings ("proceedings-article")
                            author title booktitle year month pages doi url)
+
+(doi-utils-def-bibtex-type book ("book")
+                           author title series publisher year pages doi url)
 #+END_SRC
 
 With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
