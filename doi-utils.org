@@ -436,7 +436,7 @@ For example:
 #+END_SRC
 
 #+RESULTS:
-| :volume | 99 | :indexed | (:timestamp 1399964115538.0 :date-parts [[2014 5 13]]) | :publisher | American Physical Society (APS) | :source | CrossRef | :URL | http://dx.doi.org/10.1103/PhysRevLett.99.016105 | :ISSN | [0031-9007 1079-7114] | :DOI | 10.1103/physrevlett.99.016105 | :type | journal-article | :title | Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces | :issue | 1 | :deposited | (:timestamp 1313712000000.0 :date-parts [[2011 8 19]]) | :reference-count | 26 | :container-title | Phys. Rev. Lett. | :author | [(:given F. :family Abild-Pedersen) (:given J. :family Greeley) (:given F. :family Studt) (:given J. :family Rossmeisl) (:given T. :family Munter) (:given P. :family Moses) (:given E. :family Skúlason) (:given T. :family Bligaard) (:given J. :family Nørskov)] | :prefix | http://id.crossref.org/prefix/10.1103 | :score | 1.0 | :issued | (:date-parts [[2007 7]]) | :subject | [Physics and Astronomy(all)] | :subtitle | [] |
+| :member | http://id.crossref.org/member/16 | :volume | 99 | :indexed | (:timestamp 1423435577602 :date-parts [[2015 2 8]]) | :publisher | American Physical Society (APS) | :source | CrossRef | :URL | http://dx.doi.org/10.1103/PhysRevLett.99.016105 | :ISSN | [0031-9007 1079-7114] | :DOI | 10.1103/physrevlett.99.016105 | :type | journal-article | :title | Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces | :issue | 1 | :deposited | (:timestamp 1313712000000 :date-parts [[2011 8 19]]) | :reference-count | 26 | :container-title | Phys. Rev. Lett. | :author | [(:given F. :family Abild-Pedersen) (:given J. :family Greeley) (:given F. :family Studt) (:given J. :family Rossmeisl) (:given T. :family Munter) (:given P. :family Moses) (:given E. :family Skúlason) (:given T. :family Bligaard) (:given J. :family Nørskov)] | :prefix | http://id.crossref.org/prefix/10.1103 | :score | 1.0 | :issued | (:date-parts [[2007 7]]) | :subject | [Physics and Astronomy(all)] | :subtitle | [] |
 
 or for a book:
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -488,8 +488,8 @@ As different bibtex types share common keys, it is advantageous to separate data
 
 Next, we need to define the different bibtex types. Each type has a bibtex type (for output) and the type as provided in the doi record. Finally, we have to declare the fields we want to output.
 
-#+BEGIN_SRC emacs-lisp :notangle doi-utils.el
-(defvar doi-utils-bibtex-type-generators nil)
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el :results none
+(defpar doi-utils-bibtex-type-generators nil)
 
 (defun concat-prepare (lst &optional acc)
   "Given a list `lst' of strings and other expressions, which are
@@ -512,8 +512,12 @@ when the `:type' parameter in the JSON metadata is contained in
 `matching-types' - a list of strings."
   `(push (lambda (type results)
            (when (or ,@(mapcar (lambda (match-type) `(string= type ,match-type)) matching-types))
-             (let ,(mapcar (lambda (field) (or (assoc field doi-utils-json-metadata-extract)
-                                          (error "unknown bibtex field type %s" field)))
+             (let ,(mapcar (lambda (field)
+                             (let ((field-expr (assoc field doi-utils-json-metadata-extract)))
+                               (if field-expr
+                                   ;; need to convert to string first
+                                   `(,(car field-expr) (format "%s" ,(cadr field-expr)))
+                                   (error "unknown bibtex field type %s" field))))
                            fields)
                (concat
                 ,@(concat-prepare
@@ -522,9 +526,7 @@ when the `:type' parameter in the JSON metadata is contained in
                           ;; there seems to be some bug with mapcan,
                           ;; so we fall back to flatten
                           (mapcar (lambda (field)
-                                    `(,(concat "  " (symbol-name field) " = {")
-                                       ,field
-                                       "},\n"))
+                                    `("  " ,(symbol-name field) " = {" ,field "},\n"))
                                   fields)
                           "}\n")))))))
          doi-utils-bibtex-type-generators))
@@ -546,68 +548,8 @@ With the code generating the bibtex entry in place, we can glue it to the json r
   (let* ((results (doi-utils-get-json-metadata doi))
          (type (plist-get results :type)))
     (format "%s" results) ; json-data
-    (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
-    (message-box "%s not supported yet." type)))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
-(defun doi-utils-doi-to-bibtex-string (doi)
-  "return a bibtex entry as a string for the doi. Only articles are currently supported"
-  (let (type
-	results
-	author
-	title
-	booktitle
-	journal
-	year
-	volume
-	number
-	pages
-	month
-	url
-	json-data)
-    (setq results (doi-utils-get-json-metadata doi)
-	  json-data (format "%s" results)
-	  type (plist-get results :type)
-	  author (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
-			    (plist-get results :author) " and ")
-	  title (plist-get results :title)
-	  journal (plist-get results :container-title)
-	  volume (plist-get results :volume)
-	  issue (plist-get results :issue)
-	  year (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0)
-	  pages (plist-get results :page)
-	  doi (plist-get results :DOI)
-	  url (plist-get results :URL))
-    (cond
-     ((or (string= type "journal-article") (string= type "article-journal"))
-      (doi-utils-expand-template "@article{,
-  author =	 {%{author}},
-  title =	 {%{title}},
-  journal =	 {%{journal}},
-  year =	 {%{year}},
-  volume =	 {%{volume}},
-  number =	 {%{issue}},
-  pages =	 {%{pages}},
-  doi =          {%{doi}},
-  url =          {%{url}},
-}"))
-
-     ((string= type "proceedings-article")
-      (setq booktitle (plist-get results :container-title))
-      (doi-utils-expand-template "@inproceedings{,
-  author =	 {%{author}},
-  title =	 {%{title}},
-  booktitle =    {%{booktitle}},
-  year =	 {%{year}},
-  month =	 {%{month}},
-  pages =	 {%{pages}},
-  doi =          {%{doi}},
-  url =          {%{url}},
-}"))
-
-    (t (message-box "%s not supported yet." type)))))
+    (or (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
+        (message-box "%s not supported yet." type))))
 #+END_SRC
 
 #+RESULTS:
@@ -621,15 +563,35 @@ To see that in action:
 #+RESULTS:
 #+begin_example
 @article{,
-  author =	 {F. Abild-Pedersen and J. Greeley and F. Studt and J. Rossmeisl and T. Munter and P. Moses and E. Skúlason and T. Bligaard and J. Nørskov},
-  title =	 {Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces},
-  journal =	 {Phys. Rev. Lett.},
-  year =	 {2007},
-  volume =	 {99},
-  number =	 {1},
-  pages =	 {nil},
-  doi =          {10.1103/physrevlett.99.016105},
-  url =          {http://dx.doi.org/10.1103/PhysRevLett.99.016105},
+  author = {F. Abild-Pedersen and J. Greeley and F. Studt and J. Rossmeisl and T. Munter and P. Moses and E. Skúlason and T. Bligaard and J. Nørskov},
+  title = {Scaling Properties of Adsorption Energies for Hydrogen-Containing Molecules on Transition-Metal Surfaces},
+  journal = {Phys. Rev. Lett.},
+  year = {2007},
+  volume = {99},
+  number = {1},
+  pages = {nil},
+  doi = {10.1103/physrevlett.99.016105},
+  url = {http://dx.doi.org/10.1103/PhysRevLett.99.016105},
+}
+#+end_example
+
+and for a book:
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(doi-utils-doi-to-bibtex-string "10.1007/978-1-4612-4968-9")
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+@book{,
+  author = {Dennis Stanton and Dennis White},
+  title = {Constructive Combinatorics},
+  series = {Undergraduate Texts in Mathematics},
+  publisher = {Springer New York},
+  year = {1986},
+  pages = {nil},
+  doi = {10.1007/978-1-4612-4968-9},
+  url = {http://dx.doi.org/10.1007/978-1-4612-4968-9},
 }
 #+end_example
 
