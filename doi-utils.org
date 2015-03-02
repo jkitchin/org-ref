@@ -487,7 +487,7 @@ Next, we need to define the different bibtex types. Each type has a bibtex type 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el :results none
 (setq doi-utils-bibtex-type-generators nil)
 
-(defun concat-prepare (lst &optional acc)
+(defun doi-utils-concat-prepare (lst &optional acc)
   "Given a list `lst' of strings and other expressions, which are
 intented to passed to `concat', concat any subsequent strings,
 minimising the number of arguments being passed to `concat'
@@ -495,10 +495,9 @@ without changing the results."
   (cond ((null lst) (nreverse acc))
         ((and (stringp (car lst))
               (stringp (car acc)))
-         (concat-prepare (cdr lst) (cons (concat (car acc) (car lst))
+         (doi-utils-concat-prepare (cdr lst) (cons (concat (car acc) (car lst))
                                          (cdr acc))))
-        (t (concat-prepare (cdr lst) (cons (car lst) acc)))))
-
+        (t (doi-utils-concat-prepare (cdr lst) (cons (car lst) acc)))))
 
 (defmacro doi-utils-def-bibtex-type (name matching-types &rest fields)
   "Define a BibTeX type identified by (symbol) `name' with
@@ -516,7 +515,7 @@ when the `:type' parameter in the JSON metadata is contained in
                                    (error "unknown bibtex field type %s" field))))
                            fields)
                (concat
-                ,@(concat-prepare
+                ,@(doi-utils-concat-prepare
                    (-flatten
                     (list (concat "@" (symbol-name name) "{,\n")
                           ;; there seems to be some bug with mapcan,
