@@ -462,34 +462,30 @@ Now we define a function that fills in that template from the metadata.
 As different bibtex types share common keys, it is advantageous to separate data extraction from json, and the formatting of the bibtex entry.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
-(defmacro defpar (name &optional value)
-  `(progn (defvar ,name)
-          (setf ,name ,value)))
-
-(defpar doi-utils-json-metadata-extract
-    '((type       (plist-get results :type))
-      (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
-                   (plist-get results :author) " and "))
-      (title      (plist-get results :title))
-      (subtitle   (plist-get results :subtitle))
-      (journal    (plist-get results :container-title))
-      (series     (plist-get results :container-title))
-      (publisher  (plist-get results :publisher))
-      (volume     (plist-get results :volume))
-      (issue      (plist-get results :issue))
-      (number     (plist-get results :issue))
-      (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
-      (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
-      (pages      (plist-get results :page))
-      (doi        (plist-get results :DOI))
-      (url        (plist-get results :URL))
-      (booktitle  (plist-get results :container-title))))
+(setq doi-utils-json-metadata-extract
+      '((type       (plist-get results :type))
+        (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
+                     (plist-get results :author) " and "))
+        (title      (plist-get results :title))
+        (subtitle   (plist-get results :subtitle))
+        (journal    (plist-get results :container-title))
+        (series     (plist-get results :container-title))
+        (publisher  (plist-get results :publisher))
+        (volume     (plist-get results :volume))
+        (issue      (plist-get results :issue))
+        (number     (plist-get results :issue))
+        (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
+        (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
+        (pages      (plist-get results :page))
+        (doi        (plist-get results :DOI))
+        (url        (plist-get results :URL))
+        (booktitle  (plist-get results :container-title))))
 #+END_SRC
 
 Next, we need to define the different bibtex types. Each type has a bibtex type (for output) and the type as provided in the doi record. Finally, we have to declare the fields we want to output.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el :results none
-(defpar doi-utils-bibtex-type-generators nil)
+(setq doi-utils-bibtex-type-generators nil)
 
 (defun concat-prepare (lst &optional acc)
   "Given a list `lst' of strings and other expressions, which are
