@@ -461,7 +461,7 @@ Now we define a function that fills in that template from the metadata.
 
 As different bibtex types share common keys, it is advantageous to separate data extraction from json, and the formatting of the bibtex entry.
 
-#+BEGIN_SRC emacs-lisp :notangle doi-utils.el
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defmacro defpar (name &optional value)
   `(progn (defvar ,name)
           (setf ,name ,value)))
@@ -542,7 +542,7 @@ when the `:type' parameter in the JSON metadata is contained in
 #+END_SRC
 
 With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
-#+BEGIN_SRC emacs-lisp :notangle doi-utils.el
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-doi-to-bibtex-string (doi)
   "return a bibtex entry as a string for the doi. Only articles are currently supported"
   (let* ((results (doi-utils-get-json-metadata doi))
