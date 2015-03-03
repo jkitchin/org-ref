@@ -1,4 +1,4 @@
-;;; org-ref-init.el --- setup bibliography, cite, ref and label org-mode links.
+;;; org-ref-init.el --- cite and cross-reference in org-mode
 
 ;; Copyright(C) 2014 John Kitchin
 
