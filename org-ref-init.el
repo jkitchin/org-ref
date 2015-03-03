@@ -63,8 +63,7 @@ FEATURE is a symbol, and it is loaded from an org-file by the name of FEATURE.or
 ;; for loading org-files
 (add-to-list 'org-ref-org-load-path org-ref-dir)
 ;; for loading emacs-lisp files
-(add-to-list 'load-path
-	     (expand-file-name "org-ref" org-ref-dir))
+(add-to-list 'load-path org-ref-dir)
 
 (org-ref-org-require 'org-ref)
 (org-ref-org-require 'doi-utils)
