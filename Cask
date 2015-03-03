@@ -13,4 +13,5 @@
  (depends-on "s")
  (depends-on "f")
  (depends-on "hydra")
+ (depends-on "key-chord")
  (depends-on "parsebib"))
