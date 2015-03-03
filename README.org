@@ -1,5 +1,9 @@
 #+TITLE: org-ref: citations, cross-references, indexes, glossaries and bibtex utilities for org-mode
 
+#+BEGIN_HTML
+<a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
+#+END_HTML
+
 See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch?v=JyvpSVl4_dg for examples of org-ref in action.
 
 [[./org-ref.org]] contains all documentation and installation instructions.
