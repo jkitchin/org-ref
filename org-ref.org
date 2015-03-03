@@ -2155,16 +2155,22 @@ We will want to generate formatting functions for each citation type. The reason
 We create the links by mapping the function onto the list of defined link types.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
+;;;###autoload
 (defun org-ref-format-citation-description (desc)
-  "return formatted citation description. if the cite link has a description, it is optional text for the citation command. You can specify pre and post text by separating these with ::."
+  "Return formatted citation description.  If the cite link has a
+description, it is optional text for the citation command. You
+can specify pre and post text by separating these with ::, for
+example [[cite:key][pre text::post text]]."
   (interactive)
   (cond
    ((string-match "::" desc)
     (format "[%s][%s]" (car (setq results (split-string desc "::"))) (cadr results)))
    (t (format "[%s]" desc))))
 
+;;;###autoload
 (defun org-ref-define-citation-link (type &optional key)
-  "add a citation link for org-ref. With optional key, set the reftex binding. For example:
+  "Add a citation link of TYPE for org-ref.
+With optional KEY, set the reftex binding. For example:
 (org-ref-define-citation-link \"citez\" ?z) will create a new citez link, with reftex key of z,
 and the completion function."
   (interactive "sCitation Type: \ncKey: ")
@@ -2195,10 +2201,13 @@ and the completion function."
 (mapcar 'org-ref-define-citation-link org-ref-cite-types)
 #+END_SRC
 
+#+RESULTS:
+
 *** org-ref-insert-cite-link
 We need a convenient method to insert links. In reftex you use the keystroke C-c ], which gives you a minibuffer to search the bibtex files from. This function is bound to that same keystroke here [[*org-mode%20/%20reftex%20setup][org-mode / reftex setup]]. This function will append to a cite link if you call it while on a link.
 
 #+BEGIN_SRC emacs-lisp  :tangle org-ref.el
+;;;###autoload
 (defun org-ref-insert-cite-link (alternative-cite)
   "Insert a default citation link using reftex. If you are on a link, it
 appends to the end of the link, otherwise, a new link is
@@ -2238,8 +2247,7 @@ inserted. Use a prefix arg to get a menu of citation types."
 		   (mapconcat 'identity (reftex-citation t) ",")))))
 
       ;; you pressed a C-u so we run this code
-      (reftex-citation)))
-  )
+      (reftex-citation))))
 #+END_SRC
 cite:zhou-2004-first-lda-u,paier-2006-errat,boes-2015-estim-bulk
 
@@ -2264,6 +2272,7 @@ If you know the specific bibtex key, you may like to use completion directly. Yo
 Alternatively, you may shortcut the org-machinery with this command. You will be prompted for a citation type, and then offered key completion.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
+;;;###autoload
 (defun org-ref-insert-cite-with-completion (type)
   "Insert a cite link with completion"
   (interactive (list (ido-completing-read "Type: " org-ref-cite-types)))
@@ -2274,6 +2283,7 @@ Alternatively, you may shortcut the org-machinery with this command. You will be
 org-mode already defines a store link function for bibtex entries. It does not store the link I want though, it only stores a brief citation of the entry. I want a citation link. Here is a function to do that.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
+;;;###autoload
 (defun org-ref-store-bibtex-entry-link ()
   "Save a citation link to the current bibtex entry. Saves in the default link type."
   (interactive)
@@ -2503,6 +2513,7 @@ This assumes you are in an article."
 ** open pdf from bibtex
 We bind this to a key here: [[*key%20bindings%20for%20utilities][key bindings for utilities]].
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
+;;;###autoload
 (defun org-ref-open-bibtex-pdf ()
   "open pdf for a bibtex entry, if it exists. assumes point is in
 the entry of interest in the bibfile. but does not check that."
@@ -2949,6 +2960,7 @@ Here we develop a similar idea, but instead of an org-buffer with links, we crea
 Now, we have a functions for candidates, we can make helm sources for each one, and then run a helm command to view them.
 
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
+;;;###autoload
 (defun org-ref ()
   "Opens a helm interface to actions for org-ref.
 Shows bad citations, ref links and labels"
@@ -3169,7 +3181,6 @@ I prefer citations in chronological order within a grouping. These functions sor
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-citation-year (key)
   "get the year of an entry with key. Returns year as a string."
-  (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file key))
 	 (bibfile (cdr results)))
     (with-temp-buffer
@@ -3179,7 +3190,7 @@ I prefer citations in chronological order within a grouping. These functions sor
         ))))
 
 (defun org-ref-sort-citation-link ()
- "replace link at point with sorted link by year"
+ "Replace link at point with sorted link by year."
  (interactive)
  (let* ((object (org-element-context))
         (type (org-element-property :type object))
@@ -3201,12 +3212,13 @@ I prefer citations in chronological order within a grouping. These functions sor
 Sometimes it may be helpful to manually change the order of citations. These functions define shift-arrow functions.
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-swap-keys (i j keys)
- "swap the keys in a list with index i and j"
+ "Swap the KEYS in a list with index I and J."
  (let ((tempi (nth i keys)))
    (setf (nth i keys) (nth j keys))
    (setf (nth j keys) tempi))
   keys)
 
+;;;###autoload
 (defun org-ref-swap-citation-link (direction)
  "move citation at point in direction +1 is to the right, -1 to the left"
  (interactive)
@@ -3293,7 +3305,7 @@ To get a lighter weight message about the label, ref and cite links, we define a
 			  (point)))))
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
-
+;;;###autoload
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
   (interactive)
@@ -3449,7 +3461,7 @@ These are in the keywords field, and are comma or semicolon separated."
 	 (split-string kstring "\\(,\\|;\\)[ \n]*\\|{\\|}" t)))
       keywords)))
 
-
+;;;###autoload
 (defun org-ref-set-bibtex-keywords (keywords &optional arg)
   "Add KEYWORDS to a bibtex entry.
 If KEYWORDS is a list, it is converted to a comma-separated string. The KEYWORDS are added to the beginning of the field. Otherwise KEYWORDS should be a string of comma-separate keywords."
@@ -3470,7 +3482,7 @@ If KEYWORDS is a list, it is converted to a comma-separated string. The KEYWORDS
 	(concat ", "  (bibtex-autokey-get-field "keywords"))))))
   (save-buffer))
 
-
+;;;###autoload
 (defun helm-tag-bibtex-entry ()
   "Helm interface to add keywords to a bibtex entry.
 Run this with the point in a bibtex entry."
@@ -3607,6 +3619,7 @@ C-u C-u will change the key at point to the selected keys.
 (setq helm-bibtex-format-citation-functions
       '((org-mode . helm-bibtex-format-org-ref)))
 
+;;;###autoload
 (defun org-ref-helm-insert-cite-link (arg)
   "org-ref function to use helm-bibtex to insert a citation link.
 With one prefix arg, insert a ref link.
@@ -3642,7 +3655,6 @@ This code provides a helm interface to things you can do when you click on a cit
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun org-ref-get-citation-string-at-point ()
   "Get a string of a formatted citation"
-  (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
 	 (bibfile (cdr results)))
@@ -3658,7 +3670,6 @@ This code provides a helm interface to things you can do when you click on a cit
 (defun org-ref-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
 Checks for pdf and doi, and add appropriate functions."
-  (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
          (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
@@ -3762,7 +3773,7 @@ This is a list of cons cells '((\"description\" . action)). The action function 
  'org-ref-helm-user-candidates
  '("Example" . (lambda () (message-box "You did it!")))
  t)
-
+;;;###autoload
 (defun org-ref-cite-click-helm (key)
   "subtle points.
 1. get name and candidates before entering helm because we need the org-buffer.
