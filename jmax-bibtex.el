@@ -1,7 +1,7 @@
 ;;; jmax-bibtex.el --- jmax-bibtex utilities
 
 ;;; Commentary:
-;; Requires: s.el, dash.el, org-ref.el, doi-utils.el
+;; Requires: s.el, dash.el, org-ref.el, doi-utils.el, key-chord.el
 
 ;;; Code:
 
@@ -423,6 +423,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 
 
 ;; hydra menu for actions on bibtex entries
+(require 'key-chord)
 (key-chord-define-global
  "jj"
  (defhydra jmax-bibtex-hydra (:color blue)
