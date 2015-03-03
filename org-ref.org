@@ -3398,7 +3398,7 @@ Let us add keywords as a searchable field.
 (setq helm-bibtex-additional-search-fields '(keywords))
 #+END_SRC
 
-Next, we are going to add keywords to the helm interface.
+Next, we are going to add keywords to the helm interface. This modifies the helm-bibtex function to add our keywords.
 #+BEGIN_SRC emacs-lisp
 (defun helm-bibtex-candidates-formatter (candidates source)
   "Formats BibTeX entries for display in results list."
@@ -3422,12 +3422,64 @@ Next, we are going to add keywords to the helm interface.
 
 #+END_SRC
 
-1. Make the default action to insert selected keys.
-2. Make open entry second action
-#+BEGIN_SRC emacs-lisp :tangle org-ref.el
+Next, we add some functions to add keywords to a bibtex entry using a helm interface, and a new action to add keywords to entries from helm-bibtex.
+#+BEGIN_SRC emacs-lisp
+;; adapted from bibtex-utils.el
+;; these are candidates for selecting keywords/tags
+(defun org-ref-bibtex-keywords ()
+  "Get keywords defined in current bibtex file.
+These are in the keywords field, and are comma or semicolon separated."
+  (save-excursion
+    (goto-char (point-min))
+    (let (keywords kstring)
+      (while (re-search-forward "^\\s-*keywords.*{\\([^}]+\\)}" nil t)
+        ;; TWS - remove newlines/multiple spaces:
+	(setq kstring (replace-regexp-in-string "[ \t\n]+" " " (match-string 1)))
+	(mapc
+	 (lambda (v)
+	   (add-to-list 'keywords v t))
+	 (split-string kstring "\\(,\\|;\\)[ \n]*\\|{\\|}" t)))
+      keywords)))
+
+
+(defun org-ref-set-bibtex-keywords (keywords)
+  "Add KEYWORDS to a bibtex entry.
+If KEYWORDS is a list, it is converted to a comma-separated string. The KEYWORDS are added to the beginning of the field. Otherwise KEYWORDS should be a string."
+  (interactive "sKeywords: ")
+  (bibtex-set-field
+   "keywords"
+   (concat
+    (if (listp keywords)
+	(mapconcat 'identity keywords ", ")
+      keywords)
+    (when (not (string= "" (bibtex-autokey-get-field "keywords")))
+      (concat ", "  (bibtex-autokey-get-field "keywords")))))
+  (save-buffer))
+
+
+(defun helm-tag-bibtex-entry ()
+  "Helm interface to add keywords to a bibtex entry.
+Run this with the point in a bibtex entry."
+  (interactive)
+  (let ((keyword-source `((name . "Existing keywords")
+			  (candidates . ,(org-ref-bibtex-keywords))
+			  (action . (lambda (candidate)
+				      (org-ref-set-bibtex-keywords
+				       (mapconcat
+					'identity
+					(helm-marked-candidates)
+					", "))))))
+	(fallback-source `((name . "Add new keywords")
+			   (dummy)
+			   (action . (lambda (candidate)
+				       (org-ref-set-bibtex-keywords helm-pattern)
+				       )))))
+    (helm :sources '(keyword-source fallback-source))))
+
+
 (defun org-ref-helm-tag-entries (candidates)
-  "Set tags on selected bibtex entries from helm.
-User is prompted for tags."
+  "Set tags on selected bibtex entries from helm-bibtex.
+User is prompted for tags. This function is called from `helm-bibtex'."
   (let ((keywords (read-input "Keywords (comma separated): ")))
     (loop for key in (helm-marked-candidates)
 	  do
@@ -3437,9 +3489,17 @@ User is prompted for tags."
 	     "keywords"
 	     (concat
 	      keywords
-	      "," (bibtex-autokey-get-field "keywords")))
+	      ", " (bibtex-autokey-get-field "keywords")))
 	    (save-buffer)))))
+#+END_SRC
 
+Next, adapt the helm-bibtex source with these features:
+
+1. Make the default action to insert selected keys.
+2. Make open entry second action
+3. Add some features for adding keywords to bibtex entries.
+
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (setq helm-source-bibtex
       '((name                                      . "BibTeX entries")
 	(init                                      . helm-bibtex-init)
