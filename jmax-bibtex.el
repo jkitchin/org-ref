@@ -209,6 +209,7 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("‘" . "'")
 	("’" . "'")
 	("“" . "\"")
+	("’" . "'")
 	("”" . "\"")))
 
 (defun jmax-replace-nonascii ()
