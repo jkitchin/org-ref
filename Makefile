@@ -15,10 +15,10 @@ unit:
 	${CASK_EXEC} ${EMACS} -Q -batch -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
 compile:
-	${CASK_EXEC} ${EMACS} -Q -batch -f batch-byte-compile org-ref-init.el
+	${CASK_EXEC} ${EMACS} -Q -batch -f batch-byte-compile *.el
 
 clean-elc:
-	rm -f f.elc
+	rm -f *.elc
 
 tangled:
 	${MAKE} ${EL_TANGLED}
