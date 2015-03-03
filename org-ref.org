@@ -3442,18 +3442,24 @@ These are in the keywords field, and are comma or semicolon separated."
       keywords)))
 
 
-(defun org-ref-set-bibtex-keywords (keywords)
+(defun org-ref-set-bibtex-keywords (keywords &optional arg)
   "Add KEYWORDS to a bibtex entry.
-If KEYWORDS is a list, it is converted to a comma-separated string. The KEYWORDS are added to the beginning of the field. Otherwise KEYWORDS should be a string."
-  (interactive "sKeywords: ")
+If KEYWORDS is a list, it is converted to a comma-separated string. The KEYWORDS are added to the beginning of the field. Otherwise KEYWORDS should be a string of comma-separate keywords."
+  (interactive "sKeywords: \nP")
   (bibtex-set-field
    "keywords"
-   (concat
-    (if (listp keywords)
-	(mapconcat 'identity keywords ", ")
-      keywords)
-    (when (not (string= "" (bibtex-autokey-get-field "keywords")))
-      (concat ", "  (bibtex-autokey-get-field "keywords")))))
+   (if arg
+       ;; replace with arg
+       (if (listp keywords)
+	   (mapconcat 'identity keywords ", ")
+	 keywords)
+     ;; else concatentate
+     (concat
+      (if (listp keywords)
+	  (mapconcat 'identity keywords ", ")
+        keywords)
+      (when (not (string= "" (bibtex-autokey-get-field "keywords")))
+	(concat ", "  (bibtex-autokey-get-field "keywords"))))))
   (save-buffer))
 
 
