@@ -1,9 +1,7 @@
 (source gnu)
 (source melpa)
 
-(package-file "org-ref-init.el")
-
-(files "*.el" "*.info" "*.org")
+(package-file "org-ref.el")
 
 (development
  (depends-on "ecukes")
