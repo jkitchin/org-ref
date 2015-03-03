@@ -28,11 +28,16 @@ With helm integration (default) you can:
 
 ** Header
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
-;;; org-ref.el --- setup bibliography, cite, ref and label org-mode links.
+;;; org-ref.el --- cite and cross-reference in org-mode
 
 ;; Copyright(C) 2014 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
+;; URL: https://github.com/jkitchin/org-ref
+;; Version: 0.1
+;; Keywords: org-mode, cite, ref, label
+;; Package-Requires: ((dash) (helm) (helm-bibtex))
+
 ;; This file is not currently part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or
@@ -52,11 +57,13 @@ With helm integration (default) you can:
 
 ;;; Commentary:
 ;;
-;; Lisp code to setup bibliography cite, ref and label org-mode links.  also
-;; sets up reftex and helm for org-mode citations. The links are clickable and
-;; do things that are useful. You should really read org-ref.org for details.
+;; Lisp code to setup bibliography cite, ref and label org-mode links.
+;; also sets up reftex and helm for org-mode citations. The links are
+;; clickable and do things that are useful. You should really read
+;; org-ref.org for details.
 ;;
-;; Package-Requires: ((dash) (helm) (helm-bibtex))
+
+;;; Code:
 #+END_SRC
 
 ** requires
@@ -3813,6 +3820,8 @@ _o_: Open entry   _e_: Email entry and pdf
 * End of code
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (provide 'org-ref)
+
+;;; org-ref.el ends here
 #+END_SRC
 
 * Build								   :noexport:
