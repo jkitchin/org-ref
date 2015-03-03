@@ -96,3 +96,12 @@ You may want to set some convenient keys for working in your bibtex file:
 (global-set-key [f11] 'org-ref-open-bibtex-pdf)
 (global-set-key [f12] 'org-ref-open-in-browser)
 #+END_SRC
+
+* Contributors
+I would like to thank the following contributors to org-ref
+
+- https://github.com/divinenephron
+- https://github.com/OlafMerkert
+- https://github.com/prtkm
+
+And everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].
