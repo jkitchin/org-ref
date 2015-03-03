@@ -468,8 +468,8 @@ _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Sch
    ("e" email-bibtex-entry)
    ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))))
 
-;; A hydra for adding new bibtex entries.
 
+;; A hydra for adding new bibtex entries.
 (defhydra jmax-bibtex-new-entry (:color blue)
   "New Bibtex entry:"
   ("a" bibtex-Article "Article")
@@ -485,9 +485,6 @@ _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Sch
   ("R" bibtex-TechReport "Report")
   ("u" bibtex-Unpublished "unpublished")
   ("c" bibtex-InCollection "Article in collection"))
-
-
-
 
 
 (defvar jmax-bibtex-menu-funcs '()
