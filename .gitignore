@@ -1,3 +1,4 @@
 *.el
 *.elc
 /dist/
+/.cask/
