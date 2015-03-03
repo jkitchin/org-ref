@@ -423,6 +423,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 
 
 ;; hydra menu for actions on bibtex entries
+(require 'hydra)
 (require 'key-chord)
 (key-chord-define-global
  "jj"
