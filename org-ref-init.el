@@ -3,6 +3,11 @@
 ;; Copyright(C) 2014 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
+;; URL: https://github.com/jkitchin/org-ref
+;; Version: 0.1
+;; Keywords: org-mode, cite, ref, label
+;; Package-Requires: ((dash) (helm) (helm-bibtex))
+
 ;; This file is not currently part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or
@@ -20,8 +25,6 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-;;; Version: 0.1
-
 ;;; Commentary:
 ;;
 ;; Lisp code to setup bibliography cite, ref and label org-mode links.
@@ -29,7 +32,9 @@
 ;; clickable and do things that are useful. You should really read
 ;; org-ref.org for details.
 ;;
-;; Package-Requires: ((dash) (helm) (helm-bibtex))
+
+;;; Code:
+
 (require 'cl)
 
 ;; org path for loadable org-files
