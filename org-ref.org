@@ -3425,8 +3425,9 @@ Next, we are going to add keywords to the helm interface.
 1. Make the default action to insert selected keys.
 2. Make open entry second action
 #+BEGIN_SRC emacs-lisp :tangle org-ref.el
-(defun org-ref-tag-entries (candidates)
-  "Set tags on selected entries."
+(defun org-ref-helm-tag-entries (candidates)
+  "Set tags on selected bibtex entries from helm.
+User is prompted for tags."
   (let ((keywords (read-input "Keywords (comma separated): ")))
     (loop for key in (helm-marked-candidates)
 	  do
@@ -3453,7 +3454,7 @@ Next, we are going to add keywords to the helm interface.
 		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
 		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
 		   ("Edit notes"                   . helm-bibtex-edit-notes)
-                   ("Tag entries"                  . org-ref-tag-entries)
+                   ("Add keywords to entries"      . org-ref-helm-tag-entries)
 		   ))))
 #+END_SRC
 
