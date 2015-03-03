@@ -45,7 +45,7 @@ You may want to set some convenient keys for working in your bibtex file:
 (global-set-key [f12] 'org-ref-open-in-browser)
 #+END_SRC
 
-Change into the directory you cloned org-ref into and run this command to generate the elisp files.
+ Change into the directory you cloned org-ref into and run this command to generate the elisp files.
 #+BEGIN_SRC sh
 make tangled
 #+END_SRC
@@ -53,16 +53,18 @@ make tangled
 Add the directory you cloned org-ref into to your load-path, and require the features you want.
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "path-to-org-ref")
+;; make sure you have dash, helm, helm-bibtex, ebib, s, f, hydra and key-chord
+;; in your load-path
 (require 'org-ref)
 (require 'doi-utils)
 (require 'jmax-bibtex)
 (require 'pubmed)
-(require 'arxiv)
 #+END_SRC
 
+Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s
 
 * Contributors
-I would like to thank the following contributors to org-ref
+I would like to thank the following [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref
 
 - https://github.com/divinenephron
 - https://github.com/OlafMerkert
