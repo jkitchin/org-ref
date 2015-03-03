@@ -17,7 +17,5 @@ env:
   - EMACS=emacs-snapshot
 script:
   - emacs --version
-  - make org-ref.el
-  - make doi-utils.el
-  - make pubmed.el
+  - make tangled
   - make test
