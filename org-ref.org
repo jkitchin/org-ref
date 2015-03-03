@@ -75,6 +75,7 @@ The only external require is reftex-cite
 (require 'helm)
 (require 'helm-config)
 (require 'helm-bibtex)
+(require 'org)
 #+END_SRC
 
 ** Custom variables
