@@ -30,6 +30,7 @@
 ;; org-ref.org for details.
 ;;
 ;; Package-Requires: ((dash) (helm) (helm-bibtex))
+(require 'cl)
 
 ;; org path for loadable org-files
 (defvar org-ref-org-load-path
