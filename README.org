@@ -22,62 +22,10 @@ See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch
 
 5. Functions to replace journal names with @string entries, and corresponding short/long names.
 
-To install this, add the org-ref repo directory to your load-path, and
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "path-to-org-ref")
-(require 'jmax-bibtex)
-#+END_SRC
-
 * Installation
+We are slowly moving towards getting org-ref in MELPA. Until then, here are some directions that will probably help install org-ref.
+
 You should clone this repository somewhere.
-
-Here is how I load org-ref. This code is in my init.el file.
-
-#+BEGIN_SRC emacs-lisp
-;; remember this directory
-(defconst starter-kit-dir (file-name-directory (or load-file-name (buffer-file-name)))
-    "Directory where the starterkit is installed.")
-
-;;;;;;; org path for loadable org-files
-(defvar org-load-path
-  (list (file-name-as-directory
-	 (expand-file-name "org" starter-kit-dir)))
-  "List of directories to find org-files that `org-babel-load-file' can load code from.")
-
-(defun org-require (feature)
-  "Load a FEATURE from an org-file.
-FEATURE is a symbol, and it is loaded from an org-file by the name of FEATURE.org, that is in the `org-load-path'.  The FEATURE is loaded from `org-babel-load-file'."
-  (let ((org-file (concat (symbol-name feature) ".org"))
-	(path))
-
-    ;; find the org-file
-    (catch 'result
-      (loop for dir in org-load-path do
-	    (when (file-exists-p
-		   (setq path
-			 (expand-file-name
-			  org-file
-			  dir)))
-	      (throw 'result path))))
-    (let ((default-directory (file-name-directory path)))
-      (org-babel-load-file path))))
-
-;; https://github.com/jkitchin/org-ref
-;; for loading org-files
-(add-to-list 'org-load-path
-	     (expand-file-name "org-ref" starter-kit-dir))
-
-;; for loading emacs-lisp files
-(add-to-list 'load-path
-	     (expand-file-name "org-ref" starter-kit-dir))
-
-(org-require 'org-ref)
-(org-require 'doi-utils)
-(org-require 'pubmed)
-(require 'jmax-bibtex)
-#+END_SRC
-
 
 You should set these variables. Here is an example of how mine are set in an init.el file.
 #+BEGIN_SRC emacs-lisp
@@ -96,6 +44,22 @@ You may want to set some convenient keys for working in your bibtex file:
 (global-set-key [f11] 'org-ref-open-bibtex-pdf)
 (global-set-key [f12] 'org-ref-open-in-browser)
 #+END_SRC
+
+Change into the directory you cloned org-ref into and run this command to generate the elisp files.
+#+BEGIN_SRC sh
+make tangled
+#+END_SRC
+
+Add the directory you cloned org-ref into to your load-path, and require the features you want.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "path-to-org-ref")
+(require 'org-ref)
+(require 'doi-utils)
+(require 'jmax-bibtex)
+(require 'pubmed)
+(require 'arxiv)
+#+END_SRC
+
 
 * Contributors
 I would like to thank the following contributors to org-ref
