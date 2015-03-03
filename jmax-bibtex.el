@@ -422,6 +422,73 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
   (org-ref-open-bibtex-pdf))
 
 
+;; hydra menu for actions on bibtex entries
+(key-chord-define-global
+ "jj"
+ (defhydra jmax-bibtex-hydra (:color blue)
+   "
+_p_: Open pdf     _y_: Copy key               _n_: New entry     _w_: WOS
+_u_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
+_r_: Refile entry _k_: Add keywords           _d_: delete entry  _r_: WOS related
+_e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
+_U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
+"
+   ("p" org-ref-open-bibtex-pdf)
+   ("P" jmax-bibtex-pubmed)
+   ("w" jmax-bibtex-wos)
+   ("c" jmax-bibtex-wos-citing)
+   ("r" jmax-bibtex-wos-related)
+   ("R" jmax-bibtex-crossref)
+   ("g" jmax-bibtex-google-scholar)
+   ("n" jmax-bibtex-new-entry/body)
+   ("N" org-ref-open-bibtex-notes)
+   ("o" bibtex-copy-entry-as-kill)
+   ("d" bibtex-kill-entry)
+   ("L" org-ref-clean-bibtex-entry)
+   ("y" (kill-new  (bibtex-autokey-get-field "=key=")))
+   ("f" bibtex-copy-summary-as-kill)
+   ("k" helm-tag-bibtex-entry)
+   ("K" (lambda ()
+	  (interactive)
+	  (org-ref-set-bibtex-keywords
+	   (read-input "Keywords: "
+		       (bibtex-autokey-get-field "keywords"))
+	   t)))
+   ("u" org-ref-open-in-browser)
+   ("r" (lambda () (interactive)
+	  (bibtex-beginning-of-entry)
+	  (bibtex-kill-entry)
+	  (find-file (ido-completing-read
+		      "Bibtex file: "
+		      (f-entries "." (lambda (f) (f-ext? f "bib")))))
+	  (goto-char (point-max))
+	  (bibtex-yank)
+	  (save-buffer)
+	  (kill-buffer)))
+   ("e" email-bibtex-entry)
+   ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))))
+
+;; A hydra for adding new bibtex entries.
+
+(defhydra jmax-bibtex-new-entry (:color blue)
+  "New Bibtex entry:"
+  ("a" bibtex-Article "Article")
+  ("b" bibtex-Book "Book")
+  ("i" bibtex-InBook "In book")
+  ("l" bibtex-Booklet "Booklet")
+  ("P" bibtex-Proceedings "Proceedings")
+  ("p" bibtex-InProceedings "In proceedings")
+  ("m" bibtex-Misc "Misc.")
+  ("M" bibtex-Manual "Manual")
+  ("T" bibtex-PhdThesis "PhD Thesis")
+  ("t" bibtex-MastersThesis "MS Thesis")
+  ("R" bibtex-TechReport "Report")
+  ("u" bibtex-Unpublished "unpublished")
+  ("c" bibtex-InCollection "Article in collection"))
+
+
+
+
 
 (defvar jmax-bibtex-menu-funcs '()
  "Functions to run in doi menu. Each entry is a list of (key menu-name function).
