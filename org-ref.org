@@ -3781,7 +3781,7 @@ This is a list of cons cells '((\"description\" . action)). The action function 
  '("Example" . (lambda () (message-box "You did it!")))
  t)
 
-;;;###qautoload
+;;;###autoload
 (defun org-ref-cite-click-helm (key)
   "Open helm for actions on a cite link.
 subtle points.
