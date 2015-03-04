@@ -2,6 +2,23 @@
 
 ;;; Commentary:
 ;; Requires: s.el, dash.el, org-ref.el, doi-utils.el, key-chord.el
+;;
+;; jmax-bibtex-generate-longtitles
+;; jmax-bibtex-generate-shorttitles
+;; jmax-stringify-journal-name :: replace a journal name with a string in `jmax-bibtex-journal-abbreviations'
+;; jmax-set-journal-string :: in a bibtex entry run this to replace the journal with a string
+;;
+;; jmax-replace-nonascii :: replace nonascii characters in a bibtex entry
+;;
+;; jmax-title-case-article
+;; jmax-sentence-case-article
+;;
+;; jmax-bibtex-next-entry :: bound to M-n
+;; jmax-bibtex-previous-entry :: bound to M-p
+;;
+;; Functions to act on an entry
+;; jmax-bibtex-hydra/body gives a hydra menu to a lot of useful functions.
+;; jmax-bibtex-new-entry/body gives a hydra menu to add new bibtex entries.
 
 (require 'hydra)
 (require 'key-chord)
@@ -13,14 +30,16 @@
 
 (defcustom jmax-bibtex-hydra-key-chord
   nil
-  "key-chord to run `jmax-bibtex-hydra'."
+  "key-chord to run `jmax-bibtex-hydra'.
+I like \"jj\""
   :type 'string
   :group 'jmax-bibtex)
 
 
 (defcustom jmax-bibtex-hydra-key-binding
   nil
-  "key-binding to run `jmax-bibtex-hydra'."
+  "key-binding to run `jmax-bibtex-hydra'.
+I like \C-cj."
   :type 'string
   :group 'jmax-bibtex)
 
@@ -219,6 +238,8 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("⇌" . "$\\\\leftrightharpoons$")
 	("×" . "$\\\\times$")
 	("°" . "$\\\\deg$")
+	("ş" . "{\\\\c{s}}")
+	("ı" . "i")			; I think this is a turkish i
 	;; I think these are non-ascii spaces. there seems to be more than one.
 	(" " . " ")
 	(" " . " ")
@@ -491,7 +512,9 @@ _q_: quit
 	  (kill-buffer)))
    ("e" email-bibtex-entry)
    ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
-   ("q" nil "quit"))
+   ("q" nil "quit")
+   ("f" jmax-bibtex-file/body "File functions")
+   ("a" jmax-replace-nonascii "Replace non-ascii"))
 
 ;; create key-chord and key binding for hydra
 (when jmax-bibtex-hydra-key-chord
@@ -522,11 +545,21 @@ _q_: quit
   ("c" bibtex-InCollection "Article in collection")
   ("q" nil "quit"))
 
+;; a hydra menu of functions to act on a bibtex file.
+(defhydra jmax-bibtex-file (:color blue)
+  "Bibtex file functions: "
+  ("v" bibtex-validate "Validate entries")
+  ("s" bibtex-sort-buffer "Sort entries")
+  ("r" bibtex-reformat "Reformat entries")
+  ("c" bibtex-count-entries "Count entries")
+  ("p" org-ref-build-full-bibliography "PDF bibliography"))
+
 
 (defvar jmax-bibtex-menu-funcs '()
  "Functions to run in doi menu.
 Each entry is a list of (key menu-name function).  The function
-must take one argument, the doi.")
+must take one argument, the doi.  This is somewhat deprecated, as
+I prefer the hydra interfaces above.")
 
 (setq jmax-bibtex-menu-funcs
       '(("p" "df" jmax-bibtex-pdf)
