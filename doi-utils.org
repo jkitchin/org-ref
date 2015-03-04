@@ -694,7 +694,7 @@ There is not bibtex set field function, so I wrote this one.
       (insert value))))
 #+END_SRC
 
-The updating function looks like this. We get all the keys from the json plist metadata, and update the fields if they exist.
+The updating function for a whole entry looks like this. We get all the keys from the json plist metadata, and update the fields if they exist.
 
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun plist-get-keys (plist)
@@ -748,6 +748,29 @@ The updating function looks like this. We get all the keys from the json plist m
       (org-ref-clean-bibtex-entry t)
     (org-ref-clean-bibtex-entry)))
 #+END_SRC
+
+A downside to updating an entry is it overwrites what you have already fixed. So, we next develop a function to update the field at point.
+
+#+BEGIN_SRC emacs-lisp
+(defun doi-utils-update-field ()
+  (interactive)
+  (let* ((doi (bibtex-autokey-get-field "doi"))
+	 (results (doi-utils-get-json-metadata doi))
+	 (field (car (bibtex-find-text-internal nil nil ","))))
+    (cond
+     ((string= field "volume")
+      (bibtex-set-field field (plist-get results :volume)))
+     ((string= field "number")
+      (bibtex-set-field field (plist-get results :issue)))
+     ((string= field "pages")
+      (bibtex-set-field field (plist-get results :page)))
+     ((string= field "year")
+      (bibtex-set-field field (plist-get results :year)))
+     (t
+      (message "%s not supported yet." field)))))
+#+END_SRC
+
+
 * DOI functions for WOS
 I came across this API http://wokinfo.com/media/pdf/OpenURL-guide.pdf to make links to the things I am interested in here. Based on that document, here are three links based on a doi:10.1021/jp047349j that take you to different Web Of Science (WOS) pages.
 
