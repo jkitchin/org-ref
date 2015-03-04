@@ -534,17 +534,21 @@ when the `:type' parameter in the JSON metadata is contained in
 
 (doi-utils-def-bibtex-type book ("book")
                            author title series publisher year pages doi url)
+
+(doi-utils-def-bibtex-type inbook ("book-chapter")
+                           author title booktitle series publisher year pages doi url)
+
 #+END_SRC
 
 With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
 #+BEGIN_SRC emacs-lisp :tangle doi-utils.el
 (defun doi-utils-doi-to-bibtex-string (doi)
-  "return a bibtex entry as a string for the doi. Only articles are currently supported"
+  "return a bibtex entry as a string for the doi. Not all types are supported yet."
   (let* ((results (doi-utils-get-json-metadata doi))
          (type (plist-get results :type)))
-    (format "%s" results) ; json-data
+    ;(format "%s" results) ; json-data
     (or (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
-        (message-box "%s not supported yet." type))))
+        (message "%s not supported yet\n%S." type results))))
 #+END_SRC
 
 #+RESULTS:
