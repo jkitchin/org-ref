@@ -477,7 +477,7 @@ _u_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
 _r_: Refile entry _k_: Add keywords           _d_: delete entry  _r_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
-_q_: quit
+_f_: file funcs   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
 "
    ("p" org-ref-open-bibtex-pdf)
    ("P" jmax-bibtex-pubmed)
@@ -513,9 +513,10 @@ _q_: quit
 	  (kill-buffer)))
    ("e" email-bibtex-entry)
    ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
-   ("q" nil "quit")
-   ("f" jmax-bibtex-file/body "File functions")
-   ("a" jmax-replace-nonascii "Replace non-ascii"))
+   ("f" jmax-bibtex-file/body)
+   ("h" helm-bibtex)
+   ("a" jmax-replace-nonascii)
+   ("q" nil))
 
 ;; create key-chord and key binding for hydra
 (when jmax-bibtex-hydra-key-chord
