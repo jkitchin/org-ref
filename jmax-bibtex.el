@@ -370,7 +370,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 
 
 (defun jmax-bibtex-entry-doi ()
-  "get doi from entry at point"
+  "Get doi from entry at point."
   (interactive)
   (save-excursion
     (bibtex-beginning-of-entry)
@@ -378,46 +378,51 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 
 
 (defun jmax-bibtex-wos ()
-  "Open bibtex entry in Web Of Science if there is a DOI"
+  "Open bibtex entry in Web Of Science if there is a DOI."
   (interactive)
   (doi-utils-wos (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-wos-citing ()
-  "Open citing articles for bibtex entry in Web Of Science if there is a DOI"
+  "Open citing articles for bibtex entry in Web Of Science if there is a DOI."
   (interactive)
   (doi-utils-wos-citing (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-wos-related ()
-  "Open related articles for bibtex entry in Web Of Science if there is a DOI"
+  "Open related articles for bibtex entry in Web Of Science if there is a DOI."
   (interactive)
   (doi-utils-wos-related (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-wos-citing ()
-  "Open citing articles for bibtex entry in Web Of Science if there is a DOI"
+  "Open citing articles for bibtex entry in Web Of Science if there is a DOI."
   (interactive)
   (doi-utils-wos-citing (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-crossref ()
+  "Open the bibtex entry in Crossref by its doi."
   (interactive)
   (doi-utils-crossref (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-google-scholar ()
+  "Open the bibtex entry at point in google-scholar by its doi."
   (interactive)
   (doi-utils-google-scholar (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-pubmed ()
+  "Open the bibtex entry at point in Pubmed by its doi."
   (interactive)
   (doi-utils-pubmed (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-pdf (doi)
-  "thin wrapper to get `jmax-bibtex' to open pdf"
+  "Open the pdf for the bibtex entry at point.
+Thin wrapper to get `jmax-bibtex' to open pdf, because it calls
+functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
@@ -490,8 +495,9 @@ _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Sch
 
 
 (defvar jmax-bibtex-menu-funcs '()
- "Functions to run in doi menu. Each entry is a list of (key menu-name function).
-The function must take one argument, the doi.")
+ "Functions to run in doi menu.
+Each entry is a list of (key menu-name function).  The function
+must take one argument, the doi.")
 
 (setq jmax-bibtex-menu-funcs
       '(("p" "df" jmax-bibtex-pdf)
@@ -507,7 +513,7 @@ The function must take one argument, the doi.")
 
 (defun jmax-bibtex ()
   "Menu command to run in a bibtex entry.
-Functions from `jmax-bibtex-menu-funcs'. They all rely on the
+Functions from `jmax-bibtex-menu-funcs'.  They all rely on the
 entry having a doi."
 
   (interactive)
