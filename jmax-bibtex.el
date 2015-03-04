@@ -477,7 +477,8 @@ _u_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
 _r_: Refile entry _k_: Add keywords           _d_: delete entry  _r_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
-_f_: file funcs   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
+_s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
+_f_: file funcs
 "
    ("p" org-ref-open-bibtex-pdf)
    ("P" jmax-bibtex-pubmed)
@@ -516,6 +517,7 @@ _f_: file funcs   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
    ("f" jmax-bibtex-file/body)
    ("h" helm-bibtex)
    ("a" jmax-replace-nonascii)
+   ("s" org-ref-sort-bibtex-entry)
    ("q" nil))
 
 ;; create key-chord and key binding for hydra
