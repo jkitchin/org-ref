@@ -263,7 +263,8 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
     (dolist (char (mapcar (lambda (x) (car x)) jmax-nonascii-latex-replacements))
       (while (re-search-forward char nil t)
 	(replace-match (cdr (assoc char jmax-nonascii-latex-replacements))))
-      (goto-char (point-min)))))
+      (goto-char (point-min))))
+  (save-buffer))
 
 (add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-replace-nonascii)
 
