@@ -603,6 +603,8 @@ org-ref, and tries to download the corresponding pdf."
   (interactive "sDOI :")
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
+  ;; set date added for the record
+  (bibtex-set-field "DATE_ADDED" (current-time-string))
   (if (bibtex-key-in-head nil)
        (org-ref-clean-bibtex-entry t)
      (org-ref-clean-bibtex-entry))
@@ -610,6 +612,7 @@ org-ref, and tries to download the corresponding pdf."
    (doi-utils-get-bibtex-entry-pdf)
    (save-selected-window
      (org-ref-open-bibtex-notes)))
+
 #+END_SRC
 
 It may be you are in some other place when you want to add a bibtex entry. This next function will open the first entry in org-ref-default-bibliography go to the end, and add the entry. You can sort it later.
