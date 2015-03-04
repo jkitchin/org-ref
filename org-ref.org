@@ -2831,7 +2831,6 @@ Makes a new buffer with clickable links."
 	  (when (-contains? org-ref-cite-types (plist-get plist :type))
 	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
 	      (when (not (index key bibtex-keys))
-		(message-box "%s" link)
 		(setq
 		 bad-citations
 		 (append
@@ -3414,12 +3413,12 @@ I like convenience. Here are some aliases for faster typing.
 [[https://github.com/tmalsburg/helm-bibtex][helm-bibtex]] is a very cool interface to bibtex files. Out of the box though, it is not super convenient for org-ref. Here, we modify it to make it fit our workflow and extend it where needed.
 
 Let us add keywords as a searchable field.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp  :tangle org-ref.el
 (setq helm-bibtex-additional-search-fields '(keywords))
 #+END_SRC
 
 Next, we are going to add keywords to the helm interface. This modifies the helm-bibtex function to add our keywords.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle org-ref.el
 (defun helm-bibtex-candidates-formatter (candidates source)
   "Formats BibTeX entries for display in results list."
   (cl-loop
@@ -3439,11 +3438,10 @@ Next, we are going to add keywords to the helm interface. This modifies the helm
             (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
                        fields (list 36 (- width 85) 4 1 1 7 7)))
           entry-key)))
-
 #+END_SRC
 
 Next, we add some functions to add keywords to a bibtex entry using a helm interface, and a new action to add keywords to entries from helm-bibtex.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp  :tangle org-ref.el
 ;; adapted from bibtex-utils.el
 ;; these are candidates for selecting keywords/tags
 (defun org-ref-bibtex-keywords ()
@@ -3502,10 +3500,31 @@ Run this with the point in a bibtex entry."
 				       )))))
     (helm :sources '(keyword-source fallback-source))))
 
+(defun helm-bibtex-show-entry (key)
+  "Show the entry in the BibTeX file.
+The original function in helm-bibtex has a bug where it finds the
+first key that partially matches. This version avoids that."
+  (catch 'break
+    (dolist (bibtex-file (if (listp helm-bibtex-bibliography)
+                             helm-bibtex-bibliography
+                           (list helm-bibtex-bibliography)))
+      (let ((buf (helm-bibtex-buffer-visiting bibtex-file))
+            (entries '()))
+        (find-file bibtex-file)
+        (bibtex-map-entries
+	 (lambda (key start end)
+	   (add-to-list 'entries (cons key start))))
+        (if (assoc key entries)
+	    (progn
+	      (goto-char (cdr (assoc key entries)))
+	      (throw 'break t))
+          (unless buf
+            (kill-buffer)))))))
 
 (defun org-ref-helm-tag-entries (candidates)
   "Set tags on selected bibtex entries from helm-bibtex.
 User is prompted for tags. This function is called from `helm-bibtex'."
+  (message "")
   (let ((keywords (read-input "Keywords (comma separated): ")))
     (loop for key in (helm-marked-candidates)
 	  do
