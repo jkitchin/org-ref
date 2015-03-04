@@ -3,7 +3,27 @@
 ;;; Commentary:
 ;; Requires: s.el, dash.el, org-ref.el, doi-utils.el, key-chord.el
 
+(require 'hydra)
+(require 'key-chord)
+
 ;;; Code:
+(defgroup jmax-bibtex nil
+  "Customization group for jmax-bibtex.")
+
+
+(defcustom jmax-bibtex-hydra-key-chord
+  nil
+  "key-chord to run `jmax-bibtex-hydra'."
+  :type 'string
+  :group 'jmax-bibtex)
+
+
+(defcustom jmax-bibtex-hydra-key-binding
+  nil
+  "key-binding to run `jmax-bibtex-hydra'."
+  :type 'string
+  :group 'jmax-bibtex)
+
 
 (defvar jmax-bibtex-journal-abbreviations
   '(("ACAT" "ACS Catalysis" "ACS Catal.")
@@ -428,17 +448,14 @@ functions with a DOI argument."
 
 
 ;; hydra menu for actions on bibtex entries
-(require 'hydra)
-(require 'key-chord)
-(key-chord-define-global
- "jj"
- (defhydra jmax-bibtex-hydra (:color blue)
+(defhydra jmax-bibtex-hydra (:color blue)
    "
 _p_: Open pdf     _y_: Copy key               _n_: New entry     _w_: WOS
 _u_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
 _r_: Refile entry _k_: Add keywords           _d_: delete entry  _r_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
+_q_: quit
 "
    ("p" org-ref-open-bibtex-pdf)
    ("P" jmax-bibtex-pubmed)
@@ -473,7 +490,18 @@ _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Sch
 	  (save-buffer)
 	  (kill-buffer)))
    ("e" email-bibtex-entry)
-   ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))))
+   ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
+   ("q" nil "quit"))
+
+;; create key-chord and key binding for hydra
+(when jmax-bibtex-hydra-key-chord
+  (key-chord-define-global
+   jmax-bibtex-hydra-key-chord
+   'jmax-bibtex-hydra/body))
+
+
+(when jmax-bibtex-hydra-key-binding
+  (global-set-key jmax-bibtex-hydra-key-binding 'jmax-bibtex-hydra/body))
 
 
 ;; A hydra for adding new bibtex entries.
@@ -491,7 +519,8 @@ _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Sch
   ("t" bibtex-MastersThesis "MS Thesis")
   ("R" bibtex-TechReport "Report")
   ("u" bibtex-Unpublished "unpublished")
-  ("c" bibtex-InCollection "Article in collection"))
+  ("c" bibtex-InCollection "Article in collection")
+  ("q" nil "quit"))
 
 
 (defvar jmax-bibtex-menu-funcs '()
