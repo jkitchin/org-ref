@@ -990,6 +990,31 @@ error."
 
 
 
+* Debugging a DOI
+I wrote this function to help debug a DOI. This function generates an org-buffer with the doi, gets the json metadata, shows the bibtex entry, and the pdf link for it.
+
+#+BEGIN_SRC emacs-lisp :tangle doi-utils.el
+(defun doi-utils-debug (doi)
+  "Generate an org-buffer showing data about DOI."
+  (interactive "sDOI: ")
+  (switch-to-buffer "*debug-doi*")
+  (erase-buffer)
+  (org-mode)
+  (insert (concat "doi:" doi) "\n\n")
+  (insert "* JSON
+" (format "%s" (doi-utils-get-json-metadata doi)) "
+
+* Bibtex
+
+" (doi-utils-doi-to-bibtex-string doi) "
+
+* PDF
+" (doi-utils-get-pdf-url doi)))
+#+END_SRC
+
+#+RESULTS:
+: doi-utils-debug
+
 * Adding a bibtex entry from a crossref query
 The idea here is to perform a query on Crossref, get a helm buffer of candidates, and select the entry(ies) you want to add to your bibtex file. You can select a region, e.g. a free form citation, or set of words, or you can type the query in by hand.
 
