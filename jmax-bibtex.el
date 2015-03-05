@@ -473,12 +473,12 @@ functions with a DOI argument."
 (defhydra jmax-bibtex-hydra (:color blue)
    "
 _p_: Open pdf     _y_: Copy key               _n_: New entry     _w_: WOS
-_u_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
+_b_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
 _r_: Refile entry _k_: Add keywords           _d_: delete entry  _r_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
 _s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
-_f_: file funcs
+_u_: Update field _f_: file funcs
 "
    ("p" org-ref-open-bibtex-pdf)
    ("P" jmax-bibtex-pubmed)
@@ -501,7 +501,7 @@ _f_: file funcs
 	   (read-input "Keywords: "
 		       (bibtex-autokey-get-field "keywords"))
 	   t)))
-   ("u" org-ref-open-in-browser)
+   ("b" org-ref-open-in-browser)
    ("r" (lambda () (interactive)
 	  (bibtex-beginning-of-entry)
 	  (bibtex-kill-entry)
@@ -514,6 +514,7 @@ _f_: file funcs
 	  (kill-buffer)))
    ("e" email-bibtex-entry)
    ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
+   ("u" doi-utils-update-field)
    ("f" jmax-bibtex-file/body)
    ("h" helm-bibtex)
    ("a" jmax-replace-nonascii)
