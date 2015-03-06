@@ -27,13 +27,18 @@
 
 ;;; Commentary:
 
-;;
 ;; jmax-bibtex-generate-longtitles
 ;; jmax-bibtex-generate-shorttitles
-;; jmax-stringify-journal-name :: replace a journal name with a string in `jmax-bibtex-journal-abbreviations'
-;; jmax-set-journal-string :: in a bibtex entry run this to replace the journal with a string
+;; jmax-stringify-journal-name :: replace a journal name with a string in
+;; `jmax-bibtex-journal-abbreviations'
+;; jmax-set-journal-string :: in a bibtex entry run this to replace the
+;; journal with a string
 ;;
-;; jmax-replace-nonascii :: replace nonascii characters in a bibtex entry
+;; jmax-title-case-article :: title case the title in an article
+;; jmax-sentence-case-article :: sentence case the title in an article.
+
+;; jmax-replace-nonascii :: replace nonascii characters in a bibtex
+;; entry. Replacements are in `jmax-nonascii-latex-replacements'.
 ;;
 ;; jmax-title-case-article
 ;; jmax-sentence-case-article
@@ -41,10 +46,13 @@
 ;; jmax-bibtex-next-entry :: bound to M-n
 ;; jmax-bibtex-previous-entry :: bound to M-p
 ;;
-;; Functions to act on an entry
+;; Functions to act on a bibtex entry or file
 ;; jmax-bibtex-hydra/body gives a hydra menu to a lot of useful functions.
 ;; jmax-bibtex-new-entry/body gives a hydra menu to add new bibtex entries.
+;; jmax-bibtex-file/body gives a hydra menu of actions for the bibtex file
+;;
 ;; jmax-bibtex :: a deprecated menu of actions
+
 (require 'hydra)
 (require 'key-chord)
 
@@ -396,8 +404,6 @@ all the title entries in articles."
       (bibtex-fill-entry))))
 
 
-
-
 (defun jmax-bibtex-next-entry (&optional n)
   "Jump to the beginning of the next bibtex entry.
 N is a prefix argument.  If it is numeric, jump that many entries
@@ -574,6 +580,7 @@ _u_: Update field _f_: file funcs
   ("u" bibtex-Unpublished "unpublished")
   ("c" bibtex-InCollection "Article in collection")
   ("q" nil "quit"))
+
 
 ;; a hydra menu of functions to act on a bibtex file.
 (defhydra jmax-bibtex-file (:color blue)
