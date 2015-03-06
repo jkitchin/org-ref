@@ -1,7 +1,32 @@
 ;;; jmax-bibtex.el --- jmax-bibtex utilities
 
+;; Copyright(C) 2014 John Kitchin
+
+;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
+;; URL: https://github.com/jkitchin/org-ref
+;; Version: 0.1
+;; Keywords: org-mode, bibtex
+;; Package-Requires: ((org-ref) (s) (dash) (doi-utils) (key-chord))
+
+;; This file is not currently part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program ; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
+
 ;;; Commentary:
-;; Requires: s.el, dash.el, org-ref.el, doi-utils.el, key-chord.el
+
 ;;
 ;; jmax-bibtex-generate-longtitles
 ;; jmax-bibtex-generate-shorttitles
@@ -19,7 +44,7 @@
 ;; Functions to act on an entry
 ;; jmax-bibtex-hydra/body gives a hydra menu to a lot of useful functions.
 ;; jmax-bibtex-new-entry/body gives a hydra menu to add new bibtex entries.
-
+;; jmax-bibtex :: a deprecated menu of actions
 (require 'hydra)
 (require 'key-chord)
 
