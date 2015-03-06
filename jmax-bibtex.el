@@ -505,7 +505,7 @@ functions with a DOI argument."
    "
 _p_: Open pdf     _y_: Copy key               _n_: New entry     _w_: WOS
 _b_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
-_r_: Refile entry _k_: Add keywords           _d_: delete entry  _r_: WOS related
+_r_: Refile entry _k_: Add keywords           _d_: delete entry  _a_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
 _s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
@@ -515,7 +515,7 @@ _u_: Update field _f_: file funcs
    ("P" jmax-bibtex-pubmed)
    ("w" jmax-bibtex-wos)
    ("c" jmax-bibtex-wos-citing)
-   ("r" jmax-bibtex-wos-related)
+   ("a" jmax-bibtex-wos-related)
    ("R" jmax-bibtex-crossref)
    ("g" jmax-bibtex-google-scholar)
    ("n" jmax-bibtex-new-entry/body)
