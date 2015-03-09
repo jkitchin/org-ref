@@ -93,5 +93,31 @@
    (save-buffer)))
 
 
+(defun arxiv-get-pdf (arxiv-number pdf)
+  "Retrieve a pdf for ARXIV-NUMBER and save it to PDF."
+  (interactive "sarxiv: \nsPDF: ")
+  (let ((pdf-url (with-current-buffer
+		     (url-retrieve-synchronously
+		      (concat
+		       "http://arxiv.org/abs/" arxiv-number))
+		   ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
+		   (search-forward-regexp
+		    "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
+		   (match-string 1))))
+    (url-copy-file pdf-url pdf)
+    ;; now check if we got a pdf
+    (with-temp-buffer
+      (insert-file-contents pdf-file)
+      ;; PDFS start with %PDF-1.x as the first few characters.
+      (if (not (string= (buffer-substring 1 6) "%PDF-"))
+	  (progn
+	    (message "%s" (buffer-string))
+	    (delete-file pdf-file))
+	(message "%s saved" pdf-file)))
+
+    (org-open-file pdf)))
+
+(arxiv-get-pdf "0801.1144" "test.pdf")
+
 (provide 'arxiv)
 ;;; arxiv.el ends here
