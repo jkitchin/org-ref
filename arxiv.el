@@ -117,7 +117,5 @@
 
     (org-open-file pdf)))
 
-(arxiv-get-pdf "0801.1144" "test.pdf")
-
 (provide 'arxiv)
 ;;; arxiv.el ends here
