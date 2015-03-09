@@ -3226,7 +3226,17 @@ Sometimes it may be helpful to manually change the order of citations. These fun
 	  (org-ref-swap-keys i (- i 1) keys))
 	(setq keys (mapconcat 'identity keys ","))
 	;; and replace the link with the sorted keys
-	(cl--set-buffer-substring begin end (concat type ":" keys " "))
+	(cl--set-buffer-substring
+	 begin end
+	 (concat
+	  type ":" keys
+	  ;; It seems the space at the end can get consumed, so we see if there
+	  ;; is a space, and add it if so. Sometimes there is a comma or period,
+	  ;; then we do not want a space.
+	  (when
+	      (save-excursion
+		(goto-char end)
+		(looking-back " ")) " ")))
 	;; now go forward to key so we can move with the key
 	(re-search-forward key)
 	(goto-char (match-beginning 0)))))
