@@ -19,11 +19,14 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
+;; this library creates a new org-link for Arxiv (http://arxiv.org/) entries,
+;; and provides functions to retrieve bibtex entries from an Arxiv number.
 ;;
+;; An Arxiv number might look like: cond-mat/0410285 or 1503.01742
 
 ;;; Code:
-
+;; * The org-mode link
+;; this just makes a clickable link that opens the entry.
 (org-add-link-type
  "arxiv"
  ;; clicking
