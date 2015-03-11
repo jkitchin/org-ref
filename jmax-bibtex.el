@@ -501,7 +501,9 @@ functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
-;; * Hydra menu for bibtex entries
+
+;; * Hydra menus
+;; ** Hydra menu for bibtex entries
 ;; hydra menu for actions on bibtex entries
 (defhydra jmax-bibtex-hydra (:color blue)
    "
@@ -564,7 +566,7 @@ _u_: Update field _f_: file funcs
 (when jmax-bibtex-hydra-key-binding
   (global-set-key jmax-bibtex-hydra-key-binding 'jmax-bibtex-hydra/body))
 
-;; * Hydra menu for new bibtex entries
+;; ** Hydra menu for new bibtex entries
 ;; A hydra for adding new bibtex entries.
 (defhydra jmax-bibtex-new-entry (:color blue)
   "New Bibtex entry:"
@@ -584,7 +586,7 @@ _u_: Update field _f_: file funcs
   ("q" nil "quit"))
 
 
-;; * Hydra menu of functions to act on a bibtex file.
+;; ** Hydra menu of functions to act on a bibtex file.
 (defhydra jmax-bibtex-file (:color blue)
   "Bibtex file functions: "
   ("v" bibtex-validate "Validate entries")
