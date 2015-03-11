@@ -57,6 +57,7 @@
 (require 'key-chord)
 
 ;;; Code:
+;; * Custom variables
 (defgroup jmax-bibtex nil
   "Customization group for jmax-bibtex.")
 
@@ -76,7 +77,7 @@ I like \C-cj."
   :type 'string
   :group 'jmax-bibtex)
 
-
+;; * Journal abbreviations
 (defvar jmax-bibtex-journal-abbreviations
   '(("ACAT" "ACS Catalysis" "ACS Catal.")
     ("AM" "Acta Materialia" "Acta Mater.")
@@ -228,6 +229,7 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
     (bibtex-fill-entry)
     (bibtex-clean-entry)))
 
+;; * Non-ascii character replacement
 ;; see https://github.com/fxcoudert/tools/blob/master/doi2bib for more replacements
 (defvar jmax-nonascii-latex-replacements
   '()
@@ -301,7 +303,7 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 
 (add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-replace-nonascii)
 
-
+;; * Title case transformations
 (defvar jmax-lower-case-words
   '("a" "an" "on" "and" "for"
     "the" "of" "in")
@@ -403,7 +405,7 @@ all the title entries in articles."
       (bibtex-clean-entry)
       (bibtex-fill-entry))))
 
-
+;; * Navigation in bibtex file
 (defun jmax-bibtex-next-entry (&optional n)
   "Jump to the beginning of the next bibtex entry.
 N is a prefix argument.  If it is numeric, jump that many entries
@@ -441,7 +443,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 ;; add to bibtex-mode-hook
 (add-hook 'bibtex-mode-hook 'jmax-bibtex-mode-keys)
 
-
+;; * Functions to act on an entry with a doi
 (defun jmax-bibtex-entry-doi ()
   "Get doi from entry at point."
   (interactive)
@@ -499,7 +501,7 @@ functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
-
+;; * Hydra menu for bibtex entries
 ;; hydra menu for actions on bibtex entries
 (defhydra jmax-bibtex-hydra (:color blue)
    "
@@ -562,7 +564,7 @@ _u_: Update field _f_: file funcs
 (when jmax-bibtex-hydra-key-binding
   (global-set-key jmax-bibtex-hydra-key-binding 'jmax-bibtex-hydra/body))
 
-
+;; * Hydra menu for new bibtex entries
 ;; A hydra for adding new bibtex entries.
 (defhydra jmax-bibtex-new-entry (:color blue)
   "New Bibtex entry:"
@@ -582,7 +584,7 @@ _u_: Update field _f_: file funcs
   ("q" nil "quit"))
 
 
-;; a hydra menu of functions to act on a bibtex file.
+;; * Hydra menu of functions to act on a bibtex file.
 (defhydra jmax-bibtex-file (:color blue)
   "Bibtex file functions: "
   ("v" bibtex-validate "Validate entries")
@@ -592,6 +594,7 @@ _u_: Update field _f_: file funcs
   ("p" org-ref-build-full-bibliography "PDF bibliography"))
 
 
+;; * DEPRECATED bibtex menu
 (defvar jmax-bibtex-menu-funcs '()
  "Functions to run in doi menu.
 Each entry is a list of (key menu-name function).  The function
@@ -637,6 +640,7 @@ entry having a doi."
 
 (defalias 'jb 'jmax-bibtex)
 
+;; * The end
 (provide 'jmax-bibtex)
 
 ;;; jmax-bibtex.el ends here
