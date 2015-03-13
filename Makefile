@@ -1,9 +1,9 @@
 EMACS ?= emacs
 CASK ?= cask
 CASK_EXEC ?= ${CASK} exec
-ORG_SOURCES = org-ref.org pubmed.org
+ORG_SOURCES = org-ref.org
 EL_TANGLED = ${ORG_SOURCES:.org=.el}
-EL_SOURCES = arxiv.el jmax-bibtex.el doi-utils.el isbn.el
+EL_SOURCES = arxiv.el jmax-bibtex.el doi-utils.el isbn.el pubmed.el
 SOURCES =  ${EL_TANGLED} ${EL_SOURCES}
 
 all: test
