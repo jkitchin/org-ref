@@ -284,6 +284,7 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("—" . "-")
 	("‘" . "'")
 	("’" . "'")
+	("’" . "'")
 	("“" . "\"")
 	("’" . "'")
 	("”" . "\"")))
