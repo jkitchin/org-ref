@@ -3318,10 +3318,34 @@ _o_: Open entry   _e_: Email entry and pdf
 ;; * org-ref-help
 (defun org-ref-help ()
   "Open the org-ref manual."
+  (interactive)
   (find-file (expand-file-name
 	      "org-ref.org"
 	      (file-name-directory
 	       (find-library-name "org-ref")))))
+
+;; * org-ref menu
+(defun org-ref-org-menu ()
+  "Add org-ref menu to the Org menu."
+
+  (easy-menu-change
+   '("Org") "org-ref"
+   '( ["Insert citation" org-ref-helm-insert-cite-link]
+      ["Insert ref" org-ref-helm-insert-ref-link]
+      ["Insert label" org-ref-helm-insert-label-link]
+      "--"
+      ["List of figures" org-ref-list-of-figures]
+      ["List of tables" org-ref-list-of-tables]
+      ["Extract bibtex entries" org-ref-extract-bibtex-entries]
+      ["Check org-file" org-ref]
+      "--"
+      ["Help" org-ref-help]
+      ["Customize org-ref" (customize-group 'org-ref)])
+   "Show/Hide")
+
+  (easy-menu-change '("Org") "--" nil "Show/Hide"))
+
+(add-hook 'org-mode-hook 'org-ref-org-menu)
 
 ;; * The end
 (provide 'org-ref)
