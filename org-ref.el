@@ -976,6 +976,7 @@ ARG does nothing."
        :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
 
     ;; and to #+label: lines
+
     (when (and (equal (org-element-type object) 'paragraph)
 	       (org-element-property :name object))
       (org-store-link-props
@@ -1017,13 +1018,6 @@ ARG does nothing."
 	  (goto-char (point-min))
 	  (re-search-forward (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
 
-;; Commented out because these ref links do not actually translate correctly in LaTeX.
-;; you need [[#label]] links.
-	;; CUSTOM_ID
-;	(progn
-;	  (goto-char (point-min))
-;	  (re-search-forward (format ":CUSTOM_ID:\s-*\\(%s\\)" label) nil t))
-	)
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
      (error "%s not found" label))
@@ -1036,14 +1030,20 @@ ARG does nothing."
     ((eq format 'latex)
      (format "\\ref{%s}" keyword)))))
 
+
 (defun org-ref-get-org-labels ()
  "Return a list of #+LABEL: labels."
   (save-excursion
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward "^#\\+label:\\s-+\\(.*\\)\\b" (point-max) t)
-	(add-to-list 'matches (match-string-no-properties 1) t))
-matches)))
+	;; do not do this for tables. We get those in `org-ref-get-tblnames'.
+	;; who would have thought you have save match data here? Trust me. When
+	;; I wrote this, you did.
+	(unless (save-match-data  (equal (car (org-element-at-point)) 'table))
+	  (add-to-list 'matches (match-string-no-properties 1) t)))
+      matches)))
+
 
 (defun org-ref-get-custom-ids ()
  "Return a list of custom_id properties in the buffer."
@@ -1053,7 +1053,8 @@ matches)))
       (let ((custom_id (org-entry-get (point) "CUSTOM_ID")))
 	(when (not (null custom_id))
 	  (setq results (append results (list custom_id)))))))
-results))
+   results))
+
 
 (defun org-ref-get-latex-labels ()
   "Return list of matchin LaTeX defined labels in buffer."
@@ -1062,7 +1063,8 @@ results))
     (let ((matches '()))
       (while (re-search-forward "\\\\label{\\([a-zA-z0-9:-]*\\)}" (point-max) t)
 	(add-to-list 'matches (match-string-no-properties 1) t))
-matches)))
+      matches)))
+
 
 (defun org-ref-get-tblnames ()
   "Return list of table names in the buffer."
@@ -1078,13 +1080,19 @@ This is used to complete ref links and in helm menus."
       (widen)
       (goto-char (point-min))
       (let ((matches '()))
-        ;; these are the label:stuff  kinds
-	(while (re-search-forward "[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
+        ;; these are the org-ref label:stuff  kinds
+	(while (re-search-forward
+		"[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
 	  (add-to-list 'matches (match-string-no-properties 1) t))
+	;; now add all the other kinds of labels.
 	(append matches
+		;; #+label:
 		(org-ref-get-org-labels)
+		;; \label{}
 		(org-ref-get-latex-labels)
+		;; #+tblname: and actually #+label
 		(org-ref-get-tblnames)
+		;; CUSTOM_IDs
 		(org-ref-get-custom-ids))))))
 
 (defun org-ref-helm-insert-label-link ()
@@ -2451,7 +2459,6 @@ Makes a new buffer with clickable links."
 	    (while (re-search-forward
 		    (format  "[^#+]label:%s\\s-" label) nil t)
 	      (push (cons label (point-marker)) multiple-labels))
-
 	    (goto-char (point-min))
 	    (while (re-search-forward
 		    (format  "\\label{%s}\\s-?" label) nil t)
