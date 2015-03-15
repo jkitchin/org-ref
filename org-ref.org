@@ -116,6 +116,9 @@ e^x = 4 \label{eq:1}
 
 Then you can refer to Eq. eqref:eq:1 in your documents.
 
+*** Some other links
+org-ref provides clickable links for a list-of-tables:nil and list-of-figures:nil. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
+
 ** org-ref customization of helm-bibtex
 org-ref adds a few new features to helm-bibtex. First, we add keywords as a searchable field. Second, org-ref modifies the helm-bibtex search buffer to include the keywords. Since keywords now can have a central role in searching, we add some functionality to add keywords from the helm-bibtex buffer as a new action.
 
@@ -326,7 +329,7 @@ Most org-ref links support org-mode completion. You can type C-c C-l to insert a
 - all cite types
 - ref
 
-*** Storing org-links
+*** Storing org-links to labels
     :PROPERTIES:
     :ID:       AD9663C7-1369-413F-842A-157916D4BB75
     :CUSTOM_ID: sec-store-links
