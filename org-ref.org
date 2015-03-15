@@ -14,12 +14,20 @@ org-ref is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]].
 ** Basic usage of org-ref
 
 *** Sources of bibtex entries
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable  reftex-default-bibliography.
+
+*** Bibliography links
+org-ref provides a bibliography link to specify which bibtex files to use in the document. You should use the full filename with extension, and separate filenames by commas. This link is clickable; clicking on a filename will open the file. Also, if your cursor is on a filename, you will see a minibuffer message about whether the file exists or not.
+
+There is also a bibliographystyle link that specifies the style. This link does nothing but export to \bibliographystyle{link-string}.
+
+If you use biblatex, then you use an addbibresource link. biblatex support is not very well tested by me, because we do not use it.
 
 *** Citations
     :PROPERTIES:
     :CUSTOM_ID: citations
     :END:
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable  reftex-default-bibliography.
+
 For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu, select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. If the cursor is on a citation key, you should see a message in the minibuffer that summarizes which citation it refers to. If you click on a key, you should see a helm selection buffer with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
 
 The default citation type is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]], and set to "cite". If you want another type of citation type, then type C-u before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
@@ -31,6 +39,14 @@ If you want to /replace/ an existing key in a citation, put the cursor on the ke
 Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command org-ref-sort-citation-link which will sort the keys by year, oldest to newest.
 
 org-ref has basic support for pre/post text in citations. We have very little need for this in scientific publishing; we write pre text before the citation, and post text after it. However, you can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]].
+
+You may want to bind a hydra menu to a key-binding or key-chord. For example:
+
+#+BEGIN_SRC emacs-lisp
+(key-chord-define-global "kk" 'org-ref-cite-hydra/body)
+#+END_SRC
+
+This will allow you to quickly press kk while on a cite link to access functions that can act on the link.
 
 *** label links
 LaTeX uses labels to define places you can refer to. These can be labels in the captions of figures and tables, or labels in sections.
@@ -100,7 +116,7 @@ All org-ref links are designed to export to the corresponding LaTeX commands.
 ** Other exports
 There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books.
 
-* Other utilities
+* Other libraries in org-ref
 These are mostly functions for adding to bibtex files, or for operating on bibtex files.
 
 ** doi-utils
@@ -117,7 +133,6 @@ This will prompt you for a DOI, and a bibtex file, and then try to get the bibte
 
 - doi-utils-add-entry-from-crossref-query
 This will prompt you for a query string, which is usually the title of an article, or a free-form text citation of an article. Then you will get a helm buffer of matching items, which you can choose from to insert a new bibtex entry into a bibtex file.
-
 
 ** isbn
 #+BEGIN_SRC emacs-lisp
@@ -192,6 +207,18 @@ These are functions I use often in bibtex files.
   - jmax-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
   - jmax-bibtex-file/body :: gives a hydra menu of actions for the bibtex file
 
+You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
+You can do that like this before you require jmax-bibtex:
+
+#+BEGIN_SRC emacs-lisp
+(setq jmax-bibtex-hydra-key-binding "\C-cj")
+#+END_SRC
+
+Or this if you like key-chords:
+
+#+BEGIN_SRC emacs-lisp
+(key-chord-define-global "jj" 'jmax-bibtex-hydra/body)
+#+END_SRC
 
 * Appendix
 ** Customizing org-ref
