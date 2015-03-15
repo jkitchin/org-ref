@@ -11,7 +11,6 @@ before_install:
   - curl -fsSLo /tmp/cask-master.zip https://github.com/cask/cask/archive/master.zip
   - sudo unzip -qq -d /opt /tmp/cask-master.zip
   - sudo ln -sf /opt/cask-master/bin/cask /usr/local/bin/cask
-  - make tangled
   - cask
 env:
 #  - EMACS=emacs24
