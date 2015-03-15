@@ -975,10 +975,8 @@ ARG does nothing."
        :type "custom_id"
        :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
 
-    ;; and to #+label: lines. In a table these are retrieved by :name
-    ;; properties.
-    (when (and (-contains? '(paragraph table src-block)
-			   (org-element-type object))
+    ;; and to #+label: lines
+    (when (and (equal (org-element-type object) 'paragraph)
 	       (org-element-property :name object))
       (org-store-link-props
        :type "ref"
@@ -1655,8 +1653,8 @@ Prompt for NEW-FILE includes bib files in `org-ref-default-bibliography', and bi
   (interactive)
   (doi-utils-crossref (org-ref-get-doi-at-point)))
 
-;; *** DEPRECATED Minibuffer menu
-;; See [[Helm bibtex setup]]
+;; *** Minibuffer menu
+
 (defun org-ref-cite-onclick-minibuffer-menu (&optional link-string)
   "Action when a cite link is clicked on.
 Provides a menu of context sensitive actions.  If the bibtex entry
@@ -2449,6 +2447,11 @@ Makes a new buffer with clickable links."
 			 labels) 1)
 	  ;; this is a multiply defined label.
 	  (let ((cp (point)))
+	    (goto-char (point-min))
+	    (while (re-search-forward
+		    (format  "[^#+]label:%s\\s-" label) nil t)
+	      (push (cons label (point-marker)) multiple-labels))
+
 	    (goto-char (point-min))
 	    (while (re-search-forward
 		    (format  "\\label{%s}\\s-?" label) nil t)
