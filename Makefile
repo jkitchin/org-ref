@@ -1,10 +1,8 @@
 EMACS ?= emacs
 CASK ?= cask
 CASK_EXEC ?= ${CASK} exec
-ORG_SOURCES = org-ref.org
-EL_TANGLED = ${ORG_SOURCES:.org=.el}
-EL_SOURCES = arxiv.el jmax-bibtex.el doi-utils.el isbn.el pubmed.el
-SOURCES =  ${EL_TANGLED} ${EL_SOURCES}
+EL_SOURCES = org-ref.el arxiv.el jmax-bibtex.el doi-utils.el isbn.el pubmed.el
+SOURCES =   ${EL_SOURCES}
 
 all: test
 
@@ -20,16 +18,7 @@ compile:
 clean-elc:
 	rm -f *.elc
 
-tangled:
-	${MAKE} ${EL_TANGLED}
-
-clean-tangled:
-	rm ${EL_TANGLED}
-
 package : ${SOURCES}
 	${CASK} package
-
-%.el: %.org
-	${EMACS} -Q -batch $< -f org-babel-tangle
 
 .PHONY:	all test package clean-elc clean-tangled
