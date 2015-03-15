@@ -1,24 +1,30 @@
 #+TITLE: The org-ref manual
 #+AUTHOR: John Kitchin
 #+DATE: 2015-03-15 Sun
+#+OPTIONS: toc:nil ^:{}
+#+LATEX_HEADER: \usepackage{natbib}
+\maketitle
+\tableofcontents
 
 * Introduction to org-ref
-Org-ref is an addon library for org-mode cite:Dominik201408 that provides rich support for citations, and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export.
+Org-ref is a library for org-mode cite:Dominik201408 that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. It is also extremely useful for research documents and notes.
 
-The basic idea of org-ref is that it defines a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref interfaces with helm-bibtex to facilitate citation entry.
+The basic idea of org-ref is that it defines a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref interfaces with helm-bibtex to facilitate citation entry, and can also use reftex.
 
-org-ref provides a fairly large number of utilities for finding bad citations, extracting bibtex entries from citations in an org-file, and functions for interacting with bibtex entries. We find these utilities indispensable.
+org-ref provides a fairly large number of utilities for finding bad citations, extracting bibtex entries from citations in an org-file, and functions for interacting with bibtex entries. We find these utilities indispensable in scientific writing.
 
 org-ref is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]].
 
+org-ref has been in development since sometime in 2013. We have published a lot of scientific articles with it cite:hallenbeck-2013-effec-o2,mehta-2014-ident-poten,xu-2014-relat,xu-2014-probin-cover,miller-2014-simul-temper,curnan-2014-effec-concen,boes-2015-estim-bulk,xu-2015-linear-respon,xu-2015-relat. Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information.
+
+There has been a lot of recent discussion on the org-mode mailing list about a citation syntax for org-mode. It is not clear what the impact of this on org-ref will be. The new syntax will more cleanly support pre/post text, and it will be separate from the links used in org-ref. It is not clear if the new syntax will support all of the citation types, especially those in biblatex, that are supported in org-ref. The new citations are likely to be clickable, and could share functionality with org-ref. The new citation syntax will not cover labels and cross-references though, so these links from org-ref will still exist.
+
 ** Basic usage of org-ref
 
-*** Sources of bibtex entries
-
 *** Bibliography links
-org-ref provides a bibliography link to specify which bibtex files to use in the document. You should use the full filename with extension, and separate filenames by commas. This link is clickable; clicking on a filename will open the file. Also, if your cursor is on a filename, you will see a minibuffer message about whether the file exists or not.
+org-ref provides a bibliography link to specify which bibtex files to use in the document. You should use the filename with extension, and separate filenames by commas. This link is clickable; clicking on a filename will open the file. Also, if your cursor is on a filename, you will see a minibuffer message about whether the file exists or not. On export, the bibliography will appear at the position where the link is defined.
 
-There is also a bibliographystyle link that specifies the style. This link does nothing but export to \bibliographystyle{link-string}.
+There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command.
 
 If you use biblatex, then you use an addbibresource link. biblatex support is not very well tested by me, because we do not use it.
 
@@ -26,11 +32,23 @@ If you use biblatex, then you use an addbibresource link. biblatex support is no
     :PROPERTIES:
     :CUSTOM_ID: citations
     :END:
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable  reftex-default-bibliography.
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable  reftex-default-bibliography or org-ref-default-bibliography.
 
-For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu, select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. If the cursor is on a citation key, you should see a message in the minibuffer that summarizes which citation it refers to. If you click on a key, you should see a helm selection buffer with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
+For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding C-c ] by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys to move up and down to the entry you want. You can narrow the selection by typing a pattern to match, e.g. author name, title words, year, keyword, etc... You can select multiple entries by pressing C-spc to mark enties in the helm-bibtex buffer.
+
+If the cursor is on a citation key, you should see a message in the minibuffer that summarizes which citation it refers to. If you click on a key, you should see a helm selection buffer with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
 
 The default citation type is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]], and set to "cite". If you want another type of citation type, then type C-u before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
+
+Here is a list of supported citation types. You can customize this if you want.
+#+BEGIN_SRC emacs-lisp :results code
+org-ref-cite-types
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+("cite" "nocite" "citet" "citet*" "citep" "citep*" "citealt" "citealt*" "citealp" "citealp*" "citenum" "citetext" "citeauthor" "citeauthor*" "citeyear" "citeyear*" "Citet" "Citep" "Citealt" "Citealp" "Citeauthor" "Cite" "parencite" "Parencite" "footcite" "footcitetext" "textcite" "Textcite" "smartcite" "Smartcite" "cite*" "parencite*" "supercite" "autocite" "Autocite" "autocite*" "Autocite*" "Citeauthor*" "citetitle" "citetitle*" "citedate" "citedate*" "citeurl" "fullcite" "footfullcite" "notecite" "Notecite" "pnotecite" "Pnotecite" "fnotecite" "cites" "Cites" "parencites" "Parencites" "footcites" "footcitetexts" "smartcites" "Smartcites" "textcites" "Textcites" "supercites" "autocites" "Autocites" "bibentry")
+#+END_SRC
 
 If the cursor is on a citation, or at the end of the citation, and you add another citation, it will be appended to the current citation.
 
@@ -38,7 +56,7 @@ If you want to /replace/ an existing key in a citation, put the cursor on the ke
 
 Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command org-ref-sort-citation-link which will sort the keys by year, oldest to newest.
 
-org-ref has basic support for pre/post text in citations. We have very little need for this in scientific publishing; we write pre text before the citation, and post text after it. However, you can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]].
+org-ref has basic support for pre/post text in citations. We have very little need for this in scientific publishing; we write pre text before the citation, and post text after it. However, you can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is a little awkward to see this because you cannot see the key. It is a low priority to find a fix for this, because it is not common in scientific publishing and you can always fall back to the old-fashioned LaTeX: \cite[See page 20][, for example]{Dominik201408}.
 
 You may want to bind a hydra menu to a key-binding or key-chord. For example:
 
@@ -84,13 +102,12 @@ To help you insert ref links, use the "Org->org-ref->Insert ref" menu, or run th
 
 ref links are functional. If you put the cursor on a ref link, you will get a little message in the minibuffer with some context of the corresponding label. If you click on the ref link, the cursor will jump to the label.
 
-A brief note about references to a section. This only works if you put a label in the org-mode headline. Otherwise, you must use a CUSTOM_ID and a CUSTOM_ID link.
+A brief note about references to a section. This only works if you put a label in the org-mode headline. Otherwise, you must use a CUSTOM_ID and a CUSTOM_ID link. For example section [[#citations]] has a CUSTOM_ID of citations. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty.
 
-**** Miscellaneous ref links
-org-ref provides a pageref, nameref and eqref link.
+**** Miscellaneous ref links  label:sec-misc
+org-ref also provides a pageref, nameref and eqref link.
 
 Note for eqref, you must use a LaTeX label like this:
-
 
 \begin{equation}
 e^x = 4 \label{eq:1}
@@ -106,7 +123,26 @@ We change the order of the actions in helm-bibtex to suit our work flow, and add
 ** Some basic org-ref utilities
 The command org-ref does a lot for you automatically. It will check the buffer for errors, e.g. multiply-defined labels, bad citations or ref links, and provide easy access to a few commands through a helm buffer.
 
-org-ref-clean-bibtex-entry will sort the fields of a bibtex entry, clean it, and give it a bibtex key.
+org-ref-clean-bibtex-entry will sort the fields of a bibtex entry, clean it, and give it a bibtex key. This function does a lot of cleaning:
+
+1. adds a comma if needed in the first line of the entry
+2. makes sure the doi field is an actual doi, and not a url.
+3. fixes bad year entries
+4. fixes empty pages
+5. Escapes & to \&
+6. generate a key according to your setup
+7. Runs your hook functions
+8. sorts the fields in the entry
+9. checks the buffer for non-ascii characters.
+
+This function has a hook org-ref-clean-bibtex-entry-hook, which you can add functions to of your own. Each function must work on a bibtex entry at point.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-replace-nonascii)
+#+END_SRC
+
+#+RESULTS:
+| jmax-title-case-article | jmax-replace-nonascii |
 
 org-ref-extract-bibtex-entries will create a bibtex file from the citations in the current buffer.
 
@@ -184,28 +220,59 @@ researcherid:A-2363-2010
 ** jmax-bibtex
 These are functions I use often in bibtex files.
 
-- jmax-bibtex-generate-longtitles
-- jmax-bibtex-generate-shorttitles
+*** Generate new bibtex files with adapted journal names
+The variable jmax-bibtex-journal-abbreviations contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'jmax-bibtex-journal-abbreviations
+  '("JIR" "Journal of Irreproducible Research" "J. Irrep. Res."))
+#+END_SRC
+
+- jmax-bibtex-generate-longtitles :: Generate a bib file with long titles as
+     defined in `jmax-bibtex-journal-abbreviations'
+- jmax-bibtex-generate-shorttitles :: Generate a bib file with short titles as
+     defined in `jmax-bibtex-journal-abbreviations'
+
+*** Modifying bibtex entries
+
 - jmax-stringify-journal-name :: replace a journal name with a string in
      `jmax-bibtex-journal-abbreviations'
 - jmax-set-journal-string :: in a bibtex entry run this to replace the journal
-     with a string
-- jmax-title-case-article :: title case the title in an article
-- jmax-sentence-case-article :: sentence case the title in an article.
+     with a string selected interactively.
+
+- jmax-title-case-article :: title case the title in an article entry.
+- jmax-sentence-case-article :: sentence case the title in an article entry.
 
 - jmax-replace-nonascii :: replace nonascii characters in a bibtex
-     entry. Replacements are in `jmax-nonascii-latex-replacements'.
+     entry. Replacements are in `jmax-nonascii-latex-replacements'. This
+     function is a hook function in org-ref-clean-bibtex-entry.
 
-- jmax-title-case-article
-- jmax-sentence-case-article
+The non-ascii characters are looked up in a list of cons cells. You can add your own non-ascii replacements like this. Note backslashes must be escaped doubly, so one \ is \\\\ in the cons cell.
 
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'jmax-nonascii-latex-replacements
+  '("æ" . "{\\\\ae}"))
+#+END_SRC
+
+These functions are compatible with bibtex-map-entries, so it is possible to conveniently apply them to all the entries in a file like this:
+
+#+BEGIN_SRC emacs-lisp
+(bibtex-map-entries 'jmax-title-case-article)
+#+END_SRC
+
+
+
+*** Bibtex entry navigation
 - jmax-bibtex-next-entry :: bound to M-n
 - jmax-bibtex-previous-entry :: bound to M-p
 
+*** Hydra menus for bibtex entries and files
 - Functions to act on a bibtex entry or file
-  - jmax-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions.
+  - jmax-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
+       like opening the pdf, or the entry in a browser, or searching in a
+       variety of scientific search engines.
   - jmax-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
-  - jmax-bibtex-file/body :: gives a hydra menu of actions for the bibtex file
+  - jmax-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
 
 You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
 You can do that like this before you require jmax-bibtex:
@@ -214,7 +281,7 @@ You can do that like this before you require jmax-bibtex:
 (setq jmax-bibtex-hydra-key-binding "\C-cj")
 #+END_SRC
 
-Or this if you like key-chords:
+Or this if you like key-chord:
 
 #+BEGIN_SRC emacs-lisp
 (key-chord-define-global "jj" 'jmax-bibtex-hydra/body)
@@ -239,5 +306,6 @@ Here is my minimal setup:
 
 
 * References
+bibliographystyle:unsrt
 # <<bibliography link>>
 bibliography:org-ref.bib
