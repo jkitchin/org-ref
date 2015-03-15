@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jkitchin/org-ref
 ;; Version: 0.2
 ;; Keywords: org-mode, cite, ref, label
-;; Package-Requires: ((dash) (helm) (helm-bibtex))
+;; Package-Requires: ((dash) (helm) (helm-bibtex) (hydra))
 
 ;; This file is not currently part of GNU Emacs.
 
