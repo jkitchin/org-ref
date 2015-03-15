@@ -748,10 +748,25 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		       ;; write out the latex bibliography command
 		       (format "\\bibliographystyle{%s}" keyword)))))
 
+
+(defun org-bibliographystyle-complete-link (&optional arg)
+  "Completion function for bibliographystyle link.
+ARG does nothing."
+  (format "bibliographystyle:%s" (ido-completing-read
+				  "style: "
+				  '("unsrt" "plain" "alpha"
+				    ;; natbib
+				    ;; https://www.sharelatex.com/learn/Natbib_bibliography_styles
+				    "dinat" "humannat" "plainnat"
+				    "abbrnat" "unsrtnat" "rusnat"
+				    "ksfhnat"))))
+
+
 (defun org-bibliography-complete-link (&optional arg)
   "Completion function for bibliography link.
 ARG does nothing."
   (format "bibliography:%s" (read-file-name "enter file: " nil nil t)))
+
 
 (defun org-ref-insert-bibliography-link ()
   "Insert a bibliography with completion."
