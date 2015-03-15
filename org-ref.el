@@ -3315,6 +3315,14 @@ _o_: Open entry   _e_: Email entry and pdf
 	   (org-ref-open-citation-at-point)
 	   (email-bibtex-entry)) nil)))
 
+;; * org-ref-help
+(defun org-ref-help ()
+  "Open the org-ref manual."
+  (find-file (expand-file-name
+	      "org-ref.org"
+	      (file-name-directory
+	       (find-library-name "org-ref")))))
+
 ;; * The end
 (provide 'org-ref)
 
