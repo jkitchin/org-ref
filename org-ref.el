@@ -1072,6 +1072,7 @@ ARG does nothing."
     (lambda (table)
       (org-element-property :name table))))
 
+
 (defun org-ref-get-labels ()
   "Return a list of labels in the buffer that you can make a ref link to.
 This is used to complete ref links and in helm menus."
@@ -1095,6 +1096,7 @@ This is used to complete ref links and in helm menus."
 		;; CUSTOM_IDs
 		(org-ref-get-custom-ids))))))
 
+
 (defun org-ref-helm-insert-label-link ()
   "Insert a label link. helm just shows you what labels already exist.
 If you are on a label link, replace it."
@@ -1106,7 +1108,8 @@ If you are on a label link, replace it."
 		      ;; default action is to open to the label
 		      (action . (lambda (label)
 				  ;; unfortunately I do not have markers here
-				  (org-open-link-from-string (format "ref:%s" label))))
+				  (org-open-link-from-string
+				   (format "ref:%s" label))))
 		      ;; if you select a label, replace current one
 		      (action . (lambda (label)
 				  (switch-to-buffer ,cb)
@@ -1168,6 +1171,7 @@ If you are on a label link, replace it."
 					 (or label
 					     helm-pattern))))))))))))
 
+
 (defun org-ref-complete-link (&optional arg)
   "Completion function for ref links.
 Optional argument ARG Does nothing."
@@ -1175,10 +1179,12 @@ Optional argument ARG Does nothing."
     (setq label (completing-read "label: " (org-ref-get-labels)))
     (format "ref:%s" label)))
 
+
 (defun org-ref-insert-ref-link ()
   "Completion function for a ref link."
  (interactive)
  (insert (org-ref-complete-link)))
+
 
 (defun org-ref-helm-insert-ref-link ()
   "Helm menu to insert ref links to labels in the document.
@@ -1278,20 +1284,14 @@ Use C-u C-u to insert a [[#custom-id]] link"
 	;; #+label: name  org-definition
 	(progn
 	  (goto-char (point-min))
-	  (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+	  (re-search-forward
+	   (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
 
 	;; org tblname
 	(progn
 	  (goto-char (point-min))
-	  (re-search-forward (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
-
-;; Commented out because these ref links do not actually translate correctly in LaTeX.
-;; you need [[#label]] links.
-	;; CUSTOM_ID
-;	(progn
-;	  (goto-char (point-min))
-;	  (re-search-forward (format ":CUSTOM_ID:\s-*\\(%s\\)" label) nil t))
-	)
+	  (re-search-forward
+	   (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
      (error "%s not found" label))
@@ -1303,6 +1303,7 @@ Use C-u C-u to insert a [[#custom-id]] link"
     ((eq format 'latex)
      (format "\\pageref{%s}" keyword)))))
 
+
 (defun org-pageref-complete-link (&optional arg)
   "Completion function for ref links.
 Optional argument ARG Does nothing."
@@ -1310,10 +1311,12 @@ Optional argument ARG Does nothing."
     (setq label (completing-read "label: " (org-ref-get-labels)))
     (format "ref:%s" label)))
 
+
 (defun org-pageref-insert-ref-link ()
   "Insert a pageref link with completion."
  (interactive)
  (insert (org-pageref-complete-link)))
+
 
 ;; *** nameref link
 (org-add-link-type
@@ -1411,7 +1414,9 @@ keyword we clicked on.  We also strip the text properties."
 		(setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
 	      (setq key-beginning link-string-beginning))) ; no match found
 	  ;; save the key we clicked on.
-	  (setq bibtex-key (org-ref-strip-string (buffer-substring key-beginning key-end)))
+	  (setq bibtex-key
+		(org-ref-strip-string
+		 (buffer-substring key-beginning key-end)))
 	  (set-text-properties 0 (length bibtex-key) nil bibtex-key)
 	  bibtex-key)
       ;; link with description. assume only one key
