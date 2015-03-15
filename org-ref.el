@@ -334,7 +334,7 @@ You will see a message in the minibuffer when on a cite, ref or label link."
 
 
 (setq org-ref-ref-re
-      "ref:\\([a-zA-Z0-9-_:]*,?\\)*")
+      "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*")
 
 
 (defface org-ref-cite-face
@@ -1753,7 +1753,7 @@ get a lot of options.  LINK-STRING is used by the link function."
 	  choice
 	  2))))))
 
-;; ** Generation of the cite links
+;; *** Generation of the cite links
 (defmacro org-ref-make-completion-function (type)
   "Macro to make a link completion function for a link of TYPE."
   `(defun ,(intern (format "org-%s-complete-link" type)) (&optional arg)
