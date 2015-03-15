@@ -915,6 +915,8 @@ ARG does nothing."
     ((eq format 'latex)
      (format "\\listoftables")))))
 
+
+;; ** label link
 (defun org-ref-count-labels (label)
   "Counts number of matches for LABEL in the document."
   (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max))
@@ -931,7 +933,6 @@ ARG does nothing."
 	    (setq custom-id-count (+ 1 custom-id-count)))))
        custom-id-count)))
 
-;; ** label link
 (org-add-link-type
  "label"
  (lambda (label)
@@ -966,21 +967,20 @@ ARG does nothing."
        :type "ref"
        :link (concat "ref:" (org-element-property :name object))))
 
-;; it turns out this does not work. you can already store a link to a heading with a CUSTOM_ID
     ;; store link on heading with custom_id
-;    (when (and (equal (org-element-type object) 'headline)
-;	       (org-entry-get (point) "CUSTOM_ID"))
-;      (org-store-link-props
-;       :type "ref"
-;       :link (concat "ref:" (org-entry-get (point) "CUSTOM_ID"))))
+    ;; this is not a ref link, but it is still what you want
+    (when (and (equal (org-element-type object) 'headline)
+	       (org-entry-get (point) "CUSTOM_ID"))
+      (org-store-link-props
+       :type "custom_id"
+       :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
 
     ;; and to #+label: lines
     (when (and (equal (org-element-type object) 'paragraph)
 	       (org-element-property :name object))
       (org-store-link-props
        :type "ref"
-       :link (concat "ref:" (org-element-property :name object))))
-))
+       :link (concat "ref:" (org-element-property :name object))))))
 
 (add-hook 'org-store-link-functions 'org-label-store-link)
 
