@@ -25,7 +25,7 @@
 
 ;;; Code:
 (org-add-link-type
- "wos"
+ "wos-search"
  (lambda (path)
    (browse-url
     (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
