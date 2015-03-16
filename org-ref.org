@@ -283,6 +283,18 @@ Or this if you like key-chord:
 (key-chord-define-global "jj" 'jmax-bibtex-hydra/body)
 #+END_SRC
 
+** wos
+This is a small utility for Web of Science/Knowledge (http://apps.webofknowledge.com).
+
+#+BEGIN_SRC emacs-lisp
+(require 'wos)
+#+END_SRC
+
+- wos :: Convenience function to open WOK in a browser.
+- wos-search :: Search WOK with the selected text or word at point
+
+There is also a new org-mode link that opens a search: [[wos-search:alloy and segregation]]
+
 ** isbn
 index:isbn
 
