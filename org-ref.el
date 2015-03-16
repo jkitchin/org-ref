@@ -2395,7 +2395,7 @@ Makes a new buffer with clickable links."
           (kill-buffer "*Missing citations*"))
       (message "No bad cite links found"))))
 
-;; ** helm interface to bad citations, labels, refs in orgfile
+;; ** helm interface to bad citations, labels, refs and files in orgfile
 (defun org-ref-bad-cite-candidates ()
   "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
   (let* ((cp (point))			; save to return to later
@@ -2482,6 +2482,29 @@ Makes a new buffer with clickable links."
 	    (goto-char cp)))))
       multiple-labels))
 
+(defun org-ref-bad-file-link-candidates ()
+  "Return list of conses (link . marker) wehre the file in the link does not exist."
+  (let* ((bad-files '()))
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(let ((type (org-element-property :type link)))
+	  (when (or  (string= "file" type)
+		     (string= "attachfile" type))
+	    (unless (file-exists-p (org-element-property :path link))
+	      (add-to-list 'bad-files
+			   (cons (org-element-property :path link)
+				 (save-excursion
+				   (goto-char
+				    (org-element-property :begin link))
+				   (point-marker)))))))))
+    ;; Let us also check \attachfile{fname}
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\attachfile{\\(.*\\)}" nil t)
+	(unless (file-exists-p (match-string 1))
+	  (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
+    bad-files))
+
 ;;;###autoload
 (defun org-ref ()
   "Opens a helm interface to actions for org-ref.
@@ -2490,7 +2513,8 @@ Shows bad citations, ref links and labels"
   (let ((cb (current-buffer))
 	(bad-citations (org-ref-bad-cite-candidates))
 	(bad-refs (org-ref-bad-ref-candidates))
-	(bad-labels (org-ref-bad-label-candidates)))
+	(bad-labels (org-ref-bad-label-candidates))
+	(bad-files (org-ref-bad-file-link-candidates)))
 
     (helm :sources `(((name . "Bad citations")
 		       (candidates . ,bad-citations)
@@ -2509,6 +2533,12 @@ Shows bad citations, ref links and labels"
 		      (action . (lambda (marker)
 					  (switch-to-buffer (marker-buffer marker))
 					  (goto-char marker))))
+		     ;;
+		     ((name . "Bad file links")
+		      (candidates . ,bad-files)
+		      (lambda (marker)
+				   (switch-to-buffer (marker-buffer marker))
+				   (goto-char marker)))
 		     ;;
 		     ((name . "Utilities")
 		      (candidates . (("Check buffer again" . org-ref)
@@ -2534,8 +2564,7 @@ Shows bad citations, ref links and labels"
 				     ))
 		      (action . (lambda (x)
 				  (switch-to-buffer ,cb)
-				  (funcall x))))
-		      ))))
+				  (funcall x))))))))
 
 ;; ** Find non-ascii charaters
 (defun org-ref-find-non-ascii-characters ()
