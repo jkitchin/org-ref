@@ -992,10 +992,8 @@ ARG does nothing."
    "on clicking goto the label. Navigate back with C-c &"
    (org-mark-ring-push)
    ;; next search from beginning of the buffer
-
    ;; it is possible you would not find the label if narrowing is in effect
    (widen)
-
    (unless
        (or
 	;; our label links
@@ -1011,12 +1009,14 @@ ARG does nothing."
 	;; #+label: name  org-definition
 	(progn
 	  (goto-char (point-min))
-	  (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+	  (re-search-forward
+	   (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
 
 	;; org tblname
 	(progn
 	  (goto-char (point-min))
-	  (re-search-forward (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
+	  (re-search-forward
+	   (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
 
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
