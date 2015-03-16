@@ -81,7 +81,10 @@ label links are "functional" if you put your cursor on the link, you will get a 
 org-ref can help you insert unique labels with the command elisp:org-ref-helm-insert-label-link. This will show you the existing labels, and insert your new label as a link. There is no default key-binding for this.
 
 *** ref links
-A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1.
+    :PROPERTIES:
+    :ID:       290260A1-F07C-4852-B4B3-CEE3E768AA3B
+    :END:
+A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, ....
 
 #+tblname: table-1
 #+caption: A simple table.
@@ -92,9 +95,10 @@ A ref link refers to a label of some sort. For example, you can refer to a table
 Or you can refer to an org-mode label as in Table ref:table-3.
 
 #+label: table-3
-#+caption: A simple table.
-| x |
-| 1 |
+#+caption: Another simple table.
+| y |
+|---|
+| 3 |
 | 2 |
 
 You can also refer to an org-ref label link as in Table ref:tab-ydata.
@@ -106,7 +110,11 @@ ref links are functional. If you put the cursor on a ref link, you will get a li
 A brief note about references to a section. This only works if you put a label in the org-mode headline. Otherwise, you must use a CUSTOM_ID and a CUSTOM_ID link. For example section [[#citations]] has a CUSTOM_ID of citations. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty.
 
 **** Miscellaneous ref links  label:sec-misc
-org-ref also provides a pageref, nameref and eqref link.
+org-ref also provides these links:
+
+- pageref :: The page a label is on
+- nameref :: The name of a section a label is in
+- eqref :: Puts the equation number in parentheses
 
 Note for eqref, you must use a LaTeX label like this:
 
@@ -298,6 +306,17 @@ orcid:0000-0003-2625-9232
 
 researcherid:A-2363-2010
 
+** x2bib
+#+BEGIN_SRC emacs-lisp
+(require 'x2bib)
+#+END_SRC
+
+If you find you need to convert some bibliographies in some format into bibtex, this library is a starting point. This code is mostly wrappers around the command line utilities at http://sourceforge.net/p/bibutils/home/Bibutils. I thankfully have not had to use this often, but it is here when I need it again.
+
+- ris2bib :: Convert an RIS file to a bibtex file.
+- medxml2bib :: Convert Pubmed XML to bibtex.
+- clean-entries :: Map over a converted bibtex file and "clean it".
+
 * Appendix
 ** Customizing org-ref
    :PROPERTIES:
@@ -334,8 +353,29 @@ Most org-ref links support org-mode completion. You can type C-c C-l to insert a
     :ID:       AD9663C7-1369-413F-842A-157916D4BB75
     :CUSTOM_ID: sec-store-links
     :END:
-If you are on a label link, or on a table name, or on an org-mode label you can "store" a link to it by typing C-c l. Then you can insert the corresponding ref link with C-c C-l.
+If you are on a label link, or on a table name, or on an org-mode label you can "store" a link to it by typing C-c l. Then you can insert the corresponding ref link with C-c C-l. This will insert a ref link or custom_id link as needed. This usually works, but it is not used by me too often, so it is not tested too deeply.
 
+*** Storing links to bibtex entries
+If you have a bibtex file open, you type C-c C-l with your cursor in a bibtex entry to store a link to that entry. In an org-buffer if you then type C-c l, you can enter a cite link.
+
+*** Indexes
+org-ref provides links to support making an index in LaTeX. (http://en.wikibooks.org/wiki/LaTeX/Indexing).
+
+- index :: creates an index entry.
+- printindex :: Generates a temporary index of clickable entries. Exports to the LaTeX command.
+
+You will have to incorporate running makeindex into your PDF build command.
+
+*** Glossaries
+See http://en.wikibooks.org/wiki/LaTeX/Glossary.
+
+- newglossaryentry
+- gls
+- glspl
+- Gsl
+- Glspl
+
+You will need to incorporate running the command makeglossaries into your PDF build command.
 
 * References
 bibliographystyle:unsrtnat
