@@ -504,7 +504,8 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		 (loop for file in org-ref-bibliography-files do
 		       (if (org-ref-key-in-file-p key (file-truename file))
 			   (throw 'result file)
-			 (message "%s not found in %s" key (file-truename file))))))
+			 (message "%s not found in %s"
+				  key (file-truename file))))))
 
     (with-temp-buffer
       (insert-file-contents file)
