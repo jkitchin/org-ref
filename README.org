@@ -9,19 +9,6 @@ See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch
 
 [[./org-ref.org]] contains all documentation and installation instructions.
 
-[[./doi-utils.org]] contains functions for downloading bibtex entries from  a DOI, and redefines the org-mode doi link so it has more functionality.
-
-[[./jmax-bibtex.el]] contains some utility functions:
-
-1. jmax-bibtex runs a menu command with actions to run on a bibtex entry including looking up the doi for the entry in a variety of places, e.g. web of science related/citing articles, Google Scholar, Pubmed, and crossref, or opening a PDF associated with the entry.
-
-2. Bind M-n/M-p to next/previous bibtex entry.
-
-3. Sentence/title casing the title of a bibtex entry
-
-4. Function to replace non-ascii characters in bibtex entries
-
-5. Functions to replace journal names with @string entries, and corresponding short/long names.
 
 * Installation
 We are slowly moving towards getting org-ref in MELPA. Until then, here are some directions that will probably help install org-ref.
