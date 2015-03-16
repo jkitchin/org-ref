@@ -1,15 +1,10 @@
-;;   ti
+;;; x2bib.el --- Bibliography conversion to Bibtex
+
 ;;; Header:
 
 ;;; Commentary:
 
-;; ;;; Reminders about lentic:
-;; Lentic key binding reminders
-;; C-c , h  Move here in other view
-;; C-c , s  Swap windows
-;; [[elisp:lentic-mode-split-window-right]]  C-c o to open this link and make the view
-
-;; This module is more for my convenience to convert bibliography files to bibtex. This can be done at the command line, for example, but I want to do it in Emacs. There are a few scenarios where this happens.
+;; This module is more for my convenience to convert bibliography files to bibtex.  This can be done at the command line, for example, but I want to do it in Emacs.  There are a few scenarios where this happens.
 ;; 1. Someone sends me a non-Bibtex file (Endnote, etc...)
 ;; 2. From some online search I select many references and there is no export to Bibtex option, e.g. from Web of Science.
 
@@ -39,7 +34,6 @@
 ;; ** RIS to bibtex
 ;; RIS can be pretty easily exported from Endnote. Here is a function to read an RIS file and convert it to bibtex which is inserted at point. Note that there is often other output from the commands. We try to comment them out here, but you should probably inspect the entries, and do other bibtex file compliance checks.
 
-;; #+BEGIN_SRC emacs-lisp
 (defun ris2bib (risfile &optional verbose)
   "Convert RISFILE to bibtex and insert at point.
 Without a prefix arg, stderr is diverted."
@@ -66,15 +60,10 @@ Without a prefix arg, stderr is diverted."
 		 "%	Defaulting"
 		 result))
    (insert result)))
-;; #+END_SRC
-
-;; #+RESULTS:
-;; : ris2bib
 
 ;; ** Pubmed XML to bibtex
 ;; In http://www.ncbi.nlm.nih.gov/pubmed/ you can select entries, and then send them to a file. If you choose Pubmed XML as the format, then you can use this function to convert it to bibtex.
 
-;; #+BEGIN_SRC emacs-lisp
 (defun medxml2bib (medfile &optional verbose)
  "Convert MEDFILE (in Pubmed xml) to bibtex and insert at point.
 Without a prefix arg, stderr is diverted."
@@ -101,16 +90,11 @@ Without a prefix arg, stderr is diverted."
 		 "%	Defaulting"
 		 result))
    (insert result)))
-;; #+END_SRC
-
-;; #+RESULTS:
-;; : medxml2bib
 
 ;; ** Clean up all the entries
 
 ;; Finally, after you put the new entries in, you probably need to do some clean up actions. This little function does that.
 
-;; #+BEGIN_SRC emacs-lisp
 (defun clean-entries ()
  "Map over bibtex entries and clean them."
  (interactive)
@@ -118,15 +102,7 @@ Without a prefix arg, stderr is diverted."
   (lambda (a b c)
    (ignore-errors
    (org-ref-clean-bibtex-entry)))))
-;; #+END_SRC
 
-;; #+RESULTS:
-;; : clean-entries
+(provide 'x2bib)
 
-
-
-;; ;;; x2bib.el ends here
-
-;; # Local Variables:
-;; # lentic-init: lentic-orgel-org-init
-;; # End:
+;;; x2bib.el ends here
