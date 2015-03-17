@@ -227,7 +227,7 @@ We get it out here by parsing the html."
 		  (beginning-of-buffer)
 		  (re-search-forward "pdfurl=\"\\([^\"]*\\)\"" nil t)
 		  (setq *doi-utils-pdf-url* (match-string 1)
-			,*doi-utils-waiting* nil)))
+			*doi-utils-waiting* nil)))
   (while *doi-utils-waiting* (sleep-for 0.1))
   *doi-utils-pdf-url*)
 
@@ -246,7 +246,7 @@ We get it out here by parsing the html."
     (let ((second-redirect (replace-regexp-in-string
 			    "http://linkinghub.elsevier.com/retrieve"
 			    "http://www.sciencedirect.com/science/article"
-			    ,*doi-utils-redirect*)))
+			    *doi-utils-redirect*)))
       (message "getting pdf url from %s" second-redirect)
       *doi-utils-pdf-url*)))
 
