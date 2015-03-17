@@ -326,7 +326,7 @@ You will see a message in the minibuffer when on a cite, ref or label link."
 		       (replace-regexp-in-string "\*" "\\\\*" x)
 		       )
 		     org-ref-cite-types "\\|") "\\)"
-  ":\\([a-zA-Z0-9-_:]*,?\\)*"))
+  ":\\([a-zA-Z0-9-_:\\.]*,?\\)*"))
 
 
 (setq org-ref-label-re
