@@ -2845,87 +2845,88 @@ Shows bad citations, ref links and labels"
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
   (interactive)
-  (when (eq major-mode 'org-mode)
-    (let* ((object (org-element-context))
-	   (type (org-element-property :type object)))
-      (save-excursion
-	(cond
-	 ;; cite links
-	 ((-contains? org-ref-cite-types type)
-	  (message (org-ref-get-citation-string-at-point)))
+  (save-restriction
+    (widen)
+    (when (eq major-mode 'org-mode)
+      (let* ((object (org-element-context))
+	     (type (org-element-property :type object)))
+	(save-excursion
+	  (cond
+	   ;; cite links
+	   ((-contains? org-ref-cite-types type)
+	    (message (org-ref-get-citation-string-at-point)))
 
-	 ;; message some context about the label we are referring to
-	 ((string= type "ref")
-	  (message "%scount: %s"
-		   (org-ref-get-label-context
-		    (org-element-property :path object))
-		   (org-ref-count-labels
-			(org-element-property :path object))))
+	   ;; message some context about the label we are referring to
+	   ((string= type "ref")
+	    (message "%scount: %s"
+		     (org-ref-get-label-context
+		      (org-element-property :path object))
+		     (org-ref-count-labels
+		      (org-element-property :path object))))
 
-	 ((string= type "eqref")
-	  (message "%scount: %s"
-		   (org-ref-get-label-context
-		    (org-element-property :path object))
-		   (org-ref-count-labels
-			(org-element-property :path object))))
+	   ((string= type "eqref")
+	    (message "%scount: %s"
+		     (org-ref-get-label-context
+		      (org-element-property :path object))
+		     (org-ref-count-labels
+		      (org-element-property :path object))))
 
-	 ;; message the count
-	 ((string= type "label")
-	  (let ((count (org-ref-count-labels
-			(org-element-property :path object))))
-	    ;; get plurality on occurrence correct
-	    (message (concat
-		      (number-to-string count)
-		      " occurence"
-		      (when (or (= count 0)
-				(> count 1))
-			"s")))))
+	   ;; message the count
+	   ((string= type "label")
+	    (let ((count (org-ref-count-labels
+			  (org-element-property :path object))))
+	      ;; get plurality on occurrence correct
+	      (message (concat
+			(number-to-string count)
+			" occurence"
+			(when (or (= count 0)
+				  (> count 1))
+			  "s")))))
 
-	 ((string= type "custom-id")
-	  (save-excursion
-	    (org-open-link-from-string
-	     (format "[[#%s]]" (org-element-property :path object)))
-	    (message "%s" (org-get-heading))))
-
-         ;; check if the bibliography files exist.
-	 ((string= type "bibliography")
-	  (let* ((bibfile)
-		 ;; object is the link you clicked on
-		 (object (org-element-context))
-		 (link-string (org-element-property :path object))
-		 (link-string-beginning)
-		 (link-string-end))
+	   ((string= type "custom-id")
 	    (save-excursion
-	      (goto-char (org-element-property :begin object))
-	      (search-forward link-string nil nil 1)
-	      (setq link-string-beginning (match-beginning 0))
-	      (setq link-string-end (match-end 0)))
+	      (org-open-link-from-string
+	       (format "[[#%s]]" (org-element-property :path object)))
+	      (message "%s" (org-get-heading))))
 
-	     ;; make sure we are in link and not before the :
-	    (when (> link-string-beginning (point))
-	      (goto-char link-string-beginning))
+	   ;; check if the bibliography files exist.
+	   ((string= type "bibliography")
+	    (let* ((bibfile)
+		   ;; object is the link you clicked on
+		   (object (org-element-context))
+		   (link-string (org-element-property :path object))
+		   (link-string-beginning)
+		   (link-string-end))
+	      (save-excursion
+		(goto-char (org-element-property :begin object))
+		(search-forward link-string nil nil 1)
+		(setq link-string-beginning (match-beginning 0))
+		(setq link-string-end (match-end 0)))
 
-	    ;; now if we have comma separated bibliographies
-	    ;; we find the one clicked on. we want to
-	    ;; search forward to next comma from point
-	    (save-excursion
-	      (if (search-forward "," link-string-end 1 1)
-		  (setq key-end (- (match-end 0) 1)) ; we found a match
-		(setq key-end (point)))) ; no comma found so take the point
+	      ;; make sure we are in link and not before the :
+	      (when (> link-string-beginning (point))
+		(goto-char link-string-beginning))
 
-	    ;; and backward to previous comma from point
-	    (save-excursion
-	      (if (search-backward "," link-string-beginning 1 1)
-		  (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-		(setq key-beginning (point)))) ; no match found
-	    ;; save the key we clicked on.
-	    (setq bibfile
-		  (org-ref-strip-string
-		   (buffer-substring key-beginning key-end)))
-	    (if (file-exists-p bibfile)
-		(message "%s exists." bibfile)
-	      (message "!!! %s NOT FOUND !!!" bibfile))))
-	 )))))
+	      ;; now if we have comma separated bibliographies
+	      ;; we find the one clicked on. we want to
+	      ;; search forward to next comma from point
+	      (save-excursion
+		(if (search-forward "," link-string-end 1 1)
+		    (setq key-end (- (match-end 0) 1)) ; we found a match
+		  (setq key-end (point)))) ; no comma found so take the point
+
+	      ;; and backward to previous comma from point
+	      (save-excursion
+		(if (search-backward "," link-string-beginning 1 1)
+		    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+		  (setq key-beginning (point)))) ; no match found
+	      ;; save the key we clicked on.
+	      (setq bibfile
+		    (org-ref-strip-string
+		     (buffer-substring key-beginning key-end)))
+	      (if (file-exists-p bibfile)
+		  (message "%s exists." bibfile)
+		(message "!!! %s NOT FOUND !!!" bibfile))))))))))
 
 ;; ** aliases
 (defalias 'oro 'org-ref-open-citation-at-point)
