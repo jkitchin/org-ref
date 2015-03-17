@@ -22,7 +22,7 @@
 
 ;;; Commentary:
 
-;; This package provides functionality to download PDFs and bibtex entries from a DOI, as well as to update a bibtex entry from a DOI. It depends slightly on org-ref, to determine where to save pdf files too, and where to insert bibtex entries in the default bibliography.
+;; This package provides functionality to download PDFs and bibtex entries from a DOI, as well as to update a bibtex entry from a DOI.  It depends slightly on org-ref, to determine where to save pdf files too, and where to insert bibtex entries in the default bibliography.
 
 ;; The principle commands you will use from here are:
 
@@ -41,13 +41,13 @@
 ;; There are some subtleties in doing this that are described here. To get the redirect, we have to use url-retrieve, and a callback function. The callback does not return anything, so we communicate through global variables. url-retrieve is asynchronous, so we have to make sure to wait for it to finish.
 
 (defvar *doi-utils-waiting* t
-  "stores waiting state for url retrieval.")
+  "Stores waiting state for url retrieval.")
 
 (defvar *doi-utils-redirect* nil
-  "stores redirect url from a callback function")
+  "Stores redirect url from a callback function.")
 
 (defun doi-utils-redirect-callback (&optional status)
-  "callback for url-retrieve to set the redirect"
+  "Callback for url-retrieve to set the redirect."
   (when (plist-get status :error)
     (signal (car (plist-get status :error)) (cdr(plist-get status :error))))
   (when (plist-get status :redirect) ;  is nil if there none
@@ -60,7 +60,7 @@
 ;; To actually get the redirect we use url-retrieve like this.
 
 (defun doi-utils-get-redirect (doi)
-  "get redirect url from dx.doi.org/doi"
+  "Get redirect url from dx.DOI.org/doi."
   ;; we are going to wait until the url-retrieve is done
   (setq *doi-utils-waiting* t)
   ;; start with no redirect. it will be set in the callback.
@@ -78,7 +78,7 @@
 ;; Once we have a redirect for a particular doi, we need to compute the url to the pdf. We do this with a series of functions. Each function takes a single argument, the redirect url. If it knows how to compute the pdf url it does, and returns it. We store the functions in a variable:
 
 (defvar doi-utils-pdf-url-functions nil
-  "list of functions that return a url to a pdf from a redirect url. Each function takes one argument, the redirect url. The function must return a pdf-url, or nil.")
+  "List of functions that return a url to a pdf from a redirect url.  Each function takes one argument, the redirect url.  The function must return a pdf-url, or nil.")
 
 
 ;; ** APS journals
@@ -220,7 +220,7 @@ We get it out here by parsing the html."
   "stores url to pdf download from a callback function")
 
 (defun doi-utils-get-science-direct-pdf-url (redirect-url)
-  "science direct hides the pdf url in html. we get it out here"
+  "Science direct hides the pdf url in html. we get it out here."
   (setq *doi-utils-waiting* t)
   (url-retrieve redirect-url
 		(lambda (status)
@@ -286,8 +286,8 @@ We get it out here by parsing the html."
 ;; ** Get the pdf url for a doi
 
 (defun doi-utils-get-pdf-url (doi)
-  "returns a url to a pdf for the doi if one can be
-calculated. Loops through the functions in `doi-utils-pdf-url-functions'
+  "Return a url to a pdf for the DOI if one can be calculated.
+Loops through the functions in `doi-utils-pdf-url-functions'
 until one is found"
   (doi-utils-get-redirect doi)
 
@@ -306,12 +306,12 @@ until one is found"
 ;; ** Finally, download the pdf
 
 (defun doi-utils-get-bibtex-entry-pdf ()
-  "download pdf for entry at point if the pdf does not already
-exist locally. The entry must have a doi. The pdf will be saved
+  "Download pdf for entry at point if the pdf does not already exist locally.
+The entry must have a doi.  The pdf will be saved
 to `org-ref-pdf-directory', by the name %s.pdf where %s is the
-bibtex label. Files will not be overwritten. The pdf will be
+bibtex label.  Files will not be overwritten.  The pdf will be
 checked to make sure it is a pdf, and not some html failure
-page. you must have permission to access the pdf. We open the pdf
+page.  you must have permission to access the pdf.  We open the pdf
 at the end."
   (interactive)
   (save-excursion
@@ -355,7 +355,7 @@ at the end."
 ;; I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]] you can download metadata about a DOI from http://dx.doi.org. You just have to construct the right http request to get it. Here is a function that gets the metadata as a plist in emacs.
 
 (defun doi-utils-get-json-metadata (doi)
-  "Try to get json metadata for DOI. Open the DOI in a browser if we do not get it."
+  "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
   (let ((url-request-method "GET")
 	(url-mime-accept-string "application/citeproc+json")
 	(json-object-type 'plist)
@@ -367,14 +367,14 @@ at the end."
       (if (string-match "Resource not found" json-data)
 	  (progn
 	    (browse-url (concat "http://dx.doi.org/" doi))
-	    (error "Resource not found. Opening website."))
+	    (error "Resource not found.  Opening website"))
 	(json-read-from-string json-data)))))
 
 ;; We can use that data to construct a bibtex entry. We do that by defining a template, and filling it in. I wrote this template expansion code which makes it easy to substitute values like %{} in emacs lisp.
 
 
 (defun doi-utils-expand-template (s)
-  "expand a template containing %{} with the eval of its contents"
+  "Expand a template containing %{} with the eval of its contents."
   (replace-regexp-in-string "%{\\([^}]+\\)}"
                             (lambda (arg)
                               (let ((sexp (substring arg 2 -1)))
@@ -434,7 +434,7 @@ when the `:type' parameter in the JSON metadata is contained in
                                (if field-expr
                                    ;; need to convert to string first
                                    `(,(car field-expr) (format "%s" ,(cadr field-expr)))
-                                   (error "unknown bibtex field type %s" field))))
+                                   (error "Unknown bibtex field type %s" field))))
                            fields)
                (concat
                 ,@(doi-utils-concat-prepare
@@ -465,7 +465,7 @@ when the `:type' parameter in the JSON metadata is contained in
 ;; With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
 
 (defun doi-utils-doi-to-bibtex-string (doi)
-  "return a bibtex entry as a string for the doi. Not all types are supported yet."
+  "Return a bibtex entry as a string for the DOI.  Not all types are supported yet."
   (let* ((results (doi-utils-get-json-metadata doi))
          (type (plist-get results :type)))
     ;(format "%s" results) ; json-data
@@ -476,8 +476,8 @@ when the `:type' parameter in the JSON metadata is contained in
 
 
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
-  "insert bibtex entry from a doi. Also cleans entry using
-org-ref, and tries to download the corresponding pdf."
+  "Insert bibtex entry from a DOI.
+Also cleans entry using org-ref, and tries to download the corresponding pdf."
   (interactive "sDOI :")
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
@@ -546,7 +546,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun bibtex-set-field (field value &optional nodelim)
-  "set field to value in bibtex file. create field if it does not exist"
+  "Set FIELD to VALUE in bibtex file. create field if it does not exist."
   (interactive "sfield: \nsvalue: ")
   (bibtex-beginning-of-entry)
   (let ((found))
@@ -574,12 +574,12 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun plist-get-keys (plist)
-   "return keys in a plist"
+   "Return keys in a PLIST."
   (loop
    for key in results by #'cddr collect key))
 
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
-  "update fields in a bibtex entry from the doi. Every field will be updated, so previous changes will be lost."
+  "Update fields in a bibtex entry from the DOI.  Every field will be updated, so previous change will be lost."
   (interactive (list
 		(or (replace-regexp-in-string "http://dx.doi.org/" "" (bibtex-autokey-get-field "doi"))
 		    (read-string "DOI: "))))
@@ -629,6 +629,8 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun doi-utils-update-field ()
+  "Update the field at point in the bibtex entry.
+Data is retrieved from the doi in the entry."
   (interactive)
   (let* ((doi (bibtex-autokey-get-field "doi"))
 	 (results (doi-utils-get-json-metadata doi))
@@ -658,14 +660,14 @@ prompt. Otherwise, you have to type or pste in a DOI."
 ;; These are pretty easy to construct, so we can write functions that will create them and open the url in our browser. There are some other options that could be considered, but since we usually have a doi, it seems like the best way to go for creating the links. Here are the functions.
 
 (defun doi-utils-wos (doi)
-  "Open Web of Science entry for DOI"
+  "Open Web of Science entry for DOI."
   (interactive "sDOI: ")
   (browse-url
    (format
     "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/%s" doi)))
 
 (defun doi-utils-wos-citing (doi)
-  "Open Web of Science citing articles entry. May be empty if none are found"
+  "Open Web of Science citing articles entry. May be empty if none are found."
   (interactive "sDOI: ")
   (browse-url
    (concat
@@ -700,7 +702,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun doi-utils-open-bibtex (doi)
-  "Search through `reftex-default-bibliography' for DOI."
+  "Search through variable `reftex-default-bibliography' for DOI."
   (interactive "sDOI: ")
   (catch 'file
     (dolist (f reftex-default-bibliography)
@@ -719,7 +721,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun doi-utils-google-scholar (doi)
-  "Google scholar the word at point or selection."
+  "Google scholar the DOI."
   (interactive "sDOI: ")
   (browse-url
    (format
@@ -727,7 +729,7 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun doi-utils-pubmed (doi)
-  "Pubmed the word at point or selection."
+  "Search Pubmed for the DOI."
   (interactive "sDOI: ")
   (browse-url
    (format
@@ -881,6 +883,7 @@ error."
 ;; The idea here is to perform a query on Crossref, get a helm buffer of candidates, and select the entry(ies) you want to add to your bibtex file. You can select a region, e.g. a free form citation, or set of words, or you can type the query in by hand.
 
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
+  "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
   (interactive (list
 		(read-input
 		 "Query: "
