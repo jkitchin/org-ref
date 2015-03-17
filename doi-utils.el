@@ -47,7 +47,8 @@
   "Stores redirect url from a callback function.")
 
 (defun doi-utils-redirect-callback (&optional status)
-  "Callback for url-retrieve to set the redirect."
+  "Callback for `url-retrieve' to set the redirect.
+Optional argument STATUS Unknown why this is optional."
   (when (plist-get status :error)
     (signal (car (plist-get status :error)) (cdr(plist-get status :error))))
   (when (plist-get status :redirect) ;  is nil if there none
@@ -84,6 +85,7 @@
 ;; ** APS journals
 
 (defun aps-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://journals.aps.org" *doi-utils-redirect*)
     (replace-regexp-in-string "/abstract/" "/pdf/" *doi-utils-redirect*)))
 
@@ -91,6 +93,7 @@
 ;; ** Science
 
 (defun science-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.sciencemag.org" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf")))
 
@@ -98,6 +101,7 @@
 ;; ** Nature
 
 (defun nature-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.nature.com" *doi-utils-redirect*)
     (let ((result *doi-utils-redirect*))
       (setq result (replace-regexp-in-string "/full/" "/pdf/" result))
@@ -117,7 +121,8 @@
 
 (defun doi-utils-get-wiley-pdf-url (redirect-url)
   "Wileyscience direct hides the pdf url in html.
-We get it out here by parsing the html."
+We get it out here by parsing the html.
+Argument REDIRECT-URL URL you are redirected to."
   (setq *doi-utils-waiting* t)
   (url-retrieve redirect-url
 		(lambda (status)
@@ -129,6 +134,7 @@ We get it out here by parsing the html."
   *doi-utils-pdf-url*)
 
 (defun wiley-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://onlinelibrary.wiley.com" *doi-utils-redirect*)
     (doi-utils-get-wiley-pdf-url
      (replace-regexp-in-string "/abstract" "/pdf" *doi-utils-redirect*))
@@ -138,6 +144,7 @@ We get it out here by parsing the html."
 ;; ** Springer
 
 (defun springer-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://link.springer.com" *doi-utils-redirect*)
     (replace-regexp-in-string "/article/" "/content/pdf/" (concat *doi-utils-redirect* ".pdf"))))
 
@@ -149,6 +156,7 @@ We get it out here by parsing the html."
 ;; we just change /abs/ to /pdf/.
 
 (defun acs-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://pubs.acs.org" *doi-utils-redirect*)
     (replace-regexp-in-string "/abs/" "/pdf/" *doi-utils-redirect*)))
 
@@ -156,6 +164,7 @@ We get it out here by parsing the html."
 ;; ** IOP
 
 (defun iop-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://iopscience.iop.org" *doi-utils-redirect*)
     (let ((tail (replace-regexp-in-string
 		 "^http://iopscience.iop.org" "" *doi-utils-redirect*)))
@@ -166,6 +175,7 @@ We get it out here by parsing the html."
 ;; ** JSTOR
 
 (defun jstor-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.jstor.org" *doi-utils-redirect*)
     (concat (replace-regexp-in-string "/stable/" "/stable/pdfplus/" *doi-utils-redirect*) ".pdf")))
 
@@ -173,10 +183,12 @@ We get it out here by parsing the html."
 ;; ** AIP
 
 (defun aip-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://scitation.aip.org" *doi-utils-redirect*)
     ;; get stuff after content
     (let (p1 p2 s p3)
-      (setq p2 (replace-regexp-in-string "^http://scitation.aip.org/" "" *doi-utils-redirect*))
+      (setq p2 (replace-regexp-in-string
+		"^http://scitation.aip.org/" "" *doi-utils-redirect*))
       (setq s (split-string p2 "/"))
       (setq p1 (mapconcat 'identity (-remove-at-indices '(0 6) s) "/"))
       (setq p3 (concat "/" (nth 0 s) (nth 1 s) "/" (nth 2 s) "/" (nth 3 s)))
@@ -186,12 +198,14 @@ We get it out here by parsing the html."
 ;; ** Taylor and Francis
 
 (defun tandfonline-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.tandfonline.com" *doi-utils-redirect*)
     (replace-regexp-in-string "/abs/\\|/full/" "/pdf/" *doi-utils-redirect*)))
 
 ;; ** ECS
 
 (defun ecs-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://jes.ecsdl.org" *doi-utils-redirect*)
     (replace-regexp-in-string "\.abstract$" ".full.pdf" *doi-utils-redirect*)))
 
@@ -200,6 +214,7 @@ We get it out here by parsing the html."
 
 
 (defun ecst-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://ecst.ecsdl.org" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf")))
 
@@ -208,6 +223,7 @@ We get it out here by parsing the html."
 ;; ** RSC
 
 (defun rsc-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://pubs.rsc.org" *doi-utils-redirect*)
     (let ((url (downcase *doi-utils-redirect*)))
       (setq url (replace-regexp-in-string "articlelanding" "articlepdf" url))
@@ -217,10 +233,11 @@ We get it out here by parsing the html."
 ;; You cannot compute these pdf links; they are embedded in the redirected pages.
 
 (defvar *doi-utils-pdf-url* nil
-  "stores url to pdf download from a callback function")
+  "Stores url to pdf download from a callback function.")
 
 (defun doi-utils-get-science-direct-pdf-url (redirect-url)
-  "Science direct hides the pdf url in html. we get it out here."
+  "Science direct hides the pdf url in html.  W get it out here.
+REDIRECT-URL is where the pdf url will be in."
   (setq *doi-utils-waiting* t)
   (url-retrieve redirect-url
 		(lambda (status)
@@ -233,6 +250,7 @@ We get it out here by parsing the html."
 
 
 (defun science-direct-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.sciencedirect.com" *doi-utils-redirect*)
     (doi-utils-get-science-direct-pdf-url *doi-utils-redirect*)
     *doi-utils-pdf-url*))
@@ -242,7 +260,9 @@ We get it out here by parsing the html."
 ;; which actually redirect to
 ;; http://www.sciencedirect.com/science/article/pii/S0927025609004558
 (defun linkinghub-elsevier-pdf-url (*doi-utils-redirect*)
-  (when (string-match "^http://linkinghub.elsevier.com/retrieve" *doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match
+	 "^http://linkinghub.elsevier.com/retrieve" *doi-utils-redirect*)
     (let ((second-redirect (replace-regexp-in-string
 			    "http://linkinghub.elsevier.com/retrieve"
 			    "http://www.sciencedirect.com/science/article"
@@ -258,6 +278,7 @@ We get it out here by parsing the html."
 ;; http://www.pnas.org/content/early/2014/05/08/1319030111.full.pdf+html?with-ds=yes
 
 (defun pnas-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.pnas.org" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf?with-ds=yes")))
 
@@ -288,7 +309,7 @@ We get it out here by parsing the html."
 (defun doi-utils-get-pdf-url (doi)
   "Return a url to a pdf for the DOI if one can be calculated.
 Loops through the functions in `doi-utils-pdf-url-functions'
-until one is found"
+until one is found."
   (doi-utils-get-redirect doi)
 
   (unless *doi-utils-redirect*
@@ -374,7 +395,7 @@ at the end."
 
 
 (defun doi-utils-expand-template (s)
-  "Expand a template containing %{} with the eval of its contents."
+  "Expand a string template S containing %{} with the eval of its contents."
   (replace-regexp-in-string "%{\\([^}]+\\)}"
                             (lambda (arg)
                               (let ((sexp (substring arg 2 -1)))
@@ -410,10 +431,12 @@ at the end."
 (setq doi-utils-bibtex-type-generators nil)
 
 (defun doi-utils-concat-prepare (lst &optional acc)
-  "Given a list `lst' of strings and other expressions, which are
-intented to passed to `concat', concat any subsequent strings,
+  "Minimize the number of args passed to `concat' from LST.
+Given a list LST of strings and other expressions, which are
+intended to be passed to `concat', concat any subsequent strings,
 minimising the number of arguments being passed to `concat'
-without changing the results."
+without changing the results.  ACC is the list of additional
+expressions."
   (cond ((null lst) (nreverse acc))
         ((and (stringp (car lst))
               (stringp (car acc)))
@@ -422,15 +445,19 @@ without changing the results."
         (t (doi-utils-concat-prepare (cdr lst) (cons (car lst) acc)))))
 
 (defmacro doi-utils-def-bibtex-type (name matching-types &rest fields)
-  "Define a BibTeX type identified by (symbol) `name' with
-`fields' (given as symbols), matching to retrieval expressions in
-`doi-utils-json-metadata-extract'. This type will only be used
+  "Define a BibTeX type identified by (symbol) NAME with
+FIELDS (given as symbols), matching to retrieval expressions in
+`doi-utils-json-metadata-extract'.  This type will only be used
 when the `:type' parameter in the JSON metadata is contained in
-`matching-types' - a list of strings."
+MATCHING-TYPES - a list of strings."
   `(push (lambda (type results)
-           (when (or ,@(mapcar (lambda (match-type) `(string= type ,match-type)) matching-types))
+           (when
+	       (or ,@(mapcar
+		      (lambda (match-type)
+			`(string= type ,match-type)) matching-types))
              (let ,(mapcar (lambda (field)
-                             (let ((field-expr (assoc field doi-utils-json-metadata-extract)))
+                             (let ((field-expr
+				    (assoc field doi-utils-json-metadata-extract)))
                                (if field-expr
                                    ;; need to convert to string first
                                    `(,(car field-expr) (format "%s" ,(cadr field-expr)))
@@ -546,7 +573,8 @@ prompt. Otherwise, you have to type or pste in a DOI."
 
 
 (defun bibtex-set-field (field value &optional nodelim)
-  "Set FIELD to VALUE in bibtex file. create field if it does not exist."
+  "Set FIELD to VALUE in bibtex file.  create field if it does not exist.
+Optional argument NODELIM see `bibtex-make-field'."
   (interactive "sfield: \nsvalue: ")
   (bibtex-beginning-of-entry)
   (let ((found))
@@ -667,7 +695,8 @@ Data is retrieved from the doi in the entry."
     "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/%s" doi)))
 
 (defun doi-utils-wos-citing (doi)
-  "Open Web of Science citing articles entry. May be empty if none are found."
+  "Open Web of Science citing articles entry for DOI.
+May be empty if none are found."
   (interactive "sDOI: ")
   (browse-url
    (concat
@@ -676,7 +705,7 @@ Data is retrieved from the doi in the entry."
     "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes")))
 
 (defun doi-utils-wos-related (doi)
-  "Open Web of Science related articles page."
+  "Open Web of Science related articles page for DOI."
   (interactive "sDOI: ")
   (browse-url
    (concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
@@ -697,6 +726,7 @@ Data is retrieved from the doi in the entry."
 
 
 (defun doi-utils-open (doi)
+  "Open DOI in browser."
  (interactive "sDOI: ")
  (browse-url (concat "http://dx.doi.org/" doi)))
 
@@ -738,8 +768,9 @@ Data is retrieved from the doi in the entry."
 
 
 (defvar doi-link-menu-funcs '()
- "Functions to run in doi menu. Each entry is a list of (key menu-name function).
-The function must take one argument, the doi.")
+ "Functions to run in doi menu.
+Each entry is a list of (key menu-name function).  The function
+must take one argument, the doi.")
 
 (setq doi-link-menu-funcs
       '(("o" "pen" doi-utils-open)
@@ -755,7 +786,8 @@ The function must take one argument, the doi.")
 
 (defun doi-link-menu (link-string)
    "Generate the link menu message, get choice and execute it.
-Options are stored in `doi-link-menu-funcs'."
+Options are stored in `doi-link-menu-funcs'.
+Argument LINK-STRING Passed in on link click."
    (interactive)
    (message
    (concat
