@@ -116,14 +116,15 @@
 
 
 (defun doi-utils-get-wiley-pdf-url (redirect-url)
-  "wileyscience direct hides the pdf url in html. we get it out here"
+  "Wileyscience direct hides the pdf url in html.
+We get it out here by parsing the html."
   (setq *doi-utils-waiting* t)
   (url-retrieve redirect-url
 		(lambda (status)
-		  (beginning-of-buffer)
+		  (goto-char (point-min))
 		  (re-search-forward "<iframe id=\"pdfDocument\" src=\"\\([^\"]*\\)\"" nil)
 		  (setq *doi-utils-pdf-url* (match-string 1)
-			,*doi-utils-waiting* nil)))
+			*doi-utils-waiting* nil)))
   (while *doi-utils-waiting* (sleep-for 0.1))
   *doi-utils-pdf-url*)
 
