@@ -1,9 +1,11 @@
-;;; doi-utils.el --- DOI utilities for making bibtex entries and downloading PDFs  -*- lexical-binding: t; -*-
+;;; doi-utils.el --- DOI utilities for making bibtex entries
 
 ;; Copyright (C) 2015  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords: convenience
+;; Version: 0.1
+;; Package-Requires: ((org-ref))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,8 +31,6 @@
 ;; - doi-utils-add-bibtex-entry-from-doi to add an entry to your default bibliography (cleaned with pdf if possible).
 ;; - doi-utils-add-bibtex-entry-from-region to add an entry from a highlighed doi to your default bibliography.
 ;; - doi-utils-update-bibtex-entry-from-doi with cursor in an entry to update its fields.
-
-;; Package-Requires: ((org-ref))
 
 (require 'json)
 
