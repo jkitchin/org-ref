@@ -612,45 +612,52 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		   ;; may contain multiple files. this code finds the
 		   ;; one you clicked on and opens it.
 		   (lambda (link-string)
-		       ;; get link-string boundaries
-		       ;; we have to go to the beginning of the line, and then search forward
-
+		       ;; get link-string boundaries we have to go to the
+		       ;; beginning of the line, and then search forward
 		     (let* ((bibfile)
 			    ;; object is the link you clicked on
 			    (object (org-element-context))
 			    (link-string-beginning)
-			    (link-string-end))
-
+			    (link-string-end)
+			    (cp (point)))
 		     (save-excursion
 		       (goto-char (org-element-property :begin object))
 		       (search-forward link-string nil nil 1)
 		       (setq link-string-beginning (match-beginning 0))
 		       (setq link-string-end (match-end 0)))
 
-		       ;; We set the reftex-default-bibliography
-		       ;; here. it should be a local variable only in
-		       ;; the current buffer. We need this for using
-		       ;; reftex to do citations.
-		       (set (make-local-variable 'reftex-default-bibliography)
-			    (split-string (org-element-property :path object) ","))
+		     (if (< cp link-string-beginning)
+			 (goto-char link-string-beginning))
+		     ;; We set the reftex-default-bibliography
+		     ;; here. it should be a local variable only in
+		     ;; the current buffer. We need this for using
+		     ;; reftex to do citations.
+		     (set (make-local-variable 'reftex-default-bibliography)
+			  (split-string
+			   (org-element-property :path object) ","))
 
-		       ;; now if we have comma separated bibliographies
-		       ;; we find the one clicked on. we want to
-		       ;; search forward to next comma from point
-		       (save-excursion
-			 (if (search-forward "," link-string-end 1 1)
-			     (setq key-end (- (match-end 0) 1)) ; we found a match
-			   (setq key-end (point)))) ; no comma found so take the point
-		       ;; and backward to previous comma from point
-		       (save-excursion
-			 (if (search-backward "," link-string-beginning 1 1)
-			     (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-			   (setq key-beginning (point)))) ; no match found
+		     ;; now if we have comma separated bibliographies
+		     ;; we find the one clicked on. we want to
+		     ;; search forward to next comma from point
+		     (save-excursion
+		       (if (search-forward "," link-string-end 1 1)
+			   ;; we found a match
+			   (setq key-end (- (match-end 0) 1))
+			 ;; no comma found so take the point
+			 (setq key-end (point))))
+		     ;; and backward to previous comma from point
+		     (save-excursion
+		       (if (search-backward "," link-string-beginning 1 1)
+			   ;; we found a match
+			   (setq key-beginning (+ (match-beginning 0) 1))
+			 (setq key-beginning (point)))) ; no match found
 		       ;; save the key we clicked on.
-		       (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
-		       (find-file bibfile))) ; open file on click
+		     (setq bibfile (org-ref-strip-string
+				    (buffer-substring key-beginning key-end)))
+		     ;; open file on click
+		     (find-file bibfile)))
 
-		     ;; formatting code
+		   ;; formatting code
 		   (lambda (keyword desc format)
 		     (cond
 		      ((eq format 'org) (org-ref-get-org-bibliography))
@@ -658,10 +665,14 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		      ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
 		       ;; write out the latex bibliography command
-		       (format "\\bibliography{%s}" (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
-												      (mapcar 'expand-file-name
-													      (split-string keyword ","))
-												      ",")))))))
+		       (format "\\bibliography{%s}"
+			       (replace-regexp-in-string
+				"\\.bib" ""
+				(mapconcat
+				 'identity
+				 (mapcar 'expand-file-name
+					 (split-string keyword ","))
+				 ",")))))))
 
 (org-add-link-type "nobibliography"
 		   ;; this code is run on clicking. The bibliography
