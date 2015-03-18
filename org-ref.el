@@ -626,6 +626,7 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		       (setq link-string-beginning (match-beginning 0))
 		       (setq link-string-end (match-end 0)))
 
+		     ;; Make sure point is in the link-path.
 		     (if (< cp link-string-beginning)
 			 (goto-char link-string-beginning))
 		     ;; We set the reftex-default-bibliography
@@ -726,20 +727,11 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		      ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
 		       ;; write out the latex bibliography command
-
-;		       (format "{\\setbox0\\vbox{\\bibliography{%s}}}"
-;			       (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
-;										 (mapcar 'expand-file-name
-;											 (split-string keyword ","))
-;										 ",")))
-
 		       (format "\\nobibliography{%s}"
 			       (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
 										 (mapcar 'expand-file-name
 											 (split-string keyword ","))
-										 ",")))
-
-		       ))))
+										 ",")))))))
 
 (org-add-link-type "printbibliography"
 		   (lambda (arg) (message "Nothing implemented for clicking here."))
@@ -749,8 +741,7 @@ Format according to the type in `org-ref-bibliography-entry-format'."
                       ((eq format 'html) (org-ref-get-html-bibliography))
 		      ((eq format 'latex)
 		       ;; write out the biblatex bibliography command
-		       "\\printbibliography"))
-))
+		       "\\printbibliography"))))
 
 (org-add-link-type "bibliographystyle"
 		   (lambda (arg) (message "Nothing implemented for clicking here."))
