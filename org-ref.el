@@ -3101,11 +3101,13 @@ In the helm-bibtex buffer, C-u will give you a helm menu to select a new link ty
 C-u C-u will change the key at point to the selected keys."
   (let* ((object (org-element-context))
 	 (last-char (save-excursion
-		      (goto-char (org-element-property :end object))
-		      (backward-char)
-		      (if (looking-at " ")
-			  " "
-			""))))
+		      (when (org-element-property :end object)
+			(goto-char (org-element-property :end object))
+			(unless (bobp)
+			  (backward-char))
+			(if (looking-at " ")
+			    " "
+			  "")))))
     (cond
      ;; case where we are in a link
      ((and (equal (org-element-type object) 'link)
@@ -3139,7 +3141,7 @@ C-u C-u will change the key at point to the selected keys."
      ;; We are next to a link, and we want to append
      ;; next to a link means one character back is on a link.
      ((save-excursion
-	(backward-char)
+	(unless (bobp) (backward-char))
 	(and (equal (org-element-type (org-element-context)) 'link)
 	     (-contains?
 	      org-ref-cite-types
