@@ -514,7 +514,7 @@ _r_: Refile entry _k_: Add keywords           _d_: delete entry  _a_: WOS relate
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
 _s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
-_u_: Update field _f_: file funcs
+_u_: Update field _F_: file funcs
 "
    ("p" org-ref-open-bibtex-pdf)
    ("P" jmax-bibtex-pubmed)
