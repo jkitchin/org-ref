@@ -88,9 +88,9 @@ entry with the generated key already exists in the file."
 	  (concat "\n@book{,\n"
 		  (mapconcat
 		   'identity
-		   (loop for field in (-sort 'string-lessp (mapcar 'car metadata))
-			 collect
-			 (format "  %s={%s}," field (cdr (assoc field metadata))))
+		   (cl-loop for field in (-sort 'string-lessp (mapcar 'car metadata))
+			    collect
+			    (format "  %s={%s}," field (cdr (assoc field metadata))))
 		   "\n")
 		  "\n}\n"))
 

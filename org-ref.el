@@ -41,6 +41,7 @@
 (require 'helm-config)
 (require 'helm-bibtex)
 (require 'org)
+(require 'org-element)
 
 ;; * Custom variables
 (defgroup org-ref nil
@@ -498,11 +499,11 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 	(file) (entry) (bibtex-entry) (entry-type) (format))
 
     (setq file (catch 'result
-		 (loop for file in org-ref-bibliography-files do
-		       (if (org-ref-key-in-file-p key (file-truename file))
-			   (throw 'result file)
-			 (message "%s not found in %s"
-				  key (file-truename file))))))
+		 (cl-loop for file in org-ref-bibliography-files do
+			  (if (org-ref-key-in-file-p key (file-truename file))
+			      (throw 'result file)
+			    (message "%s not found in %s"
+				     key (file-truename file))))))
 
     (with-temp-buffer
       (insert-file-contents file)
@@ -573,7 +574,7 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 	(file) (entry) (bibtex-entry) (entry-type) (format))
 
     (setq file (catch 'result
-		 (loop for file in org-ref-bibliography-files do
+		 (cl-loop for file in org-ref-bibliography-files do
 		       (if (org-ref-key-in-file-p key (file-truename file))
 			   (throw 'result file)
 			 (message "%s not found in %s" key (file-truename file))))))
@@ -865,11 +866,11 @@ ARG does nothing."
 		       (string-match-p
 			"[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\)$"
 			(org-element-property :path link)))
-		(incf counter)
+		(cl-incf counter)
 
 		(let* ((start (org-element-property :begin link))
 		       (parent (car (cdr (org-element-property :parent link))))
-		       (caption (caaar (plist-get parent :caption)))
+		       (caption (cl-caaar (plist-get parent :caption)))
 		       (name (plist-get parent :name)))
 		  (if caption
 		      (format
@@ -908,10 +909,10 @@ ARG does nothing."
 	  (org-element-map (org-element-parse-buffer 'element) 'table
 	    (lambda (table)
 	      "create a link for to the table"
-	      (incf counter)
+	      (cl-incf counter)
 	      (let ((start (org-element-property :begin table))
 		    (name  (org-element-property :name table))
-		    (caption (caaar (org-element-property :caption table))))
+		    (caption (cl-caaar (org-element-property :caption table))))
 		(if caption
 		    (format
 		     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]] %s\n"
@@ -1222,19 +1223,19 @@ Use C-u C-u to insert a [[#custom-id]] link"
 
     (helm :input (thing-at-point 'word)
 	  :sources `(((name . "Available labels to ref")
-		      (candidates . ,(loop for label in labels
-					   for context in contexts
-					   ;; we do some kludgy adding spaces
-					   ;; and bars to make it "easier" to
-					   ;; see in helm.
-					   collect (cons (concat
-							  label "\n"
-							  (mapconcat
-							   (lambda (x)
-							     (concat "   |" x))
-							   (split-string context "\n")
-							   "\n"
-							   ) "\n\n") label)))
+		      (candidates . ,(cl-loop for label in labels
+					      for context in contexts
+					      ;; we do some kludgy adding spaces
+					      ;; and bars to make it "easier" to
+					      ;; see in helm.
+					      collect (cons (concat
+							     label "\n"
+							     (mapconcat
+							      (lambda (x)
+								(concat "   |" x))
+							      (split-string context "\n")
+							      "\n"
+							      ) "\n\n") label)))
 		      ;; default action to replace or insert ref link.
 		      (action . (lambda (label)
 				  (switch-to-buffer ,cb)
@@ -1506,9 +1507,9 @@ falling back to what the user has set in `org-ref-default-bibliography'"
    (unless key
      (setq key (org-ref-get-bibtex-key-under-cursor)))
    (setq file     (catch 'result
-		    (loop for file in org-ref-bibliography-files do
-			  (if (org-ref-key-in-file-p key (file-truename file))
-			      (throw 'result file)))))
+		    (cl-loop for file in org-ref-bibliography-files do
+			     (if (org-ref-key-in-file-p key (file-truename file))
+				 (throw 'result file)))))
    (cons key file)))
 
 ;; *** key at point functions
@@ -2091,8 +2092,8 @@ This assumes you are in an article."
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
 	 (bibtex-expand-strings t)
-	 (entry (loop for (key . value) in (bibtex-parse-entry t)
-		      collect (cons (downcase key) value)))
+	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
+			 collect (cons (downcase key) value)))
 	 (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
 	 (year  (reftex-get-bib-field "year" entry))
 	 (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
@@ -2112,8 +2113,8 @@ This assumes you are in an article."
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
 	 (bibtex-expand-strings t)
-	 (entry (loop for (key . value) in (bibtex-parse-entry t)
-		      collect (cons (downcase key) value)))
+	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
+			 collect (cons (downcase key) value)))
 	 (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
 	 (year  (reftex-get-bib-field "year" entry))
 	 (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
@@ -2163,8 +2164,8 @@ construct the heading by hand."
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
 	 (bibtex-expand-strings t)
-	 (entry (loop for (key . value) in (bibtex-parse-entry t)
-		      collect (cons (downcase key) value)))
+	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
+			 collect (cons (downcase key) value)))
 	 (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
 	 (year  (reftex-get-bib-field "year" entry))
 	 (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
@@ -2221,7 +2222,7 @@ key author journal year volume pages doi url key org-ref-pdf-directory key))
 
     (re-search-forward (format
 			":Custom_ID: %s$"
-			(first (reftex-citation t)) nil 'end))
+			(cl-first (reftex-citation t)) nil 'end))
     (funcall org-ref-open-notes-function))
 
 ;; ** Open bibtex entry in browser
@@ -2751,7 +2752,7 @@ Shows bad citations, ref links and labels"
   (setq keys (org-ref-split-and-strip-string link-string))
   (setq years (mapcar 'org-ref-get-citation-year keys))
   (setq data (mapcar* (lambda (a b) `(,a . ,b)) years keys))
-  (setq data (cl-sort data (lambda (x y) (< (string-to-int (car x)) (string-to-int (car y))))))
+  (setq data (cl-sort data (lambda (x y) (< (string-to-number (car x)) (string-to-number (car y))))))
   ;; now get the keys separated by commas
   (setq keys (mapconcat (lambda (x) (cdr x)) data ","))
   ;; and replace the link with the sorted keys
@@ -3080,16 +3081,16 @@ User is prompted for tags.  This function is called from `helm-bibtex'.
 Argument CANDIDATES helm candidates."
   (message "")
   (let ((keywords (read-string "Keywords (comma separated): ")))
-    (loop for key in (helm-marked-candidates)
-	  do
-	  (save-window-excursion
-	    (helm-bibtex-show-entry key)
-	    (bibtex-set-field
-	     "keywords"
-	     (concat
-	      keywords
-	      ", " (bibtex-autokey-get-field "keywords")))
-	    (save-buffer)))))
+    (cl-loop for key in (helm-marked-candidates)
+	     do
+	     (save-window-excursion
+	       (helm-bibtex-show-entry key)
+	       (bibtex-set-field
+		"keywords"
+		(concat
+		 keywords
+		 ", " (bibtex-autokey-get-field "keywords")))
+	       (save-buffer)))))
 
 (setq helm-source-bibtex
       '((name                                      . "BibTeX entries")
@@ -3315,10 +3316,10 @@ Checks for pdf and doi, and add appropriate functions."
 		    (email-bibtex-entry))))
      t)
   ;; finally return a numbered list of the candidates
-  (loop for i from 0
-	for cell in candidates
-	collect (cons (format "%2s. %s" i (car cell))
-		      (cdr cell)))))
+  (cl-loop for i from 0
+	   for cell in candidates
+	   collect (cons (format "%2s. %s" i (car cell))
+			 (cdr cell)))))
 
 
 (defvar org-ref-helm-user-candidates '()
