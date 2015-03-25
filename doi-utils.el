@@ -603,7 +603,7 @@ Optional argument NODELIM see `bibtex-make-field'."
 
 (defun plist-get-keys (plist)
    "Return keys in a PLIST."
-  (loop
+  (cl-loop
    for key in results by #'cddr collect key))
 
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
