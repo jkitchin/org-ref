@@ -46,7 +46,7 @@ file."
 entry with the generated key already exists in the file."
   (interactive
    (list
-    (read-input
+    (read-string
      "ISBN: "
      ;; now set initial input
      (cond
@@ -104,7 +104,7 @@ entry with the generated key already exists in the file."
     (goto-char (point-min))
     (when (search-forward new-key nil t)
       (beep)
-      (setq new-key (read-input
+      (setq new-key (read-string
 		     (format  "%s already exists. Enter new key (C-g to cancel): " new-key)
 		     new-key)))
     (goto-char (point-max))

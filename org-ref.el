@@ -3063,7 +3063,7 @@ first key that partially matches.  This version avoids that."
 User is prompted for tags.  This function is called from `helm-bibtex'.
 Argument CANDIDATES helm candidates."
   (message "")
-  (let ((keywords (read-input "Keywords (comma separated): ")))
+  (let ((keywords (read-string "Keywords (comma separated): ")))
     (loop for key in (helm-marked-candidates)
 	  do
 	  (save-window-excursion

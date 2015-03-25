@@ -530,7 +530,7 @@ prompt. If no region is selected and the first entry of the
 kill-ring starts like a DOI, then that is the intial
 prompt. Otherwise, you have to type or pste in a DOI."
   (interactive
-   (list (read-input "DOI: "
+   (list (read-string "DOI: "
 		     ;; now set initial input
 		     (cond
 		      ;; If region is active and it starts like a doi we want it.
@@ -917,7 +917,7 @@ error."
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
   "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
   (interactive (list
-		(read-input
+		(read-string
 		 "Query: "
 		 ;; now set initial input
 		 (cond
