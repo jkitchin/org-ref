@@ -81,11 +81,9 @@ You should use full-paths for each file."
   '(("article" . "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>.")
 
     ("book" . "%a, %t, %u (%y).")
-
+    ("techreport" . "%a, %t, %u (%y).")
     ("proceedings" . "%e, %t in %S, %u (%y).")
-
     ("inproceedings" . "%a, %t, %p, in %b, edited by %e, %u (%y)"))
-
   "String to format an entry.  Just the reference, no numbering at the beginning, etc... see the `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
@@ -548,7 +546,8 @@ Format according to the type in `org-ref-bibliography-entry-format'."
     ;; unescape the &
     (setq output (replace-regexp-in-string "\\\\&" "&" output))
     ;; hack to replace {} around text
-    (setq output (replace-regexp-in-string " {\\(.*\\)} " " \\1 " output))
+    (setq output (replace-regexp-in-string "{" "" output))
+    (setq output (replace-regexp-in-string "}" "" output))
     ;; get rid of empty parens
     (setq output (replace-regexp-in-string "()" "" output))
     ;; get rid of empty link and doi
