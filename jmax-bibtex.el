@@ -551,7 +551,7 @@ _u_: Update field _F_: file funcs
    ("e" email-bibtex-entry)
    ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
    ("u" doi-utils-update-field)
-   ("f" jmax-bibtex-file/body)
+   ("F" jmax-bibtex-file/body)
    ("h" helm-bibtex)
    ("a" jmax-replace-nonascii)
    ("s" org-ref-sort-bibtex-entry)
