@@ -749,7 +749,10 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		     (cond
 		      ((eq format 'latex)
 		       ;; write out the latex bibliography command
-		       (format "\\bibliographystyle{%s}" keyword)))))
+		       (format "\\bibliographystyle{%s}" keyword)))
+		     ;; Other styles should not have an output for this
+		     (t
+		      "")))
 
 
 (defun org-bibliographystyle-complete-link (&optional arg)
