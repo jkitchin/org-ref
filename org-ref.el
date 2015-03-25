@@ -81,7 +81,7 @@ You should use full-paths for each file."
   '(("article" . "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>.")
 
     ("book" . "%a, %t, %u (%y).")
-    ("techreport" . "%a, %t, %u (%y).")
+    ("techreport" . "%a, %t, %i, %u (%y).")
     ("proceedings" . "%e, %t in %S, %u (%y).")
     ("inproceedings" . "%a, %t, %p, in %b, edited by %e, %u (%y)"))
   "String to format an entry.  Just the reference, no numbering at the beginning, etc... see the `org-ref-reftex-format-citation' docstring for the escape codes."
