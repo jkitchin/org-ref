@@ -510,10 +510,14 @@ Format according to the type in `org-ref-bibliography-entry-format'."
       (insert-file-contents file)
       (bibtex-search-entry key nil 0)
       (setq bibtex-entry (bibtex-parse-entry))
+      ;; downcase field names so they work in the format-citation code
+      (dolist (cons-cell bibtex-entry)
+	(setf (car cons-cell) (downcase (car cons-cell))))
       (setq entry-type (downcase (cdr (assoc "=type=" bibtex-entry))))
       (setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
       (if format
 	  (setq entry  (org-ref-reftex-format-citation bibtex-entry format))
+	;; if no format, we use the bibtex entry itself as a fallback
 	(save-restriction
 	  (bibtex-narrow-to-entry)
 	  (setq entry (buffer-string)))))
@@ -539,8 +543,16 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 
 (defun org-ref-get-bibtex-entry-html (key)
   "Return an html string for the bibliography entry corresponding to KEY."
-  (format "<li><a id=\"%s\">[%s] %s</a></li>"
-	  key key (org-ref-get-bibtex-entry-citation key)))
+  (let ((output))
+    (setq output (org-ref-get-bibtex-entry-citation key))
+    ;; unescape the &
+    (setq output (replace-regexp-in-string "\\\\&" "&" output))
+    ;; hack to replace {} around text
+    (setq output (replace-regexp-in-string " {\\(.*\\)} " " \\1 " output))
+    ;; get rid of empty parens
+    (setq output (replace-regexp-in-string "()" "" output))
+    (format "<li><a id=\"%s\">[%s] %s</a></li>"
+	    key key output)))
 
 (defun org-ref-get-html-bibliography ()
   "Create an html bibliography when there are keys."
