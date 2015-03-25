@@ -79,7 +79,7 @@
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
  (interactive
-   (list (read-input "arxiv: ")
+   (list (read-string "arxiv: ")
 	 ;;  now get the bibfile to add it to
 	 (ido-completing-read
 	  "Bibfile: "
