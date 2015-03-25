@@ -551,6 +551,9 @@ Format according to the type in `org-ref-bibliography-entry-format'."
     (setq output (replace-regexp-in-string " {\\(.*\\)} " " \\1 " output))
     ;; get rid of empty parens
     (setq output (replace-regexp-in-string "()" "" output))
+    ;; get rid of empty link and doi
+    (setq output (replace-regexp-in-string " <a href=\"\">link</a>\\." "" output))
+    (setq output (replace-regexp-in-string " <a href=\"http://dx\\.doi\\.org/\">doi</a>\\." "" output))
     (format "<li><a id=\"%s\">[%s] %s</a></li>"
 	    key key output)))
 
