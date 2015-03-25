@@ -41,6 +41,7 @@
 (require 'helm-config)
 (require 'helm-bibtex)
 (require 'org)
+(require 'org-element)
 
 ;; * Custom variables
 (defgroup org-ref nil
