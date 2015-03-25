@@ -423,7 +423,6 @@ Beware that all this only works with BibTeX database files.  When
 citations are made from the \bibitems in an explicit thebibliography
 environment, only %l is available."
   ;; Format a citation from the info in the BibTeX ENTRY
-
   (unless (stringp format) (setq format "\\cite{%l}"))
 
   (if (and reftex-comment-citations
@@ -540,8 +539,8 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 
 (defun org-ref-get-bibtex-entry-html (key)
   "Return an html string for the bibliography entry corresponding to KEY."
-
-  (format "<li><a id=\"%s\">[%s] %s</a></li>" key key (org-ref-get-bibtex-entry-citation key)))
+  (format "<li><a id=\"%s\">[%s] %s</a></li>"
+	  key key (org-ref-get-bibtex-entry-citation key)))
 
 (defun org-ref-get-html-bibliography ()
   "Create an html bibliography when there are keys."
@@ -749,10 +748,10 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		     (cond
 		      ((eq format 'latex)
 		       ;; write out the latex bibliography command
-		       (format "\\bibliographystyle{%s}" keyword)))
-		     ;; Other styles should not have an output for this
-		     (t
-		      "")))
+		       (format "\\bibliographystyle{%s}" keyword))
+		      ;; Other styles should not have an output for this
+		      (t
+		       ""))))
 
 
 (defun org-bibliographystyle-complete-link (&optional arg)
@@ -2094,7 +2093,6 @@ This assumes you are in an article."
 
 (defun org-ref-bib-html-citation ()
   "From a bibtex entry, create and return a simple citation with html links."
-
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
 	 (bibtex-expand-strings t)
@@ -2108,14 +2106,13 @@ This assumes you are in an article."
 	 (volume (reftex-get-bib-field "volume" entry))
 	 (pages (reftex-get-bib-field "pages" entry))
 	 (doi (reftex-get-bib-field "doi" entry))
-	 (url (reftex-get-bib-field "url" entry))
-	 )
+	 (url (reftex-get-bib-field "url" entry)))
     ;;authors, "title", Journal, vol(iss):pages (year).
     (concat (format "%s, \"%s\", %s, %s:%s (%s)."
 		    author title journal  volume pages year)
 	    (when url (format " <a href=\"%s\">link</a>" url))
-	    (when doi (format " <a href=\"http://dx.doi.org/%s\">doi</a>" doi)))
-    ))
+	    (when doi
+	      (format " <a href=\"http://dx.doi.org/%s\">doi</a>" doi)))))
 
 ;; ** Open pdf in bibtex entry
 (defun org-ref-open-bibtex-pdf ()
