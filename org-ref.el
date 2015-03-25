@@ -2751,7 +2751,7 @@ Shows bad citations, ref links and labels"
   (setq keys (org-ref-split-and-strip-string link-string))
   (setq years (mapcar 'org-ref-get-citation-year keys))
   (setq data (mapcar* (lambda (a b) `(,a . ,b)) years keys))
-  (setq data (cl-sort data (lambda (x y) (< (string-to-int (car x)) (string-to-int (car y))))))
+  (setq data (cl-sort data (lambda (x y) (< (string-to-number (car x)) (string-to-number (car y))))))
   ;; now get the keys separated by commas
   (setq keys (mapconcat (lambda (x) (cdr x)) data ","))
   ;; and replace the link with the sorted keys
