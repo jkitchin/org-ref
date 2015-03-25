@@ -534,8 +534,8 @@ _u_: Update field _f_: file funcs
    ("K" (lambda ()
 	  (interactive)
 	  (org-ref-set-bibtex-keywords
-	   (read-input "Keywords: "
-		       (bibtex-autokey-get-field "keywords"))
+	   (read-string "Keywords: "
+			(bibtex-autokey-get-field "keywords"))
 	   t)))
    ("b" org-ref-open-in-browser)
    ("r" (lambda () (interactive)
