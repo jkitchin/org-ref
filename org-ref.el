@@ -328,12 +328,12 @@ You will see a message in the minibuffer when on a cite, ref or label link."
   ":\\([a-zA-Z0-9-_:\\./]*,?\\)*"))
 
 
-(setq org-ref-label-re
-      "label:\\([a-zA-Z0-9-_:]*,?\\)*")
+(defvar org-ref-label-re
+  "label:\\([a-zA-Z0-9-_:]*,?\\)*")
 
 
-(setq org-ref-ref-re
-      "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*")
+(defvar org-ref-ref-re
+  "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*")
 
 
 (defface org-ref-cite-face
@@ -653,26 +653,27 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 			  (split-string
 			   (org-element-property :path object) ","))
 
-		     ;; now if we have comma separated bibliographies
-		     ;; we find the one clicked on. we want to
-		     ;; search forward to next comma from point
-		     (save-excursion
-		       (if (search-forward "," link-string-end 1 1)
-			   ;; we found a match
-			   (setq key-end (- (match-end 0) 1))
-			 ;; no comma found so take the point
-			 (setq key-end (point))))
-		     ;; and backward to previous comma from point
-		     (save-excursion
-		       (if (search-backward "," link-string-beginning 1 1)
-			   ;; we found a match
-			   (setq key-beginning (+ (match-beginning 0) 1))
-			 (setq key-beginning (point)))) ; no match found
+		     (let (key-beginning key-end)
+		       ;; now if we have comma separated bibliographies
+		       ;; we find the one clicked on. we want to
+		       ;; search forward to next comma from point
+		       (save-excursion
+			 (if (search-forward "," link-string-end 1 1)
+			     ;; we found a match
+			     (setq key-end (- (match-end 0) 1))
+			   ;; no comma found so take the point
+			   (setq key-end (point))))
+		       ;; and backward to previous comma from point
+		       (save-excursion
+			 (if (search-backward "," link-string-beginning 1 1)
+			     ;; we found a match
+			     (setq key-beginning (+ (match-beginning 0) 1))
+			   (setq key-beginning (point)))) ; no match found
 		       ;; save the key we clicked on.
-		     (setq bibfile (org-ref-strip-string
-				    (buffer-substring key-beginning key-end)))
-		     ;; open file on click
-		     (find-file bibfile)))
+		       (setq bibfile (org-ref-strip-string
+				      (buffer-substring key-beginning key-end)))
+		       ;; open file on click
+		       (find-file bibfile))))
 
 		   ;; formatting code
 		   (lambda (keyword desc format)
@@ -719,21 +720,22 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 		       (set (make-local-variable 'reftex-default-bibliography)
 			    (split-string (org-element-property :path object) ","))
 
-		       ;; now if we have comma separated bibliographies
-		       ;; we find the one clicked on. we want to
-		       ;; search forward to next comma from point
-		       (save-excursion
-			 (if (search-forward "," link-string-end 1 1)
-			     (setq key-end (- (match-end 0) 1)) ; we found a match
-			   (setq key-end (point)))) ; no comma found so take the point
-		       ;; and backward to previous comma from point
-		       (save-excursion
-			 (if (search-backward "," link-string-beginning 1 1)
-			     (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-			   (setq key-beginning (point)))) ; no match found
-		       ;; save the key we clicked on.
-		       (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
-		       (find-file bibfile))) ; open file on click
+		       (let (key-beginning key-end)
+			 ;; now if we have comma separated bibliographies
+			 ;; we find the one clicked on. we want to
+			 ;; search forward to next comma from point
+			 (save-excursion
+			   (if (search-forward "," link-string-end 1 1)
+			       (setq key-end (- (match-end 0) 1)) ; we found a match
+			     (setq key-end (point)))) ; no comma found so take the point
+			 ;; and backward to previous comma from point
+			 (save-excursion
+			   (if (search-backward "," link-string-beginning 1 1)
+			       (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+			     (setq key-beginning (point)))) ; no match found
+			 ;; save the key we clicked on.
+			 (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
+			 (find-file bibfile)))) ; open file on click
 
 		     ;; formatting code
 		   (lambda (keyword desc format)
@@ -825,21 +827,22 @@ ARG does nothing."
 		       (set (make-local-variable 'reftex-default-addbibresource)
 			    (split-string (org-element-property :path object) ","))
 
-		       ;; now if we have comma separated bibliographies
-		       ;; we find the one clicked on. we want to
-		       ;; search forward to next comma from point
-		       (save-excursion
-			 (if (search-forward "," link-string-end 1 1)
-			     (setq key-end (- (match-end 0) 1)) ; we found a match
-			   (setq key-end (point)))) ; no comma found so take the point
-		       ;; and backward to previous comma from point
-		       (save-excursion
-			 (if (search-backward "," link-string-beginning 1 1)
-			     (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-			   (setq key-beginning (point)))) ; no match found
-		       ;; save the key we clicked on.
-		       (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
-		       (find-file bibfile))) ; open file on click
+		       (let (key-beginning key-end)
+			 ;; now if we have comma separated bibliographies
+			 ;; we find the one clicked on. we want to
+			 ;; search forward to next comma from point
+			 (save-excursion
+			   (if (search-forward "," link-string-end 1 1)
+			       (setq key-end (- (match-end 0) 1)) ; we found a match
+			     (setq key-end (point)))) ; no comma found so take the point
+			 ;; and backward to previous comma from point
+			 (save-excursion
+			   (if (search-backward "," link-string-beginning 1 1)
+			       (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+			     (setq key-beginning (point)))) ; no match found
+			 ;; save the key we clicked on.
+			 (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
+			 (find-file bibfile)))) ; open file on click
 
 		     ;; formatting code
 		   (lambda (keyword desc format)
@@ -1419,28 +1422,30 @@ keyword we clicked on.  We also strip the text properties."
 	;; this means no description in the link
 	(progn
 	  ;; we need the link path start and end
-	  (save-excursion
-	    (goto-char (org-element-property :begin object))
-	    (search-forward link-string nil nil 1)
-	    (setq link-string-beginning (match-beginning 0))
-	    (setq link-string-end (match-end 0)))
+	  (let (link-string-beginning link-string-end)
+	    (save-excursion
+	      (goto-char (org-element-property :begin object))
+	      (search-forward link-string nil nil 1)
+	      (setq link-string-beginning (match-beginning 0))
+	      (setq link-string-end (match-end 0)))
 
-	  ;; The key is the text between commas, or the link boundaries
-	  (save-excursion
-	    (if (search-forward "," link-string-end t 1)
-		(setq key-end (- (match-end 0) 1)) ; we found a match
-	      (setq key-end link-string-end))) ; no comma found so take the end
-	  ;; and backward to previous comma from point which defines the start character
-	  (save-excursion
-	    (if (search-backward "," link-string-beginning 1 1)
-		(setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-	      (setq key-beginning link-string-beginning))) ; no match found
-	  ;; save the key we clicked on.
-	  (setq bibtex-key
-		(org-ref-strip-string
-		 (buffer-substring key-beginning key-end)))
-	  (set-text-properties 0 (length bibtex-key) nil bibtex-key)
-	  bibtex-key)
+	    (let (key-beginning key-end)
+	      ;; The key is the text between commas, or the link boundaries
+	      (save-excursion
+		(if (search-forward "," link-string-end t 1)
+		    (setq key-end (- (match-end 0) 1)) ; we found a match
+		  (setq key-end link-string-end))) ; no comma found so take the end
+	      ;; and backward to previous comma from point which defines the start character
+	      (save-excursion
+		(if (search-backward "," link-string-beginning 1 1)
+		    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+		  (setq key-beginning link-string-beginning))) ; no match found
+	      ;; save the key we clicked on.
+	      (let ((bibtex-key
+		     (org-ref-strip-string
+		      (buffer-substring key-beginning key-end))))
+		(set-text-properties 0 (length bibtex-key) nil bibtex-key)
+		bibtex-key))))
       ;; link with description. assume only one key
       link-string)))
 
@@ -2926,26 +2931,27 @@ Shows bad citations, ref links and labels"
 	      (when (> link-string-beginning (point))
 		(goto-char link-string-beginning))
 
-	      ;; now if we have comma separated bibliographies
-	      ;; we find the one clicked on. we want to
-	      ;; search forward to next comma from point
-	      (save-excursion
-		(if (search-forward "," link-string-end 1 1)
-		    (setq key-end (- (match-end 0) 1)) ; we found a match
-		  (setq key-end (point)))) ; no comma found so take the point
+	      (let (key-beginning key-end)
+		;; now if we have comma separated bibliographies
+		;; we find the one clicked on. we want to
+		;; search forward to next comma from point
+		(save-excursion
+		  (if (search-forward "," link-string-end 1 1)
+		      (setq key-end (- (match-end 0) 1)) ; we found a match
+		    (setq key-end (point)))) ; no comma found so take the point
 
-	      ;; and backward to previous comma from point
-	      (save-excursion
-		(if (search-backward "," link-string-beginning 1 1)
-		    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-		  (setq key-beginning (point)))) ; no match found
-	      ;; save the key we clicked on.
-	      (setq bibfile
-		    (org-ref-strip-string
-		     (buffer-substring key-beginning key-end)))
-	      (if (file-exists-p bibfile)
-		  (message "%s exists." bibfile)
-		(message "!!! %s NOT FOUND !!!" bibfile))))))))))
+		;; and backward to previous comma from point
+		(save-excursion
+		  (if (search-backward "," link-string-beginning 1 1)
+		      (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+		    (setq key-beginning (point)))) ; no match found
+		;; save the key we clicked on.
+		(setq bibfile
+		      (org-ref-strip-string
+		       (buffer-substring key-beginning key-end)))
+		(if (file-exists-p bibfile)
+		    (message "%s exists." bibfile)
+		  (message "!!! %s NOT FOUND !!!" bibfile)))))))))))
 
 ;; ** aliases
 (defalias 'oro 'org-ref-open-citation-at-point)
