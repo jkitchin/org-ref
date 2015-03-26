@@ -972,7 +972,7 @@ ARG does nothing."
 		    (org-ref-count-labels label))))
  (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "(<label>%s</label>)" path))
+    ((eq format 'html) (format "(<label>%s</label>)" keyword))
     ((eq format 'latex)
      (format "\\label{%s}" keyword)))))
 
@@ -1051,7 +1051,7 @@ ARG does nothing."
  ;formatting
  (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "(<ref>%s</ref>)" path))
+    ((eq format 'html) (format "(<ref>%s</ref>)" keyword))
     ((eq format 'latex)
      (format "\\ref{%s}" keyword)))))
 

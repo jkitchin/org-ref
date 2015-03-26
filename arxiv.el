@@ -107,13 +107,13 @@
     (url-copy-file pdf-url pdf)
     ;; now check if we got a pdf
     (with-temp-buffer
-      (insert-file-contents pdf-file)
+      (insert-file-contents pdf)
       ;; PDFS start with %PDF-1.x as the first few characters.
       (if (not (string= (buffer-substring 1 6) "%PDF-"))
 	  (progn
 	    (message "%s" (buffer-string))
-	    (delete-file pdf-file))
-	(message "%s saved" pdf-file)))
+	    (delete-file pdf))
+	(message "%s saved" pdf)))
 
     (org-open-file pdf)))
 

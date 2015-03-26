@@ -36,7 +36,7 @@
    (format "<a href=\"%s\">%s</a>"
            (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
              (s-join "+"
-              (split-string path)))
+              (split-string link)))
            (format "wos:%s" link)
            )))
 
