@@ -39,5 +39,14 @@
     (browse-url
      (format "http://www.researcherid.com/rid/%s" link-string))))
 
+(org-add-link-type
+ "scopusid"
+ (lambda
+   (link-string)
+   (browse-url
+    (format
+     "http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s"
+     link-string))))
+
 (provide 'sci-id)
 ;;; sci-id.el ends here
