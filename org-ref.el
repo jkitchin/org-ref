@@ -1051,7 +1051,7 @@ ARG does nothing."
  ;formatting
  (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "(<ref>%s</ref>)" keyword))
+    ((eq format 'html) (format "<a href=\"#%s\">%s</a>" keyword keyword))
     ((eq format 'latex)
      (format "\\ref{%s}" keyword)))))
 
