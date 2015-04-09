@@ -30,14 +30,23 @@
  (lambda
    (link-string)
    (browse-url
-    (format "http://orcid.org/%s" link-string))))
+    (format "http://orcid.org/%s" link-string)))
+ (lambda (keyword desc format)
+   (cond
+    ((eq format 'html)
+     (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword keyword)))))
 
 (org-add-link-type
  "researcherid"
  (lambda
     (link-string)
     (browse-url
-     (format "http://www.researcherid.com/rid/%s" link-string))))
+     (format "http://www.researcherid.com/rid/%s" link-string)))
+ (lambda (keyword desc format)
+   (cond
+    ((eq format 'html)
+     (format "<a href=\"http://www.researcherid.com/rid/%s\">ResearcherID:%s</a>"
+	     keyword keyword)))))
 
 (org-add-link-type
  "scopusid"
@@ -46,7 +55,13 @@
    (browse-url
     (format
      "http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s"
-     link-string))))
+     link-string)))
+ (lambda (keyword desc format)
+   (cond
+    ((eq format 'latex)
+     (format "\\href{http://www.scopus.com/authid/detail.url\\?origin=AuthorProfile&authorId=%s}{%s}" keyword keyword))
+    ((eq format 'html)
+     (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">scopusid:%s</a>" keyword keyword)))))
 
 (provide 'sci-id)
 ;;; sci-id.el ends here
