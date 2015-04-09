@@ -2093,7 +2093,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
 (defun org-ref-bib-citation ()
   "From a bibtex entry, create and return a simple citation string.
 This assumes you are in an article."
-
+  (bibtex-set-dialect nil t)
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
 	 (bibtex-expand-strings t)
