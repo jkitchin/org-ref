@@ -507,7 +507,7 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 
     (with-temp-buffer
       (insert-file-contents file)
-      (bibtex-set-dialect nil t)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
       (setq bibtex-entry (bibtex-parse-entry))
       ;; downcase field names so they work in the format-citation code
@@ -582,7 +582,7 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 
     (with-temp-buffer
       (insert-file-contents file)
-      (bibtex-set-dialect nil t)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
       (setq entry (bibtex-parse-entry))
       (format "** %s - %s
@@ -1541,7 +1541,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
     (save-excursion
       (with-temp-buffer
         (insert-file-contents bibfile)
-        (bibtex-set-dialect nil t)
+        (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
         (bibtex-search-entry key)
         ;; I like this better than bibtex-url which does not always find
         ;; the urls
@@ -1568,7 +1568,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
     (save-excursion
       (with-temp-buffer
         (insert-file-contents bibfile)
-        (bibtex-set-dialect nil t)
+        (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
         (bibtex-search-entry key)
         (org-ref-open-bibtex-notes)))))
 
@@ -1583,7 +1583,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
     (message "%s" (progn
 		    (with-temp-buffer
                       (insert-file-contents bibfile)
-                      (bibtex-set-dialect nil t)
+                      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
                       (bibtex-search-entry key)
                       (org-ref-bib-citation))))))
 
@@ -1656,7 +1656,7 @@ Prompt for NEW-FILE includes bib files in `org-ref-default-bibliography', and bi
     (save-excursion
       (with-temp-buffer
         (insert-file-contents bibfile)
-        (bibtex-set-dialect nil t)
+        (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
         (bibtex-search-entry key)
 	(setq doi (bibtex-autokey-get-field "doi"))
 	;; in case doi is a url, remove the url part.
@@ -1714,13 +1714,13 @@ get a lot of options.  LINK-STRING is used by the link function."
 	 (url (save-excursion
 		(with-temp-buffer
 		  (insert-file-contents bibfile)
-                  (bibtex-set-dialect nil t)
+                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 		  (bibtex-search-entry key)
 		  (bibtex-autokey-get-field "url"))))
 	 (doi (save-excursion
 		(with-temp-buffer
 		  (insert-file-contents bibfile)
-                  (bibtex-set-dialect nil t)
+                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 		  (bibtex-search-entry key)
 		  ;; I like this better than bibtex-url which does not always find
 		  ;; the urls
@@ -1797,7 +1797,7 @@ get a lot of options.  LINK-STRING is used by the link function."
 	(save-excursion
 	  (with-temp-buffer
 	    (insert-file-contents bibfile)
-            (bibtex-set-dialect nil t)
+            (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 	    (bibtex-search-entry key)
 	    (org-ref-bib-citation))))
       "\n"
@@ -2749,7 +2749,7 @@ Shows bad citations, ref links and labels"
 	 (bibfile (cdr results)))
     (with-temp-buffer
       (insert-file-contents bibfile)
-      (bibtex-set-dialect nil t)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
       (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))
         ))))
@@ -3237,7 +3237,7 @@ With two prefix args, insert a label link."
 	(save-excursion
 	  (with-temp-buffer
 	    (insert-file-contents bibfile)
-            (bibtex-set-dialect nil t)
+            (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 	    (bibtex-search-entry key)
 	    (org-ref-bib-citation)))
       "!!! No entry found !!!" )))
@@ -3253,13 +3253,13 @@ Checks for pdf and doi, and add appropriate functions."
 	 (url (save-excursion
 		(with-temp-buffer
 		  (insert-file-contents bibfile)
-                  (bibtex-set-dialect nil t)
+                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 		  (bibtex-search-entry key)
 		  (bibtex-autokey-get-field "url"))))
 	 (doi (save-excursion
 		(with-temp-buffer
 		  (insert-file-contents bibfile)
-                  (bibtex-set-dialect nil t)
+                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 		  (bibtex-search-entry key)
 		  ;; I like this better than bibtex-url which does not always find
 		  ;; the urls
