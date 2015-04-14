@@ -974,7 +974,7 @@ ARG does nothing."
 		    (org-ref-count-labels label))))
  (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "(<label>%s</label>)" keyword))
+    ((eq format 'html) (format "<div id=\"%s\">" keyword))
     ((eq format 'latex)
      (format "\\label{%s}" keyword)))))
 
