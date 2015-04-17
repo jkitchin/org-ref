@@ -555,15 +555,16 @@ prompt. Otherwise, you have to type or pste in a DOI."
   ;; Wrap in save-window-excursion to restore your window arrangement after this
   ;; is done.
   (save-window-excursion
-    (find-file bibfile)
-    ;; Check if the doi already exists
-    (goto-char (point-min))
-    (if (search-forward doi nil t)
-	(message "%s is already in this file" doi)
-      (end-of-buffer)
-      (insert "\n\n")
-      (doi-utils-insert-bibtex-entry-from-doi doi)
-      (save-buffer))))
+    (with-current-buffer
+      (find-file-noselect bibfile)
+      ;; Check if the doi already exists
+      (goto-char (point-min))
+      (if (search-forward doi nil t)
+	  (message "%s is already in this file" doi)
+	(end-of-buffer)
+	(insert "\n\n")
+	(doi-utils-insert-bibtex-entry-from-doi doi)
+	(save-buffer)))))
 
 
 ;; * Updating bibtex entries
