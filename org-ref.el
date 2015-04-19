@@ -89,6 +89,12 @@ You should use full-paths for each file."
   :type 'string
   :group 'org-ref)
 
+(defcustom org-ref-note-title-format
+  "** TODO %y - %t"
+  "String to format the title of a note. See the `org-ref-reftex-format-citation' docstring for the escape codes."
+  :type 'string
+  :group 'org-ref)
+
 (defcustom org-ref-open-notes-function
   (lambda ()
     (org-show-entry)
@@ -491,7 +497,6 @@ environment, only %l is available."
   (while (string-match "[ ,.;:]*%<" format)
     (setq format (replace-match "" t t format)))
   ;; also replace carriage returns, tabs, and multiple whitespaces
-  (setq format (replace-regexp-in-string "\n\\|\t\\|\s+" " " format))
   format)
 
 (defun org-ref-get-bibtex-entry-citation (key)
@@ -2186,16 +2191,7 @@ construct the heading by hand."
 	 (bibtex-expand-strings t)
 	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
 			 collect (cons (downcase key) value)))
-	 (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
-	 (year  (reftex-get-bib-field "year" entry))
-	 (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
-	 (key (reftex-get-bib-field "=key=" entry))
-	 (journal (reftex-get-bib-field "journal" entry))
-	 (volume (reftex-get-bib-field "volume" entry))
-	 (pages (reftex-get-bib-field "pages" entry))
-	 (doi (reftex-get-bib-field "doi" entry))
-	 (url (reftex-get-bib-field "url" entry))
-	 )
+	 (key (reftex-get-bib-field "=key=" entry)))
 
     ;; save key to clipboard to make saving pdf later easier by pasting.
     (with-temp-buffer
@@ -2212,38 +2208,41 @@ construct the heading by hand."
     (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
 	(funcall org-ref-open-notes-function)
       ;; no entry found, so add one
-      (insert (format "\n** TODO %s - %s" year title))
-      (insert (format"
+      (insert (org-ref-reftex-format-citation entry (concat "\n" org-ref-note-title-format)))
+      (insert (org-ref-reftex-format-citation
+               entry
+               (concat "
  :PROPERTIES:
-  :Custom_ID: %s
-  :AUTHOR: %s
-  :JOURNAL: %s
-  :YEAR: %s
-  :VOLUME: %s
-  :PAGES: %s
-  :DOI: %s
-  :URL: %s
+  :Custom_ID: %k
+  :AUTHOR: %9a
+  :JOURNAL: %j
+  :YEAR: %y
+  :VOLUME: %v
+  :PAGES: %p
+  :DOI: %D
+  :URL: %U
  :END:
-[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-key author journal year volume pages doi url key org-ref-pdf-directory key))
-(save-buffer))))
+"
+                       (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
+                               key org-ref-pdf-directory key))))
+      (save-buffer))))
 
 (defun org-ref-open-notes-from-reftex ()
   "Call reftex, and open notes for selected entry."
   (interactive)
   (let ((bibtex-key )))
 
-    ;; now look for entry in the notes file
-    (if  org-ref-bibliography-notes
-	(find-file-other-window org-ref-bibliography-notes)
-      (error "Org-ref-bib-bibliography-notes is not set to anything"))
+  ;; now look for entry in the notes file
+  (if  org-ref-bibliography-notes
+      (find-file-other-window org-ref-bibliography-notes)
+    (error "Org-ref-bib-bibliography-notes is not set to anything"))
 
-    (goto-char (point-min))
+  (goto-char (point-min))
 
-    (re-search-forward (format
-			":Custom_ID: %s$"
-			(cl-first (reftex-citation t)) nil 'end))
-    (funcall org-ref-open-notes-function))
+  (re-search-forward (format
+                      ":Custom_ID: %s$"
+                      (cl-first (reftex-citation t)) nil 'end))
+  (funcall org-ref-open-notes-function))
 
 ;; ** Open bibtex entry in browser
 (defun org-ref-open-in-browser ()
