@@ -462,7 +462,7 @@ environment, only %l is available."
                            (if (string= "" jt)
                                (reftex-get-bib-field "journaltitle" entry)
                              jt)))
-               ((= l ?k) (org-ref-reftex-get-bib-field "key" entry))
+               ((= l ?k) (org-ref-reftex-get-bib-field "=key=" entry))
                ((= l ?m) (org-ref-reftex-get-bib-field "month" entry))
                ((= l ?n) (org-ref-reftex-get-bib-field "number" entry))
                ((= l ?o) (org-ref-reftex-get-bib-field "organization" entry))
