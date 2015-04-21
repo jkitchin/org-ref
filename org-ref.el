@@ -448,10 +448,14 @@ environment, only %l is available."
                           (if reftex-comment-citations
                               reftex-cite-comment-format
                             "")))
-               ((= l ?a) (reftex-format-names
-                          (reftex-get-bib-names "author" entry)
-                          (or n 2)))
-               ((= l ?A) (car (reftex-get-bib-names "author" entry)))
+               ((= l ?a) (replace-regexp-in-string
+                          "\n\\|\t\\|\s+" " "
+                          (reftex-format-names
+                           (reftex-get-bib-names "author" entry)
+                           (or n 2))))
+               ((= l ?A) (replace-regexp-in-string
+                          "\n\\|\t\\|\s+" " "
+                          (car (reftex-get-bib-names "author" entry))))
                ((= l ?b) (org-ref-reftex-get-bib-field "booktitle" entry "in: %s"))
                ((= l ?B) (reftex-abbreviate-title
                           (org-ref-reftex-get-bib-field "booktitle" entry "in: %s")))
@@ -482,7 +486,9 @@ environment, only %l is available."
                ((= l ?U) (org-ref-reftex-get-bib-field "url" entry))
                ((= l ?r) (org-ref-reftex-get-bib-field "address" entry))
 	       ;; strip enclosing brackets from title if they are there
-               ((= l ?t) (org-ref-reftex-get-bib-field "title" entry))
+               ((= l ?t) (replace-regexp-in-string
+                          "\n\\|\t\\|\s+" " "
+                          (org-ref-reftex-get-bib-field "title" entry)))
                ((= l ?T) (reftex-abbreviate-title
                           ((replace-regexp-in-string
                             "\n\\|\t\\|\s+" " "
