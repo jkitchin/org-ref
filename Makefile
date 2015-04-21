@@ -1,4 +1,4 @@
-EMACS ?= emacs
+emacs ?= emacs
 CASK ?= cask
 CASK_EXEC ?= ${CASK} exec
 EL_SOURCES = org-ref.el arxiv.el jmax-bibtex.el doi-utils.el isbn.el pubmed.el
@@ -10,10 +10,10 @@ test: clean-elc
 	${MAKE} unit
 
 unit:
-	${CASK_EXEC} ${EMACS} -Q -batch -l org-ref.el -l org-ref-test.el --eval "(ert t)"
+	${CASK_EXEC} ${emacs} -Q -batch -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
 compile:
-	${CASK_EXEC} ${EMACS} -Q -batch -f batch-byte-compile *.el
+	${CASK_EXEC} ${emacs} -Q -batch -f batch-byte-compile *.el
 
 clean-elc:
 	rm -f *.elc
