@@ -484,7 +484,9 @@ environment, only %l is available."
 	       ;; strip enclosing brackets from title if they are there
                ((= l ?t) (org-ref-reftex-get-bib-field "title" entry))
                ((= l ?T) (reftex-abbreviate-title
-                          (org-ref-reftex-get-bib-field "title" entry)))
+                          ((replace-regexp-in-string
+                            "\n\\|\t\\|\s+" " "
+                            (org-ref-reftex-get-bib-field "title" entry)))))
                ((= l ?v) (org-ref-reftex-get-bib-field "volume" entry))
                ((= l ?y) (org-ref-reftex-get-bib-field "year" entry)))))
 
@@ -496,7 +498,6 @@ environment, only %l is available."
     (setq format (replace-match "%" t t format)))
   (while (string-match "[ ,.;:]*%<" format)
     (setq format (replace-match "" t t format)))
-  ;; also replace carriage returns, tabs, and multiple whitespaces
   format)
 
 (defun org-ref-get-bibtex-entry-citation (key)
