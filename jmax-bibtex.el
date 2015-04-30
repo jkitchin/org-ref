@@ -515,6 +515,8 @@ _e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
 _s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
 _u_: Update field _F_: file funcs
+_T_: Title case
+_S_: Sentence case
 "
    ("p" org-ref-open-bibtex-pdf)
    ("P" jmax-bibtex-pubmed)
@@ -555,6 +557,8 @@ _u_: Update field _F_: file funcs
    ("h" helm-bibtex)
    ("a" jmax-replace-nonascii)
    ("s" org-ref-sort-bibtex-entry)
+   ("T" jmax-title-case-article)
+   ("S" jmax-sentence-case-article)
    ("q" nil))
 
 ;; create key-chord and key binding for hydra
