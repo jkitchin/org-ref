@@ -278,7 +278,7 @@ You will see a message in the minibuffer when on a cite, ref or label link."
 (defun org-ref-can-move-p ()
   "See if a character is under the mouse.  If so return the position for `goto-char'."
   (let* ((line (cddr org-ref-last-mouse-pos))
-	 (col  (cadr org-ref-last-mouse-pos)))o
+	 (col  (cadr org-ref-last-mouse-pos)))
     (save-excursion
       (goto-char (window-start))
       (forward-line line)
