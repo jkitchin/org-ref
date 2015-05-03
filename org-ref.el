@@ -109,6 +109,35 @@ You should use full-paths for each file."
 :group 'org-ref)
 
 
+(defun org-ref-get-mendeley-file-name (key)
+  "Get the pdf file path indicated by mendeley file field, with citation.pdf as fall-back.  Return pdf file path as a string."
+  (let* ((results (org-ref-get-bibtex-key-and-file key)) (bibfile (cdr results)))
+    (with-temp-buffer
+      (insert-file-contents bibfile)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (bibtex-search-entry key nil 0)
+      (setq entry (bibtex-parse-entry))
+      (let ((e (org-ref-reftex-get-bib-field "file" entry)))
+        (if (> (length e) 4)
+            (remove-if (lambda (ch) (find ch "{}\\")) (format "/%s" (subseq e 1 (- (length e) 4))))
+          (format (concat org-ref-pdf-directory "%s.pdf") key)
+          )
+        ))
+    )
+  )
+
+(defun org-ref-open-mendeley-pdf-at-point ()
+  "Open the pdf indicated by mendeley file field for bibtex key under point if it exists."
+  (interactive)
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+         (pdf-file (og-ref-get-mendeley-file-name key)))
+    (if (file-exists-p pdf-file)
+        (org-open-file pdf-file)
+      (message "no pdf found for %s" pdf-file))))
+
+
+
 (defcustom org-ref-open-pdf-function
    'org-ref-open-pdf-at-point
 "User-defined function to open a pdf from a link.  The function must get the key at point, and derive a path to the pdf file, then open it.  The default function is `org-ref-open-pdf-at-point'."
@@ -249,7 +278,7 @@ You will see a message in the minibuffer when on a cite, ref or label link."
 (defun org-ref-can-move-p ()
   "See if a character is under the mouse.  If so return the position for `goto-char'."
   (let* ((line (cddr org-ref-last-mouse-pos))
-	 (col  (cadr org-ref-last-mouse-pos)))
+	 (col  (cadr org-ref-last-mouse-pos)))o
     (save-excursion
       (goto-char (window-start))
       (forward-line line)
@@ -3260,7 +3289,8 @@ With two prefix args, insert a label link."
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
-         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
+         (pdf-file (org-ref-get-mendeley-file-name key))
+
          (bibfile (cdr results))
 	 (url (save-excursion
 		(with-temp-buffer
