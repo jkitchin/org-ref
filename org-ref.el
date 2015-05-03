@@ -111,9 +111,20 @@ You should use full-paths for each file."
 
 (defcustom org-ref-open-pdf-function
    'org-ref-open-pdf-at-point
-"User-defined function to open a pdf from a link.  The function must get the key at point, and derive a path to the pdf file, then open it.  The default function is `org-ref-open-pdf-at-point'."
+   "User-defined function to open a pdf from a link.  The
+function must get the key at point, and derive a path to the pdf
+file, then open it.  The default function is
+`org-ref-open-pdf-at-point'."
   :type 'function
   :group 'org-ref)
+
+
+(defcustom org-ref-get-pdf-filename-function
+  'org-ref-get-pdf-filename
+  "User-defined function to get a filename from a bibtex key.
+The function must take a key as an argument, and return the path
+to the corresponding filename. The default is
+`org-ref-get-pdf-filename'.")
 
 
 (defcustom org-ref-insert-cite-function
@@ -1536,12 +1547,16 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 
 ;; *** key at point functions
 
+(defun org-ref-get-pdf-filename (key)
+  "Return the pdf filename associated with a bibtex KEY."
+  (format (concat org-ref-pdf-directory "%s.pdf") key))
+
 (defun org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
-         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key)))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
     (if (file-exists-p pdf-file)
 	(org-open-file pdf-file)
 (message "no pdf found for %s" key))))
@@ -1724,7 +1739,7 @@ get a lot of options.  LINK-STRING is used by the link function."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
-         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (bibfile (cdr results))
 	 (url (save-excursion
 		(with-temp-buffer
@@ -3260,7 +3275,7 @@ With two prefix args, insert a label link."
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
 	 (key (car results))
-         (pdf-file (format (concat org-ref-pdf-directory "%s.pdf") key))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (bibfile (cdr results))
 	 (url (save-excursion
 		(with-temp-buffer
