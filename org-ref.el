@@ -1552,7 +1552,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
   (format (concat org-ref-pdf-directory "%s.pdf") key))
 
   
-(defun org-ref-get-mendeley-file-name (key)
+(defun org-ref-get-mendeley-filename (key)
   "Return the pdf filename indicated by mendeley file field, falling back to org-ref-get-pdf-filename if file filed does not exist."
   (let* ((results (org-ref-get-bibtex-key-and-file key)) (bibfile (cdr results)))
     (with-temp-buffer
