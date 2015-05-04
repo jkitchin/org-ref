@@ -106,7 +106,8 @@ I like \C-cj."
 	("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
 	("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
 	("CM" "Chemistry of Materials" "Chem. Mater.")
-	("CSA" "Colloids and Surfaces, A: Physicochemical and Engineering Aspects" "Colloids Surf., A")
+	("CSA" "Colloids and Surfaces, A: Physicochemical and Engineering Aspects"
+	 "Colloids Surf., A")
 	("CPMS" "Computational Materials Science" "Comp. Mater. Sci.")
 	("CPC" "Computer Physics Communications" "Comput. Phys. Commun.")
 	("CSE" "Computing in Science \\& Engineering" "Comput. Sci. Eng.")
@@ -117,7 +118,8 @@ I like \C-cj."
 	("EES" "Energy \\& Environmental Science" "Energy Environ. Sci.")
 	("HPR" "High Pressure Research" "High Pressure Res.")
 	("IC" "Inorganic Chemistry" "Inorg. Chem.")
-	("IECR" "Industrial \\& Engineering Chemistry Research" "Ind. Eng. Chem. Res.")
+	("IECR" "Industrial \\& Engineering Chemistry Research"
+	 "Ind. Eng. Chem. Res.")
 	("JJAP" "Japanese Journal of Applied Physics" "Jpn. J. Appl. Phys.")
 	("JMatR" "Journal of  Materials Research" "J. Mater. Res.")
 	("JALC" "Journal of Alloys and Compounds" "J. Alloy Compd.")
@@ -133,18 +135,22 @@ I like \C-cj."
 	("JMSL" "Journal of Materials Science Letters" "J. Mater. Sci. Lett.")
 	("JMS" "Journal of Membrane Science" "J. Memb. Sci.")
 	("JPE" "Journal of Phase Equilibria" "J. Phase Equilib.")
-	("JPCS" "Journal of Physics and Chemistry of Solids" "J. Phys. Chem. Solids")
-	("JPCM" "Journal of Physics: Condensed Matter" "J. Phys.: Condens. Matter")
+	("JPCS" "Journal of Physics and Chemistry of Solids"
+	 "J. Phys. Chem. Solids")
+	("JPCM" "Journal of Physics: Condensed Matter"
+	 "J. Phys.: Condens. Matter")
 	("JPS" "Journal of Power Sources" "J. Power Sources")
 	("JSSC" "Journal of Solid State Chemistry" "J. Solid State Chem.")
 	("JACerS" "Journal of the American Ceramic Society" "J. Am. Ceram. Soc.")
 	("JACS" "Journal of the American Chemical Society" "J. Am. Chem. Soc.")
-	("JASIST" "Journal of the American Society for Information Science and Technology" "J. Am. Soc. Inf. Sci. Technol.")
+	("JASIST" "Journal of the American Society for Information Science and Technology"
+	 "J. Am. Soc. Inf. Sci. Technol.")
 	("JES" "Journal of The Electrochemical Society" "J. Electrochem. Soc.")
 	("JEaC" "Journal of Electroanalytical Chemistry" "J. Electroanal. Chem.")
 	("JMS" "Journal of Membrane Science" "J. Memb. Sci.")
 	("JRS" "Journal of Raman Spectroscopy" "J. Raman Spectrosc.")
-	("JVST" "Journal of Vacuum Science \\& Technology A" "J. Vac. Sci. Technol. A")
+	("JVST" "Journal of Vacuum Science \\& Technology A"
+	 "J. Vac. Sci. Technol. A")
 	("ML" "Materials Letters" "Mater. Lett.")
 	("MSE-BS" "Materials Science and Engineering B" "Mat. Sci. Eng. B-Solid")
 	("MOLSIM" "Molecular Simulation" "Mol. Sim.")
@@ -161,7 +167,8 @@ I like \C-cj."
 	("PRB" "Physical Review B" "Phys. Rev. B")
 	("PRL" "Physical Review Letters" "Phys. Rev. Lett.")
 	("PCM" "Physics and Chemistry of Minerals" "Phys. Chem. Miner.")
-	("PNAS" "Proceedings of the National Academy of Sciences of the United States of America" "Proc. Natl. Acad. Sci. U. S. A.")
+	("PNAS" "Proceedings of the National Academy of Sciences of the United States of America"
+	 "Proc. Natl. Acad. Sci. U. S. A.")
 	("PSurfSci" "Progress in Surface Science" "Prog. Surf. Sci.")
 	("Science" "Science" "Science")
 	("SM" "Scripta Materialia" "Scr. Mater.")
@@ -171,9 +178,11 @@ I like \C-cj."
 	("JPC" "The Journal of Physical Chemistry" "J. Phys. Chem.")
 	("JPCB" "The Journal of Physical Chemistry B" "J. Phys. Chem. B")
 	("JPCC" "The Journal of Physical Chemistry C" "J. Phys. Chem. C")
-	("JPCL" "The Journal of Physical Chemistry Letters" "J. Phys. Chem. Lett.")
+	("JPCL" "The Journal of Physical Chemistry Letters"
+	 "J. Phys. Chem. Lett.")
 	("JCP" "The Journal of Chemical Physics" "J. Chem. Phys.")
-	("MSMSE" "Modelling and Simulation in Materials Science and Engineering" "Modell. Simul. Mater. Sci. Eng.")
+	("MSMSE" "Modelling and Simulation in Materials Science and Engineering"
+	 "Modell. Simul. Mater. Sci. Eng.")
 	("TSF" "Thin Solid Films" "Thin Solid Films")
 	("TC" "Topics in Catalysis" "Top. Catal.")
 	("WR" "Water Research" "Water Res.")))
