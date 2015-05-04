@@ -124,7 +124,8 @@ file, then open it.  The default function is
   "User-defined function to get a filename from a bibtex key.
 The function must take a key as an argument, and return the path
 to the corresponding filename. The default is
-`org-ref-get-pdf-filename'.")
+`org-ref-get-pdf-filename'. An alternative value is
+`org-ref-get-mendeley-filename'.")
 
 
 (defcustom org-ref-insert-cite-function
@@ -1550,6 +1551,27 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 (defun org-ref-get-pdf-filename (key)
   "Return the pdf filename associated with a bibtex KEY."
   (format (concat org-ref-pdf-directory "%s.pdf") key))
+
+
+(defun org-ref-get-mendeley-filename (key)
+  "Return the pdf filename indicated by mendeley file field.
+Falls back to org-ref-get-pdf-filename if file filed does not exist.
+Contributed by https://github.com/autosquid."
+  (let* ((results (org-ref-get-bibtex-key-and-file key))
+	 (bibfile (cdr results)))
+    (with-temp-buffer
+      (insert-file-contents bibfile)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (bibtex-search-entry key nil 0)
+      (setq entry (bibtex-parse-entry))
+      (let ((e (org-ref-reftex-get-bib-field "file" entry)))
+	(if (> (length e) 4)
+	    (remove-if
+	     (lambda (ch)
+	       (find ch "{}\\"))
+	     (format "/%s" (subseq e 1 (- (length e) 4))))
+	  (format (concat org-ref-pdf-directory "%s.pdf") key))))))
+
 
 (defun org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
