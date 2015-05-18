@@ -101,6 +101,7 @@ I like \C-cj."
 	("CC" "Catalysis Communications" "Catal. Commun.")
 	("CST" "Catalysis Science & Technology" "Catal. Sci. Technol.")
 	("CT" "Catalysis Today" "Catal. Today")
+	("ChC" "Chemical Communications" "Chem. Commun.")
 	("CPL" "Chemical Physics Letters" "Chem. Phys. Lett")
 	("CR" "Chemical Reviews" "Chem. Rev.")
 	("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
@@ -108,6 +109,7 @@ I like \C-cj."
 	("CM" "Chemistry of Materials" "Chem. Mater.")
 	("CSA" "Colloids and Surfaces, A: Physicochemical and Engineering Aspects"
 	 "Colloids Surf., A")
+	("CF" "Combustion and Flame" "Combust. Flame")
 	("CPMS" "Computational Materials Science" "Comp. Mater. Sci.")
 	("CPC" "Computer Physics Communications" "Comput. Phys. Commun.")
 	("CSE" "Computing in Science \\& Engineering" "Comput. Sci. Eng.")
@@ -245,7 +247,7 @@ START and END allow you to use this with `bibtex-map-entries'"
    (helm :sources `((name . "journal")
 		    (candidates . ,(mapcar
 				    (lambda (x)
-				      (cons (nth 1 x)
+				      (cons (format "%s | %s"  (nth 1 x) (nth 2 x))
 					    (car x)))
 				    jmax-bibtex-journal-abbreviations))
 		    (action . (lambda (x) (identity x))))

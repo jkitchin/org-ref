@@ -59,7 +59,7 @@
  (lambda (keyword desc format)
    (cond
     ((eq format 'latex)
-     (format "\\href{http://www.scopus.com/authid/detail.url\\?origin=AuthorProfile&authorId=%s}{%s}" keyword desc))
+     (format "\\href{http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s}{%s}" keyword (or desc keyword)))
     ((eq format 'html)
      (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">scopusid:%s</a>" keyword keyword)))))
 
