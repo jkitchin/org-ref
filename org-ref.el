@@ -1423,7 +1423,7 @@ Optional argument ARG Does nothing."
  ;formatting
  (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "(<eqref>%s</eqref>)" path))
+    ((eq format 'html) (format "(<eqref>%s</eqref>)" keyword))
     ((eq format 'latex)
      (format "\\eqref{%s}" keyword)))))
 
