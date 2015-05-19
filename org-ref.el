@@ -3399,7 +3399,6 @@ This is a list of cons cells '((\"description\" . action)). The action function 
 (add-to-list
  'org-ref-helm-user-candidates
  '("Open pdf in emacs" . (lambda ()
-
 			   (find-file
 			    (concat
 			     org-ref-pdf-directory
