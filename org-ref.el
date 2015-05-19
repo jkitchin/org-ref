@@ -3398,7 +3398,13 @@ This is a list of cons cells '((\"description\" . action)). The action function 
 ;; example of adding your own function
 (add-to-list
  'org-ref-helm-user-candidates
- '("Example" . (lambda () (message-box "You did it!")))
+ '("Open pdf in emacs" . (lambda ()
+
+			   (find-file
+			    (concat
+			     org-ref-pdf-directory
+			     (car (org-ref-get-bibtex-key-and-file))
+			     ".pdf"))))
  t)
 
 ;;;###autoload
