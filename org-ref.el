@@ -1423,9 +1423,10 @@ Optional argument ARG Does nothing."
  ;formatting
  (lambda (keyword desc format)
    (cond
-    ((eq format 'html) (format "(<eqref>%s</eqref>)" keyword))
-    ((eq format 'latex)
-     (format "\\eqref{%s}" keyword)))))
+    ((eq format 'latex) (format "\\eqref{%s}" keyword))
+    ;;considering the fact that latex's the standard of math formulas, just use mathjax to render the html
+    ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
+    ((eq format 'html) (format "\\eqref{%s}" keyword)))))
 
 ;; ** cite link
 
