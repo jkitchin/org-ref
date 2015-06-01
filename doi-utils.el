@@ -541,8 +541,11 @@ prompt. Otherwise, you have to type or pste in a DOI."
 		       (buffer-substring (region-beginning) (region-end)))
 		      ;; if the first entry in the kill-ring looks
 		      ;; like a DOI, let's use it.
-		      ((if (s-match "^10" (car kill-ring))
-			   (car kill-ring)))
+		      ((if (and
+			    ;; make sure the kill-ring has something in it
+			    (stringp (car kill-ring))
+			    (s-match "^10" (car kill-ring))))
+			   (car kill-ring))
 		      ;; otherwise, we have no initial input. You
 		      ;; will have to type it in.
 		      (t
