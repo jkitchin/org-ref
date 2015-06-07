@@ -71,6 +71,11 @@
     (when eid (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=ref&zone=relatedDocuments" eid))))
 
 
+(defun scopus-citing-url (doi)
+  "Return a Scopus url to articles citing DOI."
+  (format "http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite=%s&src=s&imp=t&sot=cite&sdt=a&sl=0&origin=recordpage" (scopus-doi-to-eid doi)))
+
+
 (defun scopus-open-eid (eid)
   "Open article with EID in browser."
   (interactive "sEID: ")
