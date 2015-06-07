@@ -812,7 +812,17 @@ Argument LINK-STRING Passed in on link click."
 
 (org-add-link-type
  "doi"
- 'doi-link-menu)
+ 'doi-link-menu
+ (lambda (doi desc format)
+   (cond
+    ((eq format 'html)
+     (format "<a href=\"http://dx.doi.org/%s\">%s</a>"
+	     doi
+	     (or desc (concat "doi:" doi))))
+    ((eq format 'latex)
+     (format "\\href{http://dx.doi.org/%s}{%s}"
+	     doi
+	     (or desc (concat "doi:%s" doi)))))))
 
 
 ;; * Getting a doi for a bibtex entry missing one
