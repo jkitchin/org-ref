@@ -315,7 +315,7 @@ Open an advanced search in Scopus: scopus-advanced-search:au-id(7004212771). See
 
 A functional link to a document in Scopus by its "EID": eid:2-s2.0-72649092395. Clicking on this link will open a hydra menu to open the document in Scopus, find different kinds of related documents by keywords, authors or references, and to open a page in Scopus of citing documents.
 
-See the [[id:AD7C70CF-1BB8-4610-B9AD-580790250459][sci-id]] library for a link called scopusid:7004212771 for authors.
+There is also a scopusid link for authors that will open their author page in Scopus: scopusid:7004212771
 
 ** isbn
 index:isbn
