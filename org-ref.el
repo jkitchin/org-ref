@@ -3368,8 +3368,8 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Copy key to clipboard" . (lambda ()
-				  (kill-new
-				   (car (org-ref-get-bibtex-key-and-file)))))
+				   (kill-new
+				    (car (org-ref-get-bibtex-key-and-file)))))
      t)
 
     (add-to-list
@@ -3380,15 +3380,71 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Email bibtex entry and pdf" . (lambda ()
-		  (save-excursion
-		    (org-ref-open-citation-at-point)
-		    (email-bibtex-entry))))
+					(save-excursion
+					  (org-ref-open-citation-at-point)
+					  (email-bibtex-entry))))
      t)
-  ;; finally return a numbered list of the candidates
-  (cl-loop for i from 0
-	   for cell in candidates
-	   collect (cons (format "%2s. %s" i (car cell))
-			 (cdr cell)))))
+
+    ;; add Scopus functions. These work by looking up a DOI to get a Scopus
+    ;; EID. This may only work for Scopus articles. Not all DOIs are recognized
+    ;; in the Scopus API. We only load these if you have defined a
+    ;; `*scopus-api-key*', which is required to do the API queries. See
+    ;; `scopus'. These functions are appended to the candidate list.
+    (when (and (boundp '*scopus-api-key*) *scopus-api-key*)
+      (add-to-list
+       'candidates
+       '("Open in Scopus" . (lambda ()
+			      (let ((eid (scopus-doi-to-eid (org-ref-get-doi-at-point))))
+				(if eid
+				    (scopus-open-eid eid)
+				  (message "No EID found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus citing articles" . (lambda ()
+				      (let ((url (scopus-citing-url
+						  (org-ref-get-doi-at-point))))
+					(if url
+					    (browse-url url)
+					  (message "No url found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus related by authors" . (lambda ()
+					 (let ((url (scopus-related-by-author-url
+						     (org-ref-get-doi-at-point))))
+					   (if url
+					       (browse-url url)
+					     (message "No url found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus related by references" . (lambda ()
+					    (let ((url (scopus-related-by-references-url
+							(org-ref-get-doi-at-point))))
+					      (if url
+						  (browse-url url)
+						(message "No url found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus related by keywords" . (lambda ()
+					  (let ((url (scopus-related-by-keyword-url
+						      (org-ref-get-doi-at-point))))
+					    (if url
+						(browse-url url)
+					      (message "No url found.")))))
+       t))
+
+    ;; finally return a numbered list of the candidates
+    (cl-loop for i from 0
+	     for cell in candidates
+	     collect (cons (format "%2s. %s" i (car cell))
+			   (cdr cell)))))
 
 
 (defvar org-ref-helm-user-candidates '()
