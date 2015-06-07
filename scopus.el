@@ -35,9 +35,14 @@
   "Return a parsed xml from the Scopus article retrieval api for DOI."
   (let* ((url-request-method "GET")
 	 (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)))
-	 (url (format  "http://api.elsevier.com/content/article/doi/%s" doi)))
-    (with-current-buffer  (url-retrieve-synchronously url)
-		      (xml-parse-region url-http-end-of-headers (point-max)))))
+	 (url (format  "http://api.elsevier.com/content/article/doi/%s" doi))
+	 (xml))
+    (setq xml
+	  (with-current-buffer  (url-retrieve-synchronously url)
+	    (xml-parse-region url-http-end-of-headers (point-max))))
+    (when (eq 'service-error (caar xml))
+      (message-box "%s" xml))
+    xml))
 
 
 (defun scopus-doi-to-eid (doi)
