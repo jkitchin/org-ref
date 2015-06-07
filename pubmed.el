@@ -218,5 +218,39 @@ You must clean the entry after insertion."
      (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}" keyword)))))
 
 
+;; * Searching pubmed
+
+(defun pubmed ()
+  "Open http://www.ncbi.nlm.nih.gov/pubmed in a browser."
+  (interactive)
+  (browse-url "http://www.ncbi.nlm.nih.gov/pubmed"))
+
+
+(defun pubmed-advanced ()
+  "Open http://www.ncbi.nlm.nih.gov/pubmed/advanced in a browser."
+  (interactive)
+  (browse-url "http://www.ncbi.nlm.nih.gov/pubmed/advanced"))
+
+
+(defun pubmed-simple-search (query)
+  "Open QUERY in Pubmed in a browser."
+  (interactive "sQuery: ")
+  (browse-url
+   (format "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s" query)))
+
+
+(org-add-link-type
+ "pubmed-search"
+ (lambda (query)
+   "Open QUERY in a `pubmed-simple-search'."
+   (pubmed-simple-search query))
+ (lambda (query desc format)
+   (let ((url (format "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s" query)))
+     (cond
+      ((eq format 'html)
+       (format "<a href=\"%s\">%s</a>" url (or desc (concat "pubmed-search:" query))))
+      ((eq format 'latex)
+       (format "\\href{%s}{%s}" url (or desc (concat "pubmed-search:" query))))))))
+
 (provide 'pubmed)
 ;;; pubmed.el ends here
