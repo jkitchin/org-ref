@@ -31,28 +31,34 @@
   files. Get a key here: http://dev.elsevier.com/myapikey.html.")
 
 
-(defun scopus-doi-to-xml (doi)
-  "Return a parsed xml from the Scopus article retrieval api for DOI.
-This does not always seem to work for the most recent DOIs."
-  (let* ((url-request-method "GET")
-	 (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)))
-	 (url (format  "http://api.elsevier.com/content/article/doi/%s" doi))
-	 (xml))
-    (setq xml
-	  (with-current-buffer  (url-retrieve-synchronously url)
-	    (xml-parse-region url-http-end-of-headers (point-max))))
-    (if (eq 'service-error (caar xml))
-	(progn (message-box "%s\n%s\n%s" doi url xml)
-	       nil)
-      xml)))
-
+;; (defun scopus-doi-to-xml (doi)
+;;   "Return a parsed xml from the Scopus article retrieval api for DOI.
+;; This does not always seem to work for the most recent DOIs."
+;;   (let* ((url-request-method "GET")
+;;	 (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)))
+;;	 (url (format  "http://api.elsevier.com/content/article/doi/%s" doi))
+;;	 (xml))
+;;     (setq xml
+;;	  (with-current-buffer  (url-retrieve-synchronously url)
+;;	    (xml-parse-region url-http-end-of-headers (point-max))))
+;;     (if (eq 'service-error (caar xml))
+;;	(progn (message-box "%s\n%s\n%s" doi url xml)
+;;	       nil)
+;;       xml)))
 
 (defun scopus-doi-to-eid (doi)
-  "Get a scopus-eid from a DOI. Requires `*scopus-api-key' to be valid."
-  (let* ((root (car (scopus-doi-to-xml doi))))
-    (when root
-      (car (xml-node-children
-	    (car (xml-get-children root 'scopus-eid)))))))
+  "Get a Scopus eid from a DOI. Requires `*scopus-api-key*' to be defined."
+  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'."))
+  (let* ((url-request-method "GET")
+	 (url-mime-accept-string "application/xml")
+	 (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)
+					   '("field" . "eid")))
+	 (url (format  "http://api.elsevier.com/content/search/scopus?query=doi(%s)" doi))
+	 (xml (with-current-buffer  (url-retrieve-synchronously url)
+		(xml-parse-region url-http-end-of-headers (point-max))))
+	 (results (car xml))
+	 (entry (car (xml-get-children results 'entry))))
+    (car (xml-node-children (car (xml-get-children entry 'eid))))))
 
 
 (defun scopus-related-by-keyword-url (doi)
