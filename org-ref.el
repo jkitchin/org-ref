@@ -3432,8 +3432,7 @@ KEY is returned for the selected item(s) in helm."
 		      (candidates . ,org-ref-helm-user-candidates)
 		      (action . (lambda (f)
 				  (switch-to-buffer cb)
-				  (funcall f))))
-		     ))))
+				  (funcall f))))))))
 
 ;; * Hydra menus in org-ref
 
