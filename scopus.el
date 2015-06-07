@@ -50,8 +50,9 @@ This does not always seem to work for the most recent DOIs."
 (defun scopus-doi-to-eid (doi)
   "Get a scopus-eid from a DOI. Requires `*scopus-api-key' to be valid."
   (let* ((root (car (scopus-doi-to-xml doi))))
-    (car (xml-node-children
-	  (car (xml-get-children root 'scopus-eid))))))
+    (when root
+      (car (xml-node-children
+	    (car (xml-get-children root 'scopus-eid)))))))
 
 
 (defun scopus-related-by-keyword-url (doi)
