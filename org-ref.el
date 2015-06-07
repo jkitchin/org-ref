@@ -3461,12 +3461,14 @@ _o_: Open entry   _e_: Email entry and pdf
     ("K" org-ref-copy-entry-as-summary nil)
     ("k" (progn
 	   (kill-new
-	    (car (org-ref-get-bibtex-key-and-file)))) nil)
+	    (car (org-ref-get-bibtex-key-and-file))))
+     nil)
     ("f" org-ref-copy-entry-at-point-to-file nil)
 
     ("e" (save-excursion
 	   (org-ref-open-citation-at-point)
-	   (email-bibtex-entry)) nil)))
+	   (email-bibtex-entry))
+     nil)))
 
 ;; * org-ref-help
 (defun org-ref-help ()
