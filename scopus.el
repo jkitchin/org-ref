@@ -178,3 +178,19 @@ This does not always seem to work for the most recent DOIs."
        (format "<a href=\"%s\">%s</a>" url (or desc query)))
       ((eq format 'latex)
        (format "\\href{%s}{%s}" url (or desc query)))))))
+
+
+(org-add-link-type
+ "scopusid"
+ (lambda
+   (link-string)
+   (browse-url
+    (format
+     "http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s"
+     link-string)))
+ (lambda (keyword desc format)
+   (cond
+    ((eq format 'latex)
+     (format "\\href{http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s}{%s}" keyword (or desc (concat "scopusid:" keyword))))
+    ((eq format 'html)
+     (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">scopusid:%s</a>" keyword (or desc (concat "scopusid:" keyword)))))))
