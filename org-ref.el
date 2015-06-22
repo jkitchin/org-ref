@@ -3120,26 +3120,26 @@ Run this with the point in a bibtex entry."
 				       )))))
     (helm :sources '(keyword-source fallback-source))))
 
-(defun helm-bibtex-show-entry (key)
-  "Show the entry for KEY in the BibTeX file.
-The original function in `helm-bibtex' has a bug where it finds the
-first key that partially matches.  This version avoids that."
-  (catch 'break
-    (dolist (bibtex-file (if (listp helm-bibtex-bibliography)
-                             helm-bibtex-bibliography
-                           (list helm-bibtex-bibliography)))
-      (let ((buf (helm-bibtex-buffer-visiting bibtex-file))
-            (entries '()))
-        (find-file bibtex-file)
-        (bibtex-map-entries
-	 (lambda (key start end)
-	   (add-to-list 'entries (cons key start))))
-        (if (assoc key entries)
-	    (progn
-	      (goto-char (cdr (assoc key entries)))
-	      (throw 'break t))
-          (unless buf
-            (kill-buffer)))))))
+;; (defun helm-bibtex-show-entry (key)
+;;   "Show the entry for KEY in the BibTeX file.
+;; The original function in `helm-bibtex' has a bug where it finds the
+;; first key that partially matches.  This version avoids that."
+;;   (catch 'break
+;;     (dolist (bibtex-file (if (listp helm-bibtex-bibliography)
+;;                              helm-bibtex-bibliography
+;;                            (list helm-bibtex-bibliography)))
+;;       (let ((buf (helm-bibtex-buffer-visiting bibtex-file))
+;;             (entries '()))
+;;         (find-file bibtex-file)
+;;         (bibtex-map-entries
+;;	 (lambda (key start end)
+;;	   (add-to-list 'entries (cons key start))))
+;;         (if (assoc key entries)
+;;	    (progn
+;;	      (goto-char (cdr (assoc key entries)))
+;;	      (throw 'break t))
+;;           (unless buf
+;;             (kill-buffer)))))))
 
 (defun org-ref-helm-tag-entries (candidates)
   "Set tags on selected bibtex entries from `helm-bibtex'.
