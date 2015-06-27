@@ -2701,7 +2701,7 @@ Shows bad citations, ref links and labels"
   "clean and replace the key in a bibtex function. When keep-key is t, do not replace it. You can use a prefix to specify the key should be kept"
   (interactive "P")
   (bibtex-beginning-of-entry)
-(end-of-line)
+  (end-of-line)
   ;; some entries do not have a key or comma in first line. We check and add it, if needed.
   (unless (string-match ",$" (thing-at-point 'line))
     (end-of-line)
@@ -3158,28 +3158,56 @@ Argument CANDIDATES helm candidates."
 		 ", " (bibtex-autokey-get-field "keywords")))
 	       (save-buffer)))))
 
-(setq helm-source-bibtex
-      '((name                                      . "BibTeX entries")
-	(init                                      . helm-bibtex-init)
-	(candidates                                . helm-bibtex-candidates)
-	(filtered-candidate-transformer            . helm-bibtex-candidates-formatter)
-	(action . (("Insert citation"              . helm-bibtex-insert-citation)
-		   ("Show entry"                   . helm-bibtex-show-entry)
-		   ("Open PDF file (if present)"   . helm-bibtex-open-pdf)
-		   ("Open URL or DOI in browser"   . helm-bibtex-open-url-or-doi)
-		   ("Insert formatted reference"   . helm-bibtex-insert-reference)
-		   ("Insert BibTeX key"            . helm-bibtex-insert-key)
-		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
-		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
-		   ("Edit notes"                   . helm-bibtex-edit-notes)
-                   ("Add keywords to entries"      . org-ref-helm-tag-entries)
-		   ))))
+;; (setq helm-source-bibtex
+;;       '((name                                      . "BibTeX entries")
+;;	(init                                      . helm-bibtex-init)
+;;	(candidates                                . helm-bibtex-candidates)
+;;	(filtered-candidate-transformer            . helm-bibtex-candidates-formatter)
+;;	(action . (("Insert citation"              . helm-bibtex-insert-citation)
+;;		   ("Show entry"                   . helm-bibtex-show-entry)
+;;		   ("Open PDF file (if present)"   . helm-bibtex-open-pdf)
+;;		   ("Open URL or DOI in browser"   . helm-bibtex-open-url-or-doi)
+;;		   ("Insert formatted reference"   . helm-bibtex-insert-reference)
+;;		   ("Insert BibTeX key"            . helm-bibtex-insert-key)
+;;		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
+;;		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
+;;		   ("Edit notes"                   . helm-bibtex-edit-notes)
+;;                    ("Add keywords to entries"      . org-ref-helm-tag-entries)
+;;		   ))))
+
+;; Make insert citation the default entry
+(helm-delete-action-from-source "Insert citation" helm-source-bibtex)
+
+;; There seems to be a bug in the helm source that prevents you from inserting
+;; at position zero
+
+;; (helm-add-action-to-source
+;;  "Insert citation"
+;;  'helm-bibtex-insert-citation
+;;  helm-source-bibtex
+;;  0)
+
+;; this is basically what the function above is supposed to do.
+(helm-attrset 'action
+	      (-insert-at 0 '("Insert citation" .  helm-bibtex-insert-citation)
+			  (helm-attr 'action helm-source-bibtex))
+	      helm-source-bibtex)
+
+;; Add a new action
+(helm-add-action-to-source
+ "Add keywords to entries"
+ 'org-ref-helm-tag-entries
+ helm-source-bibtex)
 
 (defun helm-bibtex-format-org-ref (keys)
   "Insert selected KEYS as cite link. Append KEYS if you are on a link.
-Technically, this function should return a string that is inserted by helm. This function does the insertion and gives helm an empty string to insert. This lets us handle appending to a link properly.
+Technically, this function should return a string that is
+inserted by helm. This function does the insertion and gives helm
+an empty string to insert. This lets us handle appending to a
+link properly.
 
-In the helm-bibtex buffer, C-u will give you a helm menu to select a new link type for the selected entries.
+In the helm-bibtex buffer, C-u will give you a helm menu to
+select a new link type for the selected entries.
 
 C-u C-u will change the key at point to the selected keys."
   (let* ((object (org-element-context))
