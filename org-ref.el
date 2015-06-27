@@ -1888,7 +1888,7 @@ get a lot of options.  LINK-STRING is used by the link function."
      ,(format "Formatting function for %s links.
 [[%s:KEYWORD][DESC]]
 FORMAT is a symbol for the export backend.
-" type type)
+Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
      (cond
       ((eq format 'org)
        (mapconcat
