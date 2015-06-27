@@ -1885,6 +1885,10 @@ get a lot of options.  LINK-STRING is used by the link function."
 (defmacro org-ref-make-format-function (type)
   "Macro to make a format function for a link of TYPE."
   `(defun ,(intern (format "org-ref-format-%s" type)) (keyword desc format)
+     ,(format "Formatting function for %s links.
+[[%s:KEYWORD][DESC]]
+FORMAT is a symbol for the export backend.
+" type type)
      (cond
       ((eq format 'org)
        (mapconcat
@@ -1911,13 +1915,13 @@ get a lot of options.  LINK-STRING is used by the link function."
 	   (concat "\\" ,type (mapconcat (lambda (key) (format "{%s}"  key))
 					 (org-ref-split-and-strip-string keyword) ""))
 	 ;; bibtex format
-       (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
-	       (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
-	       "}")))
+	 (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
+		 (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
+		 "}")))
       ;; for markdown we generate pandoc citations
       ((eq format 'md)
        (cond
-	(desc  ;; pre and or post text
+	(desc ;; pre and or post text
 	 (let* ((text (split-string desc "::"))
 		(pre (car text))
 		(post (cadr text)))
