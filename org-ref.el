@@ -1,6 +1,6 @@
 ;;; org-ref.el --- cite and cross-reference in org-mode
 
-;; Copyright(C) 2014 John Kitchin
+;; Copyright(C) 2014,2015 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
