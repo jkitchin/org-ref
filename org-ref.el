@@ -1958,7 +1958,7 @@ citez link, with reftex key of z, and the completion function."
   ;; create the formatting function
   (eval `(org-ref-make-format-function ,type))
 
-  (eval-expression
+  (eval
    `(org-add-link-type
      ,type
      org-ref-cite-onclick-function
@@ -1978,7 +1978,8 @@ citez link, with reftex key of z, and the completion function."
 		  `((,key  . ,(concat type ":%l")))))))
 
 ;; create all the link types and their completion functions
-(mapcar 'org-ref-define-citation-link org-ref-cite-types)
+(dolist (type org-ref-cite-types)
+  (org-ref-define-citation-link type))
 
 (defun org-ref-insert-cite-link (alternative-cite)
   "Insert a default citation link using reftex.
