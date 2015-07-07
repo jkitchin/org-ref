@@ -1,7 +1,11 @@
+;;; nist-webbook.el --- Integration of Emacs with NIST Webbook
 ;; Integration of Emacs with NIST webbook
 
+;;; Commentary:
+;; nist-webbook-name :: search for a chemical name
+;; nist-webbook-formula :: search by chemical formula
 
-
+;;; Code:
 
 (defun nist-webbook-formula (formula)
   "Search NIST webbook for FORMULA."
@@ -30,3 +34,7 @@
  "nist-wb-formula"
  (lambda (formula)
    (nist-webbook-formula formula)))
+
+(provide 'nist-webbook)
+
+;;; nist-webbook.el ends here
