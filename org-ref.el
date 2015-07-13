@@ -1,6 +1,6 @@
 ;;; org-ref.el --- cite and cross-reference in org-mode
 
-;; Copyright(C) 2014 John Kitchin
+;; Copyright(C) 2014,2015 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
@@ -1885,6 +1885,10 @@ get a lot of options.  LINK-STRING is used by the link function."
 (defmacro org-ref-make-format-function (type)
   "Macro to make a format function for a link of TYPE."
   `(defun ,(intern (format "org-ref-format-%s" type)) (keyword desc format)
+     ,(format "Formatting function for %s links.
+[[%s:KEYWORD][DESC]]
+FORMAT is a symbol for the export backend.
+Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
      (cond
       ((eq format 'org)
        (mapconcat
@@ -1911,13 +1915,13 @@ get a lot of options.  LINK-STRING is used by the link function."
 	   (concat "\\" ,type (mapconcat (lambda (key) (format "{%s}"  key))
 					 (org-ref-split-and-strip-string keyword) ""))
 	 ;; bibtex format
-       (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
-	       (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
-	       "}")))
+	 (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
+		 (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
+		 "}")))
       ;; for markdown we generate pandoc citations
       ((eq format 'md)
        (cond
-	(desc  ;; pre and or post text
+	(desc ;; pre and or post text
 	 (let* ((text (split-string desc "::"))
 		(pre (car text))
 		(post (cadr text)))
@@ -1954,7 +1958,7 @@ citez link, with reftex key of z, and the completion function."
   ;; create the formatting function
   (eval `(org-ref-make-format-function ,type))
 
-  (eval-expression
+  (eval
    `(org-add-link-type
      ,type
      org-ref-cite-onclick-function
@@ -1974,7 +1978,8 @@ citez link, with reftex key of z, and the completion function."
 		  `((,key  . ,(concat type ":%l")))))))
 
 ;; create all the link types and their completion functions
-(mapcar 'org-ref-define-citation-link org-ref-cite-types)
+(dolist (type org-ref-cite-types)
+  (org-ref-define-citation-link type))
 
 (defun org-ref-insert-cite-link (alternative-cite)
   "Insert a default citation link using reftex.
@@ -2701,7 +2706,7 @@ Shows bad citations, ref links and labels"
   "clean and replace the key in a bibtex function. When keep-key is t, do not replace it. You can use a prefix to specify the key should be kept"
   (interactive "P")
   (bibtex-beginning-of-entry)
-(end-of-line)
+  (end-of-line)
   ;; some entries do not have a key or comma in first line. We check and add it, if needed.
   (unless (string-match ",$" (thing-at-point 'line))
     (end-of-line)
@@ -3120,26 +3125,26 @@ Run this with the point in a bibtex entry."
 				       )))))
     (helm :sources '(keyword-source fallback-source))))
 
-(defun helm-bibtex-show-entry (key)
-  "Show the entry for KEY in the BibTeX file.
-The original function in `helm-bibtex' has a bug where it finds the
-first key that partially matches.  This version avoids that."
-  (catch 'break
-    (dolist (bibtex-file (if (listp helm-bibtex-bibliography)
-                             helm-bibtex-bibliography
-                           (list helm-bibtex-bibliography)))
-      (let ((buf (helm-bibtex-buffer-visiting bibtex-file))
-            (entries '()))
-        (find-file bibtex-file)
-        (bibtex-map-entries
-	 (lambda (key start end)
-	   (add-to-list 'entries (cons key start))))
-        (if (assoc key entries)
-	    (progn
-	      (goto-char (cdr (assoc key entries)))
-	      (throw 'break t))
-          (unless buf
-            (kill-buffer)))))))
+;; (defun helm-bibtex-show-entry (key)
+;;   "Show the entry for KEY in the BibTeX file.
+;; The original function in `helm-bibtex' has a bug where it finds the
+;; first key that partially matches.  This version avoids that."
+;;   (catch 'break
+;;     (dolist (bibtex-file (if (listp helm-bibtex-bibliography)
+;;                              helm-bibtex-bibliography
+;;                            (list helm-bibtex-bibliography)))
+;;       (let ((buf (helm-bibtex-buffer-visiting bibtex-file))
+;;             (entries '()))
+;;         (find-file bibtex-file)
+;;         (bibtex-map-entries
+;;	 (lambda (key start end)
+;;	   (add-to-list 'entries (cons key start))))
+;;         (if (assoc key entries)
+;;	    (progn
+;;	      (goto-char (cdr (assoc key entries)))
+;;	      (throw 'break t))
+;;           (unless buf
+;;             (kill-buffer)))))))
 
 (defun org-ref-helm-tag-entries (candidates)
   "Set tags on selected bibtex entries from `helm-bibtex'.
@@ -3158,28 +3163,56 @@ Argument CANDIDATES helm candidates."
 		 ", " (bibtex-autokey-get-field "keywords")))
 	       (save-buffer)))))
 
-(setq helm-source-bibtex
-      '((name                                      . "BibTeX entries")
-	(init                                      . helm-bibtex-init)
-	(candidates                                . helm-bibtex-candidates)
-	(filtered-candidate-transformer            . helm-bibtex-candidates-formatter)
-	(action . (("Insert citation"              . helm-bibtex-insert-citation)
-		   ("Show entry"                   . helm-bibtex-show-entry)
-		   ("Open PDF file (if present)"   . helm-bibtex-open-pdf)
-		   ("Open URL or DOI in browser"   . helm-bibtex-open-url-or-doi)
-		   ("Insert formatted reference"   . helm-bibtex-insert-reference)
-		   ("Insert BibTeX key"            . helm-bibtex-insert-key)
-		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
-		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
-		   ("Edit notes"                   . helm-bibtex-edit-notes)
-                   ("Add keywords to entries"      . org-ref-helm-tag-entries)
-		   ))))
+;; (setq helm-source-bibtex
+;;       '((name                                      . "BibTeX entries")
+;;	(init                                      . helm-bibtex-init)
+;;	(candidates                                . helm-bibtex-candidates)
+;;	(filtered-candidate-transformer            . helm-bibtex-candidates-formatter)
+;;	(action . (("Insert citation"              . helm-bibtex-insert-citation)
+;;		   ("Show entry"                   . helm-bibtex-show-entry)
+;;		   ("Open PDF file (if present)"   . helm-bibtex-open-pdf)
+;;		   ("Open URL or DOI in browser"   . helm-bibtex-open-url-or-doi)
+;;		   ("Insert formatted reference"   . helm-bibtex-insert-reference)
+;;		   ("Insert BibTeX key"            . helm-bibtex-insert-key)
+;;		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
+;;		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
+;;		   ("Edit notes"                   . helm-bibtex-edit-notes)
+;;                    ("Add keywords to entries"      . org-ref-helm-tag-entries)
+;;		   ))))
+
+;; Make insert citation the default entry
+(helm-delete-action-from-source "Insert citation" helm-source-bibtex)
+
+;; There seems to be a bug in the helm source that prevents you from inserting
+;; at position zero
+
+;; (helm-add-action-to-source
+;;  "Insert citation"
+;;  'helm-bibtex-insert-citation
+;;  helm-source-bibtex
+;;  0)
+
+;; this is basically what the function above is supposed to do.
+(helm-attrset 'action
+	      (-insert-at 0 '("Insert citation" .  helm-bibtex-insert-citation)
+			  (helm-attr 'action helm-source-bibtex))
+	      helm-source-bibtex)
+
+;; Add a new action
+(helm-add-action-to-source
+ "Add keywords to entries"
+ 'org-ref-helm-tag-entries
+ helm-source-bibtex)
 
 (defun helm-bibtex-format-org-ref (keys)
   "Insert selected KEYS as cite link. Append KEYS if you are on a link.
-Technically, this function should return a string that is inserted by helm. This function does the insertion and gives helm an empty string to insert. This lets us handle appending to a link properly.
+Technically, this function should return a string that is
+inserted by helm. This function does the insertion and gives helm
+an empty string to insert. This lets us handle appending to a
+link properly.
 
-In the helm-bibtex buffer, C-u will give you a helm menu to select a new link type for the selected entries.
+In the helm-bibtex buffer, C-u will give you a helm menu to
+select a new link type for the selected entries.
 
 C-u C-u will change the key at point to the selected keys."
   (let* ((object (org-element-context))
@@ -3368,8 +3401,8 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Copy key to clipboard" . (lambda ()
-				  (kill-new
-				   (car (org-ref-get-bibtex-key-and-file)))))
+				   (kill-new
+				    (car (org-ref-get-bibtex-key-and-file)))))
      t)
 
     (add-to-list
@@ -3380,15 +3413,71 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Email bibtex entry and pdf" . (lambda ()
-		  (save-excursion
-		    (org-ref-open-citation-at-point)
-		    (email-bibtex-entry))))
+					(save-excursion
+					  (org-ref-open-citation-at-point)
+					  (email-bibtex-entry))))
      t)
-  ;; finally return a numbered list of the candidates
-  (cl-loop for i from 0
-	   for cell in candidates
-	   collect (cons (format "%2s. %s" i (car cell))
-			 (cdr cell)))))
+
+    ;; add Scopus functions. These work by looking up a DOI to get a Scopus
+    ;; EID. This may only work for Scopus articles. Not all DOIs are recognized
+    ;; in the Scopus API. We only load these if you have defined a
+    ;; `*scopus-api-key*', which is required to do the API queries. See
+    ;; `scopus'. These functions are appended to the candidate list.
+    (when (and (boundp '*scopus-api-key*) *scopus-api-key*)
+      (add-to-list
+       'candidates
+       '("Open in Scopus" . (lambda ()
+			      (let ((eid (scopus-doi-to-eid (org-ref-get-doi-at-point))))
+				(if eid
+				    (scopus-open-eid eid)
+				  (message "No EID found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus citing articles" . (lambda ()
+				      (let ((url (scopus-citing-url
+						  (org-ref-get-doi-at-point))))
+					(if url
+					    (browse-url url)
+					  (message "No url found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus related by authors" . (lambda ()
+					 (let ((url (scopus-related-by-author-url
+						     (org-ref-get-doi-at-point))))
+					   (if url
+					       (browse-url url)
+					     (message "No url found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus related by references" . (lambda ()
+					    (let ((url (scopus-related-by-references-url
+							(org-ref-get-doi-at-point))))
+					      (if url
+						  (browse-url url)
+						(message "No url found.")))))
+       t)
+
+      (add-to-list
+       'candidates
+       '("Scopus related by keywords" . (lambda ()
+					  (let ((url (scopus-related-by-keyword-url
+						      (org-ref-get-doi-at-point))))
+					    (if url
+						(browse-url url)
+					      (message "No url found.")))))
+       t))
+
+    ;; finally return a numbered list of the candidates
+    (cl-loop for i from 0
+	     for cell in candidates
+	     collect (cons (format "%2s. %s" i (car cell))
+			   (cdr cell)))))
 
 
 (defvar org-ref-helm-user-candidates '()
@@ -3432,8 +3521,7 @@ KEY is returned for the selected item(s) in helm."
 		      (candidates . ,org-ref-helm-user-candidates)
 		      (action . (lambda (f)
 				  (switch-to-buffer cb)
-				  (funcall f))))
-		     ))))
+				  (funcall f))))))))
 
 ;; * Hydra menus in org-ref
 
@@ -3461,12 +3549,14 @@ _o_: Open entry   _e_: Email entry and pdf
     ("K" org-ref-copy-entry-as-summary nil)
     ("k" (progn
 	   (kill-new
-	    (car (org-ref-get-bibtex-key-and-file)))) nil)
+	    (car (org-ref-get-bibtex-key-and-file))))
+     nil)
     ("f" org-ref-copy-entry-at-point-to-file nil)
 
     ("e" (save-excursion
 	   (org-ref-open-citation-at-point)
-	   (email-bibtex-entry)) nil)))
+	   (email-bibtex-entry))
+     nil)))
 
 ;; * org-ref-help
 (defun org-ref-help ()

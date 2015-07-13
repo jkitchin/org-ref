@@ -284,7 +284,7 @@ Or this if you like key-chord:
 #+END_SRC
 
 ** wos
-This is a small utility for Web of Science/Knowledge (http://apps.webofknowledge.com).
+This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofknowledge.com).
 
 #+BEGIN_SRC emacs-lisp
 (require 'wos)
@@ -294,6 +294,28 @@ This is a small utility for Web of Science/Knowledge (http://apps.webofknowledge
 - wos-search :: Search WOK with the selected text or word at point
 
 There is also a new org-mode link that opens a search: [[wos-search:alloy and segregation]]
+
+** scopus
+This is a small utility to interact with Scopus (http://www.scopus.com). Scopus is search engine for scientific literature. It is owned by Elsevier. You must have a license to use it (usually provided by your research institution).
+
+#+BEGIN_SRC emacs-lisp
+(require 'scopus)
+#+END_SRC
+
+Interactive functions:
+
+- scopus :: Convenience function to open Scopus in a browser.
+- scopus-basic-search :: Prompts for a query and opens it in a browser.
+- scopus-advanced-search :: Prompts for an advanced query and opens it in a browser.
+
+Some new links:
+Open a basic search in Scopus: [[scopus-search:alloy Au segregation]]
+
+Open an advanced search in Scopus: scopus-advanced-search:au-id(7004212771). See http://www.scopus.com/search/form.url?display=advanced&clear=t for details on the codes and syntax, and http://help.elsevier.com/app/answers/detail/a_id/2347/p/8150/incidents.c$portal_account_name/26389.
+
+A functional link to a document in Scopus by its "EID": eid:2-s2.0-72649092395. Clicking on this link will open a hydra menu to open the document in Scopus, find different kinds of related documents by keywords, authors or references, and to open a page in Scopus of citing documents.
+
+There is also a scopusid link for authors that will open their author page in Scopus: scopusid:7004212771
 
 ** isbn
 index:isbn
@@ -309,11 +331,13 @@ This library provides some functions to get bibtex entries for books from their 
 ** pubmed
 index:pubmed
 
+[[http://www.ncbi.nlm.nih.gov/pubmed][PubMed]] comprises more than 24 million citations for biomedical literature from MEDLINE, life science journals, and online books. Citations may include links to full-text content from PubMed Central and publisher web sites. This library provides some functions to initiate searches of PubMed from Emacs, and to link to PubMed content.
+
 #+BEGIN_SRC emacs-lisp
 (require 'pubmed)
 #+END_SRC
 
-This library provides a number of new org-mode links to Pubmed entries. See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers.
+This library provides a number of new org-mode links to PubMed entries. See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers. These links open the page in PubMed for the identifier.
 
 pmcid:PMC3498956
 
@@ -324,6 +348,14 @@ nihmsid:NIHMS395714
 Also, you can retrieve a bibtex entry for a PMID with
 
 - pubmed-insert-bibtex-from-pmid
+
+There are some utility functions that may be helpful.
+
+- pubmed :: Open [[http://www.ncbi.nlm.nih.gov/pubmed][PubMed]] in a browser
+- pubmed-advanced :: Open [[http://www.ncbi.nlm.nih.gov/pubmed/advanced][PubMed]] at advanced search page.
+- pubmed-simple-search :: Prompts you for a simple query and opens it in PubMed.
+
+There is a new org-mode link to PubMed searches: [[pubmed-search:alloy segregation]]
 
 ** arxiv
 index:arxiv
@@ -338,6 +370,9 @@ This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-
 - arxiv-get-pdf
 
 ** sci-id
+   :PROPERTIES:
+   :ID:       AD7C70CF-1BB8-4610-B9AD-580790250459
+   :END:
 index:orcid [[index:researcher id]]
 
 #+BEGIN_SRC emacs-lisp
@@ -360,7 +395,7 @@ index:bibtex!conversion
 If you find you need to convert some bibliographies in some format into bibtex, this library is a starting point. This code is mostly wrappers around the command line utilities at http://sourceforge.net/p/bibutils/home/Bibutils. I thankfully have not had to use this often, but it is here when I need it again.
 
 - ris2bib :: Convert an RIS file to a bibtex file.
-- medxml2bib :: Convert Pubmed XML to bibtex.
+- medxml2bib :: Convert PubMed XML to bibtex.
 - clean-entries :: Map over a converted bibtex file and "clean it".
 
 * Appendix

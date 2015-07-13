@@ -541,8 +541,11 @@ prompt. Otherwise, you have to type or pste in a DOI."
 		       (buffer-substring (region-beginning) (region-end)))
 		      ;; if the first entry in the kill-ring looks
 		      ;; like a DOI, let's use it.
-		      ((if (s-match "^10" (car kill-ring))
-			   (car kill-ring)))
+		      ((and
+			 ;; make sure the kill-ring has something in it
+			 (stringp (car kill-ring))
+			 (s-match "^10" (car kill-ring)))
+			   (car kill-ring))
 		      ;; otherwise, we have no initial input. You
 		      ;; will have to type it in.
 		      (t
@@ -809,7 +812,17 @@ Argument LINK-STRING Passed in on link click."
 
 (org-add-link-type
  "doi"
- 'doi-link-menu)
+ 'doi-link-menu
+ (lambda (doi desc format)
+   (cond
+    ((eq format 'html)
+     (format "<a href=\"http://dx.doi.org/%s\">%s</a>"
+	     doi
+	     (or desc (concat "doi:" doi))))
+    ((eq format 'latex)
+     (format "\\href{http://dx.doi.org/%s}{%s}"
+	     doi
+	     (or desc (concat "doi:%s" doi)))))))
 
 
 ;; * Getting a doi for a bibtex entry missing one
