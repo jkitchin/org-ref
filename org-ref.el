@@ -73,7 +73,7 @@ You should use full-paths for each file."
   :group 'org-ref)
 
 (defcustom org-ref-insert-cite-key
-  "C-c ]"
+  "C-c )"
   "Keyboard shortcut to insert a citation."
   :type 'string
   :group 'org-ref)
@@ -124,8 +124,9 @@ file, then open it.  The default function is
   "User-defined function to get a filename from a bibtex key.
 The function must take a key as an argument, and return the path
 to the corresponding filename. The default is
-`org-ref-get-pdf-filename'. An alternative value is
-`org-ref-get-mendeley-filename'.")
+`org-ref-get-pdf-filename'. Alternative values are
+`org-ref-get-mendeley-filename' and `org-ref-get-jabref-filename'.")
+
 
 
 (defcustom org-ref-insert-cite-function
@@ -1574,6 +1575,20 @@ Contributed by https://github.com/autosquid."
 	  (format (concat org-ref-pdf-directory "%s.pdf") key))))))
 
 
+(defun org-ref-get-jabref-filename (key)
+  "Return the pdf filename from the file fild used by jabref."
+  (let* ((results (org-ref-get-bibtex-key-and-file key))
+	 (bibfile (cdr results)))
+    (with-temp-buffer
+      (insert-file-contents bibfile)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (bibtex-search-entry key nil 0)
+      (setq entry (bibtex-parse-entry))
+      (let ((e (bibtex-autokey-get-field "File")))
+	(format (concat org-ref-pdf-directory "/%s") 
+		(first (split-string e ":")))))))
+
+
 (defun org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
@@ -2273,8 +2288,7 @@ construct the heading by hand."
   :URL: %U
  :END:
 "
-                       (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-                               key org-ref-pdf-directory key))))
+		       (format "[[cite:%s]]\n\n" key))))
       (save-buffer))))
 
 (defun org-ref-open-notes-from-reftex ()
