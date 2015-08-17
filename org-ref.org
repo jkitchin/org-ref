@@ -506,6 +506,5 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 : #<process open ./org-ref.html>
 
 * References
-[[bibliographystyle:unsrtnat]]
 # <<bibliography link>>
 bibliography:org-ref.bib
