@@ -2425,7 +2425,7 @@ If no bibliography is in the buffer the variable
 ;; ** Find bad citations
 (require 'cl)
 
-(defun index (substring list)
+(defun org-ref-index (substring list)
   "Return the index of SUBSTRING in a LIST of strings."
   (let ((i 0)
 	(found nil))
@@ -2455,7 +2455,7 @@ Makes a new buffer with clickable links."
 	(let ((plist (nth 1 link)))
 	  (when (-contains? org-ref-cite-types (plist-get plist :type))
 	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
-	      (when (not (index key bibtex-keys))
+	      (when (not (org-ref-index key bibtex-keys))
 		(setq
 		 bad-citations
 		 (append
@@ -2501,7 +2501,7 @@ Makes a new buffer with clickable links."
 	(let ((plist (nth 1 link)))
 	  (when (-contains? org-ref-cite-types (plist-get plist :type))
 	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)) )
-	      (when (not (index key bibtex-keys))
+	      (when (not (org-ref-index key bibtex-keys))
 		(goto-char (plist-get plist :begin))
 		(re-search-forward key)
 		(push (cons key (point-marker)) bad-citations)))
@@ -2851,7 +2851,7 @@ Shows bad citations, ref links and labels"
    (when (-contains? org-ref-cite-types type)
         (setq key (org-ref-get-bibtex-key-under-cursor))
 	(setq keys (org-ref-split-and-strip-string link-string))
-        (setq i (index key keys))  ;; defined in org-ref
+        (setq i (org-ref-index key keys))  ;; defined in org-ref
 	(if (> direction 0) ;; shift right
 	    (org-ref-swap-keys i (+ i 1) keys)
 	  (org-ref-swap-keys i (- i 1) keys))
