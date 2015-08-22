@@ -570,6 +570,17 @@ prompt. Otherwise, you have to type or pste in a DOI."
 	(save-buffer)))))
 
 
+(defun doi-utils-doi-to-org-bibtex (doi)
+  "Convert a DOI to an org-bibtex form and insert it at point."
+  (interactive "sDOI: ")
+  (with-temp-buffer
+    (insert (doi-utils-doi-to-bibtex-string doi))
+    (bibtex-clean-entry)
+    (kill-region (point-min) (point-max)))
+  (org-bibtex-yank)
+  (org-metaright)
+  (org-metaright))
+
 ;; * Updating bibtex entries
 ;; I wrote this code because it is pretty common for me to copy bibtex entries from ASAP articles that are incomplete, e.g. no page numbers because it is not in print yet. I wanted a convenient way to update an entry from its DOI. Basically, we get the metadata, and update the fields in the entry.
 
