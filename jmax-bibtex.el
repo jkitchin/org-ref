@@ -308,6 +308,7 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("ú" . "{\\\\'u}")
 	("š" . "{\\\\v{s}}")
 	("ř"  . "{\\\\v{r}}")
+	("š" . "{\\\\v{s}}")
 	("İ" . "{\\\\.I}")
 	("ğ" . "{\\\\u{g}}")
 	("δ" . "$\\\\delta$")
