@@ -25,6 +25,23 @@ You should set these variables. Here is an example of how mine are set in an ini
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
 
+The following helm-bibtex configuration is useful
+#+BEGIN_SRC emacs-lisp
+;; *** helm-bibtex
+
+(setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
+(setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
+
+;; open pdf with system pdf viewer (works on mac)
+(setq helm-bibtex-pdf-open-function
+  (lambda (fpath)
+    (start-process "open" "*open*" "open" fpath)))
+
+;; alternative
+;; (setq helm-bibtex-pdf-open-function 'org-open-file)
+
+(setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
+#+END_SRC
 You may want to set some convenient keys for working in your bibtex file:
 
 #+BEGIN_SRC emacs-lisp
