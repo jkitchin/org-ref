@@ -1612,10 +1612,10 @@ Contributed by https://github.com/autosquid."
               (throw 'done nil))))))))
 
 
-(defun org-ref-open-notes-at-point ()
+(defun org-ref-open-notes-at-point (&optional thekey)
   "Open the notes for bibtex key under point."
   (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
+  (let* ((results (org-ref-get-bibtex-key-and-file thekey))
 	 (key (car results))
 	 (bibfile (cdr results)))
     (save-excursion
