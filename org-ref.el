@@ -1551,7 +1551,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 
 (defun org-ref-get-pdf-filename (key)
   "Return the pdf filename associated with a bibtex KEY."
-  (format (concat org-ref-pdf-directory "%s.pdf") key))
+  (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))
 
 
 (defun org-ref-get-mendeley-filename (key)
@@ -1571,7 +1571,7 @@ Contributed by https://github.com/autosquid."
 	     (lambda (ch)
 	       (find ch "{}\\"))
 	     (format "/%s" (subseq e 1 (- (length e) 4))))
-	  (format (concat org-ref-pdf-directory "%s.pdf") key))))))
+	  (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))))))
 
 
 (defun org-ref-open-pdf-at-point ()
@@ -2217,7 +2217,7 @@ the entry of interest in the bibfile.  but does not check that."
     (let* ((bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (format (concat org-ref-pdf-directory "%s.pdf") key)))
+           (pdf (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key)))
       (message "%s" pdf)
       (if (file-exists-p pdf)
           (org-open-link-from-string (format "[[file:%s]]" pdf))
@@ -2274,7 +2274,7 @@ construct the heading by hand."
  :END:
 "
                        (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-                               key org-ref-pdf-directory key))))
+                               key (file-name-as-directory org-ref-pdf-directory) key))))
       (save-buffer))))
 
 (defun org-ref-open-notes-from-reftex ()
@@ -3490,7 +3490,7 @@ This is a list of cons cells '((\"description\" . action)). The action function 
  '("Open pdf in emacs" . (lambda ()
 			   (find-file
 			    (concat
-			     org-ref-pdf-directory
+			     (file-name-as-directory org-ref-pdf-directory)
 			     (car (org-ref-get-bibtex-key-and-file))
 			     ".pdf"))))
  t)
