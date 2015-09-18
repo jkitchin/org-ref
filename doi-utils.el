@@ -348,7 +348,7 @@ at the end."
       ;; get the key and build pdf filename.
       (re-search-forward bibtex-entry-maybe-empty-head)
       (setq key (match-string bibtex-key-in-head))
-      (setq pdf-file (concat org-ref-pdf-directory key ".pdf"))
+      (setq pdf-file (concat (file-name-as-directory org-ref-pdf-directory) key ".pdf"))
 
       ;; now get file if needed.
       (when (and doi (not (file-exists-p pdf-file)))
