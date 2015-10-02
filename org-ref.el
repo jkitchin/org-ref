@@ -3293,10 +3293,18 @@ C-u C-u will change the key at point to the selected keys."
 With one prefix arg, insert a ref link.
 With two prefix args, insert a label link."
   (interactive "P")
+  ;; save all bibtex buffers so we get the most up-to-date selection. I find
+  ;; that I often edit a bibliography and forget to save it, so the newest entry
+  ;; does not show in helm-bibtex.
+  (loop for buffer in (buffer-list)
+	do
+	(set-buffer buffer)
+	(when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
+	  (save-buffer)))
   (cond
    ((equal arg nil)
-     (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
-       (helm-bibtex)))
+    (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
+      (helm-bibtex)))
    ((equal arg '(4))
     (org-ref-helm-insert-ref-link))
    ((equal arg '(16))
