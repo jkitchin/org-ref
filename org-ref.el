@@ -3298,9 +3298,9 @@ With two prefix args, insert a label link."
   ;; does not show in helm-bibtex.
   (loop for buffer in (buffer-list)
 	do
-	(set-buffer buffer)
-	(when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
-	  (save-buffer)))
+	(with-current-buffer buffer
+	  (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
+	    (save-buffer))))
   (cond
    ((equal arg nil)
     (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
