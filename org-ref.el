@@ -591,8 +591,8 @@ Format according to the type in `org-ref-bibliography-entry-format'."
   "Create an html bibliography when there are keys."
   (let ((keys (org-ref-get-bibtex-keys)))
     (when keys
-      (concat "<h1>Bibliography</h1>
-<ul>"
+      (concat "<h1 class='org-ref-bib-h1'>Bibliography</h1>
+<ul class='org-ref-bib'>"
 	      (mapconcat (lambda (x) (org-ref-get-bibtex-entry-html x)) keys "\n")
 	      "\n</ul>"))))
 
@@ -1906,7 +1906,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
       ((eq format 'html)
        (mapconcat
 	(lambda (key)
-	  (format "<a href=\"#%s\">%s</a>" key key))
+	  (format "<a class='org-ref-reference' href=\"#%s\">%s</a>" key key))
 	(org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'latex)

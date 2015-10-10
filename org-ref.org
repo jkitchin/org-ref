@@ -191,8 +191,7 @@ All org-ref links are designed to export to the corresponding LaTeX commands for
 
 ** Other exports
 index:export!html index:export!ascii
-There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links.
-
+There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~. 
 * Other libraries in org-ref
 These are mostly functions for adding entries to bibtex files, modifying entries or for operating on bibtex files. Some new org-mode links are defined.
 
