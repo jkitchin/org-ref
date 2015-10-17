@@ -117,5 +117,46 @@
 
     (org-open-file pdf)))
 
+(defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile)
+    "Add bibtex entry for ARXIV-NUMBER to BIBFILE, remove troublesome chars from the bibtex key, retrieve a pdf for ARXIV-NUMBER and save it with the same name of the key."
+  (interactive
+   (list (read-string "arxiv: ")
+         ;;  now get the bibfile to add it to
+         (ido-completing-read
+          "Bibfile: "
+          (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+                  org-ref-default-bibliography))))
+
+  (arxiv-add-bibtex-entry arxiv-number bibfile)
+
+  (save-window-excursion
+    (let ((key ""))
+      (find-file bibfile)
+      (goto-char (point-max))
+      (bibtex-beginning-of-entry)
+      (re-search-forward bibtex-entry-maybe-empty-head)
+      (if (match-beginning bibtex-key-in-head)
+          (progn
+            (setq key (delete-and-extract-region
+                       (match-beginning bibtex-key-in-head)
+                       (match-end bibtex-key-in-head)))
+            ;; remove potentially troublesome characters from key
+            ;; as it will be used as  a filename
+            (setq key (replace-regexp-in-string   "\"\\|\\*\\|/\\|:\\|<\\|>\\|\\?\\|\\\\\\||\\|\\+\\|,\\|\\.\\|;\\|=\\|\\[\\|]\\|:\\|!\\|@"
+                                                  "" key))
+            ;; check if the key is in the buffer
+            (when (save-excursion
+                    (bibtex-search-entry key))
+              (message "DUPLICATE!!!")
+              (save-excursion
+                (bibtex-search-entry key)
+                (bibtex-copy-entry-as-kill)
+                (switch-to-buffer-other-window "*duplicate entry*")
+                (bibtex-yank))
+              (setq key (bibtex-read-key "Duplicate Key found, edit: " key))))
+        (setq key (bibtex-read-key "Key not found, insert: ")))
+      (insert key)
+      (arxiv-get-pdf arxiv-number (concat key ".pdf")))))
+
 (provide 'arxiv)
 ;;; arxiv.el ends here
