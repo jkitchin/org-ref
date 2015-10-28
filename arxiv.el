@@ -100,8 +100,9 @@
 		     (url-retrieve-synchronously
 		      (concat
 		       "http://arxiv.org/abs/" arxiv-number))
-		   ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
-		   (search-forward-regexp
+         ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
+       (beginning-of-buffer)
+       (search-forward-regexp
 		    "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
 		   (match-string 1))))
     (url-copy-file pdf-url pdf)
