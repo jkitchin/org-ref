@@ -100,8 +100,9 @@
 		     (url-retrieve-synchronously
 		      (concat
 		       "http://arxiv.org/abs/" arxiv-number))
-		   ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
-		   (search-forward-regexp
+         ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
+       (beginning-of-buffer)
+       (search-forward-regexp
 		    "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
 		   (match-string 1))))
     (url-copy-file pdf-url pdf)
@@ -117,15 +118,18 @@
 
     (org-open-file pdf)))
 
-(defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile)
-    "Add bibtex entry for ARXIV-NUMBER to BIBFILE, remove troublesome chars from the bibtex key, retrieve a pdf for ARXIV-NUMBER and save it with the same name of the key."
+(defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile pdfdir)
+    "Add bibtex entry for ARXIV-NUMBER to BIBFILE, remove troublesome chars from the bibtex key, retrieve a pdf for ARXIV-NUMBER and save it to PDFDIR with the same name of the key."
   (interactive
    (list (read-string "arxiv: ")
          ;;  now get the bibfile to add it to
          (ido-completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                  org-ref-default-bibliography))))
+                  org-ref-default-bibliography))
+         (ido-read-directory-name
+          "PDF directory: "
+          org-ref-pdf-directory)))
 
   (arxiv-add-bibtex-entry arxiv-number bibfile)
 
@@ -147,7 +151,6 @@
             ;; check if the key is in the buffer
             (when (save-excursion
                     (bibtex-search-entry key))
-              (message "DUPLICATE!!!")
               (save-excursion
                 (bibtex-search-entry key)
                 (bibtex-copy-entry-as-kill)
@@ -156,7 +159,7 @@
               (setq key (bibtex-read-key "Duplicate Key found, edit: " key))))
         (setq key (bibtex-read-key "Key not found, insert: ")))
       (insert key)
-      (arxiv-get-pdf arxiv-number (concat key ".pdf")))))
+      (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf")))))
 
 (provide 'arxiv)
 ;;; arxiv.el ends here
