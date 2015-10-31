@@ -1255,6 +1255,7 @@ Use C-u C-u to insert a [[#custom-id]] link"
 
     (helm :input (thing-at-point 'word)
 	  :sources `(((name . "Available labels to ref")
+		      (multiline)
 		      (candidates . ,(cl-loop for label in labels
 					      for context in contexts
 					      ;; we do some kludgy adding spaces
@@ -1311,9 +1312,7 @@ Use C-u C-u to insert a [[#custom-id]] link"
 				   ;; two prefixes, insert section custom-id link
 				   ((equal helm-current-prefix-arg '(16))
 				    (insert
-				     (format "[[#%s]]" label)))
-				   ))
-			      ))))))
+				     (format "[[#%s]]" label)))))))))))
 
 ;; *** pageref link
 (org-add-link-type
