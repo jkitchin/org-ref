@@ -2634,7 +2634,7 @@ Shows bad citations, ref links and labels"
 				     ("Insert ref link" . org-ref-helm-insert-ref-link)
 				     ("List of figures" . org-ref-list-of-figures)
 				     ("List of tables" . org-ref-list-of-tables)
-				     ("Table of contents" . nil)
+				     ("Table of contents" . helm-org-in-buffer-headings)
 				     ))
 		      (action . (lambda (x)
 				  (switch-to-buffer ,cb)
