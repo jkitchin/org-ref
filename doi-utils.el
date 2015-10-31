@@ -684,7 +684,8 @@ Data is retrieved from the doi in the entry."
      ((string= field "number")
       (bibtex-set-field field (plist-get results :issue)))
      ((string= field "pages")
-      (bibtex-set-field field (plist-get results :page)))
+      (bibtex-set-field field (or (plist-get results :page)
+				  (plist-get results :article-number))))
      ((string= field "year")
       (bibtex-set-field field (plist-get results :year)))
      (t
@@ -985,8 +986,10 @@ error."
 		     (candidates . ,helm-candidates)
 		     ;; just return the candidate
 		     (action . (("Insert bibtex entry" . (lambda (doi)
-							   (doi-utils-add-bibtex-entry-from-doi
-							    (replace-regexp-in-string "^http://dx.doi.org/" "" doi) ,bibtex-file)))
+							   (loop for doi in (helm-marked-candidates)
+								 do
+								 (doi-utils-add-bibtex-entry-from-doi
+								  (replace-regexp-in-string "^http://dx.doi.org/" "" doi) ,bibtex-file))))
 				("Open url" . (lambda (doi)
 						(browse-url doi))))))))
       (helm :sources '(source)))))
