@@ -3651,7 +3651,9 @@ Checks for pdf and doi, and add appropriate functions."
 
 (defvar org-ref-helm-user-candidates '()
   "List of user-defined candidates to act when clicking on a cite link.
-This is a list of cons cells '((\"description\" . action)). The action function should not take an argument, and should assume point is on the cite key of interest.")
+This is a list of cons cells '((\"description\" . action)). The
+action function should not take an argument, and should assume
+point is on the cite key of interest.")
 
 ;; example of adding your own function
 (add-to-list
