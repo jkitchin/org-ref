@@ -2613,7 +2613,7 @@ Shows bad citations, ref links and labels"
 		    (org-ref-find-bibliography))
 	   (lambda () nil)))
 
-    ;; Check bibliography style
+    ;; Check bibliography style exists
     (save-excursion
       (goto-char 0)
       (unless (re-search-forward "bibliographystyle:\\|\\biblographystyle{" nil t)
@@ -2628,6 +2628,19 @@ at the end of you file.
 ")
 			     (org-mode)))
 		     t)))
+
+    ;; Check if latex knows of the bibliographystyle. We only check links here.
+    (save-excursion
+      (goto-char 0)
+      (when (re-search-forward "bibliographystyle:" nil t)
+	;; on a link. get style
+	(let ((path (org-element-property :path (org-element-context))))
+	  (unless (= 0 (shell-command (format "kpsewhich %s.bst" path)))
+	    (add-to-list 'bib-candidates
+			 (cons (format "bibliographystyle \"%s\" may be unknown" path)
+			       (lambda ()
+				 (goto-char 0)
+				 (re-search-forward "bibliographystyle:"))))))))
 
     ;; check for multiple bibliography links
     (let* ((bib-links (-filter
