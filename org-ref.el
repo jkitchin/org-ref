@@ -3548,17 +3548,13 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Delete citation at point" . (lambda ()
-				  (let ((key (org-ref-get-bibtex-key-under-cursor)))
-				    ;; add new citation
-				    (save-excursion
-				      (org-ref-helm-insert-cite-link nil))
-				    (let*  ((object (org-element-context))
+				      (let*  ((object (org-element-context))
 					    (type (org-element-property :type object))
 					    (begin (org-element-property :begin object))
 					    (end (org-element-property :end object)))
 				      (cl--set-buffer-substring
 				       begin end
-				       "")))))
+				       ""))))
      t)
 
     (add-to-list
