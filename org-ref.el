@@ -3487,8 +3487,38 @@ Checks for pdf and doi, and add appropriate functions."
 	      ("Citing articles in WOS" . org-ref-wos-citing-at-point)
 	      ("Google Scholar" . org-ref-google-scholar-at-point)
 	      ("Pubmed" . org-ref-pubmed-at-point)
-	      ("Crossref" . org-ref-crossref-at-point)
-	      )))
+	      ("Crossref" . org-ref-crossref-at-point))))
+
+    (add-to-list
+     'candidates
+     '("Insert new citation" . (lambda ()
+				 (org-ref-helm-insert-cite-link nil)))
+     t)
+
+    (add-to-list
+     'candidates
+     '("Delete key at point" . (lambda ()
+				 (let ((key (org-ref-get-bibtex-key-under-cursor)))
+				   (re-search-backward ":")
+				   (re-search-forward (concat key ",?"))
+				   (setf (buffer-substring
+					  (match-beginning 0)
+					  (match-end 0))
+					 ""))))
+     t)
+
+    (add-to-list
+     'candidates
+     '("Replace key at point" . (lambda ()
+				  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+				    (re-search-backward ":")
+				    (re-search-forward (concat key ",?"))
+				    (setf (buffer-substring
+					   (match-beginning 0)
+					   (match-end 0))
+					  "")
+				    (org-ref-helm-insert-cite-link nil))))
+     t)
 
     (add-to-list
      'candidates
