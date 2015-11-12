@@ -3278,40 +3278,14 @@ Argument CANDIDATES helm candidates."
 		 ", " (bibtex-autokey-get-field "keywords")))
 	       (save-buffer)))))
 
-;; (setq helm-source-bibtex
-;;       '((name                                      . "BibTeX entries")
-;;	(init                                      . helm-bibtex-init)
-;;	(candidates                                . helm-bibtex-candidates)
-;;	(filtered-candidate-transformer            . helm-bibtex-candidates-formatter)
-;;	(action . (("Insert citation"              . helm-bibtex-insert-citation)
-;;		   ("Show entry"                   . helm-bibtex-show-entry)
-;;		   ("Open PDF file (if present)"   . helm-bibtex-open-pdf)
-;;		   ("Open URL or DOI in browser"   . helm-bibtex-open-url-or-doi)
-;;		   ("Insert formatted reference"   . helm-bibtex-insert-reference)
-;;		   ("Insert BibTeX key"            . helm-bibtex-insert-key)
-;;		   ("Insert BibTeX entry"          . helm-bibtex-insert-bibtex)
-;;		   ("Attach PDF to email"          . helm-bibtex-add-PDF-attachment)
-;;		   ("Edit notes"                   . helm-bibtex-edit-notes)
-;;                    ("Add keywords to entries"      . org-ref-helm-tag-entries)
-;;		   ))))
 
 ;; Make insert citation the default entry
 (helm-delete-action-from-source "Insert citation" helm-source-bibtex)
-
-;; There seems to be a bug in the helm source that prevents you from inserting
-;; at position zero
-
-;; (helm-add-action-to-source
-;;  "Insert citation"
-;;  'helm-bibtex-insert-citation
-;;  helm-source-bibtex
-;;  0)
-
-;; this is basically what the function above is supposed to do.
-(helm-attrset 'action
-	      (-insert-at 0 '("Insert citation" .  helm-bibtex-insert-citation)
-			  (helm-attr 'action helm-source-bibtex))
-	      helm-source-bibtex)
+(helm-add-action-to-source
+ "Insert citation"
+ 'helm-bibtex-insert-citation
+ helm-source-bibtex
+ 0)
 
 ;; Add a new action
 (helm-add-action-to-source
