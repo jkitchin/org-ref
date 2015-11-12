@@ -2616,18 +2616,18 @@ Shows bad citations, ref links and labels"
     ;; Check bibliography style
     (save-excursion
       (goto-char 0)
-      (unless (re-search-forward "bibliographystyle:\\|\\biblographystyle{" nil t))
-      (add-to-list 'bib-candidates
-		   (cons "No bibliographystyle found."
-			 (lambda ()
-			   (switch-to-buffer "*org-ref*")
-			   (erase-buffer)
-			   (insert "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
+      (unless (re-search-forward "bibliographystyle:\\|\\biblographystyle{" nil t)
+	(add-to-list 'bib-candidates
+		     (cons "No bibliographystyle found."
+			   (lambda ()
+			     (switch-to-buffer "*org-ref*")
+			     (erase-buffer)
+			     (insert "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
 bibliographystyle:unsrt
 at the end of you file.
 ")
-			   (org-mode)))
-		   t))
+			     (org-mode)))
+		     t)))
 
     ;; check for multiple bibliography links
     (let* ((bib-links (-filter
@@ -2667,7 +2667,7 @@ at the end of you file.
 		 'bib-candidates
 		 (cons (format "One or more spaces found in path to %s" bibfile)
 		       (lambda ()
-			 (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -")))
+			 (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -. Underscores usually cause other problems if you don't know what you are doing.")))
 		 t)))
 	    bibfiles))
 
