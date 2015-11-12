@@ -355,7 +355,8 @@ You will see a message in the minibuffer when on a cite, ref or label link."
 
 
 (defface org-ref-cite-face
-  `((t (:inherit org-link :foreground ,org-ref-cite-color)))
+  `((t (:inherit org-link
+		 :foreground ,org-ref-cite-color)))
   "Color for cite-like links in org-ref.")
 
 
@@ -2601,31 +2602,118 @@ Shows bad citations, ref links and labels"
 	(bad-citations (org-ref-bad-cite-candidates))
 	(bad-refs (org-ref-bad-ref-candidates))
 	(bad-labels (org-ref-bad-label-candidates))
-	(bad-files (org-ref-bad-file-link-candidates)))
+	(bad-files (org-ref-bad-file-link-candidates))
+	(bib-candidates '()))
+
+    ;; setup bib-candidates. This checks a variety of things in the bibliography, bibtex files.
+    ;; Check bibliography style
+    (save-excursion
+      (goto-char 0)
+      (unless (re-search-forward "bibliographystyle:\\|\\biblographystyle{" nil t))
+      (add-to-list 'bib-candidates
+		   (cons "No bibliographystyle found."
+			 (lambda ()
+			   (switch-to-buffer "*org-ref*")
+			   (erase-buffer)
+			   (insert "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
+bibliographystyle:unsrt
+at the end of you file.
+")
+			   (org-mode)))
+		   t))
+
+    ;; check for which bibliographies are used
+    (add-to-list
+     'bib-candidates
+     (cons (format  "Using these bibtex files: %s"
+		    (org-ref-find-bibliography))
+	   (lambda () nil)))
+
+    ;; check for multiple bibliography links
+    (let* ((bib-links (-filter
+		       (lambda (el)
+			 (string= (org-element-property :type el) "bibliography"))
+		       (org-element-map (org-element-parse-buffer) 'link 'identity)))
+	   (n-bib-links (length bib-links)))
+
+      (when (> n-bib-links 1)
+	(mapc (lambda (link)
+		(setq
+		 bib-candidates
+		 (append
+		  bib-candidates
+		  (list (cons (format  "Multiple bibliography link: %s" (org-element-property :raw-link link))
+			      `(lambda ()
+				(goto-char ,(org-element-property :begin link))))))))
+	      bib-links)))
+
+    ;; Check for bibliography files existence.
+    (mapc (lambda (bibfile)
+	    (unless (file-exists-p bibfile)
+	      (add-to-list 'bib-candidates
+			   (cons
+			    (format "%s does not exist." bibfile)
+			    (lambda ()
+			      (message "Non-existent bibfile."))))))
+	  (org-ref-find-bibliography))
+
+    ;; check for spaces in bibliography
+    (let ((bibfiles (mapcar 'expand-file-name
+			    (org-ref-find-bibliography))))
+      (mapc (lambda (bibfile)
+	      (when (string-match " " bibfile)
+		(add-to-list
+		 'bib-candidates
+		 (cons (format "One or more spaces found in path to %s" bibfile)
+		       (lambda ()
+			 (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -"))))))
+	    bibfiles))
+
+    ;; validate bibtex files
+    (let ((bibfiles (mapcar 'expand-file-name
+			    (org-ref-find-bibliography))))
+      (mapc
+       (lambda (bibfile)
+	 (unless (with-current-buffer
+		     (find-file-noselect bibfile)
+		   (bibtex-validate))
+	   (add-to-list 'bib-candidates
+			(cons
+			 (format  "Invalid bibtex file found. %S" bibfile)
+			 `(lambda ()
+			    (find-file ,bibfile)))
+			t)))
+       bibfiles))
+
 
     (helm :sources `(((name . "Bad citations")
-		       (candidates . ,bad-citations)
-		       (action . (lambda (marker)
-				   (switch-to-buffer (marker-buffer marker))
-				   (goto-char marker))))
+		      (candidates . ,bad-citations)
+		      (action . (lambda (marker)
+				  (switch-to-buffer (marker-buffer marker))
+				  (goto-char marker))))
 		     ;;
 		     ((name . "Bad Labels")
 		      (candidates . ,bad-labels)
 		      (action . (lambda (marker)
-				   (switch-to-buffer (marker-buffer marker))
-				   (goto-char marker))))
+				  (switch-to-buffer (marker-buffer marker))
+				  (goto-char marker))))
 		     ;;
 		     ((name . "Bad ref links")
 		      (candidates . ,bad-refs)
 		      (action . (lambda (marker)
-					  (switch-to-buffer (marker-buffer marker))
-					  (goto-char marker))))
+				  (switch-to-buffer (marker-buffer marker))
+				  (goto-char marker))))
 		     ;;
 		     ((name . "Bad file links")
 		      (candidates . ,bad-files)
 		      (lambda (marker)
-				   (switch-to-buffer (marker-buffer marker))
-				   (goto-char marker)))
+			(switch-to-buffer (marker-buffer marker))
+			(goto-char marker)))
+		     ((name . "Bibliography")
+		      (candidates . ,bib-candidates)
+		      (action . (lambda (x)
+				  (switch-to-buffer ,cb)
+				  (funcall x))))
 		     ;;
 		     ((name . "Utilities")
 		      (candidates . (("Check buffer again" . org-ref)
@@ -2762,6 +2850,14 @@ Shows bad citations, ref links and labels"
     ;; generate a key, and if it duplicates an existing key, edit it.
     (unless keep-key
       (let ((key (bibtex-generate-autokey)))
+	;; ;; sometimes there are latex sequences in the key. We remove them. A
+	;; ;; better approach might be to have some lookup table, but this would
+	;; ;; somewhat duplicate `jmax-nonascii-latex-replacements', in an ascii
+	;; ;; version.
+	;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
+	;;       do
+	;;       (setq key (replace-regexp-in-string
+	;;		 (regexp-quote c) key)))
 
 	;; first we delete the existing key
 	(bibtex-beginning-of-entry)
@@ -2794,8 +2890,7 @@ Shows bad citations, ref links and labels"
     ;; sort fields within entry
     (org-ref-sort-bibtex-entry)
     ;; check for non-ascii characters
-    (occur "[^[:ascii:]]")
-    ))
+    (occur "[^[:ascii:]]")))
 
 (defun org-ref-get-citation-year (key)
   "Get the year of an entry with KEY.  Return year as a string."
