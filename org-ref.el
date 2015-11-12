@@ -2630,6 +2630,7 @@ at the end of you file.
 		     t)))
 
     ;; Check if latex knows of the bibliographystyle. We only check links here.
+    ;;  I also assume this style exists as a bst file that kpsewhich can find.
     (save-excursion
       (goto-char 0)
       (when (re-search-forward "bibliographystyle:" nil t)
