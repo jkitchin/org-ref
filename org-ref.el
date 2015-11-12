@@ -3507,17 +3507,48 @@ Checks for pdf and doi, and add appropriate functions."
 					 ""))))
      t)
 
+    ;;  This is kind of clunky. We store the key at point. Add the new ref. Get
+    ;;  it off the end, and put it in the original position.
     (add-to-list
      'candidates
      '("Replace key at point" . (lambda ()
 				  (let ((key (org-ref-get-bibtex-key-under-cursor)))
-				    (re-search-backward ":")
-				    (re-search-forward (concat key ",?"))
-				    (setf (buffer-substring
-					   (match-beginning 0)
-					   (match-end 0))
-					  "")
-				    (org-ref-helm-insert-cite-link nil))))
+				    ;; add new citation
+				    (save-excursion
+				      (org-ref-helm-insert-cite-link nil))
+				    (let*  ((object (org-element-context))
+					    (type (org-element-property :type object))
+					    (begin (org-element-property :begin object))
+					    (end (org-element-property :end object))
+					    (link-string (org-element-property :path object))
+					    key keys i last-key)
+
+				      (setq
+				       key (org-ref-get-bibtex-key-under-cursor)
+				       keys (org-ref-split-and-strip-string link-string)
+				       i (org-ref-index key keys)
+				       last-key (car (reverse keys)))
+
+				      (message-box "i = %s\nkey=%s\nkeys=%s" i key keys)
+				      (setq keys (-remove-at i keys))
+				      (setq keys (-insert-at i last-key (butlast keys)))
+
+				      (cl--set-buffer-substring
+				       begin end
+				       (concat
+					type ":" (mapconcat 'identity keys ",")
+					;; It seems the space at the end can get consumed, so we see if there
+					;; is a space, and add it if so. Sometimes there is a comma or period,
+					;; then we do not want a space.
+					(when
+					    (save-excursion
+					      (goto-char end)
+					      (looking-back " ")) " ")))))))
+     t)
+
+    (add-to-list
+     'candidates
+     '("Sort keys by year" . org-ref-sort-citation-link)
      t)
 
     (add-to-list
