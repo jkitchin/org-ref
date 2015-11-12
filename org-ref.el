@@ -2606,6 +2606,13 @@ Shows bad citations, ref links and labels"
 	(bib-candidates '()))
 
     ;; setup bib-candidates. This checks a variety of things in the bibliography, bibtex files.
+    ;; check for which bibliographies are used
+    (add-to-list
+     'bib-candidates
+     (cons (format  "Using these bibtex files: %s"
+		    (org-ref-find-bibliography))
+	   (lambda () nil)))
+
     ;; Check bibliography style
     (save-excursion
       (goto-char 0)
@@ -2622,13 +2629,6 @@ at the end of you file.
 			   (org-mode)))
 		   t))
 
-    ;; check for which bibliographies are used
-    (add-to-list
-     'bib-candidates
-     (cons (format  "Using these bibtex files: %s"
-		    (org-ref-find-bibliography))
-	   (lambda () nil)))
-
     ;; check for multiple bibliography links
     (let* ((bib-links (-filter
 		       (lambda (el)
@@ -2644,7 +2644,7 @@ at the end of you file.
 		  bib-candidates
 		  (list (cons (format  "Multiple bibliography link: %s" (org-element-property :raw-link link))
 			      `(lambda ()
-				(goto-char ,(org-element-property :begin link))))))))
+				 (goto-char ,(org-element-property :begin link))))))))
 	      bib-links)))
 
     ;; Check for bibliography files existence.
@@ -2654,7 +2654,8 @@ at the end of you file.
 			   (cons
 			    (format "%s does not exist." bibfile)
 			    (lambda ()
-			      (message "Non-existent bibfile."))))))
+			      (message "Non-existent bibfile.")))
+			   t)))
 	  (org-ref-find-bibliography))
 
     ;; check for spaces in bibliography
@@ -2666,7 +2667,8 @@ at the end of you file.
 		 'bib-candidates
 		 (cons (format "One or more spaces found in path to %s" bibfile)
 		       (lambda ()
-			 (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -"))))))
+			 (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -")))
+		 t)))
 	    bibfiles))
 
     ;; validate bibtex files
