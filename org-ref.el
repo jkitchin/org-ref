@@ -3529,7 +3529,6 @@ Checks for pdf and doi, and add appropriate functions."
 				       i (org-ref-index key keys)
 				       last-key (car (reverse keys)))
 
-				      (message-box "i = %s\nkey=%s\nkeys=%s" i key keys)
 				      (setq keys (-remove-at i keys))
 				      (setq keys (-insert-at i last-key (butlast keys)))
 
@@ -3544,6 +3543,22 @@ Checks for pdf and doi, and add appropriate functions."
 					    (save-excursion
 					      (goto-char end)
 					      (looking-back " ")) " ")))))))
+     t)
+
+    (add-to-list
+     'candidates
+     '("Delete citation at point" . (lambda ()
+				  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+				    ;; add new citation
+				    (save-excursion
+				      (org-ref-helm-insert-cite-link nil))
+				    (let*  ((object (org-element-context))
+					    (type (org-element-property :type object))
+					    (begin (org-element-property :begin object))
+					    (end (org-element-property :end object)))
+				      (cl--set-buffer-substring
+				       begin end
+				       "")))))
      t)
 
     (add-to-list
