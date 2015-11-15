@@ -1910,7 +1910,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
 	(org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'latex)
-       (if (string= (substring type -1) "s")
+       (if (string= (substring ,type -1) "s")
 	   ;; biblatex format for multicite commands, which all end in s. These are formated as \cites{key1}{key2}...
 	   (concat "\\" ,type (mapconcat (lambda (key) (format "{%s}"  key))
 					 (org-ref-split-and-strip-string keyword) ""))
