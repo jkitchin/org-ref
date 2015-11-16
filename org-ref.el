@@ -1531,8 +1531,9 @@ falling back to what the user has set in `org-ref-default-bibliography'"
       ;; is to close it and reopen it. or to save it and revert it.
       (when (get-file-buffer filename)
 	(set-buffer (get-file-buffer filename))
-	(save-buffer)
-	(revert-buffer t t))
+	(when (buffer-modified-p (current-buffer))
+	  (save-buffer)
+	  (revert-buffer t t)))
       (bibtex-search-entry key t))))
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
