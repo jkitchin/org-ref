@@ -300,7 +300,6 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("å" . "{\\\\aa}")
 	("ö" . "{\\\\\"o}")
 	("Á" . "{\\\\'A}")
-	("á" . "{\\\\'a}")
 	("í" . "{\\\\'i}")
 	("ó" . "{\\\\'o}")
 	("ó" . "{\\\\'o}")
