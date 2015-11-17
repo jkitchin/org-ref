@@ -3764,5 +3764,10 @@ _o_: Open entry   _e_: Email entry and pdf
 
 ;; * The end
 (provide 'org-ref)
+;; Local Variables:
+;; outline-regexp: ";; \\*+\\|\\`"
+;; orgstruct-heading-prefix-regexp: ";; \\*+\\|\\`"
+;; eval: (when after-init-time (orgstruct-mode) (org-global-cycle 3))
+;; End:
 
 ;;; org-ref.el ends here
