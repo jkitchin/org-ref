@@ -36,9 +36,17 @@
 
 ;;; Code:
 ;; * Getting pdf files from a DOI
-;; The idea here is simple. When you visit http://dx.doi.org/doi, you get redirected to the journal site. Once you have the url for the article, you can usually compute the url to the pdf, or find it in the page. Then you simply download it.
 
-;; There are some subtleties in doing this that are described here. To get the redirect, we have to use url-retrieve, and a callback function. The callback does not return anything, so we communicate through global variables. url-retrieve is asynchronous, so we have to make sure to wait for it to finish.
+;; The idea here is simple. When you visit http://dx.doi.org/doi, you get
+;; redirected to the journal site. Once you have the url for the article, you
+;; can usually compute the url to the pdf, or find it in the page. Then you
+;; simply download it.
+
+;; There are some subtleties in doing this that are described here. To get the
+;; redirect, we have to use url-retrieve, and a callback function. The callback
+;; does not return anything, so we communicate through global variables.
+;; url-retrieve is asynchronous, so we have to make sure to wait for it to
+;; finish.
 
 (defvar *doi-utils-waiting* t
   "Stores waiting state for url retrieval.")
@@ -76,10 +84,15 @@ Optional argument STATUS Unknown why this is optional."
   ; just gave the first one enough time to finish.
   (while *doi-utils-waiting* (sleep-for 0.1)))
 
-;; Once we have a redirect for a particular doi, we need to compute the url to the pdf. We do this with a series of functions. Each function takes a single argument, the redirect url. If it knows how to compute the pdf url it does, and returns it. We store the functions in a variable:
+;; Once we have a redirect for a particular doi, we need to compute the url to
+;; the pdf. We do this with a series of functions. Each function takes a single
+;; argument, the redirect url. If it knows how to compute the pdf url it does,
+;; and returns it. We store the functions in a variable:
 
 (defvar doi-utils-pdf-url-functions nil
-  "List of functions that return a url to a pdf from a redirect url.  Each function takes one argument, the redirect url.  The function must return a pdf-url, or nil.")
+  "List of functions that return a url to a pdf from a redirect
+  url. Each function takes one argument, the redirect url. The
+  function must return a pdf-url, or nil.")
 
 
 ;; ** APS journals
@@ -112,7 +125,9 @@ Optional argument STATUS Unknown why this is optional."
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/abstract
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/pdf
 
-;; It appears that it is not enough to use the pdf url above. That takes you to an html page. The actual link to teh pdf is embedded in that page. This is how ScienceDirect does things too.
+;; It appears that it is not enough to use the pdf url above. That takes you to
+;; an html page. The actual link to teh pdf is embedded in that page. This is
+;; how ScienceDirect does things too.
 
 ;; This is where the link is hidden:
 
@@ -373,7 +388,11 @@ at the end."
 
 ;; * Getting bibtex entries from a DOI
 
-;; I [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]] you can download metadata about a DOI from http://dx.doi.org. You just have to construct the right http request to get it. Here is a function that gets the metadata as a plist in emacs.
+;; I
+;; [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
+;; you can download metadata about a DOI from http://dx.doi.org. You just have
+;; to construct the right http request to get it. Here is a function that gets
+;; the metadata as a plist in emacs.
 
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
@@ -391,7 +410,9 @@ at the end."
 	    (error "Resource not found.  Opening website"))
 	(json-read-from-string json-data)))))
 
-;; We can use that data to construct a bibtex entry. We do that by defining a template, and filling it in. I wrote this template expansion code which makes it easy to substitute values like %{} in emacs lisp.
+;; We can use that data to construct a bibtex entry. We do that by defining a
+;; template, and filling it in. I wrote this template expansion code which makes
+;; it easy to substitute values like %{} in emacs lisp.
 
 
 (defun doi-utils-expand-template (s)
@@ -404,7 +425,8 @@ at the end."
 
 ;; Now we define a function that fills in that template from the metadata.
 
-;; As different bibtex types share common keys, it is advantageous to separate data extraction from json, and the formatting of the bibtex entry.
+;; As different bibtex types share common keys, it is advantageous to separate
+;; data extraction from json, and the formatting of the bibtex entry.
 
 
 (setq doi-utils-json-metadata-extract
@@ -426,7 +448,9 @@ at the end."
         (url        (plist-get results :URL))
         (booktitle  (plist-get results :container-title))))
 
-;; Next, we need to define the different bibtex types. Each type has a bibtex type (for output) and the type as provided in the doi record. Finally, we have to declare the fields we want to output.
+;; Next, we need to define the different bibtex types. Each type has a bibtex
+;; type (for output) and the type as provided in the doi record. Finally, we
+;; have to declare the fields we want to output.
 
 (setq doi-utils-bibtex-type-generators nil)
 
@@ -499,7 +523,10 @@ MATCHING-TYPES - a list of strings."
     (or (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
         (message "%s not supported yet\n%S." type results))))
 
-;; That is just the string for the entry. To be useful, we need a function that inserts the string into a buffer. This function will insert the string at the cursor, clean the entry, try to get the pdf, and create a notes entry for you.
+;; That is just the string for the entry. To be useful, we need a function that
+;; inserts the string into a buffer. This function will insert the string at the
+;; cursor, clean the entry, try to get the pdf, and create a notes entry for
+;; you.
 
 
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
@@ -519,7 +546,9 @@ Also cleans entry using org-ref, and tries to download the corresponding pdf."
      (org-ref-open-bibtex-notes)))
 
 
-;; It may be you are in some other place when you want to add a bibtex entry. This next function will open the first entry in org-ref-default-bibliography go to the end, and add the entry. You can sort it later.
+;; It may be you are in some other place when you want to add a bibtex entry.
+;; This next function will open the first entry in org-ref-default-bibliography
+;; go to the end, and add the entry. You can sort it later.
 
 
 (defun doi-utils-add-bibtex-entry-from-doi (doi bibfile)
@@ -582,7 +611,11 @@ prompt. Otherwise, you have to type or pste in a DOI."
   (org-metaright))
 
 ;; * Updating bibtex entries
-;; I wrote this code because it is pretty common for me to copy bibtex entries from ASAP articles that are incomplete, e.g. no page numbers because it is not in print yet. I wanted a convenient way to update an entry from its DOI. Basically, we get the metadata, and update the fields in the entry.
+
+;; I wrote this code because it is pretty common for me to copy bibtex entries
+;; from ASAP articles that are incomplete, e.g. no page numbers because it is
+;; not in print yet. I wanted a convenient way to update an entry from its DOI.
+;; Basically, we get the metadata, and update the fields in the entry.
 
 ;; There is not bibtex set field function, so I wrote this one.
 
@@ -613,7 +646,8 @@ Optional argument NODELIM see `bibtex-make-field'."
       (insert value))))
 
 
-;; The updating function for a whole entry looks like this. We get all the keys from the json plist metadata, and update the fields if they exist.
+;; The updating function for a whole entry looks like this. We get all the keys
+;; from the json plist metadata, and update the fields if they exist.
 
 
 (defun plist-get-keys (plist)
@@ -622,9 +656,12 @@ Optional argument NODELIM see `bibtex-make-field'."
    for key in results by #'cddr collect key))
 
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
-  "Update fields in a bibtex entry from the DOI.  Every field will be updated, so previous change will be lost."
+  "Update fields in a bibtex entry from the DOI. Every field will
+be updated, so previous change will be lost."
   (interactive (list
-		(or (replace-regexp-in-string "http://dx.doi.org/" "" (bibtex-autokey-get-field "doi"))
+		(or (replace-regexp-in-string
+		     "http://dx.doi.org/" ""
+		     (bibtex-autokey-get-field "doi"))
 		    (read-string "DOI: "))))
   (let* ((results (doi-utils-get-json-metadata doi))
 	 (type (plist-get results :type))
@@ -645,7 +682,8 @@ Optional argument NODELIM see `bibtex-make-field'."
 	(url (or (plist-get results :URL) ""))
 	(doi (plist-get results :DOI)))
 
-    ;; map the json fields to bibtex fields. The code each field is mapped to is evaluated.
+    ;; map the json fields to bibtex fields. The code each field is mapped to is
+    ;; evaluated.
     (setq mapping '((:author . (bibtex-set-field "author" author))
 		    (:title . (bibtex-set-field "title" title))
 		    (:container-title . (bibtex-set-field "journal" journal))
@@ -668,7 +706,8 @@ Optional argument NODELIM see `bibtex-make-field'."
     (org-ref-clean-bibtex-entry)))
 
 
-;; A downside to updating an entry is it overwrites what you have already fixed. So, we next develop a function to update the field at point.
+;; A downside to updating an entry is it overwrites what you have already fixed.
+;; So, we next develop a function to update the field at point.
 
 
 (defun doi-utils-update-field ()
@@ -694,14 +733,21 @@ Data is retrieved from the doi in the entry."
 
 
 ;; * DOI functions for WOS
-;; I came across this API http://wokinfo.com/media/pdf/OpenURL-guide.pdf to make links to the things I am interested in here. Based on that document, here are three links based on a doi:10.1021/jp047349j that take you to different Web Of Science (WOS) pages.
+
+;; I came across this API http://wokinfo.com/media/pdf/OpenURL-guide.pdf to make
+;; links to the things I am interested in here. Based on that document, here are
+;; three links based on a doi:10.1021/jp047349j that take you to different Web
+;; Of Science (WOS) pages.
 
 
 ;; 1. go to article in WOS: http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/10.1021/jp047349j
 ;; 2. citing articles: http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F10.1021/jp047349j&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes
 ;; 3. related articles: http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F10.1021/jp047349j&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes
 
-;; These are pretty easy to construct, so we can write functions that will create them and open the url in our browser. There are some other options that could be considered, but since we usually have a doi, it seems like the best way to go for creating the links. Here are the functions.
+;; These are pretty easy to construct, so we can write functions that will
+;; create them and open the url in our browser. There are some other options
+;; that could be considered, but since we usually have a doi, it seems like the
+;; best way to go for creating the links. Here are the functions.
 
 (defun doi-utils-wos (doi)
   "Open Web of Science entry for DOI."
@@ -838,7 +884,10 @@ Argument LINK-STRING Passed in on link click."
 
 
 ;; * Getting a doi for a bibtex entry missing one
-;; Some bibtex entries do not have a DOI, maybe because they were entered by hand, or copied from a source that did not have it available. Here we develop some functions to help you find the DOI using Crossref.
+
+;; Some bibtex entries do not have a DOI, maybe because they were entered by
+;; hand, or copied from a source that did not have it available. Here we develop
+;; some functions to help you find the DOI using Crossref.
 
 ;; Here is our example bibtex entry.
 ;; #+BEGIN_SRC bibtex
@@ -860,10 +909,12 @@ Argument LINK-STRING Passed in on link click."
 ;; }
 
 
-;; The idea is to query Crossref in a way that is likely to give us a hit relevant to the entry.
+;; The idea is to query Crossref in a way that is likely to give us a hit
+;; relevant to the entry.
 
-;; According to http://search.crossref.org/help/api we can send a query with a free form citation that may give us something back. We do this to get a list of candidates, and run a helm command to get the doi.
-
+;; According to http://search.crossref.org/help/api we can send a query with a
+;; free form citation that may give us something back. We do this to get a list
+;; of candidates, and run a helm command to get the doi.
 
 
 (defun doi-utils-crossref-citation-query ()
@@ -918,7 +969,10 @@ error."
 
 
 ;; * Debugging a DOI
-;; I wrote this function to help debug a DOI. This function generates an org-buffer with the doi, gets the json metadata, shows the bibtex entry, and the pdf link for it.
+
+;; I wrote this function to help debug a DOI. This function generates an
+;; org-buffer with the doi, gets the json metadata, shows the bibtex entry, and
+;; the pdf link for it.
 
 (defun doi-utils-debug (doi)
   "Generate an org-buffer showing data about DOI."
@@ -938,7 +992,11 @@ error."
 " (doi-utils-get-pdf-url doi)))
 
 ;; * Adding a bibtex entry from a crossref query
-;; The idea here is to perform a query on Crossref, get a helm buffer of candidates, and select the entry(ies) you want to add to your bibtex file. You can select a region, e.g. a free form citation, or set of words, or you can type the query in by hand.
+
+;; The idea here is to perform a query on Crossref, get a helm buffer of
+;; candidates, and select the entry(ies) you want to add to your bibtex file.
+;; You can select a region, e.g. a free form citation, or set of words, or you
+;; can type the query in by hand.
 
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
   "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
