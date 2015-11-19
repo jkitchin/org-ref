@@ -1043,11 +1043,15 @@ error."
 	   (source `((name . ,name)
 		     (candidates . ,helm-candidates)
 		     ;; just return the candidate
-		     (action . (("Insert bibtex entry" . (lambda (doi)
-							   (loop for doi in (helm-marked-candidates)
-								 do
-								 (doi-utils-add-bibtex-entry-from-doi
-								  (replace-regexp-in-string "^http://dx.doi.org/" "" doi) ,bibtex-file))))
+		     (action . ((cons
+				 "Insert bibtex entry"
+				 (lambda (doi)
+				   (loop for doi in (helm-marked-candidates)
+					 do
+					 (doi-utils-add-bibtex-entry-from-doi
+					  (replace-regexp-in-string
+					   "^http://dx.doi.org/" "" doi)
+					  ,bibtex-file))))
 				("Open url" . (lambda (doi)
 						(browse-url doi))))))))
       (helm :sources '(source)))))
