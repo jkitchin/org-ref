@@ -2249,19 +2249,21 @@ construct the heading by hand."
       (kill-ring-save (point-min) (point-max)))
 
     ;; now look for entry in the notes file
-    (if  org-ref-bibliography-notes
-	(find-file-other-window org-ref-bibliography-notes)
-      (error "Org-ref-bib-bibliography-notes is not set to anything"))
+    (save-restriction
+      (if  org-ref-bibliography-notes
+	  (find-file-other-window org-ref-bibliography-notes)
+	(error "Org-ref-bib-bibliography-notes is not set to anything"))
 
-    (goto-char (point-min))
-    ;; put new entry in notes if we don't find it.
-    (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
-	(funcall org-ref-open-notes-function)
-      ;; no entry found, so add one
-      (insert (org-ref-reftex-format-citation entry (concat "\n" org-ref-note-title-format)))
-      (insert (org-ref-reftex-format-citation
-               entry
-               (concat "
+      (widen)
+      (goto-char (point-min))
+      ;; put new entry in notes if we don't find it.
+      (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
+	  (funcall org-ref-open-notes-function)
+	;; no entry found, so add one
+	(insert (org-ref-reftex-format-citation entry (concat "\n" org-ref-note-title-format)))
+	(insert (org-ref-reftex-format-citation
+		 entry
+		 (concat "
  :PROPERTIES:
   :Custom_ID: %k
   :AUTHOR: %9a
@@ -2273,10 +2275,10 @@ construct the heading by hand."
   :URL: %U
  :END:
 "
-                       (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-                               key (file-name-as-directory org-ref-pdf-directory) key))))
-      (save-buffer))))
-
+			 (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
+				 key (file-name-as-directory org-ref-pdf-directory) key))))
+	(save-buffer)))))
+  
 (defun org-ref-open-notes-from-reftex ()
   "Call reftex, and open notes for selected entry."
   (interactive)
