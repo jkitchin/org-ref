@@ -61,7 +61,7 @@
 }"
 	"Template for BibTeX entries of arXiv articles.")
 
-(defun arxiv-get-bibtex-entry (arxiv-number)
+(defun arxiv-get-bibtex-entry-via-arxiv-api (arxiv-number)
   "Given an arxiv-number, this function retrieves the meta data
 from arXiv and returns a freshly baked BibTeX entry."
   (with-current-buffer
@@ -93,6 +93,39 @@ authors in 'SURNAME, FIRST NAME' format."
           (--map (concat (-last-item it) ", " (s-join " " (-remove-last 'stringp it)))
                  (--map (s-split " +" it) authors))))
 
+;; Other method for making BibTeX, using a remote service:
+;; For an arxiv article, there is a link to a NASA ADS page like this:
+;; http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1503.01742
+;; On that page, there is a link to a bibtex entry:
+;; http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2015arXiv150301742H&data_type=BIBTEX&db_key=PRE&nocookieset=1
+;;
+;; It looks like you need to get a Bibliographic code from the arxiv number to
+;; then get the bibtex entry.
+
+(defun arxiv-get-bibliographic-code (arxiv-number)
+  "Get Bibliographic code for ARXIV-NUMBER."
+  (with-current-buffer
+      (url-retrieve-synchronously
+       (concat
+	"http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:"
+	arxiv-number))
+    (search-forward-regexp "name=\\\"bibcode\\\" value=\\\"\\(.*\\)\\\"")
+    (match-string 1)))
+
+(defun arxiv-get-bibtex-entry (arxiv-bibliographic-code)
+  "Get bibtex entry for ARXIV-BIBLIOGRAPHIC-CODE"
+  (with-current-buffer
+      (url-retrieve-synchronously
+       (format
+	"http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=%s&data_type=BIBTEX&db_key=PRE&nocookieset=1"
+	arxiv-bibliographic-code))
+    (goto-char  url-http-end-of-headers)
+    (if (search-forward  "Retrieved 1 abstracts" (point-max) t)
+	(progn
+	  (forward-line)
+	  (buffer-substring (point) (point-max)))
+      (error "Did not get one entry: %s" (buffer-substring (point) (point-max))))))
+
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
  (interactive
@@ -106,7 +139,7 @@ authors in 'SURNAME, FIRST NAME' format."
    (find-file bibfile)
    (goto-char (point-max))
    (when (not (looking-at "^")) (insert "\n"))
-   (insert (arxiv-get-bibtex-entry arxiv-number))
+   (insert (arxiv-get-bibtex-entry-via-arxiv-api arxiv-number))
    (save-buffer)))
 
 
