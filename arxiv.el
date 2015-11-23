@@ -62,43 +62,36 @@
 	"Template for BibTeX entries of arXiv articles.")
 
 (defun arxiv-get-bibtex-entry (arxiv-number)
-	"Given an arxiv-number, this function retrieves the meta data
+  "Given an arxiv-number, this function retrieves the meta data
 from arXiv and returns a freshly baked BibTeX entry."
   (with-current-buffer
-			(url-retrieve-synchronously (format "http://export.arxiv.org/api/query?id_list=%s" arxiv-number) t)
+      (url-retrieve-synchronously (format "http://export.arxiv.org/api/query?id_list=%s" arxiv-number) t)
     (let* ((parse-tree (libxml-parse-xml-region
-                       (progn (goto-char 0)
-                              (search-forward "<?xml ")
-                              (match-beginning 0))
-                       (point-max)))
+                        (progn (goto-char 0)
+                               (search-forward "<?xml ")
+                               (match-beginning 0))
+                        (point-max)))
            (entry (assq 'entry parse-tree))
-					 (authors (--map (nth 2 (nth 2 it))
+           (authors (--map (nth 2 (nth 2 it))
                            (--filter (and (listp it) (eq (car it) 'author)) entry)))
            (year (format-time-string "%Y" (date-to-time (nth 2 (assq 'published entry)))))
-					 (key (arxiv-make-bibtex-key authors year))
            (title (nth 2 (assq 'title entry)))
            (names (arxiv-bibtexify-authors authors))
            (category (cdar (nth 1 (assq 'primary_category entry))))
            (abstract (s-trim (nth 2 (assq 'summary entry))))
-           (url (nth 2 (assq 'id entry))))
+           (url (nth 2 (assq 'id entry)))
+           (temp-bibtex (format arxiv-entry-format-string "" title names year arxiv-number category abstract url))
+           (key (with-temp-buffer
+                  (insert temp-bibtex)
+                  (bibtex-generate-autokey))))
       (format arxiv-entry-format-string key title names year arxiv-number category abstract url))))
 
-(defun arxiv-make-bibtex-key (authors year)
-	"Given a list of authors and a year, this function return a
-BibTeX key.  If the there are two authors, the format of the key
-is Name1Name2Year; if there are more authors, the format is
-Name1EtAlYear."
-	(let ((surnames (--map (-last-item (s-split " +" it)) authors)))
-		(if (< (length surnames) 3)
-				(concat (s-join "" surnames) year)
-			(concat (car surnames) "EtAl" year))))
-
 (defun arxiv-bibtexify-authors (authors)
-	"Takes a list of author names and returns a string with the
+  "Takes a list of author names and returns a string with the
 authors in 'SURNAME, FIRST NAME' format."
-	(s-join " and "
-					(--map (concat (-last-item it) ", " (s-join " " (-remove-last 'stringp it)))
-								 (--map (s-split " +" it) authors))))
+  (s-join " and "
+          (--map (concat (-last-item it) ", " (s-join " " (-remove-last 'stringp it)))
+                 (--map (s-split " +" it) authors))))
 
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
