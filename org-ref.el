@@ -1560,19 +1560,18 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 Falls back to org-ref-get-pdf-filename if file filed does not exist.
 Contributed by https://github.com/autosquid."
   (let* ((results (org-ref-get-bibtex-key-and-file key))
-	 (bibfile (cdr results)))
+         (bibfile (cdr results)))
     (with-temp-buffer
       (insert-file-contents bibfile)
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
       (setq entry (bibtex-parse-entry))
       (let ((e (org-ref-reftex-get-bib-field "file" entry)))
-	(if (> (length e) 4)
-	    (remove-if
-	     (lambda (ch)
-	       (find ch "{}\\"))
-	     (format "/%s" (subseq e 1 (- (length e) 4))))
-	  (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))))))
+        (if (> (length e) 4)
+            (let ((clean-field (remove-if (lambda (ch) (find ch "{}\\")) e) ))
+              (let ((first-file (car (split-string clean-field ";" t))))
+                (format "/%s" (subseq first-file 1 (- (length first-file) 4)))))
+          (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))))))
 
 
 (defun org-ref-open-pdf-at-point ()
