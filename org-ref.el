@@ -1639,7 +1639,8 @@ Contributed by https://github.com/autosquid."
 
 
 (defun org-ref-open-notes-at-point (&optional thekey)
-  "Open the notes for bibtex key under point."
+  "Open the notes for bibtex key under point in a cite link in a buffer.
+Can also be called with THEKEY in a program."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file thekey))
 	 (key (car results))
