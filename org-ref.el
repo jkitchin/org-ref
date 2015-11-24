@@ -91,7 +91,8 @@ You should use full-paths for each file."
 
 (defcustom org-ref-note-title-format
   "** TODO %y - %t"
-  "String to format the title of a note. See the `org-ref-reftex-format-citation' docstring for the escape codes."
+  "String to format the title of a note. See the
+`org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
 
@@ -104,7 +105,10 @@ You should use full-paths for each file."
     ;;(org-tree-to-indirect-buffer)
     (outline-previous-visible-heading 1)
     (recenter-top-bottom 0))
-  "User-defined way to open a notes entry.  This is executed after the entry is found, with the cursor at the beginning of the headline.  The default setting fully expands the notes, and moves the headline to the top of the buffer."
+  "User-defined way to open a notes entry. This is executed after
+the entry is found, with the cursor at the beginning of the
+headline. The default setting fully expands the notes, and moves
+the headline to the top of the buffer."
 :type 'function
 :group 'org-ref)
 
@@ -130,20 +134,28 @@ to the corresponding filename. The default is
 
 (defcustom org-ref-insert-cite-function
   'org-ref-helm-insert-cite-link
-  "Function to call to insert citation links.  The default is `org-ref-helm-insert-cite-link' which uses `helm-bibtex'.  `org-ref' modifies `helm-bibtex' a little bit to give `org-mode' citations, and to reorder default actions.  You may use `org-ref-insert-cite-link' if you like the reftex interface."
+  "Function to call to insert citation links. The default is
+`org-ref-helm-insert-cite-link' which uses `helm-bibtex'.
+`org-ref' modifies `helm-bibtex' a little bit to give `org-mode'
+citations, and to reorder default actions. You may use
+`org-ref-insert-cite-link' if you like the reftex interface."
  :type 'function
  :group 'org-ref)
 
 
 (defcustom org-ref-cite-onclick-function
   'org-ref-cite-click-helm
-  "Function that runs when you click on a cite link.  The function must take no arguments.  You may also use `org-ref-cite-onclick-minibuffer-menu' if you do not like helm.  If you like `hydra', consider using `org-ref-cite-hydra'."
+  "Function that runs when you click on a cite link. The function
+must take no arguments. You may also use
+`org-ref-cite-onclick-minibuffer-menu' if you do not like helm.
+If you like `hydra', consider using `org-ref-cite-hydra'."
  :type 'function
  :group 'org-ref)
 
 
 (defcustom org-ref-show-citation-on-enter t
-  "If non-nil add a hook function to show the citation summary in the minibuffer."
+  "If non-nil add a hook function to show the citation summary in
+the minibuffer."
  :group 'org-ref)
 
 (defcustom org-ref-cite-types
