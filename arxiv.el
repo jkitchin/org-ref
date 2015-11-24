@@ -25,6 +25,9 @@
 ;; An Arxiv number might look like: cond-mat/0410285 or 1503.01742
 
 ;;; Code:
+
+(require 's)
+
 ;; * The org-mode link
 ;; this just makes a clickable link that opens the entry.
 (org-add-link-type
@@ -42,7 +45,7 @@
 
 ;; arxiv:cond-mat/0410285
 
-;; * Getting a bibtex entry for an arxiv article
+;; * Getting a bibtex entry for an arXiv article using remote service:
 ;; For an arxiv article, there is a link to a NASA ADS page like this:
 ;; http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1503.01742
 ;; On that page, there is a link to a bibtex entry:
@@ -75,6 +78,54 @@
 	  (buffer-substring (point) (point-max)))
       (error "Did not get one entry: %s" (buffer-substring (point) (point-max))))))
 
+;; * Getting a bibtex entry for an arXiv article using arXiv API:
+;; Retrieves the meta data of an article view arXiv's http API,
+;; extracts the necessary information, and formats a new BibTeX entry.
+
+(defvar arxiv-entry-format-string "@article{%s,
+  title = {%s},
+  author = {%s},
+  archivePrefix = {arXiv},
+  year = {%s},
+  eprint = {%s},
+  primaryClass = {%s},
+  abstract = {%s},
+  url = {%s},
+}"
+	"Template for BibTeX entries of arXiv articles.")
+
+(defun arxiv-get-bibtex-entry-via-arxiv-api (arxiv-number)
+  "Given an arxiv-number, this function retrieves the meta data
+from arXiv and returns a freshly baked BibTeX entry."
+  (with-current-buffer
+      (url-retrieve-synchronously (format "http://export.arxiv.org/api/query?id_list=%s" arxiv-number) t)
+    (let* ((parse-tree (libxml-parse-xml-region
+                        (progn (goto-char 0)
+                               (search-forward "<?xml ")
+                               (match-beginning 0))
+                        (point-max)))
+           (entry (assq 'entry parse-tree))
+           (authors (--map (nth 2 (nth 2 it))
+                           (--filter (and (listp it) (eq (car it) 'author)) entry)))
+           (year (format-time-string "%Y" (date-to-time (nth 2 (assq 'published entry)))))
+           (title (nth 2 (assq 'title entry)))
+           (names (arxiv-bibtexify-authors authors))
+           (category (cdar (nth 1 (assq 'primary_category entry))))
+           (abstract (s-trim (nth 2 (assq 'summary entry))))
+           (url (nth 2 (assq 'id entry)))
+           (temp-bibtex (format arxiv-entry-format-string "" title names year arxiv-number category abstract url))
+           (key (with-temp-buffer
+                  (insert temp-bibtex)
+                  (bibtex-generate-autokey))))
+      (format arxiv-entry-format-string key title names year arxiv-number category abstract url))))
+
+(defun arxiv-bibtexify-authors (authors)
+  "Takes a list of author names and returns a string with the
+authors in 'SURNAME, FIRST NAME' format."
+  (s-join " and "
+          (--map (concat (-last-item it) ", " (s-join " " (-remove-last 'stringp it)))
+                 (--map (s-split " +" it) authors))))
+
 
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
@@ -89,7 +140,7 @@
    (find-file bibfile)
    (goto-char (point-max))
    (when (not (looking-at "^")) (insert "\n"))
-   (insert (arxiv-get-bibtex-entry (arxiv-get-bibliographic-code arxiv-number)))
+   (insert (arxiv-get-bibtex-entry-via-arxiv-api arxiv-number))
    (save-buffer)))
 
 
