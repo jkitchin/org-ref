@@ -90,8 +90,19 @@ You should use full-paths for each file."
   :group 'org-ref)
 
 (defcustom org-ref-note-title-format
-  "** TODO %y - %t"
-  "String to format the title of a note. See the
+  "** TODO %y - %t
+ :PROPERTIES:
+  :Custom_ID: %k
+  :AUTHOR: %9a
+  :JOURNAL: %j
+  :YEAR: %y
+  :VOLUME: %v
+  :PAGES: %p
+  :DOI: %D
+  :URL: %U
+ :END:
+"
+  "String to format the title and properties drawer of a note. See the
 `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
@@ -1583,7 +1594,10 @@ Contributed by https://github.com/autosquid."
             (let ((clean-field (remove-if (lambda (ch) (find ch "{}\\")) e) ))
               (let ((first-file (car (split-string clean-field ";" t))))
                 (format "/%s" (subseq first-file 1 (- (length first-file) 4)))))
-          (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))))))
+          (format (concat
+		   (file-name-as-directory org-ref-pdf-directory)
+		   "%s.pdf")
+		  key))))))
 
 
 (defun org-ref-open-pdf-at-point ()
@@ -2272,23 +2286,11 @@ construct the heading by hand."
       (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
 	  (funcall org-ref-open-notes-function)
 	;; no entry found, so add one
-	(insert (org-ref-reftex-format-citation entry (concat "\n" org-ref-note-title-format)))
 	(insert (org-ref-reftex-format-citation
-		 entry
-		 (concat "
- :PROPERTIES:
-  :Custom_ID: %k
-  :AUTHOR: %9a
-  :JOURNAL: %j
-  :YEAR: %y
-  :VOLUME: %v
-  :PAGES: %p
-  :DOI: %D
-  :URL: %U
- :END:
-"
-			 (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-				 key (file-name-as-directory org-ref-pdf-directory) key))))
+		 entry (concat "\n" org-ref-note-title-format)))
+	(insert (format
+		 "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
+		 key (file-name-as-directory org-ref-pdf-directory) key))
 	(save-buffer)))))
 
 (defun org-ref-open-notes-from-reftex ()
