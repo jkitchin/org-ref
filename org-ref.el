@@ -107,6 +107,31 @@ You should use full-paths for each file."
   :type 'string
   :group 'org-ref)
 
+(defcustom org-ref-notes-function
+  (lambda ()
+    (let* ((results (org-ref-get-bibtex-key-and-file thekey))
+	   (key (car results))
+	   (bibfile (cdr results)))
+
+      (save-excursion
+	(with-temp-buffer
+	  (insert-file-contents bibfile)
+	  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	  (bibtex-search-entry key)
+	  (org-ref-open-bibtex-notes)))))
+  "Function to open the notes for the bibtex key at point.
+
+The default behavior adds entries to a long file with headlines for each entry. It also tries to be compatible with org-bibtex.
+
+An alternative is
+ (lambda ()
+  (helm-bibtex-edit-notes (car (org-ref-get-bibtex-key-and-file thekey))))
+
+Use that if you like the one file one note approach of helm-bibtex."
+  :type 'function
+  :group 'org-ref)
+
+
 (defcustom org-ref-open-notes-function
   (lambda ()
     (org-show-entry)
@@ -1642,15 +1667,7 @@ Contributed by https://github.com/autosquid."
   "Open the notes for bibtex key under point in a cite link in a buffer.
 Can also be called with THEKEY in a program."
   (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file thekey))
-	 (key (car results))
-	 (bibfile (cdr results)))
-    (save-excursion
-      (with-temp-buffer
-        (insert-file-contents bibfile)
-        (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-        (bibtex-search-entry key)
-        (org-ref-open-bibtex-notes)))))
+  (funcall org-ref-notes-function))
 
 
 (defun org-ref-citation-at-point ()
