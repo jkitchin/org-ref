@@ -1699,8 +1699,10 @@ Can also be called with THEKEY in a program."
 
 (defvar org-ref-cite-menu-funcs '()
  "Functions to run on cite click menu.
-Each entry is a list of (key menu-name function).
-The function must take no arguments and work on the key at point.  Do not modify this variable, it is set to empty in the menu click function, and functions are conditionally added to it.")
+Each entry is a list of (key menu-name function). The function
+must take no arguments and work on the key at point. Do not
+modify this variable, it is set to empty in the menu click
+function, and functions are conditionally added to it.")
 
 
 (defvar org-ref-user-cite-menu-funcs
