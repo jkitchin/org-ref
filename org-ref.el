@@ -104,7 +104,7 @@ You should use full-paths for each file."
     ;;(org-tree-to-indirect-buffer)
     (outline-previous-visible-heading 1)
     (recenter-top-bottom 0))
-  "User-defined way to open a notes entry.  This is excecuted after the entry is found, with the cursor at the beginning of the headline.  The default setting fully expands the notes, and moves the headline to the top of the buffer."
+  "User-defined way to open a notes entry.  This is executed after the entry is found, with the cursor at the beginning of the headline.  The default setting fully expands the notes, and moves the headline to the top of the buffer."
 :type 'function
 :group 'org-ref)
 
@@ -2278,7 +2278,7 @@ construct the heading by hand."
 			 (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
 				 key (file-name-as-directory org-ref-pdf-directory) key))))
 	(save-buffer)))))
-  
+
 (defun org-ref-open-notes-from-reftex ()
   "Call reftex, and open notes for selected entry."
   (interactive)
