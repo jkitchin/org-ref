@@ -3172,23 +3172,26 @@ at the end of you file.
 (defun helm-bibtex-candidates-formatter (candidates source)
   "Formats BibTeX entries for display in results list.
 Argument CANDIDATES helm candidates.
-Argument SOURCE the helm source."
+Argument SOURCE the helm source.
+
+Adapted from the function in helm-bibtex to include additional
+fields, the keywords I think."
   (cl-loop
    with width = (with-helm-window (helm-bibtex-window-width))
    for entry in candidates
    for entry = (cdr entry)
    for entry-key = (helm-bibtex-get-value "=key=" entry)
    if (assoc-string "author" entry 'case-fold)
-     for fields = '("author" "title" "year" "=has-pdf=" "=has-note=" "=type=")
+   for fields = '("author" "title" "year" "=has-pdf=" "=has-note=" "=type=")
    else
-     for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
+   for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
    for fields = (--map (helm-bibtex-clean-string
                         (helm-bibtex-get-value it entry " "))
                        fields)
    for fields = (-update-at 0 'helm-bibtex-shorten-authors fields)
    for fields = (append fields
-			 (list  (or (helm-bibtex-get-value "keywords" entry)
-				    "" )))
+			(list  (or (helm-bibtex-get-value "keywords" entry)
+				   "" )))
    collect
    (cons (s-format "$0 $1 $2 $3 $4$5 $6" 'elt
                    (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
