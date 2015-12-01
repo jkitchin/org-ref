@@ -34,7 +34,8 @@
 ;;
 
 ;;; Code:
-
+(require 'cl)
+(require 'reftex)
 (require 'reftex-cite)
 (require 'dash)
 (require 'helm)
@@ -47,11 +48,13 @@
 (defgroup org-ref nil
   "Customization group for org-ref.")
 
+
 (defcustom org-ref-bibliography-notes
   nil
   "Filename where you will put all your notes about an entry in the default bibliography."
   :type 'file
   :group 'org-ref)
+
 
 (defcustom org-ref-default-bibliography
   nil
@@ -60,11 +63,13 @@ You should use full-paths for each file."
   :type '(repeat :tag "List of bibtex files" file)
   :group 'org-ref)
 
+
 (defcustom org-ref-pdf-directory
   nil
   "Directory where pdfs are stored by key.  put a trailing / in."
   :type 'directory
   :group 'org-ref)
+
 
 (defcustom org-ref-default-citation-link
   "cite"
@@ -72,11 +77,13 @@ You should use full-paths for each file."
   :type 'string
   :group 'org-ref)
 
+
 (defcustom org-ref-insert-cite-key
   "C-c ]"
   "Keyboard shortcut to insert a citation."
   :type 'string
   :group 'org-ref)
+
 
 (defcustom org-ref-bibliography-entry-format
   '(("article" . "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>.")
@@ -88,6 +95,7 @@ You should use full-paths for each file."
   "String to format an entry.  Just the reference, no numbering at the beginning, etc... see the `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
+
 
 (defcustom org-ref-note-title-format
   "** TODO %y - %t
@@ -106,6 +114,7 @@ You should use full-paths for each file."
 `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
+
 
 (defcustom org-ref-notes-function
   (lambda ()
@@ -194,6 +203,7 @@ If you like `hydra', consider using `org-ref-cite-hydra'."
 the minibuffer."
  :group 'org-ref)
 
+
 (defcustom org-ref-cite-types
   '("cite" "nocite" ;; the default latex cite commands
     ;; natbib cite commands, http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf
@@ -233,24 +243,27 @@ the minibuffer."
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
 
+
 (defcustom org-ref-clean-bibtex-entry-hook nil
-  "Hook that is run in `org-ref-clean-bibtex-entry'.  The functions should take no arguments, and operate on the bibtex entry at point."
+  "Hook that is run in `org-ref-clean-bibtex-entry'.
+The functions should take no arguments, and operate on the bibtex
+entry at point."
   :group 'org-ref
   :type 'hook)
+
 
 (defvar org-ref-bibliography-files
   nil
   "Variable to hold bibliography files to be searched.")
 
 ;; * org-mode / reftex setup
-(require 'reftex)
 (defun org-mode-reftex-setup ()
   "Setup `org-mode' and reftex for org-ref."
-    (and (buffer-file-name)
-         (file-exists-p (buffer-file-name))
-	 (global-auto-revert-mode t))
-    (make-local-variable 'reftex-cite-format)
-    (setq reftex-cite-format 'org))
+  (and (buffer-file-name)
+       (file-exists-p (buffer-file-name))
+       (global-auto-revert-mode t))
+  (make-local-variable 'reftex-cite-format)
+  (setq reftex-cite-format 'org))
 
 ;; define key for inserting citations
 (define-key org-mode-map
@@ -306,6 +319,7 @@ label link."
 
 (defvar org-ref-last-mouse-pos nil
  "Stores last mouse position for use in `org-ref-mouse-message'.")
+
 
 (defun org-ref-can-move-p ()
   "See if a character is under the mouse. If so return the
@@ -1028,6 +1042,7 @@ ARG does nothing."
     (use-local-map (copy-keymap org-mode-map))
     (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
+
 (org-add-link-type
  "list-of-tables"
  'org-ref-list-of-tables
@@ -1040,13 +1055,19 @@ ARG does nothing."
 ;; ** label link
 (defun org-ref-count-labels (label)
   "Counts number of matches for LABEL in the document."
-  (+ (count-matches (format "label:%s\\b[^-:]" label) (point-min) (point-max))
+  (+ (count-matches
+      (format "label:%s\\b[^-:]" label)
+      (point-min) (point-max))
      ;; for tblname, it is not enough to get word boundary
      ;; tab-little and tab-little-2 match then.
-     (count-matches (format "^#\\+tblname:\\s-*%s\\b[^-:]" label) (point-min) (point-max))
-     (count-matches (format "\\label{%s}" label) (point-min) (point-max))
+     (count-matches
+      (format "^#\\+tblname:\\s-*%s\\b[^-:]" label)
+      (point-min) (point-max))
+     (count-matches (format "\\label{%s}" label)
+		    (point-min) (point-max))
      ;; this is the org-format #+label:
-     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label) (point-min) (point-max))
+     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label)
+		    (point-min) (point-max))
      (let ((custom-id-count 0))
        (org-map-entries
 	(lambda ()
@@ -1116,8 +1137,8 @@ A number greater than one means multiple labels!"
  (lambda (label)
    "on clicking goto the label. Navigate back with C-c &"
    (org-mark-ring-push)
-   ;; next search from beginning of the buffer
-   ;; it is possible you would not find the label if narrowing is in effect
+   ;; next search from beginning of the buffer it is possible you would not find
+   ;; the label if narrowing is in effect
    (widen)
    (unless
        (or
@@ -1621,7 +1642,6 @@ falling back to what the user has set in `org-ref-default-bibliography'"
     (cons key file)))
 
 ;; *** key at point functions
-
 (defun org-ref-get-pdf-filename (key)
   "Return the pdf filename associated with a bibtex KEY."
   (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))
@@ -1720,7 +1740,6 @@ Can also be called with THEKEY in a program."
     (bibtex-search-entry key)))
 
 ;; *** cite menu
-
 (defvar org-ref-cite-menu-funcs '()
   "Functions to run on cite click menu.
 Each entry is a list of (key menu-name function). The function
@@ -1746,7 +1765,9 @@ function, and functions are conditionally added to it.")
 
 (defun org-ref-copy-entry-at-point-to-file ()
   "Copy the bibtex entry for the citation at point to NEW-FILE.
-Prompt for NEW-FILE includes bib files in `org-ref-default-bibliography', and bib files in current working directory.  You can also specify a new file."
+Prompt for NEW-FILE includes bib files in
+`org-ref-default-bibliography', and bib files in current working
+directory. You can also specify a new file."
   (interactive)
   (let ((new-file (ido-completing-read
 		   "Copy to bibfile: "
@@ -2083,7 +2104,8 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
 	 ((save-excursion
 	    (backward-char)
 	    (and (equal (org-element-type (org-element-context)) 'link)
-		 (-contains? org-ref-cite-types (org-element-property :type (org-element-context)))))
+		 (-contains? org-ref-cite-types
+			     (org-element-property :type (org-element-context)))))
 	  (while (looking-back " ") (backward-char))
 	  (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
 
@@ -2301,7 +2323,6 @@ the entry of interest in the bibfile.  but does not check that."
         (ding)))))
 
 ;; ** Open notes from bibtex entry
-
 (defun org-ref-open-bibtex-notes ()
   "From a bibtex entry, open the notes if they exist, and create a heading if they do not.
 
@@ -2383,11 +2404,11 @@ construct the heading by hand."
     (message "No url or doi found"))))
 
 ;; ** upload entry to citeulike
-
 (defun org-ref-upload-bibtex-entry-to-citeulike ()
   "With point in  a bibtex entry get bibtex string and submit to citeulike.
 
-Relies on the python script /upload_bibtex_citeulike.py being in the user directory."
+Relies on the python script /upload_bibtex_citeulike.py being in
+the user directory."
   (interactive)
   (message "uploading to citeulike")
   (save-restriction
@@ -2395,9 +2416,13 @@ Relies on the python script /upload_bibtex_citeulike.py being in the user direct
     (let ((startpos (point-min))
           (endpos (point-max))
           (bibtex-string (buffer-string))
-          (script (concat "python " starter-kit-dir "/upload_bibtex_citeulike.py&")))
-      (with-temp-buffer (insert bibtex-string)
-                        (shell-command-on-region (point-min) (point-max) script t nil nil t)))))
+          (script (concat "python "
+			  starter-kit-dir
+			  "/upload_bibtex_citeulike.py&")))
+      (with-temp-buffer
+	(insert bibtex-string)
+	(shell-command-on-region
+	 (point-min) (point-max) script t nil nil t)))))
 
 ;; ** Build a pdf of the bibtex file
 (defun org-ref-build-full-bibliography ()
@@ -2432,7 +2457,7 @@ Relies on the python script /upload_bibtex_citeulike.py being in the user direct
 ;; ** Extract bibtex entries in org-file
 
 (defun org-ref-extract-bibtex-entries ()
-  "Extract the bibtex entries referred to by cite links in the current buffer into a src block at the bottom of the current buffer.
+  "Extract the bibtex entries in the current buffer into a src block.
 
 If no bibliography is in the buffer the variable
 `reftex-default-bibliography' is used."
@@ -2491,8 +2516,6 @@ If no bibliography is in the buffer the variable
 #+END_SRC" (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".bib") results))))))
 
 ;; ** Find bad citations
-(require 'cl)
-
 (defun org-ref-index (substring list)
   "Return the index of SUBSTRING in a LIST of strings."
   (let ((i 0)
@@ -2636,6 +2659,7 @@ Makes a new buffer with clickable links."
 	      (push (cons label (point-marker)) multiple-labels))
 	    (goto-char cp)))))
       multiple-labels))
+
 
 (defun org-ref-bad-file-link-candidates ()
   "Return list of conses (link . marker) wehre the file in the link does not exist."
@@ -2830,8 +2854,8 @@ at the end of you file.
   (interactive)
   (occur "[^[:ascii:]]"))
 
-;; ** Sort fields in a bibtex entry
 
+;; ** Sort fields in a bibtex entry
 (defun org-ref-sort-bibtex-entry ()
   "Sort fields of entry in standard order and downcase them."
   (interactive)
@@ -2869,11 +2893,14 @@ at the end of you file.
       (bibtex-find-entry key)
       (bibtex-fill-entry)
       (bibtex-clean-entry)
-       ))))
+      ))))
+
 
 ;; ** Clean a bibtex entry
 (defun org-ref-clean-bibtex-entry(&optional keep-key)
-  "clean and replace the key in a bibtex function. When keep-key is t, do not replace it. You can use a prefix to specify the key should be kept"
+  "Clean and replace the key in a bibtex function.
+When keep-key is t, do not replace it. You can use a prefix to
+specify the key should be kept"
   (interactive "P")
   (bibtex-beginning-of-entry)
   (end-of-line)
@@ -2989,30 +3016,29 @@ at the end of you file.
 
 ;; ** Sort cite in cite link
 (defun org-ref-sort-citation-link ()
- "Replace link at point with sorted link by year."
- (interactive)
- (let* ((object (org-element-context))
-        (type (org-element-property :type object))
-	(begin (org-element-property :begin object))
-	(end (org-element-property :end object))
-	(link-string (org-element-property :path object))
-	keys years data)
-  (setq keys (org-ref-split-and-strip-string link-string))
-  (setq years (mapcar 'org-ref-get-citation-year keys))
-  (setq data (mapcar* (lambda (a b) `(,a . ,b)) years keys))
-  (setq data (cl-sort data (lambda (x y) (< (string-to-number (car x)) (string-to-number (car y))))))
-  ;; now get the keys separated by commas
-  (setq keys (mapconcat (lambda (x) (cdr x)) data ","))
-  ;; and replace the link with the sorted keys
-  (cl--set-buffer-substring begin end (concat type ":" keys))))
+  "Replace link at point with sorted link by year."
+  (interactive)
+  (let* ((object (org-element-context))
+	 (type (org-element-property :type object))
+	 (begin (org-element-property :begin object))
+	 (end (org-element-property :end object))
+	 (link-string (org-element-property :path object))
+	 keys years data)
+    (setq keys (org-ref-split-and-strip-string link-string))
+    (setq years (mapcar 'org-ref-get-citation-year keys))
+    (setq data (mapcar* (lambda (a b) `(,a . ,b)) years keys))
+    (setq data (cl-sort data (lambda (x y) (< (string-to-number (car x)) (string-to-number (car y))))))
+    ;; now get the keys separated by commas
+    (setq keys (mapconcat (lambda (x) (cdr x)) data ","))
+    ;; and replace the link with the sorted keys
+    (cl--set-buffer-substring begin end (concat type ":" keys))))
 
 ;; ** Shift-arrow sorting of keys in a cite link
-
 (defun org-ref-swap-keys (i j keys)
- "Swap the KEYS in a list with index I and J."
- (let ((tempi (nth i keys)))
-   (setf (nth i keys) (nth j keys))
-   (setf (nth j keys) tempi))
+  "Swap the KEYS in a list with index I and J."
+  (let ((tempi (nth i keys)))
+    (setf (nth i keys) (nth j keys))
+    (setf (nth j keys) tempi))
   keys)
 
 
@@ -3217,7 +3243,6 @@ at the end of you file.
 (defalias 'orcb 'org-ref-clean-bibtex-entry)
 
 ;; * Helm bibtex setup
-
 (setq helm-bibtex-additional-search-fields '(keywords))
 
 (defun helm-bibtex-candidates-formatter (candidates source)
@@ -3237,17 +3262,17 @@ fields, the keywords I think."
    else
    for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
    for fields = (--map (helm-bibtex-clean-string
-                        (helm-bibtex-get-value it entry " "))
-                       fields)
+			(helm-bibtex-get-value it entry " "))
+		       fields)
    for fields = (-update-at 0 'helm-bibtex-shorten-authors fields)
    for fields = (append fields
-			(list  (or (helm-bibtex-get-value "keywords" entry)
-				   "" )))
+			(list (or (helm-bibtex-get-value "keywords" entry)
+				  "")))
    collect
    (cons (s-format "$0 $1 $2 $3 $4$5 $6" 'elt
-                   (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
-                              fields (list 36 (- width 85) 4 1 1 7 7)))
-         entry-key)))
+		   (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
+			      fields (list 36 (- width 85) 4 1 1 7 7)))
+	 entry-key)))
 
 ;; * org-ref bibtex keywords
 ;; adapted from bibtex-utils.el
@@ -3259,7 +3284,7 @@ These are in the keywords field, and are comma or semicolon separated."
     (goto-char (point-min))
     (let (keywords kstring)
       (while (re-search-forward "^\\s-*keywords.*{\\([^}]+\\)}" nil t)
-        ;; TWS - remove newlines/multiple spaces:
+	;; TWS - remove newlines/multiple spaces:
 	(setq kstring (replace-regexp-in-string "[ \t\n]+" " " (match-string 1)))
 	(mapc
 	 (lambda (v)
@@ -3420,6 +3445,7 @@ C-u C-u will change the key at point to the selected keys."
   ;; return empty string for helm
   "")
 
+
 (setq helm-bibtex-format-citation-functions
       '((org-mode . helm-bibtex-format-org-ref)))
 
@@ -3451,11 +3477,13 @@ With two prefix args, insert a label link."
 (setq helm-bibtex-fallback-options
       (-insert-at 1 '("Crossref" . "http://search.crossref.org/?q=%s") helm-bibtex-fallback-options))
 
+
 (setq helm-bibtex-fallback-options
       (-insert-at
        1
        '("Scopus" . "http://www.scopus.com/scopus/search/submit/xadvanced.url?searchfield=TITLE-ABS-KEY(%s)")
        helm-bibtex-fallback-options))
+
 
 (setq helm-bibtex-fallback-options
       (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") helm-bibtex-fallback-options))
@@ -3748,7 +3776,6 @@ KEY is returned for the selected item(s) in helm."
 				  (funcall f))))))))
 
 ;; * Hydra menus in org-ref
-
 (when (featurep 'hydra)
   (require 'hydra)
   (setq hydra-is-helpful t)
