@@ -638,6 +638,37 @@ Format according to the type in `org-ref-bibliography-entry-format'."
     (setq keys (cl-sort keys 'string-lessp :key 'downcase))
     keys))
 
+(defun org-ref-bibliography ()
+  "Create a new buffer with an alphabetically sorted bibliography.
+This is mostly for convenience to see what has been cited."
+  (interactive)
+  (let ((bib (mapconcat
+	      'identity
+	      (loop for i from 1
+		    for citation in
+		    (mapcar
+		     (lambda (key)
+		       (let* ((results (org-ref-get-bibtex-key-and-file key))
+			      (key (car results))
+			      (bibfile (cdr results)))
+			 (format "cite:%s %s" key
+				 (if bibfile
+				     (save-excursion
+				       (with-temp-buffer
+					 (insert-file-contents bibfile)
+					 (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+					 (bibtex-search-entry key)
+					 (org-ref-bib-citation)))
+				   "!!! No entry found !!!"))))
+		     (org-ref-get-bibtex-keys))
+		    collect (format "%3s. %s" i citation))
+	      "\n\n")))
+
+    (switch-to-buffer-other-window (format "%s-bibliography" (buffer-file-name)))
+    (erase-buffer)
+    (insert bib)
+    (org-mode)))
+
 
 (defun org-ref-get-bibtex-entry-html (key)
   "Return an html string for the bibliography entry corresponding to KEY."
