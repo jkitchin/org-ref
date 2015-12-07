@@ -491,8 +491,9 @@ Assumes the key-string is comma delimited."
 
 
 (defun org-ref-reftex-get-bib-field (field entry &optional format)
-  "Similar to reftex-get-bib-field, but removes enclosing braces and quotes in FIELD in the bibtex ENTRY.
-Optional argument FORMAT bibtex format."
+  "Get FIELD from a bibtex ENTRY in optional FORMAT.
+Similar to `reftex-get-bib-field', but removes enclosing braces
+and quotes in FIELD in the bibtex ENTRY."
   (let ((result))
     (setq result (reftex-get-bib-field field entry format))
     (when (and (not (string= result "")) (string= "{" (substring result 0 1)))
