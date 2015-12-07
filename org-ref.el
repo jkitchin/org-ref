@@ -428,24 +428,23 @@ position for `goto-char'."
   :group 'org-ref)
 
 
-(defvar org-ref-cite-re nil
- "Regexp for cite links.")
-
-
-(setq org-ref-cite-re
-      (concat "\\(" (mapconcat
+(defvar org-ref-cite-re
+  (concat "\\(" (mapconcat
 		     (lambda (x)
 		       (replace-regexp-in-string "\*" "\\\\*" x))
 		     org-ref-cite-types "\\|") "\\)"
-		     ":\\([a-zA-Z0-9-_:\\./]*,?\\)*"))
+		     ":\\([a-zA-Z0-9-_:\\./]*,?\\)*")
+  "Regexp for cite links."i)
 
 
 (defvar org-ref-label-re
-  "label:\\([a-zA-Z0-9-_:]*,?\\)*")
+  "label:\\([a-zA-Z0-9-_:]*,?\\)*"
+  "Regexp for label links.")
 
 
 (defvar org-ref-ref-re
-  "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*")
+  "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*"
+  "Regexp for ref links.")
 
 
 (defface org-ref-cite-face
