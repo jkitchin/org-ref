@@ -434,7 +434,7 @@ position for `goto-char'."
 		       (replace-regexp-in-string "\*" "\\\\*" x))
 		     org-ref-cite-types "\\|") "\\)"
 		     ":\\([a-zA-Z0-9-_:\\./]*,?\\)*")
-  "Regexp for cite links."i)
+  "Regexp for cite links.")
 
 
 (defvar org-ref-label-re
