@@ -180,7 +180,7 @@ to the corresponding filename. The default is
 
 
 (defcustom org-ref-helm-bibtex-format-org
-  'helm-bibtex-format-org-ref
+  'org-ref-helm-bibtex-format-org
   "Function for how helm-bibtex inserts citations."
   :type 'function
   :group 'org-ref)
@@ -3431,7 +3431,7 @@ Argument CANDIDATES helm candidates."
  helm-source-bibtex)
 
 
-(defun helm-bibtex-format-org-ref (keys)
+(defun org-ref-helm-bibtex-format-org (keys)
   "Insert selected KEYS as cite link. Append KEYS if you are on a link.
 Technically, this function should return a string that is
 inserted by helm. This function does the insertion and gives helm
