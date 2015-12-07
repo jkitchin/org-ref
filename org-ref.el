@@ -188,6 +188,25 @@ to the corresponding filename. The default is
 (setf (cdr (assoc 'org-mode helm-bibtex-format-citation-functions))
       org-ref-helm-bibtex-format-org)
 
+
+(defcustom org-ref-helm-bibtex-default-action
+  '("Insert citation" . helm-bibtex-insert-citation)
+  "Cons cell of string and function to set the default action in helm-bibtex too.
+The car of cons cell is the string describing the function.
+The cdr of the the cons cell is the function to use.
+
+The default makes insert a citation the default function."
+  :group 'org-ref)
+
+
+;; Make insert citation the default entry
+(helm-delete-action-from-source (car org-ref-helm-bibtex-default-action) helm-source-bibtex)
+(helm-add-action-to-source
+ (car org-ref-helm-bibtex-default-action)
+ (cdr org-ref-helm-bibtex-default-action)
+ helm-source-bibtex
+ 0)
+
 (defcustom org-ref-insert-cite-function
   'org-ref-helm-insert-cite-link
   "Function to call to insert citation links. The default is
@@ -3319,7 +3338,7 @@ fields, the keywords I think."
    for entry = (cdr entry)
    for entry-key = (helm-bibtex-get-value "=key=" entry)
    if (assoc-string "author" entry 'case-fold)
-   for fields = '("author" "title" "year" "=has-pdf=" "=has-note=" "=type=")
+   for fields = '("author" "title"  "year" "=has-pdf=" "=has-note=" "=type=")
    else
    for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
    for fields = (--map (helm-bibtex-clean-string
@@ -3416,13 +3435,7 @@ Argument CANDIDATES helm candidates."
 	       (save-buffer)))))
 
 
-;; Make insert citation the default entry
-(helm-delete-action-from-source "Insert citation" helm-source-bibtex)
-(helm-add-action-to-source
- "Insert citation"
- 'helm-bibtex-insert-citation
- helm-source-bibtex
- 0)
+
 
 ;; Add a new action
 (helm-add-action-to-source
