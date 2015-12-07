@@ -207,6 +207,7 @@ The default makes insert a citation the default function."
  helm-source-bibtex
  0)
 
+
 (defcustom org-ref-insert-cite-function
   'org-ref-helm-insert-cite-link
   "Function to call to insert citation links. The default is
