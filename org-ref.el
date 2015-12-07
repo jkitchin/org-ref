@@ -189,23 +189,35 @@ to the corresponding filename. The default is
       org-ref-helm-bibtex-format-org)
 
 
-(defcustom org-ref-helm-bibtex-default-action
-  '("Insert citation" . helm-bibtex-insert-citation)
-  "Cons cell of string and function to set the default action in helm-bibtex too.
+(defcustom org-ref-helm-bibtex-actions
+  '(("Insert citation" . helm-bibtex-insert-citation)
+    ("Open PDF file (if present)" . helm-bibtex-open-pdf)
+    ("Open URL or DOI in browser" . helm-bibtex-open-url-or-doi)
+    ("Insert reference" . helm-bibtex-insert-reference)
+    ("Insert BibTeX key" . helm-bibtex-insert-key)
+    ("Insert BibTeX entry" . helm-bibtex-insert-bibtex)
+    ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
+    ("Edit notes" . helm-bibtex-edit-notes)
+    ("Show entry" . helm-bibtex-show-entry)
+    ("Add keywords to entries" . org-ref-helm-tag-entries)
+    ("Copy entry to clipboard" . helm-bibtex-copy-candidate)
+    ("Add keywords to entries" . org-ref-helm-tag-entries)
+    ("Add keywords to entries" . org-ref-helm-tag-entries))
+  "Cons cells of string and function to set the actions of helm-bibtex too.
 The car of cons cell is the string describing the function.
-The cdr of the the cons cell is the function to use.
-
-The default makes insert a citation the default function."
+The cdr of the the cons cell is the function to use."
+  :type 'list
   :group 'org-ref)
 
-
-;; Make insert citation the default entry
-(helm-delete-action-from-source (car org-ref-helm-bibtex-default-action) helm-source-bibtex)
-(helm-add-action-to-source
- (car org-ref-helm-bibtex-default-action)
- (cdr org-ref-helm-bibtex-default-action)
- helm-source-bibtex
- 0)
+(loop for i from 0 to (length org-ref-helm-bibtex-actions)
+      for ccell in org-ref-helm-bibtex-actions
+      do
+      (helm-delete-action-from-source (car ccell) helm-source-bibtex)
+      (helm-add-action-to-source
+       (car ccell)
+       (cdr ccell)
+       helm-source-bibtex
+       i))
 
 
 (defcustom org-ref-insert-cite-function
@@ -402,6 +414,7 @@ position for `goto-char'."
   (cancel-timer org-ref-message-timer-mouse)
   (setq org-ref-message-timer-mouse nil)
   (message "Mouse messages are off"))
+
 
 ;; Colorizing org-ref links
 (defcustom org-ref-colorize-links
