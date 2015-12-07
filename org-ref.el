@@ -504,8 +504,9 @@ and quotes in FIELD in the bibtex ENTRY."
 
 
 (defun org-ref-reftex-format-citation (entry format)
-  "Return a formatted string for the bibtex ENTRY (from bibtex-parse-entry) according to the FORMAT argument.
-The format is a string with these percent escapes.
+  "Format the bibtex ENTRY according to the FORMAT argument.
+ENTRY is from `bibtex-parse-entry'
+The FORMAT is a string with these percent escapes.
 
 In the format, the following percent escapes will be expanded.
 
