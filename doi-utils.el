@@ -60,9 +60,7 @@ Optional argument STATUS Unknown why this is optional."
   (when (plist-get status :error)
     (signal (car (plist-get status :error)) (cdr(plist-get status :error))))
   (when (plist-get status :redirect) ;  is nil if there none
-    (message "redirects = %s" (plist-get status :redirect))
-    (message "*doi-utils-redirect* set to %s"
-	     (setq *doi-utils-redirect* (plist-get status :redirect))))
+    (setq *doi-utils-redirect* (plist-get status :redirect)))
   ;; we have done our job, so we are not waiting any more.
   (setq *doi-utils-waiting* nil))
 
@@ -282,7 +280,6 @@ REDIRECT-URL is where the pdf url will be in."
 			    "http://linkinghub.elsevier.com/retrieve"
 			    "http://www.sciencedirect.com/science/article"
 			    *doi-utils-redirect*)))
-      (message "getting pdf url from %s" second-redirect)
       *doi-utils-pdf-url*)))
 
 ;; ** PNAS
@@ -329,14 +326,10 @@ until one is found."
 
   (unless *doi-utils-redirect*
     (error "No redirect found for %s" doi))
-  (message "applying functions")
   (catch 'pdf-url
     (dolist (func doi-utils-pdf-url-functions)
-     (message "calling %s" func)
       (let ((this-pdf-url (funcall func *doi-utils-redirect*)))
-(message "t: %s" this-pdf-url)
 	(when this-pdf-url
-          (message "found pdf url: %s" this-pdf-url)
 	  (throw 'pdf-url this-pdf-url))))))
 
 ;; ** Finally, download the pdf
@@ -377,13 +370,11 @@ at the end."
 		;; PDFS start with %PDF-1.x as the first few characters.
 		(if (not (string= (buffer-substring 1 6) "%PDF-"))
 		    (progn
-		      (message "%s" (buffer-string))
 		      (delete-file pdf-file))
 		  (message "%s saved" pdf-file)))
 
 	      (when (file-exists-p pdf-file)
-		(org-open-file pdf-file)))
-	  (message "No pdf-url found for %s at %s" doi *doi-utils-redirect* ))
+		(org-open-file pdf-file))))
 	  pdf-file))))
 
 ;; * Getting bibtex entries from a DOI
@@ -636,7 +627,6 @@ Optional argument NODELIM see `bibtex-make-field'."
 	    (backward-char)
 	    (insert value)))
       ;; make a new field
-      (message "new field being made")
       (bibtex-beginning-of-entry)
       (forward-line) (beginning-of-line)
       (bibtex-next-field nil)
