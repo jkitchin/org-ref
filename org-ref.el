@@ -203,7 +203,7 @@ to the corresponding filename. The default is
     ("Copy entry to clipboard" . helm-bibtex-copy-candidate)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
     ("Add keywords to entries" . org-ref-helm-tag-entries))
-  "Cons cells of string and function to set the actions of helm-bibtex too.
+  "Cons cells of string and function to set the actions of helm-bibtex to.
 The car of cons cell is the string describing the function.
 The cdr of the the cons cell is the function to use."
   :type 'list
