@@ -119,15 +119,15 @@ You should use full-paths for each file."
 (defcustom org-ref-notes-function
   (lambda ()
     (let* ((results (org-ref-get-bibtex-key-and-file thekey))
-	   (key (car results))
-	   (bibfile (cdr results)))
+           (key (car results))
+           (bibfile (cdr results)))
 
       (save-excursion
-	(with-temp-buffer
-	  (insert-file-contents bibfile)
-	  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	  (bibtex-search-entry key)
-	  (org-ref-open-bibtex-notes)))))
+        (with-temp-buffer
+          (insert-file-contents bibfile)
+          (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+          (bibtex-search-entry key)
+          (org-ref-open-bibtex-notes)))))
   "Function to open the notes for the bibtex key at point.
 
 The default behavior adds entries to a long file with headlines for each entry. It also tries to be compatible with org-bibtex.
@@ -154,13 +154,13 @@ Use that if you like the one file one note approach of helm-bibtex."
 the entry is found, with the cursor at the beginning of the
 headline. The default setting fully expands the notes, and moves
 the headline to the top of the buffer."
-:type 'function
-:group 'org-ref)
+  :type 'function
+  :group 'org-ref)
 
 
 (defcustom org-ref-open-pdf-function
-   'org-ref-open-pdf-at-point
-   "User-defined function to open a pdf from a link.  The
+  'org-ref-open-pdf-at-point
+  "User-defined function to open a pdf from a link.  The
 function must get the key at point, and derive a path to the pdf
 file, then open it.  The default function is
 `org-ref-open-pdf-at-point'."
@@ -227,8 +227,8 @@ The cdr of the the cons cell is the function to use."
 `org-ref' modifies `helm-bibtex' a little bit to give `org-mode'
 citations, and to reorder default actions. You may use
 `org-ref-insert-cite-link' if you like the reftex interface."
- :type 'function
- :group 'org-ref)
+  :type 'function
+  :group 'org-ref)
 
 
 (defcustom org-ref-cite-onclick-function
@@ -237,14 +237,14 @@ citations, and to reorder default actions. You may use
 must take no arguments. You may also use
 `org-ref-cite-onclick-minibuffer-menu' if you do not like helm.
 If you like `hydra', consider using `org-ref-cite-hydra'."
- :type 'function
- :group 'org-ref)
+  :type 'function
+  :group 'org-ref)
 
 
 (defcustom org-ref-show-citation-on-enter t
   "If non-nil add a hook function to show the citation summary in
 the minibuffer."
- :group 'org-ref)
+  :group 'org-ref)
 
 
 (defcustom org-ref-cite-types
@@ -317,21 +317,21 @@ entry at point."
 
 (eval-after-load 'reftex-vars
   '(progn
-      (add-to-list 'reftex-cite-format-builtin
-                   '(org "Org-mode citation"
-                         ((?\C-m . "cite:%l")     ; default
-			  (?d . ",%l")            ; for appending
-			  (?a . "autocite:%l")
-			  (?t . "citet:%l")
-			  (?T . "citet*:%l")
-			  (?p . "citep:%l")
-			  (?P . "citep*:%l")
-			  (?h . "citeauthor:%l")
-			  (?H . "citeauthor*:%l")
-			  (?y . "citeyear:%l")
-			  (?x . "citetext:%l")
-			  (?n . "nocite:%l")
-			  )))))
+     (add-to-list 'reftex-cite-format-builtin
+                  '(org "Org-mode citation"
+                        ((?\C-m . "cite:%l")     ; default
+                         (?d . ",%l")            ; for appending
+                         (?a . "autocite:%l")
+                         (?t . "citet:%l")
+                         (?T . "citet*:%l")
+                         (?p . "citep:%l")
+                         (?P . "citep*:%l")
+                         (?h . "citeauthor:%l")
+                         (?H . "citeauthor*:%l")
+                         (?y . "citeyear:%l")
+                         (?x . "citetext:%l")
+                         (?n . "nocite:%l")
+                         )))))
 
 ;; * Messages for link at cursor
 (defvar org-ref-message-timer nil
@@ -345,7 +345,7 @@ label link."
   (interactive)
   (or org-ref-message-timer
       (setq org-ref-message-timer
-	    (run-with-idle-timer 0.5 t 'org-ref-link-message))))
+            (run-with-idle-timer 0.5 t 'org-ref-link-message))))
 
 
 (defun org-ref-cancel-link-messages ()
@@ -361,21 +361,21 @@ label link."
 ;; ** Messages for context under mouse pointer
 
 (defvar org-ref-last-mouse-pos nil
- "Stores last mouse position for use in `org-ref-mouse-message'.")
+  "Stores last mouse position for use in `org-ref-mouse-message'.")
 
 
 (defun org-ref-can-move-p ()
   "See if a character is under the mouse. If so return the
 position for `goto-char'."
   (let* ((line (cddr org-ref-last-mouse-pos))
-	 (col  (cadr org-ref-last-mouse-pos)))
+         (col  (cadr org-ref-last-mouse-pos)))
     (save-excursion
       (goto-char (window-start))
       (forward-line line)
       (if
-	  (> (- (line-end-position) (line-beginning-position)) col)
-	  (progn  (forward-char col) (point))
-	nil))))
+          (> (- (line-end-position) (line-beginning-position)) col)
+          (progn  (forward-char col) (point))
+        nil))))
 
 
 (defun org-ref-mouse-message ()
@@ -385,9 +385,9 @@ position for `goto-char'."
     (setq org-ref-last-mouse-pos (mouse-position))
     (let ((p (org-ref-can-move-p)))
       (when p
-	  (save-excursion
-	    (goto-char p)
-	    (org-ref-link-message))))))
+        (save-excursion
+          (goto-char p)
+          (org-ref-link-message))))))
 
 
 (defvar org-ref-message-timer-mouse nil
@@ -403,9 +403,9 @@ position for `goto-char'."
   (interactive)
   (or org-ref-message-timer-mouse
       (setq org-ref-message-timer-mouse
-	    (run-at-time "0.5 sec"
-			 org-ref-mouse-message-interval
-			 'org-ref-mouse-message))))
+            (run-at-time "0.5 sec"
+                         org-ref-mouse-message-interval
+                         'org-ref-mouse-message))))
 
 
 (defun org-ref-mouse-messages-off ()
@@ -443,10 +443,10 @@ position for `goto-char'."
 
 (defvar org-ref-cite-re
   (concat "\\(" (mapconcat
-		     (lambda (x)
-		       (replace-regexp-in-string "\*" "\\\\*" x))
-		     org-ref-cite-types "\\|") "\\)"
-		     ":\\([a-zA-Z0-9-_:\\./]*,?\\)*")
+                 (lambda (x)
+                   (replace-regexp-in-string "\*" "\\\\*" x))
+                 org-ref-cite-types "\\|") "\\)"
+                 ":\\([a-zA-Z0-9-_:\\./]*,?\\)*")
   "Regexp for cite links.")
 
 
@@ -462,7 +462,7 @@ position for `goto-char'."
 
 (defface org-ref-cite-face
   `((t (:inherit org-link
-		 :foreground ,org-ref-cite-color)))
+                 :foreground ,org-ref-cite-color)))
   "Color for cite-like links in org-ref.")
 
 
@@ -610,7 +610,7 @@ environment, only %l is available."
                ((= l ?u) (org-ref-reftex-get-bib-field "publisher" entry))
                ((= l ?U) (org-ref-reftex-get-bib-field "url" entry))
                ((= l ?r) (org-ref-reftex-get-bib-field "address" entry))
-	       ;; strip enclosing brackets from title if they are there
+               ;; strip enclosing brackets from title if they are there
                ((= l ?t) (replace-regexp-in-string
                           "\n\\|\t\\|\s+" " "
                           (org-ref-reftex-get-bib-field "title" entry)))
@@ -637,14 +637,14 @@ environment, only %l is available."
 Format according to the type in `org-ref-bibliography-entry-format'."
 
   (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-	(file) (entry) (bibtex-entry) (entry-type) (format))
+        (file) (entry) (bibtex-entry) (entry-type) (format))
 
     (setq file (catch 'result
-		 (cl-loop for file in org-ref-bibliography-files do
-			  (if (org-ref-key-in-file-p key (file-truename file))
-			      (throw 'result file)
-			    (message "%s not found in %s"
-				     key (file-truename file))))))
+                 (cl-loop for file in org-ref-bibliography-files do
+                          (if (org-ref-key-in-file-p key (file-truename file))
+                              (throw 'result file)
+                            (message "%s not found in %s"
+                                     key (file-truename file))))))
 
     (with-temp-buffer
       (insert-file-contents file)
@@ -653,15 +653,15 @@ Format according to the type in `org-ref-bibliography-entry-format'."
       (setq bibtex-entry (bibtex-parse-entry))
       ;; downcase field names so they work in the format-citation code
       (dolist (cons-cell bibtex-entry)
-	(setf (car cons-cell) (downcase (car cons-cell))))
+        (setf (car cons-cell) (downcase (car cons-cell))))
       (setq entry-type (downcase (cdr (assoc "=type=" bibtex-entry))))
       (setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
       (if format
-	  (setq entry  (org-ref-reftex-format-citation bibtex-entry format))
-	;; if no format, we use the bibtex entry itself as a fallback
-	(save-restriction
-	  (bibtex-narrow-to-entry)
-	  (setq entry (buffer-string)))))
+          (setq entry  (org-ref-reftex-format-citation bibtex-entry format))
+        ;; if no format, we use the bibtex entry itself as a fallback
+        (save-restriction
+          (bibtex-narrow-to-entry)
+          (setq entry (buffer-string)))))
     entry))
 
 
@@ -671,13 +671,13 @@ Use SORT to specify alphabetical order by key."
   (let ((keys '()))
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
-	(let ((plist (nth 1 link)))
-	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
-	    (dolist
-		(key
-		 (org-ref-split-and-strip-string (plist-get plist ':path)))
-	      (when (not (-contains? keys key))
-		(setq keys (append keys (list key))))))))
+        (let ((plist (nth 1 link)))
+          (when (-contains? org-ref-cite-types (plist-get plist ':type))
+            (dolist
+                (key
+                 (org-ref-split-and-strip-string (plist-get plist ':path)))
+              (when (not (-contains? keys key))
+                (setq keys (append keys (list key))))))))
       ;; set with-affiliated to get keys in captions
       nil nil nil t)
     (when sort
@@ -695,26 +695,26 @@ Entries are formatted according to the bibtex entry type in
 generated by `org-ref-reftex-format-citation'."
   (interactive)
   (let ((bib (mapconcat
-	      'identity
-	      (loop for i from 1
-		    for citation in
-		    (mapcar
-		     (lambda (key)
-		       (let* ((results (org-ref-get-bibtex-key-and-file key))
-			      (key (car results))
-			      (bibfile (cdr results)))
-			 (format "cite:%s %s" key
-				 (if bibfile
-				     (save-excursion
-				       (with-temp-buffer
-					 (insert-file-contents bibfile)
-					 (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-					 (bibtex-search-entry key)
-					 (org-ref-bib-citation)))
-				   "!!! No entry found !!!"))))
-		     (org-ref-get-bibtex-keys sort))
-		    collect (format "%3s. %s" i citation))
-	      "\n\n")))
+              'identity
+              (loop for i from 1
+                    for citation in
+                    (mapcar
+                     (lambda (key)
+                       (let* ((results (org-ref-get-bibtex-key-and-file key))
+                              (key (car results))
+                              (bibfile (cdr results)))
+                         (format "cite:%s %s" key
+                                 (if bibfile
+                                     (save-excursion
+                                       (with-temp-buffer
+                                         (insert-file-contents bibfile)
+                                         (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+                                         (bibtex-search-entry key)
+                                         (org-ref-bib-citation)))
+                                   "!!! No entry found !!!"))))
+                     (org-ref-get-bibtex-keys sort))
+                    collect (format "%3s. %s" i citation))
+              "\n\n")))
 
     (switch-to-buffer-other-window (format "%s-bibliography" (buffer-file-name)))
     (erase-buffer)
@@ -739,7 +739,7 @@ generated by `org-ref-reftex-format-citation'."
     (setq output (replace-regexp-in-string "--" "-" output))
     (setq output (replace-regexp-in-string " <a href=\"http://dx\\.doi\\.org/\">doi</a>\\." "" output))
     (format "<li><a id=\"%s\">[%s] %s</a></li>"
-	    key key output)))
+            key key output)))
 
 
 (defun org-ref-get-html-bibliography (&optional sort)
@@ -749,20 +749,20 @@ If SORT is non-nil the bibliography is alphabetically sorted."
     (when keys
       (concat "<h1 class='org-ref-bib-h1'>Bibliography</h1>
 <ul class='org-ref-bib'>"
-	      (mapconcat (lambda (x) (org-ref-get-bibtex-entry-html x)) keys "\n")
-	      "\n</ul>"))))
+              (mapconcat (lambda (x) (org-ref-get-bibtex-entry-html x)) keys "\n")
+              "\n</ul>"))))
 
 
 (defun org-ref-get-bibtex-entry-org (key)
   "Return an org string for the bibliography entry corresponding to KEY."
   (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-	(file) (entry) (bibtex-entry) (entry-type) (format))
+        (file) (entry) (bibtex-entry) (entry-type) (format))
 
     (setq file (catch 'result
-		 (cl-loop for file in org-ref-bibliography-files do
-			  (if (org-ref-key-in-file-p key (file-truename file))
-			      (throw 'result file)
-			    (message "%s not found in %s" key (file-truename file))))))
+                 (cl-loop for file in org-ref-bibliography-files do
+                          (if (org-ref-key-in-file-p key (file-truename file))
+                              (throw 'result file)
+                            (message "%s not found in %s" key (file-truename file))))))
 
     (with-temp-buffer
       (insert-file-contents file)
@@ -776,11 +776,11 @@ If SORT is non-nil the bibliography is alphabetically sorted."
 " (org-ref-reftex-get-bib-field "author" entry)
 (org-ref-reftex-get-bib-field "title" entry)
 (concat "   :CUSTOM_ID: " (org-ref-reftex-get-bib-field "=key=" entry) "\n"
-	(mapconcat (lambda (element) (format "   :%s: %s"
-					     (upcase (car element))
-					     (cdr element)))
-		   entry
-		   "\n"))))))
+        (mapconcat (lambda (element) (format "   :%s: %s"
+                                             (upcase (car element))
+                                             (cdr element)))
+                   entry
+                   "\n"))))))
 
 
 (defun org-ref-get-org-bibliography (&optional sort)
@@ -790,8 +790,8 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
     (when keys
       (concat "* Bibliography
 "
-	      (mapconcat (lambda (x) (org-ref-get-bibtex-entry-org x)) keys "\n")
-	      "\n"))))
+              (mapconcat (lambda (x) (org-ref-get-bibtex-entry-org x)) keys "\n")
+              "\n"))))
 
 
 (defun org-ref-get-bibtex-entry-ascii (key)
@@ -815,169 +815,169 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
 ;; * Links
 ;; ** bibliography and bibliographystyle
 (org-add-link-type "bibliography"
-		   ;; this code is run on clicking. The bibliography
-		   ;; may contain multiple files. this code finds the
-		   ;; one you clicked on and opens it.
-		   (lambda (link-string)
-		       ;; get link-string boundaries we have to go to the
-		       ;; beginning of the line, and then search forward
-		     (let* ((bibfile)
-			    ;; object is the link you clicked on
-			    (object (org-element-context))
-			    (link-string-beginning)
-			    (link-string-end)
-			    (cp (point)))
-		     (save-excursion
-		       (goto-char (org-element-property :begin object))
-		       (search-forward link-string nil nil 1)
-		       (setq link-string-beginning (match-beginning 0))
-		       (setq link-string-end (match-end 0)))
+                   ;; this code is run on clicking. The bibliography
+                   ;; may contain multiple files. this code finds the
+                   ;; one you clicked on and opens it.
+                   (lambda (link-string)
+                     ;; get link-string boundaries we have to go to the
+                     ;; beginning of the line, and then search forward
+                     (let* ((bibfile)
+                            ;; object is the link you clicked on
+                            (object (org-element-context))
+                            (link-string-beginning)
+                            (link-string-end)
+                            (cp (point)))
+                       (save-excursion
+                         (goto-char (org-element-property :begin object))
+                         (search-forward link-string nil nil 1)
+                         (setq link-string-beginning (match-beginning 0))
+                         (setq link-string-end (match-end 0)))
 
-		     ;; Make sure point is in the link-path.
-		     (if (< cp link-string-beginning)
-			 (goto-char link-string-beginning))
-		     ;; We set the reftex-default-bibliography
-		     ;; here. it should be a local variable only in
-		     ;; the current buffer. We need this for using
-		     ;; reftex to do citations.
-		     (set (make-local-variable 'reftex-default-bibliography)
-			  (split-string
-			   (org-element-property :path object) ","))
+                       ;; Make sure point is in the link-path.
+                       (if (< cp link-string-beginning)
+                           (goto-char link-string-beginning))
+                       ;; We set the reftex-default-bibliography
+                       ;; here. it should be a local variable only in
+                       ;; the current buffer. We need this for using
+                       ;; reftex to do citations.
+                       (set (make-local-variable 'reftex-default-bibliography)
+                            (split-string
+                             (org-element-property :path object) ","))
 
-		     (let (key-beginning key-end)
-		       ;; now if we have comma separated bibliographies
-		       ;; we find the one clicked on. we want to
-		       ;; search forward to next comma from point
-		       (save-excursion
-			 (if (search-forward "," link-string-end 1 1)
-			     ;; we found a match
-			     (setq key-end (- (match-end 0) 1))
-			   ;; no comma found so take the point
-			   (setq key-end (point))))
-		       ;; and backward to previous comma from point
-		       (save-excursion
-			 (if (search-backward "," link-string-beginning 1 1)
-			     ;; we found a match
-			     (setq key-beginning (+ (match-beginning 0) 1))
-			   (setq key-beginning (point)))) ; no match found
-		       ;; save the key we clicked on.
-		       (setq bibfile (org-ref-strip-string
-				      (buffer-substring key-beginning key-end)))
-		       ;; open file on click
-		       (find-file bibfile))))
+                       (let (key-beginning key-end)
+                         ;; now if we have comma separated bibliographies
+                         ;; we find the one clicked on. we want to
+                         ;; search forward to next comma from point
+                         (save-excursion
+                           (if (search-forward "," link-string-end 1 1)
+                               ;; we found a match
+                               (setq key-end (- (match-end 0) 1))
+                             ;; no comma found so take the point
+                             (setq key-end (point))))
+                         ;; and backward to previous comma from point
+                         (save-excursion
+                           (if (search-backward "," link-string-beginning 1 1)
+                               ;; we found a match
+                               (setq key-beginning (+ (match-beginning 0) 1))
+                             (setq key-beginning (point)))) ; no match found
+                         ;; save the key we clicked on.
+                         (setq bibfile (org-ref-strip-string
+                                        (buffer-substring key-beginning key-end)))
+                         ;; open file on click
+                         (find-file bibfile))))
 
-		   ;; formatting code
-		   (lambda (keyword desc format)
-		     (cond
-		      ((eq format 'org) (org-ref-get-org-bibliography))
+                   ;; formatting code
+                   (lambda (keyword desc format)
+                     (cond
+                      ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'ascii) (org-ref-get-ascii-bibliography))
-		      ((eq format 'html) (org-ref-get-html-bibliography))
-		      ((eq format 'latex)
-		       ;; write out the latex bibliography command
-		       (format "\\bibliography{%s}"
-			       (replace-regexp-in-string
-				"\\.bib" ""
-				(mapconcat
-				 'identity
-				 (mapcar 'expand-file-name
-					 (split-string keyword ","))
-				 ",")))))))
+                      ((eq format 'html) (org-ref-get-html-bibliography))
+                      ((eq format 'latex)
+                       ;; write out the latex bibliography command
+                       (format "\\bibliography{%s}"
+                               (replace-regexp-in-string
+                                "\\.bib" ""
+                                (mapconcat
+                                 'identity
+                                 (mapcar 'expand-file-name
+                                         (split-string keyword ","))
+                                 ",")))))))
 
 
 (org-add-link-type "nobibliography"
-		   ;; this code is run on clicking. The bibliography
-		   ;; may contain multiple files. this code finds the
-		   ;; one you clicked on and opens it.
-		   (lambda (link-string)
-		     ;; get link-string boundaries
-		     ;; we have to go to the beginning of the line, and then search forward
+                   ;; this code is run on clicking. The bibliography
+                   ;; may contain multiple files. this code finds the
+                   ;; one you clicked on and opens it.
+                   (lambda (link-string)
+                     ;; get link-string boundaries
+                     ;; we have to go to the beginning of the line, and then search forward
 
-		     (let* ((bibfile)
-			    ;; object is the link you clicked on
-			    (object (org-element-context))
+                     (let* ((bibfile)
+                            ;; object is the link you clicked on
+                            (object (org-element-context))
 
-			    (link-string-beginning)
-			    (link-string-end))
+                            (link-string-beginning)
+                            (link-string-end))
 
-		       (save-excursion
-			 (goto-char (org-element-property :begin object))
-			 (search-forward link-string nil nil 1)
-			 (setq link-string-beginning (match-beginning 0))
-			 (setq link-string-end (match-end 0)))
+                       (save-excursion
+                         (goto-char (org-element-property :begin object))
+                         (search-forward link-string nil nil 1)
+                         (setq link-string-beginning (match-beginning 0))
+                         (setq link-string-end (match-end 0)))
 
-		       ;; We set the reftex-default-bibliography
-		       ;; here. it should be a local variable only in
-		       ;; the current buffer. We need this for using
-		       ;; reftex to do citations.
-		       (set (make-local-variable 'reftex-default-bibliography)
-			    (split-string (org-element-property :path object) ","))
+                       ;; We set the reftex-default-bibliography
+                       ;; here. it should be a local variable only in
+                       ;; the current buffer. We need this for using
+                       ;; reftex to do citations.
+                       (set (make-local-variable 'reftex-default-bibliography)
+                            (split-string (org-element-property :path object) ","))
 
-		       (let (key-beginning key-end)
-			 ;; now if we have comma separated bibliographies
-			 ;; we find the one clicked on. we want to
-			 ;; search forward to next comma from point
-			 (save-excursion
-			   (if (search-forward "," link-string-end 1 1)
-			       (setq key-end (- (match-end 0) 1)) ; we found a match
-			     (setq key-end (point)))) ; no comma found so take the point
-			 ;; and backward to previous comma from point
-			 (save-excursion
-			   (if (search-backward "," link-string-beginning 1 1)
-			       (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-			     (setq key-beginning (point)))) ; no match found
-			 ;; save the key we clicked on.
-			 (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
-			 (find-file bibfile)))) ; open file on click
+                       (let (key-beginning key-end)
+                         ;; now if we have comma separated bibliographies
+                         ;; we find the one clicked on. we want to
+                         ;; search forward to next comma from point
+                         (save-excursion
+                           (if (search-forward "," link-string-end 1 1)
+                               (setq key-end (- (match-end 0) 1)) ; we found a match
+                             (setq key-end (point)))) ; no comma found so take the point
+                         ;; and backward to previous comma from point
+                         (save-excursion
+                           (if (search-backward "," link-string-beginning 1 1)
+                               (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+                             (setq key-beginning (point)))) ; no match found
+                         ;; save the key we clicked on.
+                         (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
+                         (find-file bibfile)))) ; open file on click
 
-		   ;; formatting code
-		   (lambda (keyword desc format)
-		     (cond
-		      ((eq format 'org) (org-ref-get-org-bibliography))
+                   ;; formatting code
+                   (lambda (keyword desc format)
+                     (cond
+                      ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'ascii) (org-ref-get-ascii-bibliography))
-		      ((eq format 'html) (org-ref-get-html-bibliography))
-		      ((eq format 'latex)
-		       ;; write out the latex bibliography command
-		       (format "\\nobibliography{%s}"
-			       (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
-										 (mapcar 'expand-file-name
-											 (split-string keyword ","))
-										 ",")))))))
+                      ((eq format 'html) (org-ref-get-html-bibliography))
+                      ((eq format 'latex)
+                       ;; write out the latex bibliography command
+                       (format "\\nobibliography{%s}"
+                               (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
+                                                                                 (mapcar 'expand-file-name
+                                                                                         (split-string keyword ","))
+                                                                                 ",")))))))
 
 
 (org-add-link-type "printbibliography"
-		   (lambda (arg) (message "Nothing implemented for clicking here."))
-		   (lambda (keyword desc format)
-		     (cond
+                   (lambda (arg) (message "Nothing implemented for clicking here."))
+                   (lambda (keyword desc format)
+                     (cond
                       ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'html) (org-ref-get-html-bibliography))
-		      ((eq format 'latex)
-		       ;; write out the biblatex bibliography command
-		       "\\printbibliography"))))
+                      ((eq format 'latex)
+                       ;; write out the biblatex bibliography command
+                       "\\printbibliography"))))
 
 
 (org-add-link-type "bibliographystyle"
-		   (lambda (arg) (message "Nothing implemented for clicking here."))
-		   (lambda (keyword desc format)
-		     (cond
-		      ((eq format 'latex)
-		       ;; write out the latex bibliography command
-		       (format "\\bibliographystyle{%s}" keyword))
-		      ;; Other styles should not have an output for this
-		      (t
-		       ""))))
+                   (lambda (arg) (message "Nothing implemented for clicking here."))
+                   (lambda (keyword desc format)
+                     (cond
+                      ((eq format 'latex)
+                       ;; write out the latex bibliography command
+                       (format "\\bibliographystyle{%s}" keyword))
+                      ;; Other styles should not have an output for this
+                      (t
+                       ""))))
 
 
 (defun org-bibliographystyle-complete-link (&optional arg)
   "Completion function for bibliographystyle link.
 ARG does nothing."
   (format "bibliographystyle:%s" (ido-completing-read
-				  "style: "
-				  '("unsrt" "plain" "alpha"
-				    ;; natbib
-				    ;; https://www.sharelatex.com/learn/Natbib_bibliography_styles
-				    "dinat" "humannat" "plainnat"
-				    "abbrnat" "unsrtnat" "rusnat"
-				    "ksfhnat"))))
+                                  "style: "
+                                  '("unsrt" "plain" "alpha"
+                                    ;; natbib
+                                    ;; https://www.sharelatex.com/learn/Natbib_bibliography_styles
+                                    "dinat" "humannat" "plainnat"
+                                    "abbrnat" "unsrtnat" "rusnat"
+                                    "ksfhnat"))))
 
 
 (defun org-bibliography-complete-link (&optional arg)
@@ -994,58 +994,58 @@ ARG does nothing."
 ;; ** addbibresource
 
 (org-add-link-type "addbibresource"
-		   ;; this code is run on clicking. The addbibresource may
-		   ;; contain multiple files. this code finds the one you
-		   ;; clicked on and opens it.
-		   (lambda (link-string)
-		     ;; get link-string boundaries. we have to go to the
-		     ;; beginning of the line, and then search forward
+                   ;; this code is run on clicking. The addbibresource may
+                   ;; contain multiple files. this code finds the one you
+                   ;; clicked on and opens it.
+                   (lambda (link-string)
+                     ;; get link-string boundaries. we have to go to the
+                     ;; beginning of the line, and then search forward
 
-		     (let* ((bibfile)
-			    ;; object is the link you clicked on
-			    (object (org-element-context))
+                     (let* ((bibfile)
+                            ;; object is the link you clicked on
+                            (object (org-element-context))
 
-			    (link-string-beginning)
-			    (link-string-end))
+                            (link-string-beginning)
+                            (link-string-end))
 
-		       (save-excursion
-			 (goto-char (org-element-property :begin object))
-			 (search-forward link-string nil nil 1)
-			 (setq link-string-beginning (match-beginning 0))
-			 (setq link-string-end (match-end 0)))
+                       (save-excursion
+                         (goto-char (org-element-property :begin object))
+                         (search-forward link-string nil nil 1)
+                         (setq link-string-beginning (match-beginning 0))
+                         (setq link-string-end (match-end 0)))
 
-		       ;; We set the reftex-default-addbibresource
-		       ;; here. it should be a local variable only in
-		       ;; the current buffer. We need this for using
-		       ;; reftex to do citations.
-		       (set (make-local-variable 'reftex-default-addbibresource)
-			    (split-string (org-element-property :path object) ","))
+                       ;; We set the reftex-default-addbibresource
+                       ;; here. it should be a local variable only in
+                       ;; the current buffer. We need this for using
+                       ;; reftex to do citations.
+                       (set (make-local-variable 'reftex-default-addbibresource)
+                            (split-string (org-element-property :path object) ","))
 
-		       (let (key-beginning key-end)
-			 ;; now if we have comma separated bibliographies
-			 ;; we find the one clicked on. we want to
-			 ;; search forward to next comma from point
-			 (save-excursion
-			   (if (search-forward "," link-string-end 1 1)
-			       (setq key-end (- (match-end 0) 1)) ; we found a match
-			     (setq key-end (point)))) ; no comma found so take the point
-			 ;; and backward to previous comma from point
-			 (save-excursion
-			   (if (search-backward "," link-string-beginning 1 1)
-			       (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-			     (setq key-beginning (point)))) ; no match found
-			 ;; save the key we clicked on.
-			 (setq bibfile (org-ref-strip-string
-					(buffer-substring key-beginning key-end)))
-			 (find-file bibfile)))) ; open file on click
+                       (let (key-beginning key-end)
+                         ;; now if we have comma separated bibliographies
+                         ;; we find the one clicked on. we want to
+                         ;; search forward to next comma from point
+                         (save-excursion
+                           (if (search-forward "," link-string-end 1 1)
+                               (setq key-end (- (match-end 0) 1)) ; we found a match
+                             (setq key-end (point)))) ; no comma found so take the point
+                         ;; and backward to previous comma from point
+                         (save-excursion
+                           (if (search-backward "," link-string-beginning 1 1)
+                               (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+                             (setq key-beginning (point)))) ; no match found
+                         ;; save the key we clicked on.
+                         (setq bibfile (org-ref-strip-string
+                                        (buffer-substring key-beginning key-end)))
+                         (find-file bibfile)))) ; open file on click
 
-		   ;; formatting code
-		   (lambda (keyword desc format)
-		     (cond
-		      ((eq format 'html) (format "")) ; no output for html
-		      ((eq format 'latex)
-		       ;; write out the latex addbibresource command
-		       (format "\\addbibresource{%s}" keyword)))))
+                   ;; formatting code
+                   (lambda (keyword desc format)
+                     (cond
+                      ((eq format 'html) (format "")) ; no output for html
+                      ((eq format 'latex)
+                       ;; write out the latex addbibresource command
+                       (format "\\addbibresource{%s}" keyword)))))
 
 ;; ** List of figures
 (defun org-ref-list-of-figures (&optional arg)
@@ -1053,38 +1053,38 @@ ARG does nothing."
 ARG does nothing."
   (interactive)
   (save-excursion (widen)
-  (let* ((c-b (buffer-name))
-	 (counter 0)
-	 (list-of-figures
-	  (org-element-map (org-element-parse-buffer) 'link
-	    (lambda (link)
-	      "create a link for to the figure"
-	      (when
-		  (and (string= (org-element-property :type link) "file")
-		       (string-match-p
-			"[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\)$"
-			(org-element-property :path link)))
-		(cl-incf counter)
+                  (let* ((c-b (buffer-name))
+                         (counter 0)
+                         (list-of-figures
+                          (org-element-map (org-element-parse-buffer) 'link
+                            (lambda (link)
+                              "create a link for to the figure"
+                              (when
+                                  (and (string= (org-element-property :type link) "file")
+                                       (string-match-p
+                                        "[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\)$"
+                                        (org-element-property :path link)))
+                                (cl-incf counter)
 
-		(let* ((start (org-element-property :begin link))
-		       (parent (car (cdr (org-element-property :parent link))))
-		       (caption (cl-caaar (plist-get parent :caption)))
-		       (name (plist-get parent :name)))
-		  (if caption
-		      (format
-		       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]] %s\n"
-		       c-b start counter (or name "") caption)
-		    (format
-		     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]]\n"
-		     c-b start counter (or name "")))))))))
-    (switch-to-buffer "*List of Figures*")
-    (setq buffer-read-only nil)
-    (org-mode)
-    (erase-buffer)
-    (insert (mapconcat 'identity list-of-figures ""))
-    (setq buffer-read-only t)
-    (use-local-map (copy-keymap org-mode-map))
-    (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
+                                (let* ((start (org-element-property :begin link))
+                                       (parent (car (cdr (org-element-property :parent link))))
+                                       (caption (cl-caaar (plist-get parent :caption)))
+                                       (name (plist-get parent :name)))
+                                  (if caption
+                                      (format
+                                       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]] %s\n"
+                                       c-b start counter (or name "") caption)
+                                    (format
+                                     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]]\n"
+                                     c-b start counter (or name "")))))))))
+                    (switch-to-buffer "*List of Figures*")
+                    (setq buffer-read-only nil)
+                    (org-mode)
+                    (erase-buffer)
+                    (insert (mapconcat 'identity list-of-figures ""))
+                    (setq buffer-read-only t)
+                    (use-local-map (copy-keymap org-mode-map))
+                    (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
 
 (org-add-link-type
@@ -1101,32 +1101,32 @@ ARG does nothing."
 ARG does nothing."
   (interactive)
   (save-excursion
-  (widen)
-  (let* ((c-b (buffer-name))
-	 (counter 0)
-	 (list-of-tables
-	  (org-element-map (org-element-parse-buffer 'element) 'table
-	    (lambda (table)
-	      "create a link for to the table"
-	      (cl-incf counter)
-	      (let ((start (org-element-property :begin table))
-		    (name  (org-element-property :name table))
-		    (caption (cl-caaar (org-element-property :caption table))))
-		(if caption
-		    (format
-		     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]] %s\n"
-		     c-b start counter (or name "") caption)
-		  (format
-		   "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]]\n"
-		   c-b start counter (or name ""))))))))
-    (switch-to-buffer "*List of Tables*")
-    (setq buffer-read-only nil)
-    (org-mode)
-    (erase-buffer)
-    (insert (mapconcat 'identity list-of-tables ""))
-    (setq buffer-read-only t)
-    (use-local-map (copy-keymap org-mode-map))
-    (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
+    (widen)
+    (let* ((c-b (buffer-name))
+           (counter 0)
+           (list-of-tables
+            (org-element-map (org-element-parse-buffer 'element) 'table
+              (lambda (table)
+                "create a link for to the table"
+                (cl-incf counter)
+                (let ((start (org-element-property :begin table))
+                      (name  (org-element-property :name table))
+                      (caption (cl-caaar (org-element-property :caption table))))
+                  (if caption
+                      (format
+                       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]] %s\n"
+                       c-b start counter (or name "") caption)
+                    (format
+                     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]]\n"
+                     c-b start counter (or name ""))))))))
+      (switch-to-buffer "*List of Tables*")
+      (setq buffer-read-only nil)
+      (org-mode)
+      (erase-buffer)
+      (insert (mapconcat 'identity list-of-tables ""))
+      (setq buffer-read-only t)
+      (use-local-map (copy-keymap org-mode-map))
+      (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
 
 (org-add-link-type
@@ -1150,15 +1150,15 @@ ARG does nothing."
       (format "^#\\+tblname:\\s-*%s\\b[^-:]" label)
       (point-min) (point-max))
      (count-matches (format "\\label{%s}" label)
-		    (point-min) (point-max))
+                    (point-min) (point-max))
      ;; this is the org-format #+label:
      (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label)
-		    (point-min) (point-max))
+                    (point-min) (point-max))
      (let ((custom-id-count 0))
        (org-map-entries
-	(lambda ()
-	  (when (string= label (org-entry-get (point) "CUSTOM_ID"))
-	    (setq custom-id-count (+ 1 custom-id-count)))))
+        (lambda ()
+          (when (string= label (org-entry-get (point) "CUSTOM_ID"))
+            (setq custom-id-count (+ 1 custom-id-count)))))
        custom-id-count)))
 
 
@@ -1169,12 +1169,12 @@ ARG does nothing."
 A number greater than one means multiple labels!"
    (let ((count (org-ref-count-labels label)))
      (message (format "%s occurence%s"
-		      count
-		      (if (or (= count 0)
-			      (> count 1))
-			  "s"
-			""))
-	      (org-ref-count-labels label))))
+                      count
+                      (if (or (= count 0)
+                              (> count 1))
+                          "s"
+                        ""))
+              (org-ref-count-labels label))))
  (lambda (keyword desc format)
    (cond
     ((eq format 'html) (format "<div id=\"%s\">" keyword))
@@ -1201,7 +1201,7 @@ A number greater than one means multiple labels!"
     ;; store link on heading with custom_id
     ;; this is not a ref link, but it is still what you want
     (when (and (equal (org-element-type object) 'headline)
-	       (org-entry-get (point) "CUSTOM_ID"))
+               (org-entry-get (point) "CUSTOM_ID"))
       (org-store-link-props
        :type "custom_id"
        :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
@@ -1209,7 +1209,7 @@ A number greater than one means multiple labels!"
     ;; and to #+label: lines
 
     (when (and (equal (org-element-type object) 'paragraph)
-	       (org-element-property :name object))
+               (org-element-property :name object))
       (org-store-link-props
        :type "ref"
        :link (concat "ref:" (org-element-property :name object))))))
@@ -1228,34 +1228,34 @@ A number greater than one means multiple labels!"
    (widen)
    (unless
        (or
-	;; our label links
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward (format "label:%s\\b" label) nil t))
+        ;; our label links
+        (progn
+          (goto-char (point-min))
+          (re-search-forward (format "label:%s\\b" label) nil t))
 
-	;; a latex label
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward (format "\\label{%s}" label) nil t))
+        ;; a latex label
+        (progn
+          (goto-char (point-min))
+          (re-search-forward (format "\\label{%s}" label) nil t))
 
-	;; #+label: name  org-definition
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward
-	   (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+        ;; #+label: name  org-definition
+        (progn
+          (goto-char (point-min))
+          (re-search-forward
+           (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
 
-	;; org tblname
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward
-	   (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
+        ;; org tblname
+        (progn
+          (goto-char (point-min))
+          (re-search-forward
+           (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
 
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
      (error "%s not found" label))
    (org-show-entry)
    (message "go back with (org-mark-ring-goto) `C-c &`"))
-					;formatting
+                                        ;formatting
  (lambda (keyword desc format)
    (cond
     ((eq format 'html) (format "<a href=\"#%s\">%s</a>" keyword keyword))
@@ -1264,28 +1264,28 @@ A number greater than one means multiple labels!"
 
 
 (defun org-ref-get-org-labels ()
- "Return a list of #+LABEL: labels."
+  "Return a list of #+LABEL: labels."
   (save-excursion
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward "^#\\+label:\\s-+\\(.*\\)\\b" (point-max) t)
-	;; do not do this for tables. We get those in `org-ref-get-tblnames'.
-	;; who would have thought you have save match data here? Trust me. When
-	;; I wrote this, you did.
-	(unless (save-match-data  (equal (car (org-element-at-point)) 'table))
-	  (add-to-list 'matches (match-string-no-properties 1) t)))
+        ;; do not do this for tables. We get those in `org-ref-get-tblnames'.
+        ;; who would have thought you have save match data here? Trust me. When
+        ;; I wrote this, you did.
+        (unless (save-match-data  (equal (car (org-element-at-point)) 'table))
+          (add-to-list 'matches (match-string-no-properties 1) t)))
       matches)))
 
 
 (defun org-ref-get-custom-ids ()
- "Return a list of custom_id properties in the buffer."
- (let ((results '()) custom_id)
-   (org-map-entries
-    (lambda ()
-      (let ((custom_id (org-entry-get (point) "CUSTOM_ID")))
-	(when (not (null custom_id))
-	  (setq results (append results (list custom_id)))))))
-   results))
+  "Return a list of custom_id properties in the buffer."
+  (let ((results '()) custom_id)
+    (org-map-entries
+     (lambda ()
+       (let ((custom_id (org-entry-get (point) "CUSTOM_ID")))
+         (when (not (null custom_id))
+           (setq results (append results (list custom_id)))))))
+    results))
 
 
 (defun org-ref-get-latex-labels ()
@@ -1294,7 +1294,7 @@ A number greater than one means multiple labels!"
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward "\\\\label{\\([a-zA-z0-9:-]*\\)}" (point-max) t)
-	(add-to-list 'matches (match-string-no-properties 1) t))
+        (add-to-list 'matches (match-string-no-properties 1) t))
       matches)))
 
 
@@ -1314,19 +1314,19 @@ This is used to complete ref links and in helm menus."
       (goto-char (point-min))
       (let ((matches '()))
         ;; these are the org-ref label:stuff  kinds
-	(while (re-search-forward
-		"[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
-	  (add-to-list 'matches (match-string-no-properties 1) t))
-	;; now add all the other kinds of labels.
-	(append matches
-		;; #+label:
-		(org-ref-get-org-labels)
-		;; \label{}
-		(org-ref-get-latex-labels)
-		;; #+tblname: and actually #+label
-		(org-ref-get-tblnames)
-		;; CUSTOM_IDs
-		(org-ref-get-custom-ids))))))
+        (while (re-search-forward
+                "[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
+          (add-to-list 'matches (match-string-no-properties 1) t))
+        ;; now add all the other kinds of labels.
+        (append matches
+                ;; #+label:
+                (org-ref-get-org-labels)
+                ;; \label{}
+                (org-ref-get-latex-labels)
+                ;; #+tblname: and actually #+label
+                (org-ref-get-tblnames)
+                ;; CUSTOM_IDs
+                (org-ref-get-custom-ids))))))
 
 
 (defun org-ref-helm-insert-label-link ()
@@ -1334,74 +1334,74 @@ This is used to complete ref links and in helm menus."
 If you are on a label link, replace it."
   (interactive)
   (let* ((labels (org-ref-get-labels))
-	 (cb (current-buffer)))
+         (cb (current-buffer)))
     (helm :sources `(((name . "Existing labels")
-		      (candidates . ,labels)
-		      ;; default action is to open to the label
-		      (action . (lambda (label)
-				  ;; unfortunately I do not have markers here
-				  (org-open-link-from-string
-				   (format "ref:%s" label))))
-		      ;; if you select a label, replace current one
-		      (action . (lambda (label)
-				  (switch-to-buffer ,cb)
-				  (cond
-				   ;;  no prefix or on a link
-				   ((equal helm-current-prefix-arg nil)
-				    (let* ((object (org-element-context))
-					   (last-char (save-excursion
-							(goto-char (org-element-property :end object))
-							(backward-char)
-							(if (looking-at " ")
-							    " "
-							  ""))))
-				      (when (-contains? '("label")
-							(org-element-property :type object))
-					;; we are on a link, so replace it.
-					(setf
-					 (buffer-substring
-					  (org-element-property :begin object)
-					  (org-element-property :end object))
-					 (concat
-					  (replace-regexp-in-string
-					   (org-element-property :path object)
-					   label
-					   (org-element-property :raw-link object))
-					  last-char)))))
-				   ;; no prefix options defined
-				   ))))
-		     ;; no matching selection creates a new label
-		     ((name . "Create new label")
-		      (dummy)
-		      ;; default action creates a new label, or replaces old one
-		      (action . (lambda (label)
-				  (switch-to-buffer ,cb)
-				  (let* ((object (org-element-context))
-					 (last-char (save-excursion
-						      (goto-char (org-element-property :end object))
-						      (backward-char)
-						      (if (looking-at " ")
-							  " "
-							""))))
-				    (if (-contains? '("label")
-						    (org-element-property :type object))
-					;; we are on a link, so replace it.
-					(setf
-					 (buffer-substring
-					  (org-element-property :begin object)
-					  (org-element-property :end object))
-					 (concat
-					  (replace-regexp-in-string
-					   (org-element-property :path object)
-					   helm-pattern
-					   (org-element-property :raw-link object))
-					  last-char))
-				      ;; new link
-				      (insert
-				       (concat
-					"label:"
-					(or label
-					    helm-pattern))))))))))))
+                      (candidates . ,labels)
+                      ;; default action is to open to the label
+                      (action . (lambda (label)
+                                  ;; unfortunately I do not have markers here
+                                  (org-open-link-from-string
+                                   (format "ref:%s" label))))
+                      ;; if you select a label, replace current one
+                      (action . (lambda (label)
+                                  (switch-to-buffer ,cb)
+                                  (cond
+                                   ;;  no prefix or on a link
+                                   ((equal helm-current-prefix-arg nil)
+                                    (let* ((object (org-element-context))
+                                           (last-char (save-excursion
+                                                        (goto-char (org-element-property :end object))
+                                                        (backward-char)
+                                                        (if (looking-at " ")
+                                                            " "
+                                                          ""))))
+                                      (when (-contains? '("label")
+                                                        (org-element-property :type object))
+                                        ;; we are on a link, so replace it.
+                                        (setf
+                                         (buffer-substring
+                                          (org-element-property :begin object)
+                                          (org-element-property :end object))
+                                         (concat
+                                          (replace-regexp-in-string
+                                           (org-element-property :path object)
+                                           label
+                                           (org-element-property :raw-link object))
+                                          last-char)))))
+                                   ;; no prefix options defined
+                                   ))))
+                     ;; no matching selection creates a new label
+                     ((name . "Create new label")
+                      (dummy)
+                      ;; default action creates a new label, or replaces old one
+                      (action . (lambda (label)
+                                  (switch-to-buffer ,cb)
+                                  (let* ((object (org-element-context))
+                                         (last-char (save-excursion
+                                                      (goto-char (org-element-property :end object))
+                                                      (backward-char)
+                                                      (if (looking-at " ")
+                                                          " "
+                                                        ""))))
+                                    (if (-contains? '("label")
+                                                    (org-element-property :type object))
+                                        ;; we are on a link, so replace it.
+                                        (setf
+                                         (buffer-substring
+                                          (org-element-property :begin object)
+                                          (org-element-property :end object))
+                                         (concat
+                                          (replace-regexp-in-string
+                                           (org-element-property :path object)
+                                           helm-pattern
+                                           (org-element-property :raw-link object))
+                                          last-char))
+                                      ;; new link
+                                      (insert
+                                       (concat
+                                        "label:"
+                                        (or label
+                                            helm-pattern))))))))))))
 
 
 (defun org-ref-complete-link (&optional arg)
@@ -1414,8 +1414,8 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-insert-ref-link ()
   "Completion function for a ref link."
- (interactive)
- (insert (org-ref-complete-link)))
+  (interactive)
+  (insert (org-ref-complete-link)))
 
 
 (defun org-ref-helm-insert-ref-link ()
@@ -1425,72 +1425,72 @@ Use C-u to insert a different kind of ref link.
 Use C-u C-u to insert a [[#custom-id]] link"
   (interactive)
   (let* ((labels (org-ref-get-labels))
-	 (bs (buffer-string))
-	 (contexts (with-temp-buffer
-		     (insert bs)
-		     (mapcar 'org-ref-get-label-context labels)))
-	 (cb (current-buffer)))
+         (bs (buffer-string))
+         (contexts (with-temp-buffer
+                     (insert bs)
+                     (mapcar 'org-ref-get-label-context labels)))
+         (cb (current-buffer)))
 
     (helm :input (thing-at-point 'word)
-	  :sources `(((name . "Available labels to ref")
-		      (multiline)
-		      (candidates . ,(cl-loop for label in labels
-					      for context in contexts
-					      ;; we do some kludgy adding spaces
-					      ;; and bars to make it "easier" to
-					      ;; see in helm.
-					      collect (cons (concat
-							     label "\n"
-							     (mapconcat
-							      (lambda (x)
-								(concat "   |" x))
-							      (split-string context "\n")
-							      "\n"
-							      ) "\n\n") label)))
-		      ;; default action to replace or insert ref link.
-		      (action . (lambda (label)
-				  (switch-to-buffer ,cb)
+          :sources `(((name . "Available labels to ref")
+                      (multiline)
+                      (candidates . ,(cl-loop for label in labels
+                                              for context in contexts
+                                              ;; we do some kludgy adding spaces
+                                              ;; and bars to make it "easier" to
+                                              ;; see in helm.
+                                              collect (cons (concat
+                                                             label "\n"
+                                                             (mapconcat
+                                                              (lambda (x)
+                                                                (concat "   |" x))
+                                                              (split-string context "\n")
+                                                              "\n"
+                                                              ) "\n\n") label)))
+                      ;; default action to replace or insert ref link.
+                      (action . (lambda (label)
+                                  (switch-to-buffer ,cb)
 
-				  (cond
-				   ;;  no prefix or on a link
-				   ((equal helm-current-prefix-arg nil)
-				    (let* ((object (org-element-context))
-					   (last-char (save-excursion
-							(goto-char (org-element-property :end object))
-							(backward-char)
-							(if (looking-at " ")
-							    " "
-							  ""))))
-				      (if (-contains? '("ref" "eqref" "pageref" "nameref")
-						      (org-element-property :type object))
-					  ;; we are on a link, so replace it.
-					  (setf
-					   (buffer-substring
-					    (org-element-property :begin object)
-					    (org-element-property :end object))
-					   (concat
-					    (replace-regexp-in-string
-					     (org-element-property :path object)
-					     label
-					     (org-element-property :raw-link object))
-					    last-char))
-					;; insert a new link
-					(insert
-					 (concat
-					  "ref:" label))
-					)))
-				   ;; one prefix, alternate ref link
-				   ((equal helm-current-prefix-arg '(4))
-				    (insert
-				     (concat
-				      (helm :sources '((name . "Ref link types")
-						       (candidates . ("ref" "eqref" "pageref" "nameref"))
-						       (action . (lambda (x) x))))
-				      ":" label)))
-				   ;; two prefixes, insert section custom-id link
-				   ((equal helm-current-prefix-arg '(16))
-				    (insert
-				     (format "[[#%s]]" label)))))))))))
+                                  (cond
+                                   ;;  no prefix or on a link
+                                   ((equal helm-current-prefix-arg nil)
+                                    (let* ((object (org-element-context))
+                                           (last-char (save-excursion
+                                                        (goto-char (org-element-property :end object))
+                                                        (backward-char)
+                                                        (if (looking-at " ")
+                                                            " "
+                                                          ""))))
+                                      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+                                                      (org-element-property :type object))
+                                          ;; we are on a link, so replace it.
+                                          (setf
+                                           (buffer-substring
+                                            (org-element-property :begin object)
+                                            (org-element-property :end object))
+                                           (concat
+                                            (replace-regexp-in-string
+                                             (org-element-property :path object)
+                                             label
+                                             (org-element-property :raw-link object))
+                                            last-char))
+                                        ;; insert a new link
+                                        (insert
+                                         (concat
+                                          "ref:" label))
+                                        )))
+                                   ;; one prefix, alternate ref link
+                                   ((equal helm-current-prefix-arg '(4))
+                                    (insert
+                                     (concat
+                                      (helm :sources '((name . "Ref link types")
+                                                       (candidates . ("ref" "eqref" "pageref" "nameref"))
+                                                       (action . (lambda (x) x))))
+                                      ":" label)))
+                                   ;; two prefixes, insert section custom-id link
+                                   ((equal helm-current-prefix-arg '(16))
+                                    (insert
+                                     (format "[[#%s]]" label)))))))))))
 
 ;; *** pageref link
 (org-add-link-type
@@ -1502,32 +1502,32 @@ Use C-u C-u to insert a [[#custom-id]] link"
    (widen)
    (unless
        (or
-	;; our label links
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward (format "label:%s\\b" label) nil t))
+        ;; our label links
+        (progn
+          (goto-char (point-min))
+          (re-search-forward (format "label:%s\\b" label) nil t))
 
-	;; a latex label
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward (format "\\label{%s}" label) nil t))
+        ;; a latex label
+        (progn
+          (goto-char (point-min))
+          (re-search-forward (format "\\label{%s}" label) nil t))
 
-	;; #+label: name  org-definition
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward
-	   (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+        ;; #+label: name  org-definition
+        (progn
+          (goto-char (point-min))
+          (re-search-forward
+           (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
 
-	;; org tblname
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward
-	   (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
+        ;; org tblname
+        (progn
+          (goto-char (point-min))
+          (re-search-forward
+           (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
      (error "%s not found" label))
    (message "go back with (org-mark-ring-goto) `C-c &`"))
- ;formatting
+                                        ;formatting
  (lambda (keyword desc format)
    (cond
     ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
@@ -1545,8 +1545,8 @@ Optional argument ARG Does nothing."
 
 (defun org-pageref-insert-ref-link ()
   "Insert a pageref link with completion."
- (interactive)
- (insert (org-pageref-complete-link)))
+  (interactive)
+  (insert (org-pageref-complete-link)))
 
 
 ;; *** nameref link
@@ -1559,16 +1559,16 @@ Optional argument ARG Does nothing."
    (widen)
    (unless
        (or
-	;; a latex label
-	(progn
-	  (goto-char (point-min))
-	  (re-search-forward (format "\\label{%s}" label) nil t))
-	)
+        ;; a latex label
+        (progn
+          (goto-char (point-min))
+          (re-search-forward (format "\\label{%s}" label) nil t))
+        )
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
      (error "%s not found" label))
    (message "go back with (org-mark-ring-goto) `C-c &`"))
- ;formatting
+                                        ;formatting
  (lambda (keyword desc format)
    (cond
     ((eq format 'html) (format "(<nameref>%s</nameref>)" path))
@@ -1587,17 +1587,17 @@ Optional argument ARG Does nothing."
    (goto-char (point-min))
    (unless
        (or
-	;; search forward for the first match
-	;; our label links
-	(re-search-forward (format "label:%s" label) nil t)
-	;; a latex label
-	(re-search-forward (format "\\label{%s}" label) nil t)
-	;; #+label: name  org-definition
-	(re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+        ;; search forward for the first match
+        ;; our label links
+        (re-search-forward (format "label:%s" label) nil t)
+        ;; a latex label
+        (re-search-forward (format "\\label{%s}" label) nil t)
+        ;; #+label: name  org-definition
+        (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
      (org-mark-ring-goto)
      (error "%s not found" label))
    (message "go back with (org-mark-ring-goto) `C-c &`"))
- ;formatting
+                                        ;formatting
  (lambda (keyword desc format)
    (cond
     ((eq format 'latex) (format "\\eqref{%s}" keyword))
@@ -1614,7 +1614,7 @@ point to get a comma, or the end of the link, and then backwards
 to get a comma, or the beginning of the link.  that delimits the
 keyword we clicked on.  We also strip the text properties."
   (let* ((object (org-element-context))
-	 (link-string (org-element-property :path object)))
+         (link-string (org-element-property :path object)))
     ;; you may click on the part before the citations. here we make
     ;; sure to move to the beginning so you get the first citation.
     (let ((cp (point)))
@@ -1623,36 +1623,36 @@ keyword we clicked on.  We also strip the text properties."
       (goto-char (match-beginning 0))
       ;; check if we clicked before the path and move as needed.
       (unless (< cp (point))
-	(goto-char cp)))
+        (goto-char cp)))
 
     (if (not (org-element-property :contents-begin object))
-	;; this means no description in the link
-	(progn
-	  ;; we need the link path start and end
-	  (let (link-string-beginning link-string-end)
-	    (save-excursion
-	      (goto-char (org-element-property :begin object))
-	      (search-forward link-string nil nil 1)
-	      (setq link-string-beginning (match-beginning 0))
-	      (setq link-string-end (match-end 0)))
+        ;; this means no description in the link
+        (progn
+          ;; we need the link path start and end
+          (let (link-string-beginning link-string-end)
+            (save-excursion
+              (goto-char (org-element-property :begin object))
+              (search-forward link-string nil nil 1)
+              (setq link-string-beginning (match-beginning 0))
+              (setq link-string-end (match-end 0)))
 
-	    (let (key-beginning key-end)
-	      ;; The key is the text between commas, or the link boundaries
-	      (save-excursion
-		(if (search-forward "," link-string-end t 1)
-		    (setq key-end (- (match-end 0) 1)) ; we found a match
-		  (setq key-end link-string-end))) ; no comma found so take the end
-	      ;; and backward to previous comma from point which defines the start character
-	      (save-excursion
-		(if (search-backward "," link-string-beginning 1 1)
-		    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-		  (setq key-beginning link-string-beginning))) ; no match found
-	      ;; save the key we clicked on.
-	      (let ((bibtex-key
-		     (org-ref-strip-string
-		      (buffer-substring key-beginning key-end))))
-		(set-text-properties 0 (length bibtex-key) nil bibtex-key)
-		bibtex-key))))
+            (let (key-beginning key-end)
+              ;; The key is the text between commas, or the link boundaries
+              (save-excursion
+                (if (search-forward "," link-string-end t 1)
+                    (setq key-end (- (match-end 0) 1)) ; we found a match
+                  (setq key-end link-string-end))) ; no comma found so take the end
+              ;; and backward to previous comma from point which defines the start character
+              (save-excursion
+                (if (search-backward "," link-string-beginning 1 1)
+                    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+                  (setq key-beginning link-string-beginning))) ; no match found
+              ;; save the key we clicked on.
+              (let ((bibtex-key
+                     (org-ref-strip-string
+                      (buffer-substring key-beginning key-end))))
+                (set-text-properties 0 (length bibtex-key) nil bibtex-key)
+                bibtex-key))))
       ;; link with description. assume only one key
       link-string)))
 
@@ -1669,28 +1669,28 @@ falling back to what the user has set in `org-ref-default-bibliography'"
       (goto-char (point-min))
       ;;  look for a bibliography link
       (when (re-search-forward "\\<bibliography:\\([^\]\|\n]+\\)" nil t)
-	(setq org-ref-bibliography-files
-	      (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
-	(throw 'result org-ref-bibliography-files))
+        (setq org-ref-bibliography-files
+              (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
+        (throw 'result org-ref-bibliography-files))
 
 
       ;; we did not find a bibliography link. now look for \bibliography
       (goto-char (point-min))
       (when (re-search-forward "\\\\bibliography{\\([^}]+\\)}" nil t)
-	;; split, and add .bib to each file
-	(setq org-ref-bibliography-files
-	      (mapcar (lambda (x) (concat x ".bib"))
-		      (mapcar 'org-ref-strip-string
-			      (split-string (match-string 1) ","))))
-	(throw 'result org-ref-bibliography-files))
+        ;; split, and add .bib to each file
+        (setq org-ref-bibliography-files
+              (mapcar (lambda (x) (concat x ".bib"))
+                      (mapcar 'org-ref-strip-string
+                              (split-string (match-string 1) ","))))
+        (throw 'result org-ref-bibliography-files))
 
       ;; no bibliography found. maybe we need a biblatex addbibresource
       (goto-char (point-min))
       ;;  look for a bibliography link
       (when (re-search-forward "addbibresource:\\([^\]\|\n]+\\)" nil t)
-	(setq org-ref-bibliography-files
-	      (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
-	(throw 'result org-ref-bibliography-files))
+        (setq org-ref-bibliography-files
+              (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
+        (throw 'result org-ref-bibliography-files))
 
       ;; we did not find anything. use defaults
       (setq org-ref-bibliography-files org-ref-default-bibliography)))
@@ -1708,23 +1708,23 @@ falling back to what the user has set in `org-ref-default-bibliography'"
       ;; you have added to it, the only way I find to get the update to update
       ;; is to close it and reopen it. or to save it and revert it.
       (when (get-file-buffer filename)
-	(set-buffer (get-file-buffer filename))
-	(when (buffer-modified-p (current-buffer))
-	  (save-buffer)
-	  (revert-buffer t t)))
+        (set-buffer (get-file-buffer filename))
+        (when (buffer-modified-p (current-buffer))
+          (save-buffer)
+          (revert-buffer t t)))
       (bibtex-search-entry key t))))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
   "Return the bibtex KEY and file that it is in.  If no key is provided, get one under point."
   (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-	(file))
+        (file))
     (unless key
       (setq key (org-ref-get-bibtex-key-under-cursor)))
     (setq file     (catch 'result
-		     (cl-loop for file in org-ref-bibliography-files do
-			      (if (org-ref-key-in-file-p key (file-truename file))
-				  (throw 'result file)))))
+                     (cl-loop for file in org-ref-bibliography-files do
+                              (if (org-ref-key-in-file-p key (file-truename file))
+                                  (throw 'result file)))))
     (cons key file)))
 
 ;; *** key at point functions
@@ -1750,19 +1750,19 @@ Contributed by https://github.com/autosquid."
               (let ((first-file (car (split-string clean-field ";" t))))
                 (format "/%s" (subseq first-file 1 (- (length first-file) 4)))))
           (format (concat
-		   (file-name-as-directory org-ref-pdf-directory)
-		   "%s.pdf")
-		  key))))))
+                   (file-name-as-directory org-ref-pdf-directory)
+                   "%s.pdf")
+                  key))))))
 
 
 (defun org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-	 (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+         (key (car results))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
     (if (file-exists-p pdf-file)
-	(org-open-file pdf-file)
+        (org-open-file pdf-file)
       (message "no pdf found for %s" key))))
 
 
@@ -1770,8 +1770,8 @@ Contributed by https://github.com/autosquid."
   "Open the url for bibtex key under point."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-	 (bibfile (cdr results)))
+         (key (car results))
+         (bibfile (cdr results)))
     (save-excursion
       (with-temp-buffer
         (insert-file-contents bibfile)
@@ -1804,24 +1804,24 @@ Can also be called with THEKEY in a program."
   "Give message of current citation at point."
   (interactive)
   (let* ((cb (current-buffer))
-	 (results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-	 (bibfile (cdr results)))
+         (results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+         (bibfile (cdr results)))
     (message "%s" (progn
-		    (with-temp-buffer
-		      (insert-file-contents bibfile)
-		      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		      (bibtex-search-entry key)
-		      (org-ref-bib-citation))))))
+                    (with-temp-buffer
+                      (insert-file-contents bibfile)
+                      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+                      (bibtex-search-entry key)
+                      (org-ref-bib-citation))))))
 
 
 (defun org-ref-open-citation-at-point ()
   "Open bibtex file to key at point."
   (interactive)
   (let* ((cb (current-buffer))
-	(results (org-ref-get-bibtex-key-and-file))
-	(key (car results))
-	(bibfile (cdr results)))
+         (results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+         (bibfile (cdr results)))
     (find-file bibfile)
     (bibtex-search-entry key)))
 
@@ -1844,9 +1844,9 @@ function, and functions are conditionally added to it.")
 (defun org-ref-copy-entry-as-summary ()
   "Copy the bibtex entry for the citation at point as a summary."
   (interactive)
-    (save-window-excursion
-      (org-ref-open-citation-at-point)
-      (kill-new (org-ref-bib-citation))))
+  (save-window-excursion
+    (org-ref-open-citation-at-point)
+    (kill-new (org-ref-bib-citation))))
 
 
 (defun org-ref-copy-entry-at-point-to-file ()
@@ -1856,41 +1856,41 @@ Prompt for NEW-FILE includes bib files in
 directory. You can also specify a new file."
   (interactive)
   (let ((new-file (ido-completing-read
-		   "Copy to bibfile: "
-		   (append org-ref-default-bibliography
-			   (f-entries "." (lambda (f) (f-ext? f "bib"))))))
-	(key (org-ref-get-bibtex-key-under-cursor)))
+                   "Copy to bibfile: "
+                   (append org-ref-default-bibliography
+                           (f-entries "." (lambda (f) (f-ext? f "bib"))))))
+        (key (org-ref-get-bibtex-key-under-cursor)))
     (save-window-excursion
       (org-ref-open-citation-at-point)
       (bibtex-copy-entry-as-kill))
 
     (let ((bibtex-files (list (file-truename new-file))))
       (if (assoc key (bibtex-global-key-alist))
-	  (message "That key already exists in %s" new-file)
-	;; add to file
-	(save-window-excursion
-	  (find-file new-file)
-	  (goto-char (point-max))
+          (message "That key already exists in %s" new-file)
+        ;; add to file
+        (save-window-excursion
+          (find-file new-file)
+          (goto-char (point-max))
           ;; make sure we are at the beginning of a line.
-	  (unless (looking-at "^") (insert "\n\n"))
-	  (bibtex-yank)
-	  (save-buffer))))))
+          (unless (looking-at "^") (insert "\n\n"))
+          (bibtex-yank)
+          (save-buffer))))))
 
 
 (defun org-ref-get-doi-at-point ()
   "Get doi for key at point."
   (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-	 (bibfile (cdr results))
+         (key (car results))
+         (bibfile (cdr results))
          doi)
     (save-excursion
       (with-temp-buffer
         (insert-file-contents bibfile)
         (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
         (bibtex-search-entry key)
-	(setq doi (bibtex-autokey-get-field "doi"))
-	;; in case doi is a url, remove the url part.
-	(replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
+        (setq doi (bibtex-autokey-get-field "doi"))
+        ;; in case doi is a url, remove the url part.
+        (replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
 
 
 ;; **** functions that operate on key at point for click menu
@@ -1938,23 +1938,23 @@ has a pdf, you get an option to open it.  If there is a doi, you
 get a lot of options.  LINK-STRING is used by the link function."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
+         (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (bibfile (cdr results))
-	 (url (save-excursion
-		(with-temp-buffer
-		  (insert-file-contents bibfile)
+         (url (save-excursion
+                (with-temp-buffer
+                  (insert-file-contents bibfile)
                   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		  (bibtex-search-entry key)
-		  (bibtex-autokey-get-field "url"))))
-	 (doi (save-excursion
-		(with-temp-buffer
-		  (insert-file-contents bibfile)
+                  (bibtex-search-entry key)
+                  (bibtex-autokey-get-field "url"))))
+         (doi (save-excursion
+                (with-temp-buffer
+                  (insert-file-contents bibfile)
                   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		  (bibtex-search-entry key)
-		  ;; I like this better than bibtex-url which does not always find
-		  ;; the urls
-		  (bibtex-autokey-get-field "doi")))))
+                  (bibtex-search-entry key)
+                  ;; I like this better than bibtex-url which does not always find
+                  ;; the urls
+                  (bibtex-autokey-get-field "doi")))))
 
     (when (string= "" doi) (setq doi nil))
     (when (string= "" url) (setq url nil))
@@ -1962,7 +1962,7 @@ get a lot of options.  LINK-STRING is used by the link function."
 
     ;; open action
     (when
-	bibfile
+        bibfile
       (add-to-list
        'org-ref-cite-menu-funcs
        '("o" "pen" org-ref-open-citation-at-point)))
@@ -2022,30 +2022,30 @@ get a lot of options.  LINK-STRING is used by the link function."
     (message
      (concat
       (let* ((results (org-ref-get-bibtex-key-and-file))
-	     (key (car results))
-	     (bibfile (cdr results)))
-	(save-excursion
-	  (with-temp-buffer
-	    (insert-file-contents bibfile)
+             (key (car results))
+             (bibfile (cdr results)))
+        (save-excursion
+          (with-temp-buffer
+            (insert-file-contents bibfile)
             (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	    (bibtex-search-entry key)
-	    (org-ref-bib-citation))))
+            (bibtex-search-entry key)
+            (org-ref-bib-citation))))
       "\n"
       (mapconcat
        (lambda (tup)
-	 (concat "[" (elt tup 0) "]"
-		 (elt tup 1) " "))
+         (concat "[" (elt tup 0) "]"
+                 (elt tup 1) " "))
        org-ref-cite-menu-funcs "")))
     ;; get the input
     (let* ((input (read-char-exclusive))
-	   (choice (assoc
-		    (char-to-string input) org-ref-cite-menu-funcs)))
+           (choice (assoc
+                    (char-to-string input) org-ref-cite-menu-funcs)))
       ;; now run the function (2nd element in choice)
       (when choice
-	(funcall
-	 (elt
-	  choice
-	  2))))))
+        (funcall
+         (elt
+          choice
+          2))))))
 
 ;; *** Generation of the cite links
 (defmacro org-ref-make-completion-function (type)
@@ -2053,11 +2053,11 @@ get a lot of options.  LINK-STRING is used by the link function."
   `(defun ,(intern (format "org-%s-complete-link" type)) (&optional arg)
      (interactive)
      (format "%s:%s"
-	     ,type
-	     (completing-read
-	      "bibtex key: "
-	      (let ((bibtex-files (org-ref-find-bibliography)))
-		(bibtex-global-key-alist))))))
+             ,type
+             (completing-read
+              "bibtex key: "
+              (let ((bibtex-files (org-ref-find-bibliography)))
+                (bibtex-global-key-alist))))))
 
 
 (defmacro org-ref-make-format-function (type)
@@ -2070,50 +2070,50 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
      (cond
       ((eq format 'org)
        (mapconcat
-	(lambda (key)
-	  (format "[[#%s][%s]]" key key))
-	(org-ref-split-and-strip-string keyword) ","))
+  (lambda (key)
+    (format "[[#%s][%s]]" key key))
+  (org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'ascii)
        (concat "["
-	       (mapconcat
-		(lambda (key)
-		  (format "%s" key))
-		(org-ref-split-and-strip-string keyword) ",") "]"))
+         (mapconcat
+    (lambda (key)
+      (format "%s" key))
+    (org-ref-split-and-strip-string keyword) ",") "]"))
 
       ((eq format 'html)
        (mapconcat
-	(lambda (key)
-	  (format "<a class='org-ref-reference' href=\"#%s\">%s</a>" key key))
-	(org-ref-split-and-strip-string keyword) ","))
+  (lambda (key)
+    (format "<a class='org-ref-reference' href=\"#%s\">%s</a>" key key))
+  (org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'latex)
        (if (string= (substring ,type -1) "s")
-	   ;; biblatex format for multicite commands, which all end in s. These are formated as \cites{key1}{key2}...
-	   (concat "\\" ,type (mapconcat (lambda (key) (format "{%s}"  key))
-					 (org-ref-split-and-strip-string keyword) ""))
-	 ;; bibtex format
-	 (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
-		 (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
-		 "}")))
+     ;; biblatex format for multicite commands, which all end in s. These are formated as \cites{key1}{key2}...
+     (concat "\\" ,type (mapconcat (lambda (key) (format "{%s}"  key))
+           (org-ref-split-and-strip-string keyword) ""))
+   ;; bibtex format
+   (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
+     (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
+     "}")))
       ;; for markdown we generate pandoc citations
       ((eq format 'md)
        (cond
-	(desc ;; pre and or post text
-	 (let* ((text (split-string desc "::"))
-		(pre (car text))
-		(post (cadr text)))
-	   (concat
-	    (format "[@%s," keyword)
-	    (when pre (format " %s" pre))
-	    (when post (format ", %s" post))
-	    "]")))
-	(t
-	 (format "[%s]"
-		 (mapconcat
-		  (lambda (key) (concat "@" key))
-		  (org-ref-split-and-strip-string keyword)
-		  "; "))))))))
+  (desc ;; pre and or post text
+   (let* ((text (split-string desc "::"))
+    (pre (car text))
+    (post (cadr text)))
+     (concat
+      (format "[@%s," keyword)
+      (when pre (format " %s" pre))
+      (when post (format ", %s" post))
+      "]")))
+  (t
+   (format "[%s]"
+     (mapconcat
+      (lambda (key) (concat "@" key))
+      (org-ref-split-and-strip-string keyword)
+      "; "))))))))
 
 
 (defun org-ref-format-citation-description (desc)
@@ -2154,8 +2154,8 @@ citez link, with reftex key of z, and the completion function."
   ;; and finally if a key is specified, we modify the reftex menu
   (when key
     (setf (nth 2 (assoc 'org reftex-cite-format-builtin))
-	  (append (nth 2 (assoc 'org reftex-cite-format-builtin))
-		  `((,key  . ,(concat type ":%l")))))))
+          (append (nth 2 (assoc 'org reftex-cite-format-builtin))
+                  `((,key  . ,(concat type ":%l")))))))
 
 ;; create all the link types and their completion functions
 (dolist (type org-ref-cite-types)
@@ -2170,37 +2170,37 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
   (interactive "P")
   (org-ref-find-bibliography)
   (let* ((object (org-element-context))
-	 (link-string-beginning (org-element-property :begin object))
-	 (link-string-end (org-element-property :end object))
-	 (path (org-element-property :path object)))
+         (link-string-beginning (org-element-property :begin object))
+         (link-string-end (org-element-property :end object))
+         (path (org-element-property :path object)))
 
     (if (not alternative-cite)
 
-	(cond
-	 ;; case where we are in a link
-	 ((and (equal (org-element-type object) 'link)
-	       (-contains? org-ref-cite-types (org-element-property :type object)))
-	  (goto-char link-string-end)
-	  ;; sometimes there are spaces at the end of the link
-	  ;; this code moves point pack until no spaces are there
-	  (while (looking-back " ") (backward-char))
-	  (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
+        (cond
+         ;; case where we are in a link
+         ((and (equal (org-element-type object) 'link)
+               (-contains? org-ref-cite-types (org-element-property :type object)))
+          (goto-char link-string-end)
+          ;; sometimes there are spaces at the end of the link
+          ;; this code moves point pack until no spaces are there
+          (while (looking-back " ") (backward-char))
+          (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
 
-	 ;; We are next to a link, and we want to append
-	 ((save-excursion
-	    (backward-char)
-	    (and (equal (org-element-type (org-element-context)) 'link)
-		 (-contains? org-ref-cite-types
-			     (org-element-property :type (org-element-context)))))
-	  (while (looking-back " ") (backward-char))
-	  (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
+         ;; We are next to a link, and we want to append
+         ((save-excursion
+            (backward-char)
+            (and (equal (org-element-type (org-element-context)) 'link)
+                 (-contains? org-ref-cite-types
+                             (org-element-property :type (org-element-context)))))
+          (while (looking-back " ") (backward-char))
+          (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
 
-	 ;; insert fresh link
-	 (t
-	  (insert
-	   (concat org-ref-default-citation-link
-		   ":"
-		   (mapconcat 'identity (reftex-citation t) ",")))))
+         ;; insert fresh link
+         (t
+          (insert
+           (concat org-ref-default-citation-link
+                   ":"
+                   (mapconcat 'identity (reftex-citation t) ",")))))
 
       ;; you pressed a C-u so we run this code
       (reftex-citation))))
@@ -2216,10 +2216,10 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
   "Save a citation link to the current bibtex entry.  Save in the default link type."
   (interactive)
   (let ((link (concat org-ref-default-citation-link
-		      ":"
-		      (save-excursion
-			(bibtex-beginning-of-entry)
-			(reftex-get-bib-field "=key=" (bibtex-parse-entry))))))
+                      ":"
+                      (save-excursion
+                        (bibtex-beginning-of-entry)
+                        (reftex-get-bib-field "=key=" (bibtex-parse-entry))))))
     (message "saved %s" link)
     (push (list link) org-stored-links)
     (car org-stored-links)))
@@ -2233,38 +2233,38 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
  (lambda (path desc format)
    (cond
     ((eq format 'latex)
-      (format "\\index{%s}" path)))))
+     (format "\\index{%s}" path)))))
 
 ;; this will generate a temporary index of entries in the file.
 (org-add-link-type
  "printindex"
  (lambda (path)
    (let ((*index-links* '())
-	 (*initial-letters* '()))
+         (*initial-letters* '()))
 
      ;; get links
      (org-element-map (org-element-parse-buffer) 'link
        (lambda (link)
-	 (let ((type (nth 0 link))
-	       (plist (nth 1 link)))
+         (let ((type (nth 0 link))
+               (plist (nth 1 link)))
 
-	   (when (equal (plist-get plist ':type) "index")
-	     (add-to-list
-	      '*index-links*
-	      (cons (plist-get plist :path)
-		    (format
-		     "[[elisp:(progn (switch-to-buffer \"%s\") (goto-char %s))][%s]]"
-		     (current-buffer)
-		     (plist-get plist :begin) ;; position of link
-		     ;; grab a description
-		     (save-excursion
-		       (goto-char (plist-get plist :begin))
-		       (if (thing-at-point 'sentence)
-			   ;; get a sentence
-			   (replace-regexp-in-string
-			    "\n" "" (thing-at-point 'sentence))
-			 ;; or call it a link
-			 "link")))))))))
+           (when (equal (plist-get plist ':type) "index")
+             (add-to-list
+              '*index-links*
+              (cons (plist-get plist :path)
+                    (format
+                     "[[elisp:(progn (switch-to-buffer \"%s\") (goto-char %s))][%s]]"
+                     (current-buffer)
+                     (plist-get plist :begin) ;; position of link
+                     ;; grab a description
+                     (save-excursion
+                       (goto-char (plist-get plist :begin))
+                       (if (thing-at-point 'sentence)
+                           ;; get a sentence
+                           (replace-regexp-in-string
+                            "\n" "" (thing-at-point 'sentence))
+                         ;; or call it a link
+                         "link")))))))))
 
      ;; sort the links
      (setq *index-links* (cl-sort *index-links* 'string-lessp :key 'car))
@@ -2282,10 +2282,10 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
        (insert (format "* %s\n" (upcase letter)))
        ;; now process the links
        (while (and
-	       *index-links*
-	       (string= letter (substring (car (car *index-links*)) 0 1)))
-	 (let ((link (pop *index-links*)))
-	   (insert (format "%s %s\n\n" (car link) (cdr link))))))
+               *index-links*
+               (string= letter (substring (car (car *index-links*)) 0 1)))
+         (let ((link (pop *index-links*)))
+           (insert (format "%s %s\n\n" (car link) (cdr link))))))
      (switch-to-buffer "*index*")))
  ;; formatting
  (lambda (path desc format)
@@ -2306,7 +2306,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
 ;; link to entry
 (org-add-link-type
  "gls"
-  nil ;; no follow action
+ nil ;; no follow action
  (lambda (path desc format)
    (cond
     ((eq format 'latex)
@@ -2315,7 +2315,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
 ;; plural
 (org-add-link-type
  "glspl"
-  nil ;; no follow action
+ nil ;; no follow action
  (lambda (path desc format)
    (cond
     ((eq format 'latex)
@@ -2324,7 +2324,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
 ;; capitalized link
 (org-add-link-type
  "Gls"
-  nil ;; no follow action
+ nil ;; no follow action
  (lambda (path desc format)
    (cond
     ((eq format 'latex)
@@ -2333,7 +2333,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
 ;; capitalized link
 (org-add-link-type
  "Glspl"
-  nil ;; no follow action
+ nil ;; no follow action
  (lambda (path desc format)
    (cond
     ((eq format 'latex)
@@ -2347,49 +2347,49 @@ This assumes you are in an article."
   (bibtex-set-dialect nil t)
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
-	 (bibtex-expand-strings t)
-	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-			 collect (cons (downcase key) value)))
-	 (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
-	 (year  (reftex-get-bib-field "year" entry))
-	 (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
-	 (key (reftex-get-bib-field "=key=" entry))
-	 (journal (let ((jt (reftex-get-bib-field "journal" entry)))
+         (bibtex-expand-strings t)
+         (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
+                         collect (cons (downcase key) value)))
+         (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
+         (year  (reftex-get-bib-field "year" entry))
+         (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
+         (key (reftex-get-bib-field "=key=" entry))
+         (journal (let ((jt (reftex-get-bib-field "journal" entry)))
                     (if (string= "" jt)
                         (reftex-get-bib-field "journaltitle" entry)
                       jt)))
-	 (volume (reftex-get-bib-field "volume" entry))
-	 (pages (reftex-get-bib-field "pages" entry))
-	 (doi (reftex-get-bib-field "doi" entry))
-	 (url (reftex-get-bib-field "url" entry))
-	 )
+         (volume (reftex-get-bib-field "volume" entry))
+         (pages (reftex-get-bib-field "pages" entry))
+         (doi (reftex-get-bib-field "doi" entry))
+         (url (reftex-get-bib-field "url" entry))
+         )
     ;;authors, "title", Journal, vol(iss):pages (year).
     (format "%s, \"%s\", %s, %s:%s (%s)"
-	    author title journal  volume pages year)))
+            author title journal  volume pages year)))
 
 
 (defun org-ref-bib-html-citation ()
   "From a bibtex entry, create and return a simple citation with html links."
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
-	 (bibtex-expand-strings t)
-	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-			 collect (cons (downcase key) value)))
-	 (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
-	 (year  (reftex-get-bib-field "year" entry))
-	 (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
-	 (key (reftex-get-bib-field "=key=" entry))
-	 (journal (reftex-get-bib-field "journal" entry))
-	 (volume (reftex-get-bib-field "volume" entry))
-	 (pages (reftex-get-bib-field "pages" entry))
-	 (doi (reftex-get-bib-field "doi" entry))
-	 (url (reftex-get-bib-field "url" entry)))
+         (bibtex-expand-strings t)
+         (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
+                         collect (cons (downcase key) value)))
+         (title (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "title" entry)))
+         (year  (reftex-get-bib-field "year" entry))
+         (author (replace-regexp-in-string "\n\\|\t\\|\s+" " " (reftex-get-bib-field "author" entry)))
+         (key (reftex-get-bib-field "=key=" entry))
+         (journal (reftex-get-bib-field "journal" entry))
+         (volume (reftex-get-bib-field "volume" entry))
+         (pages (reftex-get-bib-field "pages" entry))
+         (doi (reftex-get-bib-field "doi" entry))
+         (url (reftex-get-bib-field "url" entry)))
     ;;authors, "title", Journal, vol(iss):pages (year).
     (concat (format "%s, \"%s\", %s, %s:%s (%s)."
-		    author title journal  volume pages year)
-	    (when url (format " <a href=\"%s\">link</a>" url))
-	    (when doi
-	      (format " <a href=\"http://dx.doi.org/%s\">doi</a>" doi)))))
+                    author title journal  volume pages year)
+            (when url (format " <a href=\"%s\">link</a>" url))
+            (when doi
+              (format " <a href=\"http://dx.doi.org/%s\">doi</a>" doi)))))
 
 ;; ** Open pdf in bibtex entry
 (defun org-ref-open-bibtex-pdf ()
@@ -2422,10 +2422,10 @@ construct the heading by hand."
 
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
-	 (bibtex-expand-strings t)
-	 (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-			 collect (cons (downcase key) value)))
-	 (key (reftex-get-bib-field "=key=" entry)))
+         (bibtex-expand-strings t)
+         (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
+                         collect (cons (downcase key) value)))
+         (key (reftex-get-bib-field "=key=" entry)))
 
     ;; save key to clipboard to make saving pdf later easier by pasting.
     (with-temp-buffer
@@ -2435,21 +2435,21 @@ construct the heading by hand."
     ;; now look for entry in the notes file
     (save-restriction
       (if  org-ref-bibliography-notes
-	  (find-file-other-window org-ref-bibliography-notes)
-	(error "Org-ref-bib-bibliography-notes is not set to anything"))
+          (find-file-other-window org-ref-bibliography-notes)
+        (error "Org-ref-bib-bibliography-notes is not set to anything"))
 
       (widen)
       (goto-char (point-min))
       ;; put new entry in notes if we don't find it.
       (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
-	  (funcall org-ref-open-notes-function)
-	;; no entry found, so add one
-	(insert (org-ref-reftex-format-citation
-		 entry (concat "\n" org-ref-note-title-format)))
-	(insert (format
-		 "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-		 key (file-name-as-directory org-ref-pdf-directory) key))
-	(save-buffer)))))
+          (funcall org-ref-open-notes-function)
+        ;; no entry found, so add one
+        (insert (org-ref-reftex-format-citation
+                 entry (concat "\n" org-ref-note-title-format)))
+        (insert (format
+                 "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
+                 key (file-name-as-directory org-ref-pdf-directory) key))
+        (save-buffer)))))
 
 
 (defun org-ref-open-notes-from-reftex ()
@@ -2472,22 +2472,22 @@ construct the heading by hand."
 ;; ** Open bibtex entry in browser
 (defun org-ref-open-in-browser ()
   "Open the bibtex entry at point in a browser using the url field or doi field."
-(interactive)
-(save-excursion
-  (bibtex-beginning-of-entry)
-  (catch 'done
-    (let ((url (bibtex-autokey-get-field "url")))
-      (when  url
-        (browse-url url)
-        (throw 'done nil)))
+  (interactive)
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (catch 'done
+      (let ((url (bibtex-autokey-get-field "url")))
+        (when  url
+          (browse-url url)
+          (throw 'done nil)))
 
-    (let ((doi (bibtex-autokey-get-field "doi")))
-      (when doi
-        (if (string-match "^http" doi)
-            (browse-url doi)
-          (browse-url (format "http://dx.doi.org/%s" doi)))
-        (throw 'done nil)))
-    (message "No url or doi found"))))
+      (let ((doi (bibtex-autokey-get-field "doi")))
+        (when doi
+          (if (string-match "^http" doi)
+              (browse-url doi)
+            (browse-url (format "http://dx.doi.org/%s" doi)))
+          (throw 'done nil)))
+      (message "No url or doi found"))))
 
 ;; ** upload entry to citeulike
 (defun org-ref-upload-bibtex-entry-to-citeulike ()
@@ -2503,21 +2503,21 @@ the user directory."
           (endpos (point-max))
           (bibtex-string (buffer-string))
           (script (concat "python "
-			  starter-kit-dir
-			  "/upload_bibtex_citeulike.py&")))
+                          starter-kit-dir
+                          "/upload_bibtex_citeulike.py&")))
       (with-temp-buffer
-	(insert bibtex-string)
-	(shell-command-on-region
-	 (point-min) (point-max) script t nil nil t)))))
+        (insert bibtex-string)
+        (shell-command-on-region
+         (point-min) (point-max) script t nil nil t)))))
 
 ;; ** Build a pdf of the bibtex file
 (defun org-ref-build-full-bibliography ()
   "Build pdf of all bibtex entries, and open it."
   (interactive)
   (let* ((bibfile (file-name-nondirectory (buffer-file-name)))
-	(bib-base (file-name-sans-extension bibfile))
-	(texfile (concat bib-base ".tex"))
-	(pdffile (concat bib-base ".pdf")))
+         (bib-base (file-name-sans-extension bibfile))
+         (texfile (concat bib-base ".tex"))
+         (pdffile (concat bib-base ".pdf")))
     (find-file texfile)
     (erase-buffer)
     (insert (format "\\documentclass[12pt]{article}
@@ -2552,22 +2552,22 @@ If no bibliography is in the buffer the variable
          (tempname (make-temp-file "extract-bib"))
          (contents (buffer-string))
          (cb (current-buffer))
-	 basename texfile bibfile results)
+         basename texfile bibfile results)
 
     ;; open tempfile and insert org-buffer contents
     (find-file tempname)
     (insert contents)
     (setq basename (file-name-sans-extension
-		    (file-name-nondirectory buffer-file-name))
-	  texfile (concat tempname ".tex")
-	  bibfile (concat tempname ".bib"))
+                    (file-name-nondirectory buffer-file-name))
+          texfile (concat tempname ".tex")
+          bibfile (concat tempname ".bib"))
 
     ;; see if we have a bibliography, and insert the default one if not.
     (save-excursion
       (goto-char (point-min))
       (unless (re-search-forward "^bibliography:" (point-max) 'end)
-	(insert (format "\nbibliography:%s"
-			(mapconcat 'identity reftex-default-bibliography ",")))))
+        (insert (format "\nbibliography:%s"
+                        (mapconcat 'identity reftex-default-bibliography ",")))))
     (save-buffer)
 
     ;; get a latex file and extract the references
@@ -2594,8 +2594,8 @@ If no bibliography is in the buffer the variable
       (save-excursion
         (goto-char (point-max))
         (insert "\n\n")
-	(org-insert-heading)
-	(insert (format " Bibtex entries
+        (org-insert-heading)
+        (insert (format " Bibtex entries
 
 #+BEGIN_SRC text :tangle %s
 %s
@@ -2605,12 +2605,12 @@ If no bibliography is in the buffer the variable
 (defun org-ref-index (substring list)
   "Return the index of SUBSTRING in a LIST of strings."
   (let ((i 0)
-	(found nil))
+        (found nil))
     (dolist (arg list i)
       (if (string-match (concat "^" substring "$") arg)
-	  (progn
-	    (setq found t)
-	    (return i)))
+          (progn
+            (setq found t)
+            (return i)))
       (setq i (+ i 1)))
     ;; return counter if found, otherwise return nil
     (if found i nil)))
@@ -2624,64 +2624,64 @@ Makes a new buffer with clickable links."
   ;; generate the list of bibtex-keys and cited keys
   (let* ((bibtex-files (org-ref-find-bibliography))
          (bibtex-file-path (mapconcat (lambda (x) (file-name-directory (file-truename x))) bibtex-files ":"))
-	 (bibtex-keys (mapcar (lambda (x) (car x)) (bibtex-global-key-alist)))
-	 (bad-citations '()))
+         (bibtex-keys (mapcar (lambda (x) (car x)) (bibtex-global-key-alist)))
+         (bad-citations '()))
 
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
-	(let ((plist (nth 1 link)))
-	  (when (-contains? org-ref-cite-types (plist-get plist :type))
-	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
-	      (when (not (org-ref-index key bibtex-keys))
-		(setq
-		 bad-citations
-		 (append
-		  bad-citations
-		  `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
-			     key
-			     (buffer-name)
-			     (plist-get plist :begin)))))
-		)))))
+        (let ((plist (nth 1 link)))
+          (when (-contains? org-ref-cite-types (plist-get plist :type))
+            (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
+              (when (not (org-ref-index key bibtex-keys))
+                (setq
+                 bad-citations
+                 (append
+                  bad-citations
+                  `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
+                             key
+                             (buffer-name)
+                             (plist-get plist :begin)))))
+                )))))
       ;; set with-affilates to t to get citations in a caption
       nil nil nil t)
 
     (if bad-citations
-      (progn
-	(switch-to-buffer-other-window "*Missing citations*")
-	(org-mode)
-	(erase-buffer)
-	(insert "* List of bad cite links\n")
-	(insert (mapconcat 'identity bad-citations ""))
-					;(setq buffer-read-only t)
-	(use-local-map (copy-keymap org-mode-map))
-	(local-set-key "q" #'(lambda () (interactive) (kill-buffer))))
+        (progn
+          (switch-to-buffer-other-window "*Missing citations*")
+          (org-mode)
+          (erase-buffer)
+          (insert "* List of bad cite links\n")
+          (insert (mapconcat 'identity bad-citations ""))
+                                        ;(setq buffer-read-only t)
+          (use-local-map (copy-keymap org-mode-map))
+          (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))
 
       (when (get-buffer "*Missing citations*")
-          (kill-buffer "*Missing citations*"))
+        (kill-buffer "*Missing citations*"))
       (message "No bad cite links found"))))
 
 ;; ** helm interface to bad citations, labels, refs and files in orgfile
 (defun org-ref-bad-cite-candidates ()
   "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
   (let* ((cp (point))			; save to return to later
-	 (bibtex-files (org-ref-find-bibliography))
-	 (bibtex-file-path (mapconcat
-			    (lambda (x)
-			      (file-name-directory (file-truename x)))
-			    bibtex-files ":"))
-	 (bibtex-keys (mapcar (lambda (x) (car x))
-			      (bibtex-global-key-alist)))
-	 (bad-citations '()))
+         (bibtex-files (org-ref-find-bibliography))
+         (bibtex-file-path (mapconcat
+                            (lambda (x)
+                              (file-name-directory (file-truename x)))
+                            bibtex-files ":"))
+         (bibtex-keys (mapcar (lambda (x) (car x))
+                              (bibtex-global-key-alist)))
+         (bad-citations '()))
 
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
-	(let ((plist (nth 1 link)))
-	  (when (-contains? org-ref-cite-types (plist-get plist :type))
-	    (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
-	      (when (not (org-ref-index key bibtex-keys))
-		(goto-char (plist-get plist :begin))
-		(re-search-forward key)
-		(push (cons key (point-marker)) bad-citations))))))
+        (let ((plist (nth 1 link)))
+          (when (-contains? org-ref-cite-types (plist-get plist :type))
+            (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
+              (when (not (org-ref-index key bibtex-keys))
+                (goto-char (plist-get plist :begin))
+                (re-search-forward key)
+                (push (cons key (point-marker)) bad-citations))))))
       ;; add with-affiliates to get cites in caption
       nil nil nil t)
     (goto-char cp)
@@ -2692,23 +2692,23 @@ Makes a new buffer with clickable links."
   "Return a list of conses (ref . marker) where ref is a ref link that does not point to anything (i.e. a label)."
   ;; first get a list of legitimate labels
   (let ((cp (point))
-	(labels (org-ref-get-labels))
-	(bad-refs '()))
+        (labels (org-ref-get-labels))
+        (bad-refs '()))
     ;; now loop over ref links
     (goto-char (point-min))
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
-	(let ((plist (nth 1 link)))
-	  (when (or  (equal (plist-get plist ':type) "ref")
-		     (equal (plist-get plist ':type) "eqref")
-		     (equal (plist-get plist ':type) "pageref")
-		     (equal (plist-get plist ':type) "nameref"))
-	    (unless (-contains? labels (plist-get plist :path))
-	      (goto-char (plist-get plist :begin))
-	      (add-to-list
-	       'bad-refs
-	       (cons (plist-get plist :path)
-		     (point-marker))))))))
+        (let ((plist (nth 1 link)))
+          (when (or  (equal (plist-get plist ':type) "ref")
+                     (equal (plist-get plist ':type) "eqref")
+                     (equal (plist-get plist ':type) "pageref")
+                     (equal (plist-get plist ':type) "nameref"))
+            (unless (-contains? labels (plist-get plist :path))
+              (goto-char (plist-get plist :begin))
+              (add-to-list
+               'bad-refs
+               (cons (plist-get plist :path)
+                     (point-marker))))))))
     (goto-char cp)
     bad-refs))
 
@@ -2716,35 +2716,35 @@ Makes a new buffer with clickable links."
 (defun org-ref-bad-label-candidates ()
   "Return a list of labels where label is multiply defined."
   (let ((labels (org-ref-get-labels))
-	(multiple-labels '()))
+        (multiple-labels '()))
     (when (not (= (length labels)
-		  (length (-uniq labels))))
+                  (length (-uniq labels))))
       (dolist (label labels)
-	(when (> (-count (lambda (a)
-			   (equal a label))
-			 labels) 1)
-	  ;; this is a multiply defined label.
-	  (let ((cp (point)))
-	    (goto-char (point-min))
-	    (while (re-search-forward
-		    (format  "[^#+]label:%s\\s-" label) nil t)
-	      (push (cons label (point-marker)) multiple-labels))
-	    (goto-char (point-min))
-	    (while (re-search-forward
-		    (format  "\\label{%s}\\s-?" label) nil t)
-	      (push (cons label (point-marker)) multiple-labels))
+        (when (> (-count (lambda (a)
+                           (equal a label))
+                         labels) 1)
+          ;; this is a multiply defined label.
+          (let ((cp (point)))
+            (goto-char (point-min))
+            (while (re-search-forward
+                    (format  "[^#+]label:%s\\s-" label) nil t)
+              (push (cons label (point-marker)) multiple-labels))
+            (goto-char (point-min))
+            (while (re-search-forward
+                    (format  "\\label{%s}\\s-?" label) nil t)
+              (push (cons label (point-marker)) multiple-labels))
 
-	    (goto-char (point-min))
-	    (while (re-search-forward
-		    (format  "^#\\+label:\\s-*%s" label) nil t)
-	      (push (cons label (point-marker)) multiple-labels))
+            (goto-char (point-min))
+            (while (re-search-forward
+                    (format  "^#\\+label:\\s-*%s" label) nil t)
+              (push (cons label (point-marker)) multiple-labels))
 
-	    (goto-char (point-min))
-	    (while (re-search-forward
-		    (format   "^#\\+tblname:\\s-*%s" label) nil t)
-	      (push (cons label (point-marker)) multiple-labels))
-	    (goto-char cp)))))
-      multiple-labels))
+            (goto-char (point-min))
+            (while (re-search-forward
+                    (format   "^#\\+tblname:\\s-*%s" label) nil t)
+              (push (cons label (point-marker)) multiple-labels))
+            (goto-char cp)))))
+    multiple-labels))
 
 
 (defun org-ref-bad-file-link-candidates ()
@@ -2752,22 +2752,22 @@ Makes a new buffer with clickable links."
   (let* ((bad-files '()))
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
-	(let ((type (org-element-property :type link)))
-	  (when (or  (string= "file" type)
-		     (string= "attachfile" type))
-	    (unless (file-exists-p (org-element-property :path link))
-	      (add-to-list 'bad-files
-			   (cons (org-element-property :path link)
-				 (save-excursion
-				   (goto-char
-				    (org-element-property :begin link))
-				   (point-marker)))))))))
+        (let ((type (org-element-property :type link)))
+          (when (or  (string= "file" type)
+                     (string= "attachfile" type))
+            (unless (file-exists-p (org-element-property :path link))
+              (add-to-list 'bad-files
+                           (cons (org-element-property :path link)
+                                 (save-excursion
+                                   (goto-char
+                                    (org-element-property :begin link))
+                                   (point-marker)))))))))
     ;; Let us also check \attachfile{fname}
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward "\\attachfile{\\(.*\\)}" nil t)
-	(unless (file-exists-p (match-string 1))
-	  (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
+        (unless (file-exists-p (match-string 1))
+          (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
     bad-files))
 
 ;;;###autoload
@@ -2776,172 +2776,172 @@ Makes a new buffer with clickable links."
 Shows bad citations, ref links and labels"
   (interactive)
   (let ((cb (current-buffer))
-	(bad-citations (org-ref-bad-cite-candidates))
-	(bad-refs (org-ref-bad-ref-candidates))
-	(bad-labels (org-ref-bad-label-candidates))
-	(bad-files (org-ref-bad-file-link-candidates))
-	(bib-candidates '()))
+        (bad-citations (org-ref-bad-cite-candidates))
+        (bad-refs (org-ref-bad-ref-candidates))
+        (bad-labels (org-ref-bad-label-candidates))
+        (bad-files (org-ref-bad-file-link-candidates))
+        (bib-candidates '()))
 
     ;; setup bib-candidates. This checks a variety of things in the bibliography, bibtex files.
     ;; check for which bibliographies are used
     (add-to-list
      'bib-candidates
      (cons (format  "Using these bibtex files: %s"
-		    (org-ref-find-bibliography))
-	   (lambda () nil)))
+                    (org-ref-find-bibliography))
+           (lambda () nil)))
 
     ;; Check bibliography style exists
     (save-excursion
       (goto-char 0)
       (unless (re-search-forward "bibliographystyle:\\|\\biblographystyle{" nil t)
-	(add-to-list 'bib-candidates
-		     (cons "No bibliographystyle found."
-			   (lambda ()
-			     (switch-to-buffer "*org-ref*")
-			     (erase-buffer)
-			     (insert "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
+        (add-to-list 'bib-candidates
+                     (cons "No bibliographystyle found."
+                           (lambda ()
+                             (switch-to-buffer "*org-ref*")
+                             (erase-buffer)
+                             (insert "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
 bibliographystyle:unsrt
 at the end of you file.
 ")
-			     (org-mode)))
-		     t)))
+                             (org-mode)))
+                     t)))
 
     ;; Check if latex knows of the bibliographystyle. We only check links here.
     ;;  I also assume this style exists as a bst file that kpsewhich can find.
     (save-excursion
       (goto-char 0)
       (when (re-search-forward "bibliographystyle:" nil t)
-	;; on a link. get style
-	(let ((path (org-element-property :path (org-element-context))))
-	  (unless (= 0 (shell-command (format "kpsewhich %s.bst" path)))
-	    (add-to-list 'bib-candidates
-			 (cons (format "bibliographystyle \"%s\" may be unknown" path)
-			       (lambda ()
-				 (goto-char 0)
-				 (re-search-forward "bibliographystyle:"))))))))
+        ;; on a link. get style
+        (let ((path (org-element-property :path (org-element-context))))
+          (unless (= 0 (shell-command (format "kpsewhich %s.bst" path)))
+            (add-to-list 'bib-candidates
+                         (cons (format "bibliographystyle \"%s\" may be unknown" path)
+                               (lambda ()
+                                 (goto-char 0)
+                                 (re-search-forward "bibliographystyle:"))))))))
 
     ;; check for multiple bibliography links
     (let* ((bib-links (-filter
-		       (lambda (el)
-			 (string= (org-element-property :type el) "bibliography"))
-		       (org-element-map (org-element-parse-buffer) 'link 'identity)))
-	   (n-bib-links (length bib-links)))
+                       (lambda (el)
+                         (string= (org-element-property :type el) "bibliography"))
+                       (org-element-map (org-element-parse-buffer) 'link 'identity)))
+           (n-bib-links (length bib-links)))
 
       (when (> n-bib-links 1)
-	(mapc (lambda (link)
-		(setq
-		 bib-candidates
-		 (append
-		  bib-candidates
-		  (list (cons (format  "Multiple bibliography link: %s" (org-element-property :raw-link link))
-			      `(lambda ()
-				 (goto-char ,(org-element-property :begin link))))))))
-	      bib-links)))
+        (mapc (lambda (link)
+                (setq
+                 bib-candidates
+                 (append
+                  bib-candidates
+                  (list (cons (format  "Multiple bibliography link: %s" (org-element-property :raw-link link))
+                              `(lambda ()
+                                 (goto-char ,(org-element-property :begin link))))))))
+              bib-links)))
 
     ;; Check for bibliography files existence.
     (mapc (lambda (bibfile)
-	    (unless (file-exists-p bibfile)
-	      (add-to-list 'bib-candidates
-			   (cons
-			    (format "%s does not exist." bibfile)
-			    (lambda ()
-			      (message "Non-existent bibfile.")))
-			   t)))
-	  (org-ref-find-bibliography))
+            (unless (file-exists-p bibfile)
+              (add-to-list 'bib-candidates
+                           (cons
+                            (format "%s does not exist." bibfile)
+                            (lambda ()
+                              (message "Non-existent bibfile.")))
+                           t)))
+          (org-ref-find-bibliography))
 
     ;; check for spaces in bibliography
     (let ((bibfiles (mapcar 'expand-file-name
-			    (org-ref-find-bibliography))))
+                            (org-ref-find-bibliography))))
       (mapc (lambda (bibfile)
-	      (when (string-match " " bibfile)
-		(add-to-list
-		 'bib-candidates
-		 (cons (format "One or more spaces found in path to %s" bibfile)
-		       (lambda ()
-			 (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -. Underscores usually cause other problems if you don't know what you are doing.")))
-		 t)))
-	    bibfiles))
+              (when (string-match " " bibfile)
+                (add-to-list
+                 'bib-candidates
+                 (cons (format "One or more spaces found in path to %s" bibfile)
+                       (lambda ()
+                         (message "No spaces are allowed in bibtex file paths. We recommend replacing them with -. Underscores usually cause other problems if you don't know what you are doing.")))
+                 t)))
+            bibfiles))
 
     ;; validate bibtex files
     (let ((bibfiles (mapcar 'expand-file-name
-			    (org-ref-find-bibliography))))
+                            (org-ref-find-bibliography))))
       (mapc
        (lambda (bibfile)
-	 (unless (with-current-buffer
-		     (find-file-noselect bibfile)
-		   (bibtex-validate))
-	   (add-to-list 'bib-candidates
-			(cons
-			 (format  "Invalid bibtex file found. %S" bibfile)
-			 `(lambda ()
-			    (find-file ,bibfile)))
-			t)))
+         (unless (with-current-buffer
+                     (find-file-noselect bibfile)
+                   (bibtex-validate))
+           (add-to-list 'bib-candidates
+                        (cons
+                         (format  "Invalid bibtex file found. %S" bibfile)
+                         `(lambda ()
+                            (find-file ,bibfile)))
+                        t)))
        bibfiles))
 
 
     (helm :sources `(((name . "Bad citations")
-		      (candidates . ,bad-citations)
-		      (action . (lambda (marker)
-				  (switch-to-buffer (marker-buffer marker))
-				  (goto-char marker))))
-		     ;;
-		     ((name . "Bad Labels")
-		      (candidates . ,bad-labels)
-		      (action . (lambda (marker)
-				  (switch-to-buffer (marker-buffer marker))
-				  (goto-char marker))))
-		     ;;
-		     ((name . "Bad ref links")
-		      (candidates . ,bad-refs)
-		      (action . (lambda (marker)
-				  (switch-to-buffer (marker-buffer marker))
-				  (goto-char marker))))
-		     ;;
-		     ((name . "Bad file links")
-		      (candidates . ,bad-files)
-		      (lambda (marker)
-			(switch-to-buffer (marker-buffer marker))
-			(goto-char marker)))
+                      (candidates . ,bad-citations)
+                      (action . (lambda (marker)
+                                  (switch-to-buffer (marker-buffer marker))
+                                  (goto-char marker))))
+                     ;;
+                     ((name . "Bad Labels")
+                      (candidates . ,bad-labels)
+                      (action . (lambda (marker)
+                                  (switch-to-buffer (marker-buffer marker))
+                                  (goto-char marker))))
+                     ;;
+                     ((name . "Bad ref links")
+                      (candidates . ,bad-refs)
+                      (action . (lambda (marker)
+                                  (switch-to-buffer (marker-buffer marker))
+                                  (goto-char marker))))
+                     ;;
+                     ((name . "Bad file links")
+                      (candidates . ,bad-files)
+                      (lambda (marker)
+                        (switch-to-buffer (marker-buffer marker))
+                        (goto-char marker)))
 
-		     ((name . "Bibliography")
-		      (candidates . ,bib-candidates)
-		      (action . (lambda (x)
-				  (switch-to-buffer ,cb)
-				  (funcall x))))
-		     ;;
-		     ((name . "Utilities")
-		      (candidates . (("Check buffer again" . org-ref)
-				     ("Insert citation" . helm-bibtex)
-				     ("Insert label link" . org-ref-helm-insert-label-link)
-				     ("Insert ref link" . org-ref-helm-insert-ref-link)
-				     ("List of figures" . org-ref-list-of-figures)
-				     ("List of tables" . org-ref-list-of-tables)
-				     ("Table of contents" . helm-org-in-buffer-headings)))
-		      (action . (lambda (x)
-				  (switch-to-buffer ,cb)
-				  (funcall x))))
-		     ;;
-		     ((name . "Document utilities")
-		      (candidates . (("Spell check document" . ispell)))
-		      (action . (lambda (x)
-				  (switch-to-buffer ,cb)
-				  (funcall x))))
-		     ;; Exports
-		     ((name . "Export functions")
-		      (candidates . (("Extract cited entries" . org-ref-extract-bibtex-entries)
-				     ("Export to html and open" . (lambda ()
-								    (org-open-file
-								     (org-html-export-to-html))))
-				     ("Export to pdf and open" . (lambda ()
-								   (org-open-file
-								    (org-latex-export-to-pdf))))
-				     ("Export to manuscript pdf and open" . ox-manuscript-export-and-build-and-open)
-				     ("Export submission manuscript pdf and open" . ox-manuscript-build-submission-manuscript-and-open)
+                     ((name . "Bibliography")
+                      (candidates . ,bib-candidates)
+                      (action . (lambda (x)
+                                  (switch-to-buffer ,cb)
+                                  (funcall x))))
+                     ;;
+                     ((name . "Utilities")
+                      (candidates . (("Check buffer again" . org-ref)
+                                     ("Insert citation" . helm-bibtex)
+                                     ("Insert label link" . org-ref-helm-insert-label-link)
+                                     ("Insert ref link" . org-ref-helm-insert-ref-link)
+                                     ("List of figures" . org-ref-list-of-figures)
+                                     ("List of tables" . org-ref-list-of-tables)
+                                     ("Table of contents" . helm-org-in-buffer-headings)))
+                      (action . (lambda (x)
+                                  (switch-to-buffer ,cb)
+                                  (funcall x))))
+                     ;;
+                     ((name . "Document utilities")
+                      (candidates . (("Spell check document" . ispell)))
+                      (action . (lambda (x)
+                                  (switch-to-buffer ,cb)
+                                  (funcall x))))
+                     ;; Exports
+                     ((name . "Export functions")
+                      (candidates . (("Extract cited entries" . org-ref-extract-bibtex-entries)
+                                     ("Export to html and open" . (lambda ()
+                                                                    (org-open-file
+                                                                     (org-html-export-to-html))))
+                                     ("Export to pdf and open" . (lambda ()
+                                                                   (org-open-file
+                                                                    (org-latex-export-to-pdf))))
+                                     ("Export to manuscript pdf and open" . ox-manuscript-export-and-build-and-open)
+                                     ("Export submission manuscript pdf and open" . ox-manuscript-build-submission-manuscript-and-open)
 
-				     ))
-		      (action . (lambda (x)
-				  (switch-to-buffer ,cb)
-				  (funcall x))))))))
+                                     ))
+                      (action . (lambda (x)
+                                  (switch-to-buffer ,cb)
+                                  (funcall x))))))))
 
 ;; ** Find non-ascii charaters
 (defun org-ref-find-non-ascii-characters ()
@@ -2956,11 +2956,11 @@ at the end of you file.
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((master '("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
-	 (entry (bibtex-parse-entry))
-	 (entry-fields)
-	 (other-fields)
-	 (type (cdr (assoc "=type=" entry)))
-	 (key (cdr (assoc "=key=" entry))))
+         (entry (bibtex-parse-entry))
+         (entry-fields)
+         (other-fields)
+         (type (cdr (assoc "=type=" entry)))
+         (key (cdr (assoc "=key=" entry))))
 
     ;; these are the fields we want to order that are in this entry
     (setq entry-fields (mapcar (lambda (x) (car x)) entry))
@@ -2977,14 +2977,14 @@ at the end of you file.
       (bibtex-kill-entry)
       (insert
        (concat "@article{" key ",\n"
-	       (mapconcat
-		(lambda (field)
-		  (when (member field entry-fields)
-		    (format "%s = %s," (downcase field) (cdr (assoc field entry))))) master "\n")
-	       (mapconcat
-		(lambda (field)
-		  (format "%s = %s," (downcase field) (cdr (assoc field entry)))) other-fields "\n")
-	       "\n}\n\n"))
+               (mapconcat
+                (lambda (field)
+                  (when (member field entry-fields)
+                    (format "%s = %s," (downcase field) (cdr (assoc field entry))))) master "\n")
+               (mapconcat
+                (lambda (field)
+                  (format "%s = %s," (downcase field) (cdr (assoc field entry)))) other-fields "\n")
+               "\n}\n\n"))
       (bibtex-find-entry key)
       (bibtex-fill-entry)
       (bibtex-clean-entry)
@@ -3006,11 +3006,11 @@ specify the key should be kept"
 
   ;; check for empty pages, and put eid or article id in its place
   (let ((entry (bibtex-parse-entry))
-	(pages (bibtex-autokey-get-field "pages"))
-	(year (bibtex-autokey-get-field "year"))
+        (pages (bibtex-autokey-get-field "pages"))
+        (year (bibtex-autokey-get-field "year"))
         (doi  (bibtex-autokey-get-field "doi"))
         ;; The Journal of Chemical Physics uses eid
-	(eid (bibtex-autokey-get-field "eid")))
+        (eid (bibtex-autokey-get-field "eid")))
 
     ;; replace http://dx.doi.org/ in doi. some journals put that in,
     ;; but we only want the doi.
@@ -3035,14 +3035,14 @@ specify the key should be kept"
     ;; fix pages if they are empty if there is an eid to put there.
     (when (string= "-" pages)
       (when eid
-	(bibtex-beginning-of-entry)
-	;; this seems like a clunky way to set the pages field.But I
-	;; cannot find a better way.
-	(goto-char (car (cdr (bibtex-search-forward-field "pages" t))))
-	(bibtex-kill-field)
-	(bibtex-make-field "pages")
-	(backward-char)
-	(insert eid)))
+        (bibtex-beginning-of-entry)
+        ;; this seems like a clunky way to set the pages field.But I
+        ;; cannot find a better way.
+        (goto-char (car (cdr (bibtex-search-forward-field "pages" t))))
+        (bibtex-kill-field)
+        (bibtex-make-field "pages")
+        (backward-char)
+        (insert eid)))
 
     ;; replace naked & with \&
     (save-restriction
@@ -3055,42 +3055,42 @@ specify the key should be kept"
     ;; generate a key, and if it duplicates an existing key, edit it.
     (unless keep-key
       (let ((key (bibtex-generate-autokey)))
-	;; ;; sometimes there are latex sequences in the key. We remove them. A
-	;; ;; better approach might be to have some lookup table, but this would
-	;; ;; somewhat duplicate `jmax-nonascii-latex-replacements', in an ascii
-	;; ;; version.
-	;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
-	;;       do
-	;;       (setq key (replace-regexp-in-string
-	;;		 (regexp-quote c) key)))
+        ;; ;; sometimes there are latex sequences in the key. We remove them. A
+        ;; ;; better approach might be to have some lookup table, but this would
+        ;; ;; somewhat duplicate `jmax-nonascii-latex-replacements', in an ascii
+        ;; ;; version.
+        ;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
+        ;;       do
+        ;;       (setq key (replace-regexp-in-string
+        ;;		 (regexp-quote c) key)))
 
-	;; first we delete the existing key
-	(bibtex-beginning-of-entry)
-	(re-search-forward bibtex-entry-maybe-empty-head)
-	(if (match-beginning bibtex-key-in-head)
-	    (delete-region (match-beginning bibtex-key-in-head)
-			   (match-end bibtex-key-in-head)))
-	;; check if the key is in the buffer
-	(when (save-excursion
-		(bibtex-search-entry key))
-	  (save-excursion
-	    (bibtex-search-entry key)
-	    (bibtex-copy-entry-as-kill)
-	    (switch-to-buffer-other-window "*duplicate entry*")
-	    (bibtex-yank))
-	  (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
+        ;; first we delete the existing key
+        (bibtex-beginning-of-entry)
+        (re-search-forward bibtex-entry-maybe-empty-head)
+        (if (match-beginning bibtex-key-in-head)
+            (delete-region (match-beginning bibtex-key-in-head)
+                           (match-end bibtex-key-in-head)))
+        ;; check if the key is in the buffer
+        (when (save-excursion
+                (bibtex-search-entry key))
+          (save-excursion
+            (bibtex-search-entry key)
+            (bibtex-copy-entry-as-kill)
+            (switch-to-buffer-other-window "*duplicate entry*")
+            (bibtex-yank))
+          (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
 
-	(insert key)
-	(kill-new key))) ;; save key for pasting
+        (insert key)
+        (kill-new key))) ;; save key for pasting
 
     ;; run hooks. each of these operates on the entry with no arguments.
     ;; this did not work like  i thought, it gives a symbolp error.
     ;; (run-hooks org-ref-clean-bibtex-entry-hook)
     (mapcar (lambda (x)
-	      (save-restriction
-		(save-excursion
-		  (funcall x))))
-	    org-ref-clean-bibtex-entry-hook)
+              (save-restriction
+                (save-excursion
+                  (funcall x))))
+            org-ref-clean-bibtex-entry-hook)
 
     ;; sort fields within entry
     (org-ref-sort-bibtex-entry)
@@ -3101,7 +3101,7 @@ specify the key should be kept"
 (defun org-ref-get-citation-year (key)
   "Get the year of an entry with KEY.  Return year as a string."
   (let* ((results (org-ref-get-bibtex-key-and-file key))
-	 (bibfile (cdr results)))
+         (bibfile (cdr results)))
     (with-temp-buffer
       (insert-file-contents bibfile)
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
@@ -3114,11 +3114,11 @@ specify the key should be kept"
   "Replace link at point with sorted link by year."
   (interactive)
   (let* ((object (org-element-context))
-	 (type (org-element-property :type object))
-	 (begin (org-element-property :begin object))
-	 (end (org-element-property :end object))
-	 (link-string (org-element-property :path object))
-	 keys years data)
+         (type (org-element-property :type object))
+         (begin (org-element-property :begin object))
+         (end (org-element-property :end object))
+         (link-string (org-element-property :path object))
+         keys years data)
     (setq keys (org-ref-split-and-strip-string link-string))
     (setq years (mapcar 'org-ref-get-citation-year keys))
     (setq data (mapcar* (lambda (a b) `(,a . ,b)) years keys))
@@ -3138,38 +3138,38 @@ specify the key should be kept"
 
 
 (defun org-ref-swap-citation-link (direction)
- "Move citation at point in DIRECTION +1 is to the right, -1 to the left."
- (interactive)
- (let* ((object (org-element-context))
-        (type (org-element-property :type object))
-	(begin (org-element-property :begin object))
-	(end (org-element-property :end object))
-	(link-string (org-element-property :path object))
-	key keys i)
-   ;;   We only want this to work on citation links
-   (when (-contains? org-ref-cite-types type)
-        (setq key (org-ref-get-bibtex-key-under-cursor))
-	(setq keys (org-ref-split-and-strip-string link-string))
-        (setq i (org-ref-index key keys))  ;; defined in org-ref
-	(if (> direction 0) ;; shift right
-	    (org-ref-swap-keys i (+ i 1) keys)
-	  (org-ref-swap-keys i (- i 1) keys))
-	(setq keys (mapconcat 'identity keys ","))
-	;; and replace the link with the sorted keys
-	(cl--set-buffer-substring
-	 begin end
-	 (concat
-	  type ":" keys
-	  ;; It seems the space at the end can get consumed, so we see if there
-	  ;; is a space, and add it if so. Sometimes there is a comma or period,
-	  ;; then we do not want a space.
-	  (when
-	      (save-excursion
-		(goto-char end)
-		(looking-back " ")) " ")))
-	;; now go forward to key so we can move with the key
-	(re-search-forward key)
-	(goto-char (match-beginning 0)))))
+  "Move citation at point in DIRECTION +1 is to the right, -1 to the left."
+  (interactive)
+  (let* ((object (org-element-context))
+         (type (org-element-property :type object))
+         (begin (org-element-property :begin object))
+         (end (org-element-property :end object))
+         (link-string (org-element-property :path object))
+         key keys i)
+    ;;   We only want this to work on citation links
+    (when (-contains? org-ref-cite-types type)
+      (setq key (org-ref-get-bibtex-key-under-cursor))
+      (setq keys (org-ref-split-and-strip-string link-string))
+      (setq i (org-ref-index key keys))  ;; defined in org-ref
+      (if (> direction 0) ;; shift right
+          (org-ref-swap-keys i (+ i 1) keys)
+        (org-ref-swap-keys i (- i 1) keys))
+      (setq keys (mapconcat 'identity keys ","))
+      ;; and replace the link with the sorted keys
+      (cl--set-buffer-substring
+       begin end
+       (concat
+        type ":" keys
+        ;; It seems the space at the end can get consumed, so we see if there
+        ;; is a space, and add it if so. Sometimes there is a comma or period,
+        ;; then we do not want a space.
+        (when
+            (save-excursion
+              (goto-char end)
+              (looking-back " ")) " ")))
+      ;; now go forward to key so we can move with the key
+      (re-search-forward key)
+      (goto-char (match-beginning 0)))))
 
 ;; add hooks to make it work
 (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
@@ -3182,51 +3182,51 @@ specify the key should be kept"
     (catch 'result
       (goto-char (point-min))
       (when (re-search-forward
-	     (format "label:%s\\b" label) nil t)
-	(throw 'result (buffer-substring
-			(progn
-			  (previous-line)
-			  (beginning-of-line)
-			  (point))
-			(progn
-			  (forward-line 4)
-			  (point)))))
+             (format "label:%s\\b" label) nil t)
+        (throw 'result (buffer-substring
+                        (progn
+                          (previous-line)
+                          (beginning-of-line)
+                          (point))
+                        (progn
+                          (forward-line 4)
+                          (point)))))
 
       (goto-char (point-min))
       (when (re-search-forward
-	     (format "\\label{%s}" label) nil t)
-	(throw 'result (buffer-substring
-			(progn
-			  (previous-line)
-			  (beginning-of-line)
-			  (point))
-			(progn
-			  (forward-line 4)
-			  (point)))))
+             (format "\\label{%s}" label) nil t)
+        (throw 'result (buffer-substring
+                        (progn
+                          (previous-line)
+                          (beginning-of-line)
+                          (point))
+                        (progn
+                          (forward-line 4)
+                          (point)))))
 
       (goto-char (point-min))
       (when (re-search-forward
-	     (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
-	(throw 'result (buffer-substring
-			(progn
-			  (previous-line)
-			  (beginning-of-line)
-			  (point))
-			(progn
-			  (forward-line 4)
-			  (point)))))
+             (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
+        (throw 'result (buffer-substring
+                        (progn
+                          (previous-line)
+                          (beginning-of-line)
+                          (point))
+                        (progn
+                          (forward-line 4)
+                          (point)))))
 
       (goto-char (point-min))
       (when (re-search-forward
-	     (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
-	(throw 'result (buffer-substring
-			(progn
-			  (previous-line)
-			  (beginning-of-line)
-			  (point))
-			(progn
-			  (forward-line 4)
-			  (point)))))
+             (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
+        (throw 'result (buffer-substring
+                        (progn
+                          (previous-line)
+                          (beginning-of-line)
+                          (point))
+                        (progn
+                          (forward-line 4)
+                          (point)))))
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
 
@@ -3238,89 +3238,89 @@ specify the key should be kept"
     (save-restriction
       (widen)
       (when (eq major-mode 'org-mode)
-	(let* ((object (org-element-context))
-	       (type (org-element-property :type object)))
-	  ;; (message-box "%s-%s %s" (org-element-property :begin object)
-	  ;;	     (org-element-property :end object)
-	  ;;	     (point))
-	  (save-excursion
-	    (cond
-	     ;; cite links
-	     ((-contains? org-ref-cite-types type)
-	      (message (org-ref-get-citation-string-at-point)))
+        (let* ((object (org-element-context))
+               (type (org-element-property :type object)))
+          ;; (message-box "%s-%s %s" (org-element-property :begin object)
+          ;;	     (org-element-property :end object)
+          ;;	     (point))
+          (save-excursion
+            (cond
+             ;; cite links
+             ((-contains? org-ref-cite-types type)
+              (message (org-ref-get-citation-string-at-point)))
 
-	     ;; message some context about the label we are referring to
-	     ((string= type "ref")
-	      (message "%scount: %s"
-		       (org-ref-get-label-context
-			(org-element-property :path object))
-		       (org-ref-count-labels
-			(org-element-property :path object))))
+             ;; message some context about the label we are referring to
+             ((string= type "ref")
+              (message "%scount: %s"
+                       (org-ref-get-label-context
+                        (org-element-property :path object))
+                       (org-ref-count-labels
+                        (org-element-property :path object))))
 
-	     ((string= type "eqref")
-	      (message "%scount: %s"
-		       (org-ref-get-label-context
-			(org-element-property :path object))
-		       (org-ref-count-labels
-			(org-element-property :path object))))
+             ((string= type "eqref")
+              (message "%scount: %s"
+                       (org-ref-get-label-context
+                        (org-element-property :path object))
+                       (org-ref-count-labels
+                        (org-element-property :path object))))
 
-	     ;; message the count
-	     ((string= type "label")
-	      (let ((count (org-ref-count-labels
-			    (org-element-property :path object))))
-		;; get plurality on occurrence correct
-		(message (concat
-			  (number-to-string count)
-			  " occurence"
-			  (when (or (= count 0)
-				    (> count 1))
-			    "s")))))
+             ;; message the count
+             ((string= type "label")
+              (let ((count (org-ref-count-labels
+                            (org-element-property :path object))))
+                ;; get plurality on occurrence correct
+                (message (concat
+                          (number-to-string count)
+                          " occurence"
+                          (when (or (= count 0)
+                                    (> count 1))
+                            "s")))))
 
-	     ((string= type "custom-id")
-	      (save-excursion
-		(org-open-link-from-string
-		 (format "[[#%s]]" (org-element-property :path object)))
-		(message "%s" (org-get-heading))))
+             ((string= type "custom-id")
+              (save-excursion
+                (org-open-link-from-string
+                 (format "[[#%s]]" (org-element-property :path object)))
+                (message "%s" (org-get-heading))))
 
-	     ;; check if the bibliography files exist.
-	     ((string= type "bibliography")
-	      (let* ((bibfile)
-		     ;; object is the link you clicked on
-		     (object (org-element-context))
-		     (link-string (org-element-property :path object))
-		     (link-string-beginning)
-		     (link-string-end))
-		(save-excursion
-		  (goto-char (org-element-property :begin object))
-		  (search-forward link-string nil nil 1)
-		  (setq link-string-beginning (match-beginning 0))
-		  (setq link-string-end (match-end 0)))
+             ;; check if the bibliography files exist.
+             ((string= type "bibliography")
+              (let* ((bibfile)
+                     ;; object is the link you clicked on
+                     (object (org-element-context))
+                     (link-string (org-element-property :path object))
+                     (link-string-beginning)
+                     (link-string-end))
+                (save-excursion
+                  (goto-char (org-element-property :begin object))
+                  (search-forward link-string nil nil 1)
+                  (setq link-string-beginning (match-beginning 0))
+                  (setq link-string-end (match-end 0)))
 
-		;; make sure we are in link and not before the :
-		(when (> link-string-beginning (point))
-		  (goto-char link-string-beginning))
+                ;; make sure we are in link and not before the :
+                (when (> link-string-beginning (point))
+                  (goto-char link-string-beginning))
 
-		(let (key-beginning key-end)
-		  ;; now if we have comma separated bibliographies
-		  ;; we find the one clicked on. we want to
-		  ;; search forward to next comma from point
-		  (save-excursion
-		    (if (search-forward "," link-string-end 1 1)
-			(setq key-end (- (match-end 0) 1)) ; we found a match
-		      (setq key-end (point)))) ; no comma found so take the point
+                (let (key-beginning key-end)
+                  ;; now if we have comma separated bibliographies
+                  ;; we find the one clicked on. we want to
+                  ;; search forward to next comma from point
+                  (save-excursion
+                    (if (search-forward "," link-string-end 1 1)
+                        (setq key-end (- (match-end 0) 1)) ; we found a match
+                      (setq key-end (point)))) ; no comma found so take the point
 
-		  ;; and backward to previous comma from point
-		  (save-excursion
-		    (if (search-backward "," link-string-beginning 1 1)
-			(setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-		      (setq key-beginning (point)))) ; no match found
-		  ;; save the key we clicked on.
-		  (setq bibfile
-			(org-ref-strip-string
-			 (buffer-substring key-beginning key-end)))
-		  (if (file-exists-p bibfile)
-		      (message "%s exists." bibfile)
-		    (message "!!! %s NOT FOUND !!!" bibfile))))))))))))
+                  ;; and backward to previous comma from point
+                  (save-excursion
+                    (if (search-backward "," link-string-beginning 1 1)
+                        (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+                      (setq key-beginning (point)))) ; no match found
+                  ;; save the key we clicked on.
+                  (setq bibfile
+                        (org-ref-strip-string
+                         (buffer-substring key-beginning key-end)))
+                  (if (file-exists-p bibfile)
+                      (message "%s exists." bibfile)
+                    (message "!!! %s NOT FOUND !!!" bibfile))))))))))))
 
 ;; ** aliases
 (defalias 'oro 'org-ref-open-citation-at-point)
@@ -3357,17 +3357,17 @@ fields, the keywords I think."
    else
    for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
    for fields = (--map (helm-bibtex-clean-string
-			(helm-bibtex-get-value it entry " "))
-		       fields)
+                        (helm-bibtex-get-value it entry " "))
+                       fields)
    for fields = (-update-at 0 'helm-bibtex-shorten-authors fields)
    for fields = (append fields
-			(list (or (helm-bibtex-get-value "keywords" entry)
-				  "")))
+                        (list (or (helm-bibtex-get-value "keywords" entry)
+                                  "")))
    collect
    (cons (s-format "$0 $1 $2 $3 $4$5 $6" 'elt
-		   (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
-			      fields (list 36 (- width 85) 4 1 1 7 7)))
-	 entry-key)))
+                   (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
+                              fields (list 36 (- width 85) 4 1 1 7 7)))
+         entry-key)))
 
 ;; * org-ref bibtex keywords
 ;; adapted from bibtex-utils.el
@@ -3379,12 +3379,12 @@ These are in the keywords field, and are comma or semicolon separated."
     (goto-char (point-min))
     (let (keywords kstring)
       (while (re-search-forward "^\\s-*keywords.*{\\([^}]+\\)}" nil t)
-	;; TWS - remove newlines/multiple spaces:
-	(setq kstring (replace-regexp-in-string "[ \t\n]+" " " (match-string 1)))
-	(mapc
-	 (lambda (v)
-	   (add-to-list 'keywords v t))
-	 (split-string kstring "\\(,\\|;\\)[ \n]*\\|{\\|}" t)))
+        ;; TWS - remove newlines/multiple spaces:
+        (setq kstring (replace-regexp-in-string "[ \t\n]+" " " (match-string 1)))
+        (mapc
+         (lambda (v)
+           (add-to-list 'keywords v t))
+         (split-string kstring "\\(,\\|;\\)[ \n]*\\|{\\|}" t)))
       keywords)))
 
 
@@ -3400,15 +3400,15 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
    (if arg
        ;; replace with arg
        (if (listp keywords)
-	   (mapconcat 'identity keywords ", ")
-	 keywords)
+           (mapconcat 'identity keywords ", ")
+         keywords)
      ;; else concatentate
      (concat
       (if (listp keywords)
-	  (mapconcat 'identity keywords ", ")
+          (mapconcat 'identity keywords ", ")
         keywords)
       (when (not (string= "" (bibtex-autokey-get-field "keywords")))
-	(concat ", "  (bibtex-autokey-get-field "keywords"))))))
+        (concat ", "  (bibtex-autokey-get-field "keywords"))))))
   (save-buffer))
 
 
@@ -3417,18 +3417,18 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
 Run this with the point in a bibtex entry."
   (interactive)
   (let ((keyword-source `((name . "Existing keywords")
-			  (candidates . ,(org-ref-bibtex-keywords))
-			  (action . (lambda (candidate)
-				      (org-ref-set-bibtex-keywords
-				       (mapconcat
-					'identity
-					(helm-marked-candidates)
-					", "))))))
-	(fallback-source `((name . "Add new keywords")
-			   (dummy)
-			   (action . (lambda (candidate)
-				       (org-ref-set-bibtex-keywords helm-pattern)
-				       )))))
+                          (candidates . ,(org-ref-bibtex-keywords))
+                          (action . (lambda (candidate)
+                                      (org-ref-set-bibtex-keywords
+                                       (mapconcat
+                                        'identity
+                                        (helm-marked-candidates)
+                                        ", "))))))
+        (fallback-source `((name . "Add new keywords")
+                           (dummy)
+                           (action . (lambda (candidate)
+                                       (org-ref-set-bibtex-keywords helm-pattern)
+                                       )))))
     (helm :sources '(keyword-source fallback-source))))
 
 
@@ -3439,15 +3439,15 @@ Argument CANDIDATES helm candidates."
   (message "")
   (let ((keywords (read-string "Keywords (comma separated): ")))
     (cl-loop for key in (helm-marked-candidates)
-	     do
-	     (save-window-excursion
-	       (helm-bibtex-show-entry key)
-	       (bibtex-set-field
-		"keywords"
-		(concat
-		 keywords
-		 ", " (bibtex-autokey-get-field "keywords")))
-	       (save-buffer)))))
+             do
+             (save-window-excursion
+               (helm-bibtex-show-entry key)
+               (bibtex-set-field
+                "keywords"
+                (concat
+                 keywords
+                 ", " (bibtex-autokey-get-field "keywords")))
+               (save-buffer)))))
 
 
 
@@ -3471,52 +3471,52 @@ select a new link type for the selected entries.
 
 C-u C-u will change the key at point to the selected keys."
   (let* ((object (org-element-context))
-	 (last-char (save-excursion
-		      (when (org-element-property :end object)
-			(goto-char (org-element-property :end object))
-			(unless (bobp)
-			  (backward-char))
-			(if (looking-at " ")
-			    " "
-			  "")))))
+         (last-char (save-excursion
+                      (when (org-element-property :end object)
+                        (goto-char (org-element-property :end object))
+                        (unless (bobp)
+                          (backward-char))
+                        (if (looking-at " ")
+                            " "
+                          "")))))
     (cond
      ;; case where we are in a link
      ((and (equal (org-element-type object) 'link)
-	   (-contains?
-	    org-ref-cite-types
-	    (org-element-property :type object)))
+           (-contains?
+            org-ref-cite-types
+            (org-element-property :type object)))
       (cond
        ;; no prefix. append keys
        ((equal helm-current-prefix-arg nil)
-	(goto-char (org-element-property :end object))
-	(while (looking-back " ") (backward-char))
-	(insert (concat "," (mapconcat 'identity keys ","))))
+        (goto-char (org-element-property :end object))
+        (while (looking-back " ") (backward-char))
+        (insert (concat "," (mapconcat 'identity keys ","))))
        ;; double prefix, replace key at point
        ((equal helm-current-prefix-arg '(16))
-	(setf (buffer-substring
-	       (org-element-property :begin object)
-	       (org-element-property :end object))
-	      (concat
-	       (replace-regexp-in-string
-		(car (org-ref-get-bibtex-key-and-file)) ; key
-		(mapconcat 'identity keys ",")		; new keys
-		(org-element-property :raw-link object))
-	       ;; replace space at end to avoid collapsing into next word.
-	       last-char))
-	;; and we want to go to the end of the new link
-	(goto-char
-	 (org-element-property :end (org-element-context))))
+        (setf (buffer-substring
+               (org-element-property :begin object)
+               (org-element-property :end object))
+              (concat
+               (replace-regexp-in-string
+                (car (org-ref-get-bibtex-key-and-file)) ; key
+                (mapconcat 'identity keys ",")		; new keys
+                (org-element-property :raw-link object))
+               ;; replace space at end to avoid collapsing into next word.
+               last-char))
+        ;; and we want to go to the end of the new link
+        (goto-char
+         (org-element-property :end (org-element-context))))
        (t
-	(message "Not found"))))
+        (message "Not found"))))
 
      ;; We are next to a link, and we want to append
      ;; next to a link means one character back is on a link.
      ((save-excursion
-	(unless (bobp) (backward-char))
-	(and (equal (org-element-type (org-element-context)) 'link)
-	     (-contains?
-	      org-ref-cite-types
-	      (org-element-property :type (org-element-context)))))
+        (unless (bobp) (backward-char))
+        (and (equal (org-element-type (org-element-context)) 'link)
+             (-contains?
+              org-ref-cite-types
+              (org-element-property :type (org-element-context)))))
       (while (looking-back " ") (backward-char))
       (insert (concat "," (mapconcat 'identity keys ","))))
 
@@ -3525,12 +3525,12 @@ C-u C-u will change the key at point to the selected keys."
       ;;(message-box "fresh link")
       (insert
        (concat (if (equal helm-current-prefix-arg '(4))
-		   (helm :sources `((name . "link types")
-				    (candidates . ,org-ref-cite-types)
-				    (action . (lambda (x) x))))
-		 org-ref-default-citation-link)
-	       ":"
-	       (s-join "," keys))))))
+                   (helm :sources `((name . "link types")
+                                    (candidates . ,org-ref-cite-types)
+                                    (action . (lambda (x) x))))
+                 org-ref-default-citation-link)
+               ":"
+               (s-join "," keys))))))
   ;; return empty string for helm
   "")
 
@@ -3545,10 +3545,10 @@ With two prefix args, insert a label link."
   ;; that I often edit a bibliography and forget to save it, so the newest entry
   ;; does not show in helm-bibtex.
   (loop for buffer in (buffer-list)
-	do
-	(with-current-buffer buffer
-	  (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
-	    (save-buffer))))
+        do
+        (with-current-buffer buffer
+          (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
+            (save-buffer))))
   (cond
    ((equal arg nil)
     (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
@@ -3578,15 +3578,15 @@ With two prefix args, insert a label link."
 (defun org-ref-get-citation-string-at-point ()
   "Get a string of a formatted citation."
   (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
-	 (bibfile (cdr results)))
+         (key (car results))
+         (bibfile (cdr results)))
     (if bibfile
-	(save-excursion
-	  (with-temp-buffer
-	    (insert-file-contents bibfile)
+        (save-excursion
+          (with-temp-buffer
+            (insert-file-contents bibfile)
             (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	    (bibtex-search-entry key)
-	    (org-ref-bib-citation)))
+            (bibtex-search-entry key)
+            (org-ref-bib-citation)))
       "!!! No entry found !!!" )))
 
 
@@ -3594,25 +3594,25 @@ With two prefix args, insert a label link."
   "Generate the list of possible candidates for click actions on a cite link.
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
-	 (key (car results))
+         (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (bibfile (cdr results))
-	 (url (save-excursion
-		(with-temp-buffer
-		  (insert-file-contents bibfile)
+         (url (save-excursion
+                (with-temp-buffer
+                  (insert-file-contents bibfile)
                   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		  (bibtex-search-entry key)
-		  (bibtex-autokey-get-field "url"))))
-	 (doi (save-excursion
-		(with-temp-buffer
-		  (insert-file-contents bibfile)
+                  (bibtex-search-entry key)
+                  (bibtex-autokey-get-field "url"))))
+         (doi (save-excursion
+                (with-temp-buffer
+                  (insert-file-contents bibfile)
                   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		  (bibtex-search-entry key)
-		  ;; I like this better than bibtex-url which does not always find
-		  ;; the urls
-		  (bibtex-autokey-get-field "doi"))))
-	 (candidates `(("Quit" . org-ref-citation-at-point)
-		       ("Open bibtex entry" . org-ref-open-citation-at-point))))
+                  (bibtex-search-entry key)
+                  ;; I like this better than bibtex-url which does not always find
+                  ;; the urls
+                  (bibtex-autokey-get-field "doi"))))
+         (candidates `(("Quit" . org-ref-citation-at-point)
+                       ("Open bibtex entry" . org-ref-open-citation-at-point))))
     ;; for some reason, when there is no doi or url, they are returned as "". I
     ;; prefer nil so we correct this here.
     (when (string= doi "") (setq doi nil))
@@ -3620,17 +3620,17 @@ Checks for pdf and doi, and add appropriate functions."
 
     ;; Conditional pdf functions
     (if (file-exists-p pdf-file)
-	(add-to-list
-	 'candidates
-	 '("Open pdf" . org-ref-open-pdf-at-point)
-	 t)
+        (add-to-list
+         'candidates
+         '("Open pdf" . org-ref-open-pdf-at-point)
+         t)
       (add-to-list
        'candidates
        '("Try to get pdf" . (lambda ()
-			      (save-window-excursion
-				(org-ref-open-citation-at-point)
+                              (save-window-excursion
+                                (org-ref-open-citation-at-point)
                                 (bibtex-beginning-of-entry)
-				(doi-utils-get-bibtex-entry-pdf))))
+                                (doi-utils-get-bibtex-entry-pdf))))
        t))
 
 
@@ -3648,30 +3648,30 @@ Checks for pdf and doi, and add appropriate functions."
 
     (when doi
       (mapc (lambda (x)
-	      (add-to-list 'candidates x t))
-	    `(("WOS" . org-ref-wos-at-point)
-	      ("Related articles in WOS" . org-ref-wos-related-at-point)
-	      ("Citing articles in WOS" . org-ref-wos-citing-at-point)
-	      ("Google Scholar" . org-ref-google-scholar-at-point)
-	      ("Pubmed" . org-ref-pubmed-at-point)
-	      ("Crossref" . org-ref-crossref-at-point))))
+              (add-to-list 'candidates x t))
+            `(("WOS" . org-ref-wos-at-point)
+              ("Related articles in WOS" . org-ref-wos-related-at-point)
+              ("Citing articles in WOS" . org-ref-wos-citing-at-point)
+              ("Google Scholar" . org-ref-google-scholar-at-point)
+              ("Pubmed" . org-ref-pubmed-at-point)
+              ("Crossref" . org-ref-crossref-at-point))))
 
     (add-to-list
      'candidates
      '("Insert new citation" . (lambda ()
-				 (org-ref-helm-insert-cite-link nil)))
+                                 (org-ref-helm-insert-cite-link nil)))
      t)
 
     (add-to-list
      'candidates
      '("Delete key at point" . (lambda ()
-				 (let ((key (org-ref-get-bibtex-key-under-cursor)))
-				   (re-search-backward ":")
-				   (re-search-forward (concat key ",?"))
-				   (setf (buffer-substring
-					  (match-beginning 0)
-					  (match-end 0))
-					 ""))))
+                                 (let ((key (org-ref-get-bibtex-key-under-cursor)))
+                                   (re-search-backward ":")
+                                   (re-search-forward (concat key ",?"))
+                                   (setf (buffer-substring
+                                          (match-beginning 0)
+                                          (match-end 0))
+                                         ""))))
      t)
 
     ;;  This is kind of clunky. We store the key at point. Add the new ref. Get
@@ -3679,49 +3679,49 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Replace key at point" . (lambda ()
-				  (let ((key (org-ref-get-bibtex-key-under-cursor)))
-				    ;; add new citation
-				    (save-excursion
-				      (org-ref-helm-insert-cite-link nil))
-				    (let*  ((object (org-element-context))
-					    (type (org-element-property :type object))
-					    (begin (org-element-property :begin object))
-					    (end (org-element-property :end object))
-					    (link-string (org-element-property :path object))
-					    key keys i last-key)
+                                  (let ((key (org-ref-get-bibtex-key-under-cursor)))
+                                    ;; add new citation
+                                    (save-excursion
+                                      (org-ref-helm-insert-cite-link nil))
+                                    (let*  ((object (org-element-context))
+                                            (type (org-element-property :type object))
+                                            (begin (org-element-property :begin object))
+                                            (end (org-element-property :end object))
+                                            (link-string (org-element-property :path object))
+                                            key keys i last-key)
 
-				      (setq
-				       key (org-ref-get-bibtex-key-under-cursor)
-				       keys (org-ref-split-and-strip-string link-string)
-				       i (org-ref-index key keys)
-				       last-key (car (reverse keys)))
+                                      (setq
+                                       key (org-ref-get-bibtex-key-under-cursor)
+                                       keys (org-ref-split-and-strip-string link-string)
+                                       i (org-ref-index key keys)
+                                       last-key (car (reverse keys)))
 
-				      (setq keys (-remove-at i keys))
-				      (setq keys (-insert-at i last-key (butlast keys)))
+                                      (setq keys (-remove-at i keys))
+                                      (setq keys (-insert-at i last-key (butlast keys)))
 
-				      (cl--set-buffer-substring
-				       begin end
-				       (concat
-					type ":" (mapconcat 'identity keys ",")
-					;; It seems the space at the end can get consumed, so we see if there
-					;; is a space, and add it if so. Sometimes there is a comma or period,
-					;; then we do not want a space.
-					(when
-					    (save-excursion
-					      (goto-char end)
-					      (looking-back " ")) " ")))))))
+                                      (cl--set-buffer-substring
+                                       begin end
+                                       (concat
+                                        type ":" (mapconcat 'identity keys ",")
+                                        ;; It seems the space at the end can get consumed, so we see if there
+                                        ;; is a space, and add it if so. Sometimes there is a comma or period,
+                                        ;; then we do not want a space.
+                                        (when
+                                            (save-excursion
+                                              (goto-char end)
+                                              (looking-back " ")) " ")))))))
      t)
 
     (add-to-list
      'candidates
      '("Delete citation at point" . (lambda ()
-				      (let*  ((object (org-element-context))
-					    (type (org-element-property :type object))
-					    (begin (org-element-property :begin object))
-					    (end (org-element-property :end object)))
-				      (cl--set-buffer-substring
-				       begin end
-				       ""))))
+                                      (let*  ((object (org-element-context))
+                                              (type (org-element-property :type object))
+                                              (begin (org-element-property :begin object))
+                                              (end (org-element-property :end object)))
+                                        (cl--set-buffer-substring
+                                         begin end
+                                         ""))))
      t)
 
     (add-to-list
@@ -3737,8 +3737,8 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Copy key to clipboard" . (lambda ()
-				   (kill-new
-				    (car (org-ref-get-bibtex-key-and-file)))))
+                                   (kill-new
+                                    (car (org-ref-get-bibtex-key-and-file)))))
      t)
 
     (add-to-list
@@ -3749,9 +3749,9 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Email bibtex entry and pdf" . (lambda ()
-					(save-excursion
-					  (org-ref-open-citation-at-point)
-					  (email-bibtex-entry))))
+                                        (save-excursion
+                                          (org-ref-open-citation-at-point)
+                                          (email-bibtex-entry))))
      t)
 
     ;; add Scopus functions. These work by looking up a DOI to get a Scopus
@@ -3763,57 +3763,57 @@ Checks for pdf and doi, and add appropriate functions."
       (add-to-list
        'candidates
        '("Open in Scopus" . (lambda ()
-			      (let ((eid (scopus-doi-to-eid (org-ref-get-doi-at-point))))
-				(if eid
-				    (scopus-open-eid eid)
-				  (message "No EID found.")))))
+                              (let ((eid (scopus-doi-to-eid (org-ref-get-doi-at-point))))
+                                (if eid
+                                    (scopus-open-eid eid)
+                                  (message "No EID found.")))))
        t)
 
       (add-to-list
        'candidates
        '("Scopus citing articles" . (lambda ()
-				      (let ((url (scopus-citing-url
-						  (org-ref-get-doi-at-point))))
-					(if url
-					    (browse-url url)
-					  (message "No url found.")))))
+                                      (let ((url (scopus-citing-url
+                                                  (org-ref-get-doi-at-point))))
+                                        (if url
+                                            (browse-url url)
+                                          (message "No url found.")))))
        t)
 
       (add-to-list
        'candidates
        '("Scopus related by authors" . (lambda ()
-					 (let ((url (scopus-related-by-author-url
-						     (org-ref-get-doi-at-point))))
-					   (if url
-					       (browse-url url)
-					     (message "No url found.")))))
+                                         (let ((url (scopus-related-by-author-url
+                                                     (org-ref-get-doi-at-point))))
+                                           (if url
+                                               (browse-url url)
+                                             (message "No url found.")))))
        t)
 
       (add-to-list
        'candidates
        '("Scopus related by references" . (lambda ()
-					    (let ((url (scopus-related-by-references-url
-							(org-ref-get-doi-at-point))))
-					      (if url
-						  (browse-url url)
-						(message "No url found.")))))
+                                            (let ((url (scopus-related-by-references-url
+                                                        (org-ref-get-doi-at-point))))
+                                              (if url
+                                                  (browse-url url)
+                                                (message "No url found.")))))
        t)
 
       (add-to-list
        'candidates
        '("Scopus related by keywords" . (lambda ()
-					  (let ((url (scopus-related-by-keyword-url
-						      (org-ref-get-doi-at-point))))
-					    (if url
-						(browse-url url)
-					      (message "No url found.")))))
+                                          (let ((url (scopus-related-by-keyword-url
+                                                      (org-ref-get-doi-at-point))))
+                                            (if url
+                                                (browse-url url)
+                                              (message "No url found.")))))
        t))
 
     ;; finally return a numbered list of the candidates
     (cl-loop for i from 0
-	     for cell in candidates
-	     collect (cons (format "%2s. %s" i (car cell))
-			   (cdr cell)))))
+             for cell in candidates
+             collect (cons (format "%2s. %s" i (car cell))
+                           (cdr cell)))))
 
 
 (defvar org-ref-helm-user-candidates '()
@@ -3826,11 +3826,11 @@ point is on the cite key of interest.")
 (add-to-list
  'org-ref-helm-user-candidates
  '("Open pdf in emacs" . (lambda ()
-			   (find-file
-			    (concat
-			     (file-name-as-directory org-ref-pdf-directory)
-			     (car (org-ref-get-bibtex-key-and-file))
-			     ".pdf"))))
+                           (find-file
+                            (concat
+                             (file-name-as-directory org-ref-pdf-directory)
+                             (car (org-ref-get-bibtex-key-and-file))
+                             ".pdf"))))
  t)
 
 ;;;###autoload
@@ -3847,19 +3847,19 @@ action.  most of them need the point and buffer.
 KEY is returned for the selected item(s) in helm."
   (interactive)
   (let ((name (org-ref-get-citation-string-at-point))
-	(candidates (org-ref-cite-candidates))
-	(cb (current-buffer)))
+        (candidates (org-ref-cite-candidates))
+        (cb (current-buffer)))
 
     (helm :sources `(((name . ,name)
-		      (candidates . ,candidates)
-		      (action . (lambda (f)
-				  (switch-to-buffer cb)
-				  (funcall f))))
-		     ((name . "User functions")
-		      (candidates . ,org-ref-helm-user-candidates)
-		      (action . (lambda (f)
-				  (switch-to-buffer cb)
-				  (funcall f))))))))
+                      (candidates . ,candidates)
+                      (action . (lambda (f)
+                                  (switch-to-buffer cb)
+                                  (funcall f))))
+                     ((name . "User functions")
+                      (candidates . ,org-ref-helm-user-candidates)
+                      (action . (lambda (f)
+                                  (switch-to-buffer cb)
+                                  (funcall f))))))))
 
 ;; * Hydra menus in org-ref
 (when (featurep 'hydra)
@@ -3885,14 +3885,14 @@ _o_: Open entry   _e_: Email entry and pdf
     ("C" org-ref-crossref-at-point nil)
     ("K" org-ref-copy-entry-as-summary nil)
     ("k" (progn
-	   (kill-new
-	    (car (org-ref-get-bibtex-key-and-file))))
+           (kill-new
+            (car (org-ref-get-bibtex-key-and-file))))
      nil)
     ("f" org-ref-copy-entry-at-point-to-file nil)
 
     ("e" (save-excursion
-	   (org-ref-open-citation-at-point)
-	   (email-bibtex-entry))
+           (org-ref-open-citation-at-point)
+           (email-bibtex-entry))
      nil)))
 
 ;; * org-ref-help
@@ -3900,9 +3900,9 @@ _o_: Open entry   _e_: Email entry and pdf
   "Open the org-ref manual."
   (interactive)
   (find-file (expand-file-name
-	      "org-ref.org"
-	      (file-name-directory
-	       (find-library-name "org-ref")))))
+              "org-ref.org"
+              (file-name-directory
+               (find-library-name "org-ref")))))
 
 ;; * org-ref menu
 (defun org-ref-org-menu ()
