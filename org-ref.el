@@ -812,6 +812,22 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
        (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys "\n")
        "\n"))))
 
+(defun org-ref-get-odt-bibliography (&optional sort)
+  "Create an ascii bibliography ofr odt export when there are keys.
+if SORT is non-nil the bibliography is sorted alphabetically by
+key. This is a variant of `org-ref-get-ascii-bibliography' where
+some things are escaped since odt is an xml format."
+  (let ((keys (org-ref-get-bibtex-keys sort)))
+    (when keys
+      (concat
+       "Bibliography
+=============
+"
+       (mapconcat (lambda (x)
+		    (xml-escape-string (org-ref-get-bibtex-entry-ascii x)))
+		  keys "\n")
+       "\n"))))
+
 ;; * Links
 ;; ** bibliography and bibliographystyle
 (org-add-link-type "bibliography"
@@ -871,17 +887,19 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
                      (cond
                       ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'ascii) (org-ref-get-ascii-bibliography))
-                      ((eq format 'html) (org-ref-get-html-bibliography))
-                      ((eq format 'latex)
-                       ;; write out the latex bibliography command
-                       (format "\\bibliography{%s}"
-                               (replace-regexp-in-string
-                                "\\.bib" ""
-                                (mapconcat
-                                 'identity
-                                 (mapcar 'expand-file-name
-                                         (split-string keyword ","))
-                                 ",")))))))
+		      ((eq format 'odt) (org-ref-get-odt-bibliography))
+		      ((eq format 'html) (org-ref-get-html-bibliography))
+		      ((eq format 'latex)
+		       ;; write out the latex bibliography command
+		       (format "\\bibliography{%s}"
+			       (replace-regexp-in-string
+				"\\.bib" ""
+				(mapconcat
+				 'identity
+				 (mapcar 'expand-file-name
+					 (split-string keyword ","))
+				 ",")))))))
+
 
 
 (org-add-link-type "nobibliography"
@@ -934,14 +952,17 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
                      (cond
                       ((eq format 'org) (org-ref-get-org-bibliography))
                       ((eq format 'ascii) (org-ref-get-ascii-bibliography))
-                      ((eq format 'html) (org-ref-get-html-bibliography))
-                      ((eq format 'latex)
-                       ;; write out the latex bibliography command
-                       (format "\\nobibliography{%s}"
-                               (replace-regexp-in-string  "\\.bib" "" (mapconcat 'identity
-                                                                                 (mapcar 'expand-file-name
-                                                                                         (split-string keyword ","))
-                                                                                 ",")))))))
+		      ((eq format 'odt (org-ref-get-ascii-bibliography)))
+		      ((eq format 'html) (org-ref-get-html-bibliography))
+		      ((eq format 'latex)
+		       ;; write out the latex bibliography command
+		       (format "\\nobibliography{%s}"
+			       (replace-regexp-in-string
+				"\\.bib" ""
+				(mapconcat 'identity
+					   (mapcar 'expand-file-name
+						   (split-string keyword ","))
+					   ",")))))))
 
 
 (org-add-link-type "printbibliography"
@@ -2089,13 +2110,22 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
 
       ((eq format 'latex)
        (if (string= (substring ,type -1) "s")
-     ;; biblatex format for multicite commands, which all end in s. These are formated as \cites{key1}{key2}...
-     (concat "\\" ,type (mapconcat (lambda (key) (format "{%s}"  key))
-           (org-ref-split-and-strip-string keyword) ""))
-   ;; bibtex format
-   (concat "\\" ,type (when desc (org-ref-format-citation-description desc)) "{"
-     (mapconcat (lambda (key) key) (org-ref-split-and-strip-string keyword) ",")
-     "}")))
+	   ;; biblatex format for multicite commands, which all end in s. These
+	   ;; are formated as \cites{key1}{key2}...
+	   (concat "\\" ,type
+		   (mapconcat (lambda (key) (format "{%s}" key))
+			      (org-ref-split-and-strip-string keyword) ""))
+	 ;; bibtex format
+	 (concat "\\" ,type
+		 (when desc (org-ref-format-citation-description desc)) "{"
+		 (mapconcat
+		  (lambda (key) key)
+		  (org-ref-split-and-strip-string keyword) ",")
+		 "}")))
+      ;; simple format for odt.
+      ((eq format 'odt)
+       (format "[%s]" keyword))
+
       ;; for markdown we generate pandoc citations
       ((eq format 'md)
        (cond
@@ -2114,6 +2144,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
       (lambda (key) (concat "@" key))
       (org-ref-split-and-strip-string keyword)
       "; "))))))))
+
 
 
 (defun org-ref-format-citation-description (desc)
@@ -3233,7 +3264,11 @@ specify the key should be kept"
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
   (interactive)
-  (when (not (looking-at " "))
+  ;; the way links are recognized in org-element-context counts a blank space
+  ;; after a link and the closing brackets in literal links. We don't try to get
+  ;; a message if the cursor is on those.
+  (when (not (or (looking-at " ")
+		 (looking-at "]")))
 
     (save-restriction
       (widen)
