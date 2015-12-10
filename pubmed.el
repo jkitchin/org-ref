@@ -51,7 +51,7 @@
  ;; clicking
  (lambda (link-string) (browse-url (format "http://www.ncbi.nlm.nih.gov/pubmed/%s" link-string)))
  ;; formatting
-(lambda (keyword desc format)
+ (lambda (keyword desc format)
    (cond
     ((eq format 'html)
      (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s\">pmid:%s</a>" keyword keyword)); no output for html
@@ -67,11 +67,11 @@
 (defun pubmed-get-medline (pmid)
   "Get MEDLINE text for PMID as a string."
   (with-current-buffer
-    (url-retrieve-synchronously
-     (format "http://www.ncbi.nlm.nih.gov/pubmed/%s/?report=medline&format=text" pmid))
+      (url-retrieve-synchronously
+       (format "http://www.ncbi.nlm.nih.gov/pubmed/%s/?report=medline&format=text" pmid))
     (goto-char (point-min))
     (let ((p1 (search-forward "<pre>"))
-	  (p2 (search-forward "</pre>")))
+          (p2 (search-forward "</pre>")))
       (buffer-substring (+ 1 p1) (- p2 6)))))
 
 ;; ** Parse the PMID MEDLINE data
@@ -81,23 +81,23 @@
 (defun pubmed-parse-medline (pmid)
   "Parse the medline text for PMID and return a list of cons cells."
   (let ((data '())
-	(p1)
-	(p2)
-	(tag)
-	(value))
+        (p1)
+        (p2)
+        (tag)
+        (value))
     (with-temp-buffer (insert (pubmed-get-medline pmid))
-		      (goto-char (point-min))
-		      (while (re-search-forward "\\(^[A-Z]\\{2,4\\}\\)\\s-*- " nil t)
-			(setq tag (match-string 1))
-			;; point is at end of the search
-			(setq p1 (point))
-			;; now go to next tag
-			(re-search-forward "\\(^[A-Z]\\{2,4\\}\\)\\s-*- " nil t)
-			(setq p2 (- (match-beginning 1) 1))
-			(setq value (buffer-substring p1 p2))
-			(setq data (append data (list (cons tag value))))
-			;; now go back to last tag to get the next one
-			(goto-char p1)))
+                      (goto-char (point-min))
+                      (while (re-search-forward "\\(^[A-Z]\\{2,4\\}\\)\\s-*- " nil t)
+                        (setq tag (match-string 1))
+                        ;; point is at end of the search
+                        (setq p1 (point))
+                        ;; now go to next tag
+                        (re-search-forward "\\(^[A-Z]\\{2,4\\}\\)\\s-*- " nil t)
+                        (setq p2 (- (match-beginning 1) 1))
+                        (setq value (buffer-substring p1 p2))
+                        (setq data (append data (list (cons tag value))))
+                        ;; now go back to last tag to get the next one
+                        (goto-char p1)))
     data))
 
 ;; ** PMID to bibtex entry
@@ -108,20 +108,20 @@
 (defun pubmed-pmid-to-bibtex (pmid)
   "Convert a PMID to a bibtex entry."
   (let* ((data (pubmed-parse-medline pmid))
-	 (type (cdr (assoc "PT" data)))
-	 (title (cdr (assoc "TI" data)))
-	 (authors (mapconcat 'cdr
-			     (-filter (lambda (x)
-					(string= (car x) "FAU"))
-				      data)
-			     " and "))
-	 (abstract (cdr (assoc "AB" data)))
-	 (volume (cdr (assoc "VI" data)))
-	 (issue (cdr (assoc "IP" data)))
-	 (journal (cdr (assoc "JT" data)))
-	 (year (cdr (assoc "DP" data)))
-	 (pages (cdr (assoc "PG" data)))
-	 (aid (cdr (assoc "AID" data))))
+         (type (cdr (assoc "PT" data)))
+         (title (cdr (assoc "TI" data)))
+         (authors (mapconcat 'cdr
+                             (-filter (lambda (x)
+                                        (string= (car x) "FAU"))
+                                      data)
+                             " and "))
+         (abstract (cdr (assoc "AB" data)))
+         (volume (cdr (assoc "VI" data)))
+         (issue (cdr (assoc "IP" data)))
+         (journal (cdr (assoc "JT" data)))
+         (year (cdr (assoc "DP" data)))
+         (pages (cdr (assoc "PG" data)))
+         (aid (cdr (assoc "AID" data))))
 
     (cond
      ((string= type "JOURNAL ARTICLE")
@@ -136,16 +136,16 @@
  pages = {" pages "},
  doi = {" (replace-regexp-in-string " \\[doi\\]" "" aid) "},
 }"))
-    (t
-     (message "No conversion for type: %s" type)))))
+     (t
+      (message "No conversion for type: %s" type)))))
 
 ;; And we probably want to be able to insert a bibtex entry
 
 (defun pubmed-insert-bibtex-from-pmid (pmid)
- "Insert a bibtex entry at point derived from PMID.
+  "Insert a bibtex entry at point derived from PMID.
 You must clean the entry after insertion."
- (interactive "sPMID: ")
- (insert (pubmed-pmid-to-bibtex pmid)))
+  (interactive "sPMID: ")
+  (insert (pubmed-pmid-to-bibtex pmid)))
 
 ;; ** PMID to xml
 
@@ -158,8 +158,8 @@ You must clean the entry after insertion."
   "Get MEDLINE xml for PMID as a string."
   (interactive)
   (with-current-buffer
-    (url-retrieve-synchronously
-     (format "http://www.ncbi.nlm.nih.gov/pubmed/%s/?report=xml&format=text" pmid))
+      (url-retrieve-synchronously
+       (format "http://www.ncbi.nlm.nih.gov/pubmed/%s/?report=xml&format=text" pmid))
     (goto-char (point-min))
     (while (search-forward "&lt;" nil t)
       (replace-match "<"))
@@ -169,7 +169,7 @@ You must clean the entry after insertion."
     (goto-char (point-min))
 
     (let ((p1 (search-forward "<pre>"))
-	  (p2 (search-forward "</pre>")))
+          (p2 (search-forward "</pre>")))
       (buffer-substring (+ 1 p1) (- p2 6)))))
 
 ;; * Pubmed Central (PMC) link
@@ -188,7 +188,7 @@ You must clean the entry after insertion."
  ;; clicking
  (lambda (link-string) (browse-url (format "http://www.ncbi.nlm.nih.gov/pmc/articles/%s" link-string)))
  ;; formatting
-(lambda (keyword desc format)
+ (lambda (keyword desc format)
    (cond
     ((eq format 'html)
      (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/%s\">pmcid:%s</a>" keyword keyword))

@@ -35,7 +35,7 @@
  ;; clicking
  (lambda (link-string) (browse-url (format "http://arxiv.org/abs/%s" link-string)))
  ;; formatting
-(lambda (keyword desc format)
+ (lambda (keyword desc format)
    (cond
     ((eq format 'html)
      (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>" keyword  keyword))
@@ -59,8 +59,8 @@
   (with-current-buffer
       (url-retrieve-synchronously
        (concat
-	"http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:"
-	arxiv-number))
+        "http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:"
+        arxiv-number))
     (search-forward-regexp "name=\\\"bibcode\\\" value=\\\"\\(.*\\)\\\"")
     (match-string 1)))
 
@@ -69,13 +69,13 @@
   (with-current-buffer
       (url-retrieve-synchronously
        (format
-	"http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=%s&data_type=BIBTEX&db_key=PRE&nocookieset=1"
-	arxiv-bibliographic-code))
+        "http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=%s&data_type=BIBTEX&db_key=PRE&nocookieset=1"
+        arxiv-bibliographic-code))
     (goto-char  url-http-end-of-headers)
     (if (search-forward  "Retrieved 1 abstracts" (point-max) t)
-	(progn
-	  (forward-line)
-	  (buffer-substring (point) (point-max)))
+        (progn
+          (forward-line)
+          (buffer-substring (point) (point-max)))
       (error "Did not get one entry: %s" (buffer-substring (point) (point-max))))))
 
 ;; * Getting a bibtex entry for an arXiv article using arXiv API:
@@ -129,48 +129,48 @@ authors in 'SURNAME, FIRST NAME' format."
 
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
- (interactive
+  (interactive
    (list (read-string "arxiv: ")
-	 ;;  now get the bibfile to add it to
-	 (ido-completing-read
-	  "Bibfile: "
-	  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-		  org-ref-default-bibliography))))
- (save-window-excursion
-   (find-file bibfile)
-   (goto-char (point-max))
-   (when (not (looking-at "^")) (insert "\n"))
-   (insert (arxiv-get-bibtex-entry-via-arxiv-api arxiv-number))
-   (save-buffer)))
+         ;;  now get the bibfile to add it to
+         (ido-completing-read
+          "Bibfile: "
+          (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+                  org-ref-default-bibliography))))
+  (save-window-excursion
+    (find-file bibfile)
+    (goto-char (point-max))
+    (when (not (looking-at "^")) (insert "\n"))
+    (insert (arxiv-get-bibtex-entry-via-arxiv-api arxiv-number))
+    (save-buffer)))
 
 
 (defun arxiv-get-pdf (arxiv-number pdf)
   "Retrieve a pdf for ARXIV-NUMBER and save it to PDF."
   (interactive "sarxiv: \nsPDF: ")
   (let ((pdf-url (with-current-buffer
-		     (url-retrieve-synchronously
-		      (concat
-		       "http://arxiv.org/abs/" arxiv-number))
-         ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
-       (beginning-of-buffer)
-       (search-forward-regexp
-		    "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
-		   (match-string 1))))
+                     (url-retrieve-synchronously
+                      (concat
+                       "http://arxiv.org/abs/" arxiv-number))
+                   ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
+                   (beginning-of-buffer)
+                   (search-forward-regexp
+                    "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
+                   (match-string 1))))
     (url-copy-file pdf-url pdf)
     ;; now check if we got a pdf
     (with-temp-buffer
       (insert-file-contents pdf)
       ;; PDFS start with %PDF-1.x as the first few characters.
       (if (not (string= (buffer-substring 1 6) "%PDF-"))
-	  (progn
-	    (message "%s" (buffer-string))
-	    (delete-file pdf))
-	(message "%s saved" pdf)))
+          (progn
+            (message "%s" (buffer-string))
+            (delete-file pdf))
+        (message "%s saved" pdf)))
 
     (org-open-file pdf)))
 
 (defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile pdfdir)
-    "Add bibtex entry for ARXIV-NUMBER to BIBFILE, remove troublesome chars from the bibtex key, retrieve a pdf for ARXIV-NUMBER and save it to PDFDIR with the same name of the key."
+  "Add bibtex entry for ARXIV-NUMBER to BIBFILE, remove troublesome chars from the bibtex key, retrieve a pdf for ARXIV-NUMBER and save it to PDFDIR with the same name of the key."
   (interactive
    (list (read-string "arxiv: ")
          ;;  now get the bibfile to add it to

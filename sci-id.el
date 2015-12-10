@@ -39,14 +39,14 @@
 (org-add-link-type
  "researcherid"
  (lambda
-    (link-string)
-    (browse-url
-     (format "http://www.researcherid.com/rid/%s" link-string)))
+   (link-string)
+   (browse-url
+    (format "http://www.researcherid.com/rid/%s" link-string)))
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
      (format "<a href=\"http://www.researcherid.com/rid/%s\">ResearcherID:%s</a>"
-	     keyword keyword)))))
+             keyword keyword)))))
 
 (provide 'sci-id)
 ;;; sci-id.el ends here

@@ -50,14 +50,14 @@
   "Get a Scopus eid from a DOI. Requires `*scopus-api-key*' to be defined."
   (unless *scopus-api-key* (error "You must define `*scopus-api-key*'."))
   (let* ((url-request-method "GET")
-	 (url-mime-accept-string "application/xml")
-	 (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)
-					   '("field" . "eid")))
-	 (url (format  "http://api.elsevier.com/content/search/scopus?query=doi(%s)" doi))
-	 (xml (with-current-buffer  (url-retrieve-synchronously url)
-		(xml-parse-region url-http-end-of-headers (point-max))))
-	 (results (car xml))
-	 (entry (car (xml-get-children results 'entry))))
+         (url-mime-accept-string "application/xml")
+         (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)
+                                           '("field" . "eid")))
+         (url (format  "http://api.elsevier.com/content/search/scopus?query=doi(%s)" doi))
+         (xml (with-current-buffer  (url-retrieve-synchronously url)
+                (xml-parse-region url-http-end-of-headers (point-max))))
+         (results (car xml))
+         (entry (car (xml-get-children results 'entry))))
     (car (xml-node-children (car (xml-get-children entry 'eid))))))
 
 
@@ -151,7 +151,7 @@
      (format "<a href=\" http://www.scopus.com/record/display.url?eid=%s&origin=resultslist\">eid:%s</a>" keyword keyword))
     ((eq format 'latex)
      (format "\\href{http://www.scopus.com/record/display.url?eid=%s&origin=resultslist}{eid:%s}"
-	     keyword keyword)))))
+             keyword keyword)))))
 
 
 (org-add-link-type
@@ -160,9 +160,9 @@
    (scopus-basic-search query))
  (lambda (query desc format)
    (let ((url (format
-	       "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=b&sdt=b&sl=%s&s=TITLE-ABS-KEY%%28%s%%29&origin=searchbasic"
-	       (length (url-unhex-string (concat "TITLE-ABS-KEY%28" (url-hexify-string query) "%29")))
-	       (url-hexify-string query))))
+               "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=b&sdt=b&sl=%s&s=TITLE-ABS-KEY%%28%s%%29&origin=searchbasic"
+               (length (url-unhex-string (concat "TITLE-ABS-KEY%28" (url-hexify-string query) "%29")))
+               (url-hexify-string query))))
      (cond
       ((eq format 'html)
        (format "<a href=\"%s\">%s</a>" url (or desc query)))
@@ -176,9 +176,9 @@
    (scopus-advanced-search query))
  (lambda (query desc format)
    (let ((url (format
-    "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=a&sdt=a&sl=%s&s=%s&origin=searchadvanced"
-    (length (url-hexify-string query))
-    (url-hexify-string query))))
+               "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=a&sdt=a&sl=%s&s=%s&origin=searchadvanced"
+               (length (url-hexify-string query))
+               (url-hexify-string query))))
      (cond
       ((eq format 'html)
        (format "<a href=\"%s\">%s</a>" url (or desc query)))

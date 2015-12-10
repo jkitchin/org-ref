@@ -37,71 +37,71 @@
 (defun ris2bib (risfile &optional verbose)
   "Convert RISFILE to bibtex and insert at point.
 Without a prefix arg, stderr is diverted."
- (interactive
-  (list (read-file-name "RIS file:")
-        (prefix-numeric-value current-prefix-arg)))
- (let ((result (shell-command-to-string
-		(concat
-		 (format
-		  "ris2xml %s | xml2bib -w"
-		  risfile)
-		 (unless verbose " 2> /dev/null")))))
-   ;; make some lines into comments.
-   (setq result (replace-regexp-in-string
-		 "^xml2bib:"
-		 "% xml2bib:"
-                 result))
-   (setq result (replace-regexp-in-string
-		 "^ris2xml:"
-                 "% ris2xml"
-                 result))
-   (setq result (replace-regexp-in-string
-		 "^	Defaulting"
-		 "%	Defaulting"
-		 result))
-   (insert result)))
+  (interactive
+   (list (read-file-name "RIS file:")
+         (prefix-numeric-value current-prefix-arg)))
+  (let ((result (shell-command-to-string
+                 (concat
+                  (format
+                   "ris2xml %s | xml2bib -w"
+                   risfile)
+                  (unless verbose " 2> /dev/null")))))
+    ;; make some lines into comments.
+    (setq result (replace-regexp-in-string
+                  "^xml2bib:"
+                  "% xml2bib:"
+                  result))
+    (setq result (replace-regexp-in-string
+                  "^ris2xml:"
+                  "% ris2xml"
+                  result))
+    (setq result (replace-regexp-in-string
+                  "^	Defaulting"
+                  "%	Defaulting"
+                  result))
+    (insert result)))
 
 ;; ** Pubmed XML to bibtex
 ;; In http://www.ncbi.nlm.nih.gov/pubmed/ you can select entries, and then send them to a file. If you choose Pubmed XML as the format, then you can use this function to convert it to bibtex.
 
 (defun medxml2bib (medfile &optional verbose)
- "Convert MEDFILE (in Pubmed xml) to bibtex and insert at point.
+  "Convert MEDFILE (in Pubmed xml) to bibtex and insert at point.
 Without a prefix arg, stderr is diverted."
- (interactive
-  (list (read-file-name "MED file:")
-        (prefix-numeric-value current-prefix-arg)))
- (let ((result (shell-command-to-string
-		(concat
-		 (format
-		  "med2xml %s | xml2bib -w"
-		  medfile)
-		 (unless verbose " 2> /dev/null")))))
-   ;; make some lines into comments.
-   (setq result (replace-regexp-in-string
-		 "^xml2bib:"
-		 "% xml2bib:"
-                 result))
-   (setq result (replace-regexp-in-string
-		 "^med2xml:"
-                 "% med2xml"
-                 result))
-   (setq result (replace-regexp-in-string
-		 "^	Defaulting"
-		 "%	Defaulting"
-		 result))
-   (insert result)))
+  (interactive
+   (list (read-file-name "MED file:")
+         (prefix-numeric-value current-prefix-arg)))
+  (let ((result (shell-command-to-string
+                 (concat
+                  (format
+                   "med2xml %s | xml2bib -w"
+                   medfile)
+                  (unless verbose " 2> /dev/null")))))
+    ;; make some lines into comments.
+    (setq result (replace-regexp-in-string
+                  "^xml2bib:"
+                  "% xml2bib:"
+                  result))
+    (setq result (replace-regexp-in-string
+                  "^med2xml:"
+                  "% med2xml"
+                  result))
+    (setq result (replace-regexp-in-string
+                  "^	Defaulting"
+                  "%	Defaulting"
+                  result))
+    (insert result)))
 
 ;; ** Clean up all the entries
 
 ;; Finally, after you put the new entries in, you probably need to do some clean up actions. This little function does that.
 
 (defun clean-entries ()
- "Map over bibtex entries and clean them."
- (interactive)
- (bibtex-map-entries
-  (lambda (a b c)
-   (ignore-errors
-   (org-ref-clean-bibtex-entry)))))
+  "Map over bibtex entries and clean them."
+  (interactive)
+  (bibtex-map-entries
+   (lambda (a b c)
+     (ignore-errors
+       (org-ref-clean-bibtex-entry)))))
 
 (provide 'x2bib)
 

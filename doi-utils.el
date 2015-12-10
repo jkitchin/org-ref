@@ -75,11 +75,11 @@ Optional argument STATUS Unknown why this is optional."
   (url-retrieve
    (format "http://dx.doi.org/%s" doi)
    'doi-utils-redirect-callback)
-  ; I suspect we need to wait here for the asynchronous process to
-  ; finish. we loop and sleep until the callback says it is done via
-  ; `*doi-utils-waiting*'. this works as far as i can tell. Before I
-  ; had to run this a few times to get it to work, which i suspect
-  ; just gave the first one enough time to finish.
+  ;; I suspect we need to wait here for the asynchronous process to
+  ;; finish. we loop and sleep until the callback says it is done via
+  ;; `*doi-utils-waiting*'. this works as far as i can tell. Before I
+  ;; had to run this a few times to get it to work, which i suspect
+  ;; just gave the first one enough time to finish.
   (while *doi-utils-waiting* (sleep-for 0.1)))
 
 ;; Once we have a redirect for a particular doi, we need to compute the url to
@@ -137,12 +137,13 @@ Optional argument STATUS Unknown why this is optional."
 We get it out here by parsing the html.
 Argument REDIRECT-URL URL you are redirected to."
   (setq *doi-utils-waiting* t)
-  (url-retrieve redirect-url
-		(lambda (status)
-		  (goto-char (point-min))
-		  (re-search-forward "<iframe id=\"pdfDocument\" src=\"\\([^\"]*\\)\"" nil)
-		  (setq *doi-utils-pdf-url* (match-string 1)
-			*doi-utils-waiting* nil)))
+  (url-retrieve
+   redirect-url
+   (lambda (status)
+     (goto-char (point-min))
+     (re-search-forward "<iframe id=\"pdfDocument\" src=\"\\([^\"]*\\)\"" nil)
+     (setq *doi-utils-pdf-url* (match-string 1)
+           *doi-utils-waiting* nil)))
   (while *doi-utils-waiting* (sleep-for 0.1))
   *doi-utils-pdf-url*)
 
@@ -151,7 +152,7 @@ Argument REDIRECT-URL URL you are redirected to."
   (when (string-match "^http://onlinelibrary.wiley.com" *doi-utils-redirect*)
     (doi-utils-get-wiley-pdf-url
      (replace-regexp-in-string "/abstract" "/pdf" *doi-utils-redirect*))
-   *doi-utils-pdf-url*))
+    *doi-utils-pdf-url*))
 
 
 ;; ** Springer
@@ -180,9 +181,9 @@ Argument REDIRECT-URL URL you are redirected to."
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://iopscience.iop.org" *doi-utils-redirect*)
     (let ((tail (replace-regexp-in-string
-		 "^http://iopscience.iop.org" "" *doi-utils-redirect*)))
+                 "^http://iopscience.iop.org" "" *doi-utils-redirect*)))
       (concat "http://iopscience.iop.org" tail
-	      "/pdf" (replace-regexp-in-string "/" "_" tail) ".pdf"))))
+              "/pdf" (replace-regexp-in-string "/" "_" tail) ".pdf"))))
 
 
 ;; ** JSTOR
@@ -201,12 +202,12 @@ Argument REDIRECT-URL URL you are redirected to."
     ;; get stuff after content
     (let (p1 p2 s p3)
       (setq p2 (replace-regexp-in-string
-		"^http://scitation.aip.org/" "" *doi-utils-redirect*))
+                "^http://scitation.aip.org/" "" *doi-utils-redirect*))
       (setq s (split-string p2 "/"))
       (setq p1 (mapconcat 'identity (-remove-at-indices '(0 6) s) "/"))
       (setq p3 (concat "/" (nth 0 s) (nth 1 s) "/" (nth 2 s) "/" (nth 3 s)))
       (format "http://scitation.aip.org/deliver/fulltext/%s.pdf?itemId=/%s&mimeType=pdf&containerItemId=%s"
-	      p1 p2 p3))))
+              p1 p2 p3))))
 
 ;; ** Taylor and Francis
 
@@ -252,12 +253,13 @@ Argument REDIRECT-URL URL you are redirected to."
   "Science direct hides the pdf url in html.  W get it out here.
 REDIRECT-URL is where the pdf url will be in."
   (setq *doi-utils-waiting* t)
-  (url-retrieve redirect-url
-		(lambda (status)
-		  (beginning-of-buffer)
-		  (re-search-forward "pdfurl=\"\\([^\"]*\\)\"" nil t)
-		  (setq *doi-utils-pdf-url* (match-string 1)
-			*doi-utils-waiting* nil)))
+  (url-retrieve
+   redirect-url
+   (lambda (status)
+     (beginning-of-buffer)
+     (re-search-forward "pdfurl=\"\\([^\"]*\\)\"" nil t)
+     (setq *doi-utils-pdf-url* (match-string 1)
+           *doi-utils-waiting* nil)))
   (while *doi-utils-waiting* (sleep-for 0.1))
   *doi-utils-pdf-url*)
 
@@ -275,11 +277,11 @@ REDIRECT-URL is where the pdf url will be in."
 (defun linkinghub-elsevier-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match
-	 "^http://linkinghub.elsevier.com/retrieve" *doi-utils-redirect*)
+         "^http://linkinghub.elsevier.com/retrieve" *doi-utils-redirect*)
     (let ((second-redirect (replace-regexp-in-string
-			    "http://linkinghub.elsevier.com/retrieve"
-			    "http://www.sciencedirect.com/science/article"
-			    *doi-utils-redirect*)))
+                            "http://linkinghub.elsevier.com/retrieve"
+                            "http://www.sciencedirect.com/science/article"
+                            *doi-utils-redirect*)))
       *doi-utils-pdf-url*)))
 
 ;; ** PNAS
@@ -329,8 +331,8 @@ until one is found."
   (catch 'pdf-url
     (dolist (func doi-utils-pdf-url-functions)
       (let ((this-pdf-url (funcall func *doi-utils-redirect*)))
-	(when this-pdf-url
-	  (throw 'pdf-url this-pdf-url))))))
+        (when this-pdf-url
+          (throw 'pdf-url this-pdf-url))))))
 
 ;; ** Finally, download the pdf
 
@@ -346,13 +348,13 @@ at the end."
   (save-excursion
     (bibtex-beginning-of-entry)
     (let (;; get doi, removing http://dx.doi.org/ if it is there.
-	  (doi (replace-regexp-in-string
-		"http://dx.doi.org/" ""
-		(bibtex-autokey-get-field "doi")))
-	  (key)
-	  (pdf-url)
-	  (pdf-file)
-	  (content))
+          (doi (replace-regexp-in-string
+                "http://dx.doi.org/" ""
+                (bibtex-autokey-get-field "doi")))
+          (key)
+          (pdf-url)
+          (pdf-file)
+          (content))
       ;; get the key and build pdf filename.
       (re-search-forward bibtex-entry-maybe-empty-head)
       (setq key (match-string bibtex-key-in-head))
@@ -360,22 +362,22 @@ at the end."
 
       ;; now get file if needed.
       (when (and doi (not (file-exists-p pdf-file)))
-	(setq pdf-url (doi-utils-get-pdf-url doi))
-	(if pdf-url
-	    (progn
-	      (url-copy-file pdf-url pdf-file)
-	      ;; now check if we got a pdf
-	      (with-temp-buffer
-		(insert-file-contents pdf-file)
-		;; PDFS start with %PDF-1.x as the first few characters.
-		(if (not (string= (buffer-substring 1 6) "%PDF-"))
-		    (progn
-		      (delete-file pdf-file))
-		  (message "%s saved" pdf-file)))
+        (setq pdf-url (doi-utils-get-pdf-url doi))
+        (if pdf-url
+            (progn
+              (url-copy-file pdf-url pdf-file)
+              ;; now check if we got a pdf
+              (with-temp-buffer
+                (insert-file-contents pdf-file)
+                ;; PDFS start with %PDF-1.x as the first few characters.
+                (if (not (string= (buffer-substring 1 6) "%PDF-"))
+                    (progn
+                      (delete-file pdf-file))
+                  (message "%s saved" pdf-file)))
 
-	      (when (file-exists-p pdf-file)
-		(org-open-file pdf-file))))
-	  pdf-file))))
+              (when (file-exists-p pdf-file)
+                (org-open-file pdf-file))))
+        pdf-file))))
 
 ;; * Getting bibtex entries from a DOI
 
@@ -388,18 +390,18 @@ at the end."
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
   (let ((url-request-method "GET")
-	(url-mime-accept-string "application/citeproc+json")
-	(json-object-type 'plist)
-	(json-data))
+        (url-mime-accept-string "application/citeproc+json")
+        (json-object-type 'plist)
+        (json-data))
     (with-current-buffer
-	(url-retrieve-synchronously
-	 (concat "http://dx.doi.org/" doi))
+        (url-retrieve-synchronously
+         (concat "http://dx.doi.org/" doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
       (if (string-match "Resource not found" json-data)
-	  (progn
-	    (browse-url (concat "http://dx.doi.org/" doi))
-	    (error "Resource not found.  Opening website"))
-	(json-read-from-string json-data)))))
+          (progn
+            (browse-url (concat "http://dx.doi.org/" doi))
+            (error "Resource not found.  Opening website"))
+        (json-read-from-string json-data)))))
 
 ;; We can use that data to construct a bibtex entry. We do that by defining a
 ;; template, and filling it in. I wrote this template expansion code which makes
@@ -423,7 +425,7 @@ at the end."
 (setq doi-utils-json-metadata-extract
       '((type       (plist-get results :type))
         (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
-                     (plist-get results :author) " and "))
+                               (plist-get results :author) " and "))
         (title      (plist-get results :title))
         (subtitle   (plist-get results :subtitle))
         (journal    (plist-get results :container-title))
@@ -456,7 +458,7 @@ expressions."
         ((and (stringp (car lst))
               (stringp (car acc)))
          (doi-utils-concat-prepare (cdr lst) (cons (concat (car acc) (car lst))
-                                         (cdr acc))))
+                                                   (cdr acc))))
         (t (doi-utils-concat-prepare (cdr lst) (cons (car lst) acc)))))
 
 (defmacro doi-utils-def-bibtex-type (name matching-types &rest fields)
@@ -467,16 +469,16 @@ when the `:type' parameter in the JSON metadata is contained in
 MATCHING-TYPES - a list of strings."
   `(push (lambda (type results)
            (when
-	       (or ,@(mapcar
-		      (lambda (match-type)
-			`(string= type ,match-type)) matching-types))
+               (or ,@(mapcar
+                      (lambda (match-type)
+                        `(string= type ,match-type)) matching-types))
              (let ,(mapcar (lambda (field)
                              (let ((field-expr
-				    (assoc field doi-utils-json-metadata-extract)))
+                                    (assoc field doi-utils-json-metadata-extract)))
                                (if field-expr
                                    ;; need to convert to string first
                                    `(,(car field-expr) (format "%s" ,(cadr field-expr)))
-                                   (error "Unknown bibtex field type %s" field))))
+                                 (error "Unknown bibtex field type %s" field))))
                            fields)
                (concat
                 ,@(doi-utils-concat-prepare
@@ -510,7 +512,7 @@ MATCHING-TYPES - a list of strings."
   "Return a bibtex entry as a string for the DOI.  Not all types are supported yet."
   (let* ((results (doi-utils-get-json-metadata doi))
          (type (plist-get results :type)))
-    ;(format "%s" results) ; json-data
+    ;; (format "%s" results) ; json-data
     (or (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
         (message "%s not supported yet\n%S." type results))))
 
@@ -529,12 +531,12 @@ Also cleans entry using org-ref, and tries to download the corresponding pdf."
   ;; set date added for the record
   (bibtex-set-field "DATE_ADDED" (current-time-string))
   (if (bibtex-key-in-head nil)
-       (org-ref-clean-bibtex-entry t)
-     (org-ref-clean-bibtex-entry))
-   ;; try to get pdf
-   (doi-utils-get-bibtex-entry-pdf)
-   (save-selected-window
-     (org-ref-open-bibtex-notes)))
+      (org-ref-clean-bibtex-entry t)
+    (org-ref-clean-bibtex-entry))
+  ;; try to get pdf
+  (doi-utils-get-bibtex-entry-pdf)
+  (save-selected-window
+    (org-ref-open-bibtex-notes)))
 
 
 ;; It may be you are in some other place when you want to add a bibtex entry.
@@ -550,44 +552,45 @@ prompt. If no region is selected and the first entry of the
 kill-ring starts like a DOI, then that is the intial
 prompt. Otherwise, you have to type or paste in a DOI."
   (interactive
-   (list (read-string "DOI: "
-		     ;; now set initial input
-		     (cond
-		      ;; If region is active and it starts like a doi we want it.
-		      ((and  (region-active-p)
-                             (s-match "^10" (buffer-substring
-					      (region-beginning)
-					      (region-end))))
-		       (buffer-substring (region-beginning) (region-end)))
-		      ;; if the first entry in the kill-ring looks
-		      ;; like a DOI, let's use it.
-		      ((and
-			 ;; make sure the kill-ring has something in it
-			 (stringp (car kill-ring))
-			 (s-match "^10" (car kill-ring)))
-			   (car kill-ring))
-		      ;; otherwise, we have no initial input. You
-		      ;; will have to type it in.
-		      (t
-		       nil)))
-	 ;;  now get the bibfile to add it to
-	 (ido-completing-read
-	  "Bibfile: "
-	  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-		  org-ref-default-bibliography))))
+   (list (read-string
+          "DOI: "
+          ;; now set initial input
+          (cond
+           ;; If region is active and it starts like a doi we want it.
+           ((and  (region-active-p)
+                  (s-match "^10" (buffer-substring
+                                  (region-beginning)
+                                  (region-end))))
+            (buffer-substring (region-beginning) (region-end)))
+           ;; if the first entry in the kill-ring looks
+           ;; like a DOI, let's use it.
+           ((and
+             ;; make sure the kill-ring has something in it
+             (stringp (car kill-ring))
+             (s-match "^10" (car kill-ring)))
+            (car kill-ring))
+           ;; otherwise, we have no initial input. You
+           ;; will have to type it in.
+           (t
+            nil)))
+         ;;  now get the bibfile to add it to
+         (ido-completing-read
+          "Bibfile: "
+          (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+                  org-ref-default-bibliography))))
   ;; Wrap in save-window-excursion to restore your window arrangement after this
   ;; is done.
   (save-window-excursion
     (with-current-buffer
-      (find-file-noselect bibfile)
+        (find-file-noselect bibfile)
       ;; Check if the doi already exists
       (goto-char (point-min))
       (if (search-forward doi nil t)
-	  (message "%s is already in this file" doi)
-	(end-of-buffer)
-	(insert "\n\n")
-	(doi-utils-insert-bibtex-entry-from-doi doi)
-	(save-buffer)))))
+          (message "%s is already in this file" doi)
+        (end-of-buffer)
+        (insert "\n\n")
+        (doi-utils-insert-bibtex-entry-from-doi doi)
+        (save-buffer)))))
 
 
 (defun doi-utils-doi-to-org-bibtex (doi)
@@ -618,14 +621,14 @@ Optional argument NODELIM see `bibtex-make-field'."
   (bibtex-beginning-of-entry)
   (let ((found))
     (if (setq found (bibtex-search-forward-field field t))
-	;; we found a field
-	(progn
-	  (goto-char (car (cdr found)))
-	  (when value
-	    (bibtex-kill-field)
-	    (bibtex-make-field field nil nil nodelim)
-	    (backward-char)
-	    (insert value)))
+        ;; we found a field
+        (progn
+          (goto-char (car (cdr found)))
+          (when value
+            (bibtex-kill-field)
+            (bibtex-make-field field nil nil nodelim)
+            (backward-char)
+            (insert value)))
       ;; make a new field
       (bibtex-beginning-of-entry)
       (forward-line) (beginning-of-line)
@@ -641,7 +644,7 @@ Optional argument NODELIM see `bibtex-make-field'."
 
 
 (defun plist-get-keys (plist)
-   "Return keys in a PLIST."
+  "Return keys in a PLIST."
   (cl-loop
    for key in results by #'cddr collect key))
 
@@ -649,40 +652,40 @@ Optional argument NODELIM see `bibtex-make-field'."
   "Update fields in a bibtex entry from the DOI. Every field will
 be updated, so previous change will be lost."
   (interactive (list
-		(or (replace-regexp-in-string
-		     "http://dx.doi.org/" ""
-		     (bibtex-autokey-get-field "doi"))
-		    (read-string "DOI: "))))
+                (or (replace-regexp-in-string
+                     "http://dx.doi.org/" ""
+                     (bibtex-autokey-get-field "doi"))
+                    (read-string "DOI: "))))
   (let* ((results (doi-utils-get-json-metadata doi))
-	 (type (plist-get results :type))
-	 (author (mapconcat
-		  (lambda (x) (concat (plist-get x :given)
-				    " " (plist-get x :family)))
-		  (plist-get results :author) " and "))
-	 (title (plist-get results :title))
-	 (journal (plist-get results :container-title))
-	 (year (format "%s"
-		       (elt
-			(elt
-			 (plist-get
-			  (plist-get results :issued) :date-parts) 0) 0)))
-	(volume (plist-get results :volume))
-	(number (or (plist-get results :issue) ""))
-	(pages (or (plist-get results :page) ""))
-	(url (or (plist-get results :URL) ""))
-	(doi (plist-get results :DOI)))
+         (type (plist-get results :type))
+         (author (mapconcat
+                  (lambda (x) (concat (plist-get x :given)
+                                      " " (plist-get x :family)))
+                  (plist-get results :author) " and "))
+         (title (plist-get results :title))
+         (journal (plist-get results :container-title))
+         (year (format "%s"
+                       (elt
+                        (elt
+                         (plist-get
+                          (plist-get results :issued) :date-parts) 0) 0)))
+         (volume (plist-get results :volume))
+         (number (or (plist-get results :issue) ""))
+         (pages (or (plist-get results :page) ""))
+         (url (or (plist-get results :URL) ""))
+         (doi (plist-get results :DOI)))
 
     ;; map the json fields to bibtex fields. The code each field is mapped to is
     ;; evaluated.
     (setq mapping '((:author . (bibtex-set-field "author" author))
-		    (:title . (bibtex-set-field "title" title))
-		    (:container-title . (bibtex-set-field "journal" journal))
-		    (:issued . (bibtex-set-field "year" year))
-		    (:volume . (bibtex-set-field "volume" volume))
-		    (:issue . (bibtex-set-field "number" number))
-		    (:page . (bibtex-set-field "pages" pages))
-		    (:DOI . (bibtex-set-field "doi" doi))
-		    (:URL . (bibtex-set-field "url" url))))
+                    (:title . (bibtex-set-field "title" title))
+                    (:container-title . (bibtex-set-field "journal" journal))
+                    (:issued . (bibtex-set-field "year" year))
+                    (:volume . (bibtex-set-field "volume" volume))
+                    (:issue . (bibtex-set-field "number" number))
+                    (:page . (bibtex-set-field "pages" pages))
+                    (:DOI . (bibtex-set-field "doi" doi))
+                    (:URL . (bibtex-set-field "url" url))))
 
     ;; now we have code to run for each entry. we map over them and evaluate the code
     (mapcar
@@ -690,7 +693,7 @@ be updated, so previous change will be lost."
        (eval (cdr (assoc key mapping))))
      (plist-get-keys results)))
 
-  ; reclean entry, but keep key if it exists.
+  ;; reclean entry, but keep key if it exists.
   (if (bibtex-key-in-head)
       (org-ref-clean-bibtex-entry t)
     (org-ref-clean-bibtex-entry)))
@@ -705,8 +708,8 @@ be updated, so previous change will be lost."
 Data is retrieved from the doi in the entry."
   (interactive)
   (let* ((doi (bibtex-autokey-get-field "doi"))
-	 (results (doi-utils-get-json-metadata doi))
-	 (field (car (bibtex-find-text-internal nil nil ","))))
+         (results (doi-utils-get-json-metadata doi))
+         (field (car (bibtex-find-text-internal nil nil ","))))
     (cond
      ((string= field "volume")
       (bibtex-set-field field (plist-get results :volume)))
@@ -714,7 +717,7 @@ Data is retrieved from the doi in the entry."
       (bibtex-set-field field (plist-get results :issue)))
      ((string= field "pages")
       (bibtex-set-field field (or (plist-get results :page)
-				  (plist-get results :article-number))))
+                                  (plist-get results :article-number))))
      ((string= field "year")
       (bibtex-set-field field (plist-get results :year)))
      (t
@@ -761,8 +764,8 @@ May be empty if none are found."
   (interactive "sDOI: ")
   (browse-url
    (concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
-	   doi
-	   "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes")))
+           doi
+           "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes")))
 
 
 
@@ -779,8 +782,8 @@ May be empty if none are found."
 
 (defun doi-utils-open (doi)
   "Open DOI in browser."
- (interactive "sDOI: ")
- (browse-url (concat "http://dx.doi.org/" doi)))
+  (interactive "sDOI: ")
+  (browse-url (concat "http://dx.doi.org/" doi)))
 
 
 (defun doi-utils-open-bibtex (doi)
@@ -790,8 +793,8 @@ May be empty if none are found."
     (dolist (f reftex-default-bibliography)
       (find-file f)
       (when (search-forward doi (point-max) t)
-	(bibtex-beginning-of-entry)
-	(throw 'file t)))))
+        (bibtex-beginning-of-entry)
+        (throw 'file t)))))
 
 
 (defun doi-utils-crossref (doi)
@@ -820,43 +823,43 @@ May be empty if none are found."
 
 
 (defvar doi-link-menu-funcs '()
- "Functions to run in doi menu.
+  "Functions to run in doi menu.
 Each entry is a list of (key menu-name function).  The function
 must take one argument, the doi.")
 
 (setq doi-link-menu-funcs
       '(("o" "pen" doi-utils-open)
-	("w" "os" doi-utils-wos)
-	("c" "iting articles" doi-utils-wos-citing)
-	("r" "elated articles" doi-utils-wos-related)
+        ("w" "os" doi-utils-wos)
+        ("c" "iting articles" doi-utils-wos-citing)
+        ("r" "elated articles" doi-utils-wos-related)
         ("s" "Google Scholar" doi-utils-google-scholar)
         ("f" "CrossRef" doi-utils-crossref)
         ("p" "ubmed" doi-utils-pubmed)
-	("b" "open in bibtex" doi-utils-open-bibtex)
-	("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
+        ("b" "open in bibtex" doi-utils-open-bibtex)
+        ("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
 
 
 (defun doi-link-menu (link-string)
-   "Generate the link menu message, get choice and execute it.
+  "Generate the link menu message, get choice and execute it.
 Options are stored in `doi-link-menu-funcs'.
 Argument LINK-STRING Passed in on link click."
-   (interactive)
-   (message
+  (interactive)
+  (message
    (concat
     (mapconcat
      (lambda (tup)
        (concat "[" (elt tup 0) "]"
-	       (elt tup 1) " "))
+               (elt tup 1) " "))
      doi-link-menu-funcs "") ": "))
-   (let* ((input (read-char-exclusive))
-	  (choice (assoc
-		   (char-to-string input) doi-link-menu-funcs)))
-     (when choice
-       (funcall
-	(elt
-	 choice
-	 2)
-	link-string))))
+  (let* ((input (read-char-exclusive))
+         (choice (assoc
+                  (char-to-string input) doi-link-menu-funcs)))
+    (when choice
+      (funcall
+       (elt
+        choice
+        2)
+       link-string))))
 
 (org-add-link-type
  "doi"
@@ -865,12 +868,12 @@ Argument LINK-STRING Passed in on link click."
    (cond
     ((eq format 'html)
      (format "<a href=\"http://dx.doi.org/%s\">%s</a>"
-	     doi
-	     (or desc (concat "doi:" doi))))
+             doi
+             (or desc (concat "doi:" doi))))
     ((eq format 'latex)
      (format "\\href{http://dx.doi.org/%s}{%s}"
-	     doi
-	     (or desc (concat "doi:%s" doi)))))))
+             doi
+             (or desc (concat "doi:%s" doi)))))))
 
 
 ;; * Getting a doi for a bibtex entry missing one
@@ -917,43 +920,43 @@ error."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
-	 (json-string)
-	 (json-data)
-	 (doi))
+         (json-string)
+         (json-data)
+         (doi))
     (unless (string= ""(reftex-get-bib-field "doi" entry))
       (error "Entry already has a doi field"))
 
     (with-current-buffer
-	(url-retrieve-synchronously
-	 (concat
-	  "http://search.crossref.org/dois?q="
-	  (url-hexify-string (org-ref-bib-citation))))
+        (url-retrieve-synchronously
+         (concat
+          "http://search.crossref.org/dois?q="
+          (url-hexify-string (org-ref-bib-citation))))
       (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s" (org-ref-bib-citation)))
-	   (helm-candidates (mapcar (lambda (x)
-				      (cons
-				       (concat
-					(cdr (assoc 'fullCitation x))
-					" "
-					(cdr (assoc 'doi x)))
-				       (cdr (assoc 'doi x))))
-				      json-data))
-	   (source `((name . ,name)
-		     (candidates . ,helm-candidates)
-		     ;; just return the candidate
-		     (action . (("Insert doi and url field" . (lambda (doi)
-								(bibtex-make-field "doi")
-								(backward-char)
-								;; crossref returns doi url, but I prefer only a doi for the doi field
-								(insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi))
-								(when (string= ""(reftex-get-bib-field "url" entry))
-								  (bibtex-make-field "url")
-								  (backward-char)
-								  (insert doi))))
-				("Open url" . (lambda (doi)
-						(browse-url doi))))))))
+           (helm-candidates (mapcar (lambda (x)
+                                      (cons
+                                       (concat
+                                        (cdr (assoc 'fullCitation x))
+                                        " "
+                                        (cdr (assoc 'doi x)))
+                                       (cdr (assoc 'doi x))))
+                                    json-data))
+           (source `((name . ,name)
+                     (candidates . ,helm-candidates)
+                     ;; just return the candidate
+                     (action . (("Insert doi and url field" . (lambda (doi)
+                                                                (bibtex-make-field "doi")
+                                                                (backward-char)
+                                                                ;; crossref returns doi url, but I prefer only a doi for the doi field
+                                                                (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi))
+                                                                (when (string= ""(reftex-get-bib-field "url" entry))
+                                                                  (bibtex-make-field "url")
+                                                                  (backward-char)
+                                                                  (insert doi))))
+                                ("Open url" . (lambda (doi)
+                                                (browse-url doi))))))))
       (helm :sources '(source)))))
 
 
@@ -991,57 +994,57 @@ error."
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
   "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
   (interactive (list
-		(read-string
-		 "Query: "
-		 ;; now set initial input
-		 (cond
-		  ;; If region is active assume we want it
-		  ((region-active-p)
-		   (replace-regexp-in-string
-		    "\n" " "
-		    (buffer-substring (region-beginning) (region-end))))
-		  ;; type or paste it in
-		  (t
-		   nil)))
-		(ido-completing-read
-		 "Bibfile: "
-		 (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-			 org-ref-default-bibliography))))
+                (read-string
+                 "Query: "
+                 ;; now set initial input
+                 (cond
+                  ;; If region is active assume we want it
+                  ((region-active-p)
+                   (replace-regexp-in-string
+                    "\n" " "
+                    (buffer-substring (region-beginning) (region-end))))
+                  ;; type or paste it in
+                  (t
+                   nil)))
+                (ido-completing-read
+                 "Bibfile: "
+                 (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+                         org-ref-default-bibliography))))
   (let* ((json-string)
-	 (json-data)
-	 (doi))
+         (json-data)
+         (doi))
 
     (with-current-buffer
-	(url-retrieve-synchronously
-	 (concat
-	  "http://search.crossref.org/dois?q="
-	  (url-hexify-string query)))
+        (url-retrieve-synchronously
+         (concat
+          "http://search.crossref.org/dois?q="
+          (url-hexify-string query)))
       (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s"
-			 ;; remove carriage returns. they cause problems in helm.
-			 (replace-regexp-in-string "\n" " " query)))
-	   (helm-candidates (mapcar (lambda (x)
-				      (cons
-				       (concat
-					(cdr (assoc 'fullCitation x))
-					" "
-					(cdr (assoc 'doi x)))
-				       (cdr (assoc 'doi x))))
-				    json-data))
-	   (source `((name . ,name)
-		     (candidates . ,helm-candidates)
-		     ;; just return the candidate
-		     (action . (("Insert bibtex entry" .  (lambda (doi)
-							    (loop for doi in (helm-marked-candidates)
-								  do
-								  (doi-utils-add-bibtex-entry-from-doi
-								   (replace-regexp-in-string
-								    "^http://dx.doi.org/" "" doi)
-								   ,bibtex-file))))
-				("Open url" . (lambda (doi)
-						(browse-url doi))))))))
+                         ;; remove carriage returns. they cause problems in helm.
+                         (replace-regexp-in-string "\n" " " query)))
+           (helm-candidates (mapcar (lambda (x)
+                                      (cons
+                                       (concat
+                                        (cdr (assoc 'fullCitation x))
+                                        " "
+                                        (cdr (assoc 'doi x)))
+                                       (cdr (assoc 'doi x))))
+                                    json-data))
+           (source `((name . ,name)
+                     (candidates . ,helm-candidates)
+                     ;; just return the candidate
+                     (action . (("Insert bibtex entry" .  (lambda (doi)
+                                                            (loop for doi in (helm-marked-candidates)
+                                                                  do
+                                                                  (doi-utils-add-bibtex-entry-from-doi
+                                                                   (replace-regexp-in-string
+                                                                    "^http://dx.doi.org/" "" doi)
+                                                                   ,bibtex-file))))
+                                ("Open url" . (lambda (doi)
+                                                (browse-url doi))))))))
       (helm :sources '(source)))))
 
 ;; * The end

@@ -36,8 +36,8 @@
    (cond
     ((eq format 'html)
      (format "<a href=\"http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:ut/%s\">%s</a>"
-	     accession-number
-	     (or desc (concat "wos:" accession-number)))))))
+             accession-number
+             (or desc (concat "wos:" accession-number)))))))
 
 
 (org-add-link-type
@@ -46,13 +46,13 @@
    (browse-url
     (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
              (s-join "+"
-              (split-string path)))))
+                     (split-string path)))))
  ;; formatting function. Assume html
  (lambda (link desc format)
    (format "<a href=\"%s\">%s</a>"
            (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-             (s-join "+"
-              (split-string link)))
+                    (s-join "+"
+                            (split-string link)))
            (format "wos-search:%s" link))))
 
 
@@ -62,11 +62,11 @@
   (interactive)
   (browse-url
    (format "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-    (if (region-active-p)
-	(mapconcat 'identity (split-string
-			      (buffer-substring (region-beginning)
-						(region-end))) "+")
-      (thing-at-point 'word)))))
+           (if (region-active-p)
+               (mapconcat 'identity (split-string
+                                     (buffer-substring (region-beginning)
+                                                       (region-end))) "+")
+             (thing-at-point 'word)))))
 
 
 (defun wos ()
@@ -94,8 +94,8 @@
 (defun wos-doi-to-accession-number (doi)
   "Return a WOS Accession number for a DOI."
   (let* ((open-url (concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/" doi))
-	 (redirect (wos-get-wos-redirect open-url)))
-(message redirect)
+         (redirect (wos-get-wos-redirect open-url)))
+    (message redirect)
     (string-match "&KeyUT=WOS:\\([^&]*\\)&" redirect)
     (match-string 1 redirect)))
 
