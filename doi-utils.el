@@ -428,45 +428,49 @@ at the end."
 ;; As different bibtex types share common keys, it is advantageous to separate
 ;; data extraction from json, and the formatting of the bibtex entry.
 
+;; We use eval-and-compile because we use the three following forms in the
+;; `doi-utils-def-bibtex-type' macro.  Since the macro is expanded at compile
+;; time, we need to ensure these defuns and defvars are evaluated at
+;; compile-time.
+(eval-and-compile
+  (defvar doi-utils-json-metadata-extract
+    '((type       (plist-get results :type))
+      (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
+                             (plist-get results :author) " and "))
+      (title      (plist-get results :title))
+      (subtitle   (plist-get results :subtitle))
+      (journal    (plist-get results :container-title))
+      (series     (plist-get results :container-title))
+      (publisher  (plist-get results :publisher))
+      (volume     (plist-get results :volume))
+      (issue      (plist-get results :issue))
+      (number     (plist-get results :issue))
+      (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
+      (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
+      (pages      (plist-get results :page))
+      (doi        (plist-get results :DOI))
+      (url        (plist-get results :URL))
+      (booktitle  (plist-get results :container-title))))
 
-(defvar doi-utils-json-metadata-extract
-  '((type       (plist-get results :type))
-    (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
-                           (plist-get results :author) " and "))
-    (title      (plist-get results :title))
-    (subtitle   (plist-get results :subtitle))
-    (journal    (plist-get results :container-title))
-    (series     (plist-get results :container-title))
-    (publisher  (plist-get results :publisher))
-    (volume     (plist-get results :volume))
-    (issue      (plist-get results :issue))
-    (number     (plist-get results :issue))
-    (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
-    (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
-    (pages      (plist-get results :page))
-    (doi        (plist-get results :DOI))
-    (url        (plist-get results :URL))
-    (booktitle  (plist-get results :container-title))))
+  ;; Next, we need to define the different bibtex types. Each type has a bibtex
+  ;; type (for output) and the type as provided in the doi record. Finally, we
+  ;; have to declare the fields we want to output.
 
-;; Next, we need to define the different bibtex types. Each type has a bibtex
-;; type (for output) and the type as provided in the doi record. Finally, we
-;; have to declare the fields we want to output.
+  (defvar doi-utils-bibtex-type-generators nil)
 
-(defvar doi-utils-bibtex-type-generators nil)
-
-(defun doi-utils-concat-prepare (lst &optional acc)
-  "Minimize the number of args passed to `concat' from LST.
+  (defun doi-utils-concat-prepare (lst &optional acc)
+    "Minimize the number of args passed to `concat' from LST.
 Given a list LST of strings and other expressions, which are
 intended to be passed to `concat', concat any subsequent strings,
 minimising the number of arguments being passed to `concat'
 without changing the results.  ACC is the list of additional
 expressions."
-  (cond ((null lst) (nreverse acc))
-        ((and (stringp (car lst))
-              (stringp (car acc)))
-         (doi-utils-concat-prepare (cdr lst) (cons (concat (car acc) (car lst))
-                                                   (cdr acc))))
-        (t (doi-utils-concat-prepare (cdr lst) (cons (car lst) acc)))))
+    (cond ((null lst) (nreverse acc))
+          ((and (stringp (car lst))
+                (stringp (car acc)))
+           (doi-utils-concat-prepare (cdr lst) (cons (concat (car acc) (car lst))
+                                                     (cdr acc))))
+          (t (doi-utils-concat-prepare (cdr lst) (cons (car lst) acc))))))
 
 (defmacro doi-utils-def-bibtex-type (name matching-types &rest fields)
   "Define a BibTeX type identified by (symbol) NAME.
