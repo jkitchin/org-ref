@@ -2529,27 +2529,6 @@ construct the heading by hand."
           (throw 'done nil)))
       (message "No url or doi found"))))
 
-;; ** upload entry to citeulike
-(defun org-ref-upload-bibtex-entry-to-citeulike ()
-  "With point in  a bibtex entry get bibtex string and submit to citeulike.
-
-Relies on the python script /upload_bibtex_citeulike.py being in
-the user directory."
-  (interactive)
-  (message "uploading to citeulike")
-  (save-restriction
-    (bibtex-narrow-to-entry)
-    (let ((startpos (point-min))
-          (endpos (point-max))
-          (bibtex-string (buffer-string))
-          (script (concat "python "
-                          ;; TODO: free variable
-                          starter-kit-dir
-                          "/upload_bibtex_citeulike.py&")))
-      (with-temp-buffer
-        (insert bibtex-string)
-        (shell-command-on-region
-         (point-min) (point-max) script t nil nil t)))))
 
 ;; ** Build a pdf of the bibtex file
 (defun org-ref-build-full-bibliography ()
