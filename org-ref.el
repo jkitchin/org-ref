@@ -2240,7 +2240,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
           (goto-char link-string-end)
           ;; sometimes there are spaces at the end of the link
           ;; this code moves point pack until no spaces are there
-          (while (looking-back " ") (backward-char))
+          (skip-chars-backward " ")
           (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
 
          ;; We are next to a link, and we want to append
@@ -2249,7 +2249,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
             (and (equal (org-element-type (org-element-context)) 'link)
                  (-contains? org-ref-cite-types
                              (org-element-property :type (org-element-context)))))
-          (while (looking-back " ") (backward-char))
+          (skip-chars-backward " ")
           (insert (concat "," (mapconcat 'identity (reftex-citation t ?a) ","))))
 
          ;; insert fresh link
@@ -3202,7 +3202,8 @@ specify the key should be kept"
         (when
             (save-excursion
               (goto-char end)
-              (looking-back " ")) " ")))
+              (char-equal (char-before) (string-to-char " ")))
+          " ")))
       ;; now go forward to key so we can move with the key
       (re-search-forward key)
       (goto-char (match-beginning 0)))))
@@ -3532,7 +3533,7 @@ change the key at point to the selected keys."
        ;; no prefix. append keys
        ((equal helm-current-prefix-arg nil)
         (goto-char (org-element-property :end object))
-        (while (looking-back " ") (backward-char))
+        (skip-chars-backward " ")
         (insert (concat "," (mapconcat 'identity keys ","))))
        ;; double prefix, replace key at point
        ((equal helm-current-prefix-arg '(16))
@@ -3560,7 +3561,7 @@ change the key at point to the selected keys."
              (-contains?
               org-ref-cite-types
               (org-element-property :type (org-element-context)))))
-      (while (looking-back " ") (backward-char))
+      (skip-chars-backward " ")
       (insert (concat "," (mapconcat 'identity keys ","))))
 
      ;; insert fresh link
