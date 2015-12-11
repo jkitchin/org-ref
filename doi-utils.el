@@ -32,6 +32,8 @@
 ;; - doi-utils-add-bibtex-entry-from-region to add an entry from a highlighed doi to your default bibliography.
 ;; - doi-utils-update-bibtex-entry-from-doi with cursor in an entry to update its fields.
 
+(require 'bibtex)
+(require 'dash)
 (require 'json)
 
 ;;; Code:
