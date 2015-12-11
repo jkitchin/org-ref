@@ -10,11 +10,12 @@ As a potential solution for citions in org-mode for non-LaTeX export, here we in
 Briefly, there is a csl file that contains two variables: citation-style and bibliography-style. The citation-style defines how the in-text citations are represented for different types of citations. The bibliography-style defines how the bibliography is constructed.
 
 What do we gain by this?
-1. No need for external citeproc program.
-2. Punctuation transposition
-3. Total tunability of the citation format.
+1. No need for external citeproc program, and hackability by org-mode experts.
+2. Punctuation transposition and space chomping, i.e. put superscripts on the right side of punctuation if you want it, and remove whitespace before superscripts if you want it.
+3. Total tunability of the citation format to different backends.
+4. Easy to change bibliography format with the bibliographystyle link.
 
-The real code for this is too long to blog about.
+The real code for this is too long to blog about. Instead, you should check it out here: https://github.com/jkitchin/org-ref/tree/master/citeproc
 
 ** Reference types
 
@@ -40,6 +41,10 @@ The real code for this is too long to blog about.
 - Citation in middle of cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien a sentence.
 
 ** Building
+   :PROPERTIES:
+   :date:     2015/12/11 14:47:59
+   :updated:  2015/12/11 14:48:26
+   :END:
 
 #+BEGIN_SRC emacs-lisp
 (when (file-exists-p "readme.html") (delete-file "readme.html"))
@@ -50,6 +55,12 @@ The real code for this is too long to blog about.
 #+RESULTS:
 : #<process open ./readme.html>
 
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-export-before-parsing-hook 'orcp-citeproc)
+#+END_SRC
+
+#+RESULTS:
+| orcp-citeproc |
 
 ** Summary thoughts
 1. Other bibtex entries need to be tested out.
