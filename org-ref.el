@@ -2164,8 +2164,8 @@ separating these with ::, for example [[cite:key][pre text::post
 text]]."
   (cond
    ((string-match "::" desc)
-    ;; TODO: what is results
-    (format "[%s][%s]" (car (setq results (split-string desc "::"))) (cadr results)))
+    (let ((results (split-string desc "::")))
+      (format "[%s][%s]" (car results) (cadr results))))
    (t (format "[%s]" desc))))
 
 
