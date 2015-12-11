@@ -513,7 +513,7 @@ MATCHING-TYPES - a list of strings."
   (let* ((results (doi-utils-get-json-metadata doi))
          (type (plist-get results :type)))
     ;; (format "%s" results) ; json-data
-    (or (some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
+    (or (-some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
         (message "%s not supported yet\n%S." type results))))
 
 ;; That is just the string for the entry. To be useful, we need a function that
@@ -645,8 +645,7 @@ Optional argument NODELIM see `bibtex-make-field'."
 
 (defun plist-get-keys (plist)
   "Return keys in a PLIST."
-  (cl-loop
-   for key in results by #'cddr collect key))
+  (-slice plist 0 nil 2))
 
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
   "Update fields in a bibtex entry from the DOI. Every field will

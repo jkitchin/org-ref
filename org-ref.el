@@ -1793,9 +1793,9 @@ Argument KEY is the bibtex key."
       (setq entry (bibtex-parse-entry))
       (let ((e (org-ref-reftex-get-bib-field "file" entry)))
         (if (> (length e) 4)
-            (let ((clean-field (remove-if (lambda (ch) (find ch "{}\\")) e) ))
+            (let ((clean-field (-remove (lambda (char) (-contains? "{}\\" char)) e)))
               (let ((first-file (car (split-string clean-field ";" t))))
-                (format "/%s" (subseq first-file 1 (- (length first-file) 4)))))
+                (format "/%s" (-slice first-file 1 (- (length first-file) 4)))))
           (format (concat
                    (file-name-as-directory org-ref-pdf-directory)
                    "%s.pdf")
@@ -3006,7 +3006,7 @@ at the end of you file.
     (setq entry-fields (remove "=type=" entry-fields))
 
     ;;these are the other fields in the entry
-    (setq other-fields (remove-if-not (lambda(x) (not (member x master))) entry-fields))
+    (setq other-fields (-remove (lambda(x) (member x master)) entry-fields))
 
     (cond
      ;; right now we only resort articles
@@ -3159,7 +3159,7 @@ specify the key should be kept"
          keys years data)
     (setq keys (org-ref-split-and-strip-string link-string))
     (setq years (mapcar 'org-ref-get-citation-year keys))
-    (setq data (mapcar* (lambda (a b) `(,a . ,b)) years keys))
+    (setq data (-zip-with 'cons years keys))
     (setq data (cl-sort data (lambda (x y) (< (string-to-number (car x)) (string-to-number (car y))))))
     ;; now get the keys separated by commas
     (setq keys (mapconcat (lambda (x) (cdr x)) data ","))
