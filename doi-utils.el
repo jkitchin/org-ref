@@ -428,30 +428,30 @@ at the end."
 ;; data extraction from json, and the formatting of the bibtex entry.
 
 
-(setq doi-utils-json-metadata-extract
-      '((type       (plist-get results :type))
-        (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
-                               (plist-get results :author) " and "))
-        (title      (plist-get results :title))
-        (subtitle   (plist-get results :subtitle))
-        (journal    (plist-get results :container-title))
-        (series     (plist-get results :container-title))
-        (publisher  (plist-get results :publisher))
-        (volume     (plist-get results :volume))
-        (issue      (plist-get results :issue))
-        (number     (plist-get results :issue))
-        (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
-        (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
-        (pages      (plist-get results :page))
-        (doi        (plist-get results :DOI))
-        (url        (plist-get results :URL))
-        (booktitle  (plist-get results :container-title))))
+(defvar doi-utils-json-metadata-extract
+  '((type       (plist-get results :type))
+    (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
+                           (plist-get results :author) " and "))
+    (title      (plist-get results :title))
+    (subtitle   (plist-get results :subtitle))
+    (journal    (plist-get results :container-title))
+    (series     (plist-get results :container-title))
+    (publisher  (plist-get results :publisher))
+    (volume     (plist-get results :volume))
+    (issue      (plist-get results :issue))
+    (number     (plist-get results :issue))
+    (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
+    (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
+    (pages      (plist-get results :page))
+    (doi        (plist-get results :DOI))
+    (url        (plist-get results :URL))
+    (booktitle  (plist-get results :container-title))))
 
 ;; Next, we need to define the different bibtex types. Each type has a bibtex
 ;; type (for output) and the type as provided in the doi record. Finally, we
 ;; have to declare the fields we want to output.
 
-(setq doi-utils-bibtex-type-generators nil)
+(defvar doi-utils-bibtex-type-generators nil)
 
 (defun doi-utils-concat-prepare (lst &optional acc)
   "Minimize the number of args passed to `concat' from LST.
