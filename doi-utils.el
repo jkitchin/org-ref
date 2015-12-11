@@ -360,6 +360,7 @@ at the end."
       ;; get the key and build pdf filename.
       (re-search-forward bibtex-entry-maybe-empty-head)
       (setq key (match-string bibtex-key-in-head))
+      ;; TODO: if we require org-ref then we have recursive require
       (setq pdf-file (concat (file-name-as-directory org-ref-pdf-directory) key ".pdf"))
 
       ;; now get file if needed.
