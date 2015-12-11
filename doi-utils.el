@@ -119,6 +119,12 @@ Optional argument STATUS Unknown why this is optional."
       (replace-regexp-in-string "\.html$" "\.pdf" result))))
 
 
+;; ** Elsevier/ScienceDirect
+;; You cannot compute these pdf links; they are embedded in the redirected pages.
+
+(defvar *doi-utils-pdf-url* nil
+  "Stores url to pdf download from a callback function.")
+
 ;; ** Wiley
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/abstract
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/pdf
@@ -242,12 +248,6 @@ Argument REDIRECT-URL URL you are redirected to."
     (let ((url (downcase *doi-utils-redirect*)))
       (setq url (replace-regexp-in-string "articlelanding" "articlepdf" url))
       url)))
-
-;; ** Elsevier/ScienceDirect
-;; You cannot compute these pdf links; they are embedded in the redirected pages.
-
-(defvar *doi-utils-pdf-url* nil
-  "Stores url to pdf download from a callback function.")
 
 (defun doi-utils-get-science-direct-pdf-url (redirect-url)
   "Science direct hides the pdf url in html.  W get it out here.
