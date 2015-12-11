@@ -1558,8 +1558,7 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
                                         ;formatting
  (lambda (keyword desc format)
    (cond
-    ;; TODO what is path
-    ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
+    ((eq format 'html) (format "(<pageref>%s</pageref>)" keyword))
     ((eq format 'latex)
      (format "\\pageref{%s}" keyword)))))
 
