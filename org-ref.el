@@ -2497,20 +2497,17 @@ construct the heading by hand."
 (defun org-ref-open-notes-from-reftex ()
   "Call reftex, and open notes for selected entry."
   (interactive)
-  (let ((bibtex-key )))
+  (let ((bibtex-key)))
 
   ;; now look for entry in the notes file
   (if  org-ref-bibliography-notes
       (find-file-other-window org-ref-bibliography-notes)
     (error "Org-ref-bib-bibliography-notes is not set to anything"))
 
-  (goto-char (point-min))
-
-  (re-search-forward (format
-                      ":Custom_ID: %s$"
-                      ;; TODO: what are these extra format args
-                      (first (reftex-citation t)) nil 'end))
+  (org-open-link-from-string
+   (format "[[#%s]]" (first (reftex-citation t))))
   (funcall org-ref-open-notes-function))
+
 
 ;; ** Open bibtex entry in browser
 (defun org-ref-open-in-browser ()
