@@ -3086,7 +3086,8 @@ specify the key should be kept"
       (bibtex-narrow-to-entry)
       (bibtex-beginning-of-entry)
       (message "checking &")
-      (replace-regexp " & " " \\\\& ")
+      (while (re-search-forward " & ")
+        (replace-match " \\\\& "))
       (widen))
 
     ;; generate a key, and if it duplicates an existing key, edit it.
@@ -3223,7 +3224,7 @@ specify the key should be kept"
              (format "label:%s\\b" label) nil t)
         (throw 'result (buffer-substring
                         (progn
-                          (previous-line)
+                          (forward-line -1)
                           (beginning-of-line)
                           (point))
                         (progn
