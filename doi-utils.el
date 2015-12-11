@@ -90,9 +90,9 @@ Optional argument STATUS Unknown why this is optional."
 ;; and returns it. We store the functions in a variable:
 
 (defvar doi-utils-pdf-url-functions nil
-  "List of functions that return a url to a pdf from a redirect
-  url. Each function takes one argument, the redirect url. The
-  function must return a pdf-url, or nil.")
+  "Functions that return a url to a pdf from a redirect url.
+Each function takes one argument, the redirect url.  The function
+must return a pdf-url, or nil.")
 
 
 ;; ** APS journals
@@ -468,11 +468,12 @@ expressions."
         (t (doi-utils-concat-prepare (cdr lst) (cons (car lst) acc)))))
 
 (defmacro doi-utils-def-bibtex-type (name matching-types &rest fields)
-  "Define a BibTeX type identified by (symbol) NAME with
-FIELDS (given as symbols), matching to retrieval expressions in
+  "Define a BibTeX type identified by (symbol) NAME.
+MATCHING-TYPES is a list of strings.  FIELDS are symbols that
+match to retrieval expressions in
 `doi-utils-json-metadata-extract'.  This type will only be used
 when the `:type' parameter in the JSON metadata is contained in
-MATCHING-TYPES - a list of strings."
+MATCHING-TYPES."
   `(push (lambda (type results)
            (when
                (or ,@(mapcar
@@ -530,7 +531,7 @@ MATCHING-TYPES - a list of strings."
 
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
   "Insert bibtex entry from a DOI.
-Also cleans entry using org-ref, and tries to download the corresponding pdf."
+Also cleans entry using ‘org-ref’, and tries to download the corresponding pdf."
   (interactive "sDOI :")
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
@@ -551,12 +552,14 @@ Also cleans entry using org-ref, and tries to download the corresponding pdf."
 
 
 (defun doi-utils-add-bibtex-entry-from-doi (doi bibfile)
-  "Add entry to end of a file in in the current directory ending
-with .bib or in `org-ref-default-bibliography'. If you have an
-active region that starts like a DOI, that will be the initial
-prompt. If no region is selected and the first entry of the
-kill-ring starts like a DOI, then that is the intial
-prompt. Otherwise, you have to type or paste in a DOI."
+  "Add DOI entry to end of a file in the current directory.
+Pick the file ending with .bib or in
+`org-ref-default-bibliography'.  If you have an active region that
+starts like a DOI, that will be the initial prompt.  If no region
+is selected and the first entry of the ‘kill-ring’ starts like a
+DOI, then that is the intial prompt.  Otherwise, you have to type
+or paste in a DOI.
+Argument BIBFILE the bibliography to use."
   (interactive
    (list (read-string
           "DOI: "
@@ -600,7 +603,7 @@ prompt. Otherwise, you have to type or paste in a DOI."
 
 
 (defun doi-utils-doi-to-org-bibtex (doi)
-  "Convert a DOI to an org-bibtex form and insert it at point."
+  "Convert a DOI to an ‘org-bibtex’ form and insert it at point."
   (interactive "sDOI: ")
   (with-temp-buffer
     (insert (doi-utils-doi-to-bibtex-string doi))
@@ -654,8 +657,8 @@ Optional argument NODELIM see `bibtex-make-field'."
   (-slice plist 0 nil 2))
 
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
-  "Update fields in a bibtex entry from the DOI. Every field will
-be updated, so previous change will be lost."
+  "Update fields in a bibtex entry from the DOI.
+Every field will be updated, so previous change will be lost."
   (interactive (list
                 (or (replace-regexp-in-string
                      "http://dx.doi.org/" ""
@@ -917,11 +920,11 @@ Argument LINK-STRING Passed in on link click."
 
 
 (defun doi-utils-crossref-citation-query ()
-  "Query Crossref with the title of the bibtex entry at point to
-get a list of possible matches. This opens a helm buffer to
-select an entry. The default action inserts a doi and url field
-in the bibtex entry at point. The second action opens the doi
-url. If there is already a doi field, the function raises an
+  "Query Crossref with the title of the bibtex entry at point.
+Get a list of possible matches.  This opens a helm buffer to
+select an entry.  The default action inserts a doi and url field
+in the bibtex entry at point.  The second action opens the doi
+url.  If there is already a doi field, the function raises an
 error."
   (interactive)
   (bibtex-beginning-of-entry)
