@@ -2165,7 +2165,7 @@ text]]."
   (cond
    ((string-match "::" desc)
     (let ((results (split-string desc "::")))
-      (format "[%s][%s]" (car results) (cadr results))))
+      (format "[%s][%s]" (nth 0 results) (nth 1 results))))
    (t (format "[%s]" desc))))
 
 
