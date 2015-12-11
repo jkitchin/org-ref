@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>readme</title>
+<!-- 2015-12-11 Fri 14:49 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="John Kitchin" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">readme</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. A short example</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Reference types</a></li>
+<li><a href="#sec-1-2">1.2. Citation types</a></li>
+<li><a href="#sec-1-3">1.3. Multiple citations and sorting within citation</a></li>
+<li><a href="#sec-1-4">1.4. Space chomping and punctuation testing</a></li>
+<li><a href="#sec-1-5">1.5. Building</a></li>
+<li><a href="#sec-1-6">1.6. Summary thoughts</a></li>
+<li><a href="#sec-1-7">1.7. Bibliography</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> A short example</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+As a potential solution for citions in org-mode for non-LaTeX export, here we introduce csl (citation syntax lisp). The idea is heavily influenced by the xml-based Citation Syntax Language, but uses lisp sexps instead.
+</p>
+
+<p>
+Briefly, there is a csl file that contains two variables: citation-style and bibliography-style. The citation-style defines how the in-text citations are represented for different types of citations. The bibliography-style defines how the bibliography is constructed.
+</p>
+
+<p>
+What do we gain by this?
+</p>
+<ol class="org-ol">
+<li>No need for external citeproc program, and hackability by org-mode experts.
+</li>
+<li>Punctuation transposition and space chomping, i.e. put superscripts on the right side of punctuation if you want it, and remove whitespace before superscripts if you want it.
+</li>
+<li>Total tunability of the citation format to different backends.
+</li>
+<li>Easy to change bibliography format with the bibliographystyle link.
+</li>
+</ol>
+
+<p>
+The real code for this is too long to blog about. Instead, you should check it out here: <a href="https://github.com/jkitchin/org-ref/tree/master/citeproc">https://github.com/jkitchin/org-ref/tree/master/citeproc</a>
+</p>
+</div>
+
+<div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Reference types</h3>
+<div class="outline-text-3" id="text-1-1">
+<ul class="org-ul">
+<li>A book.<sup>1</sup>
+</li>
+
+<li>An article<sup>2</sup>
+</li>
+
+<li>A miscellaneous bibtex type.<sup>3</sup>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Citation types</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li>Regular citation:<sup>2</sup>
+</li>
+<li>citeauthor:  Kitchin
+</li>
+<li>citeyear:   2015
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Multiple citations and sorting within citation</h3>
+<div class="outline-text-3" id="text-1-3">
+<ul class="org-ul">
+<li>a,b:<sup>2,4</sup>
+</li>
+<li>b,a:<sup>2,4</sup>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4"><span class="section-number-3">1.4</span> Space chomping and punctuation testing</h3>
+<div class="outline-text-3" id="text-1-4">
+<ul class="org-ul">
+<li>Citation at end of sentence.<sup>2</sup>
+</li>
+<li>Citation in clause,<sup>2,4</sup> with a comma.
+</li>
+<li>Citation in middle of<sup>2,4</sup> a sentence.
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1-5" class="outline-3">
+<h3 id="sec-1-5"><span class="section-number-3">1.5</span> Building</h3>
+<div class="outline-text-3" id="text-1-5">
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #0000FF;">when</span> (file-exists-p <span style="color: #008000;">"readme.html"</span>) (delete-file <span style="color: #008000;">"readme.html"</span>))
+(<span style="color: #0000FF;">let</span> ((org-export-before-parsing-hook '(orcp-citeproc)))
+  (browse-url (org-html-export-to-html)))
+</pre>
+</div>
+
+<pre class="example">
+#&lt;process open ./readme.html&gt;
+</pre>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(add-hook 'org-export-before-parsing-hook 'orcp-citeproc)
+</pre>
+</div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">orcp-citeproc</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6" class="outline-3">
+<h3 id="sec-1-6"><span class="section-number-3">1.6</span> Summary thoughts</h3>
+<div class="outline-text-3" id="text-1-6">
+<ol class="org-ol">
+<li>Other bibtex entries need to be tested out.
+</li>
+<li>Remaining bibtex fields need to be defined.
+</li>
+<li>Standardization of styling that can be done. Not all features described in my csl are supported, e.g. et. al. and probably others.
+</li>
+<li>The author-year style needs name disambiguation somehow.
+</li>
+<li>Next step, hyperlinking in html.
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-sec-1-7" class="outline-3">
+<h3 id="sec-1-7"><span class="section-number-3">1.7</span> Bibliography</h3>
+<div class="outline-text-3" id="text-1-7">
+<ol class="org-ol">
+<li>Kittel, Charles, <i>Introduction to Solid State Physics</i>, (2005). <br>
+</li>
+<li>Kitchin,  John R., <i>Examples of Effective Data Sharing in Scientific Publishing</i>, ACS Catalysis, 5<b>(6)</b>, pp. 3894-3899 (2015). <a href="http://dx.doi.org/10.1021/acscatal.5b00538">http://dx.doi.org/10.1021/acscatal.5b00538</a>. <br>
+</li>
+<li>Xu, Zhongnan; Rossmeisl, Jan and Kitchin, John R., <i>Supporting data for: A linear response, {DFT+U} study of trends in the oxygen evolution activity of transition metal rutile dioxides. doi:10.5281/zenodo.12635</i>,  <a href="http://dx.doi.org/https://zenodo.org/record/12635">http://dx.doi.org/https://zenodo.org/record/12635</a>. <a href="http://dx.doi.org/10.5281/zenodo.12635">http://dx.doi.org/10.5281/zenodo.12635</a>. <br>
+</li>
+<li>Kitchin, John R., <i>Data Sharing in Surface Science</i>, Surface Science , N/A, pp. in press (2015). <a href="http://dx.doi.org/10.1016/j.susc.2015.05.007">http://dx.doi.org/10.1016/j.susc.2015.05.007</a>.
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: John Kitchin</p>
+<p class="date">Created: 2015-12-11 Fri 14:49</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
