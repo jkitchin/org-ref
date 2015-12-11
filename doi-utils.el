@@ -672,7 +672,8 @@ be updated, so previous change will be lost."
          (number (or (plist-get results :issue) ""))
          (pages (or (plist-get results :page) ""))
          (url (or (plist-get results :URL) ""))
-         (doi (plist-get results :DOI)))
+         (doi (plist-get results :DOI))
+         mapping)
 
     ;; map the json fields to bibtex fields. The code each field is mapped to is
     ;; evaluated.
