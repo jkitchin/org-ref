@@ -256,7 +256,7 @@ REDIRECT-URL is where the pdf url will be in."
   (url-retrieve
    redirect-url
    (lambda (status)
-     (beginning-of-buffer)
+     (goto-char (point-min))
      (re-search-forward "pdfurl=\"\\([^\"]*\\)\"" nil t)
      (setq *doi-utils-pdf-url* (match-string 1)
            *doi-utils-waiting* nil)))
@@ -587,7 +587,7 @@ prompt. Otherwise, you have to type or paste in a DOI."
       (goto-char (point-min))
       (if (search-forward doi nil t)
           (message "%s is already in this file" doi)
-        (end-of-buffer)
+        (goto-char (point-max))
         (insert "\n\n")
         (doi-utils-insert-bibtex-entry-from-doi doi)
         (save-buffer)))))
