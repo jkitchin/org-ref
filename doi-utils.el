@@ -387,6 +387,10 @@ at the end."
 ;; to construct the right http request to get it. Here is a function that gets
 ;; the metadata as a plist in emacs.
 
+;; This is a local variable defined in `url-http'.  We need it to avoid
+;; byte-compiler errors.
+(defvar-local url-http-end-of-headers nil)
+
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
   (let ((url-request-method "GET")
