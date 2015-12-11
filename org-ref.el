@@ -36,14 +36,15 @@
 ;;; Code:
 (eval-when-compile
   (require 'cl))
-(require 'reftex)
-(require 'reftex-cite)
 (require 'dash)
+(require 'doi-utils)
 (require 'helm)
-(require 'helm-config)
 (require 'helm-bibtex)
+(require 'helm-config)
 (require 'org)
 (require 'org-element)
+(require 'reftex)
+(require 'reftex-cite)
 
 ;; * Custom variables
 (defgroup org-ref nil
