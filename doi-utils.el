@@ -687,7 +687,7 @@ be updated, so previous change will be lost."
                     (:URL . (bibtex-set-field "url" url))))
 
     ;; now we have code to run for each entry. we map over them and evaluate the code
-    (mapcar
+    (mapc
      (lambda (key)
        (eval (cdr (assoc key mapping))))
      (plist-get-keys results)))
