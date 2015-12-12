@@ -1095,9 +1095,10 @@ Ignore figures in COMMENTED sections."
 			 ;; ignore commented sections
 			 (save-excursion
 			   (goto-char (org-element-property :begin link))
-			   (outline-previous-heading)
-			   (not (org-element-property
-				 :commentedp (org-element-at-point)))))
+			   (not (or (org-in-commented-heading-p)
+				    (org-at-comment-p)
+				    (intersection (org-get-tags-at) org-export-exclude-tags
+						  :test 'equal)))))
 		  (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
@@ -1106,10 +1107,10 @@ Ignore figures in COMMENTED sections."
 			 (name (plist-get parent :name)))
 		    (if caption
 			(format
-			 "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]] %s\n"
+			 "[[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-entry))][figure %s: %s]] %s\n"
 			 c-b start counter (or name "") caption)
 		      (format
-		       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]]\n"
+		       "[[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-entry))][figure %s: %s]]\n"
 		       c-b start counter (or name "")))))))))
       (switch-to-buffer "*List of Figures*")
       (setq buffer-read-only nil)
@@ -1146,19 +1147,19 @@ ARG does nothing."
 		    ;; ignore commented sections
 		    (save-excursion
 		      (goto-char (org-element-property :begin table))
-		      (outline-previous-heading)
-		      (not (org-element-property
-			    :commentedp (org-element-at-point))))
+		      (not (or (org-in-commented-heading-p)
+				(intersection (org-get-tags-at) org-export-exclude-tags 
+				               :test 'equal))))
 		  (cl-incf counter)
 		  (let ((start (org-element-property :begin table))
 			(name  (org-element-property :name table))
 			(caption (cl-caaar (org-element-property :caption table))))
 		    (if caption
 			(format
-			 "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]] %s\n"
+			 "[[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-entry))][table %s: %s]] %s\n"
 			 c-b start counter (or name "") caption)
 		      (format
-		       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]]\n"
+		       "[[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-entry))][table %s: %s]]\n"
 		       c-b start counter (or name "")))))))))
       (switch-to-buffer "*List of Tables*")
       (setq buffer-read-only nil)
