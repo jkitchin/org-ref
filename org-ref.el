@@ -1142,17 +1142,24 @@ ARG does nothing."
             (org-element-map (org-element-parse-buffer 'element) 'table
               (lambda (table)
                 "create a link for to the table"
-                (cl-incf counter)
-                (let ((start (org-element-property :begin table))
-                      (name  (org-element-property :name table))
-                      (caption (cl-caaar (org-element-property :caption table))))
-                  (if caption
-                      (format
-                       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]] %s\n"
-                       c-b start counter (or name "") caption)
-                    (format
-                     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]]\n"
-                     c-b start counter (or name ""))))))))
+		(when
+		    ;; ignore commented sections
+		    (save-excursion
+		      (goto-char (org-element-property :begin table))
+		      (outline-previous-heading)
+		      (not (org-element-property
+			    :commentedp (org-element-at-point))))
+		  (cl-incf counter)
+		  (let ((start (org-element-property :begin table))
+			(name  (org-element-property :name table))
+			(caption (cl-caaar (org-element-property :caption table))))
+		    (if caption
+			(format
+			 "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]] %s\n"
+			 c-b start counter (or name "") caption)
+		      (format
+		       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][table %s: %s]]\n"
+		       c-b start counter (or name "")))))))))
       (switch-to-buffer "*List of Tables*")
       (setq buffer-read-only nil)
       (org-mode)
