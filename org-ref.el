@@ -1076,41 +1076,49 @@ ARG does nothing."
 ;; ** List of figures
 (defun org-ref-list-of-figures (&optional arg)
   "Generate buffer with list of figures in them.
-ARG does nothing."
+ARG does nothing.
+Ignore figures in COMMENTED sections."
   (interactive)
-  (save-excursion (widen)
-                  (let* ((c-b (buffer-name))
-                         (counter 0)
-                         (list-of-figures
-                          (org-element-map (org-element-parse-buffer) 'link
-                            (lambda (link)
-                              "create a link for to the figure"
-                              (when
-                                  (and (string= (org-element-property :type link) "file")
-                                       (string-match-p
-                                        "[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\)$"
-                                        (org-element-property :path link)))
-                                (cl-incf counter)
+  (save-excursion
+    (widen)
+    (let* ((c-b (buffer-name))
+	   (counter 0)
+	   (list-of-figures
+	    (org-element-map (org-element-parse-buffer) 'link
+	      (lambda (link)
+		"create a link for to the figure"
+		(when
+		    (and (string= (org-element-property :type link) "file")
+			 (string-match-p
+			  "[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\)$"
+			  (org-element-property :path link))
+			 ;; ignore commented sections
+			 (save-excursion
+			   (goto-char (org-element-property :begin link))
+			   (outline-previous-heading)
+			   (not (org-element-property
+				 :commentedp (org-element-at-point)))))
+		  (cl-incf counter)
 
-                                (let* ((start (org-element-property :begin link))
-                                       (parent (car (cdr (org-element-property :parent link))))
-                                       (caption (cl-caaar (plist-get parent :caption)))
-                                       (name (plist-get parent :name)))
-                                  (if caption
-                                      (format
-                                       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]] %s\n"
-                                       c-b start counter (or name "") caption)
-                                    (format
-                                     "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]]\n"
-                                     c-b start counter (or name "")))))))))
-                    (switch-to-buffer "*List of Figures*")
-                    (setq buffer-read-only nil)
-                    (org-mode)
-                    (erase-buffer)
-                    (insert (mapconcat 'identity list-of-figures ""))
-                    (setq buffer-read-only t)
-                    (use-local-map (copy-keymap org-mode-map))
-                    (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
+		  (let* ((start (org-element-property :begin link))
+			 (parent (car (cdr (org-element-property :parent link))))
+			 (caption (cl-caaar (plist-get parent :caption)))
+			 (name (plist-get parent :name)))
+		    (if caption
+			(format
+			 "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]] %s\n"
+			 c-b start counter (or name "") caption)
+		      (format
+		       "[[elisp:(progn (switch-to-buffer \"%s\")(widen)(goto-char %s))][figure %s: %s]]\n"
+		       c-b start counter (or name "")))))))))
+      (switch-to-buffer "*List of Figures*")
+      (setq buffer-read-only nil)
+      (org-mode)
+      (erase-buffer)
+      (insert (mapconcat 'identity list-of-figures ""))
+      (setq buffer-read-only t)
+      (use-local-map (copy-keymap org-mode-map))
+      (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
 
 (org-add-link-type
