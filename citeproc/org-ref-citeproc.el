@@ -354,7 +354,7 @@ returns the style with the override."
     (format "@@html:<sup>%s</sup>@@" text))
    ;; the catch-all case is org-syntax
    (t
-    (format "{}^{%s}" text))))
+    (format "^{%s}" text))))
 
 
 (defun italics (text)
@@ -536,6 +536,7 @@ Style information comes from `bibliography'"
    ((eq org-export-current-backend 'html)
     (format "http://dx.doi.org/%s" doi))
    (t
+    (message-box "t-doi %S" doi)
     (format "doi:%s" doi))))
 
 (defun orcp-doi (entry)
