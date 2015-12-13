@@ -713,6 +713,31 @@ entry having a doi."
 
 (defalias 'jb 'jmax-bibtex)
 
+
+(defun jmax-email-bibtex-entry ()
+  "Email current bibtex entry at point and pdf if it exists."
+  (interactive)
+
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let* ((key (reftex-get-bib-field "=key=" (bibtex-parse-entry t)))
+	   pdf)
+      ;; when we have org-ref defined we may have pdf to find.
+      (when (boundp org-ref-pdf-directory)
+	(setq pdf (expand-file-name
+		   (concat key ".pdf")
+		   org-ref-pdf-directory)))
+      (bibtex-copy-entry-as-kill)
+      (compose-mail)
+      (message-goto-body)
+      (insert (pop bibtex-entry-kill-ring))
+      (message-goto-subject)
+      (insert key)
+      (message "%s exists %s" pdf (file-exists-p pdf))
+      (when (file-exists-p pdf)
+	(mml-attach-file pdf))
+      (message-goto-to))))
+
 ;; * The end
 (provide 'jmax-bibtex)
 
