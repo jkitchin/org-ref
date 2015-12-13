@@ -1113,10 +1113,8 @@ Ignore figures in COMMENTED sections."
 			   (goto-char (org-element-property :begin link))
 			   (not (or (org-in-commented-heading-p)
 				    (org-at-comment-p)
-				    (-intersection
-				     (org-get-tags-at)
-				     org-export-exclude-tags)))))
-		  (cl-incf counter)
+            (-intersection (org-get-tags-at) org-export-exclude-tags)))))
+      (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
 			 (parent (car (cdr (org-element-property :parent link))))
@@ -1165,9 +1163,8 @@ ARG does nothing."
 		    (save-excursion
 		      (goto-char (org-element-property :begin table))
 		      (not (or (org-in-commented-heading-p)
-			       (-intersection (org-get-tags-at)
-					      org-export-exclude-tags))))
-		  (cl-incf counter)
+        (-intersection (org-get-tags-at) org-export-exclude-tags))))
+      (cl-incf counter)
 		  (let ((start (org-element-property :begin table))
 			(name  (org-element-property :name table))
 			(caption (cl-caaar (org-element-property :caption table))))
