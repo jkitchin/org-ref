@@ -30,6 +30,7 @@
 
 
 ;;; Code:
+(require 'org-ref)
 
 ;; ** RIS to bibtex
 ;; RIS can be pretty easily exported from Endnote. Here is a function to read an RIS file and convert it to bibtex which is inserted at point. Note that there is often other output from the commands. We try to comment them out here, but you should probably inspect the entries, and do other bibtex file compliance checks.
