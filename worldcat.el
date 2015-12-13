@@ -5,8 +5,6 @@
 
 ;; https://www.worldcat.org/affiliate/tools?atype=text
 
-;;Key Z65ynvQVhbmmxq07PX3IN1n71Z91pjUXYSSCCP9p2n8gD241P46jMyMHDuAvqRejIX1g8YbrwOAbobBM
-;;Secret XAWkEvC+kOKPpGgtBVwmFQ==
 ;; Status ACTIVE
 ;; Environment Sandbox
 ;; Expiration Date 06/27/2016
