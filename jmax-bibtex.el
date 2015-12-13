@@ -616,7 +616,7 @@ _S_: Sentence case
          (bibtex-yank)
          (save-buffer)
          (kill-buffer)))
-  ("e" email-bibtex-entry)
+  ("e" jmax-email-bibtex-entry)
   ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
   ("u" doi-utils-update-field)
   ("F" jmax-bibtex-file/body)
