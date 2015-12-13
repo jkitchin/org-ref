@@ -1041,6 +1041,10 @@ ARG does nothing."
                          (setq link-string-beginning (match-beginning 0))
                          (setq link-string-end (match-end 0)))
 
+                       ;; TODO: `reftex-default-addbibresource' isn't used
+                       ;; anywhere else in org-ref, or defined in reftex.  What
+                       ;; is it for?
+
                        ;; We set the reftex-default-addbibresource
                        ;; here. it should be a local variable only in
                        ;; the current buffer. We need this for using
