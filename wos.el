@@ -23,6 +23,7 @@
 ;; Adds a new org-mode link for a search in Web of Science.
 ;;; and an org-mode link for a link to an Accession number.
 
+(require 'org)
 
 ;;; Code:
 (org-add-link-type
@@ -45,15 +46,19 @@
  (lambda (path)
    (browse-url
     (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-             (s-join "+"
-                     (split-string path)))))
- ;; formatting function. Assume html
+             (s-join
+	      "+"
+	      (split-string path)))))
+ ;; formatting function.
  (lambda (link desc format)
-   (format "<a href=\"%s\">%s</a>"
+   (cond
+    ((eq format 'html)
+     (format "<a href=\"%s\">%s</a>"
            (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-                    (s-join "+"
-                            (split-string link)))
-           (format "wos-search:%s" link))))
+                    (s-join
+		     "+"
+		     (split-string link)))
+	   (or desc link))))))
 
 
 (defun wos-search ()
