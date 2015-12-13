@@ -10,7 +10,7 @@ test: clean-elc
 	${MAKE} unit
 
 unit:
-	${CASK_EXEC} ${emacs} -Q -batch -l org-ref.el -l org-ref-test.el --eval "(ert t)"
+	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
 compile:
 	${CASK_EXEC} ${emacs} -Q -batch -f batch-byte-compile *.el
