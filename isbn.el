@@ -23,6 +23,9 @@
 ;;
 
 ;;; Code:
+(require 'f)
+(require 'org)
+(require 'org-ref)
 
 ;; * ISBN utility
 
