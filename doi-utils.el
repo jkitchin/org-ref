@@ -40,7 +40,7 @@
 (require 'json)
 (require 'org)                          ; org-add-link-type
 (require 'org-bibtex)                   ; org-bibtex-yank
-(require 'org-ref)
+
 
 ;;; Code:
 ;; * Getting pdf files from a DOI
