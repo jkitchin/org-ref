@@ -41,10 +41,14 @@
 (require 'helm)
 (require 'helm-bibtex)
 (require 'helm-config)
+(require 'hydra)
 (require 'org)
 (require 'org-element)
 (require 'reftex)
 (require 'reftex-cite)
+
+;;for byte-compile error avoidance
+(defvar-local org-export-exclude-tags nil)
 
 ;; * Custom variables
 (defgroup org-ref nil
@@ -1084,6 +1088,7 @@ one here."
     (outline-previous-heading)
     (org-element-property :commentedp (org-element-at-point))))
 
+
 (defun org-ref-list-of-figures (&optional arg)
   "Generate buffer with list of figures in them.
 ARG does nothing.
@@ -1107,8 +1112,9 @@ Ignore figures in COMMENTED sections."
 			   (goto-char (org-element-property :begin link))
 			   (not (or (org-in-commented-heading-p)
 				    (org-at-comment-p)
-				    (intersection (org-get-tags-at) org-export-exclude-tags
-						  :test 'equal)))))
+				    (-intersection
+				     (org-get-tags-at)
+				     org-export-exclude-tags)))))
 		  (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
@@ -1158,8 +1164,8 @@ ARG does nothing."
 		    (save-excursion
 		      (goto-char (org-element-property :begin table))
 		      (not (or (org-in-commented-heading-p)
-				(intersection (org-get-tags-at) org-export-exclude-tags
-                                               :test 'equal))))
+			       (-intersection (org-get-tags-at)
+					      org-export-exclude-tags))))
 		  (cl-incf counter)
 		  (let ((start (org-element-property :begin table))
 			(name  (org-element-property :name table))
