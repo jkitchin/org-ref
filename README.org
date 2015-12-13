@@ -68,10 +68,4 @@ Add the directory you cloned org-ref into to your load-path, and require the fea
 Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s.
 
 * Contributors
-I would like to thank the following [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref
-
-- https://github.com/divinenephron
-- https://github.com/OlafMerkert
-- https://github.com/prtkm
-
-And everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].
+I would like to thank the [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref, and everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].
