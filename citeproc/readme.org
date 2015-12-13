@@ -85,21 +85,6 @@ At the moment, you have to add a hook function to put the replacements in the do
 #+RESULTS:
 : #<process open ./readme.html>
 
-#+BEGIN_SRC emacs-lisp
-(add-hook 'org-export-before-parsing-hook 'orcp-citeproc)
-#+END_SRC
-
-#+RESULTS:
-| orcp-citeproc |
-
-
-#+BEGIN_SRC emacs-lisp
-(orcp-field "school")
-(orcp-school '(("school" . "CMU")))
-#+END_SRC
-
-#+RESULTS:
-: CMU
 
 ** Summary thoughts
 This looks promising. There is probably a lot of work to do to make this as robust as say citeproc-js or the Zotero handler. I am not sure if we could write this in a way to directly use the CSL. My feeling is it would not be as flexible as this, and we would have to add to it anyway.
