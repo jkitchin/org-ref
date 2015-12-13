@@ -26,6 +26,19 @@
 ;; [[scopus-search:alloy Au segregation]]
 ;; [[scopus-advanced-search:au-id(24176978500)]]
 
+(require 'org)
+(require 'xml)
+
+;; avoiding byte-compiler warnings/errors
+;;scopus.el:49:1:Warning: Unused lexical variable `url-request-extra-headers'
+;;scopus.el:49:1:Warning: Unused lexical variable `url-mime-accept-string'
+;;scopus.el:49:1:Warning: Unused lexical variable `url-request-method'
+(defvar-local url-request-extra-headers nil)
+(defvar-local url-mime-accept-string nil)
+(defvar-local url-request-method nil)
+(defvar-local url-http-end-of-headers nil)
+
+
 (defvar *scopus-api-key* nil
   "Your Scopus API key. You need to set this in your init
   files. Get a key here: http://dev.elsevier.com/myapikey.html.")
@@ -148,10 +161,10 @@
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\" http://www.scopus.com/record/display.url?eid=%s&origin=resultslist\">eid:%s</a>" keyword keyword))
+     (format "<a href=\" http://www.scopus.com/record/display.url?eid=%s&origin=resultslist\">%s</a>" keyword (or desc keyword)))
     ((eq format 'latex)
-     (format "\\href{http://www.scopus.com/record/display.url?eid=%s&origin=resultslist}{eid:%s}"
-             keyword keyword)))))
+     (format "\\href{http://www.scopus.com/record/display.url?eid=%s&origin=resultslist}{%s}"
+             keyword (or desc keyword))))))
 
 
 (org-add-link-type
