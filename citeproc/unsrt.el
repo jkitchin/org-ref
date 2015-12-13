@@ -95,7 +95,11 @@
     ;; Formatting of entries
     (entries . ((article . (author title journal volume pages year doi))
 		(book . (author title year))
-		(misc . (author title url doi))))))
+		(misc . (author title url doi))
+		(techreport . (author title institution year))
+		(mastersthesis . (author title school year))
+		(phdthesis . (author title school year))
+		(t . (author title year))))))
 
 (provide 'unsrt)
 
