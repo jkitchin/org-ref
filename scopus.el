@@ -26,6 +26,8 @@
 ;; [[scopus-search:alloy Au segregation]]
 ;; [[scopus-advanced-search:au-id(24176978500)]]
 
+;;; Code:
+
 (require 'org)
 (require 'hydra)
 (require 'xml)
@@ -41,8 +43,9 @@
 
 
 (defvar *scopus-api-key* nil
-  "Your Scopus API key. You need to set this in your init
-  files. Get a key here: http://dev.elsevier.com/myapikey.html.")
+  "Your Scopus API key.
+You need to set this in your init files.  Get a key here:
+http://dev.elsevier.com/myapikey.html.")
 
 
 ;; (defun scopus-doi-to-xml (doi)
@@ -61,8 +64,9 @@
 ;;       xml)))
 
 (defun scopus-doi-to-eid (doi)
-  "Get a Scopus eid from a DOI. Requires `*scopus-api-key*' to be defined."
-  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'."))
+  "Get a Scopus eid from a DOI.
+Requires `*scopus-api-key*' to be defined."
+  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'"))
   (let* ((url-request-method "GET")
          (url-mime-accept-string "application/xml")
          (url-request-extra-headers  (list (cons "X-ELS-APIKey" *scopus-api-key*)
@@ -78,7 +82,7 @@
 (defun scopus-related-by-keyword-url (doi)
   "Return a Scopus url to articles related by keyword for DOI."
   (interactive)
-  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'."))
+  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'"))
   (let ((eid (scopus-doi-to-eid doi)))
     (when eid (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=key&zone=relatedDocuments" eid))))
 
@@ -86,7 +90,7 @@
 (defun scopus-related-by-author-url (doi)
   "Return a Scopus url to articles related by author for DOI."
   (interactive)
-  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'."))
+  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'"))
   (let ((eid (scopus-doi-to-eid doi)))
     (when eid (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=aut&zone=relatedDocuments" eid))))
 
@@ -94,7 +98,7 @@
 (defun scopus-related-by-references-url (doi)
   "Return a Scopus url to articles related by references for DOI."
   (interactive)
-  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'."))
+  (unless *scopus-api-key* (error "You must define `*scopus-api-key*'"))
   (let ((eid (scopus-doi-to-eid doi)))
     (when eid (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=ref&zone=relatedDocuments" eid))))
 
@@ -138,7 +142,7 @@
 ;;; Org-mode EID link and an action menu
 ;; These functions use a global var *hydra-eid*
 (defvar *hydra-eid* nil
-  "Global variable to pass an EID from an org-mode link to a hydra function.")
+  "Global variable to pass an EID from an ‘org-mode’ link to a hydra function.")
 
 
 (defhydra scopus-hydra (:color blue)

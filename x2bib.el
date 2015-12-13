@@ -40,7 +40,8 @@
 
 (defun ris2bib (risfile &optional verbose)
   "Convert RISFILE to bibtex and insert at point.
-Without a prefix arg, stderr is diverted."
+Without a prefix arg, stderr is diverted.
+If VERBOSE is non-nil show command output."
   (interactive
    (list (read-file-name "RIS file:")
          (prefix-numeric-value current-prefix-arg)))
@@ -70,7 +71,8 @@ Without a prefix arg, stderr is diverted."
 
 (defun medxml2bib (medfile &optional verbose)
   "Convert MEDFILE (in Pubmed xml) to bibtex and insert at point.
-Without a prefix arg, stderr is diverted."
+Without a prefix arg, stderr is diverted.
+Display output if VERBOSE is non-nil."
   (interactive
    (list (read-file-name "MED file:")
          (prefix-numeric-value current-prefix-arg)))
