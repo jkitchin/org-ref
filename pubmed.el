@@ -46,6 +46,8 @@
 ;; is a unique reference number for PubMed citations. The PMID is a distinctly
 ;; different number from the PMCID and is used only for PubMed records.
 
+(require 'org)
+
 (org-add-link-type
  "pmid"
  ;; clicking
@@ -54,10 +56,10 @@
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s\">pmid:%s</a>" keyword keyword)); no output for html
+     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s\">pmid:%s</a>" keyword (or desc keyword))) ; no output for html
     ((eq format 'latex)
      ;; write out the latex command
-     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}" keyword)))))
+     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}{%s}" keyword (or desc keyword))))))
 
 ;; ** Get MEDLINE metadata
 
@@ -191,9 +193,9 @@ You must clean the entry after insertion."
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/%s\">pmcid:%s</a>" keyword keyword))
+     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/%s\">pmcid:%s</a>" keyword (or desc keyword)))
     ((eq format 'latex)
-     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/%s}" keyword)))))
+     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/%s}{%s}" keyword (or desc keyword))))))
 
 ;; * NIHMSID
 
@@ -212,10 +214,10 @@ You must clean the entry after insertion."
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid//%s\">nihmsid:%s</a>" keyword keyword))
+     (format "<a href=\"http://www.ncbi.nlm.nih.gov/pmc/articles/mid//%s\">nihmsid:%s</a>" keyword (or desc keyword)))
     ((eq format 'latex)
      ;; write out the latex command
-     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}" keyword)))))
+     (format "\\url{http://www.ncbi.nlm.nih.gov/pmc/articles/mid/%s}{%s}" keyword (or desc keyword))))))
 
 
 ;; * Searching pubmed
