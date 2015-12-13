@@ -1075,6 +1075,15 @@ ARG does nothing."
                        (format "\\addbibresource{%s}" keyword)))))
 
 ;; ** List of figures
+(defun org-in-commented-heading-p ()
+  "Return t if in a commented section.
+This function gets used below, and the call for it came from
+apull request. It doesn't seem to be in org 8.2.10, so I wrote
+one here."
+  (save-excursion
+    (outline-previous-heading)
+    (org-element-property :commentedp (org-element-at-point))))
+
 (defun org-ref-list-of-figures (&optional arg)
   "Generate buffer with list of figures in them.
 ARG does nothing.
