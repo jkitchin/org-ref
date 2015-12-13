@@ -71,8 +71,12 @@
     (search-forward-regexp "name=\\\"bibcode\\\" value=\\\"\\(.*\\)\\\"")
     (match-string 1)))
 
+;; This is a local variable defined in `url-http'.  We need it to avoid
+;; byte-compiler errors.
+(defvar-local url-http-end-of-headers nil)
+
 (defun arxiv-get-bibtex-entry (arxiv-bibliographic-code)
-  "Get bibtex entry for ARXIV-BIBLIOGRAPHIC-CODE"
+  "Get bibtex entry for ARXIV-BIBLIOGRAPHIC-CODE."
   (with-current-buffer
       (url-retrieve-synchronously
        (format
