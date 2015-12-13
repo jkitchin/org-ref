@@ -79,7 +79,12 @@ The KEY is found for the bibliography in the file."
 	(insert-file-contents bibfile)
 	(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
 	(bibtex-search-entry key)
-	(bibtex-parse-entry t)))))
+	(let ((entry (bibtex-parse-entry t)))
+	  (dolist (cons-cell entry)
+	    (setf (car cons-cell) (downcase (car cons-cell))))
+	  (setf (cdr (assoc "=type=" entry))
+		(downcase (cdr (assoc "=type=" entry))))
+	  entry)))))
 
 
 (defun orcp-collect-unique-entries ()
@@ -290,24 +295,34 @@ returns the style with the override."
 	   (loop for entry in unique-entries
 		 collect
 		 (progn
-		   (let* ((entry-type (cdr (assoc "=type=" (cdr entry))))
+		   (let* ((entry-type (downcase
+				       (cdr (assoc "=type=" (cdr entry)))))
 			  (key (cdr (assoc "=key=" (cdr entry))))
 			  (entry-styles (cdr (assoc 'entries bibliography-style)))
 			  (entry-fields
 			   (progn
 			     (if (cdr (assoc (intern entry-type) entry-styles))
 				 (cdr (assoc (intern entry-type) entry-styles))
-			       (error "%s not found" entry-type))))
+			       (warn "%s not found. Using default." entry-type)
+			       (cdr (assoc 't entry-styles))
+			       )))
 			  (funcs (mapcar
 				  (lambda (field)
-				    (intern
-				     (format "orcp-%s" field)))
+				    (if (fboundp (intern
+						  (format "orcp-%s" field)))
+					(intern
+					 (format "orcp-%s" field))
+				      ;; No formatter found. just get the data
+				      `(lambda (entry)
+					 (orcp-get-entry-field
+					  ,(symbol-name field) entry))))
 				  entry-fields))
 			  (label (concat label-prefix
 					 (funcall label-func key unique-entries)
 					 label-suffix)))
 
-		     ;; this is the entry
+		     ;; this is the entry. We do this in a buffer to make it
+		     ;; easy to indent, fill, etc...
 		     (with-temp-buffer
 		       (insert label)
 		       (insert (mapconcat (lambda (field-func)
@@ -333,7 +348,7 @@ returns the style with the override."
 			(loop for i to spacing
 			      collect "\n")
 			"")))))
-    ;; TODO: figure out header
+    ;; TODO: figure out header. how do we insert it properly formatted?
     bibliography-string))
 
 ;;* Text formatting functions.
@@ -399,7 +414,9 @@ Style information comes from `bibliography'"
 	 (et-al (cdr (assoc 'et-al style)))
 	 (authors (s-split
 		   " and "
-		   (orcp-get-entry-field "author" entry)))
+		   (or
+		    (orcp-get-entry-field "author" entry)
+		    "")))
 	 ;; parse to list of (first von last jr)
 	 (author-data (mapcar
 		       (lambda (x)
