@@ -13,7 +13,7 @@ unit:
 	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
 compile:
-	${CASK_EXEC} ${emacs} -Q -batch -f batch-byte-compile *.el
+	${CASK_EXEC} ${emacs} -Q -batch -L "." -f batch-byte-compile *.el
 
 clean-elc:
 	rm -f *.elc
