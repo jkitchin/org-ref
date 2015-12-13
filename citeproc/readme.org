@@ -118,7 +118,7 @@ Here are some remaining things that could be worked on if we continue this direc
 You use a bibliographystyle link to specify a csl. These are similar to bibtex styles, and in some cases no change is needed for LaTeX export (although you may have to remove the citeproc hook function).
 
 bibliographystyle:unsrt
-bibliography:~/Dropbox/bibliography/references.bib
+bibliography:readme.bib
 
 
 * Archive work
