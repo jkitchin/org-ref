@@ -1083,7 +1083,7 @@ ARG does nothing."
 (defun org-in-commented-heading-p ()
   "Return t if in a commented section.
 This function gets used below, and the call for it came from
-apull request. It doesn't seem to be in org 8.2.10, so I wrote
+a pull request.  It doesn't seem to be in org 8.2.10, so I wrote
 one here."
   (save-excursion
     (outline-previous-heading)
@@ -1782,11 +1782,11 @@ falling back to what the user has set in `org-ref-default-bibliography'"
         (file))
     (unless key
       (setq key (org-ref-get-bibtex-key-under-cursor)))
-    (setq file     (catch 'result
-                     (cl-loop for file in org-ref-bibliography-files do
-                              (if (org-ref-key-in-file-p key (file-truename file))
-                                  (throw 'result file)))))
-    (cons key file)))
+    (setq file (catch 'result
+		 (cl-loop for file in org-ref-bibliography-files do
+			  (if (org-ref-key-in-file-p key (file-truename file))
+			      (throw 'result file)))))
+    (cons key (substring-no-properties file))))
 
 ;; *** key at point functions
 (defun org-ref-get-pdf-filename (key)
