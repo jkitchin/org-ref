@@ -956,20 +956,24 @@ documents."
 	      (delete-char -1))
 	    (insert punctuation)))
 
-    ;; replace bibliography link
+    ;; Insert bibliography section at the bibliography link
     (setq bibliography-link (loop for link in (org-element-map
 						  (org-element-parse-buffer) 'link 'identity)
 				  if (string= "bibliography"
 					      (org-element-property :type link))
 				  collect link))
-    (if (> (length bibliography-link) 1)
-	(error "Only one bibliography link allowed"))
-
-    (setq bibliography-link (car bibliography-link))
-    (setf (buffer-substring (org-element-property :begin bibliography-link)
-			    (org-element-property :end bibliography-link))
-	  bibliography-string)))
-
-
+    (pcase (length bibliography-link)
+      ((pred (< 1)) (error "Only one bibliography link allowed"))
+      ((pred (= 1))
+       ;; replace bibliography link
+       (setq bibliography-link (car bibliography-link))
+       (setf (buffer-substring (org-element-property :begin bibliography-link)
+                               (org-element-property :end bibliography-link))
+             bibliography-string))
+      ((pred (= 0))
+       ;; no bibliography link in document
+       (when link-replacements
+         (message "Warning: No bibliography link found although there are citations to process"))
+       ))))
 
 ;;; org-ref-citeproc.el ends here
