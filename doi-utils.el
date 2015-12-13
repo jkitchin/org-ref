@@ -35,6 +35,7 @@
 (require 'bibtex)
 (require 'dash)
 (require 'json)
+(require 'org-bibtex)
 
 ;;; Code:
 ;; * Getting pdf files from a DOI
