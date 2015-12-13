@@ -12,21 +12,24 @@
 
 ;; Here are the commands that are available.
 
-;; bib2xml	convert BibTeX to MODS XML intermediate
-;; biblatex2xml	convert BibLaTeX to MODS XML intermediate
-;; copac2xml	convert COPAC format references to MODS XML intermediate
-;; end2xml	convert EndNote (Refer format) to MODS XML intermediate
-;; endx2xml	convert EndNote XML to MODS XML intermediate
-;; isi2xml	convert ISI web of science to MODS XML intermediate
-;; med2xml	convert Pubmed XML references to MODS XML intermediate
-;; modsclean	a MODS to MODS converter for testing puposes mostly
-;; ris2xml	convert RIS format to MODS XML intermediate
-;; xml2ads	convert MODS XML intermediate into Smithsonian Astrophysical Observatory (SAO)/National Aeronautics and Space Administration (NASA) Astrophyics Data System or ADS reference format (converter submitted by Richard Mathar)
-;; xml2bib	convert MODS XML intermediate into BibTeX
-;; xml2end	convert MODS XML intermediate into format for EndNote
-;; xml2isi	convert MODS XML intermediate to ISI format
-;; xml2ris	convert MODS XML intermediate into RIS format
-;; xml2wordbib	convert MODS XML intermediate into Word 2007 bibliography format
+;; bib2xml       - convert BibTeX to MODS XML intermediate
+;; biblatex2xml  - convert BibLaTeX to MODS XML intermediate
+;; copac2xml     - convert COPAC format references to MODS XML intermediate
+;; end2xml       - convert EndNote (Refer format) to MODS XML intermediate
+;; endx2xml      - convert EndNote XML to MODS XML intermediate
+;; isi2xml       - convert ISI web of science to MODS XML intermediate
+;; med2xml       - convert Pubmed XML references to MODS XML intermediate
+;; modsclean     - a MODS to MODS converter for testing puposes mostly
+;; ris2xml       - convert RIS format to MODS XML intermediate
+;; xml2ads       - convert MODS XML intermediate into Smithsonian Astrophysical
+;;                 Observatory (SAO)/National Aeronautics and Space
+;;                 Administration (NASA) Astrophyics Data System or ADS
+;;                 reference format (converter submitted by Richard Mathar)
+;;                 xml2bib - convert MODS XML intermediate into BibTeX
+;; xml2end       - convert MODS XML intermediate into format for EndNote
+;; xml2isi       - convert MODS XML intermediate to ISI format
+;; xml2ris       - convert MODS XML intermediate into RIS format
+;; xml2wordbib   - convert MODS XML intermediate into Word 2007 bibliography format
 
 
 ;;; Code:

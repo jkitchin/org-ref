@@ -22,7 +22,10 @@
 
 ;;; Commentary:
 
-;; This package provides functionality to download PDFs and bibtex entries from a DOI, as well as to update a bibtex entry from a DOI.  It depends slightly on org-ref, to determine where to save pdf files too, and where to insert bibtex entries in the default bibliography.
+;; This package provides functionality to download PDFs and bibtex entries from
+;; a DOI, as well as to update a bibtex entry from a DOI.  It depends slightly
+;; on org-ref, to determine where to save pdf files too, and where to insert
+;; bibtex entries in the default bibliography.
 
 ;; The principle commands you will use from here are:
 

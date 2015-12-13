@@ -22,7 +22,8 @@
 
 ;; * Introduction
 
-;; This document is an experiment at creating a literate program to provide functions for interacting with pubmed databases.
+;; This document is an experiment at creating a literate program to provide
+;; functions for interacting with pubmed databases.
 
 ;; This library provides links that go to pubmed resources, e.g.
 
@@ -32,9 +33,11 @@
 ;;
 ;; and nihmsid:NIHMS395714
 ;;
-;; See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers.
+;; See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details
+;; of these identifiers.
 ;;
-;; For PMID there is one interactive function that inserts a bibtex entry: pubmed-insert-bibtex-from-pmid.
+;; For PMID there is one interactive function that inserts a bibtex entry:
+;; pubmed-insert-bibtex-from-pmid.
 
 ;; This library is complementary to [[./doi-utils.org]].
 
