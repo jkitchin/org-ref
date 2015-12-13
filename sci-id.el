@@ -34,7 +34,7 @@
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword keyword)))))
+     (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword (or desc keyword))))))
 
 (org-add-link-type
  "researcherid"
@@ -46,7 +46,7 @@
    (cond
     ((eq format 'html)
      (format "<a href=\"http://www.researcherid.com/rid/%s\">ResearcherID:%s</a>"
-             keyword keyword)))))
+             keyword (or desc keyword))))))
 
 (provide 'sci-id)
 ;;; sci-id.el ends here
