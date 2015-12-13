@@ -42,6 +42,7 @@
 (require 'helm-bibtex)
 (require 'helm-config)
 (require 'hydra)
+(require 'jmax-bibtex)
 (require 'org)
 (require 'org-element)
 (require 'reftex)
@@ -3812,7 +3813,7 @@ Checks for pdf and doi, and add appropriate functions."
      '("Email bibtex entry and pdf" . (lambda ()
                                         (save-excursion
                                           (org-ref-open-citation-at-point)
-                                          (email-bibtex-entry))))
+                                          (jmax-email-bibtex-entry))))
      t)
 
     ;; add Scopus functions. These work by looking up a DOI to get a Scopus
@@ -3953,8 +3954,9 @@ _o_: Open entry   _e_: Email entry and pdf
 
     ("e" (save-excursion
            (org-ref-open-citation-at-point)
-           (email-bibtex-entry))
+           (jmax-email-bibtex-entry))
      nil)))
+
 
 ;; * org-ref-help
 (defun org-ref-help ()

@@ -55,6 +55,7 @@
 
 (require 'hydra)
 (require 'key-chord)
+(require 'message)
 
 ;;; Code:
 ;; * Custom variables
