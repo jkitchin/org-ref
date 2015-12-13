@@ -59,7 +59,8 @@
 ;;; Code:
 ;; * Custom variables
 (defgroup jmax-bibtex nil
-  "Customization group for jmax-bibtex.")
+  "Customization group for jmax-bibtex."
+  :group 'jmax-bibtex)
 
 
 (defcustom jmax-bibtex-hydra-key-chord
@@ -540,12 +541,6 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
   "Open related articles for bibtex entry in Web Of Science if there is a DOI."
   (interactive)
   (doi-utils-wos-related (jmax-bibtex-entry-doi)))
-
-
-(defun jmax-bibtex-wos-citing ()
-  "Open citing articles for bibtex entry in Web Of Science if there is a DOI."
-  (interactive)
-  (doi-utils-wos-citing (jmax-bibtex-entry-doi)))
 
 
 (defun jmax-bibtex-crossref ()
