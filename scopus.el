@@ -27,6 +27,7 @@
 ;; [[scopus-advanced-search:au-id(24176978500)]]
 
 (require 'org)
+(require 'hydra)
 (require 'xml)
 
 ;; avoiding byte-compiler warnings/errors
