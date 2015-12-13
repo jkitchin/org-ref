@@ -49,6 +49,7 @@
 ;; is a unique reference number for PubMed citations. The PMID is a distinctly
 ;; different number from the PMCID and is used only for PubMed records.
 
+(require 'dash)
 (require 'org)
 
 (org-add-link-type

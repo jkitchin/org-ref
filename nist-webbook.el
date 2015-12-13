@@ -7,6 +7,8 @@
 
 ;;; Code:
 
+(require 'org)
+
 (defun nist-webbook-formula (formula)
   "Search NIST webbook for FORMULA."
   (interactive "sFormula: ")

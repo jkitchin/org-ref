@@ -53,9 +53,12 @@
 ;;
 ;; jmax-bibtex :: a deprecated menu of actions
 
+(require 'bibtex)
+(require 'dash)
 (require 'hydra)
 (require 'key-chord)
 (require 'message)
+(require 's)
 
 ;;; Code:
 ;; * Custom variables

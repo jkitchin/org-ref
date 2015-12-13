@@ -24,6 +24,7 @@
 ;;; and an org-mode link for a link to an Accession number.
 
 (require 'org)
+(require 's)
 
 ;;; Code:
 (org-add-link-type

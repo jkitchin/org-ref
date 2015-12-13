@@ -33,6 +33,7 @@
 
 
 ;;; Code:
+(require 'bibtex)
 (require 'org-ref)
 
 ;; ** RIS to bibtex

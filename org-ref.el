@@ -45,6 +45,7 @@
 (require 'jmax-bibtex)
 (require 'org)
 (require 'org-element)
+(require 'ox)
 (require 'reftex)
 (require 'reftex-cite)
 
