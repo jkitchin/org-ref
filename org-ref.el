@@ -4,7 +4,7 @@
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
-;; Version: 0.3.0
+;; Version: 0.5.0
 ;; Keywords: org-mode, cite, ref, label
 ;; Package-Requires: ((org) (dash) (helm) (helm-bibtex) (hydra))
 
