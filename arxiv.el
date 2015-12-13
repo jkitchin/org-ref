@@ -25,8 +25,15 @@
 ;; An Arxiv number might look like: cond-mat/0410285 or 1503.01742
 
 ;;; Code:
-
+(require 'bibtex)
+(require 'dash)
+(require 'f)
+(require 'org)
+(require 'org-ref)
 (require 's)
+
+;; byte-compile
+(defvar-local url-http-end-of-headers nil)
 
 ;; * The org-mode link
 ;; this just makes a clickable link that opens the entry.
@@ -41,7 +48,7 @@
      (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>" keyword  keyword))
     ((eq format 'latex)
      ;; write out the latex command
-     (format "\\url{http://arxiv.org/abs/%s}" keyword)))))
+     (format "\\url{http://arxiv.org/abs/%s}{%s}" keyword (or desc keyword))))))
 
 ;; arxiv:cond-mat/0410285
 
@@ -152,7 +159,7 @@ authors in 'SURNAME, FIRST NAME' format."
                       (concat
                        "http://arxiv.org/abs/" arxiv-number))
                    ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
-                   (beginning-of-buffer)
+                   (goto-char (point-min))
                    (search-forward-regexp
                     "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
                    (match-string 1))))
