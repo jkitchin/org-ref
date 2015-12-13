@@ -626,9 +626,9 @@ environment, only %l is available."
                           "\n\\|\t\\|\s+" " "
                           (org-ref-reftex-get-bib-field "title" entry)))
                ((= l ?T) (reftex-abbreviate-title
-                          ((replace-regexp-in-string
-                            "\n\\|\t\\|\s+" " "
-                            (org-ref-reftex-get-bib-field "title" entry)))))
+                          (replace-regexp-in-string
+                           "\n\\|\t\\|\s+" " "
+                           (org-ref-reftex-get-bib-field "title" entry))))
                ((= l ?v) (org-ref-reftex-get-bib-field "volume" entry))
                ((= l ?y) (org-ref-reftex-get-bib-field "year" entry)))))
 
