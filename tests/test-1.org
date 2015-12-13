@@ -1,0 +1,10 @@
+
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-find-bibliography)
+#+END_SRC
+
+#+RESULTS:
+| test-1.bib |
+
+bibliography:test-1.bib
