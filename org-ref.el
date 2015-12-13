@@ -1572,11 +1572,11 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
      (error "%s not found" label))
    (message "go back with (org-mark-ring-goto) `C-c &`"))
                                         ;formatting
- (lambda (keyword desc format)
+ (lambda (path desc format)
    (cond
-    ((eq format 'html) (format "(<pageref>%s</pageref>)" keyword))
+    ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
     ((eq format 'latex)
-     (format "\\pageref{%s}" keyword)))))
+     (format "\\pageref{%s}" path)))))
 
 
 (defun org-pageref-complete-link (&optional arg)
@@ -1613,11 +1613,11 @@ Optional argument ARG Does nothing."
      (error "%s not found" label))
    (message "go back with (org-mark-ring-goto) `C-c &`"))
                                         ;formatting
- (lambda (keyword desc format)
+ (lambda (path desc format)
    (cond
     ((eq format 'html) (format "(<nameref>%s</nameref>)" path))
     ((eq format 'latex)
-     (format "\\nameref{%s}" keyword)))))
+     (format "\\nameref{%s}" path)))))
 
 ;; *** eqref link
 
