@@ -1041,15 +1041,11 @@ ARG does nothing."
                          (setq link-string-beginning (match-beginning 0))
                          (setq link-string-end (match-end 0)))
 
-                       ;; TODO: `reftex-default-addbibresource' isn't used
-                       ;; anywhere else in org-ref, or defined in reftex.  What
-                       ;; is it for?
-
-                       ;; We set the reftex-default-addbibresource
+                       ;; We set the reftex-default-bibliography
                        ;; here. it should be a local variable only in
                        ;; the current buffer. We need this for using
                        ;; reftex to do citations.
-                       (set (make-local-variable 'reftex-default-addbibresource)
+                       (set (make-local-variable 'reftex-default-bibliography)
                             (split-string (org-element-property :path object) ","))
 
                        (let (key-beginning key-end)
@@ -1153,8 +1149,8 @@ ARG does nothing."
 		    (save-excursion
 		      (goto-char (org-element-property :begin table))
 		      (not (or (org-in-commented-heading-p)
-				(intersection (org-get-tags-at) org-export-exclude-tags 
-				               :test 'equal))))
+				(intersection (org-get-tags-at) org-export-exclude-tags
+                                               :test 'equal))))
 		  (cl-incf counter)
 		  (let ((start (org-element-property :begin table))
 			(name  (org-element-property :name table))
