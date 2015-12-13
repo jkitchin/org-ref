@@ -45,6 +45,7 @@
 (require 'jmax-bibtex)
 (require 'org)
 (require 'org-element)
+(require 'ox)
 (require 'reftex)
 (require 'reftex-cite)
 
@@ -626,9 +627,9 @@ environment, only %l is available."
                           "\n\\|\t\\|\s+" " "
                           (org-ref-reftex-get-bib-field "title" entry)))
                ((= l ?T) (reftex-abbreviate-title
-                          ((replace-regexp-in-string
-                            "\n\\|\t\\|\s+" " "
-                            (org-ref-reftex-get-bib-field "title" entry)))))
+                          (replace-regexp-in-string
+                           "\n\\|\t\\|\s+" " "
+                           (org-ref-reftex-get-bib-field "title" entry))))
                ((= l ?v) (org-ref-reftex-get-bib-field "volume" entry))
                ((= l ?y) (org-ref-reftex-get-bib-field "year" entry)))))
 
@@ -1113,10 +1114,8 @@ Ignore figures in COMMENTED sections."
 			   (goto-char (org-element-property :begin link))
 			   (not (or (org-in-commented-heading-p)
 				    (org-at-comment-p)
-				    (-intersection
-				     (org-get-tags-at)
-				     org-export-exclude-tags)))))
-		  (cl-incf counter)
+            (-intersection (org-get-tags-at) org-export-exclude-tags)))))
+      (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
 			 (parent (car (cdr (org-element-property :parent link))))
@@ -1165,9 +1164,8 @@ ARG does nothing."
 		    (save-excursion
 		      (goto-char (org-element-property :begin table))
 		      (not (or (org-in-commented-heading-p)
-			       (-intersection (org-get-tags-at)
-					      org-export-exclude-tags))))
-		  (cl-incf counter)
+        (-intersection (org-get-tags-at) org-export-exclude-tags))))
+      (cl-incf counter)
 		  (let ((start (org-element-property :begin table))
 			(name  (org-element-property :name table))
 			(caption (cl-caaar (org-element-property :caption table))))

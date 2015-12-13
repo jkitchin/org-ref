@@ -25,6 +25,9 @@
 ;; researcherid:A-2363-2010
 
 ;;; Code:
+
+(require 'org)
+
 (org-add-link-type
  "orcid"
  (lambda

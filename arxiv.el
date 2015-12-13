@@ -29,7 +29,7 @@
 (require 'dash)
 (require 'f)
 (require 'org)
-(require 'org-ref)
+;; (require 'org-ref)
 (require 's)
 
 ;; byte-compile
@@ -71,14 +71,18 @@
     (search-forward-regexp "name=\\\"bibcode\\\" value=\\\"\\(.*\\)\\\"")
     (match-string 1)))
 
+;; This is a local variable defined in `url-http'.  We need it to avoid
+;; byte-compiler errors.
+(defvar-local url-http-end-of-headers nil)
+
 (defun arxiv-get-bibtex-entry (arxiv-bibliographic-code)
-  "Get bibtex entry for ARXIV-BIBLIOGRAPHIC-CODE"
+  "Get bibtex entry for ARXIV-BIBLIOGRAPHIC-CODE."
   (with-current-buffer
       (url-retrieve-synchronously
        (format
         "http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=%s&data_type=BIBTEX&db_key=PRE&nocookieset=1"
         arxiv-bibliographic-code))
-    (goto-char  url-http-end-of-headers)
+    (goto-char url-http-end-of-headers)
     (if (search-forward  "Retrieved 1 abstracts" (point-max) t)
         (progn
           (forward-line)
@@ -102,8 +106,8 @@
 	"Template for BibTeX entries of arXiv articles.")
 
 (defun arxiv-get-bibtex-entry-via-arxiv-api (arxiv-number)
-  "Given an arxiv-number, this function retrieves the meta data
-from arXiv and returns a freshly baked BibTeX entry."
+  "Retrieve meta data for ARXIV-NUMBER.
+Returns a freshly baked BibTeX entry."
   (with-current-buffer
       (url-retrieve-synchronously (format "http://export.arxiv.org/api/query?id_list=%s" arxiv-number) t)
     (let* ((parse-tree (libxml-parse-xml-region
@@ -127,8 +131,7 @@ from arXiv and returns a freshly baked BibTeX entry."
       (format arxiv-entry-format-string key title names year arxiv-number category abstract url))))
 
 (defun arxiv-bibtexify-authors (authors)
-  "Takes a list of author names and returns a string with the
-authors in 'SURNAME, FIRST NAME' format."
+  "Return names in 'SURNAME, FIRST NAME' format from AUTHORS list."
   (s-join " and "
           (--map (concat (-last-item it) ", " (s-join " " (-remove-last 'stringp it)))
                  (--map (s-split " +" it) authors))))

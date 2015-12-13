@@ -24,6 +24,7 @@
 ;;; and an org-mode link for a link to an Accession number.
 
 (require 'org)
+(require 's)
 
 ;;; Code:
 (org-add-link-type
@@ -81,11 +82,14 @@
 
 ;; * Accession numbers
 ;; see http://kitchingroup.cheme.cmu.edu/blog/2015/06/08/Getting-a-WOS-Accession-number-from-a-DOI/
-(defvar *wos-redirect* nil "Holds the redirect from a url-retrieve callback function.")
-(defvar *wos-waiting* nil "non-nil when waiting for a url-retrieve redirect.")
+(defvar *wos-redirect* nil
+  "Holds the redirect from a ‘url-retrieve’ callback function.")
+
+(defvar *wos-waiting* nil
+  "Non-nil when waiting for a ‘url-retrieve’ redirect.")
 
 (defun wos-get-wos-redirect (url)
-  "Return final redirect url for open-url"
+  "Return final redirect URL for open-url."
   (setq *wos-waiting* t)
   (url-retrieve
    url
