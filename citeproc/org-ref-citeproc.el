@@ -24,6 +24,7 @@ replaced by the new citation text.")
 The list is sorted according to the style.  This list eventually
 makes up the bibliography.")
 
+
 (defvar citation-style '()
   "Style data for an in-text citation.
 For unsrt, a regular cite is superscripted, sorted,
@@ -60,7 +61,9 @@ HEADER is a string that is inserted above the bibliography.
 
 ENTRIES is a alist of entry type and fields to make the entry from.")
 
+
 ;;* Collect citations
+
 (defun orcp-collect-citations ()
   "Return a list of citation links in the document."
   (setq *orcp-citation-links*
@@ -107,7 +110,9 @@ Each entry is (key . entry)."
       (setq entries (funcall sort-func entries)))
     (setq *orcp-unique-entries* entries)))
 
+
 ;;** Unique entry sorting functions
+
 (defun orcp-sort-entries-increasing-year (unique-entries)
   "Sort UNIQUE-ENTRIES in increasing year of publication.
 i.e. oldest stuff first."
@@ -156,15 +161,16 @@ Strip extra spaces and carriage returns."
 
 ;;* Citation labels for one citation key
 ;; No styling is done here.
+
 (defun orcp-citation-number-label (key unique-entries)
   "Find the numeric index of KEY in UNIQUE-ENTRIES and return as a string.
 Indexing starts at 0 so we add one."
   (number-to-string
-     (+ 1
-	(-find-index
-	 (lambda (entry)
-	   (string= key (car entry)))
-	 unique-entries))))
+   (+ 1
+      (-find-index
+       (lambda (entry)
+	 (string= key (car entry)))
+       unique-entries))))
 
 
 (defun orcp-citation-author-label (key unique-entries)
@@ -274,6 +280,7 @@ returns the style with the override."
     (funcall (or  (orcp-get-citation-style 'vertical-align type)
 		  'baseline)
 	     replacement-text)))
+
 
 (defun orcp-get-citation-replacements ()
   "Get a list of replacements for all links in `*orcp-citation-links*'."
@@ -407,9 +414,11 @@ returns the style with the override."
   "Return firstname from AUTHOR-CELL."
   (car author-cell))
 
+
 (defun lastname (author-cell)
     "Return lastname from AUTHOR-CELL."
   (cdr author-cell))
+
 
 (defun orcp-author (entry)
   "Return formatted author string from the ENTRY.
@@ -464,6 +473,7 @@ Style information comes from `bibliography'"
 	 suffix
 	 field-separator))))
 
+
 (defun orcp-title (entry)
   "Return formatted title for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'title bibliography-style)))
@@ -478,6 +488,7 @@ Style information comes from `bibliography'"
        title)
      suffix
      field-separator)))
+
 
 (defun orcp-journal (entry)
     "Return formatted journal for the bibtex ENTRY."
@@ -494,6 +505,7 @@ Style information comes from `bibliography'"
      suffix
      field-separator)))
 
+
 (defun orcp-volume (entry)
   "Return formatted volume for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'volume bibliography-style)))
@@ -509,6 +521,7 @@ Style information comes from `bibliography'"
 	 (funcall font-style volume)
        volume)
      field-separator)))
+
 
 (defun orcp-issue (entry)
   "Return formatted issue for the bibtex ENTRY."
@@ -528,6 +541,7 @@ Style information comes from `bibliography'"
 		   issue)
 	issue))))
 
+
 (defun orcp-pages (entry)
   "Return formatted pages for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'pages bibliography-style)))
@@ -545,6 +559,7 @@ Style information comes from `bibliography'"
 			 pages)
 	      pages)
 	    field-separator)))
+
 
 (defun orcp-year (entry)
   "Return formatted year for the bibtex ENTRY."
@@ -565,6 +580,7 @@ Style information comes from `bibliography'"
        year)
      field-separator)))
 
+
 (defun orcp-doi-formatter (doi)
   "Return formatted DOI for different backends."
   (cond
@@ -573,6 +589,7 @@ Style information comes from `bibliography'"
    (t
     (message-box "t-doi %S" doi)
     (format "doi:%s" doi))))
+
 
 (defun orcp-doi (entry)
   "Return formatted doi for the bibtex ENTRY."
@@ -612,6 +629,7 @@ Style information comes from `bibliography'"
       url)))
 
 ;;* Data structures for Author names
+
 (defun orcp-unprotect-brackets (piece protected-strings)
   "Unprotect PIECE with the information in PROTECTED-STRINGS.
 PROTECTED-STRINGS is a list of cons-cells (\"protection\" .
@@ -625,6 +643,7 @@ original text)."
   piece)
 
 
+;; See http://maverick.inria.fr/~Xavier.Decoret/resources/xdkbibtex/bibtex_summary.html#names for the parsing rules.
 (defun orcp-parse-authorname (name)
   "Convert an author NAME to (first von last jr) data structure.
 Valid name forms are:
@@ -637,11 +656,7 @@ von1 von2 Last1 Last2, Jr., First1 First2
 Last1, First1 First2
 {Von Last1}, First1 First2
 
-We try to protect strings in curly brackets.
-
-See
-http://maverick.inria.fr/~Xavier.Decoret/resources/xdkbibtex/bibtex_summary.html#names
-for the parsing rules."
+We try to protect strings in curly brackets."
   (let* (protected-strings
 	 uuid
 	 ncommas
@@ -743,6 +758,7 @@ for the parsing rules."
 
 
 ;;* Collapse numeric range
+
 (defun orcp-collapse-numeric-range (cites delimiter)
   "TODO use style info.
 Collapse a numeric list of CITES into a range.
@@ -884,7 +900,6 @@ documents."
       ((pred (= 0))
        ;; no bibliography link in document
        (when link-replacements
-         (message "Warning: No bibliography link found although there are citations to process"))
-       ))))
+         (message "Warning: No bibliography link found although there are citations to process"))))))
 
 ;;; org-ref-citeproc.el ends here
