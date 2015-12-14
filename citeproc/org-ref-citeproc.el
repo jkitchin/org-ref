@@ -173,6 +173,11 @@ Indexing starts at 0 so we add one."
        unique-entries))))
 
 
+(defun orcp-footnote-label (key unique-entries)
+  "Return an org footnote label for KEY in UNIQUE-ENTRIES."
+  (format "[fn:%s]" (orcp-citation-number-label key unique-entries)))
+
+
 (defun orcp-citation-author-label (key unique-entries)
   "Return an author last name label for KEY.
 KEY is found in UNIQUE-ENTRIES."
@@ -587,7 +592,6 @@ Style information comes from `bibliography'"
    ((eq org-export-current-backend 'html)
     (format "http://dx.doi.org/%s" doi))
    (t
-    (message-box "t-doi %S" doi)
     (format "doi:%s" doi))))
 
 
