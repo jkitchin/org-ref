@@ -22,6 +22,7 @@ release:
 	git checkout melpa
 	git merge master
 	git push origin melpa
+	git checkout master
 
 
 package : ${SOURCES}
