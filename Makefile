@@ -18,6 +18,12 @@ compile:
 clean-elc:
 	rm -f *.elc
 
+release:
+	git checkout melpa
+	git merge master
+	git push origin melpa
+
+
 package : ${SOURCES}
 	${CASK} package
 
