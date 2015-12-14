@@ -1,4 +1,4 @@
-;;; org-ref.el --- cite and cross-reference in org-mode
+;;; org-ref.el --- citations, cross-references and bibliographies in org-mode
 
 ;; Copyright(C) 2014,2015 John Kitchin
 
@@ -27,10 +27,10 @@
 
 ;;; Commentary:
 ;;
-;; Lisp code to setup bibliography cite, ref and label org-mode links.
-;; also sets up reftex and helm for org-mode citations.  The links are
+;; Lisp code to setup bibliography, cite, ref and label org-mode links.
+;; Also sets up reftex and helm for org-mode citations.  The links are
 ;; clickable and do things that are useful.  You should really read
-;; org-ref.org for details.
+;; org-ref.org in this package for details.
 ;;
 
 ;;; Code:
