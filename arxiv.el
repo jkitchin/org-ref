@@ -29,7 +29,7 @@
 (require 'dash)
 (require 'f)
 (require 'org)
-;; (require 'org-ref)
+(require 'org-ref)
 (require 's)
 
 ;; byte-compile
