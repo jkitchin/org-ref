@@ -11,16 +11,17 @@
 ;;
 
 ;;; Code:
+(require 'org-ref)
 
 (defvar *orcp-citation-links* '()
   "List of citation links in the text.
-A link may have more than one citation in it. These links get
+A link may have more than one citation in it.  These links get
 replaced by the new citation text.")
 
 
 (defvar *orcp-unique-entries* '()
   "List of unique (key . entry) parsed bibtex entries in the document.
-The list is sorted according to the style. This list eventually
+The list is sorted according to the style.  This list eventually
 makes up the bibliography.")
 
 (defvar citation-style '()
@@ -42,9 +43,12 @@ Additional entries provide overrides for special citation types.")
 
 (defvar bibliography-style '()
   "Bibliography style data.
-SORT is a function that sorts the entries, e.g. by author, or year, or nil. It should take one argument, the list of unique entries (key . entry).
+SORT is a function that sorts the entries, e.g. by author, or
+year, or nil.  It should take one argument, the list of unique
+entries (key . entry).
 
-LABEL is a function that returns how the entry is numbered, or referenced in the text.
+LABEL is a function that returns how the entry is numbered, or
+referenced in the text.
 
 HANGING-INDENT is for the indentation of the entry on the left.
 
@@ -58,7 +62,7 @@ ENTRIES is a alist of entry type and fields to make the entry from.")
 
 ;;* Collect citations
 (defun orcp-collect-citations ()
-  "Return a list of citation links in the document"
+  "Return a list of citation links in the document."
   (setq *orcp-citation-links*
 	(loop for link in (org-element-map
 			      (org-element-parse-buffer) 'link 'identity)
@@ -105,7 +109,7 @@ Each entry is (key . entry)."
 
 ;;** Unique entry sorting functions
 (defun orcp-sort-entries-increasing-year (unique-entries)
-  "Sort unique entries in increasing year of publication.
+  "Sort UNIQUE-ENTRIES in increasing year of publication.
 i.e. oldest stuff first."
   (sort unique-entries
 	(lambda (a b)
@@ -116,7 +120,7 @@ i.e. oldest stuff first."
 	    (> year2 year1)))))
 
 (defun orcp-sort-entries-decreasing-year (unique-entries)
-  "Sort UNIQIE-ENTRIES in decreasing year.
+  "Sort UNIQUE-ENTRIES in decreasing year.
 i.e. most current first."
   (reverse (orcp-sort-entries-increasing-year unique-entries)))
 
@@ -131,7 +135,7 @@ Strip extra spaces and carriage returns."
 
 
 (defun orcp-sort-entries-alphabetical (unique-entries)
-  "Sort alphabetically by first author last name."
+  "Sort UNIQUE-ENTRIES alphabetically by first author last name."
   (sort unique-entries
 	(lambda (a b)
 	  (let* ((e1 (cdr a))
@@ -164,7 +168,8 @@ Indexing starts at 0 so we add one."
 
 
 (defun orcp-citation-author-label (key unique-entries)
-  "Return an author last name label."
+  "Return an author last name label for KEY.
+KEY is found in UNIQUE-ENTRIES."
   (let* ((i (-find-index
 	     (lambda (entry)
 	       (string= key (car entry)))
@@ -178,7 +183,8 @@ Indexing starts at 0 so we add one."
 			 (nth 2 first-author)))))
 
 (defun orcp-citation-year-label (key unique-entries)
-  "Return a year label."
+  "Return a year label for KEY.
+KEY is found in UNIQUE-ENTRIES."
   (let* ((i (-find-index
 	     (lambda (entry)
 	       (string= key (car entry)))
@@ -189,7 +195,8 @@ Indexing starts at 0 so we add one."
 
 
 (defun orcp-citation-author-year-label (key unique-entries)
-  "Return an author last name year label.
+  "Return an author last name year label for KEY.
+KEY is found in UNIQUE-ENTRIES.
 We do not have a disambiguation strategy yet."
   (let* ((i (-find-index
 	     (lambda (entry)
@@ -214,7 +221,7 @@ We do not have a disambiguation strategy yet."
 
 (defun orcp-get-citation-style (symbol type)
   "Get the style info for SYMBOL for a citation TYPE from `citation-style'.
-Styles have a default, but allow TYPE overrides. This function
+Styles have a default, but allow TYPE overrides.  This function
 returns the style with the override."
   (let (style)
     ;; first get default style
@@ -358,12 +365,12 @@ returns the style with the override."
 ;; during export.
 
 (defun baseline (text)
-  "Return text."
+  "Return TEXT."
   text)
 
 
 (defun superscript (text)
-  "Format text as superscripted."
+  "Format TEXT as superscripted."
   (cond
    ((eq org-export-current-backend 'html)
     (format "@@html:<sup>%s</sup>@@" text))
@@ -373,6 +380,7 @@ returns the style with the override."
 
 
 (defun italics (text)
+  "Format TEXT as italics."
   (cond
    ((eq org-export-current-backend 'html)
     (format "@@html:<i>%s</i>@@" text))
@@ -382,6 +390,7 @@ returns the style with the override."
 
 
 (defun bold (text)
+  "Format TEXT in bold."
   (cond
    ((eq org-export-current-backend 'html)
     (format "@@html:<b>%s</b>@@" text))
@@ -395,9 +404,11 @@ returns the style with the override."
 ;; formatted field for the entry, using information from the csl file.
 
 (defun firstname (author-cell)
+  "Return firstname from AUTHOR-CELL."
   (car author-cell))
 
 (defun lastname (author-cell)
+    "Return lastname from AUTHOR-CELL."
   (cdr author-cell))
 
 (defun orcp-author (entry)
@@ -454,6 +465,7 @@ Style information comes from `bibliography'"
 	 field-separator))))
 
 (defun orcp-title (entry)
+  "Return formatted title for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'title bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (suffix (cdr (assoc 'suffix style)))
@@ -468,6 +480,7 @@ Style information comes from `bibliography'"
      field-separator)))
 
 (defun orcp-journal (entry)
+    "Return formatted journal for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'journal bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (suffix (cdr (assoc 'suffix style)))
@@ -482,6 +495,7 @@ Style information comes from `bibliography'"
      field-separator)))
 
 (defun orcp-volume (entry)
+  "Return formatted volume for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'volume bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (prefix (cdr (assoc 'prefix style)))
@@ -497,6 +511,7 @@ Style information comes from `bibliography'"
      field-separator)))
 
 (defun orcp-issue (entry)
+  "Return formatted issue for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'issue bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (prefix (cdr (assoc 'prefix style)))
@@ -514,6 +529,7 @@ Style information comes from `bibliography'"
 	issue))))
 
 (defun orcp-pages (entry)
+  "Return formatted pages for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'pages bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (prefix (cdr (assoc 'prefix style)))
@@ -531,6 +547,7 @@ Style information comes from `bibliography'"
 	    field-separator)))
 
 (defun orcp-year (entry)
+  "Return formatted year for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'year bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (prefix (cdr (assoc 'prefix style)))
@@ -549,6 +566,7 @@ Style information comes from `bibliography'"
      field-separator)))
 
 (defun orcp-doi-formatter (doi)
+  "Return formatted DOI for different backends."
   (cond
    ((eq org-export-current-backend 'html)
     (format "http://dx.doi.org/%s" doi))
@@ -557,6 +575,7 @@ Style information comes from `bibliography'"
     (format "doi:%s" doi))))
 
 (defun orcp-doi (entry)
+  "Return formatted doi for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'doi bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (prefix (cdr (assoc 'prefix style)))
@@ -575,6 +594,7 @@ Style information comes from `bibliography'"
 
 
 (defun orcp-url (entry)
+  "Return formatted url for the bibtex ENTRY."
   (let* ((style (cdr (assoc 'doi bibliography-style)))
 	 (font-style (cdr (assoc 'font-style style)))
 	 (prefix (cdr (assoc 'prefix style)))
@@ -606,7 +626,7 @@ original text)."
 
 
 (defun orcp-parse-authorname (name)
-  "Convert a Bibtex author string to (first von last jr) data structure.
+  "Convert an author NAME to (first von last jr) data structure.
 Valid name forms are:
 First1 First2 Last
 First1 First 2 {Last1 Last2}
@@ -663,7 +683,9 @@ for the parsing rules."
 	      if (s-lowercase? word)
 	      do (setq last-lower-index i))
 	(when last-lower-index
-	  (setq von (mapconcat 'identity (-slice fields 0 (+ 1 last-lower-index)) " "))
+	  (setq von (mapconcat
+		     'identity
+		     (-slice fields 0 (+ 1 last-lower-index)) " "))
 	  (setq fields (-slice fields (+ 1 last-lower-index)))))
 
       ;; all that should be left is the last name but it might be more than one
@@ -686,7 +708,9 @@ for the parsing rules."
 	      if (s-lowercase? word)
 	      do (setq last-lower-index i))
 	(when last-lower-index
-	  (setq von (mapconcat 'identity (-slice fields 0 (+ 1 last-lower-index)) " "))
+	  (setq von (mapconcat
+		     'identity
+		     (-slice fields 0 (+ 1 last-lower-index)) " "))
 	  (setq fields (-slice fields (+ 1 last-lower-index)))))
       ;; all that should be left is the last name
       (setq last (mapconcat 'identity fields " "))
@@ -716,139 +740,6 @@ for the parsing rules."
        (lambda (x)
 	 (orcp-unprotect-brackets x protected-strings))
        (list first von last jr))))))
-
-
-;; (defun orcp-parse-authorname (name)
-;;   "Convert a Bibtex author NAME string to (first von last jr) data structure.
-
-;; NAME comes from a bibtex entry author field, after it has been split on \"and\".
-
-;; Valid name forms are:
-;; First1 First2 Last
-;; First1 First 2 {Last1 Last2}
-
-;; First1 First2 von1 von2 Last1 Last2
-;; von1 von2 Last1 Last2, Jr., First1 First2
-
-;; Last1, First1 First2
-;; {Von Last1}, First1 First2
-
-;; We try to protect strings in curly brackets. These group names in
-;; Bibtex, and also represent LaTeX commands.
-
-;; See
-;; http://maverick.inria.fr/~Xavier.Decoret/resources/xdkbibtex/bibtex_summary.html#names
-;; for the parsing rules."
-;;   (let* (protected-strings
-;;	 uuid
-;;	 ncommas
-;;	 fields
-;;	 first von last jr)
-
-;;     ;; protect bracketed strings
-;;     (while (string-match "{\\(.*\\)}" name)
-;;       ;; We want our substitute to look like a name, not a von part so we add a
-;;       ;; capital letter to the front.
-;;       (setq uuid (concat "A" (md5 (format "%s%s%s%s%s%s%s"
-;;					  (random)
-;;					  (current-time)
-;;					  (user-uid)
-;;					  (emacs-pid)
-;;					  (user-full-name)
-;;					  user-mail-address
-;;					  (recent-keys)))))
-;;       (add-to-list 'protected-strings (cons uuid (match-string 0 name)))
-;;       (setq name (replace-match uuid nil nil name)))
-
-;;     (setq ncommas (s-count-matches "," name))
-
-;;     (cond
-;;      ;; "First von Last"
-;;      ((= 0 ncommas)
-;;       (setq fields (s-split " " name))
-;;       (while (and (s-capitalized? (car fields)) (> (length fields) 1))
-;;	(setq first (append first (list (pop fields)))))
-;;       (when first
-;;	(setq first (mapconcat 'identity first " ")))
-
-;;       ;; Next, we get the von part. this is the longest white space delimited
-;;       ;; string that ends with a lowercase word, and is not the rest of the
-;;       ;; string.
-;;       (let ((last-lower-index nil))
-;;	(loop for i to (length fields)
-;;	      for word in (butlast fields)
-;;	      if (s-lowercase? word)
-;;	      do (setq last-lower-index i))
-;;	(when last-lower-index
-;;	  (setq von (mapconcat 'identity (-slice fields 0 (+ 1 last-lower-index)) " "))
-;;	  (setq fields (-slice fields (+ 1 last-lower-index)))))
-
-;;       ;; all that should be left is the last name but it might be more than one
-;;       ;; word, e.g. with a Jr. or a two work last name.
-;;       (setq last (mapconcat 'identity fields " "))
-;;       (mapcar
-;;        (lambda (piece)
-;;	 (when piece
-;;	   (mapc
-;;	    (lambda (cons-cell)
-;;	      (when (string-match (car cons-cell) piece)
-;;		(setq piece (replace-match (cdr cons-cell) t t piece))))
-;;	    protected-strings)))
-;;        (list first von last jr)))
-
-;;      ;; "von Last, First"
-;;      ((= 1 ncommas)
-;;       (setq fields (s-split "," name))
-;;       (setq first  (nth 1 fields))
-;;       ;; split first field which could be von Lastname.
-;;       (setq fields (s-split " " (car fields)))
-;;       (let ((last-lower-index nil))
-;;	(loop for i to (length fields)
-;;	      for word in fields
-;;	      if (s-lowercase? word)
-;;	      do (setq last-lower-index i))
-;;	(when last-lower-index
-;;	  (setq von (mapconcat 'identity (-slice fields 0 (+ 1 last-lower-index)) " "))
-;;	  (setq fields (-slice fields (+ 1 last-lower-index)))))
-;;       ;; all that should be left is the last name
-;;       (setq last (mapconcat 'identity fields " "))
-;;       (mapcar
-;;        (lambda (piece)
-;;	 (when piece
-;;	   (mapc
-;;	    (lambda (cons-cell)
-;;	      (when (string-match (car cons-cell) piece)
-;;		(setq piece (replace-match (cdr cons-cell) t t piece))))
-;;	    protected-strings)))
-;;        (list first von last jr)))
-
-;;      ;; "von Last, Jr, First"
-;;      ((= 2 ncommas)
-;;       (setq fields (s-split "," name))
-;;       (setq first  (nth 2 fields))
-;;       (setq jr (nth 1 fields))
-;;       ;; split first field which could be von Lastname.
-;;       (setq fields (s-split " " (car fields)))
-;;       (let ((last-lower-index nil))
-;;	(loop for i to (length fields)
-;;	      for word in fields
-;;	      if (s-lowercase? word)
-;;	      do (setq last-lower-index i))
-;;	(when last-lower-index
-;;	  (setq von (mapconcat 'identity (-slice fields 0 (+ 1 last-lower-index)) " "))
-;;	  (setq fields (-slice fields (+ 1 last-lower-index)))))
-;;       ;; all that should be left is the last name
-;;       (setq last (mapconcat 'identity fields " "))
-;;       (mapcar
-;;        (lambda (piece)
-;;	 (when piece
-;;	   (mapc
-;;	    (lambda (cons-cell)
-;;	      (when (string-match (car cons-cell) piece)
-;;		(setq piece (replace-match (cdr cons-cell) t t piece))))
-;;	    protected-strings)))
-;;        (list first von last jr))))))
-
 
 
 ;;* Collapse numeric range
@@ -883,7 +774,7 @@ Collapsed ranges are separated by DELIMITER."
 
 (defun sentence-beginning-p ()
   "Determine if point is at the beginning of a sentence.
-The idea is to move forward a sentence, then back. If the point
+The idea is to move forward a sentence, then back.  If the point
 doesn't move, it means you were at the beginning of a sentence."
   (let ((cp (point)))
     (save-excursion
@@ -893,7 +784,8 @@ doesn't move, it means you were at the beginning of a sentence."
 
 
 (defun orcp-citeproc (&optional backend)
-  "Warning. Destructive to your document! Will replace links.
+  "Format citations and bibliography for BACKEND.
+Warning.  Destructive to your document! Will replace links.
 Meant to be used in export on a temporary version of the
 documents."
 
@@ -974,8 +866,10 @@ documents."
 	    (insert punctuation)))
 
     ;; Insert bibliography section at the bibliography link
-    (setq bibliography-link (loop for link in (org-element-map
-						  (org-element-parse-buffer) 'link 'identity)
+    (setq bibliography-link (loop for link
+				  in (org-element-map
+					 (org-element-parse-buffer)
+					 'link 'identity)
 				  if (string= "bibliography"
 					      (org-element-property :type link))
 				  collect link))
