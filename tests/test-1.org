@@ -1,4 +1,4 @@
-
+cite:kitchin-2015-examp
 
 #+BEGIN_SRC emacs-lisp
 (org-ref-find-bibliography)
