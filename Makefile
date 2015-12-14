@@ -25,7 +25,18 @@ release:
 	git checkout master
 
 
+# this makes the package so I can test it.
+melpa: release
+	${MAKE} -C /Users/jkitchin/Dropbox/kitchingroup/jmax/melpa clean
+	${MAKE} -C /Users/jkitchin/Dropbox/kitchingroup/jmax/melpa recipes/org-ref
+	${MAKE} -C /Users/jkitchin/Dropbox/kitchingroup/jmax/melpa packages/archive-contents
+
+test-melpa: melpa
+	rm -fr sandbox
+	${emacs} -Q -l test-melpa.el
+
+
 package : ${SOURCES}
 	${CASK} package
 
-.PHONY:	all test package clean-elc clean-tangled
+.PHONY:	all test package clean-elc test-melpa
