@@ -51,6 +51,7 @@
 
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
+(declare-function 'jmax-email-bibtex-entry "jmax-bibtex.el")
 
 ;;* Custom variables
 (defgroup org-ref nil
