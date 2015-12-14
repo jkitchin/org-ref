@@ -367,7 +367,7 @@ at the end."
       (re-search-forward bibtex-entry-maybe-empty-head)
       (setq key (match-string bibtex-key-in-head))
       (setq pdf-file (concat
-		      (if (boundp org-ref-pdf-directory)
+		      (if org-ref-pdf-directory
 			  (file-name-as-directory org-ref-pdf-directory)
 			(read-directory-name "Directory: " "."))
 		      key ".pdf"))
