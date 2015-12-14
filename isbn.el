@@ -27,6 +27,9 @@
 (require 'org)
 (require 'org-ref)
 
+;; byte-compile
+(defvar-local url-http-end-of-headers nil)
+
 ;; * ISBN utility
 
 ;; I found this on the web. It can be handy, but the bibtex entry has a lot of stuff in it.
@@ -45,8 +48,9 @@ file."
 ;; http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
 
 (defun isbn-to-bibtex (isbn bibfile)
-  "Get bibtex entry for ISBN and insert it into BIBFILE unless an
-entry with the generated key already exists in the file."
+  "Get bibtex entry for ISBN and insert it into BIBFILE.
+Nothing happens if an entry with the generated key already exists
+in the file."
   (interactive
    (list
     (read-string
