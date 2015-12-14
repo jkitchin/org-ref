@@ -1789,8 +1789,14 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 
 ;;*** key at point functions
 (defun org-ref-get-pdf-filename (key)
-  "Return the pdf filename associated with a bibtex KEY."
-  (format (concat (file-name-as-directory org-ref-pdf-directory) "%s.pdf") key))
+  "Return the pdf filename associated with a bibtex KEY.
+If `org-ref-pdf-directory' is non-nil, put filename there."
+  (if org-ref-pdf-directory
+      (format
+       (concat
+	(file-name-as-directory org-ref-pdf-directory) "%s.pdf")
+       key)
+    (format "%s.pdf" key)))
 
 
 (defun org-ref-get-mendeley-filename (key)
