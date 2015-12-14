@@ -85,6 +85,17 @@ At the moment, you have to add a hook function to put the replacements in the do
 #+RESULTS:
 : #<process open ./readme.html>
 
+An org export for footnotes. The footnotes don't go where I expect.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path ".")
+(require 'org-ref-citeproc)
+
+(let ((org-export-before-parsing-hook '(orcp-citeproc)))
+  (org-open-file (org-org-export-to-org)))
+#+End_src
+
+#+RESULTS:
+: Position saved to mark ring, go back with C-c &.
 
 ** Summary thoughts
 This looks promising. There is probably a lot of work to do to make this as robust as say citeproc-js or the Zotero handler. I am not sure if we could write this in a way to directly use the CSL. My feeling is it would not be as flexible as this, and we would have to add to it anyway.
@@ -102,7 +113,7 @@ Here are some remaining things that could be worked on if we continue this direc
 ** Bibliography
 You use a bibliographystyle link to specify a csl. These are similar to bibtex styles, and in some cases no change is needed for LaTeX export (although you may have to remove the citeproc hook function).
 
-bibliographystyle:unsrt
+bibliographystyle:unsrt-footnote
 bibliography:readme.bib
 
 
