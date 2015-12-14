@@ -38,7 +38,7 @@
 ;; jmax-sentence-case-article :: sentence case the title in an article.
 
 ;; jmax-replace-nonascii :: replace nonascii characters in a bibtex
-;; entry. Replacements are in `jmax-nonascii-latex-replacements'.
+;; entry.  Replacements are in `jmax-nonascii-latex-replacements'.
 ;;
 ;; jmax-title-case-article
 ;; jmax-sentence-case-article
@@ -53,9 +53,12 @@
 ;;
 ;; jmax-bibtex :: a deprecated menu of actions
 
+(require 'bibtex)
+(require 'dash)
 (require 'hydra)
 (require 'key-chord)
 (require 'message)
+(require 's)
 
 ;;; Code:
 ;; * Custom variables
@@ -66,7 +69,7 @@
 
 (defcustom jmax-bibtex-hydra-key-chord
   nil
-  "key-chord to run `jmax-bibtex-hydra'.
+  "Key-chord to run `jmax-bibtex-hydra'.
 I like \"jj\""
   :type 'string
   :group 'jmax-bibtex)
@@ -74,7 +77,7 @@ I like \"jj\""
 
 (defcustom jmax-bibtex-hydra-key-binding
   nil
-  "key-binding to run `jmax-bibtex-hydra'.
+  "Key-binding to run `jmax-bibtex-hydra'.
 I like \C-cj."
   :type 'string
   :group 'jmax-bibtex)

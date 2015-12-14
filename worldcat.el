@@ -1,11 +1,19 @@
 ;;; worldcat.el --- Worldcat library
 
 
+
 ;;; Commentary:
 ;; See:
 ;; https://www.worldcat.org/wcpa/content/affiliate/default.jsp
 ;; https://www.worldcat.org/affiliate/tools?atype=text
 
+
+
+;;; Code:
+
+
+;;; Commentary:
+;;
 
 ;;; Code:
 
