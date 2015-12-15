@@ -11,10 +11,6 @@ See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch
 
 
 * Installation
-We are slowly moving towards getting org-ref in MELPA. Until then, here are some directions that will probably help install org-ref.
-
-You should clone this repository somewhere.
-
 You should set these variables. Here is an example of how mine are set in an init.el file.
 #+BEGIN_SRC emacs-lisp
 (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
@@ -50,19 +46,9 @@ You may want to set some convenient keys for working in your bibtex file:
 (global-set-key [f12] 'org-ref-open-in-browser)
 #+END_SRC
 
-Add the directory you cloned org-ref into to your load-path, and require the features you want.
+Add this to your init.el files.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "path-to-org-ref")
-;; make sure you have dash, helm, helm-bibtex, ebib, s, f, hydra and key-chord
-;; in your load-path
 (require 'org-ref)
-
-;; optional but very useful libraries in org-ref
-(require 'doi-utils)
-(require 'jmax-bibtex)
-(require 'pubmed)
-(require 'arxiv)
-(require 'sci-id)
 #+END_SRC
 
 Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s.
