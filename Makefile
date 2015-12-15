@@ -21,9 +21,8 @@ clean-elc:
 release:
 	git checkout melpa
 	git merge master
-	git push origin melpa
 	git checkout master
-
+	git push origin melpa
 
 # this makes the package so I can test it.
 melpa: release
@@ -33,7 +32,7 @@ melpa: release
 
 test-melpa: melpa
 	rm -fr sandbox
-	${emacs} -Q -l test-melpa.el
+	${emacs} -Q -l tests/test-melpa.el
 
 
 package : ${SOURCES}
