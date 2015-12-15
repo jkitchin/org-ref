@@ -22,7 +22,7 @@ You can add this to your init files to access our repo.
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list package-archives
-	     ("kitchingroup" . "https://raw.githubusercontent.com/jkitchin/melpa/kitchingroup/packages/") t)
+	     ("kitchingroup" . "http://kitchingroup.cheme.cmu.edu/elpa/") t)
 #+END_SRC
 
 Then, you should be able to do M-x package-list-packages, find org-ref and install it.
