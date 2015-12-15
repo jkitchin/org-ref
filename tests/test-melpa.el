@@ -11,4 +11,5 @@
 
 (package-install 'org-ref)
 
+(require 'org-ref)
 (find-file "tests/test-1.org")
