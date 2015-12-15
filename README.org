@@ -79,7 +79,7 @@ Note many of these have been renamed with an org-ref prefix.
 - [[./org-ref-isbn.el][org-ref-isbn]]
 - [[./org-ref-scopus.el][org-ref-scopus]]
 - [[./org-ref-worldcat.el][org-ref-worldcat]]
-
+- [[./x2bib.el][x2bib]]
 
 * Errors and issues
 Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s.
