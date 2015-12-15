@@ -282,11 +282,11 @@ Or this if you like key-chord:
 (key-chord-define-global "jj" 'jmax-bibtex-hydra/body)
 #+END_SRC
 
-** wos
+** org-ref-wos
 This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofknowledge.com).
 
 #+BEGIN_SRC emacs-lisp
-(require 'wos)
+(require 'org-ref-wos)
 #+END_SRC
 
 - wos :: Convenience function to open WOK in a browser.
@@ -294,11 +294,11 @@ This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofkno
 
 There is also a new org-mode link that opens a search: [[wos-search:alloy and segregation]]
 
-** scopus
+** org-ref-scopus
 This is a small utility to interact with Scopus (http://www.scopus.com). Scopus is search engine for scientific literature. It is owned by Elsevier. You must have a license to use it (usually provided by your research institution).
 
 #+BEGIN_SRC emacs-lisp
-(require 'scopus)
+(require 'org-ref-scopus)
 #+END_SRC
 
 Interactive functions:
@@ -316,24 +316,24 @@ A functional link to a document in Scopus by its "EID": eid:2-s2.0-72649092395. 
 
 There is also a scopusid link for authors that will open their author page in Scopus: scopusid:7004212771
 
-** isbn
+** org-ref-isbn
 index:isbn
 
 #+BEGIN_SRC emacs-lisp
-(require 'isbn)
+(require 'org-ref-isbn)
 #+END_SRC
 
 This library provides some functions to get bibtex entries for books from their ISBN.
 
 - isbn-to-bibtex
 
-** pubmed
+** org-ref-pubmed
 index:pubmed
 
 [[http://www.ncbi.nlm.nih.gov/pubmed][PubMed]] comprises more than 24 million citations for biomedical literature from MEDLINE, life science journals, and online books. Citations may include links to full-text content from PubMed Central and publisher web sites. This library provides some functions to initiate searches of PubMed from Emacs, and to link to PubMed content.
 
 #+BEGIN_SRC emacs-lisp
-(require 'pubmed)
+(require 'org-ref-pubmed)
 #+END_SRC
 
 This library provides a number of new org-mode links to PubMed entries. See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers. These links open the page in PubMed for the identifier.
@@ -356,26 +356,26 @@ There are some utility functions that may be helpful.
 
 There is a new org-mode link to PubMed searches: [[pubmed-search:alloy segregation]]
 
-** arxiv
+** org-ref-arxiv
 index:arxiv
 
 This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-mat/0410285, and a function to get a bibtex entry and pdfs for arxiv entries:
 
 #+BEGIN_SRC emacs-lisp
-(require 'arxiv)
+(require 'org-ref-arxiv)
 #+END_SRC
 
 - arxiv-add-bibtex-entry
 - arxiv-get-pdf
 
-** sci-id
+** org-ref-sci-id
    :PROPERTIES:
    :ID:       AD7C70CF-1BB8-4610-B9AD-580790250459
    :END:
 index:orcid [[index:researcher id]]
 
 #+BEGIN_SRC emacs-lisp
-(require 'sci-id)
+(require 'org-ref-sci-id)
 #+END_SRC
 
 This package just defines two new org-mode links for http://www.orcid.org, and http://www.researcherid.com. Here are two examples:
