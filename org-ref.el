@@ -2823,7 +2823,7 @@ file.  Makes a new buffer with clickable links."
     ;; Let us also check \attachfile{fname}
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "\\attachfile{\\(.*\\)}" nil t)
+      (while (re-search-forward "\\attachfile{\\([^}]*\\)}" nil t)
         (unless (file-exists-p (match-string 1))
           (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
     bad-files))
@@ -3107,7 +3107,7 @@ specify the key should be kept"
       (bibtex-narrow-to-entry)
       (bibtex-beginning-of-entry)
       (message "checking &")
-      (while (re-search-forward " & ")
+      (while (re-search-forward " & " nil t)
         (replace-match " \\\\& "))
       (widen))
 
