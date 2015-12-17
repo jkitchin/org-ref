@@ -30,7 +30,7 @@
 ;; byte-compile
 (defvar-local url-http-end-of-headers nil)
 
-;; * ISBN utility
+;;* ISBN utility
 
 ;; I found this on the web. It can be handy, but the bibtex entry has a lot of stuff in it.
 
