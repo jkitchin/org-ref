@@ -168,11 +168,9 @@ org-ref-clean-bibtex-entry will sort the fields of a bibtex entry, clean it, and
 This function has a hook org-ref-clean-bibtex-entry-hook, which you can add functions to of your own. Each function must work on a bibtex entry at point.
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-replace-nonascii)
+(add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
 #+END_SRC
 
-#+RESULTS:
-| jmax-title-case-article | jmax-replace-nonascii |
 
 org-ref-extract-bibtex-entries will create a bibtex file from the citations in the current buffer.
 
@@ -213,73 +211,73 @@ This will prompt you for a query string, which is usually the title of an articl
 
 This library also redefines the org-mode doi link. Now, when you click on this link you will get a menu of options, e.g. to open a bibtex entry or a pdf if you have it, or to search the doi in some scientific search engines. Try it out  doi:10.1021/jp511426q.
 
-** jmax-bibtex
+** org-ref-bibtex
 These are functions I use often in bibtex files.
 
 *** Generate new bibtex files with adapted journal names
-The variable jmax-bibtex-journal-abbreviations contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
+The variable org-ref-bibtex-journal-abbreviations contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'jmax-bibtex-journal-abbreviations
+(add-to-list 'org-ref-bibtex-journal-abbreviations
   '("JIR" "Journal of Irreproducible Research" "J. Irrep. Res."))
 #+END_SRC
 
-- jmax-bibtex-generate-longtitles :: Generate a bib file with long titles as
-     defined in `jmax-bibtex-journal-abbreviations'
-- jmax-bibtex-generate-shorttitles :: Generate a bib file with short titles as
-     defined in `jmax-bibtex-journal-abbreviations'
+- org-ref-bibtex-generate-longtitles :: Generate a bib file with long titles as
+     defined in `org-ref-bibtex-journal-abbreviations'
+- org-ref-bibtex-generate-shorttitles :: Generate a bib file with short titles as
+     defined in `org-ref-bibtex-journal-abbreviations'
 
 *** Modifying bibtex entries
 
-- jmax-stringify-journal-name :: replace a journal name with a string in
-     `jmax-bibtex-journal-abbreviations'
-- jmax-set-journal-string :: in a bibtex entry run this to replace the journal
+- org-ref-stringify-journal-name :: replace a journal name with a string in
+     `org-ref-bibtex-journal-abbreviations'
+- org-ref-set-journal-string :: in a bibtex entry run this to replace the journal
      with a string selected interactively.
 
-- jmax-title-case-article :: title case the title in an article entry.
-- jmax-sentence-case-article :: sentence case the title in an article entry.
+- org-ref-title-case-article :: title case the title in an article entry.
+- org-ref-sentence-case-article :: sentence case the title in an article entry.
 
-- jmax-replace-nonascii :: replace nonascii characters in a bibtex
-     entry. Replacements are in `jmax-nonascii-latex-replacements'. This
+- org-ref-replace-nonascii :: replace nonascii characters in a bibtex
+     entry. Replacements are in `org-ref-nonascii-latex-replacements'. This
      function is a hook function in org-ref-clean-bibtex-entry.
 
 The non-ascii characters are looked up in a list of cons cells. You can add your own non-ascii replacements like this. Note backslashes must be escaped doubly, so one \ is \\\\ in the cons cell.
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'jmax-nonascii-latex-replacements
+(add-to-list 'org-ref-nonascii-latex-replacements
   '("æ" . "{\\\\ae}"))
 #+END_SRC
 
 These functions are compatible with bibtex-map-entries, so it is possible to conveniently apply them to all the entries in a file like this:
 
 #+BEGIN_SRC emacs-lisp
-(bibtex-map-entries 'jmax-title-case-article)
+(bibtex-map-entries 'org-ref-title-case-article)
 #+END_SRC
 
 
 *** Bibtex entry navigation
-- jmax-bibtex-next-entry :: bound to M-n
-- jmax-bibtex-previous-entry :: bound to M-p
+- org-ref-bibtex-next-entry :: bound to M-n
+- org-ref-bibtex-previous-entry :: bound to M-p
 
 *** Hydra menus for bibtex entries and files
 - Functions to act on a bibtex entry or file
-  - jmax-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
+  - org-ref-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
        like opening the pdf, or the entry in a browser, or searching in a
        variety of scientific search engines.
-  - jmax-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
-  - jmax-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
+  - org-ref-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
+  - org-ref-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
 
 You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
-You can do that like this before you require jmax-bibtex:
+You can do that like this before you require org-ref-bibtex:
 
 #+BEGIN_SRC emacs-lisp
-(setq jmax-bibtex-hydra-key-binding "\C-cj")
+(setq org-ref-bibtex-hydra-key-binding "\C-cj")
 #+END_SRC
 
 Or this if you like key-chord:
 
 #+BEGIN_SRC emacs-lisp
-(key-chord-define-global "jj" 'jmax-bibtex-hydra/body)
+(key-chord-define-global "jj" 'org-ref-bibtex-hydra/body)
 #+END_SRC
 
 ** org-ref-wos
@@ -415,10 +413,10 @@ Here is my minimal setup:
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
 
-For jmax-bibtex I like:
+For org-ref-bibtex I like:
 
 #+BEGIN_SRC emacs-lisp
-(setq jmax-bibtex-hydra-key-chord "jj")
+(setq org-ref-bibtex-hydra-key-chord "jj")
 #+END_SRC
 
 ** Other things org-ref supports
