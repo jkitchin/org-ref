@@ -1868,11 +1868,11 @@ Can also be called with THEKEY in a program."
   (funcall org-ref-notes-function))
 
 
-(defun org-ref-citation-at-point ()
+(defun org-ref-citation-at-point (&optional key)
   "Give message of current citation at point."
   (interactive)
   (let* ((cb (current-buffer))
-         (results (org-ref-get-bibtex-key-and-file))
+         (results (org-ref-get-bibtex-key-and-file key))
          (key (car results))
          (bibfile (cdr results)))
     (message "%s" (progn
@@ -1883,11 +1883,11 @@ Can also be called with THEKEY in a program."
                       (org-ref-bib-citation))))))
 
 
-(defun org-ref-open-citation-at-point ()
-  "Open bibtex file to key at point."
+(defun org-ref-open-citation-at-point (&optional key)
+  "Open bibtex file to KEY at point."
   (interactive)
   (let* ((cb (current-buffer))
-         (results (org-ref-get-bibtex-key-and-file))
+         (results (org-ref-get-bibtex-key-and-file key))
          (key (car results))
          (bibfile (cdr results)))
     (find-file bibfile)
@@ -3642,9 +3642,10 @@ With two prefix ARGs, insert a label link."
       (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") helm-bibtex-fallback-options))
 
 
-(defun org-ref-get-citation-string-at-point ()
-  "Get a string of a formatted citation."
-  (let* ((results (org-ref-get-bibtex-key-and-file))
+(defun org-ref-get-citation-string-at-point (&optional key)
+  "Get a string of a formatted citation.
+The optional KEY allows this to be called from anywhere."
+  (let* ((results (org-ref-get-bibtex-key-and-file key))
          (key (car results))
          (bibfile (cdr results)))
     (if bibfile
@@ -3657,10 +3658,10 @@ With two prefix ARGs, insert a label link."
       "!!! No entry found !!!" )))
 
 
-(defun org-ref-cite-candidates ()
+(defun org-ref-cite-candidates (&optional key)
   "Generate the list of possible candidates for click actions on a cite link.
 Checks for pdf and doi, and add appropriate functions."
-  (let* ((results (org-ref-get-bibtex-key-and-file))
+  (let* ((results (org-ref-get-bibtex-key-and-file key))
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (bibfile (cdr results))
@@ -3913,7 +3914,7 @@ action.  most of them need the point and buffer.
 
 KEY is returned for the selected item(s) in helm."
   (interactive)
-  (let ((name (org-ref-get-citation-string-at-point))
+  (let ((name (org-ref-get-citation-string-at-point key))
         (candidates (org-ref-cite-candidates))
         (cb (current-buffer)))
 
