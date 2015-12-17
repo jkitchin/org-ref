@@ -1,4 +1,4 @@
-;;; jmax-bibtex.el --- jmax-bibtex utilities
+;;; org-ref-bibtex.el -- org-ref-bibtex utilities
 
 ;; Copyright(C) 2014 John Kitchin
 
@@ -27,31 +27,31 @@
 
 ;;; Commentary:
 
-;; jmax-bibtex-generate-longtitles
-;; jmax-bibtex-generate-shorttitles
-;; jmax-stringify-journal-name :: replace a journal name with a string in
-;; `jmax-bibtex-journal-abbreviations'
-;; jmax-set-journal-string :: in a bibtex entry run this to replace the
+;; org-ref-bibtex-generate-longtitles
+;; org-ref-bibtex-generate-shorttitles
+;; org-ref-stringify-journal-name :: replace a journal name with a string in
+;; `org-ref-bibtex-journal-abbreviations'
+;; org-ref-set-journal-string :: in a bibtex entry run this to replace the
 ;; journal with a string
 ;;
-;; jmax-title-case-article :: title case the title in an article
-;; jmax-sentence-case-article :: sentence case the title in an article.
+;; org-ref-title-case-article :: title case the title in an article
+;; org-ref-sentence-case-article :: sentence case the title in an article.
 
-;; jmax-replace-nonascii :: replace nonascii characters in a bibtex
-;; entry.  Replacements are in `jmax-nonascii-latex-replacements'.
+;; org-ref-replace-nonascii :: replace nonascii characters in a bibtex
+;; entry.  Replacements are in `org-ref-nonascii-latex-replacements'.
 ;;
-;; jmax-title-case-article
-;; jmax-sentence-case-article
+;; org-ref-title-case-article
+;; org-ref-sentence-case-article
 ;;
-;; jmax-bibtex-next-entry :: bound to M-n
-;; jmax-bibtex-previous-entry :: bound to M-p
+;; org-ref-bibtex-next-entry :: bound to M-n
+;; org-ref-bibtex-previous-entry :: bound to M-p
 ;;
 ;; Functions to act on a bibtex entry or file
-;; jmax-bibtex-hydra/body gives a hydra menu to a lot of useful functions.
-;; jmax-bibtex-new-entry/body gives a hydra menu to add new bibtex entries.
-;; jmax-bibtex-file/body gives a hydra menu of actions for the bibtex file
+;; org-ref-bibtex-hydra/body gives a hydra menu to a lot of useful functions.
+;; org-ref-bibtex-new-entry/body gives a hydra menu to add new bibtex entries.
+;; org-ref-bibtex-file/body gives a hydra menu of actions for the bibtex file
 ;;
-;; jmax-bibtex :: a deprecated menu of actions
+;; org-ref-bibtex :: a deprecated menu of actions
 
 (require 'bibtex)
 (require 'dash)
@@ -61,33 +61,34 @@
 (require 's)
 
 ;;; Code:
-;; * Custom variables
-(defgroup jmax-bibtex nil
-  "Customization group for jmax-bibtex."
-  :group 'jmax-bibtex)
+;;* Custom variables
+(defgroup org-ref-bibtex nil
+  "Customization group for org-ref-bibtex."
+  :group 'org-ref-bibtex)
 
 
-(defcustom jmax-bibtex-hydra-key-chord
+(defcustom org-ref-bibtex-hydra-key-chord
   nil
-  "Key-chord to run `jmax-bibtex-hydra'.
+  "Key-chord to run `org-ref-bibtex-hydra'.
 I like \"jj\""
   :type 'string
-  :group 'jmax-bibtex)
+  :group 'org-ref-bibtex)
 
 
-(defcustom jmax-bibtex-hydra-key-binding
+(defcustom org-ref-bibtex-hydra-key-binding
   nil
-  "Key-binding to run `jmax-bibtex-hydra'.
+  "Key-binding to run `org-ref-bibtex-hydra'.
 I like \C-cj."
   :type 'string
-  :group 'jmax-bibtex)
+  :group 'org-ref-bibtex)
 
-;; * Journal abbreviations
-(defvar jmax-bibtex-journal-abbreviations
+;;* Journal abbreviations
+(defvar org-ref-bibtex-journal-abbreviations
   '()
-  "List of (string journal-full-name journal-abbreviation).  Find abbreviations at http://cassi.cas.org/search.jsp.")
+  "List of (string journal-full-name journal-abbreviation). Find
+  new abbreviations at http://cassi.cas.org/search.jsp.")
 
-(setq jmax-bibtex-journal-abbreviations
+(setq org-ref-bibtex-journal-abbreviations
       '(("ACR" "Accounts of Chemical Research" "Acc. Chem. Res.")
         ("ACAT" "ACS Catalysis" "ACS Catal.")
         ("AM" "Acta Materialia" "Acta Mater.")
@@ -195,32 +196,32 @@ I like \C-cj."
         ("WR" "Water Research" "Water Res.")))
 
 
-(defun jmax-bibtex-generate-longtitles ()
+(defun org-ref-bibtex-generate-longtitles ()
   "Generate longtitles.bib which are @string definitions.
-The full journal names are in `jmax-bibtex-journal-abbreviations'."
+The full journal names are in `org-ref-bibtex-journal-abbreviations'."
   (interactive)
   (with-temp-file "longtitles.bib"
-    (dolist (row jmax-bibtex-journal-abbreviations)
+    (dolist (row org-ref-bibtex-journal-abbreviations)
       (insert (format "@string{%s=\"%s\"}\n"
                       (nth 0 row)
                       (nth 1 row))))))
 
 
-(defun jmax-bibtex-generate-shorttitles ()
+(defun org-ref-bibtex-generate-shorttitles ()
   "Generate shorttitles.bib which are @string definitions.
-The abbreviated journal names in `jmax-bibtex-journal-abbreviations'."
+The abbreviated journal names in `org-ref-bibtex-journal-abbreviations'."
   (interactive)
   (with-temp-file "shorttitles.bib"
-    (dolist (row jmax-bibtex-journal-abbreviations)
+    (dolist (row org-ref-bibtex-journal-abbreviations)
       (insert (format "@string{%s=\"%s\"}\n"
                       (nth 0 row)
                       (nth 2 row))))))
 
 
-(defun jmax-stringify-journal-name (&optional key start end)
+(defun org-ref-stringify-journal-name (&optional key start end)
   "Replace journal name in a bibtex entry with a string.
 The strings are defined in
-`jmax-bibtex-journal-abbreviations'.  The optional arguments KEY,
+`org-ref-bibtex-journal-abbreviations'.  The optional arguments KEY,
 START and END allow you to use this with `bibtex-map-entries'"
   (interactive)
   (bibtex-beginning-of-entry)
@@ -231,11 +232,11 @@ START and END allow you to use this with `bibtex-map-entries'"
     (let* ((full-names (mapcar
                         (lambda (row)
                           (cons  (nth 1 row) (nth 0 row)))
-                        jmax-bibtex-journal-abbreviations))
+                        org-ref-bibtex-journal-abbreviations))
            (abbrev-names (mapcar
                           (lambda (row)
                             (cons  (nth 2 row) (nth 0 row)))
-                          jmax-bibtex-journal-abbreviations))
+                          org-ref-bibtex-journal-abbreviations))
            (journal (s-trim (bibtex-autokey-get-field "journal")))
            (bstring (or
                      (cdr (assoc journal full-names))
@@ -244,50 +245,54 @@ START and END allow you to use this with `bibtex-map-entries'"
         (bibtex-set-field "journal" bstring t)
         (bibtex-fill-entry)))))
 
-(defun jmax-helm-set-journal-string ()
-  "Helm interface to set a journal string."
+
+(defun org-ref-helm-set-journal-string ()
+  "Helm interface to set a journal string in a bibtex entry.
+Entries come from `org-ref-bibtex-journal-abbreviations'."
   (interactive)
   (bibtex-set-field
    "journal"
-   (helm :sources `((name . "journal")
-                    (candidates . ,(mapcar
-                                    (lambda (x)
-                                      (cons (format "%s | %s"  (nth 1 x) (nth 2 x))
-                                            (car x)))
-                                    jmax-bibtex-journal-abbreviations))
-                    (action . (lambda (x) (identity x))))
+   (helm :sources
+	 `((name . "journal")
+	   (candidates . ,(mapcar
+			   (lambda (x)
+			     (cons (format "%s | %s"  (nth 1 x) (nth 2 x))
+				   (car x)))
+			   org-ref-bibtex-journal-abbreviations))
+	   (action . (lambda (x) (identity x))))
          :input (s-trim (bibtex-autokey-get-field "journal")))
    t)
   (bibtex-fill-entry)
   (bibtex-clean-entry))
 
 
-(defun jmax-set-journal-string (full-journal-name)
+(defun org-ref-set-journal-string (full-journal-name)
   "Set a bibtex journal name to the string that represents FULL-JOURNAL-NAME.
-This is defined in `jmax-bibtex-journal-abbreviations'."
+This is defined in `org-ref-bibtex-journal-abbreviations'."
   (interactive (list
                 (ido-completing-read
                  "Journal: "
                  (mapcar
                   (lambda (x)
                     (nth 1 x))
-                  jmax-bibtex-journal-abbreviations))))
+                  org-ref-bibtex-journal-abbreviations))))
   ;; construct data alist for the string lookup.
   (let ((alist (mapcar
                 (lambda (x)
                   (cons (nth 1 x) (nth 0 x)))
-                jmax-bibtex-journal-abbreviations)))
+                org-ref-bibtex-journal-abbreviations)))
     (bibtex-set-field "journal" (cdr (assoc full-journal-name alist)) t)
     (bibtex-fill-entry)
     (bibtex-clean-entry)))
 
-;; * Non-ascii character replacement
+;;* Non-ascii character replacement
 ;; see https://github.com/fxcoudert/tools/blob/master/doi2bib for more replacements
-(defvar jmax-nonascii-latex-replacements
+(defvar org-ref-nonascii-latex-replacements
   '()
   "Cons list of non-ascii characters and their LaTeX representations.")
 
-(setq jmax-nonascii-latex-replacements
+
+(setq org-ref-nonascii-latex-replacements
       '(("í" . "{\\\\'i}")
 	("æ" . "{\\\\ae}")
 	("ć" . "{\\\\'c}")
@@ -365,29 +370,28 @@ This is defined in `jmax-bibtex-journal-abbreviations'."
 	("”" . "\"")))
 
 
-(defun jmax-replace-nonascii ()
+(defun org-ref-replace-nonascii ()
   "Hook function to replace non-ascii characters in a bibtex entry."
-
   (interactive)
   (save-restriction
     (bibtex-narrow-to-entry)
     (goto-char (point-min))
-    (dolist (char (mapcar (lambda (x) (car x)) jmax-nonascii-latex-replacements))
+    (dolist (char (mapcar (lambda (x) (car x)) org-ref-nonascii-latex-replacements))
       (while (re-search-forward char nil t)
-        (replace-match (cdr (assoc char jmax-nonascii-latex-replacements))))
+        (replace-match (cdr (assoc char org-ref-nonascii-latex-replacements))))
       (goto-char (point-min))))
   (save-buffer))
 
-(add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-replace-nonascii)
+(add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
 
-;; * Title case transformations
-(defvar jmax-lower-case-words
+;;* Title case transformations
+(defvar org-ref-lower-case-words
   '("a" "an" "on" "and" "for"
     "the" "of" "in")
   "List of words to keep lowercase when changing case in a title.")
 
 
-(defun jmax-title-case-article (&optional key start end)
+(defun org-ref-title-case-article (&optional key start end)
   "Convert a bibtex entry article title to title-case.
 The arguments KEY, START and END are optional, and are only there
 so you can use this function with `bibtex-map-entries' to change
@@ -408,13 +412,13 @@ all the title entries in articles."
                           (string-match "\\$\\|{\\|}\\|\\\\" word)
                           ;; these words should not be capitalized, unless they
                           ;; are the first word
-                          (-contains? jmax-lower-case-words (s-downcase word)))
+                          (-contains? org-ref-lower-case-words (s-downcase word)))
                          word
                        (s-capitalize word)))
                    words))
 
       ;; Check if first word should be capitalized
-      (when (-contains? jmax-lower-case-words (car words))
+      (when (-contains? org-ref-lower-case-words (car words))
         (setf (car words) (s-capitalize (car words))))
 
       (setq title (mapconcat 'identity words " "))
@@ -433,10 +437,10 @@ all the title entries in articles."
        title)
       (bibtex-fill-entry))))
 
-(add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-title-case-article)
+(add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-title-case-article)
 
 
-(defun jmax-sentence-case-article (&optional key start end)
+(defun org-ref-sentence-case-article (&optional key start end)
   "Convert a bibtex entry article title to sentence-case.
 The arguments KEY, START and END are optional, and are only there
 so you can use this function with `bibtex-map-entries' to change
@@ -482,8 +486,8 @@ all the title entries in articles."
       (bibtex-clean-entry)
       (bibtex-fill-entry))))
 
-;; * Navigation in bibtex file
-(defun jmax-bibtex-next-entry (&optional n)
+;;* Navigation in bibtex file
+(defun org-ref-bibtex-next-entry (&optional n)
   "Jump to the beginning of the next bibtex entry.
 N is a prefix argument.  If it is numeric, jump that many entries
 forward.  Negative numbers do nothing."
@@ -493,7 +497,7 @@ forward.  Negative numbers do nothing."
   (when (= (point) (save-excursion
                      (bibtex-beginning-of-entry)))
     (forward-char)
-    (jmax-bibtex-next-entry))
+    (org-ref-bibtex-next-entry))
 
   ;; search forward for an entry
   (when
@@ -502,7 +506,7 @@ forward.  Negative numbers do nothing."
     (bibtex-beginning-of-entry)))
 
 
-(defun jmax-bibtex-previous-entry (&optional n)
+(defun org-ref-bibtex-previous-entry (&optional n)
   "Jump to beginning of the previous bibtex entry.
 N is a prefix argument.  If it is numeric, jump that many entries back."
   (interactive "P")
@@ -512,16 +516,16 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
     (bibtex-beginning-of-entry)))
 
 
-(defun jmax-bibtex-mode-keys ()
+(defun org-ref-bibtex-mode-keys ()
   "Modify keymaps used by `bibtex-mode'."
-  (local-set-key (kbd "M-n") 'jmax-bibtex-next-entry)
-  (local-set-key (kbd "M-p") 'jmax-bibtex-previous-entry))
+  (local-set-key (kbd "M-n") 'org-ref-bibtex-next-entry)
+  (local-set-key (kbd "M-p") 'org-ref-bibtex-previous-entry))
 
 ;; add to bibtex-mode-hook
-(add-hook 'bibtex-mode-hook 'jmax-bibtex-mode-keys)
+(add-hook 'bibtex-mode-hook 'org-ref-bibtex-mode-keys)
 
-;; * Functions to act on an entry with a doi
-(defun jmax-bibtex-entry-doi ()
+;;* Functions to act on an entry with a doi
+(defun org-ref-bibtex-entry-doi ()
   "Get doi from entry at point."
   (interactive)
   (save-excursion
@@ -529,54 +533,54 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
     (reftex-get-bib-field "doi" (bibtex-parse-entry t))))
 
 
-(defun jmax-bibtex-wos ()
+(defun org-ref-bibtex-wos ()
   "Open bibtex entry in Web Of Science if there is a DOI."
   (interactive)
-  (doi-utils-wos (jmax-bibtex-entry-doi)))
+  (doi-utils-wos (org-ref-bibtex-entry-doi)))
 
 
-(defun jmax-bibtex-wos-citing ()
+(defun org-ref-bibtex-wos-citing ()
   "Open citing articles for bibtex entry in Web Of Science if there is a DOI."
   (interactive)
-  (doi-utils-wos-citing (jmax-bibtex-entry-doi)))
+  (doi-utils-wos-citing (org-ref-bibtex-entry-doi)))
 
 
-(defun jmax-bibtex-wos-related ()
+(defun org-ref-bibtex-wos-related ()
   "Open related articles for bibtex entry in Web Of Science if there is a DOI."
   (interactive)
-  (doi-utils-wos-related (jmax-bibtex-entry-doi)))
+  (doi-utils-wos-related (org-ref-bibtex-entry-doi)))
 
 
-(defun jmax-bibtex-crossref ()
+(defun org-ref-bibtex-crossref ()
   "Open the bibtex entry in Crossref by its doi."
   (interactive)
-  (doi-utils-crossref (jmax-bibtex-entry-doi)))
+  (doi-utils-crossref (org-ref-bibtex-entry-doi)))
 
 
-(defun jmax-bibtex-google-scholar ()
+(defun org-ref-bibtex-google-scholar ()
   "Open the bibtex entry at point in google-scholar by its doi."
   (interactive)
-  (doi-utils-google-scholar (jmax-bibtex-entry-doi)))
+  (doi-utils-google-scholar (org-ref-bibtex-entry-doi)))
 
 
-(defun jmax-bibtex-pubmed ()
+(defun org-ref-bibtex-pubmed ()
   "Open the bibtex entry at point in Pubmed by its doi."
   (interactive)
-  (doi-utils-pubmed (jmax-bibtex-entry-doi)))
+  (doi-utils-pubmed (org-ref-bibtex-entry-doi)))
 
 
-(defun jmax-bibtex-pdf (doi)
+(defun org-ref-bibtex-pdf (doi)
   "Open the pdf for the bibtex entry at point.
-Thin wrapper to get `jmax-bibtex' to open pdf, because it calls
+Thin wrapper to get `org-ref-bibtex' to open pdf, because it calls
 functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
 
-;; * Hydra menus
-;; ** Hydra menu for bibtex entries
+;;* Hydra menus
+;;** Hydra menu for bibtex entries
 ;; hydra menu for actions on bibtex entries
-(defhydra jmax-bibtex-hydra (:color blue)
+(defhydra org-ref-bibtex-hydra (:color blue)
   "
 _p_: Open pdf     _y_: Copy key               _n_: New entry     _w_: WOS
 _b_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
@@ -589,13 +593,13 @@ _T_: Title case
 _S_: Sentence case
 "
   ("p" org-ref-open-bibtex-pdf)
-  ("P" jmax-bibtex-pubmed)
-  ("w" jmax-bibtex-wos)
-  ("c" jmax-bibtex-wos-citing)
-  ("a" jmax-bibtex-wos-related)
-  ("R" jmax-bibtex-crossref)
-  ("g" jmax-bibtex-google-scholar)
-  ("n" jmax-bibtex-new-entry/body)
+  ("P" org-ref-bibtex-pubmed)
+  ("w" org-ref-bibtex-wos)
+  ("c" org-ref-bibtex-wos-citing)
+  ("a" org-ref-bibtex-wos-related)
+  ("R" org-ref-bibtex-crossref)
+  ("g" org-ref-bibtex-google-scholar)
+  ("n" org-ref-bibtex-new-entry/body)
   ("N" org-ref-open-bibtex-notes)
   ("o" bibtex-copy-entry-as-kill)
   ("d" bibtex-kill-entry)
@@ -620,30 +624,30 @@ _S_: Sentence case
          (bibtex-yank)
          (save-buffer)
          (kill-buffer)))
-  ("e" jmax-email-bibtex-entry)
-  ("U" (doi-utils-update-bibtex-entry-from-doi (jmax-bibtex-entry-doi)))
+  ("e" org-ref-email-bibtex-entry)
+  ("U" (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi)))
   ("u" doi-utils-update-field)
-  ("F" jmax-bibtex-file/body)
+  ("F" org-ref-bibtex-file/body)
   ("h" helm-bibtex)
-  ("a" jmax-replace-nonascii)
+  ("a" org-ref-replace-nonascii)
   ("s" org-ref-sort-bibtex-entry)
-  ("T" jmax-title-case-article)
-  ("S" jmax-sentence-case-article)
+  ("T" org-ref-title-case-article)
+  ("S" org-ref-sentence-case-article)
   ("q" nil))
 
 ;; create key-chord and key binding for hydra
-(when jmax-bibtex-hydra-key-chord
+(when org-ref-bibtex-hydra-key-chord
   (key-chord-define-global
-   jmax-bibtex-hydra-key-chord
-   'jmax-bibtex-hydra/body))
+   org-ref-bibtex-hydra-key-chord
+   'org-ref-bibtex-hydra/body))
 
 
-(when jmax-bibtex-hydra-key-binding
-  (global-set-key jmax-bibtex-hydra-key-binding 'jmax-bibtex-hydra/body))
+(when org-ref-bibtex-hydra-key-binding
+  (global-set-key org-ref-bibtex-hydra-key-binding 'org-ref-bibtex-hydra/body))
 
-;; ** Hydra menu for new bibtex entries
+;;** Hydra menu for new bibtex entries
 ;; A hydra for adding new bibtex entries.
-(defhydra jmax-bibtex-new-entry (:color blue)
+(defhydra org-ref-bibtex-new-entry (:color blue)
   "New Bibtex entry:"
   ("a" bibtex-Article "Article")
   ("b" bibtex-Book "Book")
@@ -661,8 +665,8 @@ _S_: Sentence case
   ("q" nil "quit"))
 
 
-;; ** Hydra menu of functions to act on a bibtex file.
-(defhydra jmax-bibtex-file (:color blue)
+;;** Hydra menu of functions to act on a bibtex file.
+(defhydra org-ref-bibtex-file (:color blue)
   "Bibtex file functions: "
   ("v" bibtex-validate "Validate entries")
   ("s" bibtex-sort-buffer "Sort entries")
@@ -671,15 +675,15 @@ _S_: Sentence case
   ("p" org-ref-build-full-bibliography "PDF bibliography"))
 
 
-;; * DEPRECATED bibtex menu
-(defvar jmax-bibtex-menu-funcs '()
+;;* DEPRECATED bibtex menu
+(defvar org-ref-bibtex-menu-funcs '()
   "Functions to run in doi menu.
 Each entry is a list of (key menu-name function).  The function
 must take one argument, the doi.  This is somewhat deprecated, as
 I prefer the hydra interfaces above.")
 
-(setq jmax-bibtex-menu-funcs
-      '(("p" "df" jmax-bibtex-pdf)
+(setq org-ref-bibtex-menu-funcs
+      '(("p" "df" org-ref-bibtex-pdf)
         ("C" "opy" (lambda (doi)
                      (kill-new (org-ref-bib-citation))
                      (bury-buffer)))
@@ -690,9 +694,9 @@ I prefer the hydra interfaces above.")
         ("P" "Pubmed" doi-utils-pubmed)
         ("f" "CrossRef" doi-utils-crossref)))
 
-(defun jmax-bibtex ()
+(defun org-ref-bibtex ()
   "Menu command to run in a bibtex entry.
-Functions from `jmax-bibtex-menu-funcs'.  They all rely on the
+Functions from `org-ref-bibtex-menu-funcs'.  They all rely on the
 entry having a doi."
 
   (interactive)
@@ -703,22 +707,22 @@ entry having a doi."
      (lambda (tup)
        (concat "[" (elt tup 0) "]"
                (elt tup 1) " "))
-     jmax-bibtex-menu-funcs "") ": "))
+     org-ref-bibtex-menu-funcs "") ": "))
   (let* ((input (read-char-exclusive))
          (choice (assoc
-                  (char-to-string input) jmax-bibtex-menu-funcs)))
+                  (char-to-string input) org-ref-bibtex-menu-funcs)))
     (when choice
       (funcall
        (elt
         choice
         2)
-       (jmax-bibtex-entry-doi)
+       (org-ref-bibtex-entry-doi)
        ))))
 
-(defalias 'jb 'jmax-bibtex)
+(defalias 'jb 'org-ref-bibtex)
 
 
-(defun jmax-email-bibtex-entry ()
+(defun org-ref-email-bibtex-entry ()
   "Email current bibtex entry at point and pdf if it exists."
   (interactive)
 
@@ -742,7 +746,7 @@ entry having a doi."
 	(mml-attach-file pdf))
       (message-goto-to))))
 
-;; * The end
-(provide 'jmax-bibtex)
+;;* The end
+(provide 'org-ref-bibtex)
 
-;;; jmax-bibtex.el ends here
+;;; org-ref-bibtex.el ends here

@@ -1,7 +1,7 @@
 emacs ?= emacs
 CASK ?= cask
 CASK_EXEC ?= ${CASK} exec
-EL_SOURCES = org-ref.el arxiv.el jmax-bibtex.el doi-utils.el isbn.el pubmed.el
+EL_SOURCES = *.el
 SOURCES =   ${EL_SOURCES}
 
 all: test

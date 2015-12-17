@@ -69,7 +69,7 @@ Go forth and citate.
 Note many of these have been renamed with an org-ref prefix.
 
 - [[./doi-utils.el][doi-utils]]
-- [[./jmax-bibtex.el][jmax-bibtex]]
+- [[./org-ref-bibtex.el][org-ref-bibtex]]
 - [[./org-ref-arxiv.el][org-ref-arxiv]]
 - [[./org-ref-pubmed.el][org-ref-pubmed]]
 - [[./nist-webbook.el][nist-webbook]]

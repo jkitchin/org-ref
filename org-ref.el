@@ -42,7 +42,7 @@
 (require 'helm-bibtex)
 (require 'helm-config)
 (require 'hydra)
-(require 'jmax-bibtex)
+(require 'org-ref-bibtex)
 (require 'org)
 (require 'org-element)
 (require 'ox)
@@ -51,7 +51,7 @@
 
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
-(declare-function 'jmax-email-bibtex-entry "jmax-bibtex.el")
+(declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
 
 ;;* Custom variables
 (defgroup org-ref nil
