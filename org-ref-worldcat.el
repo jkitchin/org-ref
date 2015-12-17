@@ -1,19 +1,10 @@
 ;;; org-ref-worldcat.el --- Worldcat library
 
-
-
 ;;; Commentary:
+;; Provides a function to query world cat
 ;; See:
 ;; https://www.worldcat.org/wcpa/content/affiliate/default.jsp
 ;; https://www.worldcat.org/affiliate/tools?atype=text
-
-
-
-;;; Code:
-
-
-;;; Commentary:
-;;
 
 ;;; Code:
 
