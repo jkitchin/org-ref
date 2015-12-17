@@ -1082,15 +1082,25 @@ ARG does nothing."
                        (format "\\addbibresource{%s}" keyword)))))
 
 ;;** List of figures
-(defun org-in-commented-heading-p ()
-  "Return t if in a commented section.
-This function gets used below, and the call for it came from
-a pull request.  It doesn't seem to be in org 8.2.10, so I wrote
-one here."
-  (save-excursion
-    (outline-previous-heading)
-    (org-element-property :commentedp (org-element-at-point))))
 
+;; org-in-commented-heading-p was introduced in org commit 6d1d61f6. Org version
+;; 8.3 was the first version to contain this function.  This is provided for
+;; backward compatibility for the org-mode included with Emacs.
+(unless (fboundp 'org-in-commented-heading-p)
+  (defun org-in-commented-heading-p (&optional no-inheritance)
+    "Non-nil if point is under a commented heading.
+This function also checks ancestors of the current headline,
+unless optional argument NO-INHERITANCE is non-nil."
+    (cond
+     ((org-before-first-heading-p) nil)
+     ((let ((headline (nth 4 (org-heading-components))))
+        (and headline
+             (let ((case-fold-search nil))
+               (org-string-match-p (concat "^" org-comment-string "\\(?: \\|$\\)")
+                                   headline)))))
+     (no-inheritance nil)
+     (t
+      (save-excursion (and (org-up-heading-safe) (org-in-commented-heading-p)))))))
 
 (defun org-ref-list-of-figures (&optional arg)
   "Generate buffer with list of figures in them.
