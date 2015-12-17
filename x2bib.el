@@ -4,11 +4,16 @@
 
 ;;; Commentary:
 
-;; This module is more for my convenience to convert bibliography files to bibtex.  This can be done at the command line, for example, but I want to do it in Emacs.  There are a few scenarios where this happens.
-;; 1. Someone sends me a non-Bibtex file (Endnote, etc...)
-;; 2. From some online search I select many references and there is no export to Bibtex option, e.g. from Web of Science.
+;; This module is more for my convenience to convert bibliography files to
+;; bibtex. This can be done at the command line, for example, but I want to do
+;; it in Emacs. There are a few scenarios where this happens.
 
-;; This code is mostly wrappers around the command line utilities at http://sourceforge.net/p/bibutils/home/Bibutils.
+;; 1. Someone sends me a non-Bibtex file (Endnote, etc...)
+;; 2. From some online search I select many references and there is no export to
+;; Bibtex option, e.g. from Web of Science.
+
+;; This code is mostly wrappers around the command line utilities at
+;; http://sourceforge.net/p/bibutils/home/Bibutils.
 
 ;; Here are the commands that are available.
 
