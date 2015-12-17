@@ -3,6 +3,7 @@
 
 #+BEGIN_HTML
 <a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
+<a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
 See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch?v=JyvpSVl4_dg for examples of org-ref in action.
@@ -11,21 +12,25 @@ See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch
 
 
 * Installation
-** Installation via github
-Clone this repo, add it to your load-path, and require org-ref. If you want the more stable branch, checkout the melpa branch. If you stay on master, you live on the bleeding edge with me ;)
 
-** Package installation
+** Package installation via Melpa
 
-The melpa branch of this repo is installable as an Emacs package.
-
-You can add this to your init files to access our repo.
+org-ref has been added to Melpa.
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'package-archives
-	     '("kitchingroup" . "http://kitchingroup.cheme.cmu.edu/elpa/") t)
+	     '("melpa" . "http://melpa.org/packages/") t)
 #+END_SRC
 
 Then, you should be able to do M-x package-list-packages, find org-ref and install it.
+
+** Installation via github
+Clone this repo, add it to your load-path, and require org-ref.
+
+#+BEGIN_SRC sh
+git clone git@github.com:jkitchin/org-ref.git
+#+END_SRC
+
 
 ** Configuration
 You should set these variables. Here is an example of how mine are set in an init.el file.
