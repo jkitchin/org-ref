@@ -93,7 +93,8 @@
         (value))
     (with-temp-buffer (insert (pubmed-get-medline pmid))
                       (goto-char (point-min))
-                      (while (re-search-forward "\\(^[A-Z]\\{2,4\\}\\)\\s-*- " nil t)
+                      (while (re-search-forward "\\(^[A-Z]\\{2,4\\}\\)\\s-*- "
+						nil t)
                         (setq tag (match-string 1))
                         ;; point is at end of the search
                         (setq p1 (point))
