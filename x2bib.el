@@ -36,8 +36,13 @@
 (require 'bibtex)
 (require 'org-ref)
 
-;; ** RIS to bibtex
-;; RIS can be pretty easily exported from Endnote. Here is a function to read an RIS file and convert it to bibtex which is inserted at point. Note that there is often other output from the commands. We try to comment them out here, but you should probably inspect the entries, and do other bibtex file compliance checks.
+;;* RIS to bibtex
+
+;; RIS can be pretty easily exported from Endnote. Here is a function to read an
+;; RIS file and convert it to bibtex which is inserted at point. Note that there
+;; is often other output from the commands. We try to comment them out here, but
+;; you should probably inspect the entries, and do other bibtex file compliance
+;; checks.
 
 (defun ris2bib (risfile &optional verbose)
   "Convert RISFILE to bibtex and insert at point.
@@ -67,8 +72,11 @@ If VERBOSE is non-nil show command output."
                   result))
     (insert result)))
 
-;; ** Pubmed XML to bibtex
-;; In http://www.ncbi.nlm.nih.gov/pubmed/ you can select entries, and then send them to a file. If you choose Pubmed XML as the format, then you can use this function to convert it to bibtex.
+;;* Pubmed XML to bibtex
+
+;; In http://www.ncbi.nlm.nih.gov/pubmed/ you can select entries, and then send
+;; them to a file. If you choose Pubmed XML as the format, then you can use this
+;; function to convert it to bibtex.
 
 (defun medxml2bib (medfile &optional verbose)
   "Convert MEDFILE (in Pubmed xml) to bibtex and insert at point.
@@ -98,9 +106,10 @@ Display output if VERBOSE is non-nil."
                   result))
     (insert result)))
 
-;; ** Clean up all the entries
+;;* Clean up all the entries
 
-;; Finally, after you put the new entries in, you probably need to do some clean up actions. This little function does that.
+;; Finally, after you put the new entries in, you probably need to do some clean
+;; up actions. This little function does that.
 
 (defun clean-entries ()
   "Map over bibtex entries and clean them."
