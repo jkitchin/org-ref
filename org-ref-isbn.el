@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;;
+;; Provides functions to download bibtex entries from isbn numbers.
 
 ;;; Code:
 (require 'f)
@@ -50,7 +50,7 @@ file."
 (defun isbn-to-bibtex (isbn bibfile)
   "Get bibtex entry for ISBN and insert it into BIBFILE.
 Nothing happens if an entry with the generated key already exists
-in the file."
+in the file. Data comes from worldcat."
   (interactive
    (list
     (read-string
