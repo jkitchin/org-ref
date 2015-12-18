@@ -42,7 +42,7 @@ The clickable part are the keys.")
 
 (defun org-ref-latex-get-key ()
   "Figure out what key the cursor is on."
-  (let (start end key)
+  (let (start end)
     ;; look back for , or {
     (save-excursion
       (re-search-backward ",\\|{")
@@ -52,7 +52,7 @@ The clickable part are the keys.")
     (save-excursion
       (re-search-forward ",\\|}")
       (setq end (- (point) 1)))
-    (setq key (buffer-substring start end))))
+    (buffer-substring start end)))
 
 
 (defun org-ref-latex-jump-to-bibtex (&optional key)

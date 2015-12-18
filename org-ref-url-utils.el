@@ -141,7 +141,6 @@ reverse-engineered for each publisher."
   (goto-char (nth 1 (event-start event)))
   (x-focus-frame nil)
   (let* ((payload (car (last event)))
-         (type (car payload))
          (url (cadr payload))
 	 (doi (org-ref-scrape-doi url)))
     (if doi
