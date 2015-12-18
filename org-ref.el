@@ -3126,7 +3126,7 @@ specify the key should be kept"
       (let ((key (bibtex-generate-autokey)))
         ;; ;; sometimes there are latex sequences in the key. We remove them. A
         ;; ;; better approach might be to have some lookup table, but this would
-        ;; ;; somewhat duplicate `jmax-nonascii-latex-replacements', in an ascii
+        ;; ;; somewhat duplicate `org-ref-nonascii-latex-replacements', in an ascii
         ;; ;; version.
         ;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
         ;;       do
@@ -3829,7 +3829,7 @@ Checks for pdf and doi, and add appropriate functions."
      '("Email bibtex entry and pdf" . (lambda ()
                                         (save-excursion
                                           (org-ref-open-citation-at-point)
-                                          (jmax-email-bibtex-entry))))
+                                          (org-ref-email-bibtex-entry))))
      t)
 
     ;; add Scopus functions. These work by looking up a DOI to get a Scopus
@@ -3970,7 +3970,7 @@ _o_: Open entry   _e_: Email entry and pdf
 
     ("e" (save-excursion
            (org-ref-open-citation-at-point)
-           (jmax-email-bibtex-entry))
+           (org-ref-email-bibtex-entry))
      nil)))
 
 
