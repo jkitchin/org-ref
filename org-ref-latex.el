@@ -55,14 +55,22 @@ The clickable part are the keys.")
     (setq key (buffer-substring start end))))
 
 
+(defun org-ref-latex-jump-to-bibtex (&optional key)
+  "Jump to the KEY at point."
+  (let ((results (org-ref-get-bibtex-key-and-file
+		  (or key (org-ref-latex-get-key)))))
+    (find-file (cdr results))
+    (bibtex-search-entry (car results))))
+
+
 (defun org-ref-latex-click ()
   "Jump to entry clicked on."
   (interactive)
   (helm :sources '(((name . "Actions")
-		      (candidates . (("Open Bibtex entry" . (lambda ()
-							      (let ((results (org-ref-get-bibtex-key-and-file (org-ref-latex-get-key))))
-								(find-file (cdr results))
-								(bibtex-search-entry (car results)))))))
+		    (candidates . (("Open Bibtex entry" . org-ref-latex-jump-to-bibtex)
+				   ("Bibtex entry menu" . (lambda ()
+							    (org-ref-latex-jump-to-bibtex)
+							    (org-ref-bibtex-hydra/body)))))
 		      (action . (lambda (f)
 				  (funcall f)))))))
 
