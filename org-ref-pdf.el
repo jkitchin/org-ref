@@ -72,7 +72,10 @@ Used when multiple dois are found in a pdf file."
 	do
 	(doi-utils-add-bibtex-entry-from-doi
 	 doi
-	 (buffer-file-name))))
+	 (buffer-file-name))
+	;; this removes two blank lines before each entry.
+	(bibtex-beginning-of-entry)
+	(delete-char -2)))
 
 
 (defun org-ref-pdf-dnd-func (event)
@@ -135,6 +138,33 @@ This function should only apply when in a bibtex file.
 
 
 (add-to-list 'dnd-protocol-alist '("^file:" . org-ref-pdf-dnd-protocol))
+
+
+(defun org-ref-pdf-dir-to-bibtex (bibfile directory)
+  "Create BIBFILE from pdf files in DIRECTORY."
+  (interactive "sBibtex file: \nDDirectory: ")
+  (find-file bibfile)
+  (goto-char (point-max))
+
+  (loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
+	do
+	(goto-char (point-max))
+	(insert (format "\n%% [[file:%s]]\n" pdf))
+	(let ((dois (org-ref-extract-doi-from-pdf pdf)))
+	  (cond
+	   ((null dois)
+	    (insert "% No doi found to create entry.\n"))
+	   ((= 1 (length dois))
+	    (doi-utils-add-bibtex-entry-from-doi
+	     (car dois)
+	     (buffer-file-name))
+	    (bibtex-beginning-of-entry)
+	    (delete-char -2))
+	   ;; Multiple DOIs found
+	   (t
+	    (helm :sources `((name . "Select a DOI")
+			     (candidates . ,(org-ref-pdf-doi-candidates dois))
+			     (action . org-ref-pdf-add-dois))))))))
 
 (provide 'org-ref-pdf)
 ;;; org-ref-pdf.el ends here
