@@ -3116,7 +3116,6 @@ specify the key should be kept"
     (save-restriction
       (bibtex-narrow-to-entry)
       (bibtex-beginning-of-entry)
-      (message "checking &")
       (while (re-search-forward " & " nil t)
         (replace-match " \\\\& "))
       (widen))
