@@ -149,7 +149,7 @@ reverse-engineered for each publisher."
 
 (defun org-ref-url-dnd-protocol (url action)
   "Protocol function for use in `dnd-protocol-alist'."
-  (when (f-ext? (buffer-file-name "bib"))
+  (when (f-ext? (buffer-file-name) "bib")
     (let ((doi (org-ref-scrape-doi url)))
       (when doi
 	(doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
