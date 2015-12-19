@@ -24,6 +24,7 @@
 ;; buffer to add bibtex entries to it.
 
 ;;; Code:
+(require 'f)
 
 (unless (executable-find "pdftotext")
   (error "pdftotext not found."))
@@ -79,8 +80,6 @@ Used when multiple dois are found in a pdf file."
   (let* ((payload (car (last event)))
          (pdf (cadr payload))
 	 (dois (org-ref-extract-doi-from-pdf pdf)))
-    (message "%s" dois)
-    dois
     (cond
      ((null dois)
       (message "No doi found in %s" pdf))
@@ -94,7 +93,45 @@ Used when multiple dois are found in a pdf file."
 		       (candidates . ,(org-ref-pdf-doi-candidates dois))
 		       (action . org-ref-pdf-add-dois)))))))
 
-(define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-pdf-dnd-func)
+;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-pdf-dnd-func)
+
+;; This is what the original dnd function was.
+;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'ns-drag-n-drop)
+
+
+;; I replaced the functionality above with this new approach that leverages
+;; ns-drag-n-drop. An alternative approach would be to adapt the function above
+;; so that if the item dragged on wasn't a pdf, it would use another function.
+;; that is essentially what ns-drag-n-drop enables, multiple handlers for
+;; different uris that get dropped on the windwo.
+
+(defun org-ref-pdf-dnd-protocol (pdf action)
+  "Drag-n-drop protocol.
+PDF will be a string like file:path.
+ACTION is what to do.
+This function should only apply when in a bibtex file.
+"
+  (when (f-ext? (buffer-file-name) "bib")
+    (let ((dois (org-ref-extract-doi-from-pdf
+		 (substring pdf 5))))
+      (cond
+       ((null dois)
+	(message "No doi found in %s" pdf)
+	nil)
+       ((= 1 (length dois))
+	(doi-utils-add-bibtex-entry-from-doi
+	 (car dois)
+	 (buffer-file-name))
+	action)
+       ;; Multiple DOIs found
+       (t
+	(helm :sources `((name . "Select a DOI")
+			 (candidates . ,(org-ref-pdf-doi-candidates dois))
+			 (action . org-ref-pdf-add-dois)))
+	action)))))
+
+
+(add-to-list 'dnd-protocol-alist '("^file:" . org-ref-pdf-dnd-protocol))
 
 (provide 'org-ref-pdf)
 ;;; org-ref-pdf.el ends here
