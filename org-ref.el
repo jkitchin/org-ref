@@ -3101,16 +3101,16 @@ specify the key should be kept"
       (insert (read-string "Enter year: ")))
 
     ;; fix pages if they are empty if there is an eid to put there.
-    (when (string= "-" pages)
-      (when eid
-        (bibtex-beginning-of-entry)
-        ;; this seems like a clunky way to set the pages field.But I
-        ;; cannot find a better way.
-        (goto-char (car (cdr (bibtex-search-forward-field "pages" t))))
-        (bibtex-kill-field)
-        (bibtex-make-field "pages")
-        (backward-char)
-        (insert eid)))
+    (when (or (string= "-" pages)
+	      (string= "" pages)
+	      (string= "nil" pages))
+      (bibtex-beginning-of-entry)
+      (goto-char (car (cdr (bibtex-search-forward-field "pages" t))))
+      ;; This tries getting an updated pages. This is hackier than I prefer, the
+      ;; update field replaces pages with article-numbers when it can, whereas
+      ;; when a bibtex entry is created pages are empty when an article number
+      ;; is better.
+      (doi-utils-update-field))
 
     ;; replace naked & with \&
     (save-restriction
