@@ -148,12 +148,26 @@ reverse-engineered for each publisher."
       (message "No DOI found at %s." url))))
 
 (defun org-ref-url-dnd-protocol (url action)
-  "Protocol function for use in `dnd-protocol-alist'."
+  "Protocol function for use in `dnd-protocol-alist'.
+If a doi is found, add a bibtex entry from it. Otherwise, create
+a misc entry, with prompt for key."
   (when (f-ext? (buffer-file-name) "bib")
     (let ((doi (org-ref-scrape-doi url)))
-      (when doi
+      (cond
+       (doi
 	(doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
-	action))))
+	action)
+       ;; no doi found. add misc entry
+       (t
+	(goto-char (point-max))
+	(insert (format "\n@misc{,
+  url = {%s},
+  note = {Last accessed %s}
+}"
+			url
+			(current-time-string)))
+	(bibtex-clean-entry)
+	action)))))
 
 
 ;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-url-dnd-doi-func)
