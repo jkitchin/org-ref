@@ -75,6 +75,14 @@ The clickable part are the keys.")
 				  (funcall f)))))))
 
 
+(defun org-ref-get-citation-string-at-point ()
+  "Get a string of a formatted citation."
+  (let* (
+         (key (car results))
+         )
+    ))
+
+
 (defun org-ref-next-latex-cite (&optional limit)
   "Font-lock function to make cites in LaTeX documents clickable."
   (when (re-search-forward org-ref-latex-cite-re limit t)
@@ -91,10 +99,20 @@ The clickable part are the keys.")
        help-echo (lambda (window object position)
 		   (save-excursion
 		     (goto-char position)
-		     (let ((s (org-ref-get-citation-string-at-point
-			       (org-ref-latex-get-key))))
+		     (let* ((key (org-ref-latex-get-key))
+			    (results (org-ref-get-bibtex-key-and-file key))
+			    (bibfile (cdr results))
+			    (citation (if bibfile
+					  (save-excursion
+					    (with-temp-buffer
+					      (insert-file-contents bibfile)
+					      (bibtex-set-dialect
+					       (parsebib-find-bibtex-dialect) t)
+					      (bibtex-search-entry key)
+					      (org-ref-bib-citation)))
+					"!!! No entry found !!!")))
 		       (with-temp-buffer
-			 (insert s)
+			 (insert citation)
 			 (fill-paragraph)
 			 (buffer-string)))))))))
 
