@@ -147,8 +147,17 @@ reverse-engineered for each publisher."
 	(doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
       (message "No DOI found at %s." url))))
 
+(defun org-ref-url-dnd-protocol (url action)
+  "Protocol function for use in `dnd-protocol-alist'."
+  (when (f-ext? (buffer-file-name "bib"))
+    (let ((doi (org-ref-scrape-doi url)))
+      (when doi
+	(doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
+	action))))
 
-(define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-url-dnd-doi-func)
+
+;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-url-dnd-doi-func)
+(add-to-list 'dnd-protocol-alist '("^https?" . org-ref-url-dnd-protocol))
 
 (provide 'org-ref-url-utils)
 ;;; org-ref-url-utils.el ends here
