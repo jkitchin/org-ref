@@ -1878,11 +1878,11 @@ Can also be called with THEKEY in a program."
   (funcall org-ref-notes-function))
 
 
-(defun org-ref-citation-at-point (&optional key)
+(defun org-ref-citation-at-point ()
   "Give message of current citation at point."
   (interactive)
   (let* ((cb (current-buffer))
-         (results (org-ref-get-bibtex-key-and-file key))
+         (results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results)))
     (message "%s" (progn
@@ -1893,11 +1893,11 @@ Can also be called with THEKEY in a program."
                       (org-ref-bib-citation))))))
 
 
-(defun org-ref-open-citation-at-point (&optional key)
-  "Open bibtex file to KEY at point."
+(defun org-ref-open-citation-at-point ()
+  "Open bibtex file to key at point."
   (interactive)
   (let* ((cb (current-buffer))
-         (results (org-ref-get-bibtex-key-and-file key))
+         (results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results)))
     (find-file bibfile)
@@ -3652,10 +3652,9 @@ With two prefix ARGs, insert a label link."
       (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") helm-bibtex-fallback-options))
 
 
-(defun org-ref-get-citation-string-at-point (&optional key)
-  "Get a string of a formatted citation.
-The optional KEY allows this to be called from anywhere."
-  (let* ((results (org-ref-get-bibtex-key-and-file key))
+(defun org-ref-get-citation-string-at-point ()
+  "Get a string of a formatted citation."
+  (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results)))
     (if bibfile
@@ -3668,10 +3667,10 @@ The optional KEY allows this to be called from anywhere."
       "!!! No entry found !!!" )))
 
 
-(defun org-ref-cite-candidates (&optional key)
+(defun org-ref-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
 Checks for pdf and doi, and add appropriate functions."
-  (let* ((results (org-ref-get-bibtex-key-and-file key))
+  (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (bibfile (cdr results))
