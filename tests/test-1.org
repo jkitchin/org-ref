@@ -1,5 +1,7 @@
 cite:kitchin-2015-examp
 
+multiple cites: cite:xu-2015-tunin-oxide,xu-2015-relat,kitchin-2015-examp
+
 #+BEGIN_SRC emacs-lisp
 (org-ref-find-bibliography)
 #+END_SRC
