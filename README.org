@@ -73,18 +73,20 @@ Go forth and citate.
 * Some other useful libraries in org-ref
 Note many of these have been renamed with an org-ref prefix.
 
-- [[./doi-utils.el][doi-utils]]
-- [[./org-ref-bibtex.el][org-ref-bibtex]]
-- [[./org-ref-arxiv.el][org-ref-arxiv]]
-- [[./org-ref-pubmed.el][org-ref-pubmed]]
-- [[./nist-webbook.el][nist-webbook]]
-- [[./org-ref-wos.el][org-ref-wos]]
-- [[./org-ref-isbn.el][org-ref-isbn]]
+- [[./doi-utils.el][doi-utils]] :: Download bibtex entries and PDFs from doi and crossref queries.
+- [[./org-ref-pdf.el][org-ref-pdf]] :: Add drag-n-drop PDF to create bibtex entries
+- [[./org-ref-url-utils.el][org-ref-url-utils]] :: Add drag-n-drop urls to create bibtex entries
+- [[./org-ref-bibtex.el][org-ref-bibtex]] :: Utility functions for bibtex
+- [[./org-ref-latex.el][org-ref-latex]] :: org-ref-like features in LaTeX.
+- [[./org-ref-arxiv.el][org-ref-arxiv]] :: arxiv links, add bibtex entries from arxiv.org.
+- [[./org-ref-pubmed.el][org-ref-pubmed]] :: pubmed links, add bibtex entries from PMID.
+- [[./org-ref-isbn.el][org-ref-isbn]] :: Add bibtex entries from a book ISBN
+- [[./org-ref-wos.el][org-ref-wos]] :: WebOfKnowledge links and queries
+- [[./org-ref-scopus.el][org-ref-scopus]] :: Scopus links and queries
+- [[./x2bib.el][x2bib]] :: Convert bibliography formats to and from bibtex
+- [[./nist-webbook.el][nist-webbook]] :: Links to NIST Webbook resources
 - [[./org-ref-scifinder.el][org-ref-scifinder]]
-- [[./org-ref-isbn.el][org-ref-isbn]]
-- [[./org-ref-scopus.el][org-ref-scopus]]
 - [[./org-ref-worldcat.el][org-ref-worldcat]]
-- [[./x2bib.el][x2bib]]
 
 * Errors and issues
 Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s.
