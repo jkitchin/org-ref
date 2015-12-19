@@ -25,6 +25,9 @@
 
 ;;; Code:
 
+(unless (executable-find "pdftotext")
+  (error "pdftotext not found."))
+
 (defun org-ref-extract-doi-from-pdf (pdf)
   "Try to extract a doi from a PDF file.
 There may be more than one doi in the file. This function returns
