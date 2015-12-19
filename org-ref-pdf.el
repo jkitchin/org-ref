@@ -23,6 +23,9 @@
 ;; This library provides functions to enable drag-n-drop of pdfs onto a bibtex
 ;; buffer to add bibtex entries to it.
 
+;; TODO: If no DOI is found, figure out a way to do a crossref/google query to
+;; get a doi. This needs a reliable title/citation.
+
 ;;; Code:
 (require 'f)
 
