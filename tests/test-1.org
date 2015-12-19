@@ -1,6 +1,8 @@
 cite:kitchin-2015-examp
 
-multiple cites: cite:xu-2015-tunin-oxide,xu-2015-relat,kitchin-2015-examp
+multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
+
+ cite:xu-2015-tunin-oxide
 
 #+BEGIN_SRC emacs-lisp
 (org-ref-find-bibliography)
@@ -8,5 +10,11 @@ multiple cites: cite:xu-2015-tunin-oxide,xu-2015-relat,kitchin-2015-examp
 
 #+RESULTS:
 | test-1.bib |
+
+cite:xu-2015-tunin-oxide
+
+#+BEGIN_SRC emacs-lisp
+(defun ok () (interactive) (message-box (org-ref-get-bibtex-key-under-cursor)))
+#+END_SRC
 
 bibliography:test-1.bib
