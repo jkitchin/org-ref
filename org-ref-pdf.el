@@ -62,6 +62,15 @@ Used when multiple dois are found in a pdf file."
 	 doi)))
 
 
+(defun org-ref-pdf-add-dois (candidate)
+  "Add all entries for CANDIDATE in `helm-marked-candidates'."
+  (loop for doi in (helm-marked-candidates)
+	do
+	(doi-utils-add-bibtex-entry-from-doi
+	 doi
+	 (buffer-file-name))))
+
+
 (defun org-ref-pdf-dnd-func (event)
   "Drag-n-drop support to add a bibtex entry from a pdf file."
   (interactive "e")
@@ -81,11 +90,9 @@ Used when multiple dois are found in a pdf file."
        (buffer-file-name)))
      ;; Multiple DOIs found
      (t
-      (doi-utils-add-bibtex-entry-from-doi
-       (helm :sources `((name . "Select a DOI")
-			(candidates . ,(org-ref-pdf-doi-candidates dois))
-			(action . (lambda (doi) doi))))
-       (buffer-file-name))))))
+      (helm :sources `((name . "Select a DOI")
+		       (candidates . ,(org-ref-pdf-doi-candidates dois))
+		       (action . org-ref-pdf-add-dois)))))))
 
 (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-pdf-dnd-func)
 
