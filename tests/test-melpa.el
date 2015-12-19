@@ -9,6 +9,9 @@
 (package-initialize)
 
 (require 'org-ref)
+(require 'org-ref-latex)
+(require 'org-ref-pdf)
+(require 'org-ref-url-utils)
 
 (find-file "test-1.org")
 
