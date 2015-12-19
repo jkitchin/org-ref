@@ -395,6 +395,14 @@ If you find you need to convert some bibliographies in some format into bibtex, 
 - medxml2bib :: Convert PubMed XML to bibtex.
 - clean-entries :: Map over a converted bibtex file and "clean it".
 
+** org-ref-latex
+This provides some org-ref like capabilities in LaTeX files, e.g. the links are clickable with tooltips.
+
+** org-ref-pdf
+Allows you to drag and drop a PDF onto a bibtex file to add a bibtex entry (as long as you have pdftotext, and the pdf has an identifiable DOI in it.)
+
+** org-ref-url-utils
+Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about).
 * Appendix
 ** Customizing org-ref
    :PROPERTIES:
