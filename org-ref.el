@@ -3924,7 +3924,7 @@ action.  most of them need the point and buffer.
 
 KEY is returned for the selected item(s) in helm."
   (interactive)
-  (let ((name (org-ref-get-citation-string-at-point key))
+  (let ((name (org-ref-get-citation-string-at-point))
         (candidates (org-ref-cite-candidates))
         (cb (current-buffer)))
 
