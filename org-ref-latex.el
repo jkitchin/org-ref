@@ -84,7 +84,7 @@ The clickable part are the keys.")
      (match-end 3)
      `(mouse-face
        highlight
-       local-map ,(let ((map (copy-keymap LaTeX-mode-map)))
+       local-map ,(let ((map (copy-keymap latex-mode-map)))
 		    (define-key map [mouse-1]
 		      'org-ref-latex-click)
 		    map)
@@ -105,7 +105,7 @@ The clickable part are the keys.")
    nil
    '((org-ref-next-latex-cite 3 font-lock-constant-face))))
 
-(add-hook 'LaTeX-mode-hook 'org-ref-latex-cite-on)
+(add-hook 'lalex-mode-hook 'org-ref-latex-cite-on)
 
 (provide 'org-ref-latex)
 ;;; org-ref-latex.el ends here
