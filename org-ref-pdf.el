@@ -99,6 +99,8 @@ Used when multiple dois are found in a pdf file."
 		       (candidates . ,(org-ref-pdf-doi-candidates dois))
 		       (action . org-ref-pdf-add-dois)))))))
 
+;; This isn't very flexible, as it hijacks all drag-n-drop events. I switched to
+;; using `dnd-protocol-alist'.
 ;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-pdf-dnd-func)
 
 ;; This is what the original dnd function was.
@@ -114,7 +116,7 @@ Used when multiple dois are found in a pdf file."
 (defun org-ref-pdf-dnd-protocol (pdf action)
   "Drag-n-drop protocol.
 PDF will be a string like file:path.
-ACTION is what to do.
+ACTION is what to do. It is required for `dnd-protocol-alist'.
 This function should only apply when in a bibtex file.
 "
   (when (f-ext? (buffer-file-name) "bib")
