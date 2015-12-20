@@ -3087,7 +3087,7 @@ at the end of you file.
 
 
 ;;** Clean a bibtex entry
-(defun org-ref-clean-bibtex-entry(&optional keep-key)
+(defun org-ref-clean-bibtex-entry (&optional keep-key)
   "Clean and replace the key in a bibtex function.
 When keep-key is t, do not replace it. You can use a prefix to
 specify the key should be kept"
@@ -3101,11 +3101,11 @@ specify the key should be kept"
 
   ;; check for empty pages, and put eid or article id in its place
   (let ((entry (bibtex-parse-entry))
-        (pages (bibtex-autokey-get-field "pages"))
-        (year (bibtex-autokey-get-field "year"))
-        (doi  (bibtex-autokey-get-field "doi"))
-        ;; The Journal of Chemical Physics uses eid
-        (eid (bibtex-autokey-get-field "eid")))
+	(pages (bibtex-autokey-get-field "pages"))
+	(year (bibtex-autokey-get-field "year"))
+	(doi (bibtex-autokey-get-field "doi"))
+	;; The Journal of Chemical Physics uses eid
+	(eid (bibtex-autokey-get-field "eid")))
 
     ;; replace http://dx.doi.org/ in doi. some journals put that in,
     ;; but we only want the doi.
@@ -3128,64 +3128,59 @@ specify the key should be kept"
       (insert (read-string "Enter year: ")))
 
     ;; fix pages if they are empty if there is an eid to put there.
-    (when (or (string= "-" pages)
-	      (string= "" pages)
-	      (string= "nil" pages))
-      (bibtex-beginning-of-entry)
-      (goto-char (car (cdr (bibtex-search-forward-field "pages" t))))
-      ;; This tries getting an updated pages. This is hackier than I prefer, the
-      ;; update field replaces pages with article-numbers when it can, whereas
-      ;; when a bibtex entry is created pages are empty when an article number
-      ;; is better.
-      (doi-utils-update-field))
+    ;; This is specific to J. Chemical Physics articles.
+    (when (and (not (string= "" eid))
+	       (or (string= "" pages)))
+      (bibtex-set-field "pages" eid))
+
 
     ;; replace naked & with \&
     (save-restriction
       (bibtex-narrow-to-entry)
       (bibtex-beginning-of-entry)
       (while (re-search-forward " & " nil t)
-        (replace-match " \\\\& "))
+	(replace-match " \\\\& "))
       (widen))
 
     ;; generate a key, and if it duplicates an existing key, edit it.
     (unless keep-key
       (let ((key (bibtex-generate-autokey)))
-        ;; ;; sometimes there are latex sequences in the key. We remove them. A
-        ;; ;; better approach might be to have some lookup table, but this would
-        ;; ;; somewhat duplicate `org-ref-nonascii-latex-replacements', in an ascii
-        ;; ;; version.
-        ;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
-        ;;       do
-        ;;       (setq key (replace-regexp-in-string
-        ;;		 (regexp-quote c) key)))
+	;; ;; sometimes there are latex sequences in the key. We remove them. A
+	;; ;; better approach might be to have some lookup table, but this would
+	;; ;; somewhat duplicate `org-ref-nonascii-latex-replacements', in an ascii
+	;; ;; version.
+	;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
+	;;       do
+	;;       (setq key (replace-regexp-in-string
+	;;		 (regexp-quote c) key)))
 
-        ;; first we delete the existing key
-        (bibtex-beginning-of-entry)
-        (re-search-forward bibtex-entry-maybe-empty-head)
-        (if (match-beginning bibtex-key-in-head)
-            (delete-region (match-beginning bibtex-key-in-head)
-                           (match-end bibtex-key-in-head)))
-        ;; check if the key is in the buffer
-        (when (save-excursion
-                (bibtex-search-entry key))
-          (save-excursion
-            (bibtex-search-entry key)
-            (bibtex-copy-entry-as-kill)
-            (switch-to-buffer-other-window "*duplicate entry*")
-            (bibtex-yank))
-          (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
+	;; first we delete the existing key
+	(bibtex-beginning-of-entry)
+	(re-search-forward bibtex-entry-maybe-empty-head)
+	(if (match-beginning bibtex-key-in-head)
+	    (delete-region (match-beginning bibtex-key-in-head)
+			   (match-end bibtex-key-in-head)))
+	;; check if the key is in the buffer
+	(when (save-excursion
+		(bibtex-search-entry key))
+	  (save-excursion
+	    (bibtex-search-entry key)
+	    (bibtex-copy-entry-as-kill)
+	    (switch-to-buffer-other-window "*duplicate entry*")
+	    (bibtex-yank))
+	  (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
 
-        (insert key)
-        (kill-new key))) ;; save key for pasting
+	(insert key)
+	(kill-new key))) ;; save key for pasting
 
     ;; run hooks. each of these operates on the entry with no arguments.
     ;; this did not work like  i thought, it gives a symbolp error.
     ;; (run-hooks org-ref-clean-bibtex-entry-hook)
     (mapc (lambda (x)
-            (save-restriction
-              (save-excursion
-                (funcall x))))
-          org-ref-clean-bibtex-entry-hook)
+	    (save-restriction
+	      (save-excursion
+		(funcall x))))
+	  org-ref-clean-bibtex-entry-hook)
 
     ;; sort fields within entry
     (org-ref-sort-bibtex-entry)
