@@ -501,6 +501,33 @@ If so return the position for `goto-char'."
   (add-hook 'org-mode-hook 'org-ref-colorize-links))
 
 
+
+;;* Tooltips on citations
+;; Add tool tips to org-ref links.
+(defun org-ref-match-next-cite-link (&optional limit)
+  "Search forward to next cite link, and add a tooltip."
+  (when (re-search-forward org-ref-cite-re limit t)
+    (add-text-properties
+     (match-beginning 0) (match-end 0)
+     (list
+      'help-echo (lambda (window object position)
+		   (save-excursion
+		     (goto-char position)
+		     ;; Here we wrap the citation string to a reasonable size.
+		     (let ((s (org-ref-get-citation-string-at-point)))
+		       (with-temp-buffer
+			 (insert s)
+			 (fill-paragraph)
+			 (buffer-string)))))))))
+
+(add-hook
+ 'org-mode-hook
+ (lambda ()
+   (font-lock-add-keywords
+    nil
+    '((org-ref-match-next-cite-link (0  'org-ref-cite-face t)))
+    t)))
+
 ;;* General org-ref utilities
 (defun org-ref-strip-string (string)
   "Strip leading and trailing whitespace from the STRING."
@@ -3243,6 +3270,44 @@ specify the key should be kept"
 ;; add hooks to make it work
 (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
 (add-hook 'org-shiftleft-hook (lambda () (org-ref-swap-citation-link -1)))
+
+;;** C-arrow navigation of cite keys
+(defun org-ref-next-key ()
+  "Move cursor to the next cite key when on a cite link, or
+`right-word' otherwise. If the cursor moves off the link, move to
+the beginning of the next cite link after this one."
+  (interactive)
+  (if (-contains? org-ref-cite-types
+		  (org-element-property :type (org-element-context)))
+      (when (re-search-forward "[, \\.;:!?]")
+	;; If we go off a link, jump to the beginning of the next one
+	(when (not (-contains? org-ref-cite-types
+			       (org-element-property
+				:type (org-element-context))))
+	  (when (re-search-forward org-ref-cite-re nil t)
+	    (goto-char (match-beginning 0)))))
+    (right-word)))
+
+
+(defun org-ref-previous-key ()
+  "Move cursor to the previous cite key when on a cite link, or
+`left-word' otherwise. If cursor moves off the link, jump to the
+end of the next cite link before this one."
+  (interactive)
+  (if (-contains? org-ref-cite-types
+		  (org-element-property
+		   :type (org-element-context)))
+      (when (re-search-backward "[, \\.;:!?]")
+	(when (not (-contains? org-ref-cite-types
+			       (org-element-property
+				:type (org-element-context))))
+	  (when (re-search-backward org-ref-cite-re nil t)
+	    (goto-char (match-end 0))
+	    (backward-char))))
+    (left-word)))
+
+;; (global-set-key (kbd "<C-right>") 'org-ref-next-key)
+;; (global-set-key (kbd "<C-left>") 'org-ref-previous-key)
 
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
