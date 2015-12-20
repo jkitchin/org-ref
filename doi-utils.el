@@ -455,7 +455,12 @@ at the end."
       (issue      (plist-get results :issue))
       (number     (plist-get results :issue))
       (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
-      (month      (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 1))
+      ;; Some dates don't have a month in them.
+      (month      (let ((date (elt
+			       (plist-get (plist-get results :issued) :date-parts) 0)))
+		    (if (>= (length date) 2)
+			(elt date 1)
+		      "-")))
       (pages      (plist-get results :page))
       (doi        (plist-get results :DOI))
       (url        (plist-get results :URL))
@@ -1005,7 +1010,7 @@ error."
 " (doi-utils-doi-to-bibtex-string doi) "
 
 * PDF
-" (doi-utils-get-pdf-url doi)))
+" (format "URL found: %s" (doi-utils-get-pdf-url doi))))
 
 ;; * Adding a bibtex entry from a crossref query
 
