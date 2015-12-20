@@ -3306,8 +3306,8 @@ end of the next cite link before this one."
 	    (backward-char))))
     (left-word)))
 
-;; (global-set-key (kbd "<C-right>") 'org-ref-next-key)
-;; (global-set-key (kbd "<C-left>") 'org-ref-previous-key)
+(define-key org-mode-map (kbd "<C-right>") 'org-ref-next-key)
+(define-key org-mode-map (kbd "<C-left>") 'org-ref-previous-key)
 
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
