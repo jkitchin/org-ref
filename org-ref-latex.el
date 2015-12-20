@@ -75,14 +75,6 @@ The clickable part are the keys.")
 				  (funcall f)))))))
 
 
-(defun org-ref-get-citation-string-at-point ()
-  "Get a string of a formatted citation."
-  (let* (
-         (key (car results))
-         )
-    ))
-
-
 (defun org-ref-next-latex-cite (&optional limit)
   "Font-lock function to make cites in LaTeX documents clickable."
   (when (re-search-forward org-ref-latex-cite-re limit t)
