@@ -43,7 +43,7 @@
 
 
 ;;; Code:
-;; * Getting pdf files from a DOI
+;;* Getting pdf files from a DOI
 
 ;; The idea here is simple. When you visit http://dx.doi.org/doi, you get
 ;; redirected to the journal site. Once you have the url for the article, you
@@ -101,7 +101,7 @@ Each function takes one argument, the redirect url.  The function
 must return a pdf-url, or nil.")
 
 
-;; ** APS journals
+;;** APS journals
 
 (defun aps-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -109,7 +109,7 @@ must return a pdf-url, or nil.")
     (replace-regexp-in-string "/abstract/" "/pdf/" *doi-utils-redirect*)))
 
 
-;; ** Science
+;;** Science
 
 (defun science-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -117,7 +117,7 @@ must return a pdf-url, or nil.")
     (concat *doi-utils-redirect* ".full.pdf")))
 
 
-;; ** Nature
+;;** Nature
 
 (defun nature-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -127,13 +127,13 @@ must return a pdf-url, or nil.")
       (replace-regexp-in-string "\.html$" "\.pdf" result))))
 
 
-;; ** Elsevier/ScienceDirect
+;;** Elsevier/ScienceDirect
 ;; You cannot compute these pdf links; they are embedded in the redirected pages.
 
 (defvar *doi-utils-pdf-url* nil
   "Stores url to pdf download from a callback function.")
 
-;; ** Wiley
+;;** Wiley
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/abstract
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/pdf
 
@@ -169,7 +169,7 @@ Argument REDIRECT-URL URL you are redirected to."
     *doi-utils-pdf-url*))
 
 
-;; ** Springer
+;;** Springer
 
 (defun springer-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -177,7 +177,7 @@ Argument REDIRECT-URL URL you are redirected to."
     (replace-regexp-in-string "/article/" "/content/pdf/" (concat *doi-utils-redirect* ".pdf"))))
 
 
-;; ** ACS
+;;** ACS
 ;; here is a typical url http://pubs.acs.org/doi/abs/10.1021/nl500037x
 ;; the pdf is found at http://pubs.acs.org/doi/pdf/10.1021/nl500037x
 
@@ -189,7 +189,7 @@ Argument REDIRECT-URL URL you are redirected to."
     (replace-regexp-in-string "/abs/" "/pdf/" *doi-utils-redirect*)))
 
 
-;; ** IOP
+;;** IOP
 
 (defun iop-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -200,7 +200,7 @@ Argument REDIRECT-URL URL you are redirected to."
               "/pdf" (replace-regexp-in-string "/" "_" tail) ".pdf"))))
 
 
-;; ** JSTOR
+;;** JSTOR
 
 (defun jstor-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -208,7 +208,7 @@ Argument REDIRECT-URL URL you are redirected to."
     (concat (replace-regexp-in-string "/stable/" "/stable/pdfplus/" *doi-utils-redirect*) ".pdf")))
 
 
-;; ** AIP
+;;** AIP
 
 (defun aip-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -223,14 +223,14 @@ Argument REDIRECT-URL URL you are redirected to."
       (format "http://scitation.aip.org/deliver/fulltext/%s.pdf?itemId=/%s&mimeType=pdf&containerItemId=%s"
               p1 p2 p3))))
 
-;; ** Taylor and Francis
+;;** Taylor and Francis
 
 (defun tandfonline-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://www.tandfonline.com" *doi-utils-redirect*)
     (replace-regexp-in-string "/abs/\\|/full/" "/pdf/" *doi-utils-redirect*)))
 
-;; ** ECS
+;;** ECS
 
 (defun ecs-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -248,7 +248,7 @@ Argument REDIRECT-URL URL you are redirected to."
 
 
 
-;; ** RSC
+;;** RSC
 
 (defun rsc-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -292,7 +292,7 @@ REDIRECT-URL is where the pdf url will be in."
                             *doi-utils-redirect*)))
       *doi-utils-pdf-url*)))
 
-;; ** PNAS
+;;** PNAS
 ;; http://www.pnas.org/content/early/2014/05/08/1319030111
 ;; http://www.pnas.org/content/early/2014/05/08/1319030111.full.pdf
 
@@ -305,7 +305,7 @@ REDIRECT-URL is where the pdf url will be in."
     (concat *doi-utils-redirect* ".full.pdf?with-ds=yes")))
 
 
-;; ** Add all functions
+;;** Add all functions
 
 (setq doi-utils-pdf-url-functions
       (list
@@ -326,7 +326,7 @@ REDIRECT-URL is where the pdf url will be in."
        'rsc-pdf-url
        'pnas-pdf-url))
 
-;; ** Get the pdf url for a doi
+;;** Get the pdf url for a doi
 
 (defun doi-utils-get-pdf-url (doi)
   "Return a url to a pdf for the DOI if one can be calculated.
@@ -342,7 +342,7 @@ until one is found."
         (when this-pdf-url
           (throw 'pdf-url this-pdf-url))))))
 
-;; ** Finally, download the pdf
+;;** Finally, download the pdf
 
 (defun doi-utils-get-bibtex-entry-pdf ()
   "Download pdf for entry at point if the pdf does not already exist locally.
@@ -391,7 +391,7 @@ at the end."
                 (org-open-file pdf-file))))
         pdf-file))))
 
-;; * Getting bibtex entries from a DOI
+;;* Getting bibtex entries from a DOI
 
 ;; I
 ;; [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
@@ -633,7 +633,7 @@ Argument BIBFILE the bibliography to use."
   (org-metaright)
   (org-metaright))
 
-;; * Updating bibtex entries
+;;* Updating bibtex entries
 
 ;; I wrote this code because it is pretty common for me to copy bibtex entries
 ;; from ASAP articles that are incomplete, e.g. no page numbers because it is
@@ -754,7 +754,7 @@ Data is retrieved from the doi in the entry."
 
 
 
-;; * DOI functions for WOS
+;;* DOI functions for WOS
 
 ;; I came across this API http://wokinfo.com/media/pdf/OpenURL-guide.pdf to make
 ;; links to the things I am interested in here. Based on that document, here are
@@ -799,7 +799,7 @@ May be empty if none are found."
 
 
 
-;; * A new doi link for org-mode
+;;* A new doi link for org-mode
 ;; The idea is to add a menu to the doi link, so rather than just clicking to open the article, you can do other things.
 ;; 1. open doi
 ;; 2. open in wos
@@ -905,7 +905,7 @@ Argument LINK-STRING Passed in on link click."
              (or desc (concat "doi:%s" doi)))))))
 
 
-;; * Getting a doi for a bibtex entry missing one
+;;* Getting a doi for a bibtex entry missing one
 
 ;; Some bibtex entries do not have a DOI, maybe because they were entered by
 ;; hand, or copied from a source that did not have it available. Here we develop
@@ -990,7 +990,7 @@ error."
 
 
 
-;; * Debugging a DOI
+;;* Debugging a DOI
 
 ;; I wrote this function to help debug a DOI. This function generates an
 ;; org-buffer with the doi, gets the json metadata, shows the bibtex entry, and
@@ -1013,7 +1013,7 @@ error."
 * PDF
 " (format "URL found: %s" (doi-utils-get-pdf-url doi))))
 
-;; * Adding a bibtex entry from a crossref query
+;;* Adding a bibtex entry from a crossref query
 
 ;; The idea here is to perform a query on Crossref, get a helm buffer of
 ;; candidates, and select the entry(ies) you want to add to your bibtex file.
@@ -1076,6 +1076,6 @@ error."
                                                 (browse-url doi))))))))
       (helm :sources '(source)))))
 
-;; * The end
+;;* The end
 (provide 'doi-utils)
 ;;; doi-utils.el ends here
