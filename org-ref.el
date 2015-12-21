@@ -3368,8 +3368,9 @@ end of the next cite link before this one."
   (interactive)
   ;; the way links are recognized in org-element-context counts a blank space
   ;; after a link and the closing brackets in literal links. We don't try to get
-  ;; a message if the cursor is on those.
+  ;; a message if the cursor is on those, or if it is on a blank line.
   (when (not (or (looking-at " ")
+		 (looking-at "^$")
 		 (looking-at "]")))
 
     (save-restriction
