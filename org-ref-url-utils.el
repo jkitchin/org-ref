@@ -154,6 +154,7 @@ recipes by adding to `org-ref-url-scrapers'. A recipe looks like:
 	(doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
       (message "No DOI found at %s." url))))
 
+
 (defun org-ref-url-dnd-protocol (url action)
   "Protocol function for use in `dnd-protocol-alist'.
 If a doi is found, add a bibtex entry from it. Otherwise, create
