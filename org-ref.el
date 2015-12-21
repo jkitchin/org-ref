@@ -3378,9 +3378,6 @@ end of the next cite link before this one."
       (when (eq major-mode 'org-mode)
         (let* ((object (org-element-context))
                (type (org-element-property :type object)))
-          ;; (message-box "%s-%s %s" (org-element-property :begin object)
-          ;;	     (org-element-property :end object)
-          ;;	     (point))
           (save-excursion
             (cond
              ;; cite links
