@@ -1374,6 +1374,8 @@ A number greater than one means multiple labels!"
 
 (defun org-ref-get-custom-ids ()
   "Return a list of custom_id properties in the buffer."
+  (unless (file-exists-p (buffer-file-name))
+    (save-buffer))
   (let ((results '()) custom_id)
     (org-map-entries
      (lambda ()
