@@ -52,7 +52,17 @@ The clickable part are the keys.")
     (save-excursion
       (re-search-forward ",\\|}")
       (setq end (- (point) 1)))
-    (buffer-substring start end)))
+    (buffer-substring-no-properties start end)))
+
+
+(defun org-ref-latex-debug ()
+  (interactive)
+  (message-box "%S\n%S\n%S\n%S"
+	       (org-ref-latex-get-key)
+	       (org-ref-find-bibliography)
+	       (org-ref-get-bibtex-key-and-file (org-ref-latex-get-key))
+	       (ignore-errors
+		 (org-ref-latex-help-echo nil nil (point)))))
 
 
 (defun org-ref-latex-jump-to-bibtex (&optional key)
@@ -75,6 +85,33 @@ The clickable part are the keys.")
 				  (funcall f)))))))
 
 
+(defun org-ref-latex-help-echo (window object position)
+  "Get tool tip for a key in WINDOW for OBJECT at POSITION."
+  (save-excursion
+    (goto-char position)
+    (let* ((key (org-ref-latex-get-key))
+	   (results (org-ref-get-bibtex-key-and-file key))
+	   (bibfile (cdr results))
+	   citation
+	   tooltip)
+      (setq citation
+	    (if bibfile
+		(save-excursion
+		  (with-temp-buffer
+		    (insert-file-contents bibfile)
+		    (bibtex-set-dialect
+		     (parsebib-find-bibtex-dialect) t)
+		    (bibtex-search-entry key)
+		    (org-ref-bib-citation)))
+	      "!!! No entry found !!!"))
+      (setq tooltip
+	    (with-temp-buffer
+	      (insert citation)
+	      (fill-paragraph)
+	      (buffer-string)))
+      tooltip)))
+
+
 (defun org-ref-next-latex-cite (&optional limit)
   "Font-lock function to make cites in LaTeX documents clickable."
   (when (re-search-forward org-ref-latex-cite-re limit t)
@@ -88,25 +125,7 @@ The clickable part are the keys.")
 		    (define-key map [mouse-1]
 		      'org-ref-latex-click)
 		    map)
-       help-echo (lambda (window object position)
-		   (save-excursion
-		     (goto-char position)
-		     (let* ((key (org-ref-latex-get-key))
-			    (results (org-ref-get-bibtex-key-and-file key))
-			    (bibfile (cdr results))
-			    (citation (if bibfile
-					  (save-excursion
-					    (with-temp-buffer
-					      (insert-file-contents bibfile)
-					      (bibtex-set-dialect
-					       (parsebib-find-bibtex-dialect) t)
-					      (bibtex-search-entry key)
-					      (org-ref-bib-citation)))
-					"!!! No entry found !!!")))
-		       (with-temp-buffer
-			 (insert citation)
-			 (fill-paragraph)
-			 (buffer-string)))))))))
+       help-echo org-ref-latex-help-echo))))
 
 
 (defun org-ref-latex-cite-on ()
