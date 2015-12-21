@@ -126,6 +126,7 @@
   "cond blocks to match urls, and a recipe to extract a DOI. This
   variable exists to make it easy for users to add new recipes.")
 
+
 (defun org-ref-scrape-doi (url)
   "Scrape a doi from a URL.
 These all work by regular expressions that were
