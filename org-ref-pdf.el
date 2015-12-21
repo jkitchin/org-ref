@@ -119,24 +119,31 @@ PDF will be a string like file:path.
 ACTION is what to do. It is required for `dnd-protocol-alist'.
 This function should only apply when in a bibtex file.
 "
-  (when (f-ext? (buffer-file-name) "bib")
-    (let ((dois (org-ref-extract-doi-from-pdf
-		 (substring pdf 5))))
-      (cond
-       ((null dois)
-	(message "No doi found in %s" pdf)
-	nil)
-       ((= 1 (length dois))
-	(doi-utils-add-bibtex-entry-from-doi
-	 (car dois)
-	 (buffer-file-name))
-	action)
-       ;; Multiple DOIs found
-       (t
-	(helm :sources `((name . "Select a DOI")
-			 (candidates . ,(org-ref-pdf-doi-candidates dois))
-			 (action . org-ref-pdf-add-dois)))
-	action)))))
+  (if (f-ext? (buffer-file-name) "bib")
+      (let ((dois (org-ref-extract-doi-from-pdf
+		   (substring pdf 5))))
+	(cond
+	 ((null dois)
+	  (message "No doi found in %s" pdf)
+	  nil)
+	 ((= 1 (length dois))
+	  (doi-utils-add-bibtex-entry-from-doi
+	   (car dois)
+	   (buffer-file-name))
+	  action)
+	 ;; Multiple DOIs found
+	 (t
+	  (helm :sources `((name . "Select a DOI")
+			   (candidates . ,(org-ref-pdf-doi-candidates dois))
+			   (action . org-ref-pdf-add-dois)))
+	  action)))
+    ;; ignoring. pass back to dnd. Copied from `org-download-dnd'. Apparently
+    ;; returning nil does not do this.
+    (let ((dnd-protocol-alist
+           (rassq-delete-all
+            'org-ref-pdf-dnd-protocol
+            (copy-alist dnd-protocol-alist))))
+      (dnd-handle-one-url nil action pdf))))
 
 
 (add-to-list 'dnd-protocol-alist '("^file:" . org-ref-pdf-dnd-protocol))
