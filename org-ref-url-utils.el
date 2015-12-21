@@ -24,6 +24,8 @@
 ;; known in `org-ref-scrape-doi', it will scrape a doi, and then use `doi-utils'
 ;; to insert a bibtex entry into the buffer.
 
+;; You can add new scraper recipes to the variable `org-ref-url-scrapers'.
+
 ;;; Code:
 (require 'doi-utils)
 
