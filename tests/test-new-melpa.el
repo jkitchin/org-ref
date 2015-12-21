@@ -15,7 +15,22 @@
       org-ref-default-bibliography '("./references.bib")
       org-ref-pdf-directory "./bibtex-pdfs/")
 
-(require 'helm-config)
+(unless (file-exists-p org-ref-pdf-directory)
+  (make-directory org-ref-pdf-directory t))
+
+(setq org-src-fontify-natively t
+      org-confirm-babel-evaluate nil
+      org-src-preserve-indentation t)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((python . t)))
+
+(setq org-latex-pdf-process
+      '("pdflatex -interaction nonstopmode -output-directory %o %f" 
+	"bibtex %b"
+	"pdflatex -interaction nonstopmode -output-directory %o %f" 
+	"pdflatex -interaction nonstopmode -output-directory %o %f"))
+
 (require 'org-ref)
 (require 'org-ref-pdf)
 (require 'org-ref-url-utils)
