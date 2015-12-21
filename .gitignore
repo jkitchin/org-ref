@@ -40,3 +40,5 @@ sandbox
 /citeproc/readme.org.org
 /log.org
 /x.sh
+/.DS_Store
+/tests/.DS_Store
