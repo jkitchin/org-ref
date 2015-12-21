@@ -161,23 +161,30 @@ recipes by adding to `org-ref-url-scrapers'. A recipe looks like:
   "Protocol function for use in `dnd-protocol-alist'.
 If a doi is found, add a bibtex entry from it. Otherwise, create
 a misc entry, with prompt for key."
-  (when (f-ext? (buffer-file-name) "bib")
-    (let ((doi (org-ref-scrape-doi url)))
-      (cond
-       (doi
-	(doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
-	action)
-       ;; no doi found. add misc entry
-       (t
-	(goto-char (point-max))
-	(insert (format "\n@misc{,
+  (if (f-ext? (buffer-file-name) "bib")
+      (let ((doi (org-ref-scrape-doi url)))
+	(cond
+	 (doi
+	  (doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))
+	  action)
+	 ;; no doi found. add misc entry
+	 (t
+	  (goto-char (point-max))
+	  (insert (format "\n@misc{,
   url = {%s},
   note = {Last accessed %s}
 }"
-			url
-			(current-time-string)))
-	(bibtex-clean-entry)
-	action)))))
+			  url
+			  (current-time-string)))
+	  (bibtex-clean-entry)
+	  action)))
+    ;; ignoring. pass back to dnd. Copied from `org-download-dnd'. Apparently
+    ;; returning nil does not do this.
+    (let ((dnd-protocol-alist
+	   (rassq-delete-all
+	    'org-ref-url-dnd-protocol
+	    (copy-alist dnd-protocol-alist))))
+      (dnd-handle-one-url nil action url))))
 
 
 ;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-url-dnd-doi-func)
