@@ -621,6 +621,8 @@ Argument BIBFILE the bibliography to use."
         (doi-utils-insert-bibtex-entry-from-doi doi)
         (save-buffer)))))
 
+(defalias 'doi-add-bibtex-entry 'doi-utils-add-bibtex-entry-from-doi
+  "Alias function for convenience.")
 
 (defun doi-utils-doi-to-org-bibtex (doi)
   "Convert a DOI to an ‘org-bibtex’ form and insert it at point."
@@ -1075,6 +1077,9 @@ error."
                                 ("Open url" . (lambda (doi)
                                                 (browse-url doi))))))))
       (helm :sources '(source)))))
+
+(defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
+  "Alias function for convenience.")
 
 ;;* The end
 (provide 'doi-utils)
