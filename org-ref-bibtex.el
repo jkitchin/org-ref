@@ -643,7 +643,7 @@ _S_: Sentence case
 
 
 (when org-ref-bibtex-hydra-key-binding
-  (global-set-key org-ref-bibtex-hydra-key-binding 'org-ref-bibtex-hydra/body))
+  (define-key bibtex-mode-map org-ref-bibtex-hydra-key-binding 'org-ref-bibtex-hydra/body))
 
 ;;** Hydra menu for new bibtex entries
 ;; A hydra for adding new bibtex entries.
