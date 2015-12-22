@@ -28,6 +28,7 @@
 
 ;;; Code:
 (require 'f)
+(require 'cl-lib)
 
 (unless (executable-find "pdftotext")
   (error "pdftotext not found."))
@@ -52,7 +53,7 @@ strings, or nil.
 	(let ((doi (match-string 1)))
 	  (when (s-ends-with? "." doi)
 	    (setq doi (substring doi 0 (- (length doi) 1))))
-	  (add-to-list 'matches doi)))
+	  (cl-pushnew doi matches :test #'equal)))
       matches)))
 
 
