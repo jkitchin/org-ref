@@ -43,6 +43,21 @@
 
 
 ;;; Code:
+
+;;* Customization
+(defgroup doi-utils nil
+  "Customization group for doi-utils."
+  :tag "DOI utils"
+  :group 'doi-utils)
+
+
+(defcustom doi-utils-download-pdf
+  t
+  "Try to download PDFs when adding bibtex entries when non-nil."
+  :type 'boolean
+  :group 'doi-utils)
+
+
 ;;* Getting pdf files from a DOI
 
 ;; The idea here is simple. When you visit http://dx.doi.org/doi, you get
@@ -561,7 +576,8 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
       (org-ref-clean-bibtex-entry t)
     (org-ref-clean-bibtex-entry))
   ;; try to get pdf
-  (doi-utils-get-bibtex-entry-pdf)
+  (when doi-utils-download-pdf
+    (doi-utils-get-bibtex-entry-pdf))
   (save-selected-window
     (org-ref-open-bibtex-notes)))
 
