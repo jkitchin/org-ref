@@ -28,10 +28,20 @@
 
 ;;; Code:
 (require 'f)
-(require 'cl-lib)
 
-(unless (executable-find "pdftotext")
-  (error "pdftotext not found."))
+(defgroup org-ref-pdf nil
+  "Customization group for org-ref-pdf"
+  :tag "Org Ref PDF"
+  :group 'org-ref-pdf)
+
+(defcustom pdftotext-executable
+  "pdftotext"
+  "Executable for pdftotext. Set if the executable is not on your
+path, or you want to use another version."
+  :group 'org-ref-pdf)
+
+(unless (executable-find pdftotext-executable)
+  (error "%s not found." pdftotext-executable))
 
 (defun org-ref-extract-doi-from-pdf (pdf)
   "Try to extract a doi from a PDF file.
@@ -44,7 +54,9 @@ If there is a trailing . we chomp it off. Returns a list of doi
 strings, or nil.
 "
   (with-temp-buffer
-    (insert (shell-command-to-string (format "pdftotext %s -" pdf)))
+    (insert (shell-command-to-string (format "%s %s -"
+					     pdftotext-executable
+					     (dnd-unescape-uri pdf))))
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\):\\s-?\\(?1:[^]}\n \"]*\\)" nil t)
@@ -53,30 +65,30 @@ strings, or nil.
 	(let ((doi (match-string 1)))
 	  (when (s-ends-with? "." doi)
 	    (setq doi (substring doi 0 (- (length doi) 1))))
-	  (cl-pushnew doi matches :test #'equal)))
+	  (add-to-list 'matches doi)))
       matches)))
 
 
 (defun org-ref-pdf-doi-candidates (dois)
   "Generate candidate list for helm source.
 Used when multiple dois are found in a pdf file."
-  (cl-loop for doi in dois
-           collect
-           (cons
-            (plist-get (doi-utils-get-json-metadata doi) :title)
-            doi)))
+  (loop for doi in dois
+	collect
+	(cons
+	 (plist-get (doi-utils-get-json-metadata doi) :title)
+	 doi)))
 
 
 (defun org-ref-pdf-add-dois (candidate)
   "Add all entries for CANDIDATE in `helm-marked-candidates'."
-  (cl-loop for doi in (helm-marked-candidates)
-           do
-           (doi-utils-add-bibtex-entry-from-doi
-            doi
-            (buffer-file-name))
-           ;; this removes two blank lines before each entry.
-           (bibtex-beginning-of-entry)
-           (delete-char -2)))
+  (loop for doi in (helm-marked-candidates)
+	do
+	(doi-utils-add-bibtex-entry-from-doi
+	 doi
+	 (buffer-file-name))
+	;; this removes two blank lines before each entry.
+	(bibtex-beginning-of-entry)
+	(delete-char -2)))
 
 
 (defun org-ref-pdf-dnd-func (event)
@@ -156,25 +168,25 @@ This function should only apply when in a bibtex file.
   (find-file bibfile)
   (goto-char (point-max))
 
-  (cl-loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
-           do
-           (goto-char (point-max))
-           (insert (format "\n%% [[file:%s]]\n" pdf))
-           (let ((dois (org-ref-extract-doi-from-pdf pdf)))
-             (cond
-              ((null dois)
-               (insert "% No doi found to create entry.\n"))
-              ((= 1 (length dois))
-               (doi-utils-add-bibtex-entry-from-doi
-                (car dois)
-                (buffer-file-name))
-               (bibtex-beginning-of-entry)
-               (delete-char -2))
-              ;; Multiple DOIs found
-              (t
-               (helm :sources `((name . "Select a DOI")
-                                (candidates . ,(org-ref-pdf-doi-candidates dois))
-                                (action . org-ref-pdf-add-dois))))))))
+  (loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
+	do
+	(goto-char (point-max))
+	(insert (format "\n%% [[file:%s]]\n" pdf))
+	(let ((dois (org-ref-extract-doi-from-pdf pdf)))
+	  (cond
+	   ((null dois)
+	    (insert "% No doi found to create entry.\n"))
+	   ((= 1 (length dois))
+	    (doi-utils-add-bibtex-entry-from-doi
+	     (car dois)
+	     (buffer-file-name))
+	    (bibtex-beginning-of-entry)
+	    (delete-char -2))
+	   ;; Multiple DOIs found
+	   (t
+	    (helm :sources `((name . "Select a DOI")
+			     (candidates . ,(org-ref-pdf-doi-candidates dois))
+			     (action . org-ref-pdf-add-dois))))))))
 
 (provide 'org-ref-pdf)
 ;;; org-ref-pdf.el ends here
