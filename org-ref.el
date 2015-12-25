@@ -4066,6 +4066,42 @@ _o_: Open entry   _e_: Email entry and pdf
 
 (add-hook 'org-mode-hook 'org-ref-org-menu)
 
+;;* Debug
+(defun org-ref-debug ()
+  "Print some debug information to a buffer."
+  (interactive)
+  (switch-to-buffer "*org-ref-debug*")
+  (erase-buffer)
+  (org-mode)
+  (insert
+   (s-format "* Variables
+1. org-ref-bibliography-notes: ${org-ref-bibliography-notes} (exists ${orbn-p})
+2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p})
+3. org-ref-pdf-directory: ${org-ref-pdf-directory} (exists ${orpd-p})
+
+* about org-ref
+org-ref installed in ${org-ref-location}.
+
+* System
+${system}
+${window-system}
+
+org-version: ${org-version}
+pdftotext: ${pdftotext}
+"
+	     'aget
+	     `(("org-ref-bibliography-notes" . ,(format "%s"  org-ref-bibliography-notes))
+	       ("orbn-p" . ,(format "%s" (file-exists-p org-ref-bibliography-notes)))
+	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
+	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
+	       ("org-ref-pdf-directory" . ,(format "%s" org-ref-pdf-directory))
+	       ("orpd-p" . ,(format "%s" (file-exists-p org-ref-pdf-directory)))
+	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))
+	       ("system" . ,(format "System: %s" system-type))
+	       ("window-system" . ,(format "Window system: %s" window-system))
+	       ("pdftotext" . ,(format "%s" (executable-find "pdftotext")))
+	       ("org-version" . ,(org-version))))))
+
 ;;* The end
 (provide 'org-ref)
 
