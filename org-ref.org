@@ -511,6 +511,33 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 : #<process open ./org-ref.html>
 
 * References
+<<bibliography link>>
+
 bibliographystyle:unsrtnat
-# <<bibliography link>>
 bibliography:org-ref.bib
+
+* Build notes				:noexport:
+
+To build this file you need to require these libraries so the links will be resolved.
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref-wos)
+(require 'org-ref-scopus)
+(require 'org-ref-pubmed)
+#+END_SRC
+
+** HTML build
+
+#+BEGIN_SRC emacs-lisp
+(org-open-file (org-html-export-to-html))
+#+END_SRC
+
+#+RESULTS:
+
+** PDF
+
+#+BEGIN_SRC emacs-lisp
+(org-open-file (org-latex-export-to-pdf))
+#+END_SRC
+
+#+RESULTS:
