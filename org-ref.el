@@ -308,6 +308,18 @@ entry at point."
   :type 'hook)
 
 
+
+(defcustom org-ref-bibtex-sort-order
+  '(("article"  . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
+    ("inproceedings" . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
+    ("book" . ("author" "title" "year" "publisher" "url")))
+  "a-list of bibtex entry fields and the order to sort an entry with.
+(entry-type . (list of fields). This is used in
+`org-ref-sort-bibtex-entry'. Entry types not listed here will
+have fields sorted alphabetically."
+  :group 'org-ref)
+
+
 (defvar org-ref-bibliography-files
   nil
   "Variable to hold bibliography files to be searched.")
@@ -321,12 +333,15 @@ entry at point."
   (make-local-variable 'reftex-cite-format)
   (setq reftex-cite-format 'org))
 
+
 ;; define key for inserting citations
 (define-key org-mode-map
   (kbd org-ref-insert-cite-key)
   org-ref-insert-cite-function)
 
+
 (add-hook 'org-mode-hook 'org-mode-reftex-setup)
+
 
 (eval-after-load 'reftex-vars
   '(progn
@@ -343,8 +358,7 @@ entry at point."
                          (?H . "citeauthor*:%l")
                          (?y . "citeyear:%l")
                          (?x . "citetext:%l")
-                         (?n . "nocite:%l")
-                         )))))
+                         (?n . "nocite:%l"))))))
 
 ;;* Messages for link at cursor
 (defvar org-ref-message-timer nil
@@ -3054,12 +3068,12 @@ at the end of you file.
   "Sort fields of entry in standard order and downcase them."
   (interactive)
   (bibtex-beginning-of-entry)
-  (let* ((master '("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
-         (entry (bibtex-parse-entry))
+  (let* ((entry (bibtex-parse-entry))
          (entry-fields)
          (other-fields)
-         (type (cdr (assoc "=type=" entry)))
-         (key (cdr (assoc "=key=" entry))))
+         (type (downcase (cdr (assoc "=type=" entry))))
+         (key (cdr (assoc "=key=" entry)))
+	 (field-order (cdr (assoc type org-ref-bibtex-sort-order))))
 
     ;; these are the fields we want to order that are in this entry
     (setq entry-fields (mapcar (lambda (x) (car x)) entry))
@@ -3067,29 +3081,30 @@ at the end of you file.
     (setq entry-fields (remove "=key=" entry-fields))
     (setq entry-fields (remove "=type=" entry-fields))
 
-    ;;these are the other fields in the entry
-    (setq other-fields (-remove (lambda(x) (member x master)) entry-fields))
+    ;;these are the other fields in the entry, and we sort them alphabetically.
+    (setq other-fields
+	  (sort (-remove (lambda(x) (member x field-order)) entry-fields)
+		'string<))
 
-    (let ((type (downcase type)))
-      (cond
-       ;; right now we only resort articles and inproceedings
-       ((or (string= type "article")
-            (string= type "inproceedings"))
-        (bibtex-kill-entry)
-        (insert
-         (concat "@" type "{" key ",\n"
-                 (mapconcat
-                  (lambda (field)
-                    (when (member field entry-fields)
-                      (format "%s = %s," (downcase field) (cdr (assoc field entry))))) master "\n")
-                 (mapconcat
-                  (lambda (field)
-                    (format "%s = %s," (downcase field) (cdr (assoc field entry)))) other-fields "\n")
-                 "\n}\n\n"))
-        (bibtex-find-entry key)
-        (bibtex-fill-entry)
-        (bibtex-clean-entry)
-      )))))
+    (bibtex-kill-entry)
+    (insert
+     (concat "@" type "{" key ",\n"
+	     (mapconcat
+	      (lambda (field)
+		(when (member field entry-fields)
+		  (format "%s = %s,"
+			  (downcase field)
+			  (cdr (assoc field entry))))) field-order "\n")
+	     (mapconcat
+	      (lambda (field)
+		(format "%s = %s,"
+			(downcase field)
+			(cdr (assoc field entry))))
+	      other-fields "\n")
+	     "\n}\n\n"))
+    (bibtex-find-entry key)
+    (bibtex-fill-entry)
+    (bibtex-clean-entry)))
 
 
 ;;** Clean a bibtex entry
