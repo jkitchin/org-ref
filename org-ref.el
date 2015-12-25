@@ -3070,24 +3070,26 @@ at the end of you file.
     ;;these are the other fields in the entry
     (setq other-fields (-remove (lambda(x) (member x master)) entry-fields))
 
-    (cond
-     ;; right now we only resort articles
-     ((string= (downcase type) "article")
-      (bibtex-kill-entry)
-      (insert
-       (concat "@article{" key ",\n"
-               (mapconcat
-                (lambda (field)
-                  (when (member field entry-fields)
-                    (format "%s = %s," (downcase field) (cdr (assoc field entry))))) master "\n")
-               (mapconcat
-                (lambda (field)
-                  (format "%s = %s," (downcase field) (cdr (assoc field entry)))) other-fields "\n")
-               "\n}\n\n"))
-      (bibtex-find-entry key)
-      (bibtex-fill-entry)
-      (bibtex-clean-entry)
-      ))))
+    (let ((type (downcase type)))
+      (cond
+       ;; right now we only resort articles and inproceedings
+       ((or (string= type "article")
+            (string= type "inproceedings"))
+        (bibtex-kill-entry)
+        (insert
+         (concat "@" type "{" key ",\n"
+                 (mapconcat
+                  (lambda (field)
+                    (when (member field entry-fields)
+                      (format "%s = %s," (downcase field) (cdr (assoc field entry))))) master "\n")
+                 (mapconcat
+                  (lambda (field)
+                    (format "%s = %s," (downcase field) (cdr (assoc field entry)))) other-fields "\n")
+                 "\n}\n\n"))
+        (bibtex-find-entry key)
+        (bibtex-fill-entry)
+        (bibtex-clean-entry)
+      )))))
 
 
 ;;** Clean a bibtex entry
