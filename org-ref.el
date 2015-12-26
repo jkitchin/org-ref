@@ -299,10 +299,21 @@ Uses a hook function to display the message in the minibuffer."
   :group 'org-ref)
 
 
-(defcustom org-ref-clean-bibtex-entry-hook nil
+(defcustom org-ref-clean-bibtex-entry-hook
+  '(orcb-key-comma
+    orcb-key
+    orcb-&
+    orcb-clean-doi
+    orcb-clean-year
+    orcb-clean-pages
+    org-ref-sort-bibtex-entry
+    org-ref-replace-nonascii)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
-The functions should take no arguments, and operate on the bibtex
-entry at point."
+The functions should have no arguments, and
+operate on the bibtex entry at point. You can assume point starts
+at the beginning of the entry. These functions are wrapped in
+`save-restriction' and `save-excursion' so you do not need to
+save the point position."
   :group 'org-ref
   :type 'hook)
 
@@ -3128,105 +3139,98 @@ at the end of you file.
 
 
 ;;** Clean a bibtex entry
-(defun org-ref-clean-bibtex-entry (&optional keep-key)
-  "Clean and replace the key in a bibtex function.
-When keep-key is t, do not replace it. You can use a prefix to
-specify the key should be kept"
-  (interactive "P")
-  (bibtex-beginning-of-entry)
-  (end-of-line)
-  ;; some entries do not have a key or comma in first line. We check and add it, if needed.
-  (unless (string-match ",$" (thing-at-point 'line))
-    (end-of-line)
-    (insert ","))
-
-  ;; check for empty pages, and put eid or article id in its place
-  (let ((entry (bibtex-parse-entry))
-	(pages (bibtex-autokey-get-field "pages"))
-	(year (bibtex-autokey-get-field "year"))
-	(doi (bibtex-autokey-get-field "doi"))
-	;; The Journal of Chemical Physics uses eid
-	(eid (bibtex-autokey-get-field "eid")))
-
-    ;; replace http://dx.doi.org/ in doi. some journals put that in,
-    ;; but we only want the doi.
+;; These functions operate on a bibtex entry and "clean" it in some way.
+(defun orcb-clean-doi ()
+  "Remove http://dx.doi.org/ in the doi field."
+  (let ((doi (bibtex-autokey-get-field "doi")))
     (when (string-match "^http://dx.doi.org/" doi)
       (bibtex-beginning-of-entry)
       (goto-char (car (cdr (bibtex-search-forward-field "doi" t))))
       (bibtex-kill-field)
       (bibtex-make-field "doi")
       (backward-char)
-      (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi)))
+      (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
 
-    ;; asap articles often set year to 0, which messes up key
-    ;; generation. fix that.
+
+(defun orcb-clean-year ()
+  "Fix years set to 0."
+  ;; asap articles often set year to 0, which messes up key
+  ;; generation. fix that.
+  (let ((year (bibtex-autokey-get-field "year")))
     (when (string= "0" year)
       (bibtex-beginning-of-entry)
       (goto-char (car (cdr (bibtex-search-forward-field "year" t))))
       (bibtex-kill-field)
       (bibtex-make-field "year")
       (backward-char)
-      (insert (read-string "Enter year: ")))
+      (insert (read-string "Enter year: ")))))
 
-    ;; fix pages if they are empty if there is an eid to put there.
-    ;; This is specific to J. Chemical Physics articles.
+
+(defun orcb-clean-pages ()
+  "Check for empty pages, and put eid in its place if it exists."
+  (let ((pages (bibtex-autokey-get-field "pages"))
+	(eid (bibtex-autokey-get-field "eid")))
     (when (and (not (string= "" eid))
 	       (or (string= "" pages)))
-      (bibtex-set-field "pages" eid))
+      (bibtex-set-field "pages" eid))))
 
 
-    ;; replace naked & with \&
-    (save-restriction
-      (bibtex-narrow-to-entry)
+(defun orcb-& ()
+  "Replace naked & with \& in a bibtex entry."
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (bibtex-beginning-of-entry)
+    (while (re-search-forward " & " nil t)
+      (replace-match " \\\\& "))))
+
+
+(defun orcb-key-comma ()
+  "Make sure there is a comma at the end of the first line."
+  (bibtex-beginning-of-entry)
+  (end-of-line)
+  ;; some entries do not have a key or comma in first line. We check and add it,
+  ;; if needed.
+  (unless (string-match ",$" (thing-at-point 'line))
+    (end-of-line)
+    (insert ",")))
+
+
+(defun orcb-key ()
+  "Replace the key in the entry."
+  (let ((key (bibtex-generate-autokey)))
+      ;; first we delete the existing key
       (bibtex-beginning-of-entry)
-      (while (re-search-forward " & " nil t)
-	(replace-match " \\\\& "))
-      (widen))
+      (re-search-forward bibtex-entry-maybe-empty-head)
+      (if (match-beginning bibtex-key-in-head)
+	  (delete-region (match-beginning bibtex-key-in-head)
+			 (match-end bibtex-key-in-head)))
+      ;; check if the key is in the buffer
+      (when (save-excursion
+	      (bibtex-search-entry key))
+	(save-excursion
+	  (bibtex-search-entry key)
+	  (bibtex-copy-entry-as-kill)
+	  (switch-to-buffer-other-window "*duplicate entry*")
+	  (bibtex-yank))
+	(setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
 
-    ;; generate a key, and if it duplicates an existing key, edit it.
-    (unless keep-key
-      (let ((key (bibtex-generate-autokey)))
-	;; ;; sometimes there are latex sequences in the key. We remove them. A
-	;; ;; better approach might be to have some lookup table, but this would
-	;; ;; somewhat duplicate `org-ref-nonascii-latex-replacements', in an ascii
-	;; ;; version.
-	;; (loop for c in '("{" "}" "'" "\\" "\"" "`" "~")
-	;;       do
-	;;       (setq key (replace-regexp-in-string
-	;;		 (regexp-quote c) key)))
+      (insert key)
+      (kill-new key)))
 
-	;; first we delete the existing key
-	(bibtex-beginning-of-entry)
-	(re-search-forward bibtex-entry-maybe-empty-head)
-	(if (match-beginning bibtex-key-in-head)
-	    (delete-region (match-beginning bibtex-key-in-head)
-			   (match-end bibtex-key-in-head)))
-	;; check if the key is in the buffer
-	(when (save-excursion
-		(bibtex-search-entry key))
-	  (save-excursion
-	    (bibtex-search-entry key)
-	    (bibtex-copy-entry-as-kill)
-	    (switch-to-buffer-other-window "*duplicate entry*")
-	    (bibtex-yank))
-	  (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
 
-	(insert key)
-	(kill-new key))) ;; save key for pasting
-
-    ;; run hooks. each of these operates on the entry with no arguments.
-    ;; this did not work like  i thought, it gives a symbolp error.
-    ;; (run-hooks org-ref-clean-bibtex-entry-hook)
-    (mapc (lambda (x)
-	    (save-restriction
-	      (save-excursion
-		(funcall x))))
-	  org-ref-clean-bibtex-entry-hook)
-
-    ;; sort fields within entry
-    (org-ref-sort-bibtex-entry)
-    ;; check for non-ascii characters
-    (occur "[^[:ascii:]]")))
+(defun org-ref-clean-bibtex-entry ()
+  "Clean and replace the key in a bibtex entry.
+See functions in `org-ref-clean-bibtex-entry-hook'."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  ;; run hooks. each of these operates on the entry with no arguments.
+  ;; this did not work like  i thought, it gives a symbolp error.
+  ;; (run-hooks org-ref-clean-bibtex-entry-hook)
+  (mapc (lambda (x)
+	  (save-restriction
+	    (save-excursion
+	      (funcall x))))
+	org-ref-clean-bibtex-entry-hook))
 
 
 (defun org-ref-get-citation-year (key)
@@ -3237,8 +3241,7 @@ specify the key should be kept"
       (insert-file-contents bibfile)
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
-      (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))
-        ))))
+      (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))))))
 
 ;;** Sort cite in cite link
 (defun org-ref-sort-citation-link ()
