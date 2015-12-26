@@ -160,13 +160,12 @@ Use that if you like the one file one note approach of ‘helm-bibtex’."
     (show-branches)
     (show-children)
     (org-cycle '(64))
-    ;;(org-tree-to-indirect-buffer)
-    (outline-previous-visible-heading 1)
     (recenter-top-bottom 0))
   "User-defined way to open a notes entry.
-This is executed after the entry is found, with the cursor at the
-beginning of the headline.  The default setting fully expands the
-notes, and moves the headline to the top of the buffer."
+This is executed after the entry is found in
+`org-ref-open-bibtex-notes', with the cursor at the beginning of
+the headline. The default setting fully expands the notes, and
+moves the headline to the top of the buffer."
   :type 'function
   :group 'org-ref)
 
@@ -2560,7 +2559,8 @@ construct the heading by hand."
          (bibtex-expand-strings t)
          (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
                          collect (cons (downcase key) value)))
-         (key (reftex-get-bib-field "=key=" entry)))
+         (key (reftex-get-bib-field "=key=" entry))
+	 pdf)
 
     ;; save key to clipboard to make saving pdf later easier by pasting.
     (with-temp-buffer
@@ -2575,16 +2575,36 @@ construct the heading by hand."
 
       (widen)
       (goto-char (point-min))
-      ;; put new entry in notes if we don't find it.
-      (if (re-search-forward (format ":Custom_ID: %s$" key) nil 'end)
-          (funcall org-ref-open-notes-function)
-        ;; no entry found, so add one
-        (insert (org-ref-reftex-format-citation
-                 entry (concat "\n" org-ref-note-title-format)))
-        (insert (format
-                 "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-                 key (file-name-as-directory org-ref-pdf-directory) key))
-        (save-buffer)))))
+      (let* ((headlines (org-element-map
+			    (org-element-parse-buffer)
+			    'headline 'identity))
+	     (keys (mapcar
+		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
+		    headlines)))
+	;; put new entry in notes if we don't find it.
+	(if (-contains? keys key)
+	    (progn
+	      (org-open-link-from-string (format "[[#%s]]" key))
+	      (funcall org-ref-open-notes-function))
+	  ;; no entry found, so add one
+	  (goto-char (point-max))
+	  (insert (org-ref-reftex-format-citation
+		   entry (concat "\n" org-ref-note-title-format)))
+
+	  (insert (format "[[cite:%s]]" key))
+
+	  (setq pdf (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
+	  (if (file-exists-p pdf)
+	      (insert (format
+		       " [[file:%s][pdf]]\n\n"
+		       pdf))
+	    ;; no pdf found. Prompt for a path, but allow no pdf to be inserted.
+	    (let ((pdf (read-file-name "PDF: " nil "no pdf" nil "no pdf")))
+	      (when (not (string= pdf "no pdf"))
+		(insert (format
+			 " [[file:%s][pdf]]\n\n"
+			 pdf)))))
+	  (save-buffer))))))
 
 
 (defun org-ref-open-notes-from-reftex ()
