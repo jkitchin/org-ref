@@ -439,8 +439,6 @@ all the title entries in articles."
        title)
       (bibtex-fill-entry))))
 
-(add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-title-case-article)
-
 
 (defun org-ref-sentence-case-article (&optional key start end)
   "Convert a bibtex entry article title to sentence-case.
