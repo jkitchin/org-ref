@@ -310,7 +310,7 @@ entry at point."
 
 (defcustom org-ref-bibtex-sort-order
   '(("article"  . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
-    ("inproceedings" . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
+    ("inproceedings" . ("author" "title" "booktitle" "year" "volume" "number" "pages" "doi" "url"))
     ("book" . ("author" "title" "year" "publisher" "url")))
   "a-list of bibtex entry fields and the order to sort an entry with.
 (entry-type . (list of fields). This is used in
