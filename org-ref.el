@@ -3226,7 +3226,8 @@ specify the key should be kept"
     ;; sort fields within entry
     (org-ref-sort-bibtex-entry)
     ;; check for non-ascii characters
-    (occur "[^[:ascii:]]")))
+    (when (member 'org-ref-replace-nonascii org-ref-clean-bibtex-entry-hook)
+      (occur "[^[:ascii:]]"))))
 
 
 (defun org-ref-get-citation-year (key)
