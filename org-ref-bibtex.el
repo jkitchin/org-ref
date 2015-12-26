@@ -540,13 +540,15 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 
 
 (defun org-ref-bibtex-wos-citing ()
-  "Open citing articles for bibtex entry in Web Of Science if there is a DOI."
+  "Open citing articles for bibtex entry in Web Of Science if
+there is a DOI."
   (interactive)
   (doi-utils-wos-citing (org-ref-bibtex-entry-doi)))
 
 
 (defun org-ref-bibtex-wos-related ()
-  "Open related articles for bibtex entry in Web Of Science if there is a DOI."
+  "Open related articles for bibtex entry in Web Of Science if
+there is a DOI."
   (interactive)
   (doi-utils-wos-related (org-ref-bibtex-entry-doi)))
 
@@ -571,8 +573,8 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 
 (defun org-ref-bibtex-pdf (doi)
   "Open the pdf for the bibtex entry at point.
-Thin wrapper to get `org-ref-bibtex' to open pdf, because it calls
-functions with a DOI argument."
+Thin wrapper to get `org-ref-bibtex' to open pdf, because it
+calls functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
