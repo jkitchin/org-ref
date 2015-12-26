@@ -307,6 +307,7 @@ Uses a hook function to display the message in the minibuffer."
     orcb-clean-year
     orcb-clean-pages
     org-ref-sort-bibtex-entry
+    org-ref-title-case-article
     org-ref-replace-nonascii)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
 The functions should have no arguments, and
@@ -316,7 +317,6 @@ at the beginning of the entry. These functions are wrapped in
 save the point position."
   :group 'org-ref
   :type 'hook)
-
 
 
 (defcustom org-ref-bibtex-sort-order
