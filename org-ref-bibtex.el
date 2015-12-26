@@ -385,7 +385,6 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
   (save-buffer)
   (occur "[^[:ascii:]]"))
 
-(add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
 
 ;;* Title case transformations
 (defvar org-ref-lower-case-words
