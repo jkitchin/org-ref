@@ -376,11 +376,14 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
   (save-restriction
     (bibtex-narrow-to-entry)
     (goto-char (point-min))
-    (dolist (char (mapcar (lambda (x) (car x)) org-ref-nonascii-latex-replacements))
+    (dolist (char (mapcar (lambda (x)
+			    (car x))
+			  org-ref-nonascii-latex-replacements))
       (while (re-search-forward char nil t)
         (replace-match (cdr (assoc char org-ref-nonascii-latex-replacements))))
       (goto-char (point-min))))
-  (save-buffer))
+  (save-buffer)
+  (occur "[^[:ascii:]]"))
 
 (add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
 
