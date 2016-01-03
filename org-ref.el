@@ -4106,7 +4106,11 @@ _o_: Open entry   _e_: Email entry and pdf
 
 (add-hook 'org-mode-hook 'org-ref-org-menu)
 
-;;* Debug
+;;* Debug(require 'org-ref-pdf)
+(defmacro ords (&rest body)
+  "Evaluate BODY and return a string"
+  `(format "%s" (progn ,@body)))
+
 (defun org-ref-debug ()
   "Print some debug information to a buffer."
   (interactive)
@@ -4114,20 +4118,31 @@ _o_: Open entry   _e_: Email entry and pdf
   (erase-buffer)
   (org-mode)
   (insert
-   (s-format "* Variables
+   (s-format "#+TITLE: org-ref debug
+
+* Variables
 1. org-ref-bibliography-notes: ${org-ref-bibliography-notes} (exists ${orbn-p})
 2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p})
 3. org-ref-pdf-directory: ${org-ref-pdf-directory} (exists ${orpd-p})
 
+* System
+system-type: ${system}
+system-configuration: ${system-configuration}
+window system: ${window-system}
+Emacs: ${emacs-version}
+org-version: ${org-version}
+
 * about org-ref
 org-ref installed in ${org-ref-location}.
 
-* System
-${system}
-${window-system}
+** Dependencies
+helm-bibtex ${helm-bibtex-path}
 
-org-version: ${org-version}
-pdftotext: ${pdftotext}
+* org-ref-pdf (loaded: ${org-ref-pdf-p})
+system pdftotext: ${pdftotext}
+You set pdftotext-executable to ${pdftotext-executable} (exists: ${pdftotext-executable-p})
+
+* org-ref-url-utils (loaded: ${org-ref-url-p})
 "
 	     'aget
 	     `(("org-ref-bibliography-notes" . ,(format "%s"  org-ref-bibliography-notes))
@@ -4137,10 +4152,28 @@ pdftotext: ${pdftotext}
 	       ("org-ref-pdf-directory" . ,(format "%s" org-ref-pdf-directory))
 	       ("orpd-p" . ,(format "%s" (file-exists-p org-ref-pdf-directory)))
 	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))
+
 	       ("system" . ,(format "System: %s" system-type))
+	       ("system-configuration" . ,(ords system-configuration))
 	       ("window-system" . ,(format "Window system: %s" window-system))
-	       ("pdftotext" . ,(format "%s" (executable-find "pdftotext")))
-	       ("org-version" . ,(org-version))))))
+	       ("emacs-version" . ,(ords (emacs-version)))
+	       ("org-version" . ,(org-version))
+
+	       ("helm-bibtex-path" . ,(ords (locate-library "helm-bibtex")))
+
+	       ("org-ref-pdf-p" . ,(ords (featurep 'org-ref-pdf)))
+	       ("pdftotext" . ,(ords (if (featurep 'org-ref-pdf)
+					 (executable-find "pdftotext")
+				       "org-ref-pdf not loaded")))
+	       ("pdftotext-executable" . ,(ords (if (featurep 'org-ref-pdf)
+						    pdftotext-executable
+						  "org-ref-pdf not loaded")))
+	       ("pdftotext-executable-p" . ,(ords (if (featurep 'org-ref-pdf)
+						      (or
+						       (executable-find pdftotext-executable)
+						       (file-exists-p pdftotext-executable))
+						    "org-ref-pdf not loaded")))
+	       ("org-ref-url-p" . ,(ords (featurep 'org-ref-url)))))))
 
 ;;* The end
 (provide 'org-ref)
