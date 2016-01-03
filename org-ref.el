@@ -3190,7 +3190,7 @@ at the end of you file.
   (end-of-line)
   ;; some entries do not have a key or comma in first line. We check and add it,
   ;; if needed.
-  (unless (string-match ",$" (thing-at-point 'line))
+  (unless (string-match ", *$" (thing-at-point 'line))
     (end-of-line)
     (insert ",")))
 
