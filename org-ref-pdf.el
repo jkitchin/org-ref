@@ -203,13 +203,15 @@ This function should only apply when in a bibtex file.
 Opens a buffer with the pdf converted to text, and `occur' on the
 variable `org-ref-pdf-doi-regex'."
   (interactive "fPDF: ")
-  (with-current-buffer (get-buffer-create "*org-ref-pdf debug*")
-    (erase-buffer)
-    (insert (shell-command-to-string (format "%s %s -"
-					     pdftotext-executable
-					     pdf-file)))
-    (goto-char (point-min))
-    (occur org-ref-pdf-doi-regex)))
+  (switch-to-buffer (get-buffer-create "*org-ref-pdf debug*"))
+  (erase-buffer)
+  (insert (shell-command-to-string (format "%s %s -"
+					   pdftotext-executable
+					   pdf-file)))
+  (goto-char (point-min))
+  (highlight-regexp org-ref-pdf-doi-regex)
+  (occur org-ref-pdf-doi-regex)
+  (switch-to-buffer-other-window "*Occur*"))
 
 (provide 'org-ref-pdf)
 ;;; org-ref-pdf.el ends here
