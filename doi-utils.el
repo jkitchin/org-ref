@@ -57,6 +57,17 @@
   :type 'boolean
   :group 'doi-utils)
 
+(defcustom doi-utils-timestamp-field
+  "DATE_ADDED"
+  "The bibtex field to store the date when an entry has been added."
+  :type 'string
+  :group 'doi-utils)
+
+(defcustom doi-utils-timestamp-format-function
+  'current-time-string
+  "The function to format the timestamp for a bibtex entry."
+  :type 'function
+  :group 'doi-utils)
 
 ;;* Getting pdf files from a DOI
 
@@ -571,7 +582,7 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
   ;; set date added for the record
-  (bibtex-set-field "DATE_ADDED" (current-time-string))
+  (bibtex-set-field doi-utils-timestamp-field (funcall doi-utils-timestamp-format-function))
   (if (bibtex-key-in-head nil)
       (org-ref-clean-bibtex-entry t)
     (org-ref-clean-bibtex-entry))
