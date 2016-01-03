@@ -40,6 +40,15 @@
 path, or you want to use another version."
   :group 'org-ref-pdf)
 
+(defcustom org-ref-pdf-doi-regex
+  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\):\\s-?\\(?1:[^]}\n \"]*\\)"
+  "Regular expression to match DOIs in a pdf converted to text.
+The DOI should be in group 1 of the regex.
+The default pattern matches:
+1. http://dx.do.org/doi
+2. doi: doi"
+  :group 'org-ref-pdf)
+
 (unless (executable-find pdftotext-executable)
   (error "%s not found." pdftotext-executable))
 
@@ -59,7 +68,7 @@ strings, or nil.
 					     (dnd-unescape-uri pdf))))
     (goto-char (point-min))
     (let ((matches '()))
-      (while (re-search-forward "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\):\\s-?\\(?1:[^]}\n \"]*\\)" nil t)
+      (while (re-search-forward org-ref-pdf-doi-regex nil t)
 	;; I don't know how to avoid a trailing . on some dois with the
 	;; expression above, so if it is there, I chomp it off here.
 	(let ((doi (match-string 1)))
@@ -187,6 +196,20 @@ This function should only apply when in a bibtex file.
 	    (helm :sources `((name . "Select a DOI")
 			     (candidates . ,(org-ref-pdf-doi-candidates dois))
 			     (action . org-ref-pdf-add-dois))))))))
+
+
+(defun org-ref-pdf-debug-pdf (pdf-file)
+  "Try to debug getting a doi from a pdf.
+Opens a buffer with the pdf converted to text, and `occur' on the
+variable `org-ref-pdf-doi-regex'."
+  (interactive "fPDF: ")
+  (with-current-buffer (get-buffer-create "*org-ref-pdf debug*")
+    (erase-buffer)
+    (insert (shell-command-to-string (format "%s %s -"
+					     pdftotext-executable
+					     pdf-file)))
+    (goto-char (point-min))
+    (occur org-ref-pdf-doi-regex)))
 
 (provide 'org-ref-pdf)
 ;;; org-ref-pdf.el ends here
