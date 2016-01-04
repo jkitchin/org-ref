@@ -4122,7 +4122,7 @@ _o_: Open entry   _e_: Email entry and pdf
 
 * Variables
 1. org-ref-bibliography-notes: ${org-ref-bibliography-notes} (exists ${orbn-p})
-2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p})
+2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p}) (listp ${ordb-listp})
 3. org-ref-pdf-directory: ${org-ref-pdf-directory} (exists ${orpd-p})
 
 * System
@@ -4149,6 +4149,7 @@ You set pdftotext-executable to ${pdftotext-executable} (exists: ${pdftotext-exe
 	       ("orbn-p" . ,(format "%s" (file-exists-p org-ref-bibliography-notes)))
 	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
 	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
+	       ("ordb-listp" . ,(ords (listp org-ref-default-bibliography)))
 	       ("org-ref-pdf-directory" . ,(format "%s" org-ref-pdf-directory))
 	       ("orpd-p" . ,(format "%s" (file-exists-p org-ref-pdf-directory)))
 	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))
