@@ -733,7 +733,7 @@ entry having a doi."
     (let* ((key (reftex-get-bib-field "=key=" (bibtex-parse-entry t)))
 	   pdf)
       ;; when we have org-ref defined we may have pdf to find.
-      (when (boundp org-ref-pdf-directory)
+      (when (boundp 'org-ref-pdf-directory)
 	(setq pdf (expand-file-name
 		   (concat key ".pdf")
 		   org-ref-pdf-directory)))
