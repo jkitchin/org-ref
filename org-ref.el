@@ -1817,6 +1817,13 @@ falling back to what the user has set in `org-ref-default-bibliography'"
               (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
         (throw 'result org-ref-bibliography-files))
 
+      ;; one last attempt at the latex addbibresource
+      (goto-char (point-min))
+      (when (re-search-forward "\\addbibresource{\\([^}]+\\)}" nil t)
+	(setq org-ref-bibliography-files
+	      (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
+	(throw 'result org-ref-bibliography-files))
+
       ;; we did not find anything. use defaults
       (setq org-ref-bibliography-files org-ref-default-bibliography)))
 
