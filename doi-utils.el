@@ -1024,6 +1024,21 @@ error."
 ;; I wrote this function to help debug a DOI. This function generates an
 ;; org-buffer with the doi, gets the json metadata, shows the bibtex entry, and
 ;; the pdf link for it.
+(defun doi-utils-get-json-metadata (doi)
+  "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
+  (let ((url-request-method "GET")
+        (url-mime-accept-string "application/citeproc+json")
+        (json-object-type 'plist)
+        (json-data))
+    (with-current-buffer
+        (url-retrieve-synchronously
+         (concat "http://dx.doi.org/" doi))
+      (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
+      (if (string-match "Resource not found" json-data)
+          (progn
+            (browse-url (concat "http://dx.doi.org/" doi))
+            (error "Resource not found.  Opening website"))
+        (json-read-from-string json-data)))))
 
 (defun doi-utils-debug (doi)
   "Generate an org-buffer showing data about DOI."
@@ -1033,14 +1048,15 @@ error."
   (org-mode)
   (insert (concat "doi:" doi) "\n\n")
   (insert "* JSON
-" (format "%s" (doi-utils-get-json-metadata doi)) "
-
-* Bibtex
-
-" (doi-utils-doi-to-bibtex-string doi) "
-
-* PDF
-" (format "URL found: %s" (doi-utils-get-pdf-url doi))))
+"
+	  (let ((url-request-method "GET")
+		(url-mime-accept-string "application/citeproc+json"))
+	    (with-current-buffer
+		(url-retrieve-synchronously
+		 (concat "http://dx.doi.org/" doi))
+	      (buffer-substring url-http-end-of-headers (point-max))))
+	  "\n\n")
+  (goto-char (point-min)))
 
 ;;* Adding a bibtex entry from a crossref query
 
