@@ -58,7 +58,7 @@ the DOI."
   :group 'org-ref-url-utils)
 
 
-;; * Scrape DOIs from a URL
+;;* Scrape DOIs from a URL
 
 (defun org-ref-url-scrape-dois (url)
   "Scrape all dois from a URL matching a pattern in `org-ref-doi-regexps'.
@@ -150,7 +150,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 (add-to-list 'dnd-protocol-alist '("^https?" . org-ref-url-dnd-protocol))
 
 
-;; * Debug URL in a buffer with C-dnd
+;;* Debug URL in a buffer with C-dnd
 
 ;; You can use this to see if there are any DOIs in a URL, and to use re-builder
 ;; to add new patterns to `org-ref-doi-regexps'.
@@ -171,7 +171,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 
 (define-key bibtex-mode-map (kbd "<C-drag-n-drop>") 'org-ref-url-dnd-debug)
 
-;; * Add all DOI bibtex entries with M-dnd
+;;* Add all DOI bibtex entries with M-dnd
 
 (defun org-ref-url-add-all-doi-entries (url)
   "Add all DOI bibtex entries for URL."
