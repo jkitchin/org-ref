@@ -93,7 +93,7 @@ there is more than one, we offer a helm buffer of selections. If
 no DOI is found, we create a misc entry, with a prompt for a key."
   ;; make sure we are on a bib-file
   (if (f-ext? (buffer-file-name) "bib")
-      (let ((dois (org-ref-scrape-dois url)))
+      (let ((dois (org-ref-url-scrape-dois url)))
 	(cond
 	 ;; One doi found. Assume it is what we want.
 	 ((= 1 (length dois))
@@ -175,7 +175,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 
 (defun org-ref-url-add-all-doi-entries (url)
   "Add all DOI bibtex entries for URL."
-  (loop for doi in (org-ref-scrape-dois url)
+  (loop for doi in (org-ref-url-scrape-dois url)
 	do
 	(ignore-errors
 	  (doi-utils-add-bibtex-entry-from-doi
@@ -199,7 +199,7 @@ not perfect, and some hits are not actually DOIs."
 ;; Get first DOI if there is one with s-dnd
 (defun org-ref-url-add-first-doi-entry (url)
   "Add first DOI bibtex entry for URL if there is one."
-  (let* ((dois (org-ref-scrape-dois url))
+  (let* ((dois (org-ref-url-scrape-dois url))
 	 (doi (car dois)))
     (if doi
 	(progn
