@@ -331,6 +331,12 @@ REDIRECT-URL is where the pdf url will be in."
     (concat *doi-utils-redirect* ".full.pdf?with-ds=yes")))
 
 
+;;** Sage
+(defun sage-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^http://pss.sagepub.com" *doi-utils-redirect*)
+    (concat *doi-utils-redirect* ".full.pdf")))
+
 ;;** Add all functions
 
 (setq doi-utils-pdf-url-functions
@@ -350,7 +356,8 @@ REDIRECT-URL is where the pdf url will be in."
        'ecs-pdf-url
        'ecst-pdf-url
        'rsc-pdf-url
-       'pnas-pdf-url))
+       'pnas-pdf-url
+       'sage-pdf-url))
 
 ;;** Get the pdf url for a doi
 
