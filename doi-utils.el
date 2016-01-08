@@ -176,6 +176,8 @@ must return a pdf-url, or nil.")
   (when (string-match "^http://pss.sagepub.com" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf")))
 
+
+
 (defun doi-utils-get-wiley-pdf-url (redirect-url)
   "Wileyscience direct hides the pdf url in html.
 We get it out here by parsing the html.
