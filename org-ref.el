@@ -3551,6 +3551,35 @@ fields, the keywords I think."
                               fields (list 36 (- width 85) 4 1 1 7 7)))
          entry-key)))
 
+(defun helm-bibtex-copy-candidate (candidate)
+  "Copy the selected bibtex entries to the clipboard.
+Used as a new action in `helm-bibtex'."
+  (with-temp-buffer
+    (mapc #'insert-file-contents
+	  (-flatten (list helm-bibtex-bibliography)))
+
+    (let ((entries '()))
+      (loop for bibtex-key in (helm-marked-candidates)
+	    do
+	    (goto-char (point-min))
+	    (re-search-forward (concat "^@\\(" parsebib--bibtex-identifier
+				       "\\)[[:space:]]*[\(\{][[:space:]]*"
+				       (regexp-quote bibtex-key)
+				       "[[:space:]]*,"))
+	    (bibtex-mark-entry)
+	    (add-to-list 'entries (buffer-substring (point) (mark))))
+
+      (with-temp-buffer
+	(dolist (entry entries)
+	  (insert (format "%s\n\n" entry)))
+	(kill-new (buffer-string))))))
+
+(helm-add-action-to-source
+ "Copy entry to clipboard"
+ 'helm-bibtex-copy-candidate
+ helm-source-bibtex)
+
+
 ;;* org-ref bibtex keywords
 ;; adapted from bibtex-utils.el
 ;; these are candidates for selecting keywords/tags
