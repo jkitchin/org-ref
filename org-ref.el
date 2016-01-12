@@ -2386,7 +2386,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
     ((eq format 'latex)
      (format "\\index{%s}" path)))))
 
-;; this will generate a temporary index of entries in the file.
+;; this will generate a temporary index of entries in the file when clicked on.
 (org-add-link-type
  "printindex"
  (lambda (path)
@@ -2404,7 +2404,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
               '*index-links*
               (cons (plist-get plist :path)
                     (format
-                     "[[elisp:(progn (switch-to-buffer \"%s\") (goto-char %s))][%s]]"
+                     "[[elisp:(progn (switch-to-buffer \"%s\") (goto-char %s) (org-cycle '(64)))][%s]] "
                      (current-buffer)
                      (plist-get plist :begin) ;; position of link
                      ;; grab a description
@@ -2412,8 +2412,12 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
                        (goto-char (plist-get plist :begin))
                        (if (thing-at-point 'sentence)
                            ;; get a sentence
-                           (replace-regexp-in-string
-                            "\n" "" (thing-at-point 'sentence))
+			   (let ((s (thing-at-point 'sentence)))
+			     (loop for char in '("[" "]" "\n")
+				   do
+				   (setq s (replace-regexp-in-string
+					    (regexp-quote char) " " s)))
+			     (concat s " "))
                          ;; or call it a link
                          "link")))))))))
 
