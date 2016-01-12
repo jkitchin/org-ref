@@ -2387,61 +2387,67 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
      (format "\\index{%s}" path)))))
 
 ;; this will generate a temporary index of entries in the file when clicked on.
+(defun org-ref-index (&optional path)
+  "Open an *index* buffer with links to index entries.
+PATH is required for the org-link, but it does nothing here."
+  (interactive)
+  (let ((*index-links* '())
+	(*initial-letters* '()))
+
+    ;; get links
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(let ((type (nth 0 link))
+	      (plist (nth 1 link)))
+
+	  (when (equal (plist-get plist ':type) "index")
+	    (add-to-list
+	     '*index-links*
+	     (cons (plist-get plist :path)
+		   (format
+		    "[[elisp:(progn (switch-to-buffer \"%s\") (goto-char %s) (org-cycle '(64)))][%s]] "
+		    (current-buffer)
+		    (plist-get plist :begin) ;; position of link
+		    ;; grab a description
+		    (save-excursion
+		      (goto-char (plist-get plist :begin))
+		      (if (thing-at-point 'sentence)
+			  ;; get a sentence
+			  (let ((s (thing-at-point 'sentence)))
+			    (loop for char in '("[" "]" "\n")
+				  do
+				  (setq s (replace-regexp-in-string
+					   (regexp-quote char) " " s)))
+			    (concat s " "))
+			;; or call it a link
+			"link")))))))))
+
+    ;; sort the links
+    (setq *index-links* (cl-sort *index-links* 'string-lessp :key 'car))
+
+    ;; now separate out into chunks first letters
+    (dolist (link *index-links*)
+      (add-to-list '*initial-letters* (substring (car link) 0 1) t))
+
+    ;; now create the index
+    (switch-to-buffer (get-buffer-create "*index*"))
+    (org-mode)
+    (erase-buffer)
+    (insert "#+TITLE: Index\n\n")
+    (dolist (letter *initial-letters*)
+      (insert (format "* %s\n" (upcase letter)))
+      ;; now process the links
+      (while (and
+	      *index-links*
+	      (string= letter (substring (car (car *index-links*)) 0 1)))
+	(let ((link (pop *index-links*)))
+	  (insert (format "%s %s\n\n" (car link) (cdr link))))))
+    (switch-to-buffer "*index*")))
+
+
 (org-add-link-type
  "printindex"
- (lambda (path)
-   (let ((*index-links* '())
-         (*initial-letters* '()))
-
-     ;; get links
-     (org-element-map (org-element-parse-buffer) 'link
-       (lambda (link)
-         (let ((type (nth 0 link))
-               (plist (nth 1 link)))
-
-           (when (equal (plist-get plist ':type) "index")
-             (add-to-list
-              '*index-links*
-              (cons (plist-get plist :path)
-                    (format
-                     "[[elisp:(progn (switch-to-buffer \"%s\") (goto-char %s) (org-cycle '(64)))][%s]] "
-                     (current-buffer)
-                     (plist-get plist :begin) ;; position of link
-                     ;; grab a description
-                     (save-excursion
-                       (goto-char (plist-get plist :begin))
-                       (if (thing-at-point 'sentence)
-                           ;; get a sentence
-			   (let ((s (thing-at-point 'sentence)))
-			     (loop for char in '("[" "]" "\n")
-				   do
-				   (setq s (replace-regexp-in-string
-					    (regexp-quote char) " " s)))
-			     (concat s " "))
-                         ;; or call it a link
-                         "link")))))))))
-
-     ;; sort the links
-     (setq *index-links* (cl-sort *index-links* 'string-lessp :key 'car))
-
-     ;; now first letters
-     (dolist (link *index-links*)
-       (add-to-list '*initial-letters* (substring (car link) 0 1) t))
-
-     ;; now create the index
-     (switch-to-buffer (get-buffer-create "*index*"))
-     (org-mode)
-     (erase-buffer)
-     (insert "#+TITLE: Index\n\n")
-     (dolist (letter *initial-letters*)
-       (insert (format "* %s\n" (upcase letter)))
-       ;; now process the links
-       (while (and
-               *index-links*
-               (string= letter (substring (car (car *index-links*)) 0 1)))
-         (let ((link (pop *index-links*)))
-           (insert (format "%s %s\n\n" (car link) (cdr link))))))
-     (switch-to-buffer "*index*")))
+ 'org-ref-index
  ;; formatting
  (lambda (path desc format)
    (cond
