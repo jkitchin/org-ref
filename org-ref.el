@@ -143,13 +143,13 @@ codes."
   "Function to open the notes for the bibtex key at point.
 
 The default behavior adds entries to a long file with headlines
-for each entry.  It also tries to be compatible with ‘org-bibtex’.
+for each entry.  It also tries to be compatible with `org-bibtex'.
 
 An alternative is
  (lambda ()
   (helm-bibtex-edit-notes (car (org-ref-get-bibtex-key-and-file thekey))))
 
-Use that if you like the one file one note approach of ‘helm-bibtex’."
+Use that if you like the one file one note approach of `helm-bibtex'."
   :type 'function
   :group 'org-ref)
 
@@ -193,7 +193,7 @@ to the corresponding filename.  The default is
 
 (defcustom org-ref-helm-bibtex-format-org
   'org-ref-helm-bibtex-format-org
-  "Function for how ‘helm-bibtex’ inserts citations."
+  "Function for how `helm-bibtex' inserts citations."
   :type 'function
   :group 'org-ref)
 
@@ -215,7 +215,7 @@ to the corresponding filename.  The default is
     ("Copy entry to clipboard" . helm-bibtex-copy-candidate)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
     ("Add keywords to entries" . org-ref-helm-tag-entries))
-  "Cons cells of string and function to set the actions of ‘helm-bibtex’ to.
+  "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.
 The cdr of the the cons cell is the function to use."
   :type 'list
@@ -323,8 +323,8 @@ save the point position."
   '(("article"  . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
     ("inproceedings" . ("author" "title" "booktitle" "year" "volume" "number" "pages" "doi" "url"))
     ("book" . ("author" "title" "year" "publisher" "url")))
-  "a-list of bibtex entry fields and the order to sort an entry with.
-(entry-type . (list of fields). This is used in
+  "A-list of bibtex entry fields and the order to sort an entry with.
+\(entry-type . (list of fields). This is used in
 `org-ref-sort-bibtex-entry'. Entry types not listed here will
 have fields sorted alphabetically."
   :group 'org-ref)
@@ -336,7 +336,7 @@ have fields sorted alphabetically."
 
 ;;* org-mode / reftex setup
 (defun org-mode-reftex-setup ()
-  "Setup `org-mode' and reftex for ‘org-ref’."
+  "Setup `org-mode' and reftex for `org-ref'."
   (and (buffer-file-name)
        (file-exists-p (buffer-file-name))
        (global-auto-revert-mode t))
@@ -514,7 +514,7 @@ If so return the position for `goto-char'."
 
 
 (defun org-ref-colorize-links ()
-  "Colorize ‘org-ref’ links."
+  "Colorize `org-ref' links."
   (hi-lock-mode 1)
   (highlight-regexp org-ref-cite-re 'org-ref-cite-face)
   (highlight-regexp org-ref-label-re 'org-ref-label-face)
@@ -529,7 +529,7 @@ If so return the position for `goto-char'."
 ;;* Tooltips on citations
 ;; Add tool tips to org-ref links.
 (defun org-ref-match-next-cite-link (&optional limit)
-  "Search forward to next cite link, and add a tooltip."
+  "Search forward to next cite link upto LIMIT, and add a tooltip."
   (when (re-search-forward org-ref-cite-re limit t)
     (add-text-properties
      (match-beginning 0) (match-end 0)
@@ -1873,7 +1873,7 @@ If `org-ref-pdf-directory' is non-nil, put filename there."
 
 (defun org-ref-get-mendeley-filename (key)
   "Return the pdf filename indicated by mendeley file field.
-Falls back to ‘org-ref-get-pdf-filename’ if file filed does not exist.
+Falls back to `org-ref-get-pdf-filename' if file filed does not exist.
 Contributed by https://github.com/autosquid.
 Argument KEY is the bibtex key."
   (let* ((results (org-ref-get-bibtex-key-and-file key))
@@ -2280,7 +2280,7 @@ text]]."
 
 
 (defun org-ref-define-citation-link (type &optional key)
-  "Add a citation link of TYPE for ‘org-ref’.
+  "Add a citation link of TYPE for `org-ref'.
 With optional KEY, set the reftex binding.  For example:
 \(org-ref-define-citation-link \"citez\" ?z) will create a new
 citez link, with reftex key of z, and the completion function."
@@ -2575,7 +2575,7 @@ the entry of interest in the bibfile.  but does not check that."
 If the notes do not exist, then create a heading.
 
 I never did figure out how to use reftex to make this happen
-non-interactively.  the ‘reftex-format-citation’ function did not
+non-interactively.  the `reftex-format-citation' function did not
 work perfectly; there were carriage returns in the strings, and
 it did not put the key where it needed to be.  so, below I replace
 the carriage returns and extra spaces with a single space and
@@ -2933,7 +2933,7 @@ file.  Makes a new buffer with clickable links."
 
 ;;;###autoload
 (defun org-ref ()
-  "Opens a helm interface to actions for ‘org-ref’.
+  "Opens a helm interface to actions for `org-ref'.
 Shows bad citations, ref links and labels"
   (interactive)
   (let ((cb (current-buffer))
@@ -3329,9 +3329,9 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 
 ;;** C-arrow navigation of cite keys
 (defun org-ref-next-key ()
-  "Move cursor to the next cite key when on a cite link, or
-`right-word' otherwise. If the cursor moves off the link, move to
-the beginning of the next cite link after this one."
+  "Move cursor to the next cite key when on a cite link.
+Otherwise run `right-word'. If the cursor moves off the link,
+move to the beginning of the next cite link after this one."
   (interactive)
   (if (-contains? org-ref-cite-types
 		  (org-element-property :type (org-element-context)))
@@ -3346,9 +3346,9 @@ the beginning of the next cite link after this one."
 
 
 (defun org-ref-previous-key ()
-  "Move cursor to the previous cite key when on a cite link, or
-`left-word' otherwise. If cursor moves off the link, jump to the
-end of the next cite link before this one."
+  "Move cursor to the previous cite key when on a cite link.
+Otherwise run `left-word'. If cursor moves off the link, jump to
+the end of the next cite link before this one."
   (interactive)
   (if (-contains? org-ref-cite-types
 		  (org-element-property
@@ -3537,7 +3537,7 @@ end of the next cite link before this one."
 Argument CANDIDATES helm candidates.
 Argument SOURCE the helm source.
 
-Adapted from the function in ‘helm-bibtex’ to include additional
+Adapted from the function in `helm-bibtex' to include additional
 fields, the keywords I think."
   (cl-loop
    with width = (with-helm-window (helm-bibtex-window-width))
@@ -3563,7 +3563,8 @@ fields, the keywords I think."
 
 (defun helm-bibtex-copy-candidate (candidate)
   "Copy the selected bibtex entries to the clipboard.
-Used as a new action in `helm-bibtex'."
+Used as a new action in `helm-bibtex'.
+CANDIDATE is ignored."
   (with-temp-buffer
     (mapc #'insert-file-contents
 	  (-flatten (list helm-bibtex-bibliography)))
@@ -3689,7 +3690,7 @@ inserted by helm.  This function does the insertion and gives helm
 an empty string to insert.  This lets us handle appending to a
 link properly.
 
-In the helm-bibtex buffer, \\[universal-argument] will give you a helm menu to
+In the `helm-bibtex' buffer, \\[universal-argument] will give you a helm menu to
 select a new link type for the selected entries.
 
 A double \\[universal-argument] \\[universal-argument] will
@@ -3761,7 +3762,7 @@ change the key at point to the selected keys."
 
 ;;;###autoload
 (defun org-ref-helm-insert-cite-link (arg)
-  "Insert a citation link with ‘helm-bibtex’.
+  "Insert a citation link with `helm-bibtex'.
 With one prefix ARG, insert a ref link.
 With two prefix ARGs, insert a label link."
   (interactive "P")
@@ -4122,7 +4123,7 @@ _o_: Open entry   _e_: Email entry and pdf
 
 ;;* org-ref-help
 (defun org-ref-help ()
-  "Open the ‘org-ref’ manual."
+  "Open the `org-ref' manual."
   (interactive)
   (find-file (expand-file-name
               "org-ref.org"
@@ -4131,7 +4132,7 @@ _o_: Open entry   _e_: Email entry and pdf
 
 ;;* org-ref menu
 (defun org-ref-org-menu ()
-  "Add ‘org-ref’ menu to the Org menu."
+  "Add `org-ref' menu to the Org menu."
 
   (easy-menu-change
    '("Org") "org-ref"
@@ -4154,7 +4155,7 @@ _o_: Open entry   _e_: Email entry and pdf
 
 ;;* Debug(require 'org-ref-pdf)
 (defmacro ords (&rest body)
-  "Evaluate BODY and return a string"
+  "Evaluate BODY and return a string."
   `(format "%s" (progn ,@body)))
 
 (defun org-ref-debug ()
