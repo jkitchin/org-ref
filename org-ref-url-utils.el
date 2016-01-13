@@ -149,6 +149,29 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 
 (add-to-list 'dnd-protocol-alist '("^https?" . org-ref-url-dnd-protocol))
 
+;;* Enable a DOI to be dragged onto a bibtex buffer
+(defun org-ref-doi-dnd-protocol (doi action)
+  "Protocol for when a doi is dragged onto a bibtex file.
+A doi will be either doi:10.xxx  or 10.xxx."
+  (if (f-ext? (buffer-file-name) "bib")
+      (let ((doi (dnd-unescape-uri doi)))
+	;; Get the actual doi now
+	(string-match "\\(?:DOI\\|doi\\)?:? *\\(10.*\\)" doi)
+	(setq doi (match-string 1 doi))
+	(when doi
+	  (doi-add-bibtex-entry doi (buffer-file-name))
+	  (save-buffer)
+	  action))
+    ;; not on a bib file
+    (let ((dnd-protocol-alist
+	   (rassq-delete-all
+	    'org-ref-url-dnd-protocol
+	    (copy-alist dnd-protocol-alist))))
+      (dnd-handle-one-url nil action url))))
+
+(add-to-list 'dnd-protocol-alist '("^doi" . org-ref-doi-dnd-protocol))
+(add-to-list 'dnd-protocol-alist '("^10" . org-ref-doi-dnd-protocol))
+
 
 ;;* Debug URL in a buffer with C-dnd
 
