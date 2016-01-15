@@ -83,9 +83,11 @@ strings, or nil.
 Used when multiple dois are found in a pdf file."
   (loop for doi in dois
 	collect
-	(cons
-	 (plist-get (doi-utils-get-json-metadata doi) :title)
-	 doi)))
+	(condition-case nil
+	    (cons
+	     (plist-get (doi-utils-get-json-metadata doi) :title)
+	     doi)
+	  (error (cons (format "%s read error" doi) doi)))))
 
 
 (defun org-ref-pdf-add-dois (candidate)
