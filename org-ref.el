@@ -2454,17 +2454,9 @@ PATH is required for the org-link, but it does nothing here."
     ((eq format 'latex)
      (format "\\printindex")))))
 
-;;** Glossary link
-(org-add-link-type
- "newglossaryentry"
- nil ;; no follow action
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\newglossaryentry{%s}{%s}" path desc)))))
+;;** Glossary links
 
-
-;; link to entry
+;; link to glossary entry
 (org-add-link-type
  "gls"
  nil ;; no follow action
