@@ -480,11 +480,22 @@ See http://en.wikibooks.org/wiki/LaTeX/Glossary. Not all options are supported. 
 
 You will need to incorporate running the command makeglossaries into your PDF build command. You also need use the glossaries LaTeX package.
 
+Here is a minimal working example of an org file that makes a glossary.
 #+BEGIN_EXAMPLE
-#+LATEX_HEADER: \usepackage[toc]{glossaries}
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
+
+#+latex_header: \newglossaryentry{computer}{name=computer,description={A machine}}
+
+
+A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future.
+
+\printglossaries
 #+END_EXAMPLE
 
 This is not supported in anything but LaTeX export.
+
+
 
 * Index
 This is a functional link that will open a buffer of clickable index entries:
