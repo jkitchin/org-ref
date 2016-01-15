@@ -488,12 +488,12 @@ If so return the position for `goto-char'."
 
 
 (defvar org-ref-label-re
-  "label:\\([a-zA-Z0-9-_:]*,?\\)*"
+  "[^:]label:\\([a-zA-Z0-9-_:]*,?\\)*"
   "Regexp for label links.")
 
 
 (defvar org-ref-ref-re
-  "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*"
+  "[^:]\\(eq\\)?ref:\\([a-zA-Z0-9-_:]*,?\\)*"
   "Regexp for ref links.")
 
 
