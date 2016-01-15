@@ -337,6 +337,20 @@ REDIRECT-URL is where the pdf url will be in."
   (when (string-match "^http://pss.sagepub.com" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf")))
 
+;;** IEEE
+;; 10.1109/re.2014.6912247
+;; http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6912247
+;; http://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf
+;; http://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247
+;; <meta name="citation_pdf_url" content="http://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247">
+(defun ieee-pdf-url (*doi-utils-redirect*)
+  "Get a url to the pdf from *DOI-UTILS-REDIRECT* for IEEE urls."
+  (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
+    (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
+      (goto-char (point-min))
+      (when (re-search-forward "<meta name=\"citation_pdf_url\" content=\"\\([[:ascii:]]*?\\)\">")
+	(match-string 1)))))
+
 ;;** Add all functions
 
 (setq doi-utils-pdf-url-functions
@@ -357,7 +371,8 @@ REDIRECT-URL is where the pdf url will be in."
        'ecst-pdf-url
        'rsc-pdf-url
        'pnas-pdf-url
-       'sage-pdf-url))
+       'sage-pdf-url
+       'ieee-pdf-url))
 
 ;;** Get the pdf url for a doi
 
@@ -417,7 +432,9 @@ at the end."
                 ;; PDFS start with %PDF-1.x as the first few characters.
                 (if (not (string= (buffer-substring 1 6) "%PDF-"))
                     (progn
-                      (delete-file pdf-file))
+                      (delete-file pdf-file)
+		      (message "No pdf was downloaded.")
+		      (browse-url pdf-url))
                   (message "%s saved" pdf-file)))
 
               (when (file-exists-p pdf-file)
