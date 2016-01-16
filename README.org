@@ -11,18 +11,19 @@
 #+END_HTML
 
 * Screenshots
-#+caption: Basic insertion of citations in org-mode.
+
+Here are some annotated images of basic insertion of citations in org-mode.
 [[./screenshots/introduction.png]]
 
-#+caption: The links in org-ref are functional.
+The links in org-ref are functional. They do things when your cursor is on them, or you click on them, and sometimes when the mouse hovers over them.
 [[./screenshots/functional-links.png]]
 
-#+caption: The menu you get when you click on a cite link.
+Here is an example of a menu of actions you get when you click on a cite link.
 [[./screenshots/cite-menu.png]]
 
 
+org-ref can analyze your org-file and tell you about it, for example if there are bad citations, multiply defined labels, bad reference links, missing bibliography files, etc... You can select each one and it will jump to the location to help you fix it.
 
-#+caption: org-ref can analyze your org-file and tell you about it, and help you do things like export it, etc...
 [[./screenshots/org-ref-analysis.png]]
 
 
