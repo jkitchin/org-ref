@@ -6,9 +6,24 @@
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
-See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch?v=JyvpSVl4_dg for examples of org-ref in action.
+#+BEGIN_HTML
+<iframe width="560" height="315" src="https://www.youtube.com/embed/2t925KRBbFc" frameborder="0" allowfullscreen></iframe>
+#+END_HTML
 
-[[./org-ref.org]] contains all documentation and installation instructions.
+* Screenshots
+#+caption: Basic insertion of citations in org-mode.
+[[./screenshots/introduction.png]]
+
+#+caption: The links in org-ref are functional.
+[[./screenshots/functional-links.png]]
+
+#+caption: The menu you get when you click on a cite link.
+[[./screenshots/cite-menu.png]]
+
+
+
+#+caption: org-ref can analyze your org-file and tell you about it, and help you do things like export it, etc...
+[[./screenshots/org-ref-analysis.png]]
 
 
 * Installation
