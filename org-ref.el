@@ -1439,7 +1439,7 @@ This is used to complete ref links and in helm menus."
         ;; these are the org-ref label:stuff  kinds
         (while (re-search-forward
                 "[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
-          (add-to-list 'matches (match-string-no-properties 1) t))
+	  (setq matches (append matches (list (match-string-no-properties 1)))))
         ;; now add all the other kinds of labels.
         (append matches
                 ;; #+label:
@@ -2817,7 +2817,9 @@ file.  Makes a new buffer with clickable links."
 (defun org-ref-bad-cite-candidates ()
   "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
   (let* ((cp (point))			; save to return to later
-         (bibtex-files (org-ref-find-bibliography))
+         (bibtex-files (loop for f in (org-ref-find-bibliography)
+			     if (file-exists-p f)
+			     collect f))
          (bibtex-file-path (mapconcat
                             (lambda (x)
                               (file-name-directory (file-truename x)))
@@ -3038,7 +3040,7 @@ at the end of you file.
                                   (switch-to-buffer (marker-buffer marker))
                                   (goto-char marker))))
                      ;;
-                     ((name . "Bad Labels")
+                     ((name . "Multiply defined labels")
                       (candidates . ,bad-labels)
                       (action . (lambda (marker)
                                   (switch-to-buffer (marker-buffer marker))
