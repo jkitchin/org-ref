@@ -6,9 +6,13 @@
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
+Introduction to org-ref on [[https://www.youtube.com/watch?v=2t925KRBbFc][YouTube]].
 #+BEGIN_HTML
-<iframe width="560" height="315" src="https://www.youtube.com/embed/2t925KRBbFc" frameborder="0" allowfullscreen></iframe>
+<a href="https://www.youtube.com/watch?v=2t925KRBbFc">
+<img src="http://img.youtube.com/vi/2t925KRBbFc/0.jpg">
+</a>
 #+END_HTML
+
 
 * Screenshots
 
