@@ -107,37 +107,38 @@ but there could be other :key value pairs."
   (save-excursion
     (let (end-of-entry data)
       (goto-char (point-min))
-      (re-search-forward
-       (format "\\newglossaryentry{%s}" entry))
-      (re-search-forward "{")
-      (save-excursion
-	(backward-char)
-	(or-find-closing-curly-bracket)
-	(setq end-of-entry (point)))
+      ;; We may not find an entry if it is defined as an acronym
+      (when  (re-search-forward
+	      (format "\\newglossaryentry{%s}" entry) nil t)
+	(re-search-forward "{")
+	(save-excursion
+	  (backward-char)
+	  (or-find-closing-curly-bracket)
+	  (setq end-of-entry (point)))
 
-      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
-	(setq key (match-string 1))
-	;; get value
-	(goto-char (+ 1 (match-end 1)))
-	(setq p1 (point))
-	(if (looking-at "{")
-	    ;; value is wrapped in {}
-	    (progn
-	      (or-find-closing-curly-bracket)
-	      (setq p2 (point)
-		    value (buffer-substring (+ 1 p1) p2)))
-	  ;; value is up to the next comma
-	  (re-search-forward "," end-of-entry 'mv)
-	  (setq value (buffer-substring p1 (- (point) 1))))
-	;; remove #+latex_header_extra:
-	(setq value (replace-regexp-in-string
-		     "#\\+latex_header_extra: " "" value))
-	(setq value (replace-regexp-in-string
-		     "\n +" " " value))
-	(setq data (append data
-			   (list (intern (format ":%s" key)))
-			   (list value))))
-      data)))
+	(while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+	  (setq key (match-string 1))
+	  ;; get value
+	  (goto-char (+ 1 (match-end 1)))
+	  (setq p1 (point))
+	  (if (looking-at "{")
+	      ;; value is wrapped in {}
+	      (progn
+		(or-find-closing-curly-bracket)
+		(setq p2 (point)
+		      value (buffer-substring (+ 1 p1) p2)))
+	    ;; value is up to the next comma
+	    (re-search-forward "," end-of-entry 'mv)
+	    (setq value (buffer-substring p1 (- (point) 1))))
+	  ;; remove #+latex_header_extra:
+	  (setq value (replace-regexp-in-string
+		       "#\\+latex_header_extra: " "" value))
+	  (setq value (replace-regexp-in-string
+		       "\n +" " " value))
+	  (setq data (append data
+			     (list (intern (format ":%s" key)))
+			     (list value))))
+	data))))
 
 
 (defun org-ref-add-glossary-entry (label name description)
@@ -241,9 +242,12 @@ Used in fontification."
   (save-excursion
     (goto-char position)
     (let* ((label (org-element-property :path (org-element-context)))
-	   (data (or-parse-glossary-entry label))
-	   (name (plist-get data :name))
-	   (description (plist-get data :description)))
+	   (data (or (or-parse-glossary-entry label)
+		     (or-parse-acronym-entry label)))
+	   (name (or (plist-get data :name)
+		     (plist-get data :abbrv)))
+	   (description (or (plist-get data :description)
+			    (plist-get data :full))))
       (format
        "%s: %s"
        name

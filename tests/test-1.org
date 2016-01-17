@@ -19,6 +19,7 @@ multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
 #+latex_header_extra: \newglossaryentry{son}{name={son},description={male}}
 #+latex_header_extra: \newglossaryentry{test}{name={test},description={a test}}
 
+ [[gls:lvm][LVM]] and another one [[gls:lvm][LVM]]
 
 gls:son     acrshort:lvm [[acrshort:lvm][LVM]]
 
