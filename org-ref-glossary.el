@@ -139,11 +139,6 @@ but there could be other :key value pairs."
       data)))
 
 
-(defun or-get-glossary-description (entry)
-  "Return description for glossary ENTRY."
-  (plist-get (or-parse-glossary-entry entry) :description))
-
-
 (defun org-ref-add-glossary-entry (label name description)
   "Insert a new glossary entry.
 LABEL is how you refer to it with links.
