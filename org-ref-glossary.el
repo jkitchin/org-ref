@@ -245,10 +245,12 @@ Used in fontification."
   (save-excursion
     (goto-char position)
     (let* ((label (org-element-property :path (org-element-context)))
-	   (description (or-get-glossary-description label)))
+	   (data (or-parse-glossary-entry label))
+	   (name (plist-get data :name))
+	   (description (plist-get data :description)))
       (format
        "%s: %s"
-       label
+       name
        (with-temp-buffer
 	 (insert (concat  description "."))
 	 (fill-paragraph)
@@ -506,7 +508,15 @@ WINDOW and OBJECT are ignored."
 							 "acrfull")
 						       nil t)
 				  (nth 0 candidate)
-				  (nth 1 candidate))))))))))
+				  (nth 1 candidate))))))
+	    ((name . "Insert new entry")
+	     (dummy)
+	     (action . (("New glossary term" . (lambda (candidate)
+						 (call-interactively
+						  'org-ref-add-glossary-entry)))
+			("New acronym term" . (lambda (candidate)
+						(call-interactively
+						 org-ref-add-acronym-entry))))))))))
 
 
 (provide 'org-ref-glossary)
