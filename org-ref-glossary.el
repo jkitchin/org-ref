@@ -22,7 +22,8 @@
 
 ;; Provides Some glossary support for org-mode. Only export to LaTeX is
 ;; supported. The functionality is based on the LaTeX glossaries package. See
-;; https://en.wikibooks.org/wiki/LaTeX/Glossary
+;; https://en.wikibooks.org/wiki/LaTeX/Glossary and
+;; http://ctan.math.washington.edu/tex-archive/macros/latex/contrib/glossaries/glossaries-user.pdf
 
 ;; Put something like this in your org-file.
 ;; #+latex_header: \usepackage{glossaries}
@@ -498,7 +499,8 @@ WINDOW and OBJECT are ignored."
 			 (insert (format
 				  "[[%s:%s][%s]]"
 				  (ido-completing-read "Type: "
-						       '("acrshort"
+						       '("gls"
+							 "acrshort"
 							 "acrlong"
 							 "acrfull")
 						       nil t)
