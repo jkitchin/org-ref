@@ -372,6 +372,42 @@ have fields sorted alphabetically."
                          (?x . "citetext:%l")
                          (?n . "nocite:%l"))))))
 
+
+(defun org-ref-version ()
+  "Provide a version string for org-ref.
+Copies the string to the clipboard."
+  (interactive)
+  ;; version in the el file.
+  (let* ((org-ref-el (concat
+		      (file-name-sans-extension
+		       (locate-library "org-ref"))
+		      ".el"))
+	 (org-ref-dir (file-name-directory org-ref-el))
+	 org-version
+	 git-commit
+	 version-string)
+
+    (setq org-version (with-temp-buffer
+			(insert-file-contents org-ref-el)
+			(goto-char (point-min))
+			(re-search-forward ";; Version:")
+			(s-trim (buffer-substring (point)
+						  (line-end-position)))))
+
+    (setq git-commit
+	  ;; If in git, get current commit
+	  (let ((default-directory org-ref-el))
+	    (when (= 0 (shell-command "git rev-parse --git-dir"))
+	      (s-trim (shell-command-to-string "git rev-parse HEAD")))))
+
+    (setq version-string (format "org-ref: Version %s%s" org-version
+				 (if git-commit
+				     (format " (git-commit %s)" git-commit)
+				   "")))
+    (kill-new version-string)
+    (message version-string)))
+
+
 ;;* Messages for link at cursor
 (defvar org-ref-message-timer nil
   "Variable to store the link message timer in.")
@@ -4125,6 +4161,8 @@ _o_: Open entry   _e_: Email entry and pdf
   (insert
    (s-format "#+TITLE: org-ref debug
 
+${org-ref-version}
+
 * Variables
 1. org-ref-bibliography-notes: ${org-ref-bibliography-notes} (exists ${orbn-p})
 2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p}) (listp ${ordb-listp})
@@ -4152,6 +4190,7 @@ You set pdftotext-executable to ${pdftotext-executable} (exists: ${pdftotext-exe
 	     'aget
 	     `(("org-ref-bibliography-notes" . ,(format "%s"  org-ref-bibliography-notes))
 	       ("orbn-p" . ,(format "%s" (file-exists-p org-ref-bibliography-notes)))
+	       ("org-ref-version" . ,(org-ref-version))
 	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
 	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
 	       ("ordb-listp" . ,(ords (listp org-ref-default-bibliography)))
