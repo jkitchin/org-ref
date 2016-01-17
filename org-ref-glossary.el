@@ -127,7 +127,7 @@ but there could be other :key value pairs."
 		    value (buffer-substring (+ 1 p1) p2)))
 	  ;; value is up to the next comma
 	  (re-search-forward "," end-of-entry 'mv)
-	  (setq value (buffer-substring p1 (point))))
+	  (setq value (buffer-substring p1 (- (point) 1))))
 	;; remove #+latex_header_extra:
 	(setq value (replace-regexp-in-string
 		     "#\\+latex_header_extra: " "" value))
@@ -261,8 +261,8 @@ Adds a tooltip to the link that is found."
   (when (re-search-forward
 	 (concat
 	  (regexp-opt '("gls" "glspl"
-			"Gsl" "Gslpl"
-			"gslink"
+			"Gls" "Glspl"
+			"glslink"
 			"glssymbol"
 			"glsdesc"))
 	  ":[a-zA-Z]\\{2,\\}")
@@ -419,29 +419,6 @@ WINDOW and OBJECT are ignored."
 	  nil)))))
 
 
-;; (defun or-next-acronym-link (limit)
-;;   "Search to next acronym link and add a tooltip."
-;;   (let* ((p (point))
-;;	 (next-link (loop for link in (org-element-map (org-element-parse-buffer)
-;;					  'link 'identity)
-;;			  if (and (-contains? '("acrfull" "acrlong" "acrshort")
-;;					      (org-element-property :type link))
-;;				  (> (org-element-property :begin link) p))
-;;			  return link)))
-;;     (if next-link
-;;	(progn
-;;	  (set-match-data (list (org-element-property :begin next-link)
-;;				(org-element-property :end next-link)))
-;;	  (add-text-properties
-;;	   (org-element-property :begin next-link)
-;;	   (org-element-property :end next-link)
-;;	   (list
-;;	    'help-echo 'or-acronym-tooltip))
-;;	  (goto-char (org-element-property :end next-link)))
-;;       (goto-char limit)
-;;       nil)))
-
-
 (add-hook
  'org-mode-hook
  (lambda ()
@@ -451,6 +428,85 @@ WINDOW and OBJECT are ignored."
     t)))
 
 
+;; * Helm command to insert entries
+(defun org-ref-insert-glossary-link ()
+  "Helm command to insert glossary and acronym entries as links."
+  (interactive)
+  ;; gather entries
+  (let ((glossary-candidates '())
+	(acronym-candidates '())
+	key
+	entry
+	abbrv full)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward
+	      "\\\\newglossaryentry{\\([[:ascii:]]+?\\)}" nil t)
+	(setq key (match-string 1)
+	      entry (or-parse-glossary-entry key))
+	(setq glossary-candidates
+	      (append
+	       glossary-candidates
+	       (list
+		(cons
+		 ;; for helm
+		 (format "%s: %s."
+			 (plist-get entry :name)
+			 (plist-get entry :description))
+		 ;; the returned candidate
+		 (list key
+		       (plist-get entry :name))))))))
+
+    ;; acronym candidates
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward
+	      "\\\\newacronym{\\([[:ascii:]]+?\\)}" nil t)
+	(setq key (match-string 1)
+	      entry (or-parse-acronym-entry key))
+	(setq acronym-candidates
+	      (append
+	       acronym-candidates
+	       (list
+		(cons
+		 ;; for helm
+		 (format "%s (%s)."
+			 (plist-get entry :full)
+			 (plist-get entry :abbrv))
+		 ;; the returned candidate
+		 (list key
+		       (plist-get entry :abbrv))))))))
+
+    (helm :sources
+	  `(((name . "Insert glossary term")
+	     (multiline)
+	     (candidates . ,glossary-candidates)
+	     (action . (lambda (candidate)
+			 (insert (format
+				  "[[%s:%s][%s]]"
+				  (ido-completing-read "Type: "
+						       '("gls"
+							 "glspl"
+							 "Gls"
+							 "Glspl"
+							 "glssymbol"
+							 "glsdesc")
+						       nil t
+						       "gls")
+				  (nth 0 candidate)
+				  (nth 1 candidate))))))
+	    ((name . "Insert acronym term")
+	     (candidates . ,acronym-candidates)
+	     (action . (lambda (candidate)
+			 (insert (format
+				  "[[%s:%s][%s]]"
+				  (ido-completing-read "Type: "
+						       '("acrshort"
+							 "acrlong"
+							 "acrfull")
+						       nil t)
+				  (nth 0 candidate)
+				  (nth 1 candidate))))))))))
 
 
 (provide 'org-ref-glossary)
