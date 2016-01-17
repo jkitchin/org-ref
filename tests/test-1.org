@@ -1,20 +1,189 @@
 cite:kitchin-2015-examp
 
 multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
 
- cite:xu-2015-tunin-oxide
+#+latex_header: \newglossaryentry{computer}{name=computer,description={A machine, that computes}}
+#+latex_header_extra: \newglossaryentry{tree}{name=tree,description=a big plant}
+#+latex_header: \newacronym{lvm}{LVM}{Logical Volume Manager}
+#+latex_header: \newglossaryentry{naiive}
+#+latex_header: {
+#+latex_header:   name=na\"{\i}ve,
+#+latex_header:   description={is a French loanword (adjective, form of naïf)
+#+latex_header:                indicating having or showing a lack of experience,
+#+latex_header:                understanding or sophistication}
+#+latex_header: }
+#+latex_header_extra: \newacronym{tla}{TLA}{Three Letter Acronym}
+
+#+latex_header_extra: \newglossaryentry{son}{name={son},description={male}}
+
+#+latex_header_extra: \newglossaryentry{test}{name={test},description={a test}}
+
+
+\newglossaryentry{naiive}
+{
+  name=na\"{\i}ve,
+  description={is a French loanword (adjective, form of naïf)
+               indicating having or showing a lack of experience,
+               understanding or sophistication}
+}
+gls:son
+
+acrshort:lvm [[acrshort:lvm][LVM]]
+
+
+#+BEGIN_SRC emacs-lisp
+(or-parse-acronym-entry "tla")
+#+END_SRC
+
+#+RESULTS:
+| :abbrv | TLA | :full | Three Letter Acronym |
+
+   [[gls:naiive][test]]   [[acrshort:tla][TLA]]  acrshort:tla
+
+#+BEGIN_SRC emacs-lisp
+(or-parse-glossary-entry "naiive")
+#+END_SRC
+
+#+RESULTS:
+| :name | na\"{\i}ve, | :description | is a French loanword (adjective, form of naïf) indicating having or showing a lack of experience, understanding \} \{or sophistication |
+
+#+BEGIN_SRC emacs-lisp
+(or-parse-glossary-entry "naiive")
+#+END_SRC
+
+#+RESULTS:
+| :name | na\"{\i}ve, | :description | is a French loanword (adjective, form of naïf)\n#+latex_header:                indicating having or showing a lack of experience,\n#+latex_header:                understanding or sophisticatio |
+
+#+BEGIN_SRC emacs-lisp
+(or-next-glossary-entry nil)
+
+(font-lock-add-keywords
+    nil
+    '((or-next-glossary-link (0  'org-ref-glossary-face t)))
+    t)
+#+END_SRC
+
+A  [[gls:computer][computer]]  is good  for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer a re the wave of the future. They do not use up any glspl:tree. trwrewq
+
+(or-next-glossary-link nil)
+
+ [[gls:tree][tree]]            fjdsa;fdsa
+
+\printglossaries
+
+#+BEGIN_SRC emacs-lisp
+(or-parse-glossary-entry "computer")
+#+END_SRC
+
+#+RESULTS:
+| :name | computer, | :description | A machine, that computes |
+
+#+BEGIN_SRC emacs-lisp
+(or-get-glossary-definition "computer")
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC emacs-lisp
+(or-parse-acronym-entry "lvm")
+#+END_SRC
+#+RESULTS:
+| t | ((<?[-+_.~a-zA-Z][-+_.~:a-zA-Z0-9]*@[-.a-zA-Z0-9]+>? (0 (quote (face ((:background gray80 :underline t)) keymap (keymap (13 lambda nil (interactive) (clickable-email-hydra/body)) (mouse-1 lambda nil (interactive) (clickable-email-hydra/body))) button-lock t email-address t mouse-face button-lock-mouse-face help-echo click to send mu4e email rear-nonsticky t)) append)) (\(?:^\ | \<\)@\([-a-zA-Z0-9_:]?\)\> (0 (quote (face ((:background SlateGray1) (:underline t)) keymap (keymap (mouse-1 lambda nil (interactive) (let ((s (get-surrounding-text-with-property (quote twitter)))) (string-match twitter-re s) (put-text-property (match-beginning 1) (match-end 1) (quote twitter-handle) (match-string-no-properties 1 s))) (twitter/body))) button-lock t twitter t mouse-face button-lock-mouse-face help-echo (lambda (window object pos) (interactive) (save-excursion (goto-char pos) (get-most-recent-tweet (substring-no-properties (get-surrounding-text-with-property (quote twitter)) 1)))) rear-nonsticky t)) append)) (match-next-keybinding 1 font-lock-constant-face) (match-next-emacs-command 1 font-lock-constant-face) (org-font-lock-hook) (^\(\**\)\(\* \)\(.*\) (1 (org-get-level-face 1)) (2 (org-get-level-face 2)) (3 (org-get-level-face 3))) (^[ \n]*\(\( | \ | \+-[-+]\).*\S-\) (1 (quote org-table) t)) (^[ \n]* | \(?:.*? | \)? *\(:?=[^ | \n]*\) (1 (quote org-formula) t)) (^[ \n]* | *\([#*]\) * | (1 (quote org-formula) t)) (^[ \n]* | \( *\([$!_^/]\) * | .*\) | (1 (quote org-formula) t)) ( | *\(<[lrc]?[0-9]*>\) (1 (quote org-formula) t)) (^[ \n]*:\(PROPERTIES\ | CLOCK\ | LOGBOOK\ | RESULTS\):[ \n]*$ (0 (quote org-special-keyword) t)) (^[ \n]*:END: (0 (quote org-special-keyword) t)) (^\(?4:[ \n]*\)\(?1::\(?2:.*?\):\)\(?:\(?3:$\)\ | [ \n]+\(?3:.*?\)\)\(?5:[ \n]*\)$ (1 (quote org-special-keyword) t) (3 (quote org-property-value) t)) (org-activate-tags (1 (quote org-tag) prepend)) (org-activate-angle-links (0 (quote org-link) t)) (org-activate-plain-links (0 (quote org-link) t)) (org-activate-bracket-links (0 (quote org-link) t)) (org-activate-target-links (0 (quote org-link) t)) (org-activate-dates (0 (quote org-date) t)) (org-activate-footnote-links) (<<<?\([^<>\n\n]+\)>>>? (0 (quote org-target) t)) (^&?%%(.*\ | <%%([^>\n]*?> (0 (quote org-sexp-date) t)) ({{{.+}}} (0 (quote org-macro) t)) (org-hide-wide-columns (0 nil append)) (^\(\*+\)\(?: +\(TODO\ | DONE\ | CANCELLED\ | NEW\ | TODO\ | INCOMPLETE\ | READY\ | ASSIGNED\ | COMPLETED\ | DONE\ | SHORTLIST\ | NOTSUITABLE\ | SENIOR\)\)\(?: +\(.*?\)\)?[ \n]*$ (2 (org-get-todo-face 2) t)) (org-font-lock-add-priority-faces) (org-font-lock-add-tag-faces) (\<DEADLINE: (0 (quote org-special-keyword) t)) (\<SCHEDULED: (0 (quote org-special-keyword) t)) (\<CLOSED: (0 (quote org-special-keyword) t)) (\<CLOCK: (0 (quote org-special-keyword) t)) (org-do-emphasis-faces) (^[ \n]*\(?:[-+*]\ | [0-9]+[.)]\)[ \n]+\(?:\[@\(?:start:\)?[0-9]+\][ \n]*\)?\(\[[- X]\]\) 1 (quote org-checkbox) prepend) (\[\([0-9]*%\)\]\ | \[\([0-9]*\)/\([0-9]*\)\] (0 (org-get-checkbox-statistics-face) t)) (^[ \n]*[-+*][ \n]+\(.*?[ \n]+::\)\([ \n]+\ | $\) 1 (quote org-list-dt) prepend) (^\*+ \(.*:ARCHIVE:.*\) (1 (quote org-archived) prepend)) (org-do-latex-and-related) (org-fontify-entities) (org-raise-scripts) (org-activate-code (1 (quote org-code) t)) (^\(\*+\)\(?: +\(COMMENT\ | QUOTE\)\)\(?: +\(.*?\)\)?[ \n]*$ (2 (quote org-special-keyword) t)) (org-fontify-meta-lines-and-blocks) (:\(B_[a-z]+\ | BMCOL\): 1 (quote org-beamer-tag) prepend) (whitespace-point--flush-used) (\(\n+\) 1 whitespace-tab t) (whitespace-trailing-regexp 1 whitespace-trailing t) (\( +\)\(\n+\) 1 whitespace-space-before-tab t) (^\n*\(\( \{8\}\)+\)[^\n\n] 1 whitespace-indentation t) (\n+\(\( \{8\}\)+\) 1 whitespace-space-after-tab t) (org-ref-match-next-cite-link (0 (quote org-ref-cite-face) t)) (\*+  0 (` (face org-link mouse-face highlight keymap (, org-mouse-map))) (quote prepend)) (^[ \n]*\([-+*]\ | [0-9]+[.)]\) + (1 (` (face org-link keymap (, org-mouse-map) mouse-face highlight)) (quote prepend))) (^[ \n]*\([-+*]\ | [0-9]+[.)]\) +\(\[[ X]\]\) (2 (` (face bold keymap (, org-mouse-map) mouse-face highlight)) t)) (\(eq\)?ref:\([a-zA-Z0-9-_:]+,?\)+ (0 (quote org-ref-ref-face) prepend)) (label:\([a-zA-Z0-9-_:]+,?\)+ (0 (quote org-ref-label-face) prepend)) (\(cite\ | nocite\ | citet\ | citet\*\ | citep\ | citep\*\ | citealt\ | citealt\*\ | citealp\ | citealp\*\ | citenum\ | citetext\ | citeauthor\ | citeauthor\*\ | citeyear\ | citeyear\*\ | Citet\ | Citep\ | Citealt\ | Citealp\ | Citeauthor\ | Cite\ | parencite\ | Parencite\ | footcite\ | footcitetext\ | textcite\ | Textcite\ | smartcite\ | Smartcite\ | cite\*\ | parencite\*\ | supercite\ | autocite\ | Autocite\ | autocite\*\ | Autocite\*\ | Citeauthor\*\ | citetitle\ | citetitle\*\ | citedate\ | citedate\*\ | citeurl\ | fullcite\ | footfullcite\ | notecite\ | Notecite\ | pnotecite\ | Pnotecite\ | fnotecite\ | cites\ | Cites\ | parencites\ | Parencites\ | footcites\ | footcitetexts\ | smartcites\ | Smartcites\ | textcites\ | Textcites\ | supercites\ | autocites\ | Autocites\ | bibentry\):\([a-zA-Z0-9-_:\./]+,?\)+ (0 (quote org-ref-cite-face) prepend)) (or-next-glossary-link (0 (quote org-ref-glossary-face) t))) | (<?[-+_.~a-zA-Z][-+_.~:a-zA-Z0-9]*@[-.a-zA-Z0-9]+>? (0 (quote (face ((:background gray80 :underline t)) keymap (keymap (13 lambda nil (interactive) (clickable-email-hydra/body)) (mouse-1 lambda nil (interactive) (clickable-email-hydra/body))) button-lock t email-address t mouse-face button-lock-mouse-face help-echo click to send mu4e email rear-nonsticky t)) append)) | (\(?:^\ | \<\)@\([-a-zA-Z0-9_:]?\)\> (0 (quote (face ((:background SlateGray1) (:underline t)) keymap (keymap (mouse-1 lambda nil (interactive) (let ((s (get-surrounding-text-with-property (quote twitter)))) (string-match twitter-re s) (put-text-property (match-beginning 1) (match-end 1) (quote twitter-handle) (match-string-no-properties 1 s))) (twitter/body))) button-lock t twitter t mouse-face button-lock-mouse-face help-echo (lambda (window object pos) (interactive) (save-excursion (goto-char pos) (get-most-recent-tweet (substring-no-properties (get-surrounding-text-with-property (quote twitter)) 1)))) rear-nonsticky t)) append)) | (match-next-keybinding (1 font-lock-constant-face)) | (match-next-emacs-command (1 font-lock-constant-face)) | (org-font-lock-hook (0 nil)) | (^\(\**\)\(\* \)\(.*\) (1 (org-get-level-face 1)) (2 (org-get-level-face 2)) (3 (org-get-level-face 3))) | (^[ \n]*\(\( | \ | \+-[-+]\).*\S-\) (1 (quote org-table) t)) | (^[ \n]* | \(?:.*? | \)? *\(:?=[^ | \n]*\) (1 (quote org-formula) t)) | (^[ \n]* | *\([#*]\) * | (1 (quote org-formula) t)) | (^[ \n]* | \( *\([$!_^/]\) * | .*\) | (1 (quote org-formula) t)) | ( | *\(<[lrc]?[0-9]*>\) (1 (quote org-formula) t)) | (^[ \n]*:\(PROPERTIES\ | CLOCK\ | LOGBOOK\ | RESULTS\):[ \n]*$ (0 (quote org-special-keyword) t)) | (^[ \n]*:END: (0 (quote org-special-keyword) t)) | (^\(?4:[ \n]*\)\(?1::\(?2:.*?\):\)\(?:\(?3:$\)\ | [ \n]+\(?3:.*?\)\)\(?5:[ \n]*\)$ (1 (quote org-special-keyword) t) (3 (quote org-property-value) t)) | (org-activate-tags (1 (quote org-tag) prepend)) | (org-activate-angle-links (0 (quote org-link) t)) | (org-activate-plain-links (0 (quote org-link) t)) | (org-activate-bracket-links (0 (quote org-link) t)) | (org-activate-target-links (0 (quote org-link) t)) | (org-activate-dates (0 (quote org-date) t)) | (org-activate-footnote-links (0 nil)) | (<<<?\([^<>\n\n]+\)>>>? (0 (quote org-target) t)) | (^&?%%(.*\ | <%%([^>\n]*?> (0 (quote org-sexp-date) t)) | ({{{.+}}} (0 (quote org-macro) t)) | (org-hide-wide-columns (0 nil append)) | (^\(\*+\)\(?: +\(TODO\ | DONE\ | CANCELLED\ | NEW\ | TODO\ | INCOMPLETE\ | READY\ | ASSIGNED\ | COMPLETED\ | DONE\ | SHORTLIST\ | NOTSUITABLE\ | SENIOR\)\)\(?: +\(.*?\)\)?[ \n]*$ (2 (org-get-todo-face 2) t)) | (org-font-lock-add-priority-faces (0 nil)) | (org-font-lock-add-tag-faces (0 nil)) | (\<DEADLINE: (0 (quote org-special-keyword) t)) | (\<SCHEDULED: (0 (quote org-special-keyword) t)) | (\<CLOSED: (0 (quote org-special-keyword) t)) | (\<CLOCK: (0 (quote org-special-keyword) t)) | (org-do-emphasis-faces (0 nil)) | (^[ \n]*\(?:[-+*]\ | [0-9]+[.)]\)[ \n]+\(?:\[@\(?:start:\)?[0-9]+\][ \n]*\)?\(\[[- X]\]\) (1 (quote org-checkbox) prepend)) | (\[\([0-9]*%\)\]\ | \[\([0-9]*\)/\([0-9]*\)\] (0 (org-get-checkbox-statistics-face) t)) | (^[ \n]*[-+*][ \n]+\(.*?[ \n]+::\)\([ \n]+\ | $\) (1 (quote org-list-dt) prepend)) | (^\*+ \(.*:ARCHIVE:.*\) (1 (quote org-archived) prepend)) | (org-do-latex-and-related (0 nil)) | (org-fontify-entities (0 nil)) | (org-raise-scripts (0 nil)) | (org-activate-code (1 (quote org-code) t)) | (^\(\*+\)\(?: +\(COMMENT\ | QUOTE\)\)\(?: +\(.*?\)\)?[ \n]*$ (2 (quote org-special-keyword) t)) | (org-fontify-meta-lines-and-blocks (0 nil)) | (:\(B_[a-z]+\ | BMCOL\): (1 (quote org-beamer-tag) prepend)) | (whitespace-point--flush-used (0 nil)) | (\(\n+\) (1 whitespace-tab t)) | (whitespace-trailing-regexp (1 whitespace-trailing t)) | (\( +\)\(\n+\) (1 whitespace-space-before-tab t)) | (^\n*\(\( \{8\}\)+\)[^\n\n] (1 whitespace-indentation t)) | (\n+\(\( \{8\}\)+\) (1 whitespace-space-after-tab t)) | (org-ref-match-next-cite-link (0 (quote org-ref-cite-face) t)) | (\*+  (0 (` (face org-link mouse-face highlight keymap (, org-mouse-map))) (quote prepend))) | (^[ \n]*\([-+*]\ | [0-9]+[.)]\) + (1 (` (face org-link keymap (, org-mouse-map) mouse-face highlight)) (quote prepend))) | (^[ \n]*\([-+*]\ | [0-9]+[.)]\) +\(\[[ X]\]\) (2 (` (face bold keymap (, org-mouse-map) mouse-face highlight)) t)) | (\(eq\)?ref:\([a-zA-Z0-9-_:]+,?\)+ (0 (quote org-ref-ref-face) prepend)) | (label:\([a-zA-Z0-9-_:]+,?\)+ (0 (quote org-ref-label-face) prepend)) | (\(cite\ | nocite\ | citet\ | citet\*\ | citep\ | citep\*\ | citealt\ | citealt\*\ | citealp\ | citealp\*\ | citenum\ | citetext\ | citeauthor\ | citeauthor\*\ | citeyear\ | citeyear\*\ | Citet\ | Citep\ | Citealt\ | Citealp\ | Citeauthor\ | Cite\ | parencite\ | Parencite\ | footcite\ | footcitetext\ | textcite\ | Textcite\ | smartcite\ | Smartcite\ | cite\*\ | parencite\*\ | supercite\ | autocite\ | Autocite\ | autocite\*\ | Autocite\*\ | Citeauthor\*\ | citetitle\ | citetitle\*\ | citedate\ | citedate\*\ | citeurl\ | fullcite\ | footfullcite\ | notecite\ | Notecite\ | pnotecite\ | Pnotecite\ | fnotecite\ | cites\ | Cites\ | parencites\ | Parencites\ | footcites\ | footcitetexts\ | smartcites\ | Smartcites\ | textcites\ | Textcites\ | supercites\ | autocites\ | Autocites\ | bibentry\):\([a-zA-Z0-9-_:\./]+,?\)+ (0 (quote org-ref-cite-face) prepend)) | (or-next-glossary-link (0 (quote org-ref-glossary-face) t)) |
+
+#+BEGIN_SRC emacs-lisp
+(or-parse-glossary-entry "tree")
+#+END_SRC
+
+#+RESULTS:
+| :name | tree, | :description | a big plant |
+
+#+BEGIN_SRC emacs-lisp
+(or-get-glossary-description "tree")
+#+END_SRC
+
+#+RESULTS:
+: a big plant
+
+Now, we need to parse something like:
+{}}
+
+find key= first. then, for the value, we have to figure out if it is wrapped in brackets or not. If not, go to first comma. if so, take what is in brackets.
+
+#+BEGIN_SRC emacs-lisp
+(let ((s "name=computer,description={A machine, that computes.}")
+      (data '())
+      key value
+      p1 p2
+      (i 0))
+  (with-temp-buffer
+    (insert s)
+    (goto-char (point-min))
+    (while (re-search-forward "\\(\\w+?\\)=" nil t)
+      (setq key (match-string 1))
+      ;; get value
+      (goto-char (+ 1 (match-end 1)))
+      (setq p1 (point))
+      (if (looking-at "{")
+	  (progn
+	    (forward-list)
+	    (setq p2 (point)
+		  value (buffer-substring (+ 1 p1) (- p2 1))))
+	(re-search-forward ",")
+	(goto-char (match-beginning 0))
+	(setq value (buffer-substring p1 (point))))
+      (setq data (append data (list (intern (format ":%s" key))) (list value)))))
+  data)
+#+END_SRC
+
+#+RESULTS:
+| :name | computer | :description | A machine, that computes. |
+
+
+#+BEGIN_SRC emacs-lisp
+(goto-char (point-min))
+(re-search-forward "\\newglossaryentry{computer}{" nil t)
+(backward-char)
+(forward-list)
+#+END_SRC
+
+#+RESULTS:
+: 255
+
+ cite:xu-2015-tunin-oide
+
+label:one
 
 #+BEGIN_SRC emacs-lisp
 (org-ref-find-bibliography)
 #+END_SRC
+
+label:one
 
 #+RESULTS:
 | test-1.bib |
 
 cite:xu-2015-tunin-oxide
 
+ref:bad-label
+
 #+BEGIN_SRC emacs-lisp
-(defun ok () (interactive) (message-box (org-ref-get-bibtex-key-under-cursor)))
+(org-ref-get-labels)
 #+END_SRC
 
-bibliography:test-1.bib
+#+RESULTS:
+| one | one |
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-bad-label-candidates)
+#+END_SRC
+
+#+RESULTS:
+
+bibliography:test-1.bib,missing.bib
+
+
+2t925KRBbFc
+
+http://img.youtube.com/vi/2t925KRBbFc/0.jpg
