@@ -49,6 +49,8 @@
 (require 'reftex)
 (require 'reftex-cite)
 
+(require 'org-ref-glossary)
+
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
 (declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
@@ -2453,44 +2455,6 @@ PATH is required for the org-link, but it does nothing here."
    (cond
     ((eq format 'latex)
      (format "\\printindex")))))
-
-;;** Glossary links
-
-;; link to glossary entry
-(org-add-link-type
- "gls"
- nil ;; no follow action
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\gls{%s}" path)))))
-
-;; plural
-(org-add-link-type
- "glspl"
- nil ;; no follow action
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glspl{%s}" path)))))
-
-;; capitalized link
-(org-add-link-type
- "Gls"
- nil ;; no follow action
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Gls{%s}" path)))))
-
-;; capitalized link
-(org-add-link-type
- "Glspl"
- nil ;; no follow action
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Glspl{%s}" path)))))
 
 ;;* Utilities
 ;;** create text citations from a bibtex entry

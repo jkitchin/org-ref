@@ -3,8 +3,14 @@
 #+DATE: 2015-03-15 Sun
 #+OPTIONS: toc:nil ^:{}
 #+LATEX_HEADER: \usepackage{natbib}
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
+#+latex_header_extra: \newglossaryentry{acronym}{name={acronym},description={An acronym is an abbreviation used as a word which is formed from the initial components in a phrase or a word. Usually these components are individual letters (as in NATO or laser) or parts of words or names (as in Benelux)}}
+#+latex_header_extra: \newacronym{tla}{TLA}{Three Letter Acronym}
+
 \maketitle
 \tableofcontents
+
 
 * Introduction to org-ref
 Org-ref is a library for org-mode cite:Dominik201408 that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
@@ -463,6 +469,8 @@ You will need to use the makeidx package, and use this in the LaTeX header.
 #+LATEX_HEADER: \usepackage{makeidx}
 #+LATEX_HEADER: \makeindex
 
+
+
 You will have to incorporate running makeindex into your PDF build command.
 
 This is not supported in anything but LaTeX export.
@@ -470,22 +478,34 @@ This is not supported in anything but LaTeX export.
 *** Glossaries
 index:glossary
 
-See http://en.wikibooks.org/wiki/LaTeX/Glossary. Not all options are supported. I have never actually used this functionality.
-
-- newglossaryentry :: define a term
+org-ref provides some support for glossary and acronym definitions.
 - gls :: a reference to a term
 - glspl :: plural reference to a term
 - Gsl :: capitalized reference to a term
 - Glspl :: capitalized plural reference to a term
+- gslink :: Link to alternative text in the link description.
+- glssymbol :: The symbol term
+- glsdesc :: The description of the term
+
+- acrshort :: Short version of the acroynm
+- acrfull :: The full definition of the acronym
+- acrlong :: The full definition of the acronym with (abbrv).
+
+There are two useful commands:
+- org-ref-add-glossary-entry :: Add a new entry to the file
+- org-ref-add-acronym-entry :: Add a new acronym to the file
+
+Here is an example of glossary link for an [[gls:acronym][acronym]] and an actual [[acrshort:tla][TLA]]. Each link has a tool tip on it that shows up when you hover the mouse over it. These links will export as the LaTeX commands need by the glossaries package.
 
 You will need to incorporate running the command makeglossaries into your PDF build command. You also need use the glossaries LaTeX package.
 
 Here is a minimal working example of an org file that makes a glossary.
+
 #+BEGIN_EXAMPLE
 #+latex_header: \usepackage{glossaries}
 #+latex_header: \makeglossaries
 
-#+latex_header: \newglossaryentry{computer}{name=computer,description={A machine}}
+#+latex_header_extra: \newglossaryentry{computer}{name=computer,description={A machine}}
 
 
 A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future.
