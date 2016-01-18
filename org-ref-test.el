@@ -1,7 +1,7 @@
 ;;; org-ref-test.el --- Tests for org-ref
 
 ;;; Commentary:
-;;
+;; (progn (eval-buffer) (ert t))
 
 ;;; Code:
 (require 'org-ref)
@@ -33,6 +33,7 @@
    (equal
     '("test-1.bib")
     (org-ref-find-bibliography))))
+
 
 (ert-deftest key-file ()
   "Check we find a key in a file"
