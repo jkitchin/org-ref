@@ -3817,11 +3817,20 @@ change the key at point to the selected keys."
             org-ref-cite-types
             (org-element-property :type object)))
       (cond
-       ;; no prefix. append keys
+       ;; no prefix. insert or append keys
        ((equal helm-current-prefix-arg nil)
-        (goto-char (org-element-property :end object))
-        (skip-chars-backward " ")
-        (insert (concat "," (mapconcat 'identity keys ","))))
+	(cond ((looking-back ":")
+	       (insert (concat (mapconcat 'identity keys ",") ",")))
+	      ((looking-at ":")
+	       (forward-char)
+	       (insert (concat (mapconcat 'identity keys ",") ",")))
+	      ((-contains? org-ref-cite-types (thing-at-point 'word))
+	       (re-search-forward ":")
+	       (insert (concat (mapconcat 'identity keys ",") ",")))
+	      (t
+	       (goto-char (org-element-property :end object))
+	       (skip-chars-backward " ")
+	       (insert (concat "," (mapconcat 'identity keys ","))))))
        ;; double prefix, replace key at point
        ((equal helm-current-prefix-arg '(16))
         (setf (buffer-substring
