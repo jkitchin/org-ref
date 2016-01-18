@@ -491,7 +491,9 @@ If so return the position for `goto-char'."
   (message "Mouse messages are off"))
 
 
-;; Colorizing org-ref links
+
+;;* font lock for org-ref
+
 (defcustom org-ref-colorize-links
   t
   "When non-nil, change colors of links."
@@ -551,44 +553,154 @@ If so return the position for `goto-char'."
   "Face for ref links in org-ref.")
 
 
-(defun org-ref-colorize-links ()
-  "Colorize `org-ref' links."
-  (hi-lock-mode 1)
-  (highlight-regexp org-ref-cite-re 'org-ref-cite-face)
-  (highlight-regexp org-ref-label-re 'org-ref-label-face)
-  (highlight-regexp org-ref-ref-re 'org-ref-ref-face))
+;;** Font-lock org-ref links
+
+;; We use functions to search for the next link, and then use org-mode to find
+;; the boundaries. I wasn't able to figure out robust regexps for these links
+;; that includes all possible link syntaxes eg. bare, [[cite:key]] and
+;; [[cite:key] [text]]. Using regexps might be a bit more efficient, so if they
+;; ever get figured out, we could eliminate the org-element code in these
+;; functions.
+
+(defun org-ref-match-next-cite-link (&optional limit)
+  "Search forward to next cite link up to LIMIT
+Add a tooltip to the match."
+  (when (re-search-forward org-ref-cite-re limit t)
+    (forward-char -2)
+    (let ((this-link (org-element-context)))
+      (add-text-properties
+       (org-element-property :begin this-link)
+       (- (org-element-property :end this-link)
+	  (org-element-property :post-blank this-link))
+       (list
+	'help-echo (lambda (window object position)
+		     (save-excursion
+		       (goto-char position)
+		       ;; Here we wrap the citation string to a reasonable size.
+		       (let ((s (org-ref-get-citation-string-at-point)))
+			 (with-temp-buffer
+			   (insert s)
+			   (fill-paragraph)
+			   (buffer-string)))))))
+      (set-match-data
+       (list (org-element-property :begin this-link)
+	     (- (org-element-property :end this-link)
+		(org-element-property :post-blank this-link))))
+      (goto-char (org-element-property :end this-link)))))
+
+
+(defun org-ref-match-next-label-link (limit)
+  "Find next label link up to LIMIT.
+Add tooltip."
+  (when (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+    (forward-char -2)
+    (let ((this-link (org-element-context)))
+      (add-text-properties
+       (org-element-property :begin this-link)
+       (- (org-element-property :end this-link)
+	  (org-element-property :post-blank this-link))
+       (list
+	'help-echo (lambda (window object position)
+		     (save-excursion
+		       (goto-char position)
+		       (let ((s (org-ref-link-message)))
+			 (with-temp-buffer
+			   (insert s)
+			   (fill-paragraph)
+			   (buffer-string)))))))
+      (set-match-data
+       (list (org-element-property :begin this-link)
+	     (- (org-element-property :end this-link)
+		(org-element-property :post-blank this-link))))
+      (goto-char (org-element-property :end this-link)))))
+
+
+(defun org-ref-match-next-ref-link (limit)
+  "Find next ref link up to LIMIT.
+Add tooltip to the link. We avoid tags by not finding :ref: in
+tags."
+  (when (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+    (forward-char -2)
+    (let ((this-link (org-element-context)))
+      (add-text-properties
+       (org-element-property :begin this-link)
+       (- (org-element-property :end this-link)
+	  (org-element-property :post-blank this-link))
+       (list
+	'help-echo (lambda (window object position)
+		     (save-excursion
+		       (goto-char position)
+		       (let ((s (org-ref-link-message)))
+			 (with-temp-buffer
+			   (insert s)
+			   (fill-paragraph)
+			   (buffer-string)))))))
+      (set-match-data
+       (list (org-element-property :begin this-link)
+	     (- (org-element-property :end this-link)
+		(org-element-property :post-blank this-link))))
+      (goto-char (org-element-property :end this-link)))))
+
+(defun org-ref-match-next-bibliography-link (limit)
+  "Find next bibliography link up to LIMIT.
+Add tooltip to the link."
+  (when (re-search-forward "bibliography:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+    (forward-char -2)
+    (let ((this-link (org-element-context)))
+      (add-text-properties
+       (org-element-property :begin this-link)
+       (- (org-element-property :end this-link)
+	  (org-element-property :post-blank this-link))
+       (list
+	'help-echo (lambda (window object position)
+		     (save-excursion
+		       (goto-char position)
+		       (let ((s (org-ref-link-message)))
+			 (with-temp-buffer
+			   (insert s)
+			   (fill-paragraph)
+			   (buffer-string)))))))
+      (set-match-data
+       (list (org-element-property :begin this-link)
+	     (- (org-element-property :end this-link)
+		(org-element-property :post-blank this-link))))
+      (goto-char (org-element-property :end this-link)))))
+
+
+(defun org-ref-match-next-bibliographystyle-link (limit)
+  "Find next bibliographystyle link up to LIMIT.
+Add tooltip to the link."
+  (when (re-search-forward "bibliographystyle:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+    (forward-char -2)
+    (let* ((this-link (org-element-context))
+	   (path (org-element-property :path this-link))
+	   (msg (shell-command-to-string (format "kpsewhich %s.bst" path))))
+      (add-text-properties
+       (org-element-property :begin this-link)
+       (- (org-element-property :end this-link)
+	  (org-element-property :post-blank this-link))
+       (list
+	'help-echo msg))
+      (set-match-data
+       (list (org-element-property :begin this-link)
+	     (- (org-element-property :end this-link)
+		(org-element-property :post-blank this-link))))
+      (goto-char (org-element-property :end this-link)))))
 
 
 (when org-ref-colorize-links
-  (add-hook 'org-mode-hook 'org-ref-colorize-links))
+  (add-hook
+   'org-mode-hook
+   (lambda ()
+     (font-lock-add-keywords
+      nil
+      '((org-ref-match-next-cite-link (0  'org-ref-cite-face t))
+	(org-ref-match-next-label-link (0  'org-ref-label-face t))
+	(org-ref-match-next-ref-link (0  'org-ref-ref-face t))
+	(org-ref-match-next-bibliography-link (0  'org-link t))
+	(org-ref-match-next-bibliographystyle-link (0  'org-link t)))
+      t))))
 
-
-
-;;* Tooltips on citations
-;; Add tool tips to org-ref links.
-(defun org-ref-match-next-cite-link (&optional limit)
-  "Search forward to next cite link upto LIMIT, and add a tooltip."
-  (when (re-search-forward org-ref-cite-re limit t)
-    (add-text-properties
-     (match-beginning 0) (match-end 0)
-     (list
-      'help-echo (lambda (window object position)
-		   (save-excursion
-		     (goto-char position)
-		     ;; Here we wrap the citation string to a reasonable size.
-		     (let ((s (org-ref-get-citation-string-at-point)))
-		       (with-temp-buffer
-			 (insert s)
-			 (fill-paragraph)
-			 (buffer-string)))))))))
-
-(add-hook
- 'org-mode-hook
- (lambda ()
-   (font-lock-add-keywords
-    nil
-    '((org-ref-match-next-cite-link (0  'org-ref-cite-face t)))
-    t)))
 
 ;;* General org-ref utilities
 (defun org-ref-strip-string (string)

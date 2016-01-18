@@ -1,7 +1,3 @@
-cite:kitchin-2015-examp
-
-multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
-
 #+latex_header: \usepackage{glossaries}
 #+latex_header: \makeglossaries
 
@@ -19,7 +15,13 @@ multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
 #+latex_header_extra: \newglossaryentry{son}{name={son},description={male}}
 #+latex_header_extra: \newglossaryentry{test}{name={test},description={a test}}
 
- [[gls:lvm][LVM]] and another one [[gls:lvm][LVM]]
+
+  cite:kitchin-2015-examp
+
+multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
+
+
+Acronym entries: [[gls:lvm][LVM]] and another one [[gls:lvm][LVM]]
 
 gls:son     acrshort:lvm [[acrshort:lvm][LVM]]
 
@@ -29,21 +31,15 @@ A  [[gls:computer][computer]]  is good  for computing. Gls:computer is capitaliz
 
  [[gls:tree][tree]]            fjdsa;fdsa
 
-label:one
+Labels and refs: label:one
 
-#+BEGIN_SRC emacs-lisp
-(org-ref-find-bibliography)
-#+END_SRC
+label:two   ref:two
 
-label:one
-
-#+RESULTS:
-| test-1.bib |
-
-cite:xu-2015-tunin-oxide
+ Multiply defined label:one
 
 ref:bad-label
 
 \printglossaries
 
-bibliography:test-1.bib,missing.bib
+bibliographystyle:unsrt
+bibliography:test-1.bib
