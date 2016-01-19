@@ -34,6 +34,8 @@
 ;;; Code:
 (require 'doi-utils)
 (require 'f)
+(eval-when-compile
+  (require 'cl))
 
 (defgroup org-ref-url nil
   "Customization group for org-ref-url-utils"
@@ -69,8 +71,8 @@ Returns a list of collected DOIs in the order found."
 	    do
 	    (goto-char (point-min))
 	    (while (re-search-forward doi-pattern nil t)
-	      (add-to-list 'dois (match-string 1) t)))
-      dois)))
+	      (pushnew (match-string 1) dois :test #'equal)))
+      (reverse dois))))
 
 
 (defun org-ref-url-add-doi-entries (candidate)
@@ -111,8 +113,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 					   do
 					   (goto-char (point-min))
 					   (while (re-search-forward doi-pattern nil t)
-					     (add-to-list
-					      'dois
+					     (pushnew
 					      ;; Cut off the doi, sometimes
 					      ;; false matches are long.
 					      (cons (format "%40s | %s"
@@ -123,8 +124,9 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 								40))
 							    doi-pattern)
 						    (match-string 1))
-					      t)))
-				     dois)))
+					      dois
+					      :test #'equal)))
+				     (reverse dois))))
 		  (action . org-ref-url-add-doi-entries)))
 	  action)
 	 ;; No DOIs found, add a misc entry.
