@@ -2007,7 +2007,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 		 (cl-loop for file in org-ref-bibliography-files do
 			  (if (org-ref-key-in-file-p key (file-truename file))
 			      (throw 'result file)))))
-    (cons key (substring-no-properties file))))
+    (cons key (when (stringp file) (substring-no-properties file)))))
 
 ;;*** key at point functions
 (defun org-ref-get-pdf-filename (key)
