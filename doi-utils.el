@@ -344,6 +344,12 @@ REDIRECT-URL is where the pdf url will be in."
   (when (string-match "^http://www.jneurosci.org" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf")))
 
+;;** Generic .full.pdf
+(defun generic-full-pdf-url (*doi-utils-redirect*)
+  (let ((pdf (concat *doi-utils-redirect* ".full.pdf")))
+    (when (url-http-file-exists-p pdf)
+      pdf)))
+
 ;;** IEEE
 ;; 10.1109/re.2014.6912247
 ;; http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6912247
@@ -380,7 +386,8 @@ REDIRECT-URL is where the pdf url will be in."
        'pnas-pdf-url
        'sage-pdf-url
        'jneurosci-pdf-url
-       'ieee-pdf-url))
+       'ieee-pdf-url
+       'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
 
