@@ -290,6 +290,7 @@ Argument REDIRECT-URL URL you are redirected to."
       (setq url (replace-regexp-in-string "articlelanding" "articlepdf" url))
       url)))
 
+;;** Science Direct
 (defun doi-utils-get-science-direct-pdf-url (redirect-url)
   "Science direct hides the pdf url in html.  W get it out here.
 REDIRECT-URL is where the pdf url will be in."
