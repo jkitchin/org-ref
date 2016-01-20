@@ -337,6 +337,13 @@ REDIRECT-URL is where the pdf url will be in."
   (when (string-match "^http://pss.sagepub.com" *doi-utils-redirect*)
     (concat *doi-utils-redirect* ".full.pdf")))
 
+
+;;** Journal of Neuroscience
+(defun jneurosci-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^http://www.jneurosci.org" *doi-utils-redirect*)
+    (concat *doi-utils-redirect* ".full.pdf")))
+
 ;;** IEEE
 ;; 10.1109/re.2014.6912247
 ;; http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6912247
@@ -372,6 +379,7 @@ REDIRECT-URL is where the pdf url will be in."
        'rsc-pdf-url
        'pnas-pdf-url
        'sage-pdf-url
+       'jneurosci-pdf-url
        'ieee-pdf-url))
 
 ;;** Get the pdf url for a doi
