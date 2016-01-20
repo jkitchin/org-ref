@@ -209,10 +209,17 @@ Argument REDIRECT-URL URL you are redirected to."
 
 ;; we just change /abs/ to /pdf/.
 
-(defun acs-pdf-url (*doi-utils-redirect*)
+(defun acs-pdf-url-1 (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
-  (when (string-match "^http://pubs.acs.org" *doi-utils-redirect*)
+  (when (string-match "^http://pubs.acs.org/doi/abs/" *doi-utils-redirect*)
     (replace-regexp-in-string "/abs/" "/pdf/" *doi-utils-redirect*)))
+
+;; 1/20/2016 I noticed this new pattern in pdf urls, where there is no abs in
+;; the url
+(defun acs-pdf-url-2 (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^http://pubs.acs.org/doi/" *doi-utils-redirect*)
+    (replace-regexp-in-string "/doi/" "/doi/pdf/" *doi-utils-redirect*)))
 
 
 ;;** IOP
@@ -373,7 +380,8 @@ REDIRECT-URL is where the pdf url will be in."
        'nature-pdf-url
        'wiley-pdf-url
        'springer-pdf-url
-       'acs-pdf-url
+       'acs-pdf-url-1
+       'acs-pdf-url-2
        'iop-pdf-url
        'jstor-pdf-url
        'aip-pdf-url
