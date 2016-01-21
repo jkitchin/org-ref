@@ -197,10 +197,17 @@ Argument REDIRECT-URL URL you are redirected to."
 
 ;;** Springer
 
+(defun springer-chapter-pdf-url (*doi-utils-redirect*)
+  (when (string-match "^http://link.springer.com/chapter/" *doi-utils-redirect*)
+    (replace-regexp-in-string "/chapter" "/content/pdf"
+			      (concat *doi-utils-redirect* ".pdf"))))
+
+
 (defun springer-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://link.springer.com" *doi-utils-redirect*)
-    (replace-regexp-in-string "/article/" "/content/pdf/" (concat *doi-utils-redirect* ".pdf"))))
+    (replace-regexp-in-string "/article/" "/content/pdf/"
+			      (concat *doi-utils-redirect* ".pdf"))))
 
 
 ;;** ACS
@@ -380,6 +387,7 @@ REDIRECT-URL is where the pdf url will be in."
        'science-pdf-url
        'nature-pdf-url
        'wiley-pdf-url
+       'springer-chapter-pdf-url
        'springer-pdf-url
        'acs-pdf-url-1
        'acs-pdf-url-2
@@ -454,7 +462,7 @@ at the end."
               (with-temp-buffer
                 (insert-file-contents pdf-file)
                 ;; PDFS start with %PDF-1.x as the first few characters.
-                (if (not (string= (buffer-substring 1 6) "%PDF-"))
+                (if (not (string= (buffer-substring 1 (min 6 (point-max))) "%PDF-"))
                     (progn
                       (delete-file pdf-file)
 		      (message "No pdf was downloaded.")
@@ -631,9 +639,10 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   ;; set date added for the record
   (bibtex-set-field doi-utils-timestamp-field
 		    (funcall doi-utils-timestamp-format-function))
-  (if (bibtex-key-in-head nil)
-      (org-ref-clean-bibtex-entry t)
-    (org-ref-clean-bibtex-entry))
+  (ignore-errors
+    (if (bibtex-key-in-head nil)
+	(org-ref-clean-bibtex-entry t)
+      (org-ref-clean-bibtex-entry)))
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
@@ -680,7 +689,9 @@ Argument BIBFILE the bibliography to use."
          ;;  now get the bibfile to add it to
          (ido-completing-read
           "Bibfile: "
-          (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+          (append (f-entries "." (lambda (f)
+				   (and (not (string-match "#" f))
+					(f-ext? f "bib"))))
                   org-ref-default-bibliography))))
   ;; Wrap in save-window-excursion to restore your window arrangement after this
   ;; is done.
@@ -1072,11 +1083,10 @@ error."
 ;; I wrote this function to help debug a DOI. This function generates an
 ;; org-buffer with the doi, gets the json metadata, shows the bibtex entry, and
 ;; the pdf link for it.
-(defun doi-utils-get-json-metadata (doi)
-  "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
+(defun doi-utils-get-json (doi)
+  "Return json data as a string for DOI."
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/citeproc+json")
-        (json-object-type 'plist)
         (json-data))
     (with-current-buffer
         (url-retrieve-synchronously
@@ -1086,7 +1096,14 @@ error."
           (progn
             (browse-url (concat "http://dx.doi.org/" doi))
             (error "Resource not found.  Opening website"))
-        (json-read-from-string json-data)))))
+	json-data))))
+
+
+(defun doi-utils-get-json-metadata (doi)
+  "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
+  (let ((json-object-type 'plist))
+    (json-read-from-string (doi-utils-get-json doi))))
+
 
 (defun doi-utils-debug (doi)
   "Generate an org-buffer showing data about DOI."
