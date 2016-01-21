@@ -626,11 +626,11 @@ MATCHING-TYPES."
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
   "Insert bibtex entry from a DOI.
 Also cleans entry using ‘org-ref’, and tries to download the corresponding pdf."
-  (interactive "sDOI :")
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
   ;; set date added for the record
-  (bibtex-set-field doi-utils-timestamp-field (funcall doi-utils-timestamp-format-function))
+  (bibtex-set-field doi-utils-timestamp-field
+		    (funcall doi-utils-timestamp-format-function))
   (if (bibtex-key-in-head nil)
       (org-ref-clean-bibtex-entry t)
     (org-ref-clean-bibtex-entry))
