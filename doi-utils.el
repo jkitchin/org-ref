@@ -441,7 +441,7 @@ at the end."
       (setq pdf-file (concat
 		      (if org-ref-pdf-directory
 			  (file-name-as-directory org-ref-pdf-directory)
-			(read-directory-name "Directory: " "."))
+			(read-directory-name "PDF directory: " "."))
 		      key ".pdf"))
 
       ;; now get file if needed.
