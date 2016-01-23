@@ -69,6 +69,17 @@
   :type 'function
   :group 'doi-utils)
 
+(defcustom doi-utils-make-notes-function
+  (lambda ()
+    (bibtex-beginning-of-entry)
+    (helm-bibtex-edit-notes (cdr (assoc "=key=" (bibtex-parse-entry))) ))
+  "Function to create notes for a bibtex entry.
+
+For all notes in the `org-ref-bibliography-notes' use
+`org-ref-open-bibtex-notes' as the function.
+
+Set to (lambda () nil) if you want no notes.")
+
 ;;* Getting pdf files from a DOI
 
 ;; The idea here is simple. When you visit http://dx.doi.org/doi, you get
@@ -630,7 +641,6 @@ MATCHING-TYPES."
 ;; cursor, clean the entry, try to get the pdf, and create a notes entry for
 ;; you.
 
-
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
   "Insert bibtex entry from a DOI.
 Also cleans entry using ‘org-ref’, and tries to download the corresponding pdf."
@@ -646,8 +656,9 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
+
   (save-selected-window
-    (org-ref-open-bibtex-notes)))
+    (funcall doi-utils-make-notes-function)))
 
 
 ;; It may be you are in some other place when you want to add a bibtex entry.
