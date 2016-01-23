@@ -223,6 +223,15 @@ The cdr of the the cons cell is the function to use."
   :type 'list
   :group 'org-ref)
 
+;; (loop for i from 0 to (length org-ref-helm-bibtex-actions)
+;;       for ccell in org-ref-helm-bibtex-actions
+;;       do
+;;       (helm-delete-action-from-source (car ccell) helm-source-bibtex)
+;;       (helm-add-action-to-source
+;;        (car ccell)
+;;        (cdr ccell)
+;;        helm-source-bibtex
+;;        i))
 (loop for i from 0 to (length org-ref-helm-bibtex-actions)
       for ccell in org-ref-helm-bibtex-actions
       do
@@ -230,8 +239,7 @@ The cdr of the the cons cell is the function to use."
       (helm-add-action-to-source
        (car ccell)
        (cdr ccell)
-       helm-source-bibtex
-       i))
+       helm-source-bibtex))
 
 
 (defcustom org-ref-insert-cite-function
