@@ -303,14 +303,14 @@ Uses a hook function to display the message in the minibuffer."
 
 (defcustom org-ref-clean-bibtex-entry-hook
   '(orcb-key-comma
-    orcb-key
+    org-ref-replace-nonascii
     orcb-&
+    org-ref-title-case-article
+    orcb-key
     orcb-clean-doi
     orcb-clean-year
     orcb-clean-pages
-    org-ref-sort-bibtex-entry
-    org-ref-title-case-article
-    org-ref-replace-nonascii)
+    org-ref-sort-bibtex-entry)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
 The functions should have no arguments, and
 operate on the bibtex entry at point. You can assume point starts
