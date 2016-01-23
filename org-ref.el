@@ -142,7 +142,7 @@ codes."
           (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
           (bibtex-search-entry key)
           (org-ref-open-bibtex-notes)))))
-  "Function to open the notes for the bibtex key at point.
+  "Function to open the notes for the bibtex key in a cite link at point.
 
 The default behavior adds entries to a long file with headlines
 for each entry.  It also tries to be compatible with `org-bibtex'.
