@@ -2095,7 +2095,7 @@ Argument KEY is the bibtex key."
   "Open the notes for bibtex key under point in a cite link in a buffer.
 Can also be called with THEKEY in a program."
   (interactive)
-  (funcall org-ref-notes-function))
+  (funcall org-ref-notes-function thekey))
 
 
 (defun org-ref-citation-at-point ()
