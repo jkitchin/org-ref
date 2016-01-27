@@ -65,7 +65,8 @@
 
 (defcustom doi-utils-timestamp-format-function
   'current-time-string
-  "The function to format the timestamp for a bibtex entry."
+  "The function to format the timestamp for a bibtex entry.
+Set to nil to avoid setting timestamps in the entries."
   :type 'function
   :group 'doi-utils)
 
