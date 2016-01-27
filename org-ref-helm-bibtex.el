@@ -646,16 +646,21 @@ Create email unless called from an email."
 	       keywords))))))
 
 ;;** Helm sources
-(setq org-ref-helm-bibtex-source
-      (helm-build-sync-source "org-ref Bibtex"
-	:init #'org-ref-helm-bibtex-init
-	:candidates #'or-bibtex-candidates
-	:keymap 'org-ref-helm-bibtex-map
-	:multiline t
-	:help-message 'org-ref-helm-bibtex-help-message
-	:filtered-candidate-transformer 'org-ref-helm-candidate-transformer
-	:action-transformer 'org-ref-helm-bibtex-action-transformer
-	:action '()))
+(defvar  orhb-multiline t
+  "Make helm-source multiline if non-nil.
+This adds a small separator between the candidates which is a
+little more readable.")
+
+(defvar org-ref-helm-bibtex-source
+  (helm-build-sync-source "org-ref Bibtex"
+    :init #'org-ref-helm-bibtex-init
+    :candidates #'or-bibtex-candidates
+    :keymap 'org-ref-helm-bibtex-map
+    :multiline orhb-multiline
+    :help-message 'org-ref-helm-bibtex-help-message
+    :filtered-candidate-transformer 'org-ref-helm-candidate-transformer
+    :action-transformer 'org-ref-helm-bibtex-action-transformer
+    :action '()))
 
 ;; Fallback sources
 ;; The candidates here are functions that work on `helm-pattern'.
@@ -708,16 +713,20 @@ Create email unless called from an email."
 		   org-ref-helm-bibtex-fallback-source)))
 
 
+(defalias 'orhb 'org-ref-helm-bibtex)
 
+
+
+;;* Formatted citations
 (add-to-list 'load-path
-	     (expand-file-name "citeproc"
-			       (file-name-directory  (locate-library "org-ref"))))
+	     (expand-file-name
+	      "citeproc"
+	      (file-name-directory  (locate-library "org-ref"))))
 
 (require 'org-ref-citeproc)
 
 (defun orhb-formatted-citation (entry)
   "Get a formatted string for entry."
-
   (let* ((spacing (or (cdr (assoc 'spacing bibliography-style)) 1))
 	 (label-func (cdr (assoc 'label bibliography-style)))
 	 (label-prefix (cdr (assoc 'label-prefix bibliography-style)))
@@ -760,6 +769,8 @@ Create email unless called from an email."
       (buffer-string))))
 
 (defun orhb-formatted-citations (candidate)
+  "Return string containing formatted citations for entries in
+`helm-marked-candidates'."
   (load-library
    (ido-completing-read "Style: " '("unsrt" "author-year") nil nil "unsrt"))
 
@@ -772,9 +783,11 @@ Create email unless called from an email."
     (buffer-string)))
 
 (defun orhb-insert-formatted-citations (candidate)
+  "Insert formatted citations at point for selected entries."
   (insert (orhb-formatted-citations candidate)))
 
 (defun orhb-copy-formatted-citations (candidate)
+  "Copy formatted citations to clipboard for selected entries."
   (with-temp-buffer
     (orhb-insert-formatted-citations candidate)
     (kill-ring-save (point-min) (point-max))))
