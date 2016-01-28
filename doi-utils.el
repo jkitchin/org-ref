@@ -36,6 +36,8 @@
 ;; - doi-utils-update-bibtex-entry-from-doi with cursor in an entry to update its fields.
 
 (require 'bibtex)
+(eval-when-compile
+  (require 'cl))
 (require 'dash)
 (require 'json)
 (require 'org)                          ; org-add-link-type
