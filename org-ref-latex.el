@@ -55,6 +55,7 @@ The clickable part are the keys.")
     (buffer-substring-no-properties start end)))
 
 
+;;;###autoload
 (defun org-ref-latex-debug ()
   (interactive)
   (message-box "%S\n%S\n%S\n%S"
@@ -73,6 +74,7 @@ The clickable part are the keys.")
     (bibtex-search-entry (car results))))
 
 
+;;;###autoload
 (defun org-ref-latex-click ()
   "Jump to entry clicked on."
   (interactive)

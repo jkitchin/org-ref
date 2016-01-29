@@ -196,6 +196,7 @@ I like \C-cj."
         ("WR" "Water Research" "Water Res.")))
 
 
+;;;###autoload
 (defun org-ref-bibtex-generate-longtitles ()
   "Generate longtitles.bib which are @string definitions.
 The full journal names are in `org-ref-bibtex-journal-abbreviations'."
@@ -207,6 +208,7 @@ The full journal names are in `org-ref-bibtex-journal-abbreviations'."
                       (nth 1 row))))))
 
 
+;;;###autoload
 (defun org-ref-bibtex-generate-shorttitles ()
   "Generate shorttitles.bib which are @string definitions.
 The abbreviated journal names in `org-ref-bibtex-journal-abbreviations'."
@@ -218,6 +220,7 @@ The abbreviated journal names in `org-ref-bibtex-journal-abbreviations'."
                       (nth 2 row))))))
 
 
+;;;###autoload
 (defun org-ref-stringify-journal-name (&optional key start end)
   "Replace journal name in a bibtex entry with a string.
 The strings are defined in
@@ -246,6 +249,7 @@ START and END allow you to use this with `bibtex-map-entries'"
         (bibtex-fill-entry)))))
 
 
+;;;###autoload
 (defun org-ref-helm-set-journal-string ()
   "Helm interface to set a journal string in a bibtex entry.
 Entries come from `org-ref-bibtex-journal-abbreviations'."
@@ -266,6 +270,7 @@ Entries come from `org-ref-bibtex-journal-abbreviations'."
   (bibtex-clean-entry))
 
 
+;;;###autoload
 (defun org-ref-set-journal-string (full-journal-name)
   "Set a bibtex journal name to the string that represents FULL-JOURNAL-NAME.
 This is defined in `org-ref-bibtex-journal-abbreviations'."
@@ -370,6 +375,7 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
 	("”" . "\"")))
 
 
+;;;###autoload
 (defun org-ref-replace-nonascii ()
   "Hook function to replace non-ascii characters in a bibtex entry."
   (interactive)
@@ -393,6 +399,7 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
   "List of words to keep lowercase when changing case in a title.")
 
 
+;;;###autoload
 (defun org-ref-title-case-article (&optional key start end)
   "Convert a bibtex entry article title to title-case.
 The arguments KEY, START and END are optional, and are only there
@@ -440,6 +447,7 @@ all the title entries in articles."
       (bibtex-fill-entry))))
 
 
+;;;###autoload
 (defun org-ref-sentence-case-article (&optional key start end)
   "Convert a bibtex entry article title to sentence-case.
 The arguments KEY, START and END are optional, and are only there
@@ -487,6 +495,7 @@ all the title entries in articles."
       (bibtex-fill-entry))))
 
 ;;* Navigation in bibtex file
+;;;###autoload
 (defun org-ref-bibtex-next-entry (&optional n)
   "Jump to the beginning of the next bibtex entry.
 N is a prefix argument.  If it is numeric, jump that many entries
@@ -506,6 +515,7 @@ forward.  Negative numbers do nothing."
     (bibtex-beginning-of-entry)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-previous-entry (&optional n)
   "Jump to beginning of the previous bibtex entry.
 N is a prefix argument.  If it is numeric, jump that many entries back."
@@ -525,6 +535,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 (add-hook 'bibtex-mode-hook 'org-ref-bibtex-mode-keys)
 
 ;;* Functions to act on an entry with a doi
+;;;###autoload
 (defun org-ref-bibtex-entry-doi ()
   "Get doi from entry at point."
   (interactive)
@@ -533,12 +544,14 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
     (reftex-get-bib-field "doi" (bibtex-parse-entry t))))
 
 
+;;;###autoload
 (defun org-ref-bibtex-wos ()
   "Open bibtex entry in Web Of Science if there is a DOI."
   (interactive)
   (doi-utils-wos (org-ref-bibtex-entry-doi)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-wos-citing ()
   "Open citing articles for bibtex entry in Web Of Science if
 there is a DOI."
@@ -546,6 +559,7 @@ there is a DOI."
   (doi-utils-wos-citing (org-ref-bibtex-entry-doi)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-wos-related ()
   "Open related articles for bibtex entry in Web Of Science if
 there is a DOI."
@@ -553,24 +567,28 @@ there is a DOI."
   (doi-utils-wos-related (org-ref-bibtex-entry-doi)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-crossref ()
   "Open the bibtex entry in Crossref by its doi."
   (interactive)
   (doi-utils-crossref (org-ref-bibtex-entry-doi)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-google-scholar ()
   "Open the bibtex entry at point in google-scholar by its doi."
   (interactive)
   (doi-utils-google-scholar (org-ref-bibtex-entry-doi)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-pubmed ()
   "Open the bibtex entry at point in Pubmed by its doi."
   (interactive)
   (doi-utils-pubmed (org-ref-bibtex-entry-doi)))
 
 
+;;;###autoload
 (defun org-ref-bibtex-pdf (doi)
   "Open the pdf for the bibtex entry at point.
 Thin wrapper to get `org-ref-bibtex' to open pdf, because it
@@ -696,6 +714,7 @@ I prefer the hydra interfaces above.")
         ("P" "Pubmed" doi-utils-pubmed)
         ("f" "CrossRef" doi-utils-crossref)))
 
+;;;###autoload
 (defun org-ref-bibtex ()
   "Menu command to run in a bibtex entry.
 Functions from `org-ref-bibtex-menu-funcs'.  They all rely on the
@@ -724,6 +743,7 @@ entry having a doi."
 (defalias 'jb 'org-ref-bibtex)
 
 
+;;;###autoload
 (defun org-ref-email-bibtex-entry ()
   "Email current bibtex entry at point and pdf if it exists."
   (interactive)

@@ -148,6 +148,7 @@
 
 ;; And we probably want to be able to insert a bibtex entry
 
+;;;###autoload
 (defun pubmed-insert-bibtex-from-pmid (pmid)
   "Insert a bibtex entry at point derived from PMID.
 You must clean the entry after insertion."
@@ -161,6 +162,7 @@ You must clean the entry after insertion."
 ;; undo. I have not used this code for anything, so I am not sure how good the
 ;; xml code is.
 
+;;;###autoload
 (defun pubmed-get-medline-xml (pmid)
   "Get MEDLINE xml for PMID as a string."
   (interactive)
@@ -227,18 +229,21 @@ You must clean the entry after insertion."
 
 ;;* Searching pubmed
 
+;;;###autoload
 (defun pubmed ()
   "Open http://www.ncbi.nlm.nih.gov/pubmed in a browser."
   (interactive)
   (browse-url "http://www.ncbi.nlm.nih.gov/pubmed"))
 
 
+;;;###autoload
 (defun pubmed-advanced ()
   "Open http://www.ncbi.nlm.nih.gov/pubmed/advanced in a browser."
   (interactive)
   (browse-url "http://www.ncbi.nlm.nih.gov/pubmed/advanced"))
 
 
+;;;###autoload
 (defun pubmed-simple-search (query)
   "Open QUERY in Pubmed in a browser."
   (interactive "sQuery: ")

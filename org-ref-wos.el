@@ -62,6 +62,7 @@
 	   (or desc link))))))
 
 
+;;;###autoload
 (defun wos-search ()
   "Open the word at point or selection in Web of Science as a topic query."
   ;; the url was derived from this page: http://wokinfo.com/webtools/searchbox/
@@ -75,6 +76,7 @@
              (thing-at-point 'word)))))
 
 
+;;;###autoload
 (defun wos ()
   "Open Web of Science search page in a browser."
   (interactive)

@@ -104,6 +104,7 @@ Used when multiple dois are found in a pdf file."
 	(delete-char -2)))
 
 
+;;;###autoload
 (defun org-ref-pdf-dnd-func (event)
   "Drag-n-drop support to add a bibtex entry from a pdf file."
   (interactive "e")
@@ -175,6 +176,7 @@ This function should only apply when in a bibtex file.
 (add-to-list 'dnd-protocol-alist '("^file:" . org-ref-pdf-dnd-protocol))
 
 
+;;;###autoload
 (defun org-ref-pdf-dir-to-bibtex (bibfile directory)
   "Create BIBFILE from pdf files in DIRECTORY."
   (interactive "sBibtex file: \nDDirectory: ")
@@ -202,6 +204,7 @@ This function should only apply when in a bibtex file.
 			     (action . org-ref-pdf-add-dois))))))))
 
 
+;;;###autoload
 (defun org-ref-pdf-debug-pdf (pdf-file)
   "Try to debug getting a doi from a pdf.
 Opens a buffer with the pdf converted to text, and `occur' on the

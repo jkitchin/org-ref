@@ -139,6 +139,7 @@ Returns a formatted BibTeX entry."
                  (--map (s-split " +" it) authors))))
 
 
+;;;###autoload
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
   (interactive
@@ -156,6 +157,7 @@ Returns a formatted BibTeX entry."
     (save-buffer)))
 
 
+;;;###autoload
 (defun arxiv-get-pdf (arxiv-number pdf)
   "Retrieve a pdf for ARXIV-NUMBER and save it to PDF."
   (interactive "sarxiv: \nsPDF: ")
@@ -182,6 +184,7 @@ Returns a formatted BibTeX entry."
     (org-open-file pdf)))
 
 
+;;;###autoload
 (defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile pdfdir)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE.
 Remove troublesome chars from the bibtex key, retrieve a pdf
