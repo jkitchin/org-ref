@@ -576,7 +576,7 @@ Add a tooltip to the match."
   (when (and (re-search-forward org-ref-cite-re limit t)
 	     (save-excursion
 	       (beginning-of-line)
-	       (not (looking at "# "))))
+	       (not (looking-at "# "))))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
@@ -607,7 +607,7 @@ Add tooltip."
 	     ;; not in a comment
 	     (save-excursion
 	       (beginning-of-line)
-	       (not (looking at "# "))))
+	       (not (looking-at "# "))))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
@@ -637,7 +637,7 @@ tags."
   (when (and (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
 	     (save-excursion
 	       (beginning-of-line)
-	       (not (looking at "# "))))
+	       (not (looking-at "# "))))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
