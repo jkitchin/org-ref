@@ -573,7 +573,10 @@ If so return the position for `goto-char'."
 (defun org-ref-match-next-cite-link (&optional limit)
   "Search forward to next cite link up to LIMIT
 Add a tooltip to the match."
-  (when (re-search-forward org-ref-cite-re limit t)
+  (when (and (re-search-forward org-ref-cite-re limit t)
+	     (save-excursion
+	       (beginning-of-line)
+	       (not (looking at "# "))))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
@@ -600,7 +603,11 @@ Add a tooltip to the match."
 (defun org-ref-match-next-label-link (limit)
   "Find next label link up to LIMIT.
 Add tooltip."
-  (when (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     ;; not in a comment
+	     (save-excursion
+	       (beginning-of-line)
+	       (not (looking at "# "))))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
@@ -627,7 +634,10 @@ Add tooltip."
   "Find next ref link up to LIMIT.
 Add tooltip to the link. We avoid tags by not finding :ref: in
 tags."
-  (when (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     (save-excursion
+	       (beginning-of-line)
+	       (not (looking at "# "))))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
