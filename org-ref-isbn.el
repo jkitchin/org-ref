@@ -34,6 +34,7 @@
 
 ;; I found this on the web. It can be handy, but the bibtex entry has a lot of stuff in it.
 
+;;;###autoload
 (defun isbn-to-bibtex-lead (isbn)
   "Search lead.to for ISBN bibtex entry.
 You have to copy the entry if it is on the page to your bibtex
@@ -47,6 +48,7 @@ file."
 ;; Here we get isbn metadata and build a bibtex entry.
 ;; http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
 
+;;;###autoload
 (defun isbn-to-bibtex (isbn bibfile)
   "Get bibtex entry for ISBN and insert it into BIBFILE.
 Nothing happens if an entry with the generated key already exists

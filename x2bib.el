@@ -49,6 +49,7 @@
 ;; you should probably inspect the entries, and do other bibtex file compliance
 ;; checks.
 
+;;;###autoload
 (defun ris2bib (risfile &optional verbose)
   "Convert RISFILE to bibtex and insert at point.
 Without a prefix arg, stderr is diverted.
@@ -83,6 +84,7 @@ If VERBOSE is non-nil show command output."
 ;; them to a file. If you choose Pubmed XML as the format, then you can use this
 ;; function to convert it to bibtex.
 
+;;;###autoload
 (defun medxml2bib (medfile &optional verbose)
   "Convert MEDFILE (in Pubmed xml) to bibtex and insert at point.
 Without a prefix arg, stderr is diverted.
@@ -116,6 +118,7 @@ Display output if VERBOSE is non-nil."
 ;; Finally, after you put the new entries in, you probably need to do some clean
 ;; up actions. This little function does that.
 
+;;;###autoload
 (defun clean-entries ()
   "Map over bibtex entries and clean them."
   (interactive)

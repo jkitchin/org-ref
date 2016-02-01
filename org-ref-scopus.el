@@ -79,6 +79,7 @@ Requires `*scopus-api-key*' to be defined."
     (car (xml-node-children (car (xml-get-children entry 'eid))))))
 
 
+;;;###autoload
 (defun scopus-related-by-keyword-url (doi)
   "Return a Scopus url to articles related by keyword for DOI."
   (interactive)
@@ -87,6 +88,7 @@ Requires `*scopus-api-key*' to be defined."
     (when eid (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=key&zone=relatedDocuments" eid))))
 
 
+;;;###autoload
 (defun scopus-related-by-author-url (doi)
   "Return a Scopus url to articles related by author for DOI."
   (interactive)
@@ -95,6 +97,7 @@ Requires `*scopus-api-key*' to be defined."
     (when eid (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=aut&zone=relatedDocuments" eid))))
 
 
+;;;###autoload
 (defun scopus-related-by-references-url (doi)
   "Return a Scopus url to articles related by references for DOI."
   (interactive)
@@ -108,6 +111,7 @@ Requires `*scopus-api-key*' to be defined."
   (format "http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite=%s&src=s&imp=t&sot=cite&sdt=a&sl=0&origin=recordpage" (scopus-doi-to-eid doi)))
 
 
+;;;###autoload
 (defun scopus-open-eid (eid)
   "Open article with EID in browser."
   (interactive "sEID: ")
@@ -119,6 +123,7 @@ Requires `*scopus-api-key*' to be defined."
   (browse-url "http://www.scopus.com"))
 
 
+;;;###autoload
 (defun scopus-basic-search (query)
   "Open QUERY as a basic title-abstract-keyword search at scopus.com."
   (interactive "sQuery: ")
@@ -129,6 +134,7 @@ Requires `*scopus-api-key*' to be defined."
     (url-hexify-string query))))
 
 
+;;;###autoload
 (defun scopus-advanced-search (query)
   "Open QUERY as an advanced search at scopus.com."
   (interactive "sQuery: ")

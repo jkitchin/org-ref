@@ -141,6 +141,7 @@ but there could be other :key value pairs."
 	data))))
 
 
+;;;###autoload
 (defun org-ref-add-glossary-entry (label name description)
   "Insert a new glossary entry.
 LABEL is how you refer to it with links.
@@ -298,6 +299,7 @@ Adds a tooltip to the link that is found."
 
 
 ;;* Acronyms
+;;;###autoload
 (defun org-ref-add-acronym-entry (label abbrv full)
   "Add an acronym entry with LABEL.
 ABBRV is the abbreviated form.
@@ -431,6 +433,7 @@ WINDOW and OBJECT are ignored."
 
 
 ;; * Helm command to insert entries
+;;;###autoload
 (defun org-ref-insert-glossary-link ()
   "Helm command to insert glossary and acronym entries as links."
   (interactive)

@@ -9,6 +9,7 @@
 
 (require 'org)
 
+;;;###autoload
 (defun nist-webbook-formula (formula)
   "Search NIST webbook for FORMULA."
   (interactive "sFormula: ")
@@ -18,6 +19,7 @@
     formula
     "&NoIon=on&Units=SI")))
 
+;;;###autoload
 (defun nist-webbook-name (name)
   "Search NIST webbook for NAME."
   (interactive "sChemical Name: ")

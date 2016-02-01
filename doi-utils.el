@@ -438,6 +438,7 @@ until one is found."
 
 ;;** Finally, download the pdf
 
+;;;###autoload
 (defun doi-utils-get-bibtex-entry-pdf ()
   "Download pdf for entry at point if the pdf does not already exist locally.
 The entry must have a doi.  The pdf will be saved
@@ -670,6 +671,7 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
 ;; go to the end, and add the entry. You can sort it later.
 
 
+;;;###autoload
 (defun doi-utils-add-bibtex-entry-from-doi (doi bibfile)
   "Add DOI entry to end of a file in the current directory.
 Pick the file ending with .bib or in
@@ -725,6 +727,7 @@ Argument BIBFILE the bibliography to use."
 (defalias 'doi-add-bibtex-entry 'doi-utils-add-bibtex-entry-from-doi
   "Alias function for convenience.")
 
+;;;###autoload
 (defun doi-utils-doi-to-org-bibtex (doi)
   "Convert a DOI to an ‘org-bibtex’ form and insert it at point."
   (interactive "sDOI: ")
@@ -746,6 +749,7 @@ Argument BIBFILE the bibliography to use."
 ;; There is not bibtex set field function, so I wrote this one.
 
 
+;;;###autoload
 (defun bibtex-set-field (field value &optional nodelim)
   "Set FIELD to VALUE in bibtex file.  create field if it does not exist.
 Optional argument NODELIM see `bibtex-make-field'."
@@ -779,6 +783,7 @@ Optional argument NODELIM see `bibtex-make-field'."
   "Return keys in a PLIST."
   (-slice plist 0 nil 2))
 
+;;;###autoload
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
   "Update fields in a bibtex entry from the DOI.
 Every field will be updated, so previous change will be lost."
@@ -835,6 +840,7 @@ Every field will be updated, so previous change will be lost."
 ;; So, we next develop a function to update the field at point.
 
 
+;;;###autoload
 (defun doi-utils-update-field ()
   "Update the field at point in the bibtex entry.
 Data is retrieved from the doi in the entry."
@@ -874,6 +880,7 @@ Data is retrieved from the doi in the entry."
 ;; that could be considered, but since we usually have a doi, it seems like the
 ;; best way to go for creating the links. Here are the functions.
 
+;;;###autoload
 (defun doi-utils-wos (doi)
   "Open Web of Science entry for DOI."
   (interactive "sDOI: ")
@@ -881,6 +888,7 @@ Data is retrieved from the doi in the entry."
    (format
     "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/%s" doi)))
 
+;;;###autoload
 (defun doi-utils-wos-citing (doi)
   "Open Web of Science citing articles entry for DOI.
 May be empty if none are found."
@@ -891,6 +899,7 @@ May be empty if none are found."
     doi
     "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes")))
 
+;;;###autoload
 (defun doi-utils-wos-related (doi)
   "Open Web of Science related articles page for DOI."
   (interactive "sDOI: ")
@@ -912,12 +921,14 @@ May be empty if none are found."
 ;; 6. get bibtex entry
 
 
+;;;###autoload
 (defun doi-utils-open (doi)
   "Open DOI in browser."
   (interactive "sDOI: ")
   (browse-url (concat "http://dx.doi.org/" doi)))
 
 
+;;;###autoload
 (defun doi-utils-open-bibtex (doi)
   "Search through variable `reftex-default-bibliography' for DOI."
   (interactive "sDOI: ")
@@ -929,6 +940,7 @@ May be empty if none are found."
         (throw 'file t)))))
 
 
+;;;###autoload
 (defun doi-utils-crossref (doi)
   "Search DOI in CrossRef."
   (interactive "sDOI: ")
@@ -937,6 +949,7 @@ May be empty if none are found."
     "http://search.crossref.org/?q=%s" doi)))
 
 
+;;;###autoload
 (defun doi-utils-google-scholar (doi)
   "Google scholar the DOI."
   (interactive "sDOI: ")
@@ -945,6 +958,7 @@ May be empty if none are found."
     "http://scholar.google.com/scholar?q=%s" doi)))
 
 
+;;;###autoload
 (defun doi-utils-pubmed (doi)
   "Search Pubmed for the DOI."
   (interactive "sDOI: ")
@@ -971,6 +985,7 @@ must take one argument, the doi.")
         ("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
 
 
+;;;###autoload
 (defun doi-link-menu (link-string)
   "Generate the link menu message, get choice and execute it.
 Options are stored in `doi-link-menu-funcs'.
@@ -1042,6 +1057,7 @@ Argument LINK-STRING Passed in on link click."
 ;; of candidates, and run a helm command to get the doi.
 
 
+;;;###autoload
 (defun doi-utils-crossref-citation-query ()
   "Query Crossref with the title of the bibtex entry at point.
 Get a list of possible matches.  This opens a helm buffer to
@@ -1120,6 +1136,7 @@ error."
     (json-read-from-string (doi-utils-get-json doi))))
 
 
+;;;###autoload
 (defun doi-utils-debug (doi)
   "Generate an org-buffer showing data about DOI."
   (interactive "sDOI: ")
@@ -1145,6 +1162,7 @@ error."
 ;; You can select a region, e.g. a free form citation, or set of words, or you
 ;; can type the query in by hand.
 
+;;;###autoload
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
   "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
   (interactive (list

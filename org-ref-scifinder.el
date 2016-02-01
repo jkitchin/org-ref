@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+;;;###autoload
 (defun scifinder ()
   "Open https://scifinder.cas.org/scifinder/view/scifinder/scifinderExplore.jsf in a browser."
   (interactive)

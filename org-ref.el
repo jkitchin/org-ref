@@ -381,6 +381,7 @@ have fields sorted alphabetically."
                          (?n . "nocite:%l"))))))
 
 
+;;;###autoload
 (defun org-ref-version ()
   "Provide a version string for org-ref.
 Copies the string to the clipboard."
@@ -421,6 +422,7 @@ Copies the string to the clipboard."
   "Variable to store the link message timer in.")
 
 
+;;;###autoload
 (defun org-ref-show-link-messages ()
   "Turn on link messages.
 You will see a message in the minibuffer when on a cite, ref or
@@ -431,6 +433,7 @@ label link."
             (run-with-idle-timer 0.5 t 'org-ref-link-message))))
 
 
+;;;###autoload
 (defun org-ref-cancel-link-messages ()
   "Stop showing messages in minibuffer when on a link."
   (interactive)
@@ -461,6 +464,7 @@ If so return the position for `goto-char'."
         nil))))
 
 
+;;;###autoload
 (defun org-ref-mouse-message ()
   "Display message for link under mouse cursor."
   (interactive)
@@ -481,6 +485,7 @@ If so return the position for `goto-char'."
   "How often to run the mouse message timer in seconds.")
 
 
+;;;###autoload
 (defun org-ref-mouse-messages-on ()
   "Turn on mouse messages."
   (interactive)
@@ -491,6 +496,7 @@ If so return the position for `goto-char'."
                          'org-ref-mouse-message))))
 
 
+;;;###autoload
 (defun org-ref-mouse-messages-off ()
   "Turn off mouse messages."
   (interactive)
@@ -918,6 +924,7 @@ Use SORT to specify alphabetical order by key."
     keys))
 
 
+;;;###autoload
 (defun org-ref-bibliography (&optional sort)
   "Create a new buffer with a bibliography.
 If SORT is non-nil it is alphabetically sorted by key
@@ -1239,6 +1246,7 @@ ARG does nothing."
   (format "bibliography:%s" (read-file-name "enter file: " nil nil t)))
 
 
+;;;###autoload
 (defun org-ref-insert-bibliography-link ()
   "Insert a bibliography with completion."
   (interactive)
@@ -1321,6 +1329,7 @@ unless optional argument NO-INHERITANCE is non-nil."
      (t
       (save-excursion (and (org-up-heading-safe) (org-in-commented-heading-p)))))))
 
+;;;###autoload
 (defun org-ref-list-of-figures (&optional arg)
   "Generate buffer with list of figures in them.
 ARG does nothing.
@@ -1377,6 +1386,7 @@ Ignore figures in COMMENTED sections."
      (format "\\listoffigures")))))
 
 ;;** List of tables
+;;;###autoload
 (defun org-ref-list-of-tables (&optional arg)
   "Generate a buffer with a list of tables.
 ARG does nothing."
@@ -1620,6 +1630,7 @@ This is used to complete ref links and in helm menus."
                 (org-ref-get-custom-ids))))))
 
 
+;;;###autoload
 (defun org-ref-helm-insert-label-link ()
   "Insert a label link.
 Helm just shows you what labels already exist.  If you are on a
@@ -1704,12 +1715,14 @@ Optional argument ARG Does nothing."
     (format "ref:%s" label)))
 
 
+;;;###autoload
 (defun org-ref-insert-ref-link ()
   "Completion function for a ref link."
   (interactive)
   (insert (org-ref-complete-link)))
 
 
+;;;###autoload
 (defun org-ref-helm-insert-ref-link ()
   "Helm menu to insert ref links to labels in the document.
 If you are on link, replace with newly selected label.  Use
@@ -1836,6 +1849,7 @@ Optional argument ARG Does nothing."
     (format "ref:%s" label)))
 
 
+;;;###autoload
 (defun org-pageref-insert-ref-link ()
   "Insert a pageref link with completion."
   (interactive)
@@ -2063,6 +2077,7 @@ Argument KEY is the bibtex key."
                   key))))))
 
 
+;;;###autoload
 (defun org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
@@ -2074,6 +2089,7 @@ Argument KEY is the bibtex key."
       (message "no pdf found for %s" key))))
 
 
+;;;###autoload
 (defun org-ref-open-url-at-point ()
   "Open the url for bibtex key under point."
   (interactive)
@@ -2101,6 +2117,7 @@ Argument KEY is the bibtex key."
               (throw 'done nil))))))))
 
 
+;;;###autoload
 (defun org-ref-open-notes-at-point (&optional thekey)
   "Open the notes for bibtex key under point in a cite link in a buffer.
 Can also be called with THEKEY in a program."
@@ -2108,6 +2125,7 @@ Can also be called with THEKEY in a program."
   (funcall org-ref-notes-function thekey))
 
 
+;;;###autoload
 (defun org-ref-citation-at-point ()
   "Give message of current citation at point."
   (interactive)
@@ -2123,6 +2141,7 @@ Can also be called with THEKEY in a program."
                       (org-ref-bib-citation))))))
 
 
+;;;###autoload
 (defun org-ref-open-citation-at-point ()
   "Open bibtex file to key at point."
   (interactive)
@@ -2149,6 +2168,7 @@ function, and functions are conditionally added to it.")
   "User-defined functions to run on bibtex key at point.")
 
 
+;;;###autoload
 (defun org-ref-copy-entry-as-summary ()
   "Copy the bibtex entry for the citation at point as a summary."
   (interactive)
@@ -2157,6 +2177,7 @@ function, and functions are conditionally added to it.")
     (kill-new (org-ref-bib-citation))))
 
 
+;;;###autoload
 (defun org-ref-copy-entry-at-point-to-file ()
   "Copy the bibtex entry for the citation at point to NEW-FILE.
 Prompt for NEW-FILE includes bib files in
@@ -2202,36 +2223,42 @@ directory.  You can also specify a new file."
 
 
 ;;**** functions that operate on key at point for click menu
+;;;###autoload
 (defun org-ref-wos-at-point ()
   "Open the doi in wos for bibtex key under point."
   (interactive)
   (doi-utils-wos (org-ref-get-doi-at-point)))
 
 
+;;;###autoload
 (defun org-ref-wos-citing-at-point ()
   "Open the doi in wos citing articles for bibtex key under point."
   (interactive)
   (doi-utils-wos-citing (org-ref-get-doi-at-point)))
 
 
+;;;###autoload
 (defun org-ref-wos-related-at-point ()
   "Open the doi in wos related articles for bibtex key under point."
   (interactive)
   (doi-utils-wos-related (org-ref-get-doi-at-point)))
 
 
+;;;###autoload
 (defun org-ref-google-scholar-at-point ()
   "Open the doi in google scholar for bibtex key under point."
   (interactive)
   (doi-utils-google-scholar (org-ref-get-doi-at-point)))
 
 
+;;;###autoload
 (defun org-ref-pubmed-at-point ()
   "Open the doi in pubmed for bibtex key under point."
   (interactive)
   (doi-utils-pubmed (org-ref-get-doi-at-point)))
 
 
+;;;###autoload
 (defun org-ref-crossref-at-point ()
   "Open the doi in crossref for bibtex key under point."
   (interactive)
@@ -2239,6 +2266,7 @@ directory.  You can also specify a new file."
 
 ;;*** Minibuffer menu
 
+;;;###autoload
 (defun org-ref-cite-onclick-minibuffer-menu (&optional link-string)
   "Action when a cite link is clicked on.
 Provides a menu of context sensitive actions.  If the bibtex entry
@@ -2447,6 +2475,7 @@ text]]."
    (t (format "[%s]" desc))))
 
 
+;;;###autoload
 (defun org-ref-define-citation-link (type &optional key)
   "Add a citation link of TYPE for `org-ref'.
 With optional KEY, set the reftex binding.  For example:
@@ -2481,6 +2510,7 @@ citez link, with reftex key of z, and the completion function."
   (org-ref-define-citation-link type))
 
 
+;;;###autoload
 (defun org-ref-insert-cite-link (alternative-cite)
   "Insert a default citation link using reftex.
 If you are on a link, it appends to the end of the link,
@@ -2525,12 +2555,14 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
       (reftex-citation))))
 
 
+;;;###autoload
 (defun org-ref-insert-cite-with-completion (type)
   "Insert a cite link of TYPE with completion."
   (interactive (list (ido-completing-read "Type: " org-ref-cite-types)))
   (insert (funcall (intern (format "org-%s-complete-link" type)))))
 
 
+;;;###autoload
 (defun org-ref-store-bibtex-entry-link ()
   "Save a citation link to the current bibtex entry.  Save in the default link type."
   (interactive)
@@ -2555,6 +2587,7 @@ arg (ALTERNATIVE-CITE) to get a menu of citation types."
      (format "\\index{%s}" path)))))
 
 ;; this will generate a temporary index of entries in the file when clicked on.
+;;;###autoload
 (defun org-ref-index (&optional path)
   "Open an *index* buffer with links to index entries.
 PATH is required for the org-link, but it does nothing here."
@@ -2675,6 +2708,7 @@ This assumes you are in an article."
               (format " <a href=\"http://dx.doi.org/%s\">doi</a>" doi)))))
 
 ;;** Open pdf in bibtex entry
+;;;###autoload
 (defun org-ref-open-bibtex-pdf ()
   "Open pdf for a bibtex entry, if it exists.
 assumes point is in
@@ -2692,6 +2726,7 @@ the entry of interest in the bibfile.  but does not check that."
         (ding)))))
 
 ;;** Open notes from bibtex entry
+;;;###autoload
 (defun org-ref-open-bibtex-notes ()
   "From a bibtex entry, open the notes if they exist.
 If the notes do not exist, then create a heading.
@@ -2757,6 +2792,7 @@ construct the heading by hand."
 	  (save-buffer))))))
 
 
+;;;###autoload
 (defun org-ref-open-notes-from-reftex ()
   "Call reftex, and open notes for selected entry."
   (interactive)
@@ -2773,6 +2809,7 @@ construct the heading by hand."
 
 
 ;;** Open bibtex entry in browser
+;;;###autoload
 (defun org-ref-open-in-browser ()
   "Open the bibtex entry at point in a browser using the url field or doi field."
   (interactive)
@@ -2794,6 +2831,7 @@ construct the heading by hand."
 
 
 ;;** Build a pdf of the bibtex file
+;;;###autoload
 (defun org-ref-build-full-bibliography ()
   "Build pdf of all bibtex entries, and open it."
   (interactive)
@@ -2825,6 +2863,7 @@ construct the heading by hand."
 
 ;;** Extract bibtex entries in org-file
 
+;;;###autoload
 (defun org-ref-extract-bibtex-entries ()
   "Extract the bibtex entries in the current buffer into a src block.
 
@@ -2899,6 +2938,7 @@ If no bibliography is in the buffer the variable
     (if found i nil)))
 
 
+;;;###autoload
 (defun org-ref-find-bad-citations ()
   "Create a list of citation keys that do not have a matching bibtex entry.
 List is displayed in an `org-mode' buffer using the known bibtex
@@ -3229,6 +3269,7 @@ at the end of you file.
                                   (funcall x))))))))
 
 ;;** Find non-ascii charaters
+;;;###autoload
 (defun org-ref-find-non-ascii-characters ()
   "Find non-ascii characters in the buffer.  Useful for cleaning up bibtex files."
   (interactive)
@@ -3236,6 +3277,7 @@ at the end of you file.
 
 
 ;;** Sort fields in a bibtex entry
+;;;###autoload
 (defun org-ref-sort-bibtex-entry ()
   "Sort fields of entry in standard order and downcase them."
   (interactive)
@@ -3359,6 +3401,7 @@ at the end of you file.
       (kill-new key)))
 
 
+;;;###autoload
 (defun org-ref-clean-bibtex-entry ()
   "Clean and replace the key in a bibtex entry.
 See functions in `org-ref-clean-bibtex-entry-hook'."
@@ -3385,6 +3428,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
       (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))))))
 
 ;;** Sort cite in cite link
+;;;###autoload
 (defun org-ref-sort-citation-link ()
   "Replace link at point with sorted link by year."
   (interactive)
@@ -3412,6 +3456,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
   keys)
 
 
+;;;###autoload
 (defun org-ref-swap-citation-link (direction)
   "Move citation at point in DIRECTION +1 is to the right, -1 to the left."
   (interactive)
@@ -3452,6 +3497,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 (add-hook 'org-shiftleft-hook (lambda () (org-ref-swap-citation-link -1)))
 
 ;;** C-arrow navigation of cite keys
+;;;###autoload
 (defun org-ref-next-key ()
   "Move cursor to the next cite key when on a cite link.
 Otherwise run `right-word'. If the cursor moves off the link,
@@ -3469,6 +3515,7 @@ move to the beginning of the next cite link after this one."
     (right-word)))
 
 
+;;;###autoload
 (defun org-ref-previous-key ()
   "Move cursor to the previous cite key when on a cite link.
 Otherwise run `left-word'. If cursor moves off the link, jump to
@@ -3544,6 +3591,7 @@ the end of the next cite link before this one."
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
 
+;;;###autoload
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
   (interactive)
@@ -3734,6 +3782,7 @@ These are in the keywords field, and are comma or semicolon separated."
       keywords)))
 
 
+;;;###autoload
 (defun org-ref-set-bibtex-keywords (keywords &optional arg)
   "Add KEYWORDS to a bibtex entry.
 If KEYWORDS is a list, it is converted to a comma-separated
@@ -3758,6 +3807,7 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
   (save-buffer))
 
 
+;;;###autoload
 (defun helm-tag-bibtex-entry ()
   "Helm interface to add keywords to a bibtex entry.
 Run this with the point in a bibtex entry."
@@ -4271,6 +4321,7 @@ _o_: Open entry   _e_: Email entry and pdf
 
 
 ;;* org-ref-help
+;;;###autoload
 (defun org-ref-help ()
   "Open the `org-ref' manual."
   (interactive)
@@ -4307,6 +4358,7 @@ _o_: Open entry   _e_: Email entry and pdf
   "Evaluate BODY and return a string."
   `(format "%s" (progn ,@body)))
 
+;;;###autoload
 (defun org-ref-debug ()
   "Print some debug information to a buffer."
   (interactive)

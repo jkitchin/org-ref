@@ -179,6 +179,7 @@ A doi will be either doi:10.xxx  or 10.xxx."
 
 ;; You can use this to see if there are any DOIs in a URL, and to use re-builder
 ;; to add new patterns to `org-ref-doi-regexps'.
+;;;###autoload
 (defun org-ref-url-debug-url (url)
   "Open a buffer to URL with all doi patterns highlighted."
   (interactive)
@@ -188,6 +189,7 @@ A doi will be either doi:10.xxx  or 10.xxx."
    (mapconcat 'identity org-ref-doi-regexps "\\|")))
 
 
+;;;###autoload
 (defun org-ref-url-dnd-debug (event)
   "Drag-n-drop function to debug a url."
   (interactive "e")
@@ -211,6 +213,7 @@ A doi will be either doi:10.xxx  or 10.xxx."
 	  (delete-char -2))))
 
 
+;;;###autoload
 (defun org-ref-url-dnd-all (event)
   "Drag-n-drop function to get all DOI bibtex entries for a url.
 You probably do not want to do this since the DOI patterns are
@@ -245,6 +248,7 @@ not perfect, and some hits are not actually DOIs."
 	  (bibtex-clean-entry))))
 
 
+;;;###autoload
 (defun org-ref-url-dnd-first (event)
   "Drag-n-drop function to download the first DOI in a url."
   (interactive "e")
