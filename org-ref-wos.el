@@ -1,4 +1,4 @@
-;;; wos.el --- WEb of Science functions              -*- lexical-binding: t; -*-
+;;; org-ref-wos.el --- Web of Science functions              -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2015  John Kitchin
 
@@ -23,6 +23,8 @@
 ;; Adds a new org-mode link for a search in Web of Science.
 ;;; and an org-mode link for a link to an Accession number.
 
+(require 'org)
+(require 's)
 
 ;;; Code:
 (org-add-link-type
@@ -36,8 +38,8 @@
    (cond
     ((eq format 'html)
      (format "<a href=\"http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:ut/%s\">%s</a>"
-	     accession-number
-	     (or desc (concat "wos:" accession-number)))))))
+             accession-number
+             (or desc (concat "wos:" accession-number)))))))
 
 
 (org-add-link-type
@@ -45,42 +47,52 @@
  (lambda (path)
    (browse-url
     (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-             (s-join "+"
-              (split-string path)))))
- ;; formatting function. Assume html
+             (s-join
+	      "+"
+	      (split-string path)))))
+ ;; formatting function.
  (lambda (link desc format)
-   (format "<a href=\"%s\">%s</a>"
+   (cond
+    ((eq format 'html)
+     (format "<a href=\"%s\">%s</a>"
            (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-             (s-join "+"
-              (split-string link)))
-           (format "wos-search:%s" link))))
+                    (s-join
+		     "+"
+		     (split-string link)))
+	   (or desc link))))))
 
 
+;;;###autoload
 (defun wos-search ()
   "Open the word at point or selection in Web of Science as a topic query."
   ;; the url was derived from this page: http://wokinfo.com/webtools/searchbox/
   (interactive)
   (browse-url
    (format "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-    (if (region-active-p)
-	(mapconcat 'identity (split-string
-			      (buffer-substring (region-beginning)
-						(region-end))) "+")
-      (thing-at-point 'word)))))
+           (if (region-active-p)
+               (mapconcat 'identity (split-string
+                                     (buffer-substring (region-beginning)
+                                                       (region-end))) "+")
+             (thing-at-point 'word)))))
 
 
+;;;###autoload
 (defun wos ()
   "Open Web of Science search page in a browser."
   (interactive)
   (browse-url "http://apps.webofknowledge.com"))
 
-;; * Accession numbers
+;;* Accession numbers
 ;; see http://kitchingroup.cheme.cmu.edu/blog/2015/06/08/Getting-a-WOS-Accession-number-from-a-DOI/
-(defvar *wos-redirect* nil "Holds the redirect from a url-retrieve callback function.")
-(defvar *wos-waiting* nil "non-nil when waiting for a url-retrieve redirect.")
+(defvar *wos-redirect* nil
+  "Holds the redirect from a `url-retrieve' callback function.")
+
+(defvar *wos-waiting* nil
+  "Non-nil when waiting for a `url-retrieve' redirect.")
+
 
 (defun wos-get-wos-redirect (url)
-  "Return final redirect url for open-url"
+  "Return final redirect URL for open-url."
   (setq *wos-waiting* t)
   (url-retrieve
    url
@@ -94,10 +106,10 @@
 (defun wos-doi-to-accession-number (doi)
   "Return a WOS Accession number for a DOI."
   (let* ((open-url (concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:doi/" doi))
-	 (redirect (wos-get-wos-redirect open-url)))
-(message redirect)
+         (redirect (wos-get-wos-redirect open-url)))
+    (message redirect)
     (string-match "&KeyUT=WOS:\\([^&]*\\)&" redirect)
     (match-string 1 redirect)))
 
-(provide 'wos)
-;;; wos.el ends here
+(provide 'org-ref-wos)
+;;; org-ref-wos.el ends here

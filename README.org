@@ -3,18 +3,56 @@
 
 #+BEGIN_HTML
 <a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
+<a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
-See http://www.youtube.com/watch?v=Zya8SfmCtFA and https://www.youtube.com/watch?v=JyvpSVl4_dg for examples of org-ref in action.
+Introduction to org-ref on [[https://www.youtube.com/watch?v=2t925KRBbFc][YouTube]].
+#+BEGIN_HTML
+<a href="https://www.youtube.com/watch?v=2t925KRBbFc">
+<img src="http://img.youtube.com/vi/2t925KRBbFc/0.jpg">
+</a>
+#+END_HTML
 
-[[./org-ref.org]] contains all documentation and installation instructions.
+
+* Screenshots
+
+Here are some annotated images of basic insertion of citations in org-mode.
+[[./screenshots/introduction.png]]
+
+The links in org-ref are functional. They do things when your cursor is on them, or you click on them, and sometimes when the mouse hovers over them.
+[[./screenshots/functional-links.png]]
+
+Here is an example of a menu of actions you get when you click on a cite link.
+[[./screenshots/cite-menu.png]]
+
+
+org-ref can analyze your org-file and tell you about it, for example if there are bad citations, multiply defined labels, bad reference links, missing bibliography files, etc... You can select each one and it will jump to the location to help you fix it.
+
+[[./screenshots/org-ref-analysis.png]]
 
 
 * Installation
-We are slowly moving towards getting org-ref in MELPA. Until then, here are some directions that will probably help install org-ref.
 
-You should clone this repository somewhere.
+** Package installation via Melpa
 
+org-ref has been added to Melpa.
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.org/packages/") t)
+#+END_SRC
+
+Then, you should be able to do M-x package-list-packages, find org-ref and install it.
+
+** Installation via github
+Clone this repo, add it to your load-path, and require org-ref.
+
+#+BEGIN_SRC sh
+git clone git@github.com:jkitchin/org-ref.git
+#+END_SRC
+
+
+** Configuration
 You should set these variables. Here is an example of how mine are set in an init.el file.
 #+BEGIN_SRC emacs-lisp
 (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
@@ -23,9 +61,21 @@ You should set these variables. Here is an example of how mine are set in an ini
 (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
       org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
-#+END_SRC
 
-You may want to set some convenient keys for working in your bibtex file:
+(setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
+(setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
+
+;; open pdf with system pdf viewer (works on mac)
+(setq helm-bibtex-pdf-open-function
+  (lambda (fpath)
+    (start-process "open" "*open*" "open" fpath)))
+
+;; alternative
+;; (setq helm-bibtex-pdf-open-function 'org-open-file)
+
+(setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
+#+END_SRC
+You may want to set some convenient keys for working in your bibtex file. These commands operate on the citation key at point.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key [f10] 'org-ref-open-bibtex-notes)
@@ -33,28 +83,33 @@ You may want to set some convenient keys for working in your bibtex file:
 (global-set-key [f12] 'org-ref-open-in-browser)
 #+END_SRC
 
-Add the directory you cloned org-ref into to your load-path, and require the features you want.
+Add this to your init.el files.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "path-to-org-ref")
-;; make sure you have dash, helm, helm-bibtex, ebib, s, f, hydra and key-chord
-;; in your load-path
 (require 'org-ref)
-
-;; optional but very useful libraries in org-ref
-(require 'doi-utils)
-(require 'jmax-bibtex)
-(require 'pubmed)
-(require 'arxiv)
-(require 'sci-id)
 #+END_SRC
 
+Go forth and citate.
+
+* Some other useful libraries in org-ref
+Note many of these have been renamed with an org-ref prefix.
+
+- [[./doi-utils.el][doi-utils]] :: Download bibtex entries and PDFs from doi and crossref queries.
+- [[./org-ref-pdf.el][org-ref-pdf]] :: Add drag-n-drop PDF to create bibtex entries
+- [[./org-ref-url-utils.el][org-ref-url-utils]] :: Add drag-n-drop urls to create bibtex entries
+- [[./org-ref-bibtex.el][org-ref-bibtex]] :: Utility functions for bibtex
+- [[./org-ref-latex.el][org-ref-latex]] :: org-ref-like features in LaTeX.
+- [[./org-ref-arxiv.el][org-ref-arxiv]] :: arxiv links, add bibtex entries from arxiv.org.
+- [[./org-ref-pubmed.el][org-ref-pubmed]] :: pubmed links, add bibtex entries from PMID.
+- [[./org-ref-isbn.el][org-ref-isbn]] :: Add bibtex entries from a book ISBN
+- [[./org-ref-wos.el][org-ref-wos]] :: WebOfKnowledge links and queries
+- [[./org-ref-scopus.el][org-ref-scopus]] :: Scopus links and queries
+- [[./x2bib.el][x2bib]] :: Convert bibliography formats to and from bibtex
+- [[./nist-webbook.el][nist-webbook]] :: Links to NIST Webbook resources
+- [[./org-ref-scifinder.el][org-ref-scifinder]]
+- [[./org-ref-worldcat.el][org-ref-worldcat]]
+
+* Errors and issues
 Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s.
 
 * Contributors
-I would like to thank the following [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref
-
-- https://github.com/divinenephron
-- https://github.com/OlafMerkert
-- https://github.com/prtkm
-
-And everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].
+I would like to thank the [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref, and everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].

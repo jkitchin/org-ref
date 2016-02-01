@@ -1,0 +1,45 @@
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
+
+#+latex_header: \newglossaryentry{computer}{name=computer,description={A machine, that computes}}
+#+latex_header_extra: \newglossaryentry{tree}{name=tree,description=a big plant}
+#+latex_header: \newacronym{lvm}{LVM}{Logical Volume Manager}
+#+latex_header: \newglossaryentry{naiive}
+#+latex_header: {
+#+latex_header:   name=na\"{\i}ve,
+#+latex_header:   description={is a French loanword (adjective, form of naïf)
+#+latex_header:                indicating having or showing a lack of experience,
+#+latex_header:                understanding or sophistication}
+#+latex_header: }
+#+latex_header_extra: \newacronym{tla}{TLA}{Three Letter Acronym}
+#+latex_header_extra: \newglossaryentry{son}{name={son},description={male}}
+#+latex_header_extra: \newglossaryentry{test}{name={test},description={a test}}
+
+
+  cite:kitchin-2015-examp
+
+multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
+
+
+Acronym entries: [[gls:lvm][LVM]] and another one [[gls:lvm][LVM]]
+
+gls:son     acrshort:lvm [[acrshort:lvm][LVM]]
+
+A  [[gls:computer][computer]]  is good  for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer a re the wave of the future. They do not use up any glspl:tree.
+
+(or-next-glossary-link nil)
+
+ [[gls:tree][tree]]            fjdsa;fdsa
+
+Labels and refs: label:one
+
+label:two   ref:two
+
+ Multiply defined label:one
+
+ref:bad-label
+
+\printglossaries
+
+bibliographystyle:unsrt
+bibliography:test-1.bib

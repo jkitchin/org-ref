@@ -1,4 +1,4 @@
-;;; sci-id.el --- org-mode links for scientific IDs  -*- lexical-binding: t; -*-
+;;; org-ref-sci-id.el --- org-mode links for scientific IDs  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2015  John Kitchin
 
@@ -25,6 +25,9 @@
 ;; researcherid:A-2363-2010
 
 ;;; Code:
+
+(require 'org)
+
 (org-add-link-type
  "orcid"
  (lambda
@@ -34,19 +37,19 @@
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword keyword)))))
+     (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword (or desc keyword))))))
 
 (org-add-link-type
  "researcherid"
  (lambda
-    (link-string)
-    (browse-url
-     (format "http://www.researcherid.com/rid/%s" link-string)))
+   (link-string)
+   (browse-url
+    (format "http://www.researcherid.com/rid/%s" link-string)))
  (lambda (keyword desc format)
    (cond
     ((eq format 'html)
      (format "<a href=\"http://www.researcherid.com/rid/%s\">ResearcherID:%s</a>"
-	     keyword keyword)))))
+             keyword (or desc keyword))))))
 
-(provide 'sci-id)
-;;; sci-id.el ends here
+(provide 'org-ref-sci-id)
+;;; org-ref-sci-id.el ends here

@@ -1,4 +1,4 @@
-;;; scifinder.el --- Emacs interface to SciFinder
+;;; org-ref-scifinder.el --- Emacs interface to SciFinder
 
 ;; Copyright (C) 2015  John Kitchin
 
@@ -24,11 +24,12 @@
 
 ;;; Code:
 
+;;;###autoload
 (defun scifinder ()
   "Open https://scifinder.cas.org/scifinder/view/scifinder/scifinderExplore.jsf in a browser."
   (interactive)
   (browse-url "https://scifinder.cas.org/scifinder/view/scifinder/scifinderExplore.jsf"))
 
-(provide 'scifinder)
+(provide 'org-ref-scifinder)
 
-;;; scifinder.el ends here
+;;; org-ref-scifinder.el ends here

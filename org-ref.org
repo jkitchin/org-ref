@@ -3,8 +3,14 @@
 #+DATE: 2015-03-15 Sun
 #+OPTIONS: toc:nil ^:{}
 #+LATEX_HEADER: \usepackage{natbib}
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
+#+latex_header_extra: \newglossaryentry{acronym}{name={acronym},description={An acronym is an abbreviation used as a word which is formed from the initial components in a phrase or a word. Usually these components are individual letters (as in NATO or laser) or parts of words or names (as in Benelux)}}
+#+latex_header_extra: \newacronym{tla}{TLA}{Three Letter Acronym}
+
 \maketitle
 \tableofcontents
+
 
 * Introduction to org-ref
 Org-ref is a library for org-mode cite:Dominik201408 that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
@@ -168,11 +174,9 @@ org-ref-clean-bibtex-entry will sort the fields of a bibtex entry, clean it, and
 This function has a hook org-ref-clean-bibtex-entry-hook, which you can add functions to of your own. Each function must work on a bibtex entry at point.
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'org-ref-clean-bibtex-entry-hook 'jmax-replace-nonascii)
+(add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
 #+END_SRC
 
-#+RESULTS:
-| jmax-title-case-article | jmax-replace-nonascii |
 
 org-ref-extract-bibtex-entries will create a bibtex file from the citations in the current buffer.
 
@@ -191,8 +195,7 @@ All org-ref links are designed to export to the corresponding LaTeX commands for
 
 ** Other exports
 index:export!html index:export!ascii
-There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links.
-
+There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~.
 * Other libraries in org-ref
 These are mostly functions for adding entries to bibtex files, modifying entries or for operating on bibtex files. Some new org-mode links are defined.
 
@@ -214,80 +217,80 @@ This will prompt you for a query string, which is usually the title of an articl
 
 This library also redefines the org-mode doi link. Now, when you click on this link you will get a menu of options, e.g. to open a bibtex entry or a pdf if you have it, or to search the doi in some scientific search engines. Try it out  doi:10.1021/jp511426q.
 
-** jmax-bibtex
+** org-ref-bibtex
 These are functions I use often in bibtex files.
 
 *** Generate new bibtex files with adapted journal names
-The variable jmax-bibtex-journal-abbreviations contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
+The variable org-ref-bibtex-journal-abbreviations contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'jmax-bibtex-journal-abbreviations
+(add-to-list 'org-ref-bibtex-journal-abbreviations
   '("JIR" "Journal of Irreproducible Research" "J. Irrep. Res."))
 #+END_SRC
 
-- jmax-bibtex-generate-longtitles :: Generate a bib file with long titles as
-     defined in `jmax-bibtex-journal-abbreviations'
-- jmax-bibtex-generate-shorttitles :: Generate a bib file with short titles as
-     defined in `jmax-bibtex-journal-abbreviations'
+- org-ref-bibtex-generate-longtitles :: Generate a bib file with long titles as
+     defined in `org-ref-bibtex-journal-abbreviations'
+- org-ref-bibtex-generate-shorttitles :: Generate a bib file with short titles as
+     defined in `org-ref-bibtex-journal-abbreviations'
 
 *** Modifying bibtex entries
 
-- jmax-stringify-journal-name :: replace a journal name with a string in
-     `jmax-bibtex-journal-abbreviations'
-- jmax-set-journal-string :: in a bibtex entry run this to replace the journal
+- org-ref-stringify-journal-name :: replace a journal name with a string in
+     `org-ref-bibtex-journal-abbreviations'
+- org-ref-set-journal-string :: in a bibtex entry run this to replace the journal
      with a string selected interactively.
 
-- jmax-title-case-article :: title case the title in an article entry.
-- jmax-sentence-case-article :: sentence case the title in an article entry.
+- org-ref-title-case-article :: title case the title in an article entry.
+- org-ref-sentence-case-article :: sentence case the title in an article entry.
 
-- jmax-replace-nonascii :: replace nonascii characters in a bibtex
-     entry. Replacements are in `jmax-nonascii-latex-replacements'. This
+- org-ref-replace-nonascii :: replace nonascii characters in a bibtex
+     entry. Replacements are in `org-ref-nonascii-latex-replacements'. This
      function is a hook function in org-ref-clean-bibtex-entry.
 
 The non-ascii characters are looked up in a list of cons cells. You can add your own non-ascii replacements like this. Note backslashes must be escaped doubly, so one \ is \\\\ in the cons cell.
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'jmax-nonascii-latex-replacements
+(add-to-list 'org-ref-nonascii-latex-replacements
   '("æ" . "{\\\\ae}"))
 #+END_SRC
 
 These functions are compatible with bibtex-map-entries, so it is possible to conveniently apply them to all the entries in a file like this:
 
 #+BEGIN_SRC emacs-lisp
-(bibtex-map-entries 'jmax-title-case-article)
+(bibtex-map-entries 'org-ref-title-case-article)
 #+END_SRC
 
 
 *** Bibtex entry navigation
-- jmax-bibtex-next-entry :: bound to M-n
-- jmax-bibtex-previous-entry :: bound to M-p
+- org-ref-bibtex-next-entry :: bound to M-n
+- org-ref-bibtex-previous-entry :: bound to M-p
 
 *** Hydra menus for bibtex entries and files
 - Functions to act on a bibtex entry or file
-  - jmax-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
+  - org-ref-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
        like opening the pdf, or the entry in a browser, or searching in a
        variety of scientific search engines.
-  - jmax-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
-  - jmax-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
+  - org-ref-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
+  - org-ref-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
 
 You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
-You can do that like this before you require jmax-bibtex:
+You can do that like this before you require org-ref-bibtex:
 
 #+BEGIN_SRC emacs-lisp
-(setq jmax-bibtex-hydra-key-binding "\C-cj")
+(setq org-ref-bibtex-hydra-key-binding "\C-cj")
 #+END_SRC
 
 Or this if you like key-chord:
 
 #+BEGIN_SRC emacs-lisp
-(key-chord-define-global "jj" 'jmax-bibtex-hydra/body)
+(key-chord-define-global "jj" 'org-ref-bibtex-hydra/body)
 #+END_SRC
 
-** wos
+** org-ref-wos
 This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofknowledge.com).
 
 #+BEGIN_SRC emacs-lisp
-(require 'wos)
+(require 'org-ref-wos)
 #+END_SRC
 
 - wos :: Convenience function to open WOK in a browser.
@@ -295,11 +298,11 @@ This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofkno
 
 There is also a new org-mode link that opens a search: [[wos-search:alloy and segregation]]
 
-** scopus
+** org-ref-scopus
 This is a small utility to interact with Scopus (http://www.scopus.com). Scopus is search engine for scientific literature. It is owned by Elsevier. You must have a license to use it (usually provided by your research institution).
 
 #+BEGIN_SRC emacs-lisp
-(require 'scopus)
+(require 'org-ref-scopus)
 #+END_SRC
 
 Interactive functions:
@@ -317,24 +320,24 @@ A functional link to a document in Scopus by its "EID": eid:2-s2.0-72649092395. 
 
 There is also a scopusid link for authors that will open their author page in Scopus: scopusid:7004212771
 
-** isbn
+** org-ref-isbn
 index:isbn
 
 #+BEGIN_SRC emacs-lisp
-(require 'isbn)
+(require 'org-ref-isbn)
 #+END_SRC
 
 This library provides some functions to get bibtex entries for books from their ISBN.
 
 - isbn-to-bibtex
 
-** pubmed
+** org-ref-pubmed
 index:pubmed
 
 [[http://www.ncbi.nlm.nih.gov/pubmed][PubMed]] comprises more than 24 million citations for biomedical literature from MEDLINE, life science journals, and online books. Citations may include links to full-text content from PubMed Central and publisher web sites. This library provides some functions to initiate searches of PubMed from Emacs, and to link to PubMed content.
 
 #+BEGIN_SRC emacs-lisp
-(require 'pubmed)
+(require 'org-ref-pubmed)
 #+END_SRC
 
 This library provides a number of new org-mode links to PubMed entries. See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers. These links open the page in PubMed for the identifier.
@@ -357,26 +360,26 @@ There are some utility functions that may be helpful.
 
 There is a new org-mode link to PubMed searches: [[pubmed-search:alloy segregation]]
 
-** arxiv
+** org-ref-arxiv
 index:arxiv
 
 This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-mat/0410285, and a function to get a bibtex entry and pdfs for arxiv entries:
 
 #+BEGIN_SRC emacs-lisp
-(require 'arxiv)
+(require 'org-ref-arxiv)
 #+END_SRC
 
 - arxiv-add-bibtex-entry
 - arxiv-get-pdf
 
-** sci-id
+** org-ref-sci-id
    :PROPERTIES:
    :ID:       AD7C70CF-1BB8-4610-B9AD-580790250459
    :END:
 index:orcid [[index:researcher id]]
 
 #+BEGIN_SRC emacs-lisp
-(require 'sci-id)
+(require 'org-ref-sci-id)
 #+END_SRC
 
 This package just defines two new org-mode links for http://www.orcid.org, and http://www.researcherid.com. Here are two examples:
@@ -398,6 +401,14 @@ If you find you need to convert some bibliographies in some format into bibtex, 
 - medxml2bib :: Convert PubMed XML to bibtex.
 - clean-entries :: Map over a converted bibtex file and "clean it".
 
+** org-ref-latex
+This provides some org-ref like capabilities in LaTeX files, e.g. the links are clickable with tooltips.
+
+** org-ref-pdf
+Allows you to drag and drop a PDF onto a bibtex file to add a bibtex entry (as long as you have pdftotext, and the pdf has an identifiable DOI in it.)
+
+** org-ref-url-utils
+Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about).
 * Appendix
 ** Customizing org-ref
    :PROPERTIES:
@@ -416,10 +427,10 @@ Here is my minimal setup:
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
 
-For jmax-bibtex I like:
+For org-ref-bibtex I like:
 
 #+BEGIN_SRC emacs-lisp
-(setq jmax-bibtex-hydra-key-chord "jj")
+(setq org-ref-bibtex-hydra-key-chord "jj")
 #+END_SRC
 
 ** Other things org-ref supports
@@ -458,6 +469,8 @@ You will need to use the makeidx package, and use this in the LaTeX header.
 #+LATEX_HEADER: \usepackage{makeidx}
 #+LATEX_HEADER: \makeindex
 
+
+
 You will have to incorporate running makeindex into your PDF build command.
 
 This is not supported in anything but LaTeX export.
@@ -465,21 +478,44 @@ This is not supported in anything but LaTeX export.
 *** Glossaries
 index:glossary
 
-See http://en.wikibooks.org/wiki/LaTeX/Glossary. Not all options are supported. I have never actually used this functionality.
-
-- newglossaryentry :: define a term
+org-ref provides some support for glossary and acronym definitions.
 - gls :: a reference to a term
 - glspl :: plural reference to a term
 - Gsl :: capitalized reference to a term
 - Glspl :: capitalized plural reference to a term
+- gslink :: Link to alternative text in the link description.
+- glssymbol :: The symbol term
+- glsdesc :: The description of the term
+
+- acrshort :: Short version of the acroynm
+- acrfull :: The full definition of the acronym
+- acrlong :: The full definition of the acronym with (abbrv).
+
+There are two useful commands:
+- org-ref-add-glossary-entry :: Add a new entry to the file
+- org-ref-add-acronym-entry :: Add a new acronym to the file
+
+Here is an example of glossary link for an [[gls:acronym][acronym]] and an actual [[acrshort:tla][TLA]]. Each link has a tool tip on it that shows up when you hover the mouse over it. These links will export as the LaTeX commands need by the glossaries package.
 
 You will need to incorporate running the command makeglossaries into your PDF build command. You also need use the glossaries LaTeX package.
 
+Here is a minimal working example of an org file that makes a glossary.
+
 #+BEGIN_EXAMPLE
-#+LATEX_HEADER: \usepackage[toc]{glossaries}
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
+
+#+latex_header_extra: \newglossaryentry{computer}{name=computer,description={A machine}}
+
+
+A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future.
+
+\printglossaries
 #+END_EXAMPLE
 
 This is not supported in anything but LaTeX export.
+
+
 
 * Index
 This is a functional link that will open a buffer of clickable index entries:
@@ -506,6 +542,33 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 : #<process open ./org-ref.html>
 
 * References
+<<bibliography link>>
+
 bibliographystyle:unsrtnat
-# <<bibliography link>>
 bibliography:org-ref.bib
+
+* Build notes				:noexport:
+
+To build this file you need to require these libraries so the links will be resolved.
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref-wos)
+(require 'org-ref-scopus)
+(require 'org-ref-pubmed)
+#+END_SRC
+
+** HTML build
+
+#+BEGIN_SRC emacs-lisp
+(org-open-file (org-html-export-to-html))
+#+END_SRC
+
+#+RESULTS:
+
+** PDF
+
+#+BEGIN_SRC emacs-lisp
+(org-open-file (org-latex-export-to-pdf))
+#+END_SRC
+
+#+RESULTS:

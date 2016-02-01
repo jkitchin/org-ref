@@ -1,0 +1,51 @@
+% Created 2015-12-17 Thu 13:41
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[version=3]{mhchem}
+\usepackage[numbers,super,sort&compress]{natbib}
+\usepackage{natmove}
+\usepackage{url}
+\usepackage{minted}
+\usepackage{underscore}
+\usepackage[linktocpage,pdfstartview=FitH,colorlinks,
+linkcolor=blue,anchorcolor=blue,
+citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue]{hyperref}
+\usepackage{attachfile}
+\author{John Kitchin}
+\date{\today}
+\title{test-1}
+\begin{document}
+
+\tableofcontents
+
+
+\cite{kitchin-2015-examp}   \cite[test]{kitchin-2015-examp}
+
+\begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{common-lisp}
+(org-ref-find-bibliography)
+\end{minted}
+
+\begin{center}
+\begin{tabular}{l}
+test-1.bib\\
+\end{tabular}
+\end{center}
+
+\bibliography{/Users/jkitchin/Dropbox/kitchingroup/jmax/org-ref/tests/test-1}
+% Emacs 25.0.50.1 (Org mode 8.2.10)
+\end{document}
