@@ -2,6 +2,6 @@
 
 rm -fr sandbox
 
-emacs -Q -l test-new-melpa.el
+exec emacs -q -l test-new-melpa.el test-1.org
 
 #end

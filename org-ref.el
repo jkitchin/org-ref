@@ -1972,6 +1972,11 @@ a list of files either from bibliography:f1.bib,f2.bib
 
 falling back to what the user has set in `org-ref-default-bibliography'"
   (catch 'result
+    ;; If you call this in a bibtex file, assume we want this file
+    (when (string= (or (f-ext (or (buffer-file-name) "")) "")  "bib")
+      (setq org-ref-bibliography-files (list (buffer-file-name)))
+      (throw 'result org-ref-bibliography-files))
+    ;; otherwise, check current file for a bibliography source
     (save-excursion
       (goto-char (point-min))
       ;;  look for a bibliography link
