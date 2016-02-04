@@ -229,14 +229,14 @@ when called, it resets the cache for the BIBFILE."
 	  (setf (cdr (assoc bibfile
 			    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
 		entries)
-	(pushnew (cons bibfile entries)
+	(cl-pushnew (cons bibfile entries)
 		 (cdr (assoc 'candidates orhc-bibtex-cache-data))))
       (if (assoc bibfile (cdr (assoc 'hashes orhc-bibtex-cache-data)))
 	  (setf (cdr (assoc
 		      bibfile
 		      (cdr (assoc 'hashes orhc-bibtex-cache-data))))
 		hash)
-	(pushnew (cons bibfile hash)
+	(cl-pushnew (cons bibfile hash)
 		 (cdr (assoc 'hashes orhc-bibtex-cache-data))))
 
       ;; And save it to disk for persistent use
