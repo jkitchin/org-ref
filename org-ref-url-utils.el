@@ -67,18 +67,18 @@ the DOI."
 Returns a list of collected DOIs in the order found."
   (let ((dois '()))
     (with-current-buffer (url-retrieve-synchronously url)
-      (loop for doi-pattern in org-ref-doi-regexps
+      (cl-loop for doi-pattern in org-ref-doi-regexps
 	    do
 	    (goto-char (point-min))
 	    (while (re-search-forward doi-pattern nil t)
-	      (pushnew (match-string 1) dois :test #'equal)))
+	      (cl-pushnew (match-string 1) dois :test #'equal)))
       (reverse dois))))
 
 
 (defun org-ref-url-add-doi-entries (candidate)
   "Add all entries for CANDIDATE in `helm-marked-candidates'.
 This is used in a helm selection command in `org-ref-url-dnd-protocol'."
-  (loop for doi in (helm-marked-candidates)
+  (cl-loop for doi in (helm-marked-candidates)
 	do
 	(doi-utils-add-bibtex-entry-from-doi
 	 doi
@@ -109,11 +109,11 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 		`((name . "Select a DOI")
 		  (candidates . ,(let ((dois '()))
 				   (with-current-buffer (url-retrieve-synchronously url)
-				     (loop for doi-pattern in org-ref-doi-regexps
+				     (cl-loop for doi-pattern in org-ref-doi-regexps
 					   do
 					   (goto-char (point-min))
 					   (while (re-search-forward doi-pattern nil t)
-					     (pushnew
+					     (cl-pushnew
 					      ;; Cut off the doi, sometimes
 					      ;; false matches are long.
 					      (cons (format "%40s | %s"
@@ -202,7 +202,7 @@ A doi will be either doi:10.xxx  or 10.xxx."
 
 (defun org-ref-url-add-all-doi-entries (url)
   "Add all DOI bibtex entries for URL."
-  (loop for doi in (org-ref-url-scrape-dois url)
+  (cl-loop for doi in (org-ref-url-scrape-dois url)
 	do
 	(ignore-errors
 	  (doi-utils-add-bibtex-entry-from-doi

@@ -67,7 +67,7 @@ ENTRIES is a alist of entry type and fields to make the entry from.")
 (defun orcp-collect-citations ()
   "Return a list of citation links in the document."
   (setq *orcp-citation-links*
-	(loop for link in (org-element-map
+	(cl-loop for link in (org-element-map
 			      (org-element-parse-buffer) 'link 'identity)
 	      if (-contains?
 		  org-ref-cite-types
@@ -101,7 +101,7 @@ Each entry is (key . entry)."
 	sort-func
 	entries)
     (setq entries
-	  (loop for key in keys
+	  (cl-loop for key in keys
 		collect (cons key (orcp-key-to-entry key))))
     ;; Now we should sort them if the style requires it
     (setq sort-func (cdr (assoc 'sort bibliography-style)))
@@ -311,7 +311,7 @@ returns the style with the override."
 	  (mapconcat
 	   'identity
 	   ;; loop over the entries in the bibliography
-	   (loop for entry in unique-entries
+	   (cl-loop for entry in unique-entries
 		 collect
 		 (progn
 		   (let* ((entry-type (downcase
@@ -364,7 +364,7 @@ returns the style with the override."
 	    (t
 	     ;; put in a \n for each spacing
 	     (mapconcat 'identity
-			(loop for i to spacing
+			(cl-loop for i to spacing
 			      collect "\n")
 			"")))))
     ;; TODO: figure out header. how do we insert it properly formatted?
@@ -697,7 +697,7 @@ We try to protect strings in curly brackets."
       ;; string that ends with a lowercase word, and is not the rest of the
       ;; string.
       (let ((last-lower-index nil))
-	(loop for i to (length fields)
+	(cl-loop for i to (length fields)
 	      for word in (butlast fields)
 	      if (s-lowercase? word)
 	      do (setq last-lower-index i))
@@ -722,7 +722,7 @@ We try to protect strings in curly brackets."
       ;; split first field which could be von Lastname.
       (setq fields (s-split " " (car fields)))
       (let ((last-lower-index nil))
-	(loop for i to (length fields)
+	(cl-loop for i to (length fields)
 	      for word in fields
 	      if (s-lowercase? word)
 	      do (setq last-lower-index i))
@@ -746,7 +746,7 @@ We try to protect strings in curly brackets."
       ;; split first field which could be von Lastname.
       (setq fields (s-split " " (car fields)))
       (let ((last-lower-index nil))
-	(loop for i to (length fields)
+	(cl-loop for i to (length fields)
 	      for word in fields
 	      if (s-lowercase? word)
 	      do (setq last-lower-index i))
@@ -812,7 +812,7 @@ documents."
   ;; Get the style from bibliographystyle link
   ;; and eliminate bibliography style links
   ;; This will load all style modules
-  (loop for link in (org-element-map
+  (cl-loop for link in (org-element-map
 			(org-element-parse-buffer) 'link 'identity)
 	if (string= "bibliographystyle"
 		    (org-element-property :type link))
@@ -827,7 +827,7 @@ documents."
   (orcp-collect-citations)
   (orcp-collect-unique-entries)
 
-  (let ((link-replacements (loop for link in *orcp-citation-links*
+  (let ((link-replacements (cl-loop for link in *orcp-citation-links*
 				 for repl in (orcp-get-citation-replacements)
 				 collect
 				 (list repl
@@ -838,7 +838,7 @@ documents."
 	trailing-space)
 
     ;; replace citation links
-    (loop for (repl start end) in (reverse link-replacements)
+    (cl-loop for (repl start end) in (reverse link-replacements)
 	  for link in (reverse *orcp-citation-links*)
 	  do
 	  ;; chomp leading spaces if needed
@@ -886,7 +886,7 @@ documents."
 	    (insert punctuation)))
 
     ;; Insert bibliography section at the bibliography link
-    (setq bibliography-link (loop for link
+    (setq bibliography-link (cl-loop for link
 				  in (org-element-map
 					 (org-element-parse-buffer)
 					 'link 'identity)

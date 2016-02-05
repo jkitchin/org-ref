@@ -76,14 +76,14 @@ strings, or nil.
 	(let ((doi (match-string 1)))
 	  (when (s-ends-with? "." doi)
 	    (setq doi (substring doi 0 (- (length doi) 1))))
-	  (pushnew doi matches :test #'equal)))
+	  (cl-pushnew doi matches :test #'equal)))
       matches)))
 
 
 (defun org-ref-pdf-doi-candidates (dois)
   "Generate candidate list for helm source.
 Used when multiple dois are found in a pdf file."
-  (loop for doi in dois
+  (cl-loop for doi in dois
 	collect
 	(condition-case nil
 	    (cons
@@ -94,7 +94,7 @@ Used when multiple dois are found in a pdf file."
 
 (defun org-ref-pdf-add-dois (candidate)
   "Add all entries for CANDIDATE in `helm-marked-candidates'."
-  (loop for doi in (helm-marked-candidates)
+  (cl-loop for doi in (helm-marked-candidates)
 	do
 	(doi-utils-add-bibtex-entry-from-doi
 	 doi
@@ -183,7 +183,7 @@ This function should only apply when in a bibtex file.
   (find-file bibfile)
   (goto-char (point-max))
 
-  (loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
+  (cl-loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
 	do
 	(goto-char (point-max))
 	(insert (format "\n%% [[file:%s]]\n" pdf))
