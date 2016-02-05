@@ -640,7 +640,7 @@ Create email unless called from an email."
 
 (defun org-ref-helm-cite-set-keywords (candidate)
   "Prompt for keywords, and put them on the selected entries."
-  (let ((keywords (read-input "Keyword(s) comma-separated: " ))
+  (let ((keywords (read-string "Keyword(s) comma-separated: " ))
 	entry-keywords)
     (cl-loop for entry in (helm-marked-candidates)
 	  do
