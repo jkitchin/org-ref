@@ -131,7 +131,7 @@ codes."
 
 
 (defcustom org-ref-notes-function
-  (lambda ()
+  (lambda (thekey)
     (let* ((results (org-ref-get-bibtex-key-and-file thekey))
            (key (car results))
            (bibfile (cdr results)))
