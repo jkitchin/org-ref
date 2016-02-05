@@ -76,7 +76,7 @@ strings, or nil.
 	(let ((doi (match-string 1)))
 	  (when (s-ends-with? "." doi)
 	    (setq doi (substring doi 0 (- (length doi) 1))))
-	  (pushnew doi matches :test #'equal)))
+	  (cl-pushnew doi matches :test #'equal)))
       matches)))
 
 

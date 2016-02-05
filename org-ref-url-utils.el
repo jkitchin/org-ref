@@ -71,7 +71,7 @@ Returns a list of collected DOIs in the order found."
 	    do
 	    (goto-char (point-min))
 	    (while (re-search-forward doi-pattern nil t)
-	      (pushnew (match-string 1) dois :test #'equal)))
+	      (cl-pushnew (match-string 1) dois :test #'equal)))
       (reverse dois))))
 
 
@@ -113,7 +113,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 					   do
 					   (goto-char (point-min))
 					   (while (re-search-forward doi-pattern nil t)
-					     (pushnew
+					     (cl-pushnew
 					      ;; Cut off the doi, sometimes
 					      ;; false matches are long.
 					      (cons (format "%40s | %s"
