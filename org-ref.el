@@ -2937,7 +2937,7 @@ If no bibliography is in the buffer the variable
       (if (string-match (concat "^" substring "$") arg)
           (progn
             (setq found t)
-            (return i)))
+            (cl-return i)))
       (setq i (+ i 1)))
     ;; return counter if found, otherwise return nil
     (if found i nil)))
