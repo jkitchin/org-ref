@@ -237,10 +237,13 @@ The cdr of the the cons cell is the function to use."
 (defcustom org-ref-insert-cite-function
   'org-ref-helm-insert-cite-link
   "Function to call to insert citation links.
-The default is `org-ref-helm-insert-cite-link' which uses `helm-bibtex'.
-`org-ref' modifies `helm-bibtex' a little bit to give `org-mode'
-citations, and to reorder default actions.  You may use
-`org-ref-insert-cite-link' if you like the reftex interface."
+The default is `org-ref-helm-insert-cite-link' which uses
+`helm-bibtex'. `org-ref' modifies `helm-bibtex' a little bit to
+give `org-mode' citations, and to reorder default actions. You
+may use `org-ref-insert-cite-link' if you like the reftex
+interface. Finally, you may like `org-ref-helm-cite' which is an
+alternative to `helm-bibtex' that shows full citations and has
+sortable candidates."
   :type 'function
   :group 'org-ref)
 
