@@ -150,7 +150,10 @@ easier to search specifically for them."
 	    "^{\\|}$" ""
 	    (replace-regexp-in-string
 	     "[\n\\|\t\\|\s]+" " "
-	     (or (cdr (assoc field entry)) "")))))
+	     (or (cdr (assoc field entry))
+		 (and (string= field "author")
+		      (cdr (assoc "editor" entry)))
+		 "")))))
     (cond
      ((string= field "author")
       (mapconcat 'identity (s-split " and " s) ", "))
