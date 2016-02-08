@@ -74,9 +74,14 @@ This is set internally.")
     ("incollection" . "  |${=key=}| ${author}, ${title} in ${booktitle} (${year}). ${keywords}")
     ("phdthesis" . "  |${=key=}| ${author}, ${title}, ${school} (${year}). Phd thesis. ${keywords}")
     ("mastersthesis" . "  |${=key=}| ${author}, ${title}, ${school} (${year}). MS thesis. ${keywords}")
-    ("misc" . "  |${=key=}| ${author}, ${title}"))
+    ("misc" . "  |${=key=}| ${author}, ${title}")
+    ("unpublished" . "  |${=key=}| ${author}, ${title}"))
   "Formats for candidates.
 It is an alist of (=type= . s-format-string).")
+
+
+(defvar org-ref-helm-cite-shorten-authors nil
+  "If non-nil show only last names in the helm selection buffer.")
 
 
 (defvar org-ref-helm-cite-from nil
@@ -148,11 +153,24 @@ easier to search specifically for them."
   (let ((s (replace-regexp-in-string
 	    "^{\\|}$" ""
 	    (replace-regexp-in-string
-	     "\n\\|\t\\|\s+" " "
-	     (or (cdr (assoc field entry)) "")))))
+	     "[\n\\|\t\\|\s]+" " "
+	     (or (cdr (assoc field entry))
+		 (and (string= field "author")
+		      (cdr (assoc "editor" entry)))
+		 "")))))
     (cond
      ((string= field "author")
-      (mapconcat 'identity (s-split " and " s) ", "))
+      (if org-ref-helm-cite-shorten-authors
+	  ; copied from `helm-bibtex-shorten-authors'
+	  (cl-loop for a in (s-split " and " s)
+		   for p = (s-split "," a t)
+		   for sep = "" then ", "
+		   concat sep
+		   if (eq 1 (length p))
+		   concat (-last-item (s-split " +" (car p) t))
+		   else
+		   concat (car p))
+	(mapconcat 'identity (s-split " and " s) ", ")))
      ((string= field "keywords")
       (if (> (length s) 0)
 	  (mapconcat (lambda (keyword)
