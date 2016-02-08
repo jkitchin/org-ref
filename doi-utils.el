@@ -65,6 +65,12 @@
   :type 'boolean
   :group 'doi-utils)
 
+(defcustom doi-utils-make-file-field
+  nil
+  "Make a JabRef-compatible bibtex field for the downloaded PDF file."
+  :type 'boolean
+  :group 'doi-utils)
+
 (defcustom doi-utils-timestamp-field
   "DATE_ADDED"
   "The bibtex field to store the date when an entry has been added."
@@ -492,9 +498,18 @@ at the end."
           (browse-url pdf-url))
                   (message "%s saved" pdf-file)))
 
-              (when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
+	      (when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
                 (org-open-file pdf-file))))
-        pdf-file))))
+        pdf-file)
+
+;; make a bibtex field for the file if necessary
+      (when doi-utils-make-file-field
+	(bibtex-make-field `("file" ""
+			     ,(concat key ".pdf:"
+				      key ".pdf:PDF")) t)))))
+
+
+
 
 ;;* Getting bibtex entries from a DOI
 
