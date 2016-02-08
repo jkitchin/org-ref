@@ -400,7 +400,7 @@ Copies the string to the clipboard."
 
     (setq git-commit
 	  ;; If in git, get current commit
-	  (let ((default-directory org-ref-el))
+	  (let ((default-directory org-ref-dir))
 	    (when (= 0 (shell-command "git rev-parse --git-dir"))
 	      (s-trim (shell-command-to-string "git rev-parse HEAD")))))
 
