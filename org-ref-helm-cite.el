@@ -80,6 +80,10 @@ This is set internally.")
 It is an alist of (=type= . s-format-string).")
 
 
+(defvar org-ref-helm-cite-shorten-authors nil
+  "If non-nil show only last names in the helm selection buffer.")
+
+
 (defvar org-ref-helm-cite-from nil
   "Variable to store the mode `org-ref-helm-cite' was called
   from. This is used to provide some context specific actions.")
@@ -156,7 +160,17 @@ easier to search specifically for them."
 		 "")))))
     (cond
      ((string= field "author")
-      (mapconcat 'identity (s-split " and " s) ", "))
+      (if org-ref-helm-cite-shorten-authors
+	  ; copied from `helm-bibtex-shorten-authors'
+	  (cl-loop for a in (s-split " and " s)
+		   for p = (s-split "," a t)
+		   for sep = "" then ", "
+		   concat sep
+		   if (eq 1 (length p))
+		   concat (-last-item (s-split " +" (car p) t))
+		   else
+		   concat (car p))
+	(mapconcat 'identity (s-split " and " s) ", ")))
      ((string= field "keywords")
       (if (> (length s) 0)
 	  (mapconcat (lambda (keyword)
