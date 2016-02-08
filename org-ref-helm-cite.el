@@ -74,7 +74,8 @@ This is set internally.")
     ("incollection" . "  |${=key=}| ${author}, ${title} in ${booktitle} (${year}). ${keywords}")
     ("phdthesis" . "  |${=key=}| ${author}, ${title}, ${school} (${year}). Phd thesis. ${keywords}")
     ("mastersthesis" . "  |${=key=}| ${author}, ${title}, ${school} (${year}). MS thesis. ${keywords}")
-    ("misc" . "  |${=key=}| ${author}, ${title}"))
+    ("misc" . "  |${=key=}| ${author}, ${title}")
+    ("unpublished" . "  |${=key=}| ${author}, ${title}"))
   "Formats for candidates.
 It is an alist of (=type= . s-format-string).")
 
