@@ -187,8 +187,8 @@ file, then open it.  The default function is
   "User-defined function to get a filename from a bibtex key.
 The function must take a key as an argument, and return the path
 to the corresponding filename.  The default is
-`org-ref-get-pdf-filename'.  An alternative value is
-`org-ref-get-mendeley-filename'."
+`org-ref-get-pdf-filename'. Alternative values are
+`org-ref-get-mendeley-filename' and `org-ref-get-begins-with-key-filename'."
   :type 'function
   :group 'org-ref)
 
@@ -2075,6 +2075,21 @@ Argument KEY is the bibtex key."
                    (file-name-as-directory org-ref-pdf-directory)
                    "%s.pdf")
                   key))))))
+
+
+(defun org-ref-get-begins-with-key-filename (key)
+  "Return pdf filename that begins with the bibtex KEY."
+  (if org-ref-pdf-directory
+      (car
+       (file-expand-wildcards
+	(format
+	 (concat
+	  (file-name-as-directory org-ref-pdf-directory) "%s*.pdf")
+	 key)
+	)
+       )
+    )
+  )
 
 
 ;;;###autoload
