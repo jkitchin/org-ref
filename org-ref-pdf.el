@@ -146,7 +146,8 @@ PDF will be a string like file:path.
 ACTION is what to do. It is required for `dnd-protocol-alist'.
 This function should only apply when in a bibtex file.
 "
-  (if (f-ext? (buffer-file-name) "bib")
+  (if (and (buffer-file-name)
+	   (f-ext? (buffer-file-name) "bib"))
       (let ((dois (org-ref-extract-doi-from-pdf
 		   (substring pdf 5))))
 	(cond
