@@ -6,6 +6,8 @@
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
+
+
 Introduction to org-ref on [[https://www.youtube.com/watch?v=2t925KRBbFc][YouTube]].
 #+BEGIN_HTML
 <a href="https://www.youtube.com/watch?v=2t925KRBbFc">
@@ -113,3 +115,7 @@ Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]
 
 * Contributors
 I would like to thank the [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref, and everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].
+
+#+BEGIN_HTML
+<a href="https://bitdeli.com/free"><img src="https://d2weczhvl823v0.cloudfront.net/jkitchin/org-ref/trend.png"></a>
+#+END_HTML
