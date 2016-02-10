@@ -94,7 +94,8 @@ We scrape DOIs from the url first. If there is one, we add it. If
 there is more than one, we offer a helm buffer of selections. If
 no DOI is found, we create a misc entry, with a prompt for a key."
   ;; make sure we are on a bib-file
-  (if (f-ext? (buffer-file-name) "bib")
+  (if (and (buffer-file-name)
+	   (f-ext? (buffer-file-name) "bib"))
       (let ((dois (org-ref-url-scrape-dois url)))
 	(cond
 	 ;; One doi found. Assume it is what we want.
@@ -110,22 +111,22 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 		  (candidates . ,(let ((dois '()))
 				   (with-current-buffer (url-retrieve-synchronously url)
 				     (cl-loop for doi-pattern in org-ref-doi-regexps
-					   do
-					   (goto-char (point-min))
-					   (while (re-search-forward doi-pattern nil t)
-					     (cl-pushnew
-					      ;; Cut off the doi, sometimes
-					      ;; false matches are long.
-					      (cons (format "%40s | %s"
-							    (substring
-							     (match-string 1)
-							     0 (min
-								(length (match-string 1))
-								40))
-							    doi-pattern)
-						    (match-string 1))
-					      dois
-					      :test #'equal)))
+					      do
+					      (goto-char (point-min))
+					      (while (re-search-forward doi-pattern nil t)
+						(cl-pushnew
+						 ;; Cut off the doi, sometimes
+						 ;; false matches are long.
+						 (cons (format "%40s | %s"
+							       (substring
+								(match-string 1)
+								0 (min
+								   (length (match-string 1))
+								   40))
+							       doi-pattern)
+						       (match-string 1))
+						 dois
+						 :test #'equal)))
 				     (reverse dois))))
 		  (action . org-ref-url-add-doi-entries)))
 	  action)
@@ -155,7 +156,8 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 (defun org-ref-doi-dnd-protocol (doi action)
   "Protocol for when a doi is dragged onto a bibtex file.
 A doi will be either doi:10.xxx  or 10.xxx."
-  (if (f-ext? (buffer-file-name) "bib")
+  (if (and (buffer-file-name)
+	   (f-ext? (buffer-file-name) "bib"))
       (let ((doi (dnd-unescape-uri doi)))
 	;; Get the actual doi now
 	(string-match "\\(?:DOI\\|doi\\)?:? *\\(10.*\\)" doi)
