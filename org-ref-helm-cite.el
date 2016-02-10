@@ -286,6 +286,20 @@ SOURCE is ignored, but required."
 		   ("Copy formatted entry" . orhc-copy-formatted-citations))))
 
   ;; this is where we could add WOK/scopus functions
+  (setq actions
+	(append actions
+		(list (cons "Mark read"
+			    (lambda (x)
+			      (let* ((results (org-ref-get-bibtex-key-and-file
+					       (cdr (assoc "=key=" x))))
+				     (key (car results))
+				     (bibfile (cdr results)))
+				(save-excursion
+				  (with-temp-buffer
+				    (find-file bibfile)
+				    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+				    (bibtex-search-entry key)
+				    (org-ref-set-bibtex-keywords "read")))))))))
   actions)
 
 
