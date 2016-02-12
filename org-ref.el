@@ -3958,6 +3958,15 @@ change the key at point to the selected keys."
   ;; return empty string for helm
   "")
 
+(defun org-ref-save-all-bibtex-buffers ()
+  "Save all bibtex-buffers."
+  ; moved from inside `org-ref-helm-insert-cite-link' so it can also be used elsewhere
+  (cl-loop for buffer in (buffer-list)
+	   do
+	   (with-current-buffer buffer
+	     (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
+	       (save-buffer)))))
+  
 
 ;;;###autoload
 (defun org-ref-helm-insert-cite-link (arg)
@@ -3968,11 +3977,7 @@ With two prefix ARGs, insert a label link."
   ;; save all bibtex buffers so we get the most up-to-date selection. I find
   ;; that I often edit a bibliography and forget to save it, so the newest entry
   ;; does not show in helm-bibtex.
-  (cl-loop for buffer in (buffer-list)
-        do
-        (with-current-buffer buffer
-          (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
-            (save-buffer))))
+  (org-ref-save-all-bibtex-buffers)
   (cond
    ((equal arg nil)
     (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))

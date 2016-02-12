@@ -607,6 +607,7 @@ change the key at point to the selected keys."
 (defun org-ref-helm-cite-init ()
   "Initializes the source, setting bibtex files from the
 originating buffer, and mode of originating buffer."
+  (org-ref-save-all-bibtex-buffers)
   (setq org-ref-bibtex-files (org-ref-find-bibliography))
   ;; save major-mode we came from so we can do context specific things.
   (setq org-ref-helm-cite-from major-mode)
