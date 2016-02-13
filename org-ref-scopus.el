@@ -224,7 +224,7 @@ Requires `*scopus-api-key*' to be defined."
      (format "\\href{http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s}{%s}"
 	     keyword (or desc (concat "scopusid:" keyword))))
     ((eq format 'html)
-     (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">scopusid:%s</a>"
+     (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">%s</a>"
 	     keyword (or desc (concat "scopusid:" keyword)))))))
 
 
