@@ -33,12 +33,17 @@
 ;;; Code:
 (require 'org-ref)
 
+
 (add-to-list 'load-path
 	     (expand-file-name
 	      "citeproc"
 	      (file-name-directory  (locate-library "org-ref"))))
 
-(require 'org-ref-citeproc)
+(load-file (expand-file-name
+	    "org-ref-citeproc.el"
+	    (expand-file-name
+	     "citeproc"
+	     (file-name-directory  (locate-library "org-ref")))))
 
 (defcustom org-ref-notes-directory
   "~/Dropbox/bibliography/helm-cite-notes/"
