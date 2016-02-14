@@ -69,11 +69,13 @@
 ;;; Code:
 (defcustom org-ref-glossary-color "Mediumpurple3"
   "Color for glossary links."
+  :type 'string
   :group 'org-ref)
 
 
 (defcustom org-ref-acronym-color "Darkorange2"
   "Color for acronym links."
+  :type 'string
   :group 'org-ref)
 
 
@@ -90,10 +92,10 @@ there is an escaped \" for example. This seems pretty robust."
 		(< (point) (or limit (point-max))))
       (forward-char)
       (when (and (looking-at "{")
-		 (not (looking-back "\\\\")))
+		 (not (looking-back "\\\\" (- (point) 2))))
 	(incf level))
       (when (and (looking-at "}")
-		 (not (looking-back "\\\\")))
+		 (not (looking-back "\\\\" (- (point) 2))))
 	(decf level)))
     (point)))
 
