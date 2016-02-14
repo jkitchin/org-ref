@@ -48,6 +48,7 @@
 (defcustom org-ref-notes-directory
   "~/Dropbox/bibliography/helm-cite-notes/"
   "Directory for notes to go in."
+  :type 'directory
   :group 'org-ref)
 
 
@@ -218,22 +219,23 @@ when called, it resets the cache for the BIBFILE."
 				       '("preamble" "string" "comment"))
 	    collect
 	    (let* ((entry (cl-loop for cons-cell in (parsebib-read-entry entry-type)
-				;; we remove all properties too. they
-				;; cause errors in reading/writing.
-				collect
-				(cons (substring-no-properties
-				       (downcase (car cons-cell)))
-				      (substring-no-properties
-				       ;; clumsy way to remove surrounding
-				       ;; brackets
-				       (let ((s (cdr cons-cell)))
-					 (if (or (and (s-starts-with? "{" s)
-						      (s-ends-with? "}" s))
-						 (and (s-starts-with? "\"" s)
-						      (s-ends-with? "\"" s)))
-					     (substring s 1 -1)
-					   s))))))
-		   (key (cdr (assoc "=key=" entry))))
+				   ;; we remove all properties too. they
+				   ;; cause errors in reading/writing.
+				   collect
+				   (cons (substring-no-properties
+					  (downcase (car cons-cell)))
+					 (substring-no-properties
+					  ;; clumsy way to remove surrounding
+					  ;; brackets
+					  (let ((s (cdr cons-cell)))
+					    (if (or (and (s-starts-with? "{" s)
+							 (s-ends-with? "}" s))
+						    (and (s-starts-with? "\"" s)
+							 (s-ends-with? "\"" s)))
+						(substring s 1 -1)
+					      s))))))
+		   ;; (key (cdr (assoc "=key=" entry)))
+		   )
 	      (cons
 	       ;; this is the display string for helm. We try to use the formats
 	       ;; in `orhc-candidate-formats', but if there isn't one we just put
@@ -254,14 +256,14 @@ when called, it resets the cache for the BIBFILE."
 			    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
 		entries)
 	(cl-pushnew (cons bibfile entries)
-		 (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+		    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
       (if (assoc bibfile (cdr (assoc 'hashes orhc-bibtex-cache-data)))
 	  (setf (cdr (assoc
 		      bibfile
 		      (cdr (assoc 'hashes orhc-bibtex-cache-data))))
 		hash)
 	(cl-pushnew (cons bibfile hash)
-		 (cdr (assoc 'hashes orhc-bibtex-cache-data))))
+		    (cdr (assoc 'hashes orhc-bibtex-cache-data))))
 
       ;; And save it to disk for persistent use
       (with-temp-file orhc-bibtex-cache-file
@@ -428,7 +430,7 @@ key↓ (k) key↑ (K): ")))
     (setq orhc-sort-fn nil)))
 
 
-(defun org-ref-helm-candidate-transformer (candidates source)
+(defun org-ref-helm-candidate-transformer (candidates _source)
   "Transform CANDIDATES, sorting if needed.
 SOURCE is ignored, but required."
   (if orhc-sort-fn
@@ -452,7 +454,7 @@ SOURCE is ignored, but required."
 			      (list
 			       (cons
 				(format "Open %s" pdf)
-				(lambda (candidate)
+				(lambda (_candidate)
 				  (org-open-file pdf))))))
       (when (assoc "doi" candidate)
 	(setq actions
@@ -492,10 +494,10 @@ SOURCE is ignored, but required."
 		    org-ref-notes-directory)))
     (if (file-exists-p note-file)
 	(setq actions (append actions (list (cons "Open notes"
-						  (lambda (x)
+						  (lambda (_x)
 						    (find-file note-file))))))
       (setq actions (append actions (list (cons "Create notes"
-						(lambda (x)
+						(lambda (_x)
 						  (find-file note-file))))))))
 
   (setq actions (append
@@ -510,7 +512,7 @@ SOURCE is ignored, but required."
   actions)
 
 
-(defun org-ref-helm-cite-insert-citation (candidate)
+(defun org-ref-helm-cite-insert-citation (_candidate)
   "Insert selected CANDIDATE as cite link.
 This is an action for helm, and it actually works on
 `helm-marked-candidates'. Append KEYS if you are on a link.
@@ -521,7 +523,7 @@ a helm menu to select a new link type for the selected entries.
 A double \\[universal-argument] \\[universal-argument] will
 change the key at point to the selected keys."
   (let* ((keys (cl-loop for entry in (helm-marked-candidates)
-		     collect (cdr (assoc "=key=" entry))))
+			collect (cdr (assoc "=key=" entry))))
 	 (object (org-element-context))
          (last-char (save-excursion
                       (when (org-element-property :end object)
@@ -542,7 +544,7 @@ change the key at point to the selected keys."
        ((equal helm-current-prefix-arg nil)
 	(cond
 	 ;; point after :
-	 ((looking-back ":")
+	 ((looking-back ":" (- (point) 2))
 	  (insert (concat (mapconcat 'identity keys ",") ",")))
 	 ;; point on :
 	 ((looking-at ":")
@@ -553,7 +555,7 @@ change the key at point to the selected keys."
 	  (re-search-forward ":")
 	  (insert (concat (mapconcat 'identity keys ",") ",")))
 	 ;; after ,
-	 ((looking-back ",")
+	 ((looking-back "," (- (point) 2))
 	  (insert (concat (mapconcat 'identity keys ",") ",")))
 	 ;; on comma
 	 ((looking-at ",")
@@ -627,7 +629,7 @@ originating buffer, and mode of originating buffer."
   (bibtex-beginning-of-entry))
 
 
-(defun org-ref-helm-cite-copy-entries (candidate)
+(defun org-ref-helm-cite-copy-entries (_candidate)
   "Copy selected bibtex entries to the clipboard."
   (with-temp-buffer
     (cl-loop for entry in (helm-marked-candidates)
@@ -640,7 +642,7 @@ originating buffer, and mode of originating buffer."
     (kill-region (point-min) (point-max))))
 
 
-(defun org-ref-helm-cite-email-entries (candidate)
+(defun org-ref-helm-cite-email-entries (_candidate)
   "Insert selected entries and attach pdf files to an email.
 Create email unless called from an email."
   (unless (or (eq org-ref-helm-cite-from 'message-mode)
@@ -663,7 +665,7 @@ Create email unless called from an email."
 			  org-ref-pdf-directory)))
   (message-goto-to))
 
-(defun org-ref-helm-cite-set-keywords (candidate)
+(defun org-ref-helm-cite-set-keywords (_candidate)
   "Prompt for keywords, and put them on the selected entries."
   (let ((keywords (read-string "Keyword(s) comma-separated: " ))
 	entry-keywords)
@@ -753,19 +755,19 @@ little more readable.")
 
 (defun orhc-formatted-citation (entry)
   "Get a formatted string for entry."
-  (let* ((spacing (or (cdr (assoc 'spacing bibliography-style)) 1))
-	 (label-func (cdr (assoc 'label bibliography-style)))
-	 (label-prefix (cdr (assoc 'label-prefix bibliography-style)))
-	 (label-suffix (cdr (assoc 'label-suffix bibliography-style)))
-	 (justification (cdr (assoc 'justification bibliography-style)))
-	 (hanging-indent (cdr (assoc 'hanging-indent bibliography-style)))
-	 (header (cdr (assoc 'header bibliography-style)))
+  (let* (;(spacing (or (cdr (assoc 'spacing bibliography-style)) 1))
+	 ;(label-func (cdr (assoc 'label bibliography-style)))
+	 ;(label-prefix (cdr (assoc 'label-prefix bibliography-style)))
+	 ;(label-suffix (cdr (assoc 'label-suffix bibliography-style)))
+	 ;(justification (cdr (assoc 'justification bibliography-style)))
+	 ;(hanging-indent (cdr (assoc 'hanging-indent bibliography-style)))
+	 ;(header (cdr (assoc 'header bibliography-style)))
 	 (adaptive-fill-function '(lambda () "    "))
 	 (indent-tabs-mode nil)
-	 bibliography-string
+	 ;bibliography-string
 	 (entry-type (downcase
 		      (cdr (assoc "=type=" (cdr entry)))))
-	 (key (cdr (assoc "=key=" (cdr entry))))
+	 ;(key (cdr (assoc "=key=" (cdr entry))))
 	 (entry-styles (cdr (assoc 'entries bibliography-style)))
 	 (entry-fields
 	  (progn
@@ -795,7 +797,7 @@ little more readable.")
       (buffer-string))))
 
 
-(defun orhc-formatted-citations (candidate)
+(defun orhc-formatted-citations (_candidate)
   "Return string containing formatted citations for entries in
 `helm-marked-candidates'."
   (load-library
