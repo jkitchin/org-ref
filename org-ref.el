@@ -261,6 +261,7 @@ If you like `hydra', consider using `org-ref-cite-hydra'."
 (defcustom org-ref-show-citation-on-enter t
   "If non-nil show the citation summary.
 Uses a hook function to display the message in the minibuffer."
+  :type 'boolean
   :group 'org-ref)
 
 
@@ -332,6 +333,7 @@ save the point position."
 \(entry-type . (list of fields). This is used in
 `org-ref-sort-bibtex-entry'. Entry types not listed here will
 have fields sorted alphabetically."
+  :type '(alist :key-type 'string :value-type 'list)
   :group 'org-ref)
 
 
@@ -506,24 +508,28 @@ If so return the position for `goto-char'."
 (defcustom org-ref-colorize-links
   t
   "When non-nil, change colors of links."
+  :type 'boolean
   :group 'org-ref)
 
 
 (defcustom org-ref-cite-color
   "forest green"
   "Color of cite like links."
+  :type 'string
   :group 'org-ref)
 
 
 (defcustom org-ref-ref-color
   "dark red"
   "Color of ref like links."
+  :type 'string
   :group 'org-ref)
 
 
 (defcustom org-ref-label-color
   "dark magenta"
   "Color of label links."
+  :type string
   :group 'org-ref)
 
 
@@ -3960,13 +3966,13 @@ change the key at point to the selected keys."
 
 (defun org-ref-save-all-bibtex-buffers ()
   "Save all bibtex-buffers."
-  ; moved from inside `org-ref-helm-insert-cite-link' so it can also be used elsewhere
+					; moved from inside `org-ref-helm-insert-cite-link' so it can also be used elsewhere
   (cl-loop for buffer in (buffer-list)
 	   do
 	   (with-current-buffer buffer
 	     (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
 	       (save-buffer)))))
-  
+
 
 ;;;###autoload
 (defun org-ref-helm-insert-cite-link (arg)
