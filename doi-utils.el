@@ -59,6 +59,12 @@
   :type 'boolean
   :group 'doi-utils)
 
+(defcustom doi-utils-open-pdf-after-download
+  nil
+  "Open PDF after adding bibtex entries."
+  :type 'boolean
+  :group 'doi-utils)
+
 (defcustom doi-utils-timestamp-field
   "DATE_ADDED"
   "The bibtex field to store the date when an entry has been added."
@@ -482,11 +488,11 @@ at the end."
                 (if (not (string= (buffer-substring 1 (min 6 (point-max))) "%PDF-"))
                     (progn
                       (delete-file pdf-file)
-		      (message "No pdf was downloaded.")
-		      (browse-url pdf-url))
+          (message "No pdf was downloaded.")
+          (browse-url pdf-url))
                   (message "%s saved" pdf-file)))
 
-              (when (file-exists-p pdf-file)
+              (when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
                 (org-open-file pdf-file))))
         pdf-file))))
 
