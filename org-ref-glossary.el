@@ -68,6 +68,11 @@
 
 
 ;;; Code:
+(defgroup org-ref-glossary nil
+  "Customization group for org-ref-glossary."
+  :tag "Org Ref glossary"
+  :group 'org)
+
 
 (defcustom org-ref-glossary-color "Mediumpurple3"
   "Color for glossary links."
