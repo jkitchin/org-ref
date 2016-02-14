@@ -177,7 +177,7 @@ Entry gets added after the last #+latex_header line."
 (org-add-link-type
  "gls"
  'or-follow-glossary
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\gls{%s}" path)))))
@@ -186,7 +186,7 @@ Entry gets added after the last #+latex_header line."
 (org-add-link-type
  "glspl"
  'or-follow-glossary
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\glspl{%s}" path)))))
@@ -195,7 +195,7 @@ Entry gets added after the last #+latex_header line."
 (org-add-link-type
  "Gls"
  'or-follow-glossary
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\Gls{%s}" path)))))
@@ -204,7 +204,7 @@ Entry gets added after the last #+latex_header line."
 (org-add-link-type
  "Glspl"
  'or-follow-glossary
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\Glspl{%s}" path)))))
@@ -222,7 +222,7 @@ Entry gets added after the last #+latex_header line."
 (org-add-link-type
  "glssymbol"
  'or-follow-glossary
- (lambda (path desc format)
+ (lambda (path _desc format)
    (cond
     ((eq format 'latex)
      (format "\\glssymbol{%s}" path)))))
@@ -231,7 +231,7 @@ Entry gets added after the last #+latex_header line."
 (org-add-link-type
  "glsdesc"
  'or-follow-glossary
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\glsdesc{%s}" path)))))
@@ -242,7 +242,7 @@ Entry gets added after the last #+latex_header line."
   "Face for glossary links.")
 
 
-(defun or-glossary-tooltip (window object position)
+(defun or-glossary-tooltip (_window _object position)
   "Return tooltip for the glossary entry.
 The entry is in WINDOW and OBJECT at POSITION.
 Used in fontification."
@@ -352,7 +352,7 @@ FULL is the expanded acronym."
 (org-add-link-type
  "acrshort"
  'or-follow-acronym
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\acrshort{%s}" path)))))
@@ -361,7 +361,7 @@ FULL is the expanded acronym."
 (org-add-link-type
  "acrlong"
  'or-follow-acronym
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\acrlong{%s}" path)))))
@@ -370,7 +370,7 @@ FULL is the expanded acronym."
 (org-add-link-type
  "acrfull"
  'or-follow-acronym
- (lambda (path desc format)
+ (lambda (path _ format)
    (cond
     ((eq format 'latex)
      (format "\\acrfull{%s}" path)))))
@@ -382,7 +382,7 @@ FULL is the expanded acronym."
   "Face for acronym links.")
 
 
-(defun or-acronym-tooltip (window object position)
+(defun or-acronym-tooltip (_window _object position)
   "Return tooltip for the acronym entry.
 The entry is in WINDOW and OBJECT at POSITION.
 Used in fontification.
@@ -447,8 +447,7 @@ WINDOW and OBJECT are ignored."
   (let ((glossary-candidates '())
 	(acronym-candidates '())
 	key
-	entry
-	abbrv full)
+	entry)
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward
