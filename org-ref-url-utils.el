@@ -172,7 +172,7 @@ A doi will be either doi:10.xxx  or 10.xxx."
 	   (rassq-delete-all
 	    'org-ref-url-dnd-protocol
 	    (copy-alist dnd-protocol-alist))))
-      (dnd-handle-one-url nil action url))))
+      (dnd-handle-one-url nil action doi))))
 
 (add-to-list 'dnd-protocol-alist '("^doi" . org-ref-doi-dnd-protocol))
 (add-to-list 'dnd-protocol-alist '("^10" . org-ref-doi-dnd-protocol))
