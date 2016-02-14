@@ -159,7 +159,7 @@ Entry gets added after the last #+latex_header line."
     (when (not (looking-at "^$"))
       (beginning-of-line)
       (insert "\n")
-      (previous-line))
+      (forward-line -1))
     (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name={%s},description={%s}}\n"
 		    label name description))))
 
