@@ -529,7 +529,7 @@ If so return the position for `goto-char'."
 (defcustom org-ref-label-color
   "dark magenta"
   "Color of label links."
-  :type string
+  :type 'string
   :group 'org-ref)
 
 
