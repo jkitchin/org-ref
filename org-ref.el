@@ -3895,7 +3895,7 @@ change the key at point to the selected keys."
        ((equal helm-current-prefix-arg nil)
 	(cond
 	 ;; point after :
-	 ((looking-back ":")
+	 ((looking-back ":" (- (point) 2))
 	  (insert (concat (mapconcat 'identity keys ",") ",")))
 	 ;; point on :
 	 ((looking-at ":")
@@ -3906,7 +3906,7 @@ change the key at point to the selected keys."
 	  (re-search-forward ":")
 	  (insert (concat (mapconcat 'identity keys ",") ",")))
 	 ;; after ,
-	 ((looking-back ",")
+	 ((looking-back "," (- (point) 2))
 	  (insert (concat (mapconcat 'identity keys ",") ",")))
 	 ;; on comma
 	 ((looking-at ",")
@@ -4144,7 +4144,7 @@ Checks for pdf and doi, and add appropriate functions."
                                         (when
                                             (save-excursion
                                               (goto-char end)
-                                              (looking-back " ")) " ")))))))
+                                              (looking-back " " (- (point) 2))) " ")))))))
      t)
 
     (add-to-list
