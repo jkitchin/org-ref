@@ -87,7 +87,7 @@ The clickable part are the keys.")
 				  (funcall f)))))))
 
 
-(defun org-ref-latex-help-echo (window object position)
+(defun org-ref-latex-help-echo (_window _object position)
   "Get tool tip for a key in WINDOW for OBJECT at POSITION."
   (save-excursion
     (goto-char position)
