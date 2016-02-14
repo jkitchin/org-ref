@@ -61,6 +61,12 @@
   :tag "Org Ref"
   :group 'org)
 
+(defcustom org-ref-clean-bibtex-key-function
+  (lambda (key)
+    (replace-regexp-in-string ":" "" key))
+  "Clean a bibtex key from unwanted characters"
+  :type 'function
+  :group 'org-ref)
 
 (defcustom org-ref-bibliography-notes
   nil
@@ -3380,22 +3386,22 @@ at the end of you file.
 
 (defun orcb-key ()
   "Replace the key in the entry."
-  (let ((key (bibtex-generate-autokey)))
+  (let ((key (funcall org-ref-clean-bibtex-key-function (bibtex-generate-autokey))))
       ;; first we delete the existing key
       (bibtex-beginning-of-entry)
       (re-search-forward bibtex-entry-maybe-empty-head)
       (if (match-beginning bibtex-key-in-head)
-	  (delete-region (match-beginning bibtex-key-in-head)
-			 (match-end bibtex-key-in-head)))
+    (delete-region (match-beginning bibtex-key-in-head)
+       (match-end bibtex-key-in-head)))
       ;; check if the key is in the buffer
       (when (save-excursion
-	      (bibtex-search-entry key))
-	(save-excursion
-	  (bibtex-search-entry key)
-	  (bibtex-copy-entry-as-kill)
-	  (switch-to-buffer-other-window "*duplicate entry*")
-	  (bibtex-yank))
-	(setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
+        (bibtex-search-entry key))
+  (save-excursion
+    (bibtex-search-entry key)
+    (bibtex-copy-entry-as-kill)
+    (switch-to-buffer-other-window "*duplicate entry*")
+    (bibtex-yank))
+  (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
 
       (insert key)
       (kill-new key)))
