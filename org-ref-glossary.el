@@ -66,7 +66,9 @@
 ;; acrfull:label
 ;; acrlong:label
 
+
 ;;; Code:
+
 (defcustom org-ref-glossary-color "Mediumpurple3"
   "Color for glossary links."
   :type 'string
@@ -315,7 +317,7 @@ FULL is the expanded acronym."
     (when (not (looking-at "^$"))
       (beginning-of-line)
       (insert "\n")
-      (previous-line))
+      (forward-line -1))
 
     (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
 		    label abbrv full))))
