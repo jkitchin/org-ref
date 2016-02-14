@@ -2994,8 +2994,8 @@ file.  Makes a new buffer with clickable links."
   "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
   (let* ((cp (point))			; save to return to later
          (bibtex-files (cl-loop for f in (org-ref-find-bibliography)
-			     if (file-exists-p f)
-			     collect f))
+				if (file-exists-p f)
+				collect f))
          (bibtex-file-path (mapconcat
                             (lambda (x)
                               (file-name-directory (file-truename x)))
@@ -3009,7 +3009,7 @@ file.  Makes a new buffer with clickable links."
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist :type))
             (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
-              (when (not (org-ref-index key bibtex-keys))
+              (when (not (org-ref-list-index key bibtex-keys))
                 (goto-char (plist-get plist :begin))
                 (re-search-forward key)
                 (push (cons key (point-marker)) bad-citations))))))
@@ -3476,7 +3476,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
     (when (-contains? org-ref-cite-types type)
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (setq keys (org-ref-split-and-strip-string link-string))
-      (setq i (org-ref-index key keys))  ;; defined in org-ref
+      (setq i (org-ref-list-index key keys))  ;; defined in org-ref
       (if (> direction 0) ;; shift right
           (org-ref-swap-keys i (+ i 1) keys)
         (org-ref-swap-keys i (- i 1) keys))
@@ -4128,7 +4128,7 @@ Checks for pdf and doi, and add appropriate functions."
                                       (setq
                                        key (org-ref-get-bibtex-key-under-cursor)
                                        keys (org-ref-split-and-strip-string link-string)
-                                       i (org-ref-index key keys)
+                                       i (org-ref-list-index key keys)
                                        last-key (car (reverse keys)))
 
                                       (setq keys (-remove-at i keys))
