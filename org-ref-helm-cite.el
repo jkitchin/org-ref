@@ -47,7 +47,8 @@
 
 (defcustom org-ref-notes-directory
   "~/Dropbox/bibliography/helm-cite-notes/"
-  "Directory for notes to go in.")
+  "Directory for notes to go in."
+  :group 'org-ref)
 
 
 ;;* Variables
