@@ -2930,7 +2930,7 @@ If no bibliography is in the buffer the variable
 #+END_SRC" (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name))) ".bib") results))))))
 
 ;;** Find bad citations
-(defun org-ref-index (substring list)
+(defun org-ref-list-index (substring list)
   "Return the index of SUBSTRING in a LIST of strings."
   (let ((i 0)
         (found nil))
@@ -2961,7 +2961,7 @@ file.  Makes a new buffer with clickable links."
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist :type))
             (dolist (key (org-ref-split-and-strip-string (plist-get plist :path)))
-              (when (not (org-ref-index key bibtex-keys))
+              (when (not (org-ref-list-index key bibtex-keys))
                 (setq
                  bad-citations
                  (append
