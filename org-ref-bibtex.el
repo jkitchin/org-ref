@@ -56,7 +56,7 @@
 (require 'bibtex)
 (require 'dash)
 (require 'hydra)
-(require 'key-chord)
+(require 'key-chord nil 'no-error)
 (require 'message)
 (require 's)
 
@@ -656,7 +656,7 @@ _S_: Sentence case
   ("q" nil))
 
 ;; create key-chord and key binding for hydra
-(when org-ref-bibtex-hydra-key-chord
+(when (and (featurep 'key-chord) org-ref-bibtex-hydra-key-chord)
   (key-chord-define-global
    org-ref-bibtex-hydra-key-chord
    'org-ref-bibtex-hydra/body))
