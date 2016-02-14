@@ -26,6 +26,7 @@
 ;;; Code:
 (require 'org-ref)
 
+(defvar latex-mode-map)
 
 (defvar org-ref-latex-cite-re
   (concat "\\\\\\(" (mapconcat
