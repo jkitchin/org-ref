@@ -107,7 +107,9 @@ Typically:
   (:name name :description description)
 but there could be other :key value pairs."
   (save-excursion
-    (let (end-of-entry data)
+    (let (end-of-entry
+	  data
+	  key value p1 p2)
       (goto-char (point-min))
       ;; We may not find an entry if it is defined as an acronym
       (when  (re-search-forward
