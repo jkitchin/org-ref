@@ -369,7 +369,7 @@ Update the cache if necessary."
 	  (setq fa2 (car (s-split "," fa2)))
 	;; first last, ignore von names, and jr
 	(setq fa2 (car (last (s-split " " fa2)))))
-      (string> fa1 fa2))))
+      (string< fa2 fa1))))
 
 
 (defun org-ref-helm-cite-sort ()
@@ -408,7 +408,7 @@ key↓ (k) key↑ (K): ")))
 		     (k1 (cdr (assoc "=key=" a1)))
 		     (a2 (cdr c2))
 		     (k2 (cdr (assoc "=key=" a2))))
-		(string> k1 k2)))))
+		(string< k2 k1)))))
      ((eq action ?K)
       (setq orhc-sort-fn
 	    (lambda (c1 c2)
