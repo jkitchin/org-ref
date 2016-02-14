@@ -57,6 +57,7 @@
   "List of regexps to match a DOI.
 The doi should be in group 1 so that (match-string 1) contains
 the DOI."
+  :type '(repeat regexp)
   :group 'org-ref-url-utils)
 
 
@@ -75,17 +76,17 @@ Returns a list of collected DOIs in the order found."
       (reverse dois))))
 
 
-(defun org-ref-url-add-doi-entries (candidate)
+(defun org-ref-url-add-doi-entries (_)
   "Add all entries for CANDIDATE in `helm-marked-candidates'.
 This is used in a helm selection command in `org-ref-url-dnd-protocol'."
   (cl-loop for doi in (helm-marked-candidates)
-	do
-	(doi-utils-add-bibtex-entry-from-doi
-	 doi
-	 (buffer-file-name))
-	;; this removes two blank lines before each entry.
-	(bibtex-beginning-of-entry)
-	(delete-char -2)))
+	   do
+	   (doi-utils-add-bibtex-entry-from-doi
+	    doi
+	    (buffer-file-name))
+	   ;; this removes two blank lines before each entry.
+	   (bibtex-beginning-of-entry)
+	   (delete-char -2)))
 
 
 (defun org-ref-url-dnd-protocol (url action)
