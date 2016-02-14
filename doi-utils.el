@@ -661,14 +661,17 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   ;; set date added for the record
   (when doi-utils-timestamp-format-function
     (bibtex-set-field doi-utils-timestamp-field
-		      (funcall doi-utils-timestamp-format-function)))
+          (funcall doi-utils-timestamp-format-function)))
   (org-ref-clean-bibtex-entry)
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
 
   (save-selected-window
-    (funcall doi-utils-make-notes-function)))
+    (org-ref-open-bibtex-notes)
+    ;;(save-buffer)                         ; helm-bibtex-edit-notes performs a search in the buffer that fails if the buffer has not been saved
+    ;;(funcall doi-utils-make-notes-function)
+    ))
 
 
 ;; It may be you are in some other place when you want to add a bibtex entry.
