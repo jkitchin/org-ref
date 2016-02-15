@@ -2038,7 +2038,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
         (when (buffer-modified-p (current-buffer))
           (save-buffer)
           (revert-buffer t t)))
-      (bibtex-search-entry key t))))
+      (bibtex-search-entry key))))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
