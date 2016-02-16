@@ -37,11 +37,25 @@
 
 (ert-deftest key-file ()
   "Check we find a key in a file"
-  (find-file "tests/test-1.org")
   (should
    (equal
-    '("kitchin-2015-examp" . "test-1.bib")
-    (org-ref-get-bibtex-key-and-file "kitchin-2015-examp"))))
+    '("kitchin-2015-examp" . "tests/test-1.bib")
+    (let ((org-ref-default-bibliography '("tests/test-1.bib")))
+      (org-ref-get-bibtex-key-and-file "kitchin-2015-examp")))))
+
+
+(ert-deftest key-file-p ()
+  "Check `org-ref-key-in-file-p'"
+  (should
+   (not
+    (null
+     (org-ref-key-in-file-p "kitchin-2015-examp" "tests/test-1.bib")))))
+
+(ert-deftest key-file-p-nil ()
+  "Check `org-ref-key-in-file-p' for non-existent key"
+  (should
+   (null
+    (org-ref-key-in-file-p "kitchin-examp" "tests/test-1.bib"))))
 
 (provide 'org-ref-test)
 
