@@ -14,9 +14,10 @@
 
 (ert-deftest split-key-1 ()
   "Check if keys are split correctly"
-  (equal
-   (org-ref-split-and-strip-string " key1,key2 ")
-   '("key1" "key2")))
+  (should
+   (equal
+    (org-ref-split-and-strip-string " key1,key2 ")
+    '("key1" "key2"))))
 
 (ert-deftest split-key-2 ()
   "Check if keys are split correctly"
@@ -35,15 +36,6 @@
     (org-ref-find-bibliography))))
 
 
-(ert-deftest key-file ()
-  "Check we find a key in a file"
-  (should
-   (equal
-    '("kitchin-2015-examp" . "tests/test-1.bib")
-    (let ((org-ref-default-bibliography '("tests/test-1.bib")))
-      (org-ref-get-bibtex-key-and-file "kitchin-2015-examp")))))
-
-
 (ert-deftest key-file-p ()
   "Check `org-ref-key-in-file-p'"
   (should
@@ -56,6 +48,40 @@
   (should
    (null
     (org-ref-key-in-file-p "kitchin-examp" "tests/test-1.bib"))))
+
+
+(ert-deftest key-file ()
+  "Check we find a key in a file"
+  (should
+   (equal
+    '("kitchin-2015-examp" . "tests/test-1.bib")
+    (let ((org-ref-default-bibliography '("tests/test-1.bib")))
+      (org-ref-get-bibtex-key-and-file "kitchin-2015-examp")))))
+
+
+;; * tests based on org framework
+(load-file "tests/org-test.el")
+
+(ert-deftest orlm ()
+  (org-test-with-temp-text
+      "cite:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+    (should
+     (string= "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"
+	      (org-ref-link-message)))))
+
+(ert-deftest orlm-nil ()
+  (org-test-with-temp-text
+      "cite:kitchin-2015
+
+bibliography:tests/test-1.bib
+"
+    (should
+     (string= "!!! No entry found !!!"
+	      (org-ref-link-message)))))
+
 
 (provide 'org-ref-test)
 
