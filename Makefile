@@ -13,7 +13,8 @@ unit:
 	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
 mytest:
-	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
+	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l ../org-mode-bleeding-edge/testing/org-test.el -l org-ref-test.el -f ert-run-tests-batch-and-exit
+
 compile:
 	${CASK_EXEC} ${emacs} -Q -batch -l ../init.el -L "." -f batch-byte-compile *.el
 
