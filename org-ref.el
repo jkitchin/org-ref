@@ -2028,17 +2028,10 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 
 (defun org-ref-key-in-file-p (key filename)
   "Determine if the KEY is in the FILENAME."
-  (save-current-buffer
-    (let ((bibtex-files (list filename)))
-      ;; This is something I am trying because when the bibtex file is open, and
-      ;; you have added to it, the only way I find to get the update to update
-      ;; is to close it and reopen it. or to save it and revert it.
-      (when (get-file-buffer filename)
-        (set-buffer (get-file-buffer filename))
-        (when (buffer-modified-p (current-buffer))
-          (save-buffer)
-          (revert-buffer t t)))
-      (bibtex-search-entry key))))
+  (with-temp-buffer
+    (insert-file-contents filename)
+    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+    (bibtex-search-entry key nil 0)))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
