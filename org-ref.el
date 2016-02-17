@@ -4019,9 +4019,10 @@ With two prefix ARGs, insert a label link."
       (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") helm-bibtex-fallback-options))
 
 
-(defun org-ref-get-citation-string-at-point ()
-  "Get a string of a formatted citation."
-  (let* ((results (org-ref-get-bibtex-key-and-file))
+(defun org-ref-get-citation-string-at-point (&optional key)
+  "Get a string of a formatted citation for the KEY.
+If no KEY is provided, get the KEY at point."
+  (let* ((results (org-ref-get-bibtex-key-and-file key))
          (key (car results))
          (bibfile (cdr results)))
     (if bibfile
