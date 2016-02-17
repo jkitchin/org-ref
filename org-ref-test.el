@@ -91,8 +91,108 @@ bibliography:tests/test-1.bib
 	      (org-ref-link-message)))))
 
 
-;; * bibtex tests
-;; We rely alot on bibtex functionality. These are tests to make sure it works as we expect.
+(ert-deftest or-get-pdf ()
+  (should
+   (string=
+    "kitchin-2015.pdf"
+    (org-test-with-temp-text
+	"cite:kitchin-2015"
+      (let ((org-ref-pdf-directory nil))
+	(org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor)))))))
+
+(ert-deftest or-get-key ()
+  (should
+   (string=
+    "kitchin-2015"
+    (org-test-with-temp-text
+	"cite:kitchin-2015"
+      (org-ref-get-bibtex-key-under-cursor)))))
+
+(ert-deftest or-get-key1 ()
+  (should
+   (string=
+    "key1"
+    (org-test-with-temp-text
+	"cite:key1,key2"
+      (goto-char 5)
+      (org-ref-get-bibtex-key-under-cursor)))))
+
+(ert-deftest or-get-key2 ()
+  (should
+   (string=
+    "key2"
+    (org-test-with-temp-text
+	"cite:key1,key2"
+      (goto-char 11)
+      (org-ref-get-bibtex-key-under-cursor)))))
+
+(ert-deftest orfb-1 ()
+  (should
+   (equal
+    '("test.bib")
+    (org-test-with-temp-text
+	"bibliography:test.bib"
+      (org-ref-find-bibliography)))))
+
+(ert-deftest orfb-1a ()
+  (should
+   (equal
+    '("test.bib" "test2.bib")
+    (org-test-with-temp-text
+	"bibliography:test.bib,test2.bib"
+      (org-ref-find-bibliography)))))
+
+(ert-deftest orfb-2 ()
+  (should
+   (equal
+    '("test.bib")
+    (org-test-with-temp-text
+	"
+\\bibliography{test}"
+      (org-ref-find-bibliography)))))
+
+(ert-deftest orfb-2a ()
+  (should
+   (equal
+    '("test.bib" "test2.bib")
+    (org-test-with-temp-text
+	"
+\\bibliography{test,test2}"
+      (org-ref-find-bibliography)))))
+
+
+(ert-deftest orfb-3 ()
+  (should
+   (equal
+    '("test.bib")
+    (org-test-with-temp-text
+	"
+\\addbibresource{test.bib}"
+      (org-ref-find-bibliography)))))
+
+
+(ert-deftest orfb-3a ()
+  (should
+   (equal
+    '("test.bib" "test2.bib")
+    (org-test-with-temp-text
+	"
+\\addbibresource{test.bib, test2.bib}"
+      (org-ref-find-bibliography)))))
+
+(ert-deftest orfb-4 ()
+  (should
+   (equal
+    '("test.bib")
+    (org-test-with-temp-text
+	""
+      (let ((org-ref-default-bibliography '("test.bib")))
+	(org-ref-find-bibliography))))))
+
+
+;; * bibtex tests We rely alot on bibtex functionality. These are tests to make
+;; sure it works as we expect. I don't have clear evidence, but I feel like I
+;; have had trouble with the in the past.
 (ert-deftest bib-1 ()
   "test finding an entry in a temp-buffer"
   (should
