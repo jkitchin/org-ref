@@ -247,7 +247,7 @@ when called, it resets the cache for the BIBFILE."
 		entry)
 	       ;; this is the candidate that is returned, the entry a-list +
 	       ;; file and position.
-	       (append entry (list (cons "file" (buffer-file-name))
+	       (append entry (list (cons "bibfile" (buffer-file-name))
 				   (cons "position" (point)))))))))
 
       ;; Now update the cache variables for hash and entries
@@ -624,7 +624,7 @@ originating buffer, and mode of originating buffer."
 
 (defun org-ref-helm-cite-open-entry (entry)
   "Open the selected bibtex entry in its file."
-  (find-file (cdr (assoc "file" entry)))
+  (find-file (cdr (assoc "bibfile" entry)))
   (goto-char (cdr (assoc "position" entry)))
   (bibtex-beginning-of-entry))
 
