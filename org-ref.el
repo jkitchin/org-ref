@@ -420,6 +420,16 @@ Copies the string to the clipboard."
     (message version-string)))
 
 
+(defun org-ref-report-issue ()
+  "Report an issue in org-ref.
+Opens https://github.com/jkitchin/org-ref/issues/new."
+  (save-window-excursion
+    (org-ref-debug)
+    (kill-new (buffer-string)))
+  (message "org-ref-debug has been run. You can paste the results in the issue website if you like.")
+  (browse-url "https://github.com/jkitchin/org-ref/issues/new"))
+
+
 ;;* Messages for link at cursor
 (defvar org-ref-message-timer nil
   "Variable to store the link message timer in.")
@@ -2031,7 +2041,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
   (with-temp-buffer
     (insert-file-contents filename)
     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-    (bibtex-search-entry key nil 0)))
+    (bibtex-search-entry key)))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
