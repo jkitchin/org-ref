@@ -835,7 +835,8 @@ documents."
 					  (org-element-property :end link))))
 	(bibliography-string (orcp-formatted-bibliography))
 	punctuation
-	trailing-space)
+	trailing-space
+	bibliography-link)
 
     ;; replace citation links
     (cl-loop for (repl start end) in (reverse link-replacements)
