@@ -232,7 +232,111 @@ bibliography:tests/test-1.bib
 	   (bibtex-search-entry "bad-key")))))
 
 
+;; test labels
+(ert-deftest get-labels-1 ()
+  (should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+	"#+label: test"
+      (org-ref-get-org-labels)))))
 
+(ert-deftest get-labels-2 ()
+  (should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+	"\\label{test}"
+      (org-ref-get-latex-labels)))))
+
+(ert-deftest get-labels-3 ()
+  (should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+	"
+#+tblname: test
+| 1 |"
+      (org-ref-get-tblnames)))))
+
+(ert-deftest get-labels-4 ()
+  (should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+	"* header
+  :PROPERTIES:
+  :CUSTOM_ID: test
+  :END:
+"
+      (org-ref-get-custom-ids)))))
+
+(ert-deftest get-labels-5 ()
+  (should
+   (= 5
+      (length
+       (org-test-with-temp-text
+	   "* header
+  :PROPERTIES:
+  :CUSTOM_ID: test
+  :END:
+
+#+tblname: one
+|3|
+
+** subsection \\label{three}
+  :PROPERTIES:
+  :CUSTOM_ID: two
+  :END:
+
+label:four
+"
+	 (org-ref-get-labels))))))
+
+
+;; * bad cites/labels/refs
+
+
+(ert-deftest bad-cites ()
+  (should
+   (= 2
+      (length
+       (org-test-with-temp-text
+	   "cite:bad1  cite:bad2"
+	 (org-ref-bad-cite-candidates))))))
+
+
+(ert-deftest bad-ref ()
+  (should
+   (= 2
+      (length
+       (org-test-with-temp-text
+	   "ref:bad1  ref:bad2"
+	 (org-ref-bad-ref-candidates))))))
+
+(ert-deftest multiple-labels ()
+  (should
+   (= 4
+      (length
+       (org-test-with-temp-text
+	   "
+label:one
+\\label{one}
+#+tblname: one
+| 3|
+
+#+label:one"
+	 (org-ref-bad-label-candidates))))))
+
+
+(ert-deftest bad-file-link ()
+  (should
+   (= 3
+      (length
+       (org-test-with-temp-text
+	   "
+file:not.here  [[./or.here]] and not attachfile:or.anywhere"
+	 (org-ref-bad-file-link-candidates))))))
 
 (provide 'org-ref-test)
 
