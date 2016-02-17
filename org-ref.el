@@ -1595,7 +1595,7 @@ A number greater than one means multiple labels!"
 
 (defun org-ref-get-custom-ids ()
   "Return a list of custom_id properties in the buffer."
-  (unless (file-exists-p (buffer-file-name))
+  (when (and (buffer-file-name) (file-exists-p (buffer-file-name)))
     (save-buffer))
   (let ((results '()) custom_id)
     (org-map-entries
@@ -2005,7 +2005,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 
       ;; we did not find a bibliography link. now look for \bibliography
       (goto-char (point-min))
-      (when (re-search-forward "\\\\bibliography{\\([^}]+\\)}" nil t)
+      (when (re-search-forward "\\\\bibliography{\\(.*?\\)}" nil t)
         ;; split, and add .bib to each file
         (setq org-ref-bibliography-files
               (mapcar (lambda (x) (concat x ".bib"))
@@ -2023,7 +2023,7 @@ falling back to what the user has set in `org-ref-default-bibliography'"
 
       ;; one last attempt at the latex addbibresource
       (goto-char (point-min))
-      (when (re-search-forward "\\addbibresource{\\([^}]+\\)}" nil t)
+      (when (re-search-forward "\\addbibresource{\\(.*?\\)}" nil t)
 	(setq org-ref-bibliography-files
 	      (mapcar 'org-ref-strip-string (split-string (match-string 1) ",")))
 	(throw 'result org-ref-bibliography-files))
@@ -3062,33 +3062,58 @@ file.  Makes a new buffer with clickable links."
       (dolist (label labels)
         (when (> (-count (lambda (a)
                            (equal a label))
-                         labels) 1)
-          ;; this is a multiply defined label.
+                         labels)
+		 1)
+          ;; this means there are multiply defined labels. now we find them.
           (let ((cp (point)))
             (goto-char (point-min))
+	    ;; regular org label:tag links
             (while (re-search-forward
                     (format  "[^#+]label:%s\\s-" label) nil t)
-              (push (cons label (point-marker)) multiple-labels))
+	      (message "link")
+              (cl-pushnew (cons label (point-marker)) multiple-labels
+			  :test (lambda (a b)
+				  (and (string= (car a) (car b))
+				       (= (marker-position (cdr a))
+					  (marker-position (cdr b)))))))
+
             (goto-char (point-min))
+	    ;; latex style
             (while (re-search-forward
                     (format  "\\label{%s}\\s-?" label) nil t)
-              (push (cons label (point-marker)) multiple-labels))
+	      (message "latex")
+              (cl-pushnew (cons label (point-marker)) multiple-labels
+			  :test (lambda (a b)
+				  (and (string= (car a) (car b))
+				       (= (marker-position (cdr a))
+					  (marker-position (cdr b)))))))
 
+	    ;; keyword style
             (goto-char (point-min))
             (while (re-search-forward
                     (format  "^#\\+label:\\s-*%s" label) nil t)
-              (push (cons label (point-marker)) multiple-labels))
+	      (message "keyword")
+              (cl-pushnew (cons label (point-marker)) multiple-labels
+			  :test (lambda (a b)
+				  (and (string= (car a) (car b))
+				       (= (marker-position (cdr a))
+					  (marker-position (cdr b)))))))
 
             (goto-char (point-min))
             (while (re-search-forward
                     (format   "^#\\+tblname:\\s-*%s" label) nil t)
-              (push (cons label (point-marker)) multiple-labels))
+	      (message "table")
+              (cl-pushnew (cons label (point-marker)) multiple-labels
+			  :test (lambda (a b)
+				  (and (string= (car a) (car b))
+				       (= (marker-position (cdr a))
+					  (marker-position (cdr b)))))))
             (goto-char cp)))))
     multiple-labels))
 
 
 (defun org-ref-bad-file-link-candidates ()
-  "Return list of conses (link . marker) wehre the file in the link does not exist."
+  "Return list of conses (link . marker) where the file in the link does not exist."
   (let* ((bad-files '()))
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
