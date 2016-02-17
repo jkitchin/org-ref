@@ -3070,7 +3070,6 @@ file.  Makes a new buffer with clickable links."
 	    ;; regular org label:tag links
             (while (re-search-forward
                     (format  "[^#+]label:%s\\s-" label) nil t)
-	      (message "link")
               (cl-pushnew (cons label (point-marker)) multiple-labels
 			  :test (lambda (a b)
 				  (and (string= (car a) (car b))
@@ -3081,7 +3080,6 @@ file.  Makes a new buffer with clickable links."
 	    ;; latex style
             (while (re-search-forward
                     (format  "\\label{%s}\\s-?" label) nil t)
-	      (message "latex")
               (cl-pushnew (cons label (point-marker)) multiple-labels
 			  :test (lambda (a b)
 				  (and (string= (car a) (car b))
@@ -3092,7 +3090,6 @@ file.  Makes a new buffer with clickable links."
             (goto-char (point-min))
             (while (re-search-forward
                     (format  "^#\\+label:\\s-*%s" label) nil t)
-	      (message "keyword")
               (cl-pushnew (cons label (point-marker)) multiple-labels
 			  :test (lambda (a b)
 				  (and (string= (car a) (car b))
@@ -3102,7 +3099,6 @@ file.  Makes a new buffer with clickable links."
             (goto-char (point-min))
             (while (re-search-forward
                     (format   "^#\\+tblname:\\s-*%s" label) nil t)
-	      (message "table")
               (cl-pushnew (cons label (point-marker)) multiple-labels
 			  :test (lambda (a b)
 				  (and (string= (car a) (car b))
