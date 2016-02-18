@@ -4094,14 +4094,25 @@ Checks for pdf and doi, and add appropriate functions."
     (add-to-list
      'candidates
      '("Delete key at point" . (lambda ()
-                                 (let ((key (org-ref-get-bibtex-key-under-cursor)))
+                                 (let ((key (org-ref-get-bibtex-key-under-cursor))
+                                       (last-key-p nil)
+                                       (ending-comma-p nil))
+                                   (re-search-backward ":")
+                                   (re-search-forward (concat key ",?"))
+                                   (setq last-key-p (null (org-element-property :type (org-element-context))));not in a cite context, we are removing the last entry of the list
+                                   (setq ending-comma-p (equal (string (preceding-char)) ","));there is a comma after the cite
                                    (re-search-backward ":")
                                    (re-search-forward (concat key ",?"))
                                    (setf (buffer-substring
                                           (match-beginning 0)
                                           (match-end 0))
-                                         ""))))
-     t)
+                                         "")
+                                   (when (and last-key-p ; we are removing the last entry
+                                              (null ending-comma-p)) ;there was no comma
+                                     (backward-char)
+                                     (delete-char 1) ;delete the comma that is left
+                                     )
+                                   ))) t)
 
     ;;  This is kind of clunky. We store the key at point. Add the new ref. Get
     ;;  it off the end, and put it in the original position.
@@ -4109,24 +4120,24 @@ Checks for pdf and doi, and add appropriate functions."
      'candidates
      '("Replace key at point" . (lambda ()
                                   (let ((key (org-ref-get-bibtex-key-under-cursor)))
-                                    ;; add new citation
                                     (save-excursion
-                                      (org-ref-helm-insert-cite-link nil))
-                                    (let*  ((object (org-element-context))
+                                      (goto-char (org-element-property :end (org-element-context)))
+                                      (org-ref-helm-insert-cite-link nil)) ;add the new citation at the end
+                                    (let*  ((object (org-element-context)) ;the new object with the new citation at the end
                                             (type (org-element-property :type object))
                                             (begin (org-element-property :begin object))
                                             (end (org-element-property :end object))
                                             (link-string (org-element-property :path object))
-                                            key keys i last-key)
+                                            keys i last-key)
 
                                       (setq
-                                       key (org-ref-get-bibtex-key-under-cursor)
+                                       ;;key (org-ref-get-bibtex-key-under-cursor)
                                        keys (org-ref-split-and-strip-string link-string)
                                        i (org-ref-index key keys)
                                        last-key (car (reverse keys)))
 
-                                      (setq keys (-remove-at i keys))
-                                      (setq keys (-insert-at i last-key (butlast keys)))
+                                      (setq keys (-remove-at i keys)) ;remove old citation
+                                      (setq keys (-insert-at i last-key (butlast keys))) ;move new citation to the same place in the list
 
                                       (cl--set-buffer-substring
                                        begin end
