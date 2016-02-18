@@ -415,6 +415,116 @@ file:not.here  [[./or.here]] and not attachfile:or.anywhere"
 	(goto-char 11)
 	(org-ref-previous-key) (point)))))
 
+;;* delete replace keys
+(ert-deftest del-key-1 ()
+  (should
+   (string= "cite:key2 test"
+	    (org-test-with-temp-text
+		"cite:key1,key2 test"
+	      (goto-char 6)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string)))))
+
+(ert-deftest del-key-2 ()
+  (should
+   (string= "cite:key1 test"
+	    (org-test-with-temp-text
+		"cite:key1,key2 test"
+	      (goto-char 11)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string)))))
+
+(ert-deftest del-key-3 ()
+  (should
+   (string= "cite:key1 text"
+	    (org-test-with-temp-text
+		"cite:key1,key2 text"
+	      (goto-char 11)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string)))))
+
+(ert-deftest del-key-4 ()
+  (should
+   (string= "cite:key2 text"
+	    (org-test-with-temp-text
+		"cite:key1,key2 text"
+	      (goto-char 6)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string)))))
+
+(ert-deftest del-key-5 ()
+  (should
+   (string= "[[cite:key2]] text"
+	    (org-test-with-temp-text
+		"[[cite:key1,key2]] text"
+	      (goto-char 6)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string)))))
+
+(ert-deftest del-cite-1 ()
+  (should
+   (string= "at text"
+	    (org-test-with-temp-text
+		"at [[cite:key1,key2]] text"
+	      (goto-char 6)
+	      (org-ref-delete-cite-at-point)
+	      (buffer-string)))))
+
+(ert-deftest del-cite-2 ()
+  (should
+   (string= "at text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 6)
+	      (org-ref-delete-cite-at-point)
+	      (buffer-string)))))
+
+(ert-deftest rep-key-1 ()
+  (should
+   (string= "at citenum:key3,key2 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 12)
+	      (org-ref-replace-key-at-point "key3")
+	      (buffer-string)))))
+
+(ert-deftest rep-key-2 ()
+  (should
+   (string= "at citenum:key1,key3 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 17)
+	      (org-ref-replace-key-at-point "key3")
+	      (buffer-string)))))
+
+(ert-deftest rep-key-3 ()
+  (should
+   (string= "at citenum:key1,key3,key5 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 17)
+	      (org-ref-replace-key-at-point "key3,key5")
+	      (buffer-string)))))
+
+(ert-deftest rep-key-4 ()
+  (should
+   (string= "at citenum:key3,key5,key2 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 12)
+	      (org-ref-replace-key-at-point "key3,key5")
+	      (buffer-string)))))
+
+
+(ert-deftest sort-by-year ()
+  (should
+   (string= "cite:kitchin-2004-role,kitchin-2008-alloy"
+	    (org-test-with-temp-text
+		"cite:kitchin-2008-alloy,kitchin-2004-role
+
+bibliography:tests/test-1.bib
+"
+	      (org-ref-sort-citation-link)))))
 
 (provide 'org-ref-test)
 
