@@ -59,6 +59,12 @@
   :type 'boolean
   :group 'doi-utils)
 
+(defcustom doi-utils-open-pdf-after-download
+  nil
+  "Open PDF after adding bibtex entries."
+  :type 'boolean
+  :group 'doi-utils)
+
 (defcustom doi-utils-timestamp-field
   "DATE_ADDED"
   "The bibtex field to store the date when an entry has been added."
@@ -81,7 +87,9 @@ Set to nil to avoid setting timestamps in the entries."
 For all notes in the `org-ref-bibliography-notes' use
 `org-ref-open-bibtex-notes' as the function.
 
-Set to (lambda () nil) if you want no notes.")
+Set to (lambda () nil) if you want no notes."
+  :type 'function
+  :group 'doi-utils)
 
 ;;* Getting pdf files from a DOI
 
@@ -480,11 +488,11 @@ at the end."
                 (if (not (string= (buffer-substring 1 (min 6 (point-max))) "%PDF-"))
                     (progn
                       (delete-file pdf-file)
-		      (message "No pdf was downloaded.")
-		      (browse-url pdf-url))
+          (message "No pdf was downloaded.")
+          (browse-url pdf-url))
                   (message "%s saved" pdf-file)))
 
-              (when (file-exists-p pdf-file)
+              (when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
                 (org-open-file pdf-file))))
         pdf-file))))
 
@@ -654,10 +662,7 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   (when doi-utils-timestamp-format-function
     (bibtex-set-field doi-utils-timestamp-field
           (funcall doi-utils-timestamp-format-function)))
-  (ignore-errors
-    (if (bibtex-key-in-head nil)
-  (org-ref-clean-bibtex-entry t)
-      (org-ref-clean-bibtex-entry)))
+  (org-ref-clean-bibtex-entry)
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
@@ -833,10 +838,7 @@ Every field will be updated, so previous change will be lost."
        (eval (cdr (assoc key mapping))))
      (plist-get-keys results)))
 
-  ;; reclean entry, but keep key if it exists.
-  (if (bibtex-key-in-head)
-      (org-ref-clean-bibtex-entry t)
-    (org-ref-clean-bibtex-entry)))
+  (org-ref-clean-bibtex-entry))
 
 
 ;; A downside to updating an entry is it overwrites what you have already fixed.
@@ -1131,12 +1133,6 @@ error."
             (browse-url (concat "http://dx.doi.org/" doi))
             (error "Resource not found.  Opening website"))
 	json-data))))
-
-
-(defun doi-utils-get-json-metadata (doi)
-  "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
-  (let ((json-object-type 'plist))
-    (json-read-from-string (doi-utils-get-json doi))))
 
 
 ;;;###autoload

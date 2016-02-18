@@ -813,86 +813,87 @@ documents."
   ;; and eliminate bibliography style links
   ;; This will load all style modules
   (cl-loop for link in (org-element-map
-			(org-element-parse-buffer) 'link 'identity)
-	if (string= "bibliographystyle"
-		    (org-element-property :type link))
-	do
-	;; get path for style and load it
-	(load-library (org-element-property :path link))
-	;; get rid of the link in the buffer
-	(setf (buffer-substring (org-element-property :begin link)
-				(org-element-property :end link))
-	      ""))
+			   (org-element-parse-buffer) 'link 'identity)
+	   if (string= "bibliographystyle"
+		       (org-element-property :type link))
+	   do
+	   ;; get path for style and load it
+	   (load-library (org-element-property :path link))
+	   ;; get rid of the link in the buffer
+	   (setf (buffer-substring (org-element-property :begin link)
+				   (org-element-property :end link))
+		 ""))
 
   (orcp-collect-citations)
   (orcp-collect-unique-entries)
 
   (let ((link-replacements (cl-loop for link in *orcp-citation-links*
-				 for repl in (orcp-get-citation-replacements)
-				 collect
-				 (list repl
-				       (org-element-property :begin link)
-				       (org-element-property :end link))))
+				    for repl in (orcp-get-citation-replacements)
+				    collect
+				    (list repl
+					  (org-element-property :begin link)
+					  (org-element-property :end link))))
 	(bibliography-string (orcp-formatted-bibliography))
 	punctuation
-	trailing-space)
+	trailing-space
+	bibliography-link)
 
     ;; replace citation links
     (cl-loop for (repl start end) in (reverse link-replacements)
-	  for link in (reverse *orcp-citation-links*)
-	  do
-	  ;; chomp leading spaces if needed
-	  (when (orcp-get-citation-style
-		 'chomp-leading-space
-		 (intern (org-element-property :type link)))
-	    (goto-char start)
-	    (while (and (not (sentence-beginning-p))
-			(looking-back " "))
-	      (delete-char -1)
-	      (setq start (- start 1))
-	      (setq end (- end 1))))
+	     for link in (reverse *orcp-citation-links*)
+	     do
+	     ;; chomp leading spaces if needed
+	     (when (orcp-get-citation-style
+		    'chomp-leading-space
+		    (intern (org-element-property :type link)))
+	       (goto-char start)
+	       (while (and (not (sentence-beginning-p))
+			   (looking-back " " (- (point) 2)))
+		 (delete-char -1)
+		 (setq start (- start 1))
+		 (setq end (- end 1))))
 
-	  ;; chomp trailing spaces if needed
-	  (when (orcp-get-citation-style
-		 'chomp-trailing-space
-		 (intern (org-element-property :type link)))
-	    (goto-char end)
-	    (while (looking-at " ")
-	      (delete-char 1)))
+	     ;; chomp trailing spaces if needed
+	     (when (orcp-get-citation-style
+		    'chomp-trailing-space
+		    (intern (org-element-property :type link)))
+	       (goto-char end)
+	       (while (looking-at " " (- (point) 2))
+		 (delete-char 1)))
 
-	  ;; Check for transposing punctuation
-	  (setq punctuation nil)
-	  (when (orcp-get-citation-style
-		 'transpose-punctuation
-		 (intern (org-element-property :type link)))
-	    ;; goto end of link
-	    (goto-char end)
-	    (when (looking-at "\\.\\|,\\|;")
-	      (setq punctuation (buffer-substring end (+ 1 end)))
-	      (delete-char 1)))
+	     ;; Check for transposing punctuation
+	     (setq punctuation nil)
+	     (when (orcp-get-citation-style
+		    'transpose-punctuation
+		    (intern (org-element-property :type link)))
+	       ;; goto end of link
+	       (goto-char end)
+	       (when (looking-at "\\.\\|,\\|;")
+		 (setq punctuation (buffer-substring end (+ 1 end)))
+		 (delete-char 1)))
 
-	  ;; preserve trailing space
-	  (goto-char end)
-	  (setq trailing-space (if (looking-back " ") " " ""))
+	     ;; preserve trailing space
+	     (goto-char end)
+	     (setq trailing-space (if (looking-back " ") " " ""))
 
-	  (setf (buffer-substring start end) (concat repl trailing-space))
+	     (setf (buffer-substring start end) (concat repl trailing-space))
 
-	  (when punctuation
-	    (goto-char start)
-	    ;; I can't figure out why this is necessary. I would have thought
-	    ;; the chomp leading spaces would get it.
-	    (when (thing-at-point 'whitespace)
-	      (delete-char -1))
-	    (insert punctuation)))
+	     (when punctuation
+	       (goto-char start)
+	       ;; I can't figure out why this is necessary. I would have thought
+	       ;; the chomp leading spaces would get it.
+	       (when (thing-at-point 'whitespace)
+		 (delete-char -1))
+	       (insert punctuation)))
 
     ;; Insert bibliography section at the bibliography link
     (setq bibliography-link (cl-loop for link
-				  in (org-element-map
-					 (org-element-parse-buffer)
-					 'link 'identity)
-				  if (string= "bibliography"
-					      (org-element-property :type link))
-				  collect link))
+				     in (org-element-map
+					    (org-element-parse-buffer)
+					    'link 'identity)
+				     if (string= "bibliography"
+						 (org-element-property :type link))
+				     collect link))
     (pcase (length bibliography-link)
       ((pred (< 1)) (error "Only one bibliography link allowed"))
       ((pred (= 1))

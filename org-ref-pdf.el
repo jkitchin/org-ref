@@ -40,6 +40,7 @@
   "pdftotext"
   "Executable for pdftotext. Set if the executable is not on your
 path, or you want to use another version."
+  :type 'file
   :group 'org-ref-pdf)
 
 (defcustom org-ref-pdf-doi-regex
@@ -49,6 +50,7 @@ The DOI should be in group 1 of the regex.
 The default pattern matches:
 1. http://dx.do.org/doi
 2. doi: doi"
+  :type 'regexp
   :group 'org-ref-pdf)
 
 (unless (executable-find pdftotext-executable)
@@ -92,16 +94,16 @@ Used when multiple dois are found in a pdf file."
 	  (error (cons (format "%s read error" doi) doi)))))
 
 
-(defun org-ref-pdf-add-dois (candidate)
+(defun org-ref-pdf-add-dois (_)
   "Add all entries for CANDIDATE in `helm-marked-candidates'."
   (cl-loop for doi in (helm-marked-candidates)
-	do
-	(doi-utils-add-bibtex-entry-from-doi
-	 doi
-	 (buffer-file-name))
-	;; this removes two blank lines before each entry.
-	(bibtex-beginning-of-entry)
-	(delete-char -2)))
+	   do
+	   (doi-utils-add-bibtex-entry-from-doi
+	    doi
+	    (buffer-file-name))
+	   ;; this removes two blank lines before each entry.
+	   (bibtex-beginning-of-entry)
+	   (delete-char -2)))
 
 
 ;;;###autoload

@@ -12,11 +12,17 @@ test: clean-elc
 unit:
 	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
+mytest:
+	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l tests/org-test.el -l org-ref-test.el -f ert-run-tests-batch-and-exit
+
 compile:
-	${CASK_EXEC} ${emacs} -Q -batch -L "." -f batch-byte-compile *.el
+	${CASK_EXEC} ${emacs} -Q -batch -l ../init.el -L "." -f batch-byte-compile *.el
 
 clean-elc:
 	rm -f *.elc
+
+github:
+	open http://github.com/jkitchin/org-ref
 
 release:
 	git checkout melpa
