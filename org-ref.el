@@ -596,31 +596,35 @@ If so return the position for `goto-char'."
 (defun org-ref-match-next-cite-link (&optional limit)
   "Search forward to next cite link up to LIMIT
 Add a tooltip to the match."
-  (when (and (re-search-forward org-ref-cite-re limit t)
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
-    (forward-char -2)
-    (let ((this-link (org-element-context)))
-      (add-text-properties
-       (org-element-property :begin this-link)
-       (- (org-element-property :end this-link)
-	  (org-element-property :post-blank this-link))
-       (list
-	'help-echo (lambda (window object position)
-		     (save-excursion
-		       (goto-char position)
-		       ;; Here we wrap the citation string to a reasonable size.
-		       (let ((s (org-ref-get-citation-string-at-point)))
-			 (with-temp-buffer
-			   (insert s)
-			   (fill-paragraph)
-			   (buffer-string)))))))
-      (set-match-data
-       (list (org-element-property :begin this-link)
+  (if (and (re-search-forward org-ref-cite-re limit t)
+	   (save-excursion
+	     (beginning-of-line)
+	     (not (looking-at "# "))))
+      (progn
+	(forward-char -2)
+	(let ((this-link (org-element-context)))
+	  (when (-contains? org-ref-cite-types (org-element-property :type this-link))
+	    (add-text-properties
+	     (org-element-property :begin this-link)
 	     (- (org-element-property :end this-link)
-		(org-element-property :post-blank this-link))))
-      (goto-char (org-element-property :end this-link)))))
+		(org-element-property :post-blank this-link))
+	     (list
+	      'help-echo (lambda (window object position)
+			   (save-excursion
+			     (goto-char position)
+			     ;; Here we wrap the citation string to a reasonable size.
+			     (let ((s (org-ref-get-citation-string-at-point)))
+			       (with-temp-buffer
+				 (insert s)
+				 (fill-paragraph)
+				 (buffer-string)))))))
+	    (set-match-data
+	     (list (org-element-property :begin this-link)
+		   (- (org-element-property :end this-link)
+		      (org-element-property :post-blank this-link))))
+	    (goto-char (org-element-property :end this-link)))))
+    ;; somehow were not on a  cite link, so we try again.
+    (org-ref-match-next-cite-link limit)))
 
 
 (defun org-ref-match-next-label-link (limit)
