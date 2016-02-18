@@ -41,5 +41,11 @@ ref:bad-label
 
 \printglossaries
 
+* Some tests
+
+
+
+* References
+
 bibliographystyle:unsrt
 bibliography:test-1.bib
