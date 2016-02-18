@@ -17,7 +17,7 @@
 (when (require 'undercover nil t)
   (undercover "org-ref.el" (:exclude "*-test.el")))
 
-
+;;* basic tests
 (ert-deftest or-split-key-1 ()
   "Check if keys are split correctly"
   (should
@@ -68,8 +68,23 @@
       (org-ref-get-bibtex-key-and-file "kitchin-2015-examp")))))
 
 
-;; * tests based on org framework
 
+(ert-deftest swap-1 ()
+  "org swap test"
+  (should
+   (equal
+    '(b a)
+    (org-ref-swap-keys 0 1 '(a b)))))
+
+(ert-deftest swap-2 ()
+  "org swap test"
+  (should
+   (equal
+    '(a c b)
+    (org-ref-swap-keys 1 2 '(a b c)))))
+
+
+;;* Messages on links
 (ert-deftest orlm ()
   (org-test-with-temp-text
       "cite:kitchin-2015-examp
@@ -90,7 +105,7 @@ bibliography:tests/test-1.bib
      (string= "!!! No entry found !!!"
 	      (org-ref-link-message)))))
 
-
+;;* get pdf/key
 (ert-deftest or-get-pdf ()
   (should
    (string=
@@ -126,7 +141,9 @@ bibliography:tests/test-1.bib
       (goto-char 11)
       (org-ref-get-bibtex-key-under-cursor)))))
 
+;;* get bibliography
 (ert-deftest orfb-1 ()
+  "test a single bibliography link."
   (should
    (equal
     '("test.bib")
@@ -135,6 +152,7 @@ bibliography:tests/test-1.bib
       (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-1a ()
+  "Get multiple bib files."
   (should
    (equal
     '("test.bib" "test2.bib")
@@ -143,6 +161,7 @@ bibliography:tests/test-1.bib
       (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-2 ()
+  "Get bibfile in latex forma."
   (should
    (equal
     '("test.bib")
@@ -152,6 +171,7 @@ bibliography:tests/test-1.bib
       (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-2a ()
+  "multiple bibliographies in latex form"
   (should
    (equal
     '("test.bib" "test2.bib")
@@ -162,6 +182,7 @@ bibliography:tests/test-1.bib
 
 
 (ert-deftest orfb-3 ()
+  "addbibresource form of bibliography."
   (should
    (equal
     '("test.bib")
@@ -172,6 +193,7 @@ bibliography:tests/test-1.bib
 
 
 (ert-deftest orfb-3a ()
+  "Multiple bibfiles in addbibresource."
   (should
    (equal
     '("test.bib" "test2.bib")
@@ -181,6 +203,7 @@ bibliography:tests/test-1.bib
       (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-4 ()
+  "getting default bibfile in file with no bib specification."
   (should
    (equal
     '("test.bib")
@@ -190,7 +213,7 @@ bibliography:tests/test-1.bib
 	(org-ref-find-bibliography))))))
 
 
-;; * bibtex tests We rely alot on bibtex functionality. These are tests to make
+;;* bibtex tests We rely alot on bibtex functionality. These are tests to make
 ;; sure it works as we expect. I don't have clear evidence, but I feel like I
 ;; have had trouble with the in the past.
 (ert-deftest bib-1 ()
@@ -232,7 +255,7 @@ bibliography:tests/test-1.bib
 	   (bibtex-search-entry "bad-key")))))
 
 
-;; test labels
+;;* test labels
 (ert-deftest get-labels-1 ()
   (should
    (equal
@@ -294,8 +317,7 @@ label:four
 	 (org-ref-get-labels))))))
 
 
-;; * bad cites/labels/refs
-
+;;* bad cites/labels/refs
 
 (ert-deftest bad-cites ()
   (should
@@ -337,6 +359,62 @@ label:one
 	   "
 file:not.here  [[./or.here]] and not attachfile:or.anywhere"
 	 (org-ref-bad-file-link-candidates))))))
+
+
+
+(ert-deftest swap-link-1 ()
+  (should
+   (string= "cite:key2,key1"
+	    (org-test-with-temp-text
+		"cite:key1,key2"
+	      (goto-char 6)
+	      (org-ref-swap-citation-link 1)
+	      (buffer-string)))))
+
+(ert-deftest swap-link-2 ()
+  (should
+   (string= "cite:key1,key2"
+	    (org-test-with-temp-text
+		"cite:key2,key1"
+	      (goto-char 6)
+	      (org-ref-swap-citation-link 1)
+	      (buffer-string)))))
+
+;;* next/prev key
+
+(ert-deftest parse-link-1 ()
+  (should
+   (equal
+    '(("key1" 6 10) ("key2" 11 15))
+    (org-test-with-temp-text
+	"cite:key1,key2"
+      (org-ref-parse-cite)))))
+
+(ert-deftest next-link-1 ()
+  (should
+   (= 11
+      (org-test-with-temp-text
+	  "cite:key1,key2"
+	(goto-char 6)
+	(org-ref-next-key) (point)))))
+
+
+(ert-deftest next-link-2 ()
+  (should
+   (= 16
+      (org-test-with-temp-text
+	  "cite:key3 cite:key1,key2"
+	(goto-char 6)
+	(org-ref-next-key) (point)))))
+
+(ert-deftest prev-link-1 ()
+  (should
+   (= 6
+      (org-test-with-temp-text
+	  "cite:key1,key2"
+	(goto-char 11)
+	(org-ref-previous-key) (point)))))
+
 
 (provide 'org-ref-test)
 
