@@ -596,14 +596,17 @@ If so return the position for `goto-char'."
 (defun org-ref-match-next-cite-link (&optional limit)
   "Search forward to next cite link up to LIMIT
 Add a tooltip to the match."
-  (if (and (re-search-forward org-ref-cite-re limit t)
-	   (save-excursion
-	     (beginning-of-line)
-	     (not (looking-at "# "))))
-      (progn
-	(forward-char -2)
-	(let ((this-link (org-element-context)))
-	  (when (-contains? org-ref-cite-types (org-element-property :type this-link))
+  (when (and (re-search-forward org-ref-cite-re limit t)
+	     ;; make sure we are not in a comment
+	     (save-excursion
+	       (beginning-of-line)
+	       (not (looking-at "# "))))
+    ;; we think we are on a cite link lets get on it and make sure
+    (forward-char -2)
+    (let ((this-link (org-element-context)))
+      (if (-contains? org-ref-cite-types (org-element-property :type this-link))
+	  ;; we are on a cite link
+	  (progn
 	    (add-text-properties
 	     (org-element-property :begin this-link)
 	     (- (org-element-property :end this-link)
@@ -622,39 +625,44 @@ Add a tooltip to the match."
 	     (list (org-element-property :begin this-link)
 		   (- (org-element-property :end this-link)
 		      (org-element-property :post-blank this-link))))
-	    (goto-char (org-element-property :end this-link)))))
-    ;; somehow were not on a  cite link, so we try again.
-    (org-ref-match-next-cite-link limit)))
+	    (goto-char (org-element-property :end this-link)))
+	;; Must be a false match.
+	;; somehow were not on a
+	;; cite link, so we try
+	;; again.
+	(org-ref-match-next-cite-link limit)))))
 
 
 (defun org-ref-match-next-label-link (limit)
   "Find next label link up to LIMIT.
 Add tooltip."
-  (when (and (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
-	     ;; not in a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
-    (forward-char -2)
-    (let ((this-link (org-element-context)))
-      (add-text-properties
-       (org-element-property :begin this-link)
-       (- (org-element-property :end this-link)
-	  (org-element-property :post-blank this-link))
-       (list
-	'help-echo (lambda (window object position)
-		     (save-excursion
-		       (goto-char position)
-		       (let ((s (org-ref-link-message)))
-			 (with-temp-buffer
-			   (insert s)
-			   (fill-paragraph)
-			   (buffer-string)))))))
-      (set-match-data
-       (list (org-element-property :begin this-link)
+  (if (and (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	   ;; make sure we are not in a comment
+	   (save-excursion
+	     (beginning-of-line)
+	     (not (looking-at "# "))))
+      (progn
+	(forward-char -2)
+	(let ((this-link (org-element-context)))
+	  (when (string= "label" (org-element-property :type this-link))
+	    (add-text-properties
+	     (org-element-property :begin this-link)
 	     (- (org-element-property :end this-link)
-		(org-element-property :post-blank this-link))))
-      (goto-char (org-element-property :end this-link)))))
+		(org-element-property :post-blank this-link))
+	     (list
+	      'help-echo (lambda (window object position)
+			   (save-excursion
+			     (goto-char position)
+			     (let ((s (org-ref-link-message)))
+			       (with-temp-buffer
+				 (insert s)
+				 (fill-paragraph)
+				 (buffer-string)))))))
+	    (set-match-data
+	     (list (org-element-property :begin this-link)
+		   (- (org-element-property :end this-link)
+		      (org-element-property :post-blank this-link))))
+	    (goto-char (org-element-property :end this-link)))))))
 
 
 (defun org-ref-match-next-ref-link (limit)
@@ -662,29 +670,37 @@ Add tooltip."
 Add tooltip to the link. We avoid tags by not finding :ref: in
 tags."
   (when (and (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     ;; make sure we are not on a comment
 	     (save-excursion
 	       (beginning-of-line)
 	       (not (looking-at "# "))))
+    ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
-      (add-text-properties
-       (org-element-property :begin this-link)
-       (- (org-element-property :end this-link)
-	  (org-element-property :post-blank this-link))
-       (list
-	'help-echo (lambda (window object position)
-		     (save-excursion
-		       (goto-char position)
-		       (let ((s (org-ref-link-message)))
-			 (with-temp-buffer
-			   (insert s)
-			   (fill-paragraph)
-			   (buffer-string)))))))
-      (set-match-data
-       (list (org-element-property :begin this-link)
+      (if (string= "ref" (org-element-property :type this-link))
+	  ;; we are, so we do our business
+	  (progn
+	    (add-text-properties
+	     (org-element-property :begin this-link)
 	     (- (org-element-property :end this-link)
-		(org-element-property :post-blank this-link))))
-      (goto-char (org-element-property :end this-link)))))
+		(org-element-property :post-blank this-link))
+	     (list
+	      'help-echo (lambda (window object position)
+			   (save-excursion
+			     (goto-char position)
+			     (let ((s (org-ref-link-message)))
+			       (with-temp-buffer
+				 (insert s)
+				 (fill-paragraph)
+				 (buffer-string)))))))
+	    (set-match-data
+	     (list (org-element-property :begin this-link)
+		   (- (org-element-property :end this-link)
+		      (org-element-property :post-blank this-link))))
+	    (goto-char (org-element-property :end this-link)))
+	;; False match, let's try again
+	(org-ref-match-next-ref-link)))))
+
 
 (defun org-ref-match-next-bibliography-link (limit)
   "Find next bibliography link up to LIMIT.
