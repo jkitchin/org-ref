@@ -1,0 +1,93 @@
+* DONE Introduction to a citation processor in org-ref
+  CLOSED: [2015-12-11 Fri 18:05]
+  :PROPERTIES:
+  :categories: emacs,orgref,orgmode,citations
+  :date:     2015/12/11 18:05:43
+  :updated:  2015/12/11 18:22:40
+  :END:
+
+As a potential solution for citions in org-mode for non-LaTeX export, here we introduce csl (citation syntax lisp). The idea is heavily influenced by the xml-based Citation Syntax Language, but uses lisp sexps instead.
+
+Briefly, there is a csl file that contains two variables: citation-style and bibliography-style. The citation-style defines how the in-text citations are represented for different types of citations. The bibliography-style defines how the bibliography is constructed.
+
+What do we gain by this?
+1. No need for external citeproc program, and hackability by org-mode experts.
+2. Punctuation transposition and space chomping, i.e. put superscripts on the right side of punctuation if you want it, and remove whitespace before superscripts if you want it.
+3. Total tunability of the citation format to different backends.
+4. Easy to change bibliography format with the bibliographystyle link.
+5. The use of Bibtex databases. These are plain text, and flexible.
+
+The real code for this is too long to blog about. Instead, you should check it out here: https://github.com/jkitchin/org-ref/tree/master/citeproc
+
+** Reference types
+
+- A book cite:kittel-2005-introd-solid.
+
+- An article cite:kitchin-2015-examp
+
+- A miscellaneous bibtex type cite:xu-suppor.
+
+There is work to do in supporting other types of entry types that are common in bibtex files.
+
+** Citation types
+
+- Regular citation:  cite:kitchin-2015-examp
+- citenum: See Ref. citenum:kitchin-2015-examp
+- citeauthor:  citeauthor:kitchin-2015-examp
+- citeyear:   citeyear:kitchin-2015-examp
+
+There is work to do in supporting other types of citations.
+
+** Multiple citations and sorting within citation
+You can specify that the cites within a citation are consistently sorted in the export.
+
+- a,b: cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien
+- b,a: cite:kitchin-2015-data-surfac-scien,kitchin-2015-examp
+
+There is work to do for range collapsing, e.g. to turn 1,2,3 into 1-3.
+** Space chomping and punctuation testing
+I think citations should always be put in the sentence they logically belong to. LaTeX has a feature through natbib I think where for some styles, e.g. superscripts, the citations are moved to the right side of punctuation, and whitespace is chomped so the superscript is next to words, not separated by spaces. We can do that here too.
+
+- Citation at end of sentence cite:kitchin-2015-examp.
+- Citation in clause cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien, with a comma.
+- Citation in middle of cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien a sentence.
+
+** Building
+   :PROPERTIES:
+   :date:     2015/12/11 14:47:59
+   :updated:  2015/12/11 14:48:26
+   :END:
+
+At the moment, you have to add a hook function to put the replacements in the document before parsing.
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path ".")
+(require 'org-ref-citeproc)
+
+(when (file-exists-p "readme.html") (delete-file "readme.html"))
+(let ((org-export-before-parsing-hook '(orcp-citeproc)))
+  (browse-url (org-html-export-to-html)))
+#+End_src
+
+#+RESULTS:
+: #<process open ./readme-unsrt.html>
+
+
+** Summary thoughts
+This looks promising. There is probably a lot of work to do to make this as robust as say citeproc-js or the Zotero handler. I am not sure if we could write this in a way to directly use the CSL. My feeling is it would not be as flexible as this, and we would have to add to it anyway.
+
+Here are some remaining things that could be worked on if we continue this direction.
+
+1. Other bibtex entries need to be tested out.
+2. Remaining bibtex fields need to be defined.
+3. Standardization of styling that can be done. Not all features described in my csl are supported, e.g. et. al. and probably others.
+4. The author-year style needs name disambiguation somehow.
+5. Hyperlinking in html.
+6. Make sure export to other backends works.
+7. Can this work for notes-based styles?
+
+** Bibliography
+You use a bibliographystyle link to specify a csl. These are similar to bibtex styles, and in some cases no change is needed for LaTeX export (although you may have to remove the citeproc hook function).
+
+bibliographystyle:unsrt
+bibliography:~/Dropbox/bibliography/references.bib
