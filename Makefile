@@ -6,7 +6,7 @@ SOURCES =   ${EL_SOURCES}
 
 all: test
 
-test: clean-elc
+test: clean
 	${MAKE} unit
 
 unit:
@@ -18,27 +18,17 @@ mytest:
 compile:
 	${CASK_EXEC} ${emacs} -Q -batch -l ../init.el -L "." -f batch-byte-compile *.el
 
-clean-elc:
+clean:
 	rm -f *.elc
 
 github:
 	open http://github.com/jkitchin/org-ref
 
-release:
-	git checkout melpa
-	git merge master
-	git checkout master
-	git push origin melpa
+travis:
+	open https://travis-ci.org/jkitchin/org-ref
 
-# this makes the package so I can test it.
-melpa: release
-	${MAKE} -C /Users/jkitchin/Dropbox/kitchingroup/jmax/melpa clean
-	${MAKE} -C /Users/jkitchin/Dropbox/kitchingroup/jmax/melpa recipes/org-ref
-	${MAKE} -C /Users/jkitchin/Dropbox/kitchingroup/jmax/melpa packages/archive-contents
-
-test-melpa: melpa
-	rm -fr sandbox
-	${emacs} -Q -l tests/test-melpa.el
+melpa:
+	open https://melpa.org/#/org-ref
 
 
 package : ${SOURCES}
