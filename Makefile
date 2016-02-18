@@ -21,6 +21,9 @@ compile:
 clean-elc:
 	rm -f *.elc
 
+github:
+	open http://github.com/jkitchin/org-ref
+
 release:
 	git checkout melpa
 	git merge master

@@ -42,3 +42,4 @@ sandbox
 /x.sh
 /.DS_Store
 /tests/.DS_Store
+/tests/.test-org-id-locations
