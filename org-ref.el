@@ -1152,7 +1152,7 @@ some things are escaped since odt is an xml format."
 				"\\.bib" ""
 				(mapconcat
 				 'identity
-				 (mapcar 'expand-file-name
+				 (mapcar 'file-relative-name
 					 (split-string keyword ","))
 				 ",")))))))
 
@@ -1200,7 +1200,8 @@ some things are escaped since odt is an xml format."
                                (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
                              (setq key-beginning (point)))) ; no match found
                          ;; save the key we clicked on.
-                         (setq bibfile (org-ref-strip-string (buffer-substring key-beginning key-end)))
+                         (setq bibfile (org-ref-strip-string
+					(buffer-substring key-beginning key-end)))
                          (find-file bibfile)))) ; open file on click
 
                    ;; formatting code
@@ -1216,8 +1217,8 @@ some things are escaped since odt is an xml format."
                                (replace-regexp-in-string
                                 "\\.bib" ""
                                 (mapconcat 'identity
-                                           (mapcar 'expand-file-name
-                                                   (split-string keyword ","))
+                                           (mapcar 'file-relative-name
+						   (split-string keyword ","))
                                            ",")))))))
 
 
