@@ -644,25 +644,29 @@ Add tooltip."
       (progn
 	(forward-char -2)
 	(let ((this-link (org-element-context)))
-	  (when (string= "label" (org-element-property :type this-link))
-	    (add-text-properties
-	     (org-element-property :begin this-link)
-	     (- (org-element-property :end this-link)
-		(org-element-property :post-blank this-link))
-	     (list
-	      'help-echo (lambda (window object position)
-			   (save-excursion
-			     (goto-char position)
-			     (let ((s (org-ref-link-message)))
-			       (with-temp-buffer
-				 (insert s)
-				 (fill-paragraph)
-				 (buffer-string)))))))
-	    (set-match-data
-	     (list (org-element-property :begin this-link)
-		   (- (org-element-property :end this-link)
-		      (org-element-property :post-blank this-link))))
-	    (goto-char (org-element-property :end this-link)))))))
+	  (if (string= "label" (org-element-property :type this-link))
+	      ;; on a label
+	      (progn
+		(add-text-properties
+		 (org-element-property :begin this-link)
+		 (- (org-element-property :end this-link)
+		    (org-element-property :post-blank this-link))
+		 (list
+		  'help-echo (lambda (window object position)
+			       (save-excursion
+				 (goto-char position)
+				 (let ((s (org-ref-link-message)))
+				   (with-temp-buffer
+				     (insert s)
+				     (fill-paragraph)
+				     (buffer-string)))))))
+		(set-match-data
+		 (list (org-element-property :begin this-link)
+		       (- (org-element-property :end this-link)
+			  (org-element-property :post-blank this-link))))
+		(goto-char (org-element-property :end this-link)))
+	    ;; false match
+	    (org-ref-match-next-label limit))))))
 
 
 (defun org-ref-match-next-ref-link (limit)
@@ -699,7 +703,7 @@ tags."
 		      (org-element-property :post-blank this-link))))
 	    (goto-char (org-element-property :end this-link)))
 	;; False match, let's try again
-	(org-ref-match-next-ref-link)))))
+	(org-ref-match-next-ref-link limit)))))
 
 
 (defun org-ref-match-next-bibliography-link (limit)
