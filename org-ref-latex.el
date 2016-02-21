@@ -36,6 +36,7 @@
 		     "\\|")
 	  "\\)"
 	  "\\(\\[[^}]*\\)?"		; optional []
+	  "\\(\\[[^}]*\\)?"		; optional []
 	  "{\\([^}]*\\)}")
   "Regexp for LaTeX citations. \citetype[optional]{some,keys}.
 The clickable part are the keys.")
