@@ -73,7 +73,7 @@
 (defun or-ivy-bibtex-insert-cite (entry)
   "Insert a citation for ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
-  (with-current-buffer org-ref-ivy-buffer
+  (with-current-buffer (ivy-state-buffer ivy-last)
     (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
 
 
@@ -97,16 +97,10 @@ ENTRY is selected from `orhc-bibtex-candidates'."
   (bibtex-beginning-of-entry))
 
 
-(defvar org-ref-ivy-buffer
-  nil
-  "Variable to store variable the `org-ref-ivy-insert-cite-link' was called from.")
-
-
 (defun org-ref-ivy-insert-cite-link ()
   "ivy function for interacting with bibtex."
   (interactive)
-  (setq org-ref-bibtex-files (org-ref-find-bibliography)
-	org-ref-ivy-buffer (current-buffer))
+  (setq org-ref-bibtex-files (org-ref-find-bibliography))
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
 	    :action '(1
