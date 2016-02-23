@@ -1882,23 +1882,22 @@ construct the heading by hand."
     ;; now look for entry in the notes file
     (save-restriction
       (if  org-ref-bibliography-notes
-          (find-file-other-window org-ref-bibliography-notes)
-        (error "Org-ref-bib-bibliography-notes is not set to anything"))
+	  (find-file-other-window org-ref-bibliography-notes)
+	(error "Org-ref-bib-bibliography-notes is not set to anything"))
 
       (widen)
       (goto-char (point-min))
-      (let* ((headlines (org-element-map
-			    (org-element-parse-buffer)
-			    'headline 'identity))
-	     (keys (mapcar
-		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
-		    headlines)))
-	;; put new entry in notes if we don't find it.
-	(if (-contains? keys key)
-	    (progn
-	      (org-open-link-from-string (format "[[#%s]]" key))
-	      (funcall org-ref-open-notes-function))
-	  ;; no entry found, so add one
+
+      ;; put new entry in notes if we don't find it. condition-case is
+      ;; used in this way because usually `org-open-link-from-string'
+      ;; does not return anything
+      (if (not (condition-case nil
+		   (org-open-link-from-string
+		    (format "[[#%s]]" key))
+		 (error t)))
+	  (funcall org-ref-open-notes-function)
+	;; no entry found, so add one
+	(progn
 	  (goto-char (point-max))
 	  (insert (org-ref-reftex-format-citation
 		   entry (concat "\n" org-ref-note-title-format)))
