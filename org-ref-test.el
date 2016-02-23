@@ -530,6 +530,64 @@ bibliography:tests/test-1.bib
 
 
 
+;;* insert keys
+(ert-deftest ins-key-1 ()
+  (should
+   (string= "cite:key1"
+	    (org-test-with-temp-text
+		""
+	      (org-ref-insert-key-at-point '("key1"))
+	      (buffer-string)))))
+
+
+(ert-deftest ins-key-2 ()
+  (should
+   (string= "cite:key2,key1"
+	    (org-test-with-temp-text
+		"cite:key1"
+	      (org-ref-insert-key-at-point '("key2"))
+	      (buffer-string)))))
+
+
+(ert-deftest ins-key-2a ()
+  (should
+   (string= "cite:key1,key2,key3"
+	    (org-test-with-temp-text
+		"cite:key1,key2"
+	      (goto-char 12)
+	      (org-ref-insert-key-at-point '("key3"))
+	      (buffer-string)))))
+
+
+(ert-deftest ins-key-3 ()
+  (should
+   (string= "cite:key1,key2"
+	    (org-test-with-temp-text
+		"cite:key1"
+	      (goto-char 6)
+	      (org-ref-insert-key-at-point '("key2"))
+	      (buffer-string)))))
+
+
+(ert-deftest ins-key-4 ()
+  (should
+   (string= "cite:key1,key3,key2"
+	    (org-test-with-temp-text
+		"cite:key1,key2"
+	      (goto-char 6)
+	      (org-ref-insert-key-at-point '("key3"))
+	      (buffer-string)))))
+
+
+(ert-deftest ins-key-5 ()
+  (should
+   (string= "cite:key1,key2 "
+	    (org-test-with-temp-text
+		"cite:key1 "
+	      (goto-char (point-max))
+	      (org-ref-insert-key-at-point '("key2"))
+	      (buffer-string)))))
+
 ;;* exports
 (ert-deftest cite-export-1 ()
   (should
@@ -537,9 +595,9 @@ bibliography:tests/test-1.bib
     "\\cite{kitchin-2008-alloy}
 "
     (org-test-with-temp-text
-	"cite:kitchin-2008-alloy"
-      (org-latex-export-as-latex nil nil nil t)
-      (buffer-substring-no-properties (point-min) (point-max))))))
+     "cite:kitchin-2008-alloy"
+     (org-latex-export-as-latex nil nil nil t)
+     (buffer-substring-no-properties (point-min) (point-max))))))
 
 (ert-deftest cite-export-2 ()
   (should

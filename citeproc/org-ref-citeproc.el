@@ -11,8 +11,6 @@
 ;;
 
 ;;; Code:
-(require 'org-ref)
-
 (defvar *orcp-citation-links* '()
   "List of citation links in the text.
 A link may have more than one citation in it.  These links get

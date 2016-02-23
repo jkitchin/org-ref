@@ -16,20 +16,18 @@
 #+latex_header_extra: \newglossaryentry{test}{name={test},description={a test}}
 
 
-  cite:kitchin-2015-examp
+Single cite: cite:kitchin-2015-examp
 
-multiple cites: cite:xu-2015-relat,kitchin-2015-examp,xu-2015-tunin-oxide
-
+Multiple cites: cite:akhade-2012-effec,xu-2015-relat,kitchin-2015-examp
 
 Acronym entries: [[gls:lvm][LVM]] and another one [[gls:lvm][LVM]]
 
+cite:kitchin-2015-examp,kitchin-2015-examp
 gls:son     acrshort:lvm [[acrshort:lvm][LVM]]
 
-A  [[gls:computer][computer]]  is good  for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer a re the wave of the future. They do not use up any glspl:tree.
+A  [[gls:computer][computer]]  is good  for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future. They do not use up any glspl:tree.
 
-(or-next-glossary-link nil)
-
- [[gls:tree][tree]]            fjdsa;fdsa
+ [[gls:tree][tree]]
 
 Labels and refs: label:one
 

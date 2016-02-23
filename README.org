@@ -63,7 +63,11 @@ You should set these variables. Here is an example of how mine are set in an ini
 (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
       org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
+#+END_SRC
+You may want to set some convenient keys for working in your bibtex file. These commands operate on the citation key at point.
 
+If you use helm-bibtex as the citation key completion method you should set these variables too.
+#+BEGIN_SRC emacs-lisp
 (setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
 (setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
 
@@ -77,15 +81,13 @@ You should set these variables. Here is an example of how mine are set in an ini
 
 (setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
 #+END_SRC
-You may want to set some convenient keys for working in your bibtex file. These commands operate on the citation key at point.
 
-#+BEGIN_SRC emacs-lisp
-(global-set-key [f10] 'org-ref-open-bibtex-notes)
-(global-set-key [f11] 'org-ref-open-bibtex-pdf)
-(global-set-key [f12] 'org-ref-open-in-browser)
-#+END_SRC
+There are alternative citation key completion methods.
+- org-ref-helm-cite :: An alternative to helm-bibtex
+- org-ref-ivy-bibtex :: Uses ivy for key completion
+- org-ref-reftex :: Uses reftex and org-mode for completion (no longer developed)
 
-Add this to your init.el files.
+Finally, add this to your init.el files.
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref)
 #+END_SRC

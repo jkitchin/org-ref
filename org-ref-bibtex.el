@@ -82,6 +82,11 @@ I like \C-cj."
   :type 'string
   :group 'org-ref-bibtex)
 
+(defcustom org-ref-helm-cite-shorten-authors nil
+  "If non-nil show only last names in the helm selection buffer."
+  :type 'boolean
+  :group 'org-ref-bibtex)
+
 ;;* Journal abbreviations
 (defvar org-ref-bibtex-journal-abbreviations
   '()
@@ -767,6 +772,301 @@ entry having a doi."
       (when (file-exists-p pdf)
 	(mml-attach-file pdf))
       (message-goto-to))))
+
+;;* org-ref bibtex keywords
+;; adapted from bibtex-utils.el
+;; these are candidates for selecting keywords/tags
+(defun org-ref-bibtex-keywords ()
+  "Get keywords defined in current bibtex file.
+These are in the keywords field, and are comma or semicolon separated."
+  (save-excursion
+    (goto-char (point-min))
+    (let (keywords kstring)
+      (while (re-search-forward "^\\s-*keywords.*{\\([^}]+\\)}" nil t)
+        ;; TWS - remove newlines/multiple spaces:
+        (setq kstring (replace-regexp-in-string
+		       "[ \t\n]+" " "
+		       (match-string 1)))
+        (mapc
+         (lambda (v)
+           (add-to-list 'keywords v t))
+         (split-string kstring "\\(,\\|;\\)[ \n]*\\|{\\|}" t)))
+      keywords)))
+
+
+;;;###autoload
+(defun org-ref-set-bibtex-keywords (keywords &optional arg)
+  "Add KEYWORDS to a bibtex entry.
+If KEYWORDS is a list, it is converted to a comma-separated
+string.  The KEYWORDS are added to the beginning of the
+field.  Otherwise KEYWORDS should be a string of comma-separate
+keywords.  Optional argument ARG prefix arg to replace keywords."
+  (interactive "sKeywords: \nP")
+  (bibtex-set-field
+   "keywords"
+   (if arg
+       ;; replace with arg
+       (if (listp keywords)
+           (mapconcat 'identity keywords ", ")
+         keywords)
+     ;; else concatentate
+     (concat
+      (if (listp keywords)
+          (mapconcat 'identity keywords ", ")
+        keywords)
+      (when (not (string= "" (bibtex-autokey-get-field "keywords")))
+        (concat ", "  (bibtex-autokey-get-field "keywords"))))))
+  (save-buffer))
+
+
+
+(defun org-ref-save-all-bibtex-buffers ()
+  "Save all bibtex-buffers."
+  (cl-loop for buffer in (buffer-list)
+	   do
+	   (with-current-buffer buffer
+	     (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
+	       (save-buffer)))))
+
+
+
+
+;;* org-ref bibtex cache
+(defvar orhc-bibtex-cache-data
+  '((hashes . ())
+    (candidates . ()))
+  "Cache data as an alist.
+'hashes is a list of cons cells (bibfile . hash)
+'candidates is a list of cons cells (bibfile . candidates).
+Stored persistently in `orhc-bibtex-cache-file'.")
+
+
+(defvar orhc-bibtex-cache-file
+  "~/.orhc-bibtex-cache"
+  "File to store cached data in.")
+
+
+(defvar org-ref-bibtex-files nil
+  "List of bibtex files to get entries from.
+This is set internally.")
+
+
+(defvar orhc-candidate-formats
+  '(("article" . "${pdf}${notes}|${=key=}| ${author}, ${title}, ${journal} (${year}). ${keywords}")
+    ("book" . "  |${=key=}| ${author}, ${title} (${year}) ${keywords}.")
+    ("inbook" . "  |${=key=}| ${author}, ${chapter} in ${title} (${year}) ${keywords}")
+    ("techreport" . "  |${=key=}| ${title}, ${institution} (${year}). ${keywords}")
+    ("inproceedings" . "  |${=key=}| ${author}, ${title} in ${booktitle} (${year}). ${keywords}")
+    ("incollection" . "  |${=key=}| ${author}, ${title} in ${booktitle} (${year}). ${keywords}")
+    ("phdthesis" . "  |${=key=}| ${author}, ${title}, ${school} (${year}). Phd thesis. ${keywords}")
+    ("mastersthesis" . "  |${=key=}| ${author}, ${title}, ${school} (${year}). MS thesis. ${keywords}")
+    ("misc" . "  |${=key=}| ${author}, ${title}")
+    ("unpublished" . "  |${=key=}| ${author}, ${title}"))
+  "Formats for candidates.
+It is an alist of (=type= . s-format-string).")
+
+
+;; when you load, we should check the hashes and files
+(defun orhc-load-cache-file ()
+  "Load the cache file to set `orhc-bibtex-cache-data'."
+  (when (file-exists-p orhc-bibtex-cache-file)
+    (with-current-buffer (find-file-noselect orhc-bibtex-cache-file)
+      (goto-char (point-min))
+      (setq orhc-bibtex-cache-data (read (current-buffer))))
+    (when (find-buffer-visiting orhc-bibtex-cache-file)
+      (kill-buffer (find-buffer-visiting orhc-bibtex-cache-file)))))
+
+
+(defun orhc-clear-cache ()
+  "Clear the cache and delete `orhc-bibtex-cache-file'."
+  (interactive)
+  (setq orhc-bibtex-cache-data '((hashes . nil)
+				 (candidates . nil)))
+  (when (find-buffer-visiting orhc-bibtex-cache-file)
+    (kill-buffer (find-buffer-visiting orhc-bibtex-cache-file)))
+  (when (file-exists-p orhc-bibtex-cache-file)
+    (delete-file orhc-bibtex-cache-file))
+  (message "org-ref-helm-cite cache cleared."))
+
+
+(defun orhc-bibtex-cache-up-to-date ()
+  "Return if bibtex caches are up to date.
+This means the hash of each bibfile is equal to the one for it in
+the cache."
+  (-all? 'identity
+	 (cl-loop
+	  for bibfile in org-ref-bibtex-files
+	  collect
+	  (string= (progn
+		     (with-current-buffer (find-file-noselect bibfile)
+		       (secure-hash 'sha256 (current-buffer))))
+		   (or (cdr (assoc
+			     bibfile
+			     (cdr (assoc 'hashes orhc-bibtex-cache-data)))) "")))))
+
+(defun orhc-bibtex-field-formatter (field entry)
+  "Format FIELD in a bibtex parsed ENTRY.
+A few fields are treated specially, e.g. authors are replaced by
+comma-separated list, and I put :: around keywords to make it
+easier to search specifically for them."
+  (let ((s (replace-regexp-in-string
+	    "^{\\|}$" ""
+	    (replace-regexp-in-string
+	     "[\n\\|\t\\|\s]+" " "
+	     (or (cdr (assoc field entry))
+		 (and (string= field "author")
+		      (cdr (assoc "editor" entry)))
+		 "")))))
+    (cond
+     ((string= field "author")
+      (if org-ref-helm-cite-shorten-authors
+	  ;; copied from `helm-bibtex-shorten-authors'
+	  (cl-loop for a in (s-split " and " s)
+		   for p = (s-split "," a t)
+		   for sep = "" then ", "
+		   concat sep
+		   if (eq 1 (length p))
+		   concat (-last-item (s-split " +" (car p) t))
+		   else
+		   concat (car p))
+	(mapconcat 'identity (s-split " and " s) ", ")))
+     ((string= field "keywords")
+      (if (> (length s) 0)
+	  (mapconcat (lambda (keyword)
+		       (concat ":" (s-trim keyword) ":"))
+		     (s-split "," s)
+		     " ")
+	""))
+     ((string= field "pdf")
+      (if (file-exists-p (expand-file-name
+			  (concat (cdr (assoc "=key=" entry)) ".pdf")
+			  org-ref-pdf-directory))
+	  "⌘"
+	" "))
+     ((string= field "notes")
+      (if (file-exists-p (expand-file-name
+			  (concat (cdr (assoc "=key=" entry)) ".org")
+			  org-ref-notes-directory))
+	  "✎"
+	" "))
+     ;; catch all the other fields and just return them.
+     (t
+      s))))
+
+(defun orhc-update-bibfile-cache (bibfile)
+  "Update cache for BIBFILE.
+This generates the candidates for the file. Some of this code is
+adapted from `helm-bibtex-parse-bibliography'. This function runs
+when called, it resets the cache for the BIBFILE."
+  (with-current-buffer (find-file-noselect bibfile)
+    (goto-char (point-min))
+    (message "Updating cache for %s" bibfile)
+    (let ((hash (secure-hash 'sha256 (current-buffer)))
+	  (entries
+	   (cl-loop
+	    for entry-type = (parsebib-find-next-item)
+	    while entry-type
+	    unless (member-ignore-case entry-type
+				       '("preamble" "string" "comment"))
+	    collect
+	    (let* ((entry (cl-loop for cons-cell in (parsebib-read-entry entry-type)
+				   ;; we remove all properties too. they
+				   ;; cause errors in reading/writing.
+				   collect
+				   (cons (substring-no-properties
+					  (downcase (car cons-cell)))
+					 (substring-no-properties
+					  ;; clumsy way to remove surrounding
+					  ;; brackets
+					  (let ((s (cdr cons-cell)))
+					    (if (or (and (s-starts-with? "{" s)
+							 (s-ends-with? "}" s))
+						    (and (s-starts-with? "\"" s)
+							 (s-ends-with? "\"" s)))
+						(substring s 1 -1)
+					      s))))))
+		   ;; (key (cdr (assoc "=key=" entry)))
+		   )
+	      (cons
+	       ;; this is the display string for helm. We try to use the formats
+	       ;; in `orhc-candidate-formats', but if there isn't one we just put
+	       ;; all the fields in.
+	       (s-format
+		(or (cdr (assoc (downcase entry-type) orhc-candidate-formats))
+		    (format "%s: %s" (cdr (assoc "=key=" entry)) entry))
+		'orhc-bibtex-field-formatter
+		entry)
+	       ;; this is the candidate that is returned, the entry a-list +
+	       ;; file and position.
+	       (append entry (list (cons "bibfile" (buffer-file-name))
+				   (cons "position" (point)))))))))
+
+      ;; Now update the cache variables for hash and entries
+      (if (assoc bibfile (cdr (assoc 'candidates orhc-bibtex-cache-data)))
+	  (setf (cdr (assoc bibfile
+			    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+		entries)
+	(cl-pushnew (cons bibfile entries)
+		    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+      (if (assoc bibfile (cdr (assoc 'hashes orhc-bibtex-cache-data)))
+	  (setf (cdr (assoc
+		      bibfile
+		      (cdr (assoc 'hashes orhc-bibtex-cache-data))))
+		hash)
+	(cl-pushnew (cons bibfile hash)
+		    (cdr (assoc 'hashes orhc-bibtex-cache-data))))
+
+      ;; And save it to disk for persistent use
+      (with-temp-file orhc-bibtex-cache-file
+	(print orhc-bibtex-cache-data (current-buffer))))))
+
+(defun orhc-update-bibtex-cache ()
+  "Conditionally update cache for all files in `org-ref-bibtex-files'.
+Files that have the same hash as in the cache are not updated."
+  (cl-loop for bibfile in org-ref-bibtex-files
+	   unless (string= (progn
+			     (with-current-buffer (find-file-noselect bibfile)
+			       (secure-hash 'sha256 (current-buffer))))
+			   (or (cdr
+				(assoc bibfile
+				       (cdr
+					(assoc 'hashes orhc-bibtex-cache-data))))
+			       ""))
+	   do
+	   (orhc-update-bibfile-cache bibfile)))
+
+
+(defun orhc-helm-cite-describe-cache ()
+  "Show what is in the cache."
+  (interactive)
+  (let ((hash-cache (cdr (assoc 'hashes orhc-bibtex-cache-data)))
+	(candidates-cache (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+    (message "%s\n\n%s"
+	     (mapconcat (lambda (h)
+			  (format "%s - %s" (car h) (cdr h)))
+			hash-cache "\n")
+	     (mapconcat (lambda (c)
+			  (format "%s - %s entries" (car c) (length (cdr c))))
+			candidates-cache "\n"))))
+
+
+(defun orhc-bibtex-candidates ()
+  "Return the candidates from cache for files listed in `org-ref-bibtex-files'.
+Update the cache if necessary."
+  ;; this only does something when the cache is out of date
+  (org-ref-save-all-bibtex-buffers)
+  (orhc-update-bibtex-cache)
+  (let ((candidates (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+    (apply 'append
+	   (cl-loop for bibfile in org-ref-bibtex-files
+		    collect (cdr (assoc bibfile candidates))))))
+
+
+;; Now load files and update them if needed. We do this when you load the
+;; library so they are available later.
+(orhc-load-cache-file)
+(orhc-update-bibtex-cache)
+
 
 ;;* The end
 (provide 'org-ref-bibtex)
