@@ -45,6 +45,7 @@
 (require 'org-element)
 (require 'ox)
 (require 'parsebib)
+(require 'reftex-cite)
 
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
