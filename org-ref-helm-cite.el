@@ -259,16 +259,23 @@ SOURCE is ignored, but required."
 				       (cdr (assoc "doi" x))))))))))
 
   ;; Notes, open or create.
-  (let ((note-file (expand-file-name
-		    (concat (cdr (assoc "=key=" candidate)) ".org")
-		    org-ref-notes-directory)))
-    (if (file-exists-p note-file)
-	(setq actions (append actions (list (cons "Open notes"
+  (when org-ref-notes-directory
+    (let ((note-file (expand-file-name
+		      (concat (cdr (assoc "=key=" candidate)) ".org")
+		      org-ref-bibliography-notes)))
+      (if (file-exists-p note-file)
+	  (setq actions (append actions (list (cons "Open notes"
+						    (lambda (_x)
+						      (find-file note-file))))))
+	(setq actions (append actions (list (cons "Create notes"
 						  (lambda (_x)
-						    (find-file note-file))))))
-      (setq actions (append actions (list (cons "Create notes"
-						(lambda (_x)
-						  (find-file note-file))))))))
+						    (find-file note-file)))))))))
+
+  (when org-ref-bibliography-notes
+    (setq actions (append actions (list (cons "Open/create notes"
+					      (lambda (x)
+						(funcall org-ref-notes-function
+							 (cdr (assoc "=key=" x)))))))))
 
   (setq actions (append
 		 actions
