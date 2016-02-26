@@ -171,6 +171,7 @@ that was clicked on."
 ;; (message-box "Requiring %s" org-ref-completion-library)
 ;; (load-file (format "%s.el" ))
 (require org-ref-completion-library)
+
 ;; define key for inserting citations
 (define-key org-mode-map
   (kbd org-ref-insert-cite-key)
@@ -392,6 +393,18 @@ label link."
 
 (when org-ref-show-citation-on-enter
   (org-ref-show-link-messages))
+
+
+;;;###autoload
+(defun org-ref-change-completion ()
+  "Change the completion backend."
+  (interactive)
+  (require
+   (intern
+    (completing-read "Backend: " '("org-ref-helm-bibtex"
+				   "org-ref-helm-cite"
+				   "org-ref-ivy-bibtex"
+				   "org-ref-reftex")))))
 
 ;;** Messages for context under mouse pointer
 
