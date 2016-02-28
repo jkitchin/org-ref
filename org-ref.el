@@ -1116,7 +1116,8 @@ ARG does nothing."
      (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label)
                     (point-min) (point-max))
      (let ((custom-id-count 0))
-       (unless (file-exists-p (buffer-file-name))
+       (when (and (buffer-file-name)
+		  (file-exists-p (buffer-file-name)))
 	 (save-buffer))
        (org-map-entries
         (lambda ()
