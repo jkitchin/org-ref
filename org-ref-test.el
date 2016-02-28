@@ -11,12 +11,13 @@
 ;; . jump to test
 
 ;;; Code:
-(require 'org-ref)
-(load-file "tests/org-test.el")
-
 
 (when (require 'undercover nil t)
   (undercover "*.el"))
+
+(require 'org-ref)
+(load-file "tests/org-test.el")
+
 
 ;;* basic tests
 (ert-deftest or-split-key-1 ()
