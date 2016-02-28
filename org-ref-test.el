@@ -17,7 +17,7 @@
 
 
 (when (require 'undercover nil t)
-  (undercover "org-ref.el" (:exclude "*-test.el")))
+  (undercover "org-ref.el"))
 
 ;;* basic tests
 (ert-deftest or-split-key-1 ()
