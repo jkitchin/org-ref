@@ -397,14 +397,19 @@ label link."
 
 ;;;###autoload
 (defun org-ref-change-completion ()
-  "Change the completion backend."
+  "Change the completion backend.
+Options are \"org-ref-helm-bibtex\", \"org-ref-helm-cite\",
+\"org-ref-ivy-bibtex\" and \"org-ref-reftex\"."
   (interactive)
   (require
    (intern
     (completing-read "Backend: " '("org-ref-helm-bibtex"
 				   "org-ref-helm-cite"
 				   "org-ref-ivy-bibtex"
-				   "org-ref-reftex")))))
+				   "org-ref-reftex")
+		     nil
+		     t
+		     "org-ref-helm-cite"))))
 
 ;;** Messages for context under mouse pointer
 
@@ -3001,6 +3006,8 @@ provide their own version."
      ["List of tables" org-ref-list-of-tables]
      ["Extract bibtex entries" org-ref-extract-bibtex-entries]
      ["Check org-file" org-ref]
+     "--"
+     ["Change completion backend" org-ref-change-completion]
      "--"
      ["Help" org-ref-help]
      ["Customize org-ref" (customize-group 'org-ref)])
