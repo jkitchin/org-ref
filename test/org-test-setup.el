@@ -358,29 +358,29 @@ setting `pp-escape-newlines' to nil manually."
 (defun org-test-load ()
   "Load up the org-mode test suite."
   (interactive)
-  (flet ((rld (base)
-	      ;; Recursively load all files, if files throw errors
-	      ;; then silently ignore the error and continue to the
-	      ;; next file.  This allows files to error out if
-	      ;; required executables aren't available.
-	      (mapc
-	       (lambda (path)
-		 (if (file-directory-p path)
-		     (rld path)
-		   (condition-case err
-		       (when (string-match "^[A-Za-z].*\\.el$"
-					   (file-name-nondirectory path))
-			 (load-file path))
-		     (missing-test-dependency
-		      (let ((name (intern
-				   (concat "org-missing-dependency/"
-					   (file-name-nondirectory
-					    (file-name-sans-extension path))))))
-			(eval `(ert-deftest ,name ()
-				 :expected-result :failed (should nil))))))))
-	       (directory-files base 'full
-				"^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.el$"))))
-    (rld (expand-file-name "lisp" org-test-dir))))
+  (cl-flet ((rld (base)
+		;; Recursively load all files, if files throw errors
+		;; then silently ignore the error and continue to the
+		;; next file.  This allows files to error out if
+		;; required executables aren't available.
+		(mapc
+		 (lambda (path)
+		   (if (file-directory-p path)
+		       (rld path)
+		     (condition-case err
+			 (when (string-match "^[A-Za-z].*\\.el$"
+					     (file-name-nondirectory path))
+			   (load-file path))
+		       (missing-test-dependency
+			(let ((name (intern
+				     (concat "org-missing-dependency/"
+					     (file-name-nondirectory
+					      (file-name-sans-extension path))))))
+			  (eval `(ert-deftest ,name ()
+				   :expected-result :failed (should nil))))))))
+		 (directory-files base 'full
+				  "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.el$"))))
+	  (rld (expand-file-name "lisp" org-test-dir))))
 
 (defun org-test-current-defun ()
   "Test the current function."

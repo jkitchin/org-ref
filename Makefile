@@ -7,14 +7,18 @@ SOURCES =   ${EL_SOURCES}
 all: test
 
 test: clean
-	${MAKE} unit
+	${CASK_EXEC} ert-runner
 
 unit:
-	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
+	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l test/org-ref-test.el --eval "(ert t)"
 
+
+
+ert-runner:
+	${CASK_EXEC} exec ert-runner
 
 mytest:
-	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l tests/org-test.el -l org-ref-test.el -f ert-run-tests-batch-and-exit
+	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l test/org-test.el -l test/org-ref-test.el -f ert-run-tests-batch-and-exit
 
 compile:
 	${CASK_EXEC} ${emacs} -Q -batch -l ../init.el -L "." -f batch-byte-compile *.el
