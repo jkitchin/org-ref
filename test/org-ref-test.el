@@ -361,12 +361,12 @@ label:one
 
 (ert-deftest bad-file-link ()
   (should
-   (= 3
+   (= 2
       (length
        (org-test-with-temp-text
-	"
-file:not.here  [[./or.here]] and not attachfile:or.anywhere"
-	(org-ref-bad-file-link-candidates))))))
+	   "
+file:not.here  [[./or.here]]."
+	 (org-ref-bad-file-link-candidates))))))
 
 
 
