@@ -12,6 +12,7 @@ test: clean
 unit:
 	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l org-ref-test.el --eval "(ert t)"
 
+
 mytest:
 	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l tests/org-test.el -l org-ref-test.el -f ert-run-tests-batch-and-exit
 
@@ -32,6 +33,9 @@ melpa:
 
 package : ${SOURCES}
 	${CASK} package
+
+no-user:
+	${CASK_EXEC} ${emacs} -Q --eval="(setq jmax-load-user-dir t)" -l ../init.el
 
 revtex:
 	${CASK_EXEC} ${emacs} -Q --eval="(setq org-ref-completion-library 'org-ref-helm-reftex)" -l ../init.el tests/test-1.org
