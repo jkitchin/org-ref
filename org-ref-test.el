@@ -15,9 +15,8 @@
 (load-file "tests/org-test.el")
 
 
-
 (when (require 'undercover nil t)
-  (undercover "org-ref.el"))
+  (undercover "*.el"))
 
 ;;* basic tests
 (ert-deftest or-split-key-1 ()
