@@ -42,6 +42,11 @@ ref:bad-label
 * Some tests
 
 
+label:unique
+
+
+
+ref:unique
 
 * References
 

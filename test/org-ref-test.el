@@ -95,23 +95,44 @@
 ;;* Messages on links
 (ert-deftest orlm ()
   (org-test-with-temp-text
-   "cite:kitchin-2015-examp
+      "cite:kitchin-2015-examp
 
 bibliography:tests/test-1.bib
 "
-   (should
-    (string= "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"
-	     (org-ref-link-message)))))
+    (should
+     (string= "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"
+	      (org-ref-link-message)))))
+
 
 (ert-deftest orlm-nil ()
   (org-test-with-temp-text
-   "cite:kitchin-2015
+      "cite:kitchin-2015
 
 bibliography:tests/test-1.bib
 "
-   (should
-    (string= "!!! No entry found !!!"
-	     (org-ref-link-message)))))
+    (should
+     (string= "!!! No entry found !!!"
+	      (org-ref-link-message)))))
+
+
+;; these do not work I don't know why since the ones above work.
+;; (ert-deftest orlm-label ()
+;;   (org-test-with-temp-text
+;;       "[[label:one]]"
+;;     ;; (org-ref-cancel-link-messages)
+;;     ;; (should
+;;     ;;  (string= "1 occurence"
+;;     ;;	      (org-ref-link-message)))
+;;     (org-ref-link-message)))
+
+
+;; (ert-deftest orlm-labels ()
+;;   (org-test-with-temp-text
+;;       "label:one label:one"
+;;     (should
+;;      (string= "2 occurences"
+;;	      (org-ref-link-message)))))
+
 
 ;;* get pdf/key
 (ert-deftest or-get-pdf ()
@@ -119,26 +140,37 @@ bibliography:tests/test-1.bib
    (string=
     "kitchin-2015.pdf"
     (org-test-with-temp-text
-     "cite:kitchin-2015"
-     (let ((org-ref-pdf-directory nil))
-       (org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor)))))))
+	"cite:kitchin-2015"
+      (let ((org-ref-pdf-directory nil))
+	(org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor)))))))
+
+(ert-deftest or-get-pdf-2 ()
+  (should
+   (string=
+    "test/kitchin-2015.pdf"
+    (org-test-with-temp-text
+	"cite:kitchin-2015"
+      (let ((org-ref-pdf-directory "test"))
+	(org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor)))))))
+
 
 (ert-deftest or-get-key ()
   (should
    (string=
     "kitchin-2015"
     (org-test-with-temp-text
-     "cite:kitchin-2015"
-     (org-ref-get-bibtex-key-under-cursor)))))
+	"cite:kitchin-2015"
+      (org-ref-get-bibtex-key-under-cursor)))))
+
 
 (ert-deftest or-get-key1 ()
   (should
    (string=
     "key1"
     (org-test-with-temp-text
-     "cite:key1,key2"
-     (goto-char 5)
-     (org-ref-get-bibtex-key-under-cursor)))))
+	"cite:key1,key2"
+      (goto-char 5)
+      (org-ref-get-bibtex-key-under-cursor)))))
 
 (ert-deftest or-get-key2 ()
   (should
@@ -216,9 +248,46 @@ bibliography:tests/test-1.bib
    (equal
     '("test.bib")
     (org-test-with-temp-text
-     ""
-     (let ((org-ref-default-bibliography '("test.bib")))
-       (org-ref-find-bibliography))))))
+	""
+      (let ((org-ref-default-bibliography '("test.bib")))
+	(org-ref-find-bibliography))))))
+
+
+(ert-deftest unique-keys ()
+  (should
+   (equal '("kitchin-2008-alloy" "kitchin-2004-role")
+	  (org-test-with-temp-text
+	      "cite:kitchin-2008-alloy,kitchin-2004-role
+
+cite:kitchin-2004-role
+
+bibliography:tests/test-1.bib
+"
+	    (org-ref-get-bibtex-keys)))))
+
+(ert-deftest unique-keys-sort ()
+  (should
+   (equal '("kitchin-2004-role" "kitchin-2008-alloy")
+	  (org-test-with-temp-text
+	      "cite:kitchin-2008-alloy,kitchin-2004-role
+
+cite:kitchin-2004-role
+
+bibliography:tests/test-1.bib
+"
+	    (org-ref-get-bibtex-keys t)))))
+
+
+(ert-deftest get-doi ()
+  (should
+   (string=
+    "10.1103/PhysRevB.77.075437"
+    (org-test-with-temp-text
+	"cite:kitchin-2008-alloy
+
+bibliography:tests/test-1.bib
+"
+      (org-ref-get-doi-at-point)))))
 
 
 ;;* bibtex tests We rely a lot on bibtex functionality. These are tests to make
@@ -338,11 +407,11 @@ label:four
 
 (ert-deftest bad-ref ()
   (should
-   (= 2
+   (= 5
       (length
        (org-test-with-temp-text
-	"ref:bad1  ref:bad2"
-	(org-ref-bad-ref-candidates))))))
+	   "ref:bad1  ref:bad2 eqref:bad3 pageref:bad4 nameref:bad5"
+	 (org-ref-bad-ref-candidates))))))
 
 (ert-deftest multiple-labels ()
   (should
@@ -361,11 +430,17 @@ label:one
 
 (ert-deftest bad-file-link ()
   (should
-   (= 2
+   (= 3
       (length
        (org-test-with-temp-text
 	   "
-file:not.here  [[./or.here]]."
+file:not.here  [[./or.here]].
+
+We should catch  \\attachfile{latex.style} too.
+
+Why don't we catch [[attachfile:filepath]] or attachfile:some.file?
+I think they must be defined in jmax, and are unknown links.
+"
 	 (org-ref-bad-file-link-candidates))))))
 
 
@@ -666,13 +741,44 @@ bibliography:tests/test-1.bib
 " (file-relative-name "test")
 (file-relative-name "titles"))
 (org-test-with-temp-text
- "bibliography:test.bib,titles.bib"
- (org-latex-export-as-latex nil nil nil t)
- (buffer-substring-no-properties (point-min) (point-max))))))
+    "bibliography:test.bib,titles.bib"
+  (org-latex-export-as-latex nil nil nil t)
+  (buffer-substring-no-properties (point-min) (point-max))))))
 
 
 
 
+
+
+;;* org-ref-glossary
+(ert-deftest curly-1 ()
+  (should
+   (= 2
+      (org-test-with-temp-text
+	  "{}"
+	(require 'org-ref-glossary)
+	(or-find-closing-curly-bracket)))))
+
+
+(ert-deftest curly-2 ()
+  (should
+   (= 4
+      (org-test-with-temp-text
+	  "{{}}"
+	(require 'org-ref-glossary)
+	(or-find-closing-curly-bracket)))))
+
+(ert-deftest curly-3 ()
+  (should
+   (= 3
+      (org-test-with-temp-text
+	  "{{}}"
+	(require 'org-ref-glossary)
+	(goto-char 2)
+	(or-find-closing-curly-bracket)))))
+
+
+
+;;* end
 (provide 'org-ref-test)
-
 ;;; org-ref-test.el ends here
