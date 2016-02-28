@@ -114,24 +114,90 @@ bibliography:tests/test-1.bib
      (string= "!!! No entry found !!!"
 	      (org-ref-link-message)))))
 
+(ert-deftest orlm-ref-1 ()
+  (should
+   (string=
+    "!!! NO CONTEXT FOUND !!!count: 0"
+    (org-test-with-temp-text
+	"ref:one
 
-;; these do not work I don't know why since the ones above work.
-;; (ert-deftest orlm-label ()
-;;   (org-test-with-temp-text
-;;       "[[label:one]]"
-;;     ;; (org-ref-cancel-link-messages)
-;;     ;; (should
-;;     ;;  (string= "1 occurence"
-;;     ;;	      (org-ref-link-message)))
-;;     (org-ref-link-message)))
+cite:kitchin-2015
+
+bibliography:tests/test-1.bib
+"
+      (org-ref-link-message)))))
 
 
-;; (ert-deftest orlm-labels ()
-;;   (org-test-with-temp-text
-;;       "label:one label:one"
-;;     (should
-;;      (string= "2 occurences"
-;;	      (org-ref-link-message)))))
+(ert-deftest orlm-ref-2 ()
+  (should
+   (string=
+    "
+#+caption: some text label:one
+count: 1"
+    (org-test-with-temp-text
+	"ref:one
+
+#+caption: some text label:one
+"
+      (org-ref-link-message)))))
+
+(ert-deftest orlm-ref-3 ()
+  (should
+   (string=
+    "
+\\begin{equation}\\label{one}
+4
+\\end{equation}
+count: 1"
+    (org-test-with-temp-text
+	"eqref:one
+
+\\begin{equation}\\\label{one}
+4
+\\end{equation}
+"
+      (org-ref-link-message)))))
+
+(ert-deftest orlm-ref-4 ()
+  (should
+   (string=
+    "
+label:one
+count: 2"
+    (org-test-with-temp-text
+	"eqref:one
+
+\\begin{equation}\\\label{one}
+4
+\\end{equation}
+
+label:one
+"
+      (org-ref-link-message)))))
+
+
+(ert-deftest orlm-label-1 ()
+  (org-test-with-temp-text
+      "label:one
+cite:kitchin-2015
+
+bibliography:../tests/test-1.bib
+"
+    (should
+     (string= "1 occurence"
+	      (org-ref-link-message)))))
+
+
+(ert-deftest orlm-label-2 ()
+  (org-test-with-temp-text
+      "label:one
+cite:kitchin-2015
+label:one
+bibliography:../tests/test-1.bib
+"
+    (should
+     (string= "2 occurences"
+	      (org-ref-link-message)))))
 
 
 ;;* get pdf/key
