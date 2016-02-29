@@ -417,7 +417,9 @@ all the title entries in articles."
          (words (split-string title))
          (start 0))
     (when
-        (string= "article" (downcase (cdr (assoc "=type=" (bibtex-parse-entry)))))
+        (string= "article"
+		 (downcase
+		  (cdr (assoc "=type=" (bibtex-parse-entry)))))
       (setq words (mapcar
                    (lambda (word)
                      (if (or
@@ -426,7 +428,8 @@ all the title entries in articles."
                           (string-match "\\$\\|{\\|}\\|\\\\" word)
                           ;; these words should not be capitalized, unless they
                           ;; are the first word
-                          (-contains? org-ref-lower-case-words (s-downcase word)))
+                          (-contains? org-ref-lower-case-words
+				      (s-downcase word)))
                          word
                        (s-capitalize word)))
                    words))
@@ -465,7 +468,10 @@ all the title entries in articles."
          (words (split-string title))
          (start 0))
     (when
-        (string= "article" (downcase (cdr (assoc "=type=" (bibtex-parse-entry)))))
+        (string= "article"
+		 (downcase
+		  (cdr (assoc "=type="
+			      (bibtex-parse-entry)))))
       (setq words (mapcar
                    (lambda (word)
                      (if
@@ -487,7 +493,6 @@ all the title entries in articles."
           (string-match "[a-z]:\\s-+\\([A-Z]\\)" title start)
         (let ((char (substring title (match-beginning 1) (match-end 1))))
           (setf (substring title (match-beginning 1) (match-end 1))
-                ;;		(format "{%s}" (upcase char)))
                 (format "%s" (upcase char)))
           (setq start (match-end 1))))
 
@@ -816,7 +821,8 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
         keywords)
       (when (not (string= "" (bibtex-autokey-get-field "keywords")))
         (concat ", "  (bibtex-autokey-get-field "keywords"))))))
-  (save-buffer))
+  (when (buffer-file-name)
+    (save-buffer)))
 
 
 

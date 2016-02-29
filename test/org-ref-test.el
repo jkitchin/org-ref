@@ -14,15 +14,11 @@
 
 ;;; Code:
 
-(when (require 'undercover nil t)
-  (undercover "*.el"))
+;; (when (require 'undercover nil t)
+;;   (undercover "*.el"))
 
 ;; I find this a little confusing. ert-runner gets run from the org-ref
 ;; directory, and we need to set the path here so it can load org-ref
-(add-to-list 'load-path (expand-file-name "."))
-(require 'org-ref)
-
-;; (load-file "test/org-test.el")
 
 
 ;;* basic tests

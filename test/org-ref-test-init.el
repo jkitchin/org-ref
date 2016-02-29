@@ -5,4 +5,8 @@
 
 (load-file "test/org-test-setup.el")
 
+(add-to-list 'load-path (expand-file-name "."))
+(require 'org-ref)
+
+
 (provide 'org-ref-test-init)
