@@ -14,12 +14,6 @@
 
 ;;; Code:
 
-;; (when (require 'undercover nil t)
-;;   (undercover "*.el"))
-
-;; I find this a little confusing. ert-runner gets run from the org-ref
-;; directory, and we need to set the path here so it can load org-ref
-
 
 ;;* basic tests
 (ert-deftest or-split-key-1 ()
@@ -175,9 +169,7 @@ label:one
 (ert-deftest orlm-label-1 ()
   (org-test-with-temp-text
       "label:one
-cite:kitchin-2015
 
-bibliography:../tests/test-1.bib
 "
     (should
      (string= "1 occurence"
@@ -187,9 +179,9 @@ bibliography:../tests/test-1.bib
 (ert-deftest orlm-label-2 ()
   (org-test-with-temp-text
       "label:one
-cite:kitchin-2015
+
 label:one
-bibliography:../tests/test-1.bib
+
 "
     (should
      (string= "2 occurences"
@@ -808,10 +800,6 @@ bibliography:tests/test-1.bib
   (buffer-substring-no-properties (point-min) (point-max))))))
 
 
-
-
-
-
 ;;* org-ref-glossary
 (ert-deftest curly-1 ()
   (should
@@ -840,6 +828,27 @@ bibliography:tests/test-1.bib
 	(or-find-closing-curly-bracket)))))
 
 
+
+
+
+
+(ert-deftest bad-citations-1 ()
+  (should
+   (org-test-with-temp-text
+       "
+cite:bad
+
+bibliography:tests/test-1.bib
+"
+     (message "-------------------\n%S" (mapconcat
+		    (lambda (x)
+		      (file-name-directory (file-truename x)))
+		    (org-ref-find-bibliography)		    ":"))
+     (org-ref-find-bad-citations)
+     (with-current-buffer "*Missing citations*"
+       (string-match "^bad \\[\\["
+		     (buffer-substring-no-properties (point-min)
+						     (point-max)))))))
 
 ;;* end
 (provide 'org-ref-test)

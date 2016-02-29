@@ -2079,11 +2079,14 @@ List is displayed in an `org-mode' buffer using the known bibtex
 file.  Makes a new buffer with clickable links."
   (interactive)
   ;; generate the list of bibtex-keys and cited keys
-  (let* ((bibtex-files (org-ref-find-bibliography))
+  (let* ((bibtex-files (mapcar
+			'file-name-nondirectory
+			(org-ref-find-bibliography)))
          (bibtex-file-path (mapconcat
 			    (lambda (x)
 			      (file-name-directory (file-truename x)))
-			    bibtex-files ":"))
+			    (org-ref-find-bibliography)
+			    ":"))
          (bibtex-keys (mapcar (lambda (x)
 				(car x))
 			      (bibtex-global-key-alist)))
@@ -2104,8 +2107,7 @@ file.  Makes a new buffer with clickable links."
                   `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
                              key
                              (buffer-name)
-                             (plist-get plist :begin)))))
-                )))))
+                             (plist-get plist :begin))))))))))
       ;; set with-affilates to t to get citations in a caption
       nil nil nil t)
 
