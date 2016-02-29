@@ -1995,67 +1995,99 @@ construct the heading by hand."
 ;;** Extract bibtex entries in org-file
 
 ;;;###autoload
+;; (defun org-ref-extract-bibtex-entries ()
+;;   "Extract the bibtex entries in the current buffer into a src block.
+
+;; If no bibliography is in the buffer the variable
+;; `reftex-default-bibliography' is used."
+;;   (interactive)
+;;   (let* ((temporary-file-directory (if (buffer-file-name)
+;;				       (file-name-directory
+;;					(buffer-file-name))
+;;				     "."))
+;;          (tempname (make-temp-file "extract-bib"))
+;;          (contents (buffer-string))
+;;          (cb (current-buffer))
+;;          basename texfile bibfile results)
+
+;;     ;; open tempfile and insert org-buffer contents
+;;     (find-file tempname)
+;;     (insert contents)
+;;     (setq basename (file-name-sans-extension
+;;                     (file-name-nondirectory buffer-file-name))
+;;           texfile (concat tempname ".tex")
+;;           bibfile (concat tempname ".bib"))
+
+;;     ;; see if we have a bibliography, and insert the default one if not.
+;;     (save-excursion
+;;       (goto-char (point-min))
+;;       (unless (re-search-forward "^bibliography:" (point-max) 'end)
+;;         (insert (format "\nbibliography:%s"
+;;                         (mapconcat 'identity
+;;				   reftex-default-bibliography ",")))))
+;;     (when (buffer-file-name)
+;;       (save-buffer))
+
+;;     ;; get a latex file and extract the references
+;;     (org-latex-export-to-latex)
+;;     (find-file texfile)
+;;     (reftex-parse-all)
+;;     (reftex-create-bibtex-file bibfile)
+;;     (when (buffer-file-name)
+;;       (save-buffer))
+;;     ;; save results of the references
+;;     (setq results (buffer-string))
+
+;;     ;; kill buffers. these are named by basename, not full path
+;;     (kill-buffer (concat basename ".bib"))
+;;     (kill-buffer (concat basename ".tex"))
+;;     (kill-buffer basename)
+
+;;     (delete-file bibfile)
+;;     (delete-file texfile)
+;;     (delete-file tempname)
+
+;;     ;; Now back to the original org buffer and insert the results
+;;     (switch-to-buffer cb)
+;;     (when (not (string= "" results))
+;;       (save-excursion
+;;         (goto-char (point-max))
+;;         (insert "\n\n")
+;;         (org-insert-heading)
+;;         (insert (format " Bibtex entries
+
+;; #+BEGIN_SRC text :tangle %s
+;; %s
+;; #+END_SRC" (concat (file-name-sans-extension
+;;		    (file-name-nondirectory
+;;		     (buffer-file-name))) ".bib") results))))))
+
 (defun org-ref-extract-bibtex-entries ()
-  "Extract the bibtex entries in the current buffer into a src block.
-
-If no bibliography is in the buffer the variable
-`reftex-default-bibliography' is used."
+  "Extract the bibtex entries in the current buffer into a src block."
   (interactive)
-  (let* ((temporary-file-directory (file-name-directory (buffer-file-name)))
-         (tempname (make-temp-file "extract-bib"))
-         (contents (buffer-string))
-         (cb (current-buffer))
-         basename texfile bibfile results)
+  (let ((bibtex-files (org-ref-find-bibliography))
+	(bibtex-entry-kill-ring '()))
 
-    ;; open tempfile and insert org-buffer contents
-    (find-file tempname)
-    (insert contents)
-    (setq basename (file-name-sans-extension
-                    (file-name-nondirectory buffer-file-name))
-          texfile (concat tempname ".tex")
-          bibfile (concat tempname ".bib"))
+    (save-window-excursion
+      (cl-loop for key in (reverse (org-ref-get-bibtex-keys))
+	       do
+	       (bibtex-search-entry key t)
+	       (bibtex-kill-entry t)))
 
-    ;; see if we have a bibliography, and insert the default one if not.
-    (save-excursion
-      (goto-char (point-min))
-      (unless (re-search-forward "^bibliography:" (point-max) 'end)
-        (insert (format "\nbibliography:%s"
-                        (mapconcat 'identity
-				   reftex-default-bibliography ",")))))
-    (save-buffer)
 
-    ;; get a latex file and extract the references
-    (org-latex-export-to-latex)
-    (find-file texfile)
-    (reftex-parse-all)
-    (reftex-create-bibtex-file bibfile)
-    (save-buffer)
-    ;; save results of the references
-    (setq results (buffer-string))
+    (goto-char (point-max))
+    (insert "\n\n")
+    (org-insert-heading)
+    (insert (format " Bibtex entries
 
-    ;; kill buffers. these are named by basename, not full path
-    (kill-buffer (concat basename ".bib"))
-    (kill-buffer (concat basename ".tex"))
-    (kill-buffer basename)
-
-    (delete-file bibfile)
-    (delete-file texfile)
-    (delete-file tempname)
-
-    ;; Now back to the original org buffer and insert the results
-    (switch-to-buffer cb)
-    (when (not (string= "" results))
-      (save-excursion
-        (goto-char (point-max))
-        (insert "\n\n")
-        (org-insert-heading)
-        (insert (format " Bibtex entries
-
-#+BEGIN_SRC text :tangle %s
+#+BEGIN_SRC text
 %s
-#+END_SRC" (concat (file-name-sans-extension
-		    (file-name-nondirectory
-		     (buffer-file-name))) ".bib") results))))))
+#+END_SRC"
+		    (mapconcat
+		     'identity
+		     bibtex-entry-kill-ring
+		     "\n\n")))))
+
 
 ;;** Find bad citations
 (defun org-ref-list-index (substring list)
