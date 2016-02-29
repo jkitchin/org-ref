@@ -835,20 +835,57 @@ bibliography:tests/test-1.bib
 (ert-deftest bad-citations-1 ()
   (should
    (org-test-with-temp-text
-       "
+    "
 cite:bad
 
 bibliography:tests/test-1.bib
 "
-     (message "-------------------\n%S" (mapconcat
-		    (lambda (x)
-		      (file-name-directory (file-truename x)))
-		    (org-ref-find-bibliography)		    ":"))
-     (org-ref-find-bad-citations)
-     (with-current-buffer "*Missing citations*"
-       (string-match "^bad \\[\\["
-		     (buffer-substring-no-properties (point-min)
-						     (point-max)))))))
+    (message "-------------------\n%S" (mapconcat
+					(lambda (x)
+					  (file-name-directory (file-truename x)))
+					(org-ref-find-bibliography)		    ":"))
+    (org-ref-find-bad-citations)
+    (with-current-buffer "*Missing citations*"
+      (string-match "^bad \\[\\["
+		    (buffer-substring-no-properties (point-min)
+						    (point-max)))))))
+
+
+
+(ert-deftest extract-bibtex ()
+  (should
+   (string=
+    "cite:kitchin-2015-examp
+
+bibliography:../tests/test-1.bib
+
+
+*  Bibtex entries
+
+#+BEGIN_SRC text
+@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of Effective Data Sharing in Scientific Publishing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}
+
+
+#+END_SRC"
+    (org-test-with-temp-text
+	"cite:kitchin-2015-examp
+
+bibliography:../tests/test-1.bib
+"
+      (org-ref-extract-bibtex-entries)
+      (buffer-substring-no-properties (point-min) (point-max))))))
 
 ;;* end
 (provide 'org-ref-test)
