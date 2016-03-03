@@ -1592,13 +1592,13 @@ If no key is provided, get one under point."
 (defmacro org-ref-make-completion-function (type)
   "Macro to make a link completion function for a link of TYPE."
   `(defun ,(intern (format "org-%s-complete-link" type)) (&optional arg)
-     (interactive)
-     (format "%s:%s"
-             ,type
-             (completing-read
-              "bibtex key: "
-              (let ((bibtex-files (org-ref-find-bibliography)))
-                (bibtex-global-key-alist))))))
+     (format
+      "%s:%s"
+      ,type
+      (completing-read
+       "bibtex key: "
+       (let ((bibtex-files (org-ref-find-bibliography)))
+	 (bibtex-global-key-alist))))))
 
 
 (defmacro org-ref-make-format-function (type)
