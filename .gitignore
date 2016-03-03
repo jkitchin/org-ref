@@ -6,3 +6,4 @@ sandbox
 .DS_Store
 /tests/.test-org-id-locations
 log.org
+/test/.test-org-id-locations
