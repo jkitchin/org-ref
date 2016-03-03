@@ -319,7 +319,7 @@ If `org-ref-pdf-directory' is non-nil, put filename there."
 
 (defun org-ref-get-mendeley-filename (key)
   "Return the pdf filename indicated by mendeley file field.
-Falls back to `org-ref-get-pdf-filename' if file filed does not exist.
+Falls back to `org-ref-get-pdf-filename' if file field does not exist.
 Contributed by https://github.com/autosquid.
 Argument KEY is the bibtex key."
   (let* ((results (org-ref-get-bibtex-key-and-file key))
