@@ -2392,8 +2392,9 @@ file.  Makes a new buffer with clickable links."
       (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
 
 
-(defun orcb-clean-year ()
-  "Fix years set to 0."
+(defun orcb-clean-year (&optional new-year)
+  "Fix years set to 0.
+If optional NEW-YEAR set it to that, otherwise prompt for it."
   ;; asap articles often set year to 0, which messes up key
   ;; generation. fix that.
   (let ((year (bibtex-autokey-get-field "year")))
@@ -2403,7 +2404,7 @@ file.  Makes a new buffer with clickable links."
       (bibtex-kill-field)
       (bibtex-make-field "year")
       (backward-char)
-      (insert (read-string "Enter year: ")))))
+      (insert (or new-year (read-string "Enter year: "))))))
 
 
 (defun orcb-clean-pages ()
