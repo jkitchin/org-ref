@@ -856,12 +856,21 @@ bibliography:tests/test-1.bib
   (should
    (string-match "@article{kitchin-2015-examp,"
 		 (org-test-with-temp-text
-		     "cite:kitchin-2015-examp
+		  "cite:kitchin-2015-examp
 
 bibliography:tests/test-1.bib
 "
-		   (org-ref-extract-bibtex-entries)
-		   (buffer-substring-no-properties (point-min) (point-max))))))
+		  (org-ref-extract-bibtex-entries)
+		  (buffer-substring-no-properties (point-min) (point-max))))))
+
+
+(ert-deftest mendeley-fname ()
+  (should
+   (string= "/Users/jkitchin/Dropbox/bibliography/bibtex-pdfs/abild-pedersen-2007-scalin-proper.pdf"
+	    (org-test-with-temp-text
+		"bibliography:tests/test-1.bib"
+	      ""
+	      (org-ref-get-mendeley-filename "Abild-Pedersen2007")))))
 
 ;;* end
 (provide 'org-ref-test)

@@ -332,12 +332,10 @@ Argument KEY is the bibtex key."
       (setq entry (bibtex-parse-entry))
       (let ((e (org-ref-reftex-get-bib-field "file" entry)))
         (if (> (length e) 4)
-            (let ((clean-field (-remove (lambda (char)
-					  (-contains? "{}\\" char))
-					e)))
+            (let ((clean-field (replace-regexp-in-string "{\\|}\\|\\\\" "" e)))
               (let ((first-file (car (split-string clean-field ";" t))))
-                (format "/%s" (-slice first-file 1
-				      (- (length first-file) 4)))))
+                (format "/%s" (substring first-file 1
+					 (- (length first-file) 4)))))
           (format (concat
                    (file-name-as-directory org-ref-pdf-directory)
                    "%s.pdf")
