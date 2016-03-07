@@ -751,63 +751,77 @@ Add tooltip to the link."
       t))))
 
 
-
-
 ;;* Links
 ;;** bibliography and bibliographystyle
+(defun org-ref-open-bibliography-no-org (link-string)
+  "Open a bibliography link when you are not in org-mode.
+This means you cannot use the usual org-machinery to figure it
+out. We don't try to be clever here. If there is only one file,
+we open it, otherwise prompt for which one to open."
+  (let ((bibfiles (split-string link-string ",")))
+    (find-file (if (= 1 (length bibfiles))
+		   (car bibfiles)
+		 (ido-completing-read
+		  "Bib file: " bibfiles nil t)))))
+
+(defun org-ref-open-bibliography (link-string)
+  "The click function for a bibliography link."
+  ;; get link-string boundaries we have to go to the
+  ;; beginning of the line, and then search forward
+  (if (not (eq major-mode 'org-mode))
+      (org-ref-open-bibliography-no-org link-string)
+    (let* ((bibfile)
+	   ;; object is the link you clicked on
+	   (object (org-element-context))
+	   (link-string-beginning)
+	   (link-string-end)
+	   (cp (point)))
+      (save-excursion
+	(goto-char (org-element-property :begin object))
+	(search-forward link-string nil nil 1)
+	(setq link-string-beginning (match-beginning 0))
+	(setq link-string-end (match-end 0)))
+
+      ;; Make sure point is in the link-path.
+      (if (< cp link-string-beginning)
+	  (goto-char link-string-beginning))
+      ;; We set the reftex-default-bibliography
+      ;; here. it should be a local variable only in
+      ;; the current buffer. We need this for using
+      ;; reftex to do citations.
+      (set (make-local-variable 'reftex-default-bibliography)
+	   (split-string
+	    (org-element-property :path object) ","))
+
+      (let (key-beginning key-end)
+	;; now if we have comma separated bibliographies
+	;; we find the one clicked on. we want to
+	;; search forward to next comma from point
+	(save-excursion
+	  (if (search-forward "," link-string-end 1 1)
+	      ;; we found a match
+	      (setq key-end (- (match-end 0) 1))
+	    ;; no comma found so take the point
+	    (setq key-end (point))))
+	;; and backward to previous comma from point
+	(save-excursion
+	  (if (search-backward "," link-string-beginning 1 1)
+	      ;; we found a match
+	      (setq key-beginning (+ (match-beginning 0) 1))
+	    (setq key-beginning (point)))) ; no match found
+	;; save the key we clicked on.
+	(setq bibfile (org-ref-strip-string
+		       (buffer-substring key-beginning key-end)))
+	;; open file on click
+	(find-file bibfile)))))
+
+
 (org-add-link-type
  "bibliography"
  ;; this code is run on clicking. The bibliography
  ;; may contain multiple files. this code finds the
  ;; one you clicked on and opens it.
- (lambda (link-string)
-   ;; get link-string boundaries we have to go to the
-   ;; beginning of the line, and then search forward
-   (let* ((bibfile)
-	  ;; object is the link you clicked on
-	  (object (org-element-context))
-	  (link-string-beginning)
-	  (link-string-end)
-	  (cp (point)))
-     (save-excursion
-       (goto-char (org-element-property :begin object))
-       (search-forward link-string nil nil 1)
-       (setq link-string-beginning (match-beginning 0))
-       (setq link-string-end (match-end 0)))
-
-     ;; Make sure point is in the link-path.
-     (if (< cp link-string-beginning)
-	 (goto-char link-string-beginning))
-     ;; We set the reftex-default-bibliography
-     ;; here. it should be a local variable only in
-     ;; the current buffer. We need this for using
-     ;; reftex to do citations.
-     (set (make-local-variable 'reftex-default-bibliography)
-	  (split-string
-	   (org-element-property :path object) ","))
-
-     (let (key-beginning key-end)
-       ;; now if we have comma separated bibliographies
-       ;; we find the one clicked on. we want to
-       ;; search forward to next comma from point
-       (save-excursion
-	 (if (search-forward "," link-string-end 1 1)
-	     ;; we found a match
-	     (setq key-end (- (match-end 0) 1))
-	   ;; no comma found so take the point
-	   (setq key-end (point))))
-       ;; and backward to previous comma from point
-       (save-excursion
-	 (if (search-backward "," link-string-beginning 1 1)
-	     ;; we found a match
-	     (setq key-beginning (+ (match-beginning 0) 1))
-	   (setq key-beginning (point)))) ; no match found
-       ;; save the key we clicked on.
-       (setq bibfile (org-ref-strip-string
-		      (buffer-substring key-beginning key-end)))
-       ;; open file on click
-       (find-file bibfile))))
-
+ 'org-ref-open-bibliography
  ;; formatting code
  (lambda (keyword desc format)
    (cond
