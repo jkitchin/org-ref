@@ -65,6 +65,12 @@
   :type 'boolean
   :group 'doi-utils)
 
+(defcustom doi-utils-make-notes
+  t
+  "Whether to create notes when adding bibtex entries."
+  :type 'boolean
+  :group 'doi-utils)
+
 (defcustom doi-utils-timestamp-field
   "DATE_ADDED"
   "The bibtex field to store the date when an entry has been added."
@@ -84,10 +90,7 @@ Set to nil to avoid setting timestamps in the entries."
     (helm-bibtex-edit-notes (cdr (assoc "=key=" (bibtex-parse-entry))) ))
   "Function to create notes for a bibtex entry.
 
-For all notes in the `org-ref-bibliography-notes' use
-`org-ref-open-bibtex-notes' as the function.
-
-Set to (lambda () nil) if you want no notes."
+Set `doi-utils-make-notes' to nil if you want no notes."
   :type 'function
   :group 'doi-utils)
 
@@ -661,17 +664,18 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   ;; set date added for the record
   (when doi-utils-timestamp-format-function
     (bibtex-set-field doi-utils-timestamp-field
-          (funcall doi-utils-timestamp-format-function)))
+		      (funcall doi-utils-timestamp-format-function)))
   (org-ref-clean-bibtex-entry)
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
 
-  (save-selected-window
-    (org-ref-open-bibtex-notes)
-    ;;(save-buffer)                         ; helm-bibtex-edit-notes performs a search in the buffer that fails if the buffer has not been saved
-    ;;(funcall doi-utils-make-notes-function)
-    ))
+  (when doi-utils-make-notes
+    (save-excursion
+      (when (f-file? org-ref-bibliography-notes)
+	(find-file-noselect org-ref-bibliography-notes)
+	(save-buffer))
+      (funcall doi-utils-make-notes-function))))
 
 
 ;; It may be you are in some other place when you want to add a bibtex entry.
