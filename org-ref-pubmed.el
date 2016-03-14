@@ -248,7 +248,7 @@ You must clean the entry after insertion."
   "Open QUERY in Pubmed in a browser."
   (interactive "sQuery: ")
   (browse-url
-   (format "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s" query)))
+   (format "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s" (url-hexify-string query))))
 
 
 (org-add-link-type
@@ -257,7 +257,7 @@ You must clean the entry after insertion."
    "Open QUERY in a `pubmed-simple-search'."
    (pubmed-simple-search query))
  (lambda (query desc format)
-   (let ((url (format "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s" query)))
+   (let ((url (format "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s" (url-hexify-string query))))
      (cond
       ((eq format 'html)
        (format "<a href=\"%s\">%s</a>" url (or desc (concat "pubmed-search:" query))))
