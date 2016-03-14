@@ -341,9 +341,9 @@ Uses a hook function to display the message in the minibuffer."
     org-ref-replace-nonascii
     orcb-&
     org-ref-title-case-article
+    orcb-clean-year
     orcb-key
     orcb-clean-doi
-    orcb-clean-year
     orcb-clean-pages
     org-ref-sort-bibtex-entry)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
