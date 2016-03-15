@@ -2751,12 +2751,14 @@ move to the beginning of the previous cite link after this one."
 (defun org-ref-link-message ()
   "Print a minibuffer message about the link that point is on."
   (interactive)
-  ;; the way links are recognized in org-element-context counts a blank space
+  ;; the way links are recognized in org-element-context counts blank spaces
   ;; after a link and the closing brackets in literal links. We don't try to get
   ;; a message if the cursor is on those, or if it is on a blank line.
-  (when (not (or (looking-at " ")
-		 (looking-at "^$")
-		 (looking-at "]")))
+  (when (not (or (looking-at " ")	;looking at a space
+		 (looking-at "^$")	;looking at a blank line
+		 (looking-at "]")	;looking at a bracket at the end
+		 (looking-at "$"	;looking at the end of the line.
+			     )))
 
     (save-restriction
       (widen)
