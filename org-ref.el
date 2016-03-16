@@ -714,27 +714,27 @@ Add tooltip to the link."
 
 (defun org-ref-make-org-link-cite-key-visible (&rest _)
   "Make the org-ref cite link visible in descriptive links."
+  (unless (string= (buffer-name) "*Org Agenda*")
+    (save-match-data
+      (let ((s (match-string 1))
+	    (s-begin (match-beginning 1))
+	    (s-end (match-end 1))
+	    (beg (match-beginning 0))
+	    (end (match-end 0))
+	    (cite-re (format "^\\(%s:\\)"
+			     (regexp-opt (-sort
+					  (lambda (a b)
+					    (> (length a) (length b)))
+					  org-ref-cite-types))))
+	    cite-type)
 
-  (save-match-data
-    (let ((s (match-string 1))
-	  (s-begin (match-beginning 1))
-	  (s-end (match-end 1))
-	  (beg (match-beginning 0))
-	  (end (match-end 0))
-	  (cite-re (format "^\\(%s:\\)"
-			   (regexp-opt (-sort
-					(lambda (a b)
-					  (> (length a) (length b)))
-					org-ref-cite-types))))
-	  cite-type)
-
-      (when (and s (string-match cite-re s))
-	(setq cite-type (match-string 1 s))
-	(remove-text-properties beg end
-				'(invisible))
-	(add-text-properties
-	 beg end
-	 `(face (:foreground ,org-ref-cite-color)))))))
+	(when (and s (string-match cite-re s))
+	  (setq cite-type (match-string 1 s))
+	  (remove-text-properties beg end
+				  '(invisible))
+	  (add-text-properties
+	   beg end
+	   `(face (:foreground ,org-ref-cite-color))))))))
 
 (when org-ref-colorize-links
   (add-hook
