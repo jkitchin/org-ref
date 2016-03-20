@@ -110,11 +110,16 @@ system pdftotext: ${pdftotext}
 You set pdftotext-executable to ${pdftotext-executable} (exists: ${pdftotext-executable-p})
 
 * org-ref-url-utils (loaded: ${org-ref-url-p})
+
+* export variables
+org-latex-pdf-process:
+${org-latex-pdf-process}
 "
 	     'aget
 	     `(("org-ref-bibliography-notes" . ,(format "%s"  org-ref-bibliography-notes))
 	       ("orbn-p" . ,(format "%s" (file-exists-p org-ref-bibliography-notes)))
 	       ("org-ref-version" . ,(org-ref-version))
+	       ("org-latex-pdf-process" . ,(format "%S" org-latex-pdf-process))
 	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
 	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
 	       ("ordb-listp" . ,(ords (listp org-ref-default-bibliography)))
