@@ -3115,6 +3115,26 @@ provide their own version."
 
 (add-hook 'org-mode-hook 'org-ref-org-menu)
 
+;;* Make bibliography links at end not get folded so you can see where they are..
+;; Adapted from http://stackoverflow.com/questions/9134956/avoid-printbibliography-being-swallowed-by-org-mode-headings
+(defvar org-ref-biblink-re "^\\(bibliography\\(style\\)?\\|\\(printbibliography\\)\\):.*"
+  "Regex for bibliography links")
+
+(defun org-ref-show-biblinks (&optional _)
+  (save-excursion
+    (goto-char (point-max))
+    (while (re-search-backward org-ref-biblink-re nil t)
+      (outline-flag-region (1- (point)) (1- (point-max)) nil))))
+
+(add-hook 'org-cycle-hook 'org-ref-show-biblinks)
+(add-hook 'org-occur-hook 'org-ref-show-biblinks)
+
+(defadvice org-end-of-subtree (after always-show-org-footer
+                                     ()
+                                     activate)
+  (when (>= (point) (1- (point-max)))
+    (re-search-backward org-ref-biblink-re nil t)
+    (setq ad-return-value (point))))
 
 
 ;;* The end
