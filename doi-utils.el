@@ -670,7 +670,7 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
 
-  (when doi-utils-make-notes
+  (when (and doi-utils-make-notes org-ref-bibliography-notes)
     (save-excursion
       (when (f-file? org-ref-bibliography-notes)
 	(find-file-noselect org-ref-bibliography-notes)
