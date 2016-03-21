@@ -1205,7 +1205,7 @@ error."
 	    (replace-match ""))
 	  (goto-char (point-min))
 	  (while (re-search-forward "&quot;" nil t)
-	    (replace-match ""))
+	    (replace-match "\\\"" nil t))
 	  (goto-char (point-min))
 	  (while (re-search-forward "</i>" nil t)
 	    (replace-match "")))
