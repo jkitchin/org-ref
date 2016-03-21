@@ -1196,8 +1196,21 @@ error."
          (concat
           "http://search.crossref.org/dois?q="
           (url-hexify-string query)))
-      (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
-      (setq json-data (json-read-from-string json-string)))
+	;; remove html tags
+	(save-excursion
+	  (goto-char (point-min))
+	  (while (re-search-forward "<i>" nil t)
+	    (replace-match ""))
+	  (goto-char (point-min))
+	  (while (re-search-forward "&quot;" nil t)
+	    (replace-match ""))
+	  (goto-char (point-min))
+	  (while (re-search-forward "</i>" nil t)
+	    (replace-match "")))
+	(setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
+	;; encode json string
+	(setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
+	(setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s"
                          ;; remove carriage returns. they cause problems in helm.
