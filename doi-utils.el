@@ -1168,34 +1168,36 @@ error."
 ;; can type the query in by hand.
 
 ;;;###autoload
-(defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
+(defun doi-utils-add-entry-from-crossref-query ()
   "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
-  (interactive (list
-                (read-string
-                 "Query: "
-                 ;; now set initial input
-                 (cond
-                  ;; If region is active assume we want it
-                  ((region-active-p)
-                   (replace-regexp-in-string
-                    "\n" " "
-                    (buffer-substring (region-beginning) (region-end))))
-                  ;; type or paste it in
-                  (t
-                   nil)))
-                (ido-completing-read
-                 "Bibfile: "
-                 (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                         org-ref-default-bibliography))))
-  (let* ((json-string)
-         (json-data)
-         (doi))
+  (interactive)
+  (let ((query (read-string
+		"Query: "
+		;; now set initial input
+		(cond
+		 ;; If region is active assume we want it
+		 ((region-active-p)
+		  (replace-regexp-in-string
+		   "\n" " "
+		   (buffer-substring (region-beginning) (region-end))))
+		 ;; assume we want the input typed in a helm buffer
+		 (helm-input)
+		 ;; type or paste it in
+		 (t
+		  nil))))
+	(bibtex-file (ido-completing-read
+		      "Bibfile: "
+		      (append org-ref-default-bibliography
+			      (f-entries "." (lambda (f) (f-ext? f "bib")))))))
+    (let* ((json-string)
+	   (json-data)
+	   (doi))
 
-    (with-current-buffer
-        (url-retrieve-synchronously
-         (concat
-          "http://search.crossref.org/dois?q="
-          (url-hexify-string query)))
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   (concat
+	    "http://search.crossref.org/dois?q="
+	    (url-hexify-string query)))
 	;; remove html tags
 	(save-excursion
 	  (goto-char (point-min))
@@ -1212,30 +1214,38 @@ error."
 	(setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
 	(setq json-data (json-read-from-string json-string)))
 
-    (let* ((name (format "Crossref hits for %s"
-                         ;; remove carriage returns. they cause problems in helm.
-                         (replace-regexp-in-string "\n" " " query)))
-           (helm-candidates (mapcar (lambda (x)
-                                      (cons
-                                       (concat
-                                        (cdr (assoc 'fullCitation x))
-                                        " "
-                                        (cdr (assoc 'doi x)))
-                                       (cdr (assoc 'doi x))))
-                                    json-data))
-           (source `((name . ,name)
-                     (candidates . ,helm-candidates)
-                     ;; just return the candidate
-                     (action . (("Insert bibtex entry" .  (lambda (doi)
-                                                            (cl-loop for doi in (helm-marked-candidates)
-                                                                  do
-                                                                  (doi-utils-add-bibtex-entry-from-doi
-                                                                   (replace-regexp-in-string
-                                                                    "^http://dx.doi.org/" "" doi)
-                                                                   ,bibtex-file))))
-                                ("Open url" . (lambda (doi)
-                                                (browse-url doi))))))))
-      (helm :sources '(source)))))
+      (let* ((name (format "Crossref hits for %s"
+			   ;; remove carriage returns. they cause problems in helm.
+			   (replace-regexp-in-string "\n" " " query)))
+	     (helm-candidates (mapcar (lambda (x)
+					(cons
+					 (concat
+					  (cdr (assoc 'fullCitation x)))
+					 (cdr (assoc 'doi x))))
+				      json-data))
+	     (source `((name . ,name)
+		       (candidates . ,helm-candidates)
+		       ;; just return the candidate
+		       (action . (("Insert bibtex entry" .  (lambda (doi)
+							      ;; always show bibtex entry
+							      (if (string= (buffer-name (current-buffer))
+									   (file-name-nondirectory bibtex-file))
+								  (setq doi-utils--bibtex-file nil)
+								(setq doi-utils--bibtex-file t)
+								(split-window-below)
+								(other-window 1)
+								(find-file bibtex-file))
+							      (cl-loop for doi in (helm-marked-candidates)
+								       do
+								       (doi-utils-add-bibtex-entry-from-doi
+									(replace-regexp-in-string
+									 "^http://dx.doi.org/" "" doi)
+									,bibtex-file))
+							      (when doi-utils--bibtex-file
+								(recenter-top-bottom 0))))
+				  ("Open url" . (lambda (doi)
+						  (browse-url doi))))))))
+	(helm :sources '(source))))))
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")
