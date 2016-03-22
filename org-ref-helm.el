@@ -183,8 +183,10 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
 ;;;###autoload
 (defun org-ref ()
   "Opens a helm interface to actions for `org-ref'.
-Shows bad citations, ref links and labels"
+Shows bad citations, ref links and labels.
+This widens the file so that all links go to the right place."
   (interactive)
+  (widen)
   (let ((cb (current-buffer))
         (bad-citations (org-ref-bad-cite-candidates))
         (bad-refs (org-ref-bad-ref-candidates))
