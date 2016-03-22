@@ -3117,29 +3117,33 @@ provide their own version."
 
 ;;* Make bibliography links at end not get folded so you can see where they are..
 ;; Adapted from http://stackoverflow.com/questions/9134956/avoid-printbibliography-being-swallowed-by-org-mode-headings
-(defvar org-ref-biblink-re "^\\(bibliography\\(style\\)?\\|\\(printbibliography\\)\\):.*"
-  "Regex for bibliography links used for showing biblinks at the end of the buffer.")
+;; (defvar org-ref-biblink-re "^\\(bibliography\\(style\\)?\\|\\(printbibliography\\)\\):.*"
+;;   "Regex for bibliography links used for showing biblinks at the end of the buffer.")
 
-(defun org-ref-show-biblinks (&optional _)
-  "Flag a region containing biblinks so they do not get folded.
-We assume these are at the end of the buffer, and do not look
-past the last headline."
-  (save-excursion
-    (goto-char (point-max))
-    (when (re-search-backward org-ref-biblink-re nil t)
-      (outline-flag-region (1- (point)) (point-max) nil))))
+;; (defun org-ref-show-biblinks (&optional _)
+;;   "Flag a region containing biblinks so they do not get folded.
+;; We assume these are at the end of the buffer, and do not look
+;; past the last headline."
+;;   (save-excursion
+;;     (goto-char (point-max))
+;;     (when (re-search-backward org-ref-biblink-re nil t)
+;;       (outline-flag-region (1- (point)) (point-max) nil))))
 
-(add-hook 'org-cycle-hook 'org-ref-show-biblinks)
-(add-hook 'org-occur-hook 'org-ref-show-biblinks)
+;; (add-hook 'org-cycle-hook 'org-ref-show-biblinks)
+;; (add-hook 'org-occur-hook 'org-ref-show-biblinks)
+
+;; (remove-hook 'org-cycle-hook 'org-ref-show-biblinks)
+;; (remove-hook 'org-occur-hook 'org-ref-show-biblinks)
 
 ;; This seems to redefine where the end of subtree is.
-(defadvice org-end-of-subtree (after always-show-org-footer
-                                     ()
-                                     activate)
-  (when (>= (point) (1- (point-max)))
-    (re-search-backward org-ref-biblink-re nil t)
-    (setq ad-return-value (point))))
+;; (defadvice org-end-of-subtree (after always-show-org-footer
+;;                                      ()
+;;                                      activate)
+;;   (when (>= (point) (1- (point-max)))
+;;     (re-search-backward org-ref-biblink-re nil t)
+;;     (setq ad-return-value (point))))
 
+;; (ad-remove-advice 'org-end-of-subtree  'after 'always-show-org-footer)
 
 ;;* The end
 (provide 'org-ref)
