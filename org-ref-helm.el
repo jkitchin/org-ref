@@ -186,8 +186,8 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
 Shows bad citations, ref links and labels.
 This widens the file so that all links go to the right place."
   (interactive)
-  (widen)
-  (org-cycle '(64))
+  ;; (widen)
+  ;; (org-cycle '(64))
   (let ((cb (current-buffer))
         (bad-citations (org-ref-bad-cite-candidates))
         (bad-refs (org-ref-bad-ref-candidates))
@@ -297,25 +297,29 @@ at the end of you file.
                       (candidates . ,bad-citations)
                       (action . (lambda (marker)
                                   (switch-to-buffer (marker-buffer marker))
-                                  (goto-char marker))))
+                                  (goto-char marker)
+				  (org-show-entry))))
                      ;;
                      ((name . "Multiply defined labels")
                       (candidates . ,bad-labels)
                       (action . (lambda (marker)
                                   (switch-to-buffer (marker-buffer marker))
-                                  (goto-char marker))))
+                                  (goto-char marker)
+				  (org-show-entry))))
                      ;;
                      ((name . "Bad ref links")
                       (candidates . ,bad-refs)
                       (action . (lambda (marker)
                                   (switch-to-buffer (marker-buffer marker))
-                                  (goto-char marker))))
+                                  (goto-char marker)
+				  (org-show-entry))))
                      ;;
                      ((name . "Bad file links")
                       (candidates . ,bad-files)
                       (lambda (marker)
                         (switch-to-buffer (marker-buffer marker))
-                        (goto-char marker)))
+                        (goto-char marker)
+			(org-show-entry)))
 
                      ((name . "Bibliography")
                       (candidates . ,bib-candidates)
@@ -350,13 +354,10 @@ at the end of you file.
                                                                    (org-open-file
                                                                     (org-latex-export-to-pdf))))
                                      ("Export to manuscript pdf and open" . ox-manuscript-export-and-build-and-open)
-                                     ("Export submission manuscript pdf and open" . ox-manuscript-build-submission-manuscript-and-open)
-
-                                     ))
+                                     ("Export submission manuscript pdf and open" . ox-manuscript-build-submission-manuscript-and-open)))
                       (action . (lambda (x)
                                   (switch-to-buffer ,cb)
                                   (funcall x))))))))
-
 
 
 ;;;###autoload
