@@ -484,18 +484,20 @@ label:one
 
 (ert-deftest bad-file-link ()
   (should
-   (= 3
+   (= 5
       (length
        (org-test-with-temp-text
-	   "
+	"
 file:not.here  [[./or.here]].
 
 We should catch  \\attachfile{latex.style} too.
 
 Why don't we catch [[attachfile:filepath]] or attachfile:some.file?
-I think they must be defined in jmax, and are unknown links.
+I think they must be defined in jmax, and are unknown links if it is
+not loaded.
 "
-	 (org-ref-bad-file-link-candidates))))))
+	(org-add-link-type "attachfile" nil nil)
+	(org-ref-bad-file-link-candidates))))))
 
 
 
