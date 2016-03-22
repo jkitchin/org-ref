@@ -18,7 +18,7 @@ ert-runner:
 	${CASK_EXEC} exec ert-runner
 
 mytest:
-	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l test/org-test.el -l test/org-ref-test.el -f ert-run-tests-batch-and-exit
+	${CASK_EXEC} ${emacs} -Q -batch  -l ../init.el  -l test/org-test-setup.el -l test/org-ref-test.el -f ert-run-tests-batch-and-exit
 
 compile:
 	${CASK_EXEC} ${emacs} -Q -batch -l ../init.el -L "." -f batch-byte-compile *.el
