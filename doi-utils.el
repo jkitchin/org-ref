@@ -732,7 +732,9 @@ Argument BIBFILE the bibliography to use."
       (if (search-forward doi nil t)
           (message "%s is already in this file" doi)
         (goto-char (point-max))
-        (insert "\n\n")
+	(if require-final-newline
+	    (insert "\n")
+	  (insert "\n\n"))
         (doi-utils-insert-bibtex-entry-from-doi doi)
         (save-buffer)))))
 
@@ -1186,40 +1188,61 @@ error."
                  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                          org-ref-default-bibliography))))
   (let* ((json-string)
-         (json-data)
-         (doi))
+	 (json-data)
+	 (doi))
 
     (with-current-buffer
-        (url-retrieve-synchronously
-         (concat
-          "http://search.crossref.org/dois?q="
-          (url-hexify-string query)))
-      (setq json-string (buffer-substring url-http-end-of-headers (point-max)))
+	(url-retrieve-synchronously
+	 (concat
+	  "http://search.crossref.org/dois?q="
+	  (url-hexify-string query)))
+      ;; remove html tags
+      (save-excursion
+	(goto-char (point-min))
+	(while (re-search-forward "<i>" nil t)
+	  (replace-match ""))
+	(goto-char (point-min))
+	(while (re-search-forward "&quot;" nil t)
+	  (replace-match "\\\"" nil t))
+	(goto-char (point-min))
+	(while (re-search-forward "</i>" nil t)
+	  (replace-match "")))
+      (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
+      ;; encode json string
+      (setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s"
-                         ;; remove carriage returns. they cause problems in helm.
-                         (replace-regexp-in-string "\n" " " query)))
-           (helm-candidates (mapcar (lambda (x)
-                                      (cons
-                                       (concat
-                                        (cdr (assoc 'fullCitation x))
-                                        " "
-                                        (cdr (assoc 'doi x)))
-                                       (cdr (assoc 'doi x))))
-                                    json-data))
-           (source `((name . ,name)
-                     (candidates . ,helm-candidates)
-                     ;; just return the candidate
-                     (action . (("Insert bibtex entry" .  (lambda (doi)
-                                                            (cl-loop for doi in (helm-marked-candidates)
-                                                                  do
-                                                                  (doi-utils-add-bibtex-entry-from-doi
-                                                                   (replace-regexp-in-string
-                                                                    "^http://dx.doi.org/" "" doi)
-                                                                   ,bibtex-file))))
-                                ("Open url" . (lambda (doi)
-                                                (browse-url doi))))))))
+			 ;; remove carriage returns. they cause problems in helm.
+			 (replace-regexp-in-string "\n" " " query)))
+	   (helm-candidates (mapcar (lambda (x)
+				      (cons
+				       (concat
+					(cdr (assoc 'fullCitation x)))
+				       (cdr (assoc 'doi x))))
+				    json-data))
+	   (source `((name . ,name)
+		     (candidates . ,helm-candidates)
+		     ;; just return the candidate
+		     (action . (("Insert bibtex entry" .  (lambda (doi)
+							    ;; always show bibtex entry
+							    (if (string= (buffer-name (current-buffer))
+									 (file-name-nondirectory bibtex-file))
+								(setq doi-utils--bibtex-file nil)
+							      (setq doi-utils--bibtex-file t)
+							      (split-window-below)
+							      (other-window 1)
+							      (find-file bibtex-file))
+							    (cl-loop for doi in (helm-marked-candidates)
+								     do
+								     (doi-utils-add-bibtex-entry-from-doi
+								      (replace-regexp-in-string
+								       "^http://dx.doi.org/" "" doi)
+								      ,bibtex-file))
+							    (when doi-utils--bibtex-file
+							      (recenter-top-bottom 0))))
+				("Open url" . (lambda (doi)
+						(browse-url doi))))))))
       (helm :sources '(source)))))
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
