@@ -187,6 +187,7 @@ Shows bad citations, ref links and labels.
 This widens the file so that all links go to the right place."
   (interactive)
   (widen)
+  (org-cycle '(64))
   (let ((cb (current-buffer))
         (bad-citations (org-ref-bad-cite-candidates))
         (bad-refs (org-ref-bad-ref-candidates))
