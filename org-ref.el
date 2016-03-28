@@ -2760,6 +2760,18 @@ move to the beginning of the previous cite link after this one."
                         (progn
                           (forward-line 4)
                           (point)))))
+
+      (goto-char (point-min))
+      (when (re-search-forward
+             (format "^#\\+name:\\s-*\\(%s\\)\\b" label) nil t)
+        (throw 'result (buffer-substring
+                        (progn
+                          (forward-line -1)
+                          (beginning-of-line)
+                          (point))
+                        (progn
+                          (forward-line 4)
+                          (point)))))
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
 
