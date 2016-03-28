@@ -340,6 +340,7 @@ Uses a hook function to display the message in the minibuffer."
   '(orcb-key-comma
     org-ref-replace-nonascii
     orcb-&
+    orcb-%
     org-ref-title-case-article
     orcb-clean-year
     orcb-key
@@ -1258,7 +1259,13 @@ A number greater than one means multiple labels!"
         (progn
           (goto-char (point-min))
           (re-search-forward
-           (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
+           (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
+
+	;; a #+name
+	(progn
+          (goto-char (point-min))
+          (re-search-forward
+           (format "^#\\+name:\\s-*\\(%s\\)\\b" label) nil t)))
 
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
@@ -2451,6 +2458,15 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
     (bibtex-beginning-of-entry)
     (while (re-search-forward " & " nil t)
       (replace-match " \\\\& "))))
+
+
+(defun orcb-% ()
+  "Replace naked % with % in a bibtex entry."
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (bibtex-beginning-of-entry)
+    (while (re-search-forward "%" nil t)
+      (replace-match " \\\\%"))))
 
 
 (defun orcb-key-comma ()
