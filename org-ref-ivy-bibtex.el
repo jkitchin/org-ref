@@ -97,20 +97,23 @@ ENTRY is selected from `orhc-bibtex-candidates'."
   (bibtex-beginning-of-entry))
 
 
+(defvar org-ref-ivy-cite-re-builder 'ivy--regex-ignore-order
+  "Regex builder to use in `org-ref-ivy-insert-cite-link'. Can be set to nil to use Ivy's default).")
+
+
 (defun org-ref-ivy-insert-cite-link ()
   "ivy function for interacting with bibtex."
   (interactive)
   (setq org-ref-bibtex-files (org-ref-find-bibliography))
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
+	    :re-builder org-ref-ivy-cite-re-builder
 	    :action '(1
 		      ("i" or-ivy-bibtex-insert-cite "Insert citation")
 		      ("o" or-ivy-bibtex-open-entry "Open entry")
 		      ("p" or-ivy-bibtex-open-pdf "open Pdf")
 		      ("q" nil "quit"))))
 
-(add-to-list 'ivy-re-builders-alist (cons 'org-ref-ivy-insert-cite-link
-					  'ivy--regex-ignore-order))
 
 
 (defun org-ref-ivy-insert-label-link ()
