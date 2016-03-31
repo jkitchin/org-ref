@@ -61,6 +61,19 @@
 (require 's)
 
 ;;; Code:
+(defvar-local bibliography-style nil)
+
+(add-to-list 'load-path
+	     (expand-file-name
+	      "citeproc"
+	      (file-name-directory  (locate-library "org-ref"))))
+
+(load-file (expand-file-name
+	    "org-ref-citeproc.el"
+	    (expand-file-name
+	     "citeproc"
+	     (file-name-directory  (locate-library "org-ref")))))
+
 ;;* Custom variables
 (defgroup org-ref-bibtex nil
   "Customization group for org-ref-bibtex."
@@ -1072,6 +1085,42 @@ Update the cache if necessary."
 ;; library so they are available later.
 (orhc-load-cache-file)
 (orhc-update-bibtex-cache)
+
+
+;;* org-ref bibtex formatted citation
+(defun orhc-formatted-citation (entry)
+  "Get a formatted string for entry."
+  (let* ((adaptive-fill-function '(lambda () "    "))
+	 (indent-tabs-mode nil)
+	 (entry-type (downcase
+		      (cdr (assoc "=type=" (cdr entry)))))
+	 (entry-styles (cdr (assoc 'entries bibliography-style)))
+	 (entry-fields
+	  (progn
+	    (if (cdr (assoc (intern entry-type) entry-styles))
+		(cdr (assoc (intern entry-type) entry-styles))
+	      (warn "%s not found. Using default." entry-type)
+	      (cdr (assoc 't entry-styles)))))
+	 (funcs (mapcar
+		 (lambda (field)
+		   (if (fboundp (intern
+				 (format "orcp-%s" field)))
+		       (intern
+			(format "orcp-%s" field))
+		     ;; No formatter found. just get the data
+		     `(lambda (entry)
+			(orcp-get-entry-field
+			 ,(symbol-name field) entry))))
+		 entry-fields)))
+
+    ;; this is the entry. We do this in a buffer to make it
+    ;; easy to indent, fill, etc...
+    (with-temp-buffer
+      (insert (mapconcat (lambda (field-func)
+			   (funcall field-func entry))
+			 funcs
+			 ""))
+      (buffer-string))))
 
 
 ;;* The end

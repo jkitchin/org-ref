@@ -169,6 +169,28 @@ Create email unless called from an email."
     (message-goto-to)))
 
 
+(defun or-ivy-bibtex-formatted-citation (entry)
+  "Return string containing formatted citations for ENTRY."
+  (let ((enable-recursive-minibuffers t))
+    (ivy-read "Style: " '("unsrt" "author-year")
+	      :action 'load-library
+	      :require-match t
+	      :preselect "unsrt"
+	      :caller 'or-ivy-formatted-citation)
+    (format "%s\n\n" (orhc-formatted-citation entry))))
+
+
+(defun or-ivy-bibtex-insert-formatted-citation (entry)
+  "Insert formatted citations at point for selected ENTRY."
+  (with-ivy-window
+    (insert (or-ivy-bibtex-formatted-citation entry))))
+
+
+(defun or-ivy-bibtex-copy-formatted-citation (entry)
+  "Copy formatted citation to clipboard for ENTRY."
+  (kill-new (or-ivy-bibtex-formatted-citation entry)))
+
+
 (defvar org-ref-ivy-cite-re-builder 'ivy--regex-ignore-order
   "Regex builder to use in `org-ref-ivy-insert-cite-link'. Can be set to nil to use Ivy's default).")
 
@@ -190,6 +212,8 @@ Create email unless called from an email."
 		      ("d" or-ivy-bibtex-open-doi "Open doi")
 		      ("k" or-ivy-bibtex-set-keywords "Add keywords")
 		      ("e" or-ivy-bibtex-email-entry "Email entry")
+		      ("f" or-ivy-bibtex-insert-formatted-citation "Insert formatted citation")
+		      ("F" or-ivy-bibtex-copy-formatted-citation "Copy formatted citation")
 		      ("q" nil "quit"))))
 
 
