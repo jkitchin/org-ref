@@ -89,12 +89,84 @@ ENTRY is selected from `orhc-bibtex-candidates'."
       (message "No pdf found for %s" (cdr (assoc "=key=" entry))))))
 
 
+(defun or-ivy-bibtex-open-notes (entry)
+  "Open the notes associated with ENTRY.
+ENTRY is selected from `orhc-bibtex-candidates'."
+  (find-file (expand-file-name
+	      (format "%s.org"
+		      (cdr (assoc "=key=" entry)))
+	      org-ref-notes-directory)))
+
+
 (defun or-ivy-bibtex-open-entry (entry)
   "Open the bibtex file at ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
   (find-file (cdr (assoc "bibfile" entry)))
   (goto-char (cdr (assoc "position" entry)))
   (bibtex-beginning-of-entry))
+
+
+(defun or-ivy-bibtex-copy-entry (entry)
+  "Copy selected bibtex ENTRY to the clipboard."
+  (with-temp-buffer
+    (save-window-excursion
+      (or-ivy-bibtex-open-entry entry)
+      (bibtex-copy-entry-as-kill))
+    (bibtex-yank)
+    (kill-region (point-min) (point-max))))
+
+
+(defun or-ivy-bibtex-open-url (entry)
+  "Open the URL associated with ENTRY.
+ENTRY is selected from `orhc-bibtex-candidates'."
+  (let ((url (cdr (assoc "url" entry))))
+    (if url
+	(browse-url url)
+      (message "No url found for %s" (cdr (assoc "=key=" entry))))))
+
+
+(defun or-ivy-bibtex-open-doi (entry)
+  "Open the DOI associated with ENTRY.
+ENTRY is selected from `orhc-bibtex-candidates'."
+  (let ((doi (cdr (assoc "doi" entry))))
+    (if doi
+	(browse-url (format "http://dx.doi.org/%s" doi))
+      (message "No doi found for %s" (cdr (assoc "=key=" entry))))))
+
+
+(defun or-ivy-bibtex-set-keywords (entry)
+  "Prompt for keywords, and put them on the selected ENTRY."
+  (let ((keywords (read-string "Keyword(s) comma-separated: " ))
+	entry-keywords)
+    (save-window-excursion
+      (or-ivy-bibtex-open-entry entry)
+      (setq entry-keywords (bibtex-autokey-get-field "keywords"))
+      (bibtex-set-field
+       "keywords"
+       (if (> (length entry-keywords) 0)
+	   (concat entry-keywords ", " keywords)
+	 keywords)))))
+
+
+(defun or-ivy-bibtex-email-entry (entry)
+  "Insert selected ENTRY and attach pdf file to an email.
+Create email unless called from an email."
+  (with-ivy-window
+    (unless (memq major-mode '(message-mode mu4e-compose-mode))
+      (compose-mail))
+    (save-window-excursion
+      (or-ivy-bibtex-open-entry entry)
+      (bibtex-copy-entry-as-kill))
+    (message-goto-body)
+    (insert (pop bibtex-entry-kill-ring))
+    (insert "\n")
+    (let ((pdf (expand-file-name
+		(format "%s.pdf"
+			(cdr (assoc "=key=" entry)))
+		org-ref-pdf-directory)))
+      (if (file-exists-p pdf)
+	  (mml-attach-file pdf)))
+    (message-goto-to)))
 
 
 (defvar org-ref-ivy-cite-re-builder 'ivy--regex-ignore-order
@@ -111,7 +183,13 @@ ENTRY is selected from `orhc-bibtex-candidates'."
 	    :action '(1
 		      ("i" or-ivy-bibtex-insert-cite "Insert citation")
 		      ("o" or-ivy-bibtex-open-entry "Open entry")
-		      ("p" or-ivy-bibtex-open-pdf "open Pdf")
+		      ("c" or-ivy-bibtex-copy-entry "Copy entry")
+		      ("p" or-ivy-bibtex-open-pdf "Open pdf")
+		      ("n" or-ivy-bibtex-open-notes "Open notes")
+		      ("u" or-ivy-bibtex-open-url "Open url")
+		      ("d" or-ivy-bibtex-open-doi "Open doi")
+		      ("k" or-ivy-bibtex-set-keywords "Add keywords")
+		      ("e" or-ivy-bibtex-email-entry "Email entry")
 		      ("q" nil "quit"))))
 
 
