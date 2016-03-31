@@ -6,7 +6,7 @@
 
 ;;; Code:
 
-(defvar citation-style
+(setq citation-style
   '((label . orcp-footnote-label)
     (prefix . "")
     (suffix . "")
@@ -22,11 +22,10 @@
 			 *orcp-unique-entries*)))
 		(> i2 i1))))
     (delimiter . ", ")
-    (vertical-align . baseline))
-  "Footnote citations style")
+    (vertical-align . baseline)))
 
 
-(defvar bibliography-style
+(setq bibliography-style
   '((sort . nil)
     (hanging-indent . 3)
     (justification . full)
@@ -80,8 +79,7 @@
 		(techreport . (author title institution year))
 		(mastersthesis . (author title school year))
 		(phdthesis . (author title school year))
-		(t . (author title year)))))
-  "Footnote bibliography style.")
+		(t . (author title year))))))
 
 (provide 'unsrt)
 

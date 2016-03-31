@@ -6,7 +6,7 @@
 
 ;;; Code:
 
-(defvar citation-style
+(setq citation-style
   '((label . orcp-citation-number-label)
     (prefix . "")
     (suffix . "")
@@ -43,11 +43,10 @@
 		 (prefix . "")
 		 (suffix . " ")
 		 (chomp-leading-space . nil)
-		 (chomp-trailing-space . nil))))
-  "Unsrt citation style.")
+		 (chomp-trailing-space . nil)))))
 
 
-(defvar bibliography-style
+(setq bibliography-style
   '((sort . nil)
     (hanging-indent . 3)
     (justification . full)
@@ -101,8 +100,7 @@
 		(techreport . (author title institution year))
 		(mastersthesis . (author title school year))
 		(phdthesis . (author title school year))
-		(t . (author title year)))))
-  "Unsorted bibliography style.")
+		(t . (author title year))))))
 
 (provide 'unsrt)
 

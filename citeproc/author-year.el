@@ -6,7 +6,7 @@
 
 ;;; Code:
 
-(defvar citation-style
+(setq citation-style
   '((label . orcp-citation-author-year-label)
     (prefix . "(")
     (suffix . ")")
@@ -20,12 +20,11 @@
 		 (prefix . "")
 		 (suffix . " ")
 		 (chomp-leading-space . nil)
-		 )))
-  "The author-year citation style.")
+		 ))))
 
 
 
-(defvar bibliography-style
+(setq bibliography-style
   '((sort . nil)
     (hanging-indent . 3)
     (justification . full)
@@ -77,8 +76,7 @@
     ;; Formatting of entries
     (entries . ((article . (author title journal volume pages year doi))
 		(book . (author title year))
-		(misc . (author title url doi)))))
-  "The author-year bibliography style.")
+		(misc . (author title url doi))))))
 
 (provide 'author-year)
 
