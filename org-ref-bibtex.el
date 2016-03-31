@@ -61,8 +61,6 @@
 (require 's)
 
 ;;; Code:
-(defvar-local bibliography-style nil)
-
 (add-to-list 'load-path
 	     (expand-file-name
 	      "citeproc"
