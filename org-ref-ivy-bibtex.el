@@ -191,6 +191,19 @@ Create email unless called from an email."
   (kill-new (or-ivy-bibtex-formatted-citation entry)))
 
 
+(defvar org-ref-ivy-cite-actions
+  '(("b" or-ivy-bibtex-open-entry "Open bibtex entry")
+    ("B" or-ivy-bibtex-copy-entry "Copy bibtex entry")
+    ("p" or-ivy-bibtex-open-pdf "Open pdf")
+    ("n" or-ivy-bibtex-open-notes "Open notes")
+    ("u" or-ivy-bibtex-open-url "Open url")
+    ("d" or-ivy-bibtex-open-doi "Open doi")
+    ("k" or-ivy-bibtex-set-keywords "Add keywords")
+    ("e" or-ivy-bibtex-email-entry "Email entry")
+    ("f" or-ivy-bibtex-insert-formatted-citation "Insert formatted citation")
+    ("F" or-ivy-bibtex-copy-formatted-citation "Copy formatted citation"))
+  "List of additional actions for `org-ref-ivy-insert-cite-link' (the default action being to insert a citation).")
+
 (defvar org-ref-ivy-cite-re-builder 'ivy--regex-ignore-order
   "Regex builder to use in `org-ref-ivy-insert-cite-link'. Can be set to nil to use Ivy's default).")
 
@@ -202,21 +215,14 @@ Create email unless called from an email."
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
 	    :re-builder org-ref-ivy-cite-re-builder
-	    :action '(1
-		      ("i" or-ivy-bibtex-insert-cite "Insert citation")
-		      ("o" or-ivy-bibtex-open-entry "Open entry")
-		      ("c" or-ivy-bibtex-copy-entry "Copy entry")
-		      ("p" or-ivy-bibtex-open-pdf "Open pdf")
-		      ("n" or-ivy-bibtex-open-notes "Open notes")
-		      ("u" or-ivy-bibtex-open-url "Open url")
-		      ("d" or-ivy-bibtex-open-doi "Open doi")
-		      ("k" or-ivy-bibtex-set-keywords "Add keywords")
-		      ("e" or-ivy-bibtex-email-entry "Email entry")
-		      ("f" or-ivy-bibtex-insert-formatted-citation "Insert formatted citation")
-		      ("F" or-ivy-bibtex-copy-formatted-citation "Copy formatted citation")
-		      ("q" nil "quit"))))
+	    :action 'or-ivy-bibtex-insert-cite
+	    :caller 'org-ref-ivy-insert-cite-link))
 
+(ivy-set-actions
+ 'org-ref-ivy-insert-cite-link
+ org-ref-ivy-cite-actions)
 
+     
 
 (defun org-ref-ivy-insert-label-link ()
   "Insert a label with ivy."
