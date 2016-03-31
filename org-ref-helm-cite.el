@@ -433,7 +433,7 @@ Create email unless called from an email."
 	    (setq entry-keywords (bibtex-autokey-get-field "keywords"))
 	    (bibtex-set-field
 	     "keywords"
-	     (if entry-keywords
+	     (if (> (length entry-keywords) 0)
 		 (concat entry-keywords ", " keywords)
 	       keywords))))))
 
