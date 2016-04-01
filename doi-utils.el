@@ -404,6 +404,18 @@ REDIRECT-URL is where the pdf url will be in."
       (when (re-search-forward "<meta name=\"citation_pdf_url\" content=\"\\([[:ascii:]]*?\\)\">")
 	(match-string 1)))))
 
+;; ACM Digital Library
+;; http://dl.acm.org/citation.cfm?doid=1368088.1368132
+;; <a name="FullTextPDF" title="FullText PDF" href="ft_gateway.cfm?id=1368132&ftid=518423&dwn=1&CFID=766519780&CFTOKEN=49739320" target="_blank">
+(defun acm-pdf-url (*doi-utils-redirect*)
+  "Get a url to the pdf from *DOI-UTILS-REDIRECT* for ACM urls."
+  (when (string-match "^http://dl.acm.org" *doi-utils-redirect*)
+    (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
+          (goto-char (point-min))
+          (when (re-search-forward "<a name=\"FullTextPDF\".*href=\"\\([[:ascii:]]*?\\)\"")
+            (concat "http://dl.acm.org/" (match-string 1))))))
+
+
 ;;** Add all functions
 
 (setq doi-utils-pdf-url-functions
@@ -429,6 +441,7 @@ REDIRECT-URL is where the pdf url will be in."
        'sage-pdf-url
        'jneurosci-pdf-url
        'ieee-pdf-url
+       'acm-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
