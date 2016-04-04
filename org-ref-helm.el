@@ -206,7 +206,7 @@ This widens the file so that all links go to the right place."
     ;; Check bibliography style exists
     (save-excursion
       (goto-char 0)
-      (unless (re-search-forward "bibliographystyle:\\|\\biblographystyle{" nil t)
+      (unless (re-search-forward "bibliographystyle:\\|\\\\bibliographystyle{" nil t)
         (cl-pushnew
 	 (cons "No bibliographystyle found."
 	       (lambda ()

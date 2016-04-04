@@ -396,13 +396,30 @@ REDIRECT-URL is where the pdf url will be in."
 ;; http://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf
 ;; http://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247
 ;; <meta name="citation_pdf_url" content="http://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247">
+;; <frame src="http://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf?tp=&arnumber=6912247&isnumber=6912234" frameborder=0 />
 (defun ieee-pdf-url (*doi-utils-redirect*)
   "Get a url to the pdf from *DOI-UTILS-REDIRECT* for IEEE urls."
   (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
       (goto-char (point-min))
       (when (re-search-forward "<meta name=\"citation_pdf_url\" content=\"\\([[:ascii:]]*?\\)\">")
-	(match-string 1)))))
+	(let ((framed-url (match-string 1)))
+          (with-current-buffer (url-retrieve-synchronously framed-url)
+            (goto-char (point-min))
+            (when (re-search-forward "<frame src=\"\\(http[[:ascii:]]*?\\)\"")
+              (match-string 1))))))))
+
+;; ACM Digital Library
+;; http://dl.acm.org/citation.cfm?doid=1368088.1368132
+;; <a name="FullTextPDF" title="FullText PDF" href="ft_gateway.cfm?id=1368132&ftid=518423&dwn=1&CFID=766519780&CFTOKEN=49739320" target="_blank">
+(defun acm-pdf-url (*doi-utils-redirect*)
+  "Get a url to the pdf from *DOI-UTILS-REDIRECT* for ACM urls."
+  (when (string-match "^http://dl.acm.org" *doi-utils-redirect*)
+    (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
+          (goto-char (point-min))
+          (when (re-search-forward "<a name=\"FullTextPDF\".*href=\"\\([[:ascii:]]*?\\)\"")
+            (concat "http://dl.acm.org/" (match-string 1))))))
+
 
 ;;** Add all functions
 
@@ -429,6 +446,7 @@ REDIRECT-URL is where the pdf url will be in."
        'sage-pdf-url
        'jneurosci-pdf-url
        'ieee-pdf-url
+       'acm-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
