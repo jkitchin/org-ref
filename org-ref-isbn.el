@@ -82,8 +82,8 @@ in the file. Data comes from worldcat."
                         isbn))
                     (json-read-from-string
                      (buffer-substring url-http-end-of-headers (point-max)))))
-         (status (cdr (nth 1 results)))
-         (metadata (aref (cdar results) 0))
+         (status (cdr (assoc 'stat results)))
+         (metadata (aref  (cdr (assoc 'list results)) 0))
          (new-entry)
          (new-key))
 
