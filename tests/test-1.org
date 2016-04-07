@@ -48,6 +48,20 @@ label:unique
 
 ref:unique
 
+* label/ref tests
+  :PROPERTIES:
+  :CUSTOM_ID: ref-label
+  :END:
+
+
+ ref:ref-label
+
+
+#+name: afig
+[[./test.png]]
+
+ ref:afig
+
 * References
 
 bibliographystyle:unsrt

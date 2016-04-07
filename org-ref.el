@@ -1162,6 +1162,9 @@ ARG does nothing."
      ;; this is the org-format #+label:
      (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label)
                     (point-min) (point-max))
+     ;; #+name:
+     (count-matches (format "^#\\+name:\\s-*%s\\b[^-:]" label)
+		    (point-min) (point-max))
      (let ((custom-id-count 0))
        (when (and (buffer-file-name)
 		  (file-exists-p (buffer-file-name)))
@@ -1265,7 +1268,18 @@ A number greater than one means multiple labels!"
 	(progn
           (goto-char (point-min))
           (re-search-forward
-           (format "^#\\+name:\\s-*\\(%s\\)\\b" label) nil t)))
+           (format "^#\\+name:\\s-*\\(%s\\)\\b" label) nil t))
+
+	;; CUSTOM_ID
+	(progn
+	  (goto-char (point-min))
+	  (let ((p (org-map-entries
+		    (lambda ()
+		      (point))
+		    (format "CUSTOM_ID=\"%s\"" label))))
+	    (if (not (= 1 (length p)))
+		nil
+	      (goto-char (car p))))))
 
      ;; we did not find anything, so go back to where we came
      (org-mark-ring-goto)
@@ -2772,6 +2786,25 @@ move to the beginning of the previous cite link after this one."
                         (progn
                           (forward-line 4)
                           (point)))))
+      ;; ;; CUSTOM_ID
+      (goto-char (point-min))
+      ;; do we have a CUSTOM-ID?
+      (let ((heading (org-map-entries
+		      (lambda ()
+			(buffer-substring
+			 (progn
+			   (forward-line -1)
+			   (beginning-of-line)
+			   (point))
+			 (progn
+			   (forward-line 4)
+			   (point))))
+		      (format  "CUSTOM_ID=\"%s\"" label))))
+	;; (message-box heading)
+	(when heading
+	  (throw 'result (car heading))))
+
+
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
 
 
