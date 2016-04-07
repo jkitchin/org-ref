@@ -185,7 +185,7 @@ It is also possible to access all other BibTeX database fields:
 %B booktitle, abbreviated          %T title, abbreviated
 %U url
 %D doi
-%S series
+%S series        %N note
 
 Usually, only %l is needed.  The other stuff is mainly for the echo area
 display, and for (setq reftex-comment-citations t).
@@ -247,6 +247,7 @@ environment, only %l is available."
                ((= l ?k) (org-ref-reftex-get-bib-field "=key=" entry))
                ((= l ?m) (org-ref-reftex-get-bib-field "month" entry))
                ((= l ?n) (org-ref-reftex-get-bib-field "number" entry))
+	       ((= l ?N) (org-ref-reftex-get-bib-field "note" entry))
                ((= l ?o) (org-ref-reftex-get-bib-field "organization" entry))
                ((= l ?p) (org-ref-reftex-get-bib-field "pages" entry))
                ((= l ?P) (car (split-string
