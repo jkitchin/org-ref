@@ -1339,6 +1339,18 @@ A number greater than one means multiple labels!"
       (org-element-property :name table))))
 
 
+(defun org-ref-get-names ()
+  "Return list of names in the buffer."
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (let ((matches '()))
+	(while (re-search-forward "^#\\+name:\\s-+\\(.*\\)" nil t)
+	  (pushnew (match-string 1) matches))
+	matches))))
+
+
 (defun org-ref-get-labels ()
   "Return a list of labels in the buffer that you can make a ref link to.
 This is used to complete ref links."
@@ -1362,7 +1374,9 @@ This is used to complete ref links."
                 ;; #+tblname: and actually #+label
                 (org-ref-get-tblnames)
                 ;; CUSTOM_IDs
-                (org-ref-get-custom-ids))))))
+                (org-ref-get-custom-ids)
+		;; names
+		(org-ref-get-names))))))
 
 
 (defun org-ref-complete-link (&optional arg)
