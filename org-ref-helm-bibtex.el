@@ -327,6 +327,7 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
+	 (pdf-other (car (helm-bibtex-find-pdf-in-library key)))
          (bibfile (cdr results))
          (url (save-excursion
                 (with-temp-buffer
@@ -350,9 +351,10 @@ Checks for pdf and doi, and add appropriate functions."
     (when (string= url "") (setq url nil))
 
     ;; Conditional pdf functions
-    (if (file-exists-p pdf-file)
+    (if (or (file-exists-p pdf-file) (file-exists-p pdf-other))
         (cl-pushnew
-         '("Open pdf" . org-ref-open-pdf-at-point)
+         '("Open pdf" . (lambda ()
+			  (funcall org-ref-open-pdf-function)))
          candidates)
       (cl-pushnew
        '("Try to get pdf" . (lambda ()
