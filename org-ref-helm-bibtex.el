@@ -28,7 +28,7 @@
 (require 'org-ref-helm)
 
 ;;;###autoload
-(defun org-ref-helm-bibtex-completion ()
+(defun org-ref-bibtex-completion-completion ()
   "Use helm and ‘helm-bibtex’ for completion."
   (interactive)
   ;; Define core functions for org-ref
@@ -43,20 +43,20 @@
     (kbd org-ref-insert-cite-key)
     org-ref-insert-link-function))
 
-(org-ref-helm-bibtex-completion)
+(org-ref-bibtex-completion-completion)
 
-(defcustom org-ref-helm-bibtex-actions
-  '(("Insert citation" . helm-bibtex-insert-citation)
-    ("Open PDF file (if present)" . helm-bibtex-open-pdf)
-    ("Open URL or DOI in browser" . helm-bibtex-open-url-or-doi)
-    ("Insert reference" . helm-bibtex-insert-reference)
-    ("Insert BibTeX key" . helm-bibtex-insert-key)
-    ("Insert BibTeX entry" . helm-bibtex-insert-bibtex)
-    ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
-    ("Edit notes" . helm-bibtex-edit-notes)
-    ("Show entry" . helm-bibtex-show-entry)
+(defcustom org-ref-bibtex-completion-actions
+  '(("Insert citation" . bibtex-completion-insert-citation)
+    ("Open PDF file (if present)" . bibtex-completion-open-pdf)
+    ("Open URL or DOI in browser" . bibtex-completion-open-url-or-doi)
+    ("Insert reference" . bibtex-completion-insert-reference)
+    ("Insert BibTeX key" . bibtex-completion-insert-key)
+    ("Insert BibTeX entry" . bibtex-completion-insert-bibtex)
+    ("Attach PDF to email" . bibtex-completion-add-PDF-attachment)
+    ("Edit notes" . bibtex-completion-edit-notes)
+    ("Show entry" . bibtex-completion-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
-    ("Copy entry to clipboard" . helm-bibtex-copy-candidate)
+    ("Copy entry to clipboard" . bibtex-completion-copy-candidate)
     ("Add keywords to entries" . org-ref-helm-tag-entries))
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.
@@ -65,8 +65,8 @@ The cdr of the the cons cell is the function to use."
   :group 'org-ref)
 
 
-(cl-loop for i from 0 to (length org-ref-helm-bibtex-actions)
-	 for ccell in org-ref-helm-bibtex-actions
+(cl-loop for i from 0 to (length org-ref-bibtex-completion-actions)
+	 for ccell in org-ref-bibtex-completion-actions
 	 do
 	 (helm-delete-action-from-source (car ccell) helm-source-bibtex)
 	 (helm-add-action-to-source
@@ -75,15 +75,15 @@ The cdr of the the cons cell is the function to use."
 	  helm-source-bibtex))
 
 
-(defcustom org-ref-helm-bibtex-format-org
-  'org-ref-helm-bibtex-format-org
+(defcustom org-ref-bibtex-completion-format-org
+  'org-ref-bibtex-completion-format-org
   "Function for how `helm-bibtex' inserts citations."
   :type 'function
   :group 'org-ref)
 
 
-(setf (cdr (assoc 'org-mode helm-bibtex-format-citation-functions))
-      org-ref-helm-bibtex-format-org)
+(setf (cdr (assoc 'org-mode bibtex-completion-format-citation-functions))
+      org-ref-bibtex-completion-format-org)
 
 
 (setq org-ref-insert-cite-function 'org-ref-helm-insert-cite-link
@@ -91,9 +91,9 @@ The cdr of the the cons cell is the function to use."
 
 
 ;;* Helm bibtex setup.
-(setq helm-bibtex-additional-search-fields '(keywords))
+(setq bibtex-completion-additional-search-fields '(keywords))
 
-(defun helm-bibtex-candidates-formatter (candidates _source)
+(defun bibtex-completion-candidates-formatter (candidates _source)
   "Formats BibTeX entries for display in results list.
 Argument CANDIDATES helm candidates.
 Argument SOURCE the helm source.
@@ -104,17 +104,17 @@ fields, the keywords I think."
    with width = (with-helm-window (helm-bibtex-window-width))
    for entry in candidates
    for entry = (cdr entry)
-   for entry-key = (helm-bibtex-get-value "=key=" entry)
+   for entry-key = (bibtex-completion-get-value "=key=" entry)
    if (assoc-string "author" entry 'case-fold)
    for fields = '("author" "title"  "year" "=has-pdf=" "=has-note=" "=type=")
    else
    for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
-   for fields = (--map (helm-bibtex-clean-string
-                        (helm-bibtex-get-value it entry " "))
+   for fields = (--map (bibtex-completion-clean-string
+                        (bibtex-completion-get-value it entry " "))
                        fields)
-   for fields = (-update-at 0 'helm-bibtex-shorten-authors fields)
+   for fields = (-update-at 0 'bibtex-completion-shorten-authors fields)
    for fields = (append fields
-                        (list (or (helm-bibtex-get-value "keywords" entry)
+                        (list (or (bibtex-completion-get-value "keywords" entry)
                                   "")))
    collect
    (cons (s-format "$0 $1 $2 $3 $4$5 $6" 'elt
@@ -123,13 +123,13 @@ fields, the keywords I think."
          entry-key)))
 
 
-(defun helm-bibtex-copy-candidate (_candidate)
+(defun bibtex-completion-copy-candidate (_candidate)
   "Copy the selected bibtex entries to the clipboard.
 Used as a new action in `helm-bibtex'.
 CANDIDATE is ignored."
   (with-temp-buffer
     (mapc #'insert-file-contents
-	  (-flatten (list helm-bibtex-bibliography)))
+	  (-flatten (list bibtex-completion-bibliography)))
 
     (let ((entries '()))
       (cl-loop for bibtex-key in (helm-marked-candidates)
@@ -150,7 +150,7 @@ CANDIDATE is ignored."
 
 (helm-add-action-to-source
  "Copy entry to clipboard"
- 'helm-bibtex-copy-candidate
+ 'bibtex-completion-copy-candidate
  helm-source-bibtex)
 
 
@@ -163,7 +163,7 @@ Argument CANDIDATES helm candidates."
     (cl-loop for key in (helm-marked-candidates)
              do
              (save-window-excursion
-               (helm-bibtex-show-entry key)
+               (bibtex-completion-show-entry key)
                (bibtex-set-field
                 "keywords"
                 (concat
@@ -181,7 +181,7 @@ Argument CANDIDATES helm candidates."
  helm-source-bibtex)
 
 
-(defun org-ref-helm-bibtex-format-org (keys)
+(defun org-ref-bibtex-completion-format-org (keys)
   "Insert selected KEYS as cite link.
 Append KEYS if you are on a link.
 
@@ -297,7 +297,7 @@ With two prefix ARGs, insert a label link."
   (org-ref-save-all-bibtex-buffers)
   (cond
    ((equal arg nil)
-    (let ((helm-bibtex-bibliography (org-ref-find-bibliography)))
+    (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
       (helm-bibtex)))
    ((equal arg '(4))
     (org-ref-helm-insert-ref-link))
@@ -307,19 +307,19 @@ With two prefix ARGs, insert a label link."
 
 ;; add our own fallback entries where we want them. These appear in reverse
 ;; order of adding in the menu
-(setq helm-bibtex-fallback-options
-      (-insert-at 1 '("Crossref" . "http://search.crossref.org/?q=%s") helm-bibtex-fallback-options))
+(setq bibtex-completion-fallback-options
+      (-insert-at 1 '("Crossref" . "http://search.crossref.org/?q=%s") bibtex-completion-fallback-options))
 
 
-(setq helm-bibtex-fallback-options
+(setq bibtex-completion-fallback-options
       (-insert-at
        1
        '("Scopus" . "http://www.scopus.com/scopus/search/submit/xadvanced.url?searchfield=TITLE-ABS-KEY(%s)")
-       helm-bibtex-fallback-options))
+       bibtex-completion-fallback-options))
 
 
-(setq helm-bibtex-fallback-options
-      (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") helm-bibtex-fallback-options))
+(setq bibtex-completion-fallback-options
+      (-insert-at 1 '("WOS" . "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary") bibtex-completion-fallback-options))
 
 (defun org-ref-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
@@ -327,6 +327,7 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
+	 (pdf-other (car (bibtex-completion-find-pdf-in-library key)))
          (bibfile (cdr results))
          (url (save-excursion
                 (with-temp-buffer
@@ -350,9 +351,10 @@ Checks for pdf and doi, and add appropriate functions."
     (when (string= url "") (setq url nil))
 
     ;; Conditional pdf functions
-    (if (file-exists-p pdf-file)
+    (if (or (file-exists-p pdf-file) (file-exists-p pdf-other))
         (cl-pushnew
-         '("Open pdf" . org-ref-open-pdf-at-point)
+         '("Open pdf" . (lambda ()
+			  (funcall org-ref-open-pdf-function)))
          candidates)
       (cl-pushnew
        '("Try to get pdf" . (lambda ()
