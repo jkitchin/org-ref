@@ -976,7 +976,7 @@ This generates the candidates for the file. Some of this code is
 adapted from `helm-bibtex-parse-bibliography'. This function runs
 when called, it resets the cache for the BIBFILE."
   (with-current-buffer (find-file-noselect bibfile)
-    (goto-char (point-min))
+    (bibtex-beginning-of-first-entry)
     (message "Updating cache for %s" bibfile)
     (let ((hash (secure-hash 'sha256 (current-buffer)))
 	  (entries
