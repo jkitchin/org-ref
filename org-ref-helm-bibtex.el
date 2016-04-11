@@ -327,7 +327,7 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
-	 (pdf-other (car (bibtex-completion-find-pdf-in-library key)))
+	 (pdf-other (bibtex-completion-find-pdf key))
          (bibfile (cdr results))
          (url (save-excursion
                 (with-temp-buffer
@@ -351,18 +351,25 @@ Checks for pdf and doi, and add appropriate functions."
     (when (string= url "") (setq url nil))
 
     ;; Conditional pdf functions
-    (if (or (file-exists-p pdf-file) (file-exists-p pdf-other))
-        (cl-pushnew
-         '("Open pdf" . (lambda ()
+    (if (file-exists-p pdf-file)
+	(cl-pushnew
+	 '("Open pdf" . (lambda ()
 			  (funcall org-ref-open-pdf-function)))
-         candidates)
-      (cl-pushnew
-       '("Try to get pdf" . (lambda ()
-                              (save-window-excursion
-                                (org-ref-open-citation-at-point)
-                                (bibtex-beginning-of-entry)
-                                (doi-utils-get-bibtex-entry-pdf))))
-       candidates))
+	 candidates)
+
+      (if pdf-other
+	  (cl-pushnew
+	   '("Open pdf" . (lambda ()
+			    (funcall org-ref-open-pdf-function)))
+	   candidates)
+
+	(cl-pushnew
+	 '("Try to get pdf" . (lambda ()
+				(save-window-excursion
+				  (org-ref-open-citation-at-point)
+				  (bibtex-beginning-of-entry)
+				  (doi-utils-get-bibtex-entry-pdf))))
+	 candidates)))
 
 
     (cl-pushnew
