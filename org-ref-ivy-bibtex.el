@@ -189,7 +189,7 @@ Create email unless called from an email."
 (defun or-ivy-bibtex-copy-formatted-citation (entry)
   "Copy formatted citation to clipboard for ENTRY."
   (kill-new (or-ivy-bibtex-formatted-citation entry)))
-g
+
 
 (defun or-ivy-bibtex-add-entry (entry)
   "Open a bibliography file and move point to the end, in order to add a new bibtex entry. ENTRY is selected from `orhc-bibtex-candidates' but ignored."
