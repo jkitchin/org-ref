@@ -37,6 +37,8 @@
 (eval-when-compile
   (require 'cl))
 (require 'dash)
+(require 'f)
+(require 's)
 (require 'doi-utils)
 (require 'org-ref-bibtex)
 (require 'org-ref-utils)
