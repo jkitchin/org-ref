@@ -468,7 +468,7 @@ until one is found."
 ;;** Finally, download the pdf
 
 ;;;###autoload
-(defun doi-utils-get-bibtex-entry-pdf (arg)
+(defun doi-utils-get-bibtex-entry-pdf (&optional arg)
   "Download pdf for entry at point if the pdf does not already exist locally.
 The entry must have a doi. The pdf will be saved
 to `org-ref-pdf-directory', by the name %s.pdf where %s is the
