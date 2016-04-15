@@ -28,7 +28,7 @@
 
 ;;;###autoload
 (defun org-ref-ivy-bibtex-completion ()
-  "Use helm and ‘helm-bibtex’ for completion."
+  "Use ivy for completion."
   (interactive)
   ;; Define core functions for org-ref
   (setq org-ref-insert-link-function 'org-ref-insert-link
