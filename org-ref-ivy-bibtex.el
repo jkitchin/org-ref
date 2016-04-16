@@ -28,7 +28,7 @@
 
 ;;;###autoload
 (defun org-ref-ivy-bibtex-completion ()
-  "Use helm and ‘helm-bibtex’ for completion."
+  "Use ivy for completion."
   (interactive)
   ;; Define core functions for org-ref
   (setq org-ref-insert-link-function 'org-ref-insert-link
@@ -80,24 +80,26 @@ ENTRY is selected from `orhc-bibtex-candidates'."
 (defun or-ivy-bibtex-open-pdf (entry)
   "Open the pdf associated with ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
-  (let ((pdf (expand-file-name
-	      (format "%s.pdf"
-		      (cdr (assoc "=key=" entry)))
-	      org-ref-pdf-directory)))
-    (if (file-exists-p pdf)
-	(org-open-file pdf)
-      (message "No pdf found for %s" (cdr (assoc "=key=" entry))))))
-
+  (with-ivy-window
+   (let ((pdf (expand-file-name
+	       (format "%s.pdf"
+		       (cdr (assoc "=key=" entry)))
+	       org-ref-pdf-directory)))
+     (if (file-exists-p pdf)
+	 (org-open-file pdf)
+       (message "No pdf found for %s" (cdr (assoc "=key=" entry)))))))
+  
 
 (defun or-ivy-bibtex-open-notes (entry)
   "Open the notes associated with ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
-  (find-file (expand-file-name
-	      (format "%s.org"
-		      (cdr (assoc "=key=" entry)))
-	      org-ref-notes-directory)))
-
-
+  (with-ivy-window
+    (find-file (expand-file-name
+		(format "%s.org"
+			(cdr (assoc "=key=" entry)))
+		org-ref-notes-directory))))
+  
+  
 (defun or-ivy-bibtex-open-entry (entry)
   "Open the bibtex file at ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
