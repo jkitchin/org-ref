@@ -404,7 +404,6 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
       (while (re-search-forward char nil t)
         (replace-match (cdr (assoc char org-ref-nonascii-latex-replacements))))
       (goto-char (point-min))))
-  (save-buffer)
   (occur "[^[:ascii:]]"))
 
 
