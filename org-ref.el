@@ -37,6 +37,8 @@
 (eval-when-compile
   (require 'cl))
 (require 'dash)
+(require 'f)
+(require 's)
 (require 'doi-utils)
 (require 'org-ref-bibtex)
 (require 'org-ref-utils)
@@ -1573,7 +1575,8 @@ set in `org-ref-default-bibliography'"
       (setq org-ref-bibliography-files (list (buffer-file-name)))
       (throw 'result org-ref-bibliography-files))
     ;; otherwise, check current file for a bibliography source
-    (save-excursion
+    (save-excursion (save-restriction
+      (widen)                
       (goto-char (point-min))
       ;;  look for a bibliography link
       (when (re-search-forward "\\<bibliography:\\([^\]\|\n]+\\)" nil t)
@@ -1625,7 +1628,7 @@ set in `org-ref-default-bibliography'"
 	    (throw 'result org-ref-bibliography-files))))
 
       ;; we did not find anything. use defaults
-      (setq org-ref-bibliography-files org-ref-default-bibliography)))
+      (setq org-ref-bibliography-files org-ref-default-bibliography))))
 
   ;; set reftex-default-bibliography so we can search
   (set (make-local-variable 'reftex-default-bibliography) org-ref-bibliography-files)

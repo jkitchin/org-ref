@@ -468,15 +468,17 @@ until one is found."
 ;;** Finally, download the pdf
 
 ;;;###autoload
-(defun doi-utils-get-bibtex-entry-pdf ()
+(defun doi-utils-get-bibtex-entry-pdf (&optional arg)
   "Download pdf for entry at point if the pdf does not already exist locally.
-The entry must have a doi.  The pdf will be saved
+The entry must have a doi. The pdf will be saved
 to `org-ref-pdf-directory', by the name %s.pdf where %s is the
 bibtex label.  Files will not be overwritten.  The pdf will be
 checked to make sure it is a pdf, and not some html failure
-page.  you must have permission to access the pdf.  We open the pdf
-at the end."
-  (interactive)
+page. You must have permission to access the pdf. We open the pdf
+at the end if `doi-utils-open-pdf-after-download' is non-nil.
+
+With one prefix ARG, directly get the pdf from a file (through `read-file-name') instead of looking up a DOI. With a double prefix ARG, directly get the pdf from an open buffer (through `read-buffer-to-switch') instead. These two alternative methods work even if the entry has no DOI, and the pdf file is not checked."
+  (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
     (let (;; get doi, removing http://dx.doi.org/ if it is there.
@@ -485,8 +487,7 @@ at the end."
                 (bibtex-autokey-get-field "doi")))
           (key)
           (pdf-url)
-          (pdf-file)
-          (content))
+          (pdf-file))
       ;; get the key and build pdf filename.
       (re-search-forward bibtex-entry-maybe-empty-head)
       (setq key (match-string bibtex-key-in-head))
@@ -495,27 +496,31 @@ at the end."
 			  (file-name-as-directory org-ref-pdf-directory)
 			(read-directory-name "PDF directory: " "."))
 		      key ".pdf"))
-
       ;; now get file if needed.
-      (when (and doi (not (file-exists-p pdf-file)))
-        (setq pdf-url (doi-utils-get-pdf-url doi))
-        (if pdf-url
-            (progn
-              (url-copy-file pdf-url pdf-file)
-              ;; now check if we got a pdf
-              (with-temp-buffer
-                (insert-file-contents pdf-file)
-                ;; PDFS start with %PDF-1.x as the first few characters.
-                (if (not (string= (buffer-substring 1 (min 6 (point-max))) "%PDF-"))
-                    (progn
-                      (delete-file pdf-file)
-          (message "No pdf was downloaded.")
-          (browse-url pdf-url))
-                  (message "%s saved" pdf-file)))
-
-              (when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
-                (org-open-file pdf-file))))
-        pdf-file))))
+      (unless (file-exists-p pdf-file)
+	(cond
+	 ((and (not arg)
+	       doi
+	       (setq pdf-url (doi-utils-get-pdf-url doi)))
+	  (url-copy-file pdf-url pdf-file)
+	  ;; now check if we got a pdf
+	  (with-temp-buffer
+	    (insert-file-contents pdf-file)
+	    ;; PDFS start with %PDF-1.x as the first few characters.
+	    (if (not (string= (buffer-substring 1 (min 6 (point-max))) "%PDF-"))
+		(progn
+		  (delete-file pdf-file)
+		  (message "No pdf was downloaded.")
+		  (browse-url pdf-url))
+	      (message "%s saved" pdf-file))))
+	 ((equal arg '(4))
+	  (copy-file (expand-file-name (read-file-name "Pdf file: " nil nil t))
+		     pdf-file))
+	 ((equal arg '(16))
+	  (with-current-buffer (read-buffer-to-switch "Pdf buffer: ")
+	    (write-file pdf-file))))
+	(when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
+	  (org-open-file pdf-file))))))
 
 ;;* Getting bibtex entries from a DOI
 

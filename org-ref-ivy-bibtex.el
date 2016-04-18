@@ -28,7 +28,7 @@
 
 ;;;###autoload
 (defun org-ref-ivy-bibtex-completion ()
-  "Use helm and ‘helm-bibtex’ for completion."
+  "Use ivy for completion."
   (interactive)
   ;; Define core functions for org-ref
   (setq org-ref-insert-link-function 'org-ref-insert-link
@@ -80,24 +80,26 @@ ENTRY is selected from `orhc-bibtex-candidates'."
 (defun or-ivy-bibtex-open-pdf (entry)
   "Open the pdf associated with ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
-  (let ((pdf (expand-file-name
-	      (format "%s.pdf"
-		      (cdr (assoc "=key=" entry)))
-	      org-ref-pdf-directory)))
-    (if (file-exists-p pdf)
-	(org-open-file pdf)
-      (message "No pdf found for %s" (cdr (assoc "=key=" entry))))))
-
+  (with-ivy-window
+   (let ((pdf (expand-file-name
+	       (format "%s.pdf"
+		       (cdr (assoc "=key=" entry)))
+	       org-ref-pdf-directory)))
+     (if (file-exists-p pdf)
+	 (org-open-file pdf)
+       (message "No pdf found for %s" (cdr (assoc "=key=" entry)))))))
+  
 
 (defun or-ivy-bibtex-open-notes (entry)
   "Open the notes associated with ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
-  (find-file (expand-file-name
-	      (format "%s.org"
-		      (cdr (assoc "=key=" entry)))
-	      org-ref-notes-directory)))
-
-
+  (with-ivy-window
+    (find-file (expand-file-name
+		(format "%s.org"
+			(cdr (assoc "=key=" entry)))
+		org-ref-notes-directory))))
+  
+  
 (defun or-ivy-bibtex-open-entry (entry)
   "Open the bibtex file at ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
@@ -191,6 +193,18 @@ Create email unless called from an email."
   (kill-new (or-ivy-bibtex-formatted-citation entry)))
 
 
+(defun or-ivy-bibtex-add-entry (entry)
+  "Open a bibliography file and move point to the end, in order to add a new bibtex entry. ENTRY is selected from `orhc-bibtex-candidates' but ignored."
+  (ivy-read "bibtex file: " org-ref-bibtex-files
+	    :require-match t
+	    :action 'find-file
+	    :caller 'or-ivy-bibtex-add-entry)
+  (widen)
+  (goto-char (point-max))
+  (unless (bolp)
+    (insert "\n")))
+
+
 (defvar org-ref-ivy-cite-actions
   '(("b" or-ivy-bibtex-open-entry "Open bibtex entry")
     ("B" or-ivy-bibtex-copy-entry "Copy bibtex entry")
@@ -201,17 +215,20 @@ Create email unless called from an email."
     ("k" or-ivy-bibtex-set-keywords "Add keywords")
     ("e" or-ivy-bibtex-email-entry "Email entry")
     ("f" or-ivy-bibtex-insert-formatted-citation "Insert formatted citation")
-    ("F" or-ivy-bibtex-copy-formatted-citation "Copy formatted citation"))
+    ("F" or-ivy-bibtex-copy-formatted-citation "Copy formatted citation")
+    ("a" or-ivy-bibtex-add-entry "Add bibtex entry"))
   "List of additional actions for `org-ref-ivy-insert-cite-link' (the default action being to insert a citation).")
 
 (defvar org-ref-ivy-cite-re-builder 'ivy--regex-ignore-order
   "Regex builder to use in `org-ref-ivy-insert-cite-link'. Can be set to nil to use Ivy's default).")
 
 
-(defun org-ref-ivy-insert-cite-link ()
+(defun org-ref-ivy-insert-cite-link (&optional arg)
   "ivy function for interacting with bibtex."
-  (interactive)
-  (setq org-ref-bibtex-files (org-ref-find-bibliography))
+  (interactive "P")
+  (setq org-ref-bibtex-files (if arg
+				 org-ref-default-bibliography
+			       (org-ref-find-bibliography)))
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
 	    :re-builder org-ref-ivy-cite-re-builder
