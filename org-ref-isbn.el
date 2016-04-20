@@ -126,7 +126,8 @@ in the file. Data comes from worldcat."
                        (match-end bibtex-key-in-head)))
     (insert new-key)
     (bibtex-fill-entry)
-    (save-buffer)))
+    ;; (save-buffer)
+    ))
 
 (provide 'org-ref-isbn)
 ;;; org-ref-isbn.el ends here
