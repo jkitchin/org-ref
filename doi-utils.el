@@ -94,6 +94,11 @@ Set `doi-utils-make-notes' to nil if you want no notes."
   :type 'function
   :group 'doi-utils)
 
+(defcustom doi-utils-dx-doi-org-url
+  "http://dx.doi.org/"
+  "Base url to retrieve doi metadata from. A trailing / is required.
+Some users require https://dx.doi.org/.")
+
 ;;* Getting pdf files from a DOI
 
 ;; The idea here is simple. When you visit http://dx.doi.org/doi, you get
@@ -126,13 +131,13 @@ Optional argument STATUS Unknown why this is optional."
 ;; To actually get the redirect we use url-retrieve like this.
 
 (defun doi-utils-get-redirect (doi)
-  "Get redirect url from dx.DOI.org/doi."
+  "Get redirect url from `doi-utils-dx-doi-org-url'/doi."
   ;; we are going to wait until the url-retrieve is done
   (setq *doi-utils-waiting* t)
   ;; start with no redirect. it will be set in the callback.
   (setq *doi-utils-redirect* nil)
   (url-retrieve
-   (format "http://dx.doi.org/%s" doi)
+   (format "%s%s" doi-utils-dx-doi-org-url doi)
    'doi-utils-redirect-callback)
   ;; I suspect we need to wait here for the asynchronous process to
   ;; finish. we loop and sleep until the callback says it is done via
@@ -477,13 +482,18 @@ checked to make sure it is a pdf, and not some html failure
 page. You must have permission to access the pdf. We open the pdf
 at the end if `doi-utils-open-pdf-after-download' is non-nil.
 
-With one prefix ARG, directly get the pdf from a file (through `read-file-name') instead of looking up a DOI. With a double prefix ARG, directly get the pdf from an open buffer (through `read-buffer-to-switch') instead. These two alternative methods work even if the entry has no DOI, and the pdf file is not checked."
+With one prefix ARG, directly get the pdf from a file (through
+`read-file-name') instead of looking up a DOI. With a double
+prefix ARG, directly get the pdf from an open buffer (through
+`read-buffer-to-switch') instead. These two alternative methods
+work even if the entry has no DOI, and the pdf file is not
+checked."
   (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
     (let (;; get doi, removing http://dx.doi.org/ if it is there.
           (doi (replace-regexp-in-string
-                "http://dx.doi.org/" ""
+                "https?://dx.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
           (key)
           (pdf-url)
@@ -542,11 +552,11 @@ With one prefix ARG, directly get the pdf from a file (through `read-file-name')
         (json-data))
     (with-current-buffer
         (url-retrieve-synchronously
-         (concat "http://dx.doi.org/" doi))
+         (concat doi-utils-dx-doi-org-url doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
       (if (string-match "Resource not found" json-data)
           (progn
-            (browse-url (concat "http://dx.doi.org/" doi))
+            (browse-url (concat doi-utils-dx-doi-org-url doi))
             (error "Resource not found.  Opening website"))
         (json-read-from-string json-data)))))
 
@@ -560,7 +570,8 @@ With one prefix ARG, directly get the pdf from a file (through `read-file-name')
   (replace-regexp-in-string "%{\\([^}]+\\)}"
                             (lambda (arg)
                               (let ((sexp (substring arg 2 -1)))
-                                (format "%s" (eval (read sexp))))) s))
+                                (format "%s" (eval (read sexp)))))
+			    s))
 
 
 ;; Now we define a function that fills in that template from the metadata.
@@ -826,7 +837,7 @@ Optional argument NODELIM see `bibtex-make-field'."
 Every field will be updated, so previous change will be lost."
   (interactive (list
                 (or (replace-regexp-in-string
-                     "http://dx.doi.org/" ""
+                     "https?://dx.doi.org/" ""
                      (bibtex-autokey-get-field "doi"))
                     (read-string "DOI: "))))
   (let* ((results (doi-utils-get-json-metadata doi))
@@ -959,7 +970,7 @@ May be empty if none are found."
 (defun doi-utils-open (doi)
   "Open DOI in browser."
   (interactive "sDOI: ")
-  (browse-url (concat "http://dx.doi.org/" doi)))
+  (browse-url (concat doi-utils-dx-doi-org-url doi)))
 
 
 ;;;###autoload
@@ -1048,11 +1059,13 @@ Argument LINK-STRING Passed in on link click."
  (lambda (doi desc format)
    (cond
     ((eq format 'html)
-     (format "<a href=\"http://dx.doi.org/%s\">%s</a>"
+     (format "<a href=\"%s%s\">%s</a>"
+	     doi-utils-dx-doi-org-url
              doi
              (or desc (concat "doi:" doi))))
     ((eq format 'latex)
-     (format "\\href{http://dx.doi.org/%s}{%s}"
+     (format "\\href{%s%s}{%s}"
+	     doi-utils-dx-doi-org-url
              doi
              (or desc (concat "doi:%s" doi)))))))
 
@@ -1132,7 +1145,7 @@ error."
                                                                 (bibtex-make-field "doi")
                                                                 (backward-char)
                                                                 ;; crossref returns doi url, but I prefer only a doi for the doi field
-                                                                (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi))
+                                                                (insert (replace-regexp-in-string "^https?://dx.doi.org/" "" doi))
                                                                 (when (string= ""(reftex-get-bib-field "url" entry))
                                                                   (bibtex-make-field "url")
                                                                   (backward-char)
@@ -1155,11 +1168,11 @@ error."
         (json-data))
     (with-current-buffer
         (url-retrieve-synchronously
-         (concat "http://dx.doi.org/" doi))
+         (concat doi-utils-dx-doi-org-url doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
       (if (string-match "Resource not found" json-data)
           (progn
-            (browse-url (concat "http://dx.doi.org/" doi))
+            (browse-url (concat doi-utils-dx-doi-org-url doi))
             (error "Resource not found.  Opening website"))
 	json-data))))
 
@@ -1178,7 +1191,7 @@ error."
 		(url-mime-accept-string "application/citeproc+json"))
 	    (with-current-buffer
 		(url-retrieve-synchronously
-		 (concat "http://dx.doi.org/" doi))
+		 (concat doi-utils-dx-doi-org-url doi))
 	      (buffer-substring url-http-end-of-headers (point-max))))
 	  "\n\n")
   (goto-char (point-min)))
@@ -1260,7 +1273,7 @@ error."
 								     do
 								     (doi-utils-add-bibtex-entry-from-doi
 								      (replace-regexp-in-string
-								       "^http://dx.doi.org/" "" doi)
+								       "^https?://dx.doi.org/" "" doi)
 								      ,bibtex-file))
 							    (when doi-utils--bibtex-file
 							      (recenter-top-bottom 0))))
