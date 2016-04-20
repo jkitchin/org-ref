@@ -32,7 +32,6 @@
 ;; - doi-utils-get-bibtex-entry-pdf with the cursor in a bibtex entry.
 ;; - doi-utils-insert-bibtex-entry-from-doi to insert a bibtex entry at your cursor, clean it and try to get a pdf.
 ;; - doi-utils-add-bibtex-entry-from-doi to add an entry to your default bibliography (cleaned with pdf if possible).
-;; - doi-utils-add-bibtex-entry-from-region to add an entry from a highlighed doi to your default bibliography.
 ;; - doi-utils-update-bibtex-entry-from-doi with cursor in an entry to update its fields.
 
 (require 'bibtex)
@@ -97,7 +96,10 @@ Set `doi-utils-make-notes' to nil if you want no notes."
 (defcustom doi-utils-dx-doi-org-url
   "http://dx.doi.org/"
   "Base url to retrieve doi metadata from. A trailing / is required.
-Some users require https://dx.doi.org/.")
+Some users require https://dx.doi.org/."
+  :type 'string
+  :group 'doi-utils)
+
 
 ;;* Getting pdf files from a DOI
 
