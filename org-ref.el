@@ -1603,18 +1603,6 @@ set in `org-ref-default-bibliography'"
       (when org-ref-bibliography-files
 	(throw 'result org-ref-bibliography-files))))
 
-    ;; Try BIBINPUTS.
-    (setq org-ref-bibliography-files
-	  (apply
-	   'append
-	   (loop for path in (reftex-access-search-path "bib" t default-directory)
-		 when (file-exists-p path)
-		 collect
-		 (-filter (lambda (f) (f-ext? f "bib"))
-			  (f-files path)))))
-    (when org-ref-bibliography-files
-      (throw 'result org-ref-bibliography-files))
-
     ;; we did not find anything. use defaults
     (setq org-ref-bibliography-files org-ref-default-bibliography))
 
