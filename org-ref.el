@@ -238,7 +238,7 @@ for each entry.  It also tries to be compatible with `org-bibtex'.
 
 An alternative is
  (lambda ()
-  (helm-bibtex-edit-notes (car (org-ref-get-bibtex-key-and-file thekey))))
+  (bibtex-completion-edit-notes (car (org-ref-get-bibtex-key-and-file thekey))))
 
 Use that if you like the one file one note approach of `helm-bibtex'."
   :type 'function
