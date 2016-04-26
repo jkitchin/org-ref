@@ -1576,59 +1576,59 @@ set in `org-ref-default-bibliography'"
       (throw 'result org-ref-bibliography-files))
     ;; otherwise, check current file for a bibliography source
     (save-excursion (save-restriction
-      (widen)
-      (goto-char (point-min))
-      ;;  look for a bibliography link
-      (when (re-search-forward "\\<bibliography:\\([^\]\|\n]+\\)" nil t)
-        (setq org-ref-bibliography-files
-              (mapcar 'org-ref-strip-string
-		      (split-string (match-string 1) ",")))
-        (throw 'result org-ref-bibliography-files))
+		      (widen)
+		      (goto-char (point-min))
+		      ;;  look for a bibliography link
+		      (when (re-search-forward "\\<bibliography:\\([^\]\|\n]+\\)" nil t)
+			(setq org-ref-bibliography-files
+			      (mapcar 'org-ref-strip-string
+				      (split-string (match-string 1) ",")))
+			(throw 'result org-ref-bibliography-files))
 
 
-      ;; we did not find a bibliography link. now look for \bibliography
-      (goto-char (point-min))
-      (when (re-search-forward "\\\\bibliography{\\(.*?\\)}" nil t)
-        ;; split, and add .bib to each file
-        (setq org-ref-bibliography-files
-              (mapcar (lambda (x) (concat x ".bib"))
-                      (mapcar 'org-ref-strip-string
-                              (split-string (match-string 1) ","))))
-        (throw 'result org-ref-bibliography-files))
+		      ;; we did not find a bibliography link. now look for \bibliography
+		      (goto-char (point-min))
+		      (when (re-search-forward "\\\\bibliography{\\(.*?\\)}" nil t)
+			;; split, and add .bib to each file
+			(setq org-ref-bibliography-files
+			      (mapcar (lambda (x) (concat x ".bib"))
+				      (mapcar 'org-ref-strip-string
+					      (split-string (match-string 1) ","))))
+			(throw 'result org-ref-bibliography-files))
 
-      ;; no bibliography found. maybe we need a biblatex addbibresource
-      (goto-char (point-min))
-      ;;  look for a bibliography link
-      (when (re-search-forward "addbibresource:\\([^\]\|\n]+\\)" nil t)
-        (setq org-ref-bibliography-files
-              (mapcar 'org-ref-strip-string
-		      (split-string (match-string 1) ",")))
-        (throw 'result org-ref-bibliography-files))
+		      ;; no bibliography found. maybe we need a biblatex addbibresource
+		      (goto-char (point-min))
+		      ;;  look for a bibliography link
+		      (when (re-search-forward "addbibresource:\\([^\]\|\n]+\\)" nil t)
+			(setq org-ref-bibliography-files
+			      (mapcar 'org-ref-strip-string
+				      (split-string (match-string 1) ",")))
+			(throw 'result org-ref-bibliography-files))
 
-      ;; one last attempt at the latex addbibresource
-      (goto-char (point-min))
-      (when (re-search-forward "\\addbibresource{\\(.*?\\)}" nil t)
-	(setq org-ref-bibliography-files
-	      (mapcar 'org-ref-strip-string
-		      (split-string (match-string 1) ",")))
-	(throw 'result org-ref-bibliography-files))
+		      ;; one last attempt at the latex addbibresource
+		      (goto-char (point-min))
+		      (when (re-search-forward "\\addbibresource{\\(.*?\\)}" nil t)
+			(setq org-ref-bibliography-files
+			      (mapcar 'org-ref-strip-string
+				      (split-string (match-string 1) ",")))
+			(throw 'result org-ref-bibliography-files))
 
-      ;; Try BIBINPUTS. It is a : separated string of paths.
-      (let ((bibinputs (getenv "BIBINPUTS")))
-	(when bibinputs
-	  (setq org-ref-bibliography-files
-		(apply
-		 'append
-		 (loop for path in (split-string  bibinputs ":")
-		       collect
-		       (-filter (lambda (f) (f-ext? f "bib"))
-				(f-files
-				 (substitute-in-file-name  path))))))
-	  (when org-ref-bibliography-files
-	    (throw 'result org-ref-bibliography-files))))
+		      ;; Try BIBINPUTS. It is a : separated string of paths.
+		      (let ((bibinputs (getenv "BIBINPUTS")))
+			(when bibinputs
+			  (setq org-ref-bibliography-files
+				(apply
+				 'append
+				 (loop for path in (split-string  bibinputs ":")
+				       collect
+				       (-filter (lambda (f) (f-ext? f "bib"))
+						(f-files
+						 (substitute-in-file-name  path))))))
+			  (when org-ref-bibliography-files
+			    (throw 'result org-ref-bibliography-files))))
 
-      ;; we did not find anything. use defaults
-      (setq org-ref-bibliography-files org-ref-default-bibliography))))
+		      ;; we did not find anything. use defaults
+		      (setq org-ref-bibliography-files org-ref-default-bibliography))))
 
   ;; set reftex-default-bibliography so we can search
   (set (make-local-variable 'reftex-default-bibliography) org-ref-bibliography-files)
@@ -2402,13 +2402,13 @@ file.  Makes a new buffer with clickable links."
 ;;** Sort fields in a bibtex entry
 ;;;###autoload
 (defun org-ref-sort-bibtex-entry ()
-  "Sort fields of entry in standard order and downcase them."
+  "Sort fields of entry in standard order."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
          (entry-fields)
          (other-fields)
-         (type (downcase (cdr (assoc "=type=" entry))))
+         (type (cdr (assoc "=type=" entry)))
          (key (cdr (assoc "=key=" entry)))
 	 (field-order (cdr (assoc type org-ref-bibtex-sort-order))))
 
@@ -2430,12 +2430,12 @@ file.  Makes a new buffer with clickable links."
 	      (lambda (field)
 		(when (member field entry-fields)
 		  (format "%s = %s,"
-			  (downcase field)
+			  field
 			  (cdr (assoc field entry))))) field-order "\n")
 	     (mapconcat
 	      (lambda (field)
 		(format "%s = %s,"
-			(downcase field)
+			field
 			(cdr (assoc field entry))))
 	      other-fields "\n")
 	     "\n}\n\n"))
