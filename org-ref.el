@@ -2443,6 +2443,36 @@ file.  Makes a new buffer with clickable links."
     (bibtex-fill-entry)
     (bibtex-clean-entry)))
 
+;; downcase entries
+;;;###autoload
+(defun org-ref-downcase-bibtex-entry ()
+  "Downcase the entry type and fields."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (entry-fields)
+         (type (downcase (cdr (assoc "=type=" entry))))
+         (key (cdr (assoc "=key=" entry))))
+
+    (setq entry-fields (mapcar (lambda (x) (car x)) entry))
+    ;; we do not want to reenter these fields
+    (setq entry-fields (remove "=key=" entry-fields))
+    (setq entry-fields (remove "=type=" entry-fields))
+
+    (bibtex-kill-entry)
+    (insert
+     (concat "@" (downcase type) "{" key ",\n"
+	     (mapconcat
+	      (lambda (field)
+		(format "%s = %s,"
+			(downcase field)
+			(cdr (assoc field entry))))
+	      entry-fields "\n")
+	     "\n}\n\n"))
+    (bibtex-find-entry key)
+    (bibtex-fill-entry)
+    (bibtex-clean-entry)))
+
 
 ;;** Clean a bibtex entry
 ;; These functions operate on a bibtex entry and "clean" it in some way.
