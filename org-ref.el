@@ -1576,7 +1576,7 @@ set in `org-ref-default-bibliography'"
       (throw 'result org-ref-bibliography-files))
     ;; otherwise, check current file for a bibliography source
     (save-excursion (save-restriction
-      (widen)                
+      (widen)
       (goto-char (point-min))
       ;;  look for a bibliography link
       (when (re-search-forward "\\<bibliography:\\([^\]\|\n]+\\)" nil t)
@@ -3198,30 +3198,30 @@ provide their own version."
 (defvar org-ref-biblink-re "^\\(bibliography\\(style\\)?\\|\\(printbibliography\\)\\):.*"
   "Regex for bibliography links used for showing biblinks at the end of the buffer.")
 
-(defun org-ref-show-biblinks (&optional _)
-  "Flag a region containing biblinks so they do not get folded.
-We assume these are at the end of the buffer, and do not look
-past the last headline."
-  (save-excursion
-    (goto-char (point-max))
-    (when (re-search-backward org-ref-biblink-re nil t)
-      (outline-flag-region (1- (point)) (point-max) nil))))
+;; (defun org-ref-show-biblinks (&optional _)
+;;   "Flag a region containing biblinks so they do not get folded.
+;; We assume these are at the end of the buffer, and do not look
+;; past the last headline."
+;;   (save-excursion
+;;     (goto-char (point-max))
+;;     (when (re-search-backward org-ref-biblink-re nil t)
+;;       (outline-flag-region (1- (point)) (point-max) nil))))
 
-(add-hook 'org-cycle-hook 'org-ref-show-biblinks)
-(add-hook 'org-occur-hook 'org-ref-show-biblinks)
+;; (add-hook 'org-cycle-hook 'org-ref-show-biblinks)
+;; (add-hook 'org-occur-hook 'org-ref-show-biblinks)
 
 ;; (remove-hook 'org-cycle-hook 'org-ref-show-biblinks)
 ;; (remove-hook 'org-occur-hook 'org-ref-show-biblinks)
 
 ;; This seems to redefine where the end of subtree is. We do not do this in an
 ;; export though.
-(defadvice org-end-of-subtree (after always-show-org-footer
-                                     ()
-                                     activate)
-  (unless org-export-current-backend
-    (when (>= (point) (1- (point-max)))
-      (re-search-backward org-ref-biblink-re nil t)
-      (setq ad-return-value (point)))))
+;; (defadvice org-end-of-subtree (after always-show-org-footer
+;;                                      ()
+;;                                      activate)
+;;   (unless org-export-current-backend
+;;     (when (>= (point) (1- (point-max)))
+;;       (re-search-backward org-ref-biblink-re nil t)
+;;       (setq ad-return-value (point)))))
 
 ;; (ad-remove-advice 'org-end-of-subtree  'after 'always-show-org-footer)
 
