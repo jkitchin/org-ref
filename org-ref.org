@@ -71,7 +71,7 @@ If you want to /replace/ an existing key in a citation, put the cursor on the ke
 [[index:cite!shift]]
 Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command org-ref-sort-citation-link which will sort the keys by year, oldest to newest.
 
-org-ref has basic support for pre/post text in citations. We have very little need for this in scientific publishing; we write pre text before the citation, and post text after it. However, you can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is a little awkward to see this because you cannot see the key. It is a low priority to find a fix for this, because it is not common in scientific publishing and you can always fall back to the old-fashioned LaTeX: \cite[See page 20][, for example]{Dominik201408}.
+org-ref has basic and limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is not easy (maybe not possible) to extend this for the humanities style of citations (e.g. harvard) with nested pre/post text on multiple citations. If anyone knows how to do it, pull requests are welcome! There is an ongoing effort in org-mode for a new citation syntax that may make this more feasible.
 
 You may want to bind a hydra menu to a key-binding or key-chord. For example:
 
