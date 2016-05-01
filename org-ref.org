@@ -15,13 +15,13 @@
 * Introduction to org-ref
 Org-ref is a library for org-mode cite:Dominik201408 that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
 
-The basic idea of org-ref is that it defines a convenient interface to insert citations from a reference database (e.g. from a bibtex file(s)), and a  set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref interfaces with helm-bibtex to facilitate citation entry, and it can also use reftex.
+The basic idea of org-ref is that it defines a convenient interface to insert citations from a reference database (e.g. from a bibtex file(s)), and a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref interfaces with helm-bibtex to facilitate citation entry, and it can also use reftex.
 
 org-ref provides a fairly large number of utilities for finding bad citations, extracting bibtex entries from citations in an org-file, and functions for interacting with bibtex entries. We find these utilities indispensable in scientific writing.
 
 org-ref is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]].
 
-org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts.  We have published a lot of scientific articles with it so far  cite:hallenbeck-2013-effec,mehta-2014-ident-poten,xu-2014-relat-elect,xu-2014-probin-cover,miller-2014-simul-temper,curnan-2014-effec-concen,boes-2015-estim-bulk,xu-2015-linear-respon,xu-2015-relat-between. Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information.
+org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. We have published a good number of scientific articles with it so far  cite:hallenbeck-2013-effec,mehta-2014-ident-poten,xu-2014-relat-elect,xu-2014-probin-cover,miller-2014-simul-temper,curnan-2014-effec-concen,boes-2015-estim-bulk,xu-2015-linear-respon,xu-2015-relat-between. Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information.
 
 There has been a lot of recent discussion on the org-mode mailing list about a citation syntax for org-mode. It is not clear what the impact of this on org-ref will be. The new syntax will more cleanly support pre/post text, and it will be separate from the links used in org-ref. It is not clear if the new syntax will support all of the citation types, especially those in biblatex, that are supported in org-ref. The new citations are likely to be clickable, and could share functionality with org-ref. The new citation syntax will not cover labels and cross-references though, so these links from org-ref will still exist. We anticipate a long life for org-ref.
 
@@ -44,13 +44,13 @@ If you use biblatex, then you use an addbibresource link. biblatex support is no
     :END:
 index:cite
 
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable  reftex-default-bibliography or org-ref-default-bibliography if no bibliography link is found.
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found.
 
-For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding C-c ] by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys to move up and down to the entry you want. You can narrow the selection by typing a pattern to match, e.g. author name, title words, year, keyword, etc... You can select multiple entries by pressing C-spc to mark enties in the helm-bibtex buffer.
+For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding ~C-c ]~ by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. For any other field (e.g. keywords), you will need to add it to the variable ~bibtex-completion-additional-search-fields~. You can select multiple entries by pressing ~C-SPC~ to mark entries in the helm-bibtex buffer.
 
 If the cursor is on a citation key, you should see a message in the minibuffer that summarizes which citation it refers to. If you click on a key, you should see a helm selection buffer with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
 
-The default citation type is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]], and set to "cite". If you want another type of citation type, then type C-u before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
+The default citation type is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]], and set to "cite". If you want another type of citation type, then type ~C-u~ before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
 
 Here is a list of supported citation types. You can customize this if you want. If you do not know what all these types are, you probably do not need them. The default cite is what you need. See http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf
  for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf
@@ -66,10 +66,10 @@ org-ref-cite-types
 If the cursor is on a citation, or at the end of the citation, and you add another citation, it will be appended to the current citation.
 
 index:cite!replace
-If you want to /replace/ an existing key in a citation, put the cursor on the key, run the insert citation command, and type C-u C-u before pressing enter in the helm-bibtex selection buffer. The key will be replaced. Of course, you can just delete it yourself, and add a new key.
+If you want to /replace/ an existing key in a citation, put the cursor on the key, run the insert citation command, and type ~C-u C-u~ before pressing enter in the helm-bibtex selection buffer. The key will be replaced. Of course, you can just delete it yourself, and add a new key.
 
 [[index:cite!shift]]
-Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command org-ref-sort-citation-link which will sort the keys by year, oldest to newest.
+Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command ~org-ref-sort-citation-link~ which will sort the keys by year, oldest to newest.
 
 org-ref has basic and limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is not easy (maybe not possible) to extend this for the humanities style of citations (e.g. harvard) with nested pre/post text on multiple citations. If anyone knows how to do it, pull requests are welcome! There is an ongoing effort in org-mode for a new citation syntax that may make this more feasible.
 
@@ -79,7 +79,7 @@ You may want to bind a hydra menu to a key-binding or key-chord. For example:
 (key-chord-define-global "kk" 'org-ref-cite-hydra/body)
 #+END_SRC
 
-This will allow you to quickly press kk while on a cite link to access functions that can act on the link.
+This will allow you to quickly press ~kk~ while on a cite link to access functions that can act on the link.
 
 *** label links
 index:label
@@ -100,7 +100,7 @@ org-ref can help you insert unique labels with the command elisp:org-ref-helm-in
     :END:
 index:ref
 
-A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, ....
+A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
 
 #+tblname: table-1
 #+caption: A simple table.
@@ -119,9 +119,9 @@ Or you can refer to an org-mode label as in Table ref:table-3.
 
 You can also refer to an org-ref label link as in Table ref:tab-ydata.
 
-To help you insert ref links, use the "Org->org-ref->Insert ref" menu, or run the command elisp:org-ref-helm-insert-ref-link. There is no default key-binding for this.
+To help you insert ref links, use the "Org -> org-ref -> Insert ref" menu, or run the command elisp:org-ref-helm-insert-ref-link. There is no default key-binding for this.
 
-ref links are functional. If you put the cursor on a ref link, you will get a little message in the minibuffer with some context of the corresponding label. If you click on the ref link, the cursor will jump to the label.
+ref links are functional. If you put the cursor on a ref link, you should see a message in the minibuffer with some context of the corresponding label. If you click on the ref link, the cursor will jump to the label.
 
 A brief note about references to a section. This only works if you put a label in the org-mode headline. Otherwise, you must use a CUSTOM_ID and a CUSTOM_ID link. For example section [[#citations]] has a CUSTOM_ID of citations. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty.
 
@@ -152,15 +152,16 @@ index:helm-bibtex
 
 org-ref adds a few new features to helm-bibtex. First, we add keywords as a searchable field. Second, org-ref modifies the helm-bibtex search buffer to include the keywords. Since keywords now can have a central role in searching, we add some functionality to add keywords from the helm-bibtex buffer as a new action.
 
-We change the order of the actions in helm-bibtex to suit our work flow, and add some new actions. We define a format function for org-mode that is compatible with the usage defined in section [[#citations]]. Finally, we add some new fallback options for additional scientific search engines.
+We change the order of the actions in helm-bibtex to suit our work flow, and add some new actions as well. We define a format function for org-mode that is compatible with the usage defined in section [[#citations]]. Finally, we add some new fallback options for additional scientific search engines.
 
 ** Some basic org-ref utilities
 [[index:bibtex!clean entry]]
 
-The command org-ref does a lot for you automatically. It will check the buffer for errors, e.g. multiply-defined labels, bad citations or ref links, and provide easy access to a few commands through a helm buffer.
+The command ~org-ref~ does a lot for you automatically. It will check the buffer for errors, e.g. multiply-defined labels, bad citations or ref links, and provide easy access to a few commands through a helm buffer.
 
-org-ref-clean-bibtex-entry will sort the fields of a bibtex entry, clean it, and give it a bibtex key. This function does a lot of cleaning:
+~org-ref-clean-bibtex-entry~ will sort the fields of a bibtex entry, clean it, and give it a bibtex key. This function does a lot of cleaning:
 
+#+begin_example
 1. adds a comma if needed in the first line of the entry
 2. makes sure the doi field is an actual doi, and not a url.
 3. fixes bad year entries
@@ -170,15 +171,15 @@ org-ref-clean-bibtex-entry will sort the fields of a bibtex entry, clean it, and
 7. Runs your hook functions
 8. sorts the fields in the entry
 9. checks the buffer for non-ascii characters.
+#+end_example
 
-This function has a hook org-ref-clean-bibtex-entry-hook, which you can add functions to of your own. Each function must work on a bibtex entry at point.
+This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add functions to of your own. Each function must work on a bibtex entry at point.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
 #+END_SRC
 
-
-org-ref-extract-bibtex-entries will create a bibtex file from the citations in the current buffer.
+~org-ref-extract-bibtex-entries~ will create a bibtex file from the citations in the current buffer.
 
 ** LaTeX export
 index:export!LaTeX
@@ -195,8 +196,11 @@ All org-ref links are designed to export to the corresponding LaTeX commands for
 
 ** Other exports
 index:export!html index:export!ascii
-There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~.
+
+There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export, the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~.
+
 * Other libraries in org-ref
+
 These are mostly functions for adding entries to bibtex files, modifying entries or for operating on bibtex files. Some new org-mode links are defined.
 
 ** doi-utils
@@ -207,12 +211,12 @@ This library adds two extremely useful tools for getting bibtex entries and pdf 
 (require 'doi-utils)
 #+END_SRC
 
-The provides two important commands:
+This provides two important commands:
 
-- doi-utils-add-bibtex-entry-from-doi
+- ~doi-utils-add-bibtex-entry-from-doi~
 This will prompt you for a DOI, and a bibtex file, and then try to get the bibtex entry, and pdf of the article.
 
-- doi-utils-add-entry-from-crossref-query
+- ~doi-utils-add-entry-from-crossref-query~
 This will prompt you for a query string, which is usually the title of an article, or a free-form text citation of an article. Then you will get a helm buffer of matching items, which you can choose from to insert a new bibtex entry into a bibtex file.
 
 This library also redefines the org-mode doi link. Now, when you click on this link you will get a menu of options, e.g. to open a bibtex entry or a pdf if you have it, or to search the doi in some scientific search engines. Try it out  doi:10.1021/jp511426q.
@@ -221,7 +225,7 @@ This library also redefines the org-mode doi link. Now, when you click on this l
 These are functions I use often in bibtex files.
 
 *** Generate new bibtex files with adapted journal names
-The variable org-ref-bibtex-journal-abbreviations contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
+The variable ~org-ref-bibtex-journal-abbreviations~ contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'org-ref-bibtex-journal-abbreviations
@@ -254,7 +258,7 @@ The non-ascii characters are looked up in a list of cons cells. You can add your
   '("æ" . "{\\\\ae}"))
 #+END_SRC
 
-These functions are compatible with bibtex-map-entries, so it is possible to conveniently apply them to all the entries in a file like this:
+These functions are compatible with ~bibtex-map-entries~, so it is possible to conveniently apply them to all the entries in a file like this:
 
 #+BEGIN_SRC emacs-lisp
 (bibtex-map-entries 'org-ref-title-case-article)
@@ -273,8 +277,7 @@ These functions are compatible with bibtex-map-entries, so it is possible to con
   - org-ref-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
   - org-ref-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
 
-You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
-You can do that like this before you require org-ref-bibtex:
+You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra. You can do that like this before you require ~org-ref-bibtex~:
 
 #+BEGIN_SRC emacs-lisp
 (setq org-ref-bibtex-hydra-key-binding "\C-cj")
@@ -350,7 +353,7 @@ nihmsid:NIHMS395714
 
 Also, you can retrieve a bibtex entry for a PMID with
 
-- pubmed-insert-bibtex-from-pmid
+- ~pubmed-insert-bibtex-from-pmid~
 
 There are some utility functions that may be helpful.
 
@@ -369,8 +372,8 @@ This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-
 (require 'org-ref-arxiv)
 #+END_SRC
 
-- arxiv-add-bibtex-entry
-- arxiv-get-pdf
+- ~arxiv-add-bibtex-entry~
+- ~arxiv-get-pdf~
 
 ** org-ref-sci-id
    :PROPERTIES:
@@ -409,6 +412,7 @@ Allows you to drag and drop a PDF onto a bibtex file to add a bibtex entry (as l
 
 ** org-ref-url-utils
 Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about).
+
 * Appendix
 ** Customizing org-ref
    :PROPERTIES:
@@ -416,7 +420,7 @@ Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a b
    :END:
 index:customization
 
-You will probably want to customize a few variables before using org-ref extensively. One way to do this is through the Emacs customization interface: [[elisp:(customize-group "org-ref")]].
+You will probably want to customize a few variables before using org-ref. One way to do this is through the Emacs customization interface: [[elisp:(customize-group "org-ref")]].
 
 Here is my minimal setup:
 #+BEGIN_SRC emacs-lisp
@@ -437,7 +441,7 @@ For org-ref-bibtex I like:
 *** org-completion
 index:completion index:link!completion
 
-Most org-ref links support org-mode completion. You can type C-c C-l to insert a link. You will get completion of the link type, type some characters and press tab. When you select the type, press tab to see the completion options. This works for the following link types:
+Most org-ref links support org-mode completion. You can type ~C-c C-l~ to insert a link. You will get completion of the link type, type some characters and press tab. When you select the type, press tab to see the completion options. This works for the following link types:
 
 - bibliography
 - bibliographystyle
@@ -451,10 +455,10 @@ Most org-ref links support org-mode completion. You can type C-c C-l to insert a
     :END:
 index:link!storing
 
-If you are on a label link, or on a table name, or on an org-mode label you can "store" a link to it by typing C-c l. Then you can insert the corresponding ref link with C-c C-l. This will insert a ref link or custom_id link as needed. This usually works, but it is not used by me too often, so it is not tested too deeply.
+If you are on a label link, or on a table name, or on an org-mode label you can "store" a link to it by typing C-c l. Then you can insert the corresponding ref link with ~C-c C-l~. This will insert a ref link or custom_id link as needed. This usually works, but it is not used by me too often, so it is not tested too deeply.
 
 *** Storing links to bibtex entries
-If you have a bibtex file open, you type C-c C-l with your cursor in a bibtex entry to store a link to that entry. In an org-buffer if you then type C-c l, you can enter a cite link.
+If you have a bibtex file open, you type ~C-c C-l~ with your cursor in a bibtex entry to store a link to that entry. In an org buffer if you then type ~C-c l~, you can enter a cite link.
 
 *** Indexes
 index:index
@@ -466,10 +470,10 @@ org-ref provides links to support making an index in LaTeX. (http://en.wikibooks
 
 You will need to use the makeidx package, and use this in the LaTeX header.
 
+#+begin_example
 #+LATEX_HEADER: \usepackage{makeidx}
 #+LATEX_HEADER: \makeindex
-
-
+#+end_example
 
 You will have to incorporate running makeindex into your PDF build command.
 
@@ -515,13 +519,22 @@ A gls:computer is good for computing. Gls:computer is capitalized. We can also u
 
 This is not supported in anything but LaTeX export.
 
-
-
 * Index
 This is a functional link that will open a buffer of clickable index entries:
 printindex:nil
 
 * Other forms of this document
+
+** Build notes				:noexport:
+
+Before building this file you need to require the following libraries so the links will be resolved.
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref-wos)
+(require 'org-ref-scopus)
+(require 'org-ref-pubmed)
+#+END_SRC
+
 ** PDF
 You may want to build a pdf of this file. Here is an emacs-lisp block that will create and open the PDF.
 
@@ -539,36 +552,9 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 #+END_SRC
 
 #+RESULTS:
-: #<process open ./org-ref.html>
 
 * References
 <<bibliography link>>
 
 bibliographystyle:unsrtnat
 bibliography:org-ref.bib
-
-* Build notes				:noexport:
-
-To build this file you need to require these libraries so the links will be resolved.
-
-#+BEGIN_SRC emacs-lisp
-(require 'org-ref-wos)
-(require 'org-ref-scopus)
-(require 'org-ref-pubmed)
-#+END_SRC
-
-** HTML build
-
-#+BEGIN_SRC emacs-lisp
-(org-open-file (org-html-export-to-html))
-#+END_SRC
-
-#+RESULTS:
-
-** PDF
-
-#+BEGIN_SRC emacs-lisp
-(org-open-file (org-latex-export-to-pdf))
-#+END_SRC
-
-#+RESULTS:
