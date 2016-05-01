@@ -437,6 +437,47 @@ For org-ref-bibtex I like:
 (setq org-ref-bibtex-hydra-key-chord "jj")
 #+END_SRC
 
+** Customizing how PDFs are opened
+*** Using doc-view or pdf-tools
+
+There are a few different ways in which PDFs can be opened from org-ref. By default, org-ref uses the function ~org-ref-open-pdf-at-point~, which looks for the corresponding file in the directory specified in ~org-ref-library-path~. If the file was found, it opens it externally with ~org-open-file~. To open the PDF from within Emacs, using doc-view or pdf-tools, you will need to modify the function slightly and assign it to the variable ~org-ref-open-pdf-function~, as in the example below.
+
+#+begin_src emacs-lisp
+(defun my/org-ref-open-pdf-at-point ()
+  "Open the pdf for bibtex key under point if it exists."
+  (interactive)
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+    (if (file-exists-p pdf-file)
+        (find-file pdf-file)
+      (message "No PDF found for %s" key))))
+
+(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
+#+end_src
+
+*** Opening PDFs from multiple directories
+
+Org-ref makes the process of opening PDFs as simple as possible. It assumes all PDFs are stored in a single directory specified in ~org-ref-library-path~. If, however, your PDFs are stored in multiple locations, you will need to use ~bibtex-completion~ instead, as in the example below.
+
+#+begin_src emacs-lisp
+(defun my/org-ref-open-pdf-at-point ()
+  "Open the pdf for bibtex key under point if it exists."
+  (interactive)
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+	 (pdf-file (car (bibtex-completion-find-pdf key))))
+    (if (file-exists-p pdf-file)
+	(org-open-file pdf-file)
+      (message "No PDF found for %s" key))))
+
+(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
+#+end_src
+
+*** A note for Mendeley, JabRef and Zotero users
+
+If ~bibtex-completion-pdf-field~ is defined, the function above should work with Mendeley, JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
+
 ** Other things org-ref supports
 *** org-completion
 index:completion index:link!completion
