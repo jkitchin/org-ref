@@ -213,7 +213,7 @@ Argument REDIRECT-URL URL you are redirected to."
    redirect-url
    (lambda (status)
      (goto-char (point-min))
-     (re-search-forward "<iframe id=\"pdfDocument\" src=\"\\([^\"]*\\)\"" nil)
+     (re-search-forward "<iframe id=\"pdfDocument\" src=\"\\([^\"]*\\)\"" nil t)
      (setq *doi-utils-pdf-url* (match-string 1)
            *doi-utils-waiting* nil)))
   (while *doi-utils-waiting* (sleep-for 0.1))
