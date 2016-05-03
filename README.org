@@ -55,7 +55,6 @@ Clone this repo, add it to your load-path, and require org-ref.
 git clone https://github.com/jkitchin/org-ref.git
 #+END_SRC
 
-
 ** Configuration
 You should set these variables. Here is an example of how mine are set in an init.el file.
 #+BEGIN_SRC emacs-lisp
@@ -69,19 +68,19 @@ You should set these variables. Here is an example of how mine are set in an ini
 You may want to set some convenient keys for working in your bibtex file. These commands operate on the citation key at point.
 
 If you use helm-bibtex as the citation key completion method you should set these variables too.
+
 #+BEGIN_SRC emacs-lisp
-(setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
-(setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
+(setq bibtex-completion-bibliography "~/Dropbox/bibliography/references.bib"
+      bibtex-completion-library-path "~/Dropbox/bibliography/bibtex-pdfs"
+      bibtex-completion-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
 
 ;; open pdf with system pdf viewer (works on mac)
-(setq helm-bibtex-pdf-open-function
+(setq bibtex-completion-pdf-open-function
   (lambda (fpath)
     (start-process "open" "*open*" "open" fpath)))
 
 ;; alternative
-;; (setq helm-bibtex-pdf-open-function 'org-open-file)
-
-(setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
+;; (setq bibtex-completion-pdf-open-function 'org-open-file)
 #+END_SRC
 
 There are alternative citation key completion methods.
