@@ -458,7 +458,7 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
 
 *** Opening PDFs from multiple directories
 
-Org-ref makes the process of opening PDFs as simple as possible. It assumes all PDFs are stored in a single directory specified in ~org-ref-library-path~. If, however, your PDFs are stored in multiple locations, you will need to use ~bibtex-completion~ instead, as in the example below.
+org-ref makes the process of opening PDFs as simple as possible. It assumes all PDFs are stored in a single directory specified in ~org-ref-library-path~. If, however, your PDFs are stored in multiple locations, you will need to use ~bibtex-completion~ instead, as in the example below.
 
 #+begin_src emacs-lisp
 (defun my/org-ref-open-pdf-at-point ()

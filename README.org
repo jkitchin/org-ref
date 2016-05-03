@@ -24,9 +24,11 @@ Here are some annotated images of basic insertion of citations in org-mode.
 [[./screenshots/introduction.png]]
 
 The links in org-ref are functional. They do things when your cursor is on them, or you click on them, and sometimes when the mouse hovers over them.
+
 [[./screenshots/functional-links.png]]
 
 Here is an example of a menu of actions you get when you click on a cite link.
+
 [[./screenshots/cite-menu.png]]
 
 
@@ -56,7 +58,9 @@ git clone https://github.com/jkitchin/org-ref.git
 #+END_SRC
 
 ** Configuration
+
 You should set these variables. Here is an example of how mine are set in an init.el file.
+
 #+BEGIN_SRC emacs-lisp
 (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
 
@@ -65,6 +69,7 @@ You should set these variables. Here is an example of how mine are set in an ini
       org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
+
 You may want to set some convenient keys for working in your bibtex file. These commands operate on the citation key at point.
 
 If you use helm-bibtex as the citation key completion method you should set these variables too.
@@ -96,6 +101,7 @@ Finally, add this to your init.el files.
 Go forth and citate.
 
 * Some other useful libraries in org-ref
+
 Note many of these have been renamed with an org-ref prefix.
 
 - [[./doi-utils.el][doi-utils]] :: Download bibtex entries and PDFs from doi and crossref queries.
@@ -114,9 +120,11 @@ Note many of these have been renamed with an org-ref prefix.
 - [[./org-ref-worldcat.el][org-ref-worldcat]]
 
 * Errors and issues
-Please report errors here:  [[https://github.com/jkitchin/org-ref/issues][issue]]s.
+
+Please report errors here: [[https://github.com/jkitchin/org-ref/issues][issues]].
 
 * Contributors
+
 I would like to thank the [[https://github.com/jkitchin/org-ref/graphs/contributors][contributors]] to org-ref, and everyone who has filed an [[https://github.com/jkitchin/org-ref/issues][issue]], or asked about org-ref on the [[http://orgmode.org/community.html][org-mode Mailing list]].
 
 #+BEGIN_HTML
