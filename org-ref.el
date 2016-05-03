@@ -1574,61 +1574,39 @@ set in `org-ref-default-bibliography'"
     (when (string= (or (f-ext (or (buffer-file-name) "")) "")  "bib")
       (setq org-ref-bibliography-files (list (buffer-file-name)))
       (throw 'result org-ref-bibliography-files))
+
     ;; otherwise, check current file for a bibliography source
-    (save-excursion (save-restriction
-		      (widen)
-		      (goto-char (point-min))
-		      ;;  look for a bibliography link
-		      (when (re-search-forward "\\<bibliography:\\([^\]\|\n]+\\)" nil t)
-			(setq org-ref-bibliography-files
-			      (mapcar 'org-ref-strip-string
-				      (split-string (match-string 1) ",")))
-			(throw 'result org-ref-bibliography-files))
+    (save-excursion
+      (save-restriction
+	(widen)
+	(goto-char (point-min))
 
+	;; look for org-ref bibliography or addbibresource links
+	(setq org-ref-bibliography-files nil)
+	(while (re-search-forward
+		"\\<\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
+		nil t)
+	  (setq org-ref-bibliography-files
+		(append org-ref-bibliography-files
+			(mapcar 'org-ref-strip-string
+				(split-string (match-string 2) ",")))))
+	;; locate the corresponding bib files
+	(setq org-ref-bibliography-files
+	      (reftex-locate-bibliography-files default-directory
+						org-ref-bibliography-files))
+	(when org-ref-bibliography-files
+	  (throw 'result org-ref-bibliography-files))
 
-		      ;; we did not find a bibliography link. now look for \bibliography
-		      (goto-char (point-min))
-		      (when (re-search-forward "\\\\bibliography{\\(.*?\\)}" nil t)
-			;; split, and add .bib to each file
-			(setq org-ref-bibliography-files
-			      (mapcar (lambda (x) (concat x ".bib"))
-				      (mapcar 'org-ref-strip-string
-					      (split-string (match-string 1) ","))))
-			(throw 'result org-ref-bibliography-files))
+	;; we did not find org-ref links. now look for latex links
+	(goto-char (point-min))
+	(setq org-ref-bibliography-files
+	      (reftex-locate-bibliography-files default-directory))
+	(when org-ref-bibliography-files
+	  (throw 'result org-ref-bibliography-files))))
 
-		      ;; no bibliography found. maybe we need a biblatex addbibresource
-		      (goto-char (point-min))
-		      ;;  look for a bibliography link
-		      (when (re-search-forward "addbibresource:\\([^\]\|\n]+\\)" nil t)
-			(setq org-ref-bibliography-files
-			      (mapcar 'org-ref-strip-string
-				      (split-string (match-string 1) ",")))
-			(throw 'result org-ref-bibliography-files))
+    ;; we did not find anything. use defaults
+    (setq org-ref-bibliography-files org-ref-default-bibliography))
 
-		      ;; one last attempt at the latex addbibresource
-		      (goto-char (point-min))
-		      (when (re-search-forward "\\addbibresource{\\(.*?\\)}" nil t)
-			(setq org-ref-bibliography-files
-			      (mapcar 'org-ref-strip-string
-				      (split-string (match-string 1) ",")))
-			(throw 'result org-ref-bibliography-files))
-
-		      ;; Try BIBINPUTS. It is a : separated string of paths.
-		      (let ((bibinputs (getenv "BIBINPUTS")))
-			(when bibinputs
-			  (setq org-ref-bibliography-files
-				(apply
-				 'append
-				 (loop for path in (split-string  bibinputs ":")
-				       collect
-				       (-filter (lambda (f) (f-ext? f "bib"))
-						(f-files
-						 (substitute-in-file-name  path))))))
-			  (when org-ref-bibliography-files
-			    (throw 'result org-ref-bibliography-files))))
-
-		      ;; we did not find anything. use defaults
-		      (setq org-ref-bibliography-files org-ref-default-bibliography))))
 
   ;; set reftex-default-bibliography so we can search
   (set (make-local-variable 'reftex-default-bibliography) org-ref-bibliography-files)
