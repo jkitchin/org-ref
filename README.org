@@ -119,6 +119,10 @@ Note many of these have been renamed with an org-ref prefix.
 - [[./org-ref-scifinder.el][org-ref-scifinder]]
 - [[./org-ref-worldcat.el][org-ref-worldcat]]
 
+* Manual
+
+For more information, see the [[https://github.com/jkitchin/org-ref/blob/master/org-ref.org][org-ref manual]].
+
 * Errors and issues
 
 Please report errors here: [[https://github.com/jkitchin/org-ref/issues][issues]].
