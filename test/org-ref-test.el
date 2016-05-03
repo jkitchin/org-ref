@@ -31,17 +31,6 @@
     (org-ref-split-and-strip-string " key1 ")
     '("key1"))))
 
-
-(ert-deftest or-find-bib ()
-  "Check if we find the bibliography correctly."
-  (should
-   (equal
-    '("test-1.bib")
-    (with-temp-buffer
-      (insert-file-contents-literally "tests/test-1.org")
-      (org-ref-find-bibliography)))))
-
-
 (ert-deftest or-key-file-p ()
   "Check `org-ref-key-in-file-p'"
   (should
@@ -231,80 +220,94 @@ label:one
    (string=
     "key2"
     (org-test-with-temp-text
-     "cite:key1,key2"
-     (goto-char 11)
-     (org-ref-get-bibtex-key-under-cursor)))))
+	"cite:key1,key2"
+      (goto-char 11)
+      (org-ref-get-bibtex-key-under-cursor)))))
 
 ;;* get bibliography
+
+;; This is a confusing set of tests. The tests get run in the directory above
+;; this file, so these tests fail when run in this directory, but pass there.
+;; They are written to pass on Travis, and in the Makefile in the directory
+;; above us.
 (ert-deftest orfb-1 ()
   "test a single bibliography link."
   (should
    (equal
-    '("test.bib")
-    (org-test-with-temp-text
-     "bibliography:test.bib"
-     (org-ref-find-bibliography)))))
+    (list (file-truename "test/test.bib"))
+    (mapcar 'file-truename
+	    (org-test-with-temp-text
+		"bibliography:test/test.bib"
+	      (org-ref-find-bibliography))))))
 
 (ert-deftest orfb-1a ()
   "Get multiple bib files."
   (should
    (equal
-    '("test.bib" "test2.bib")
+    (list (file-truename "test/test.bib")
+	  (file-truename "test/test2.bib"))
     (org-test-with-temp-text
-     "bibliography:test.bib,test2.bib"
-     (org-ref-find-bibliography)))))
+	"bibliography:test/test.bib,test/test2.bib"
+      (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-2 ()
-  "Get bibfile in latex forma."
+  "Get bibfile in latex format."
   (should
    (equal
-    '("test.bib")
+    (list (file-truename "test/test.bib"))
     (org-test-with-temp-text
-     "
-\\bibliography{test}"
-     (org-ref-find-bibliography)))))
+	"
+\\bibliography{test/test}"
+      (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-2a ()
   "multiple bibliographies in latex form"
   (should
    (equal
-    '("test.bib" "test2.bib")
+    (list (file-truename "test/test.bib")
+	  (file-truename "test/test2.bib"))
     (org-test-with-temp-text
-     "
-\\bibliography{test,test2}"
-     (org-ref-find-bibliography)))))
+	"
+\\bibliography{test/test,test/test2}"
+      (org-ref-find-bibliography)))))
 
 
 (ert-deftest orfb-3 ()
   "addbibresource form of bibliography."
   (should
    (equal
-    '("test.bib")
-    (org-test-with-temp-text
-     "
-\\addbibresource{test.bib}"
-     (org-ref-find-bibliography)))))
+    (list (file-truename "test/test.bib"))
+    (mapcar 'file-truename
+	    (org-test-with-temp-text
+		"
+\\addbibresource{test/test.bib}"
+	      (org-ref-find-bibliography))))))
 
 
 (ert-deftest orfb-3a ()
   "Multiple bibfiles in addbibresource."
   (should
    (equal
-    '("test.bib" "test2.bib")
-    (org-test-with-temp-text
-     "
-\\addbibresource{test.bib, test2.bib}"
-     (org-ref-find-bibliography)))))
+    (list (file-truename "test/test.bib")
+	  (file-truename "test/test2.bib"))
+    (mapcar 'file-truename
+	    (org-test-with-temp-text
+		"
+\\addbibresource{test/test.bib, test/test2.bib}"
+	      (org-ref-find-bibliography))))))
 
 (ert-deftest orfb-4 ()
   "getting default bibfile in file with no bib specification."
+  (message "******* %s" default-directory)
   (should
    (equal
-    '("test.bib")
-    (org-test-with-temp-text
-	""
-      (let ((org-ref-default-bibliography '("test.bib")))
-	(org-ref-find-bibliography))))))
+    (list (file-truename "test.bib"))
+    (mapcar 'file-truename
+	    (org-test-with-temp-text
+		""
+	      (message "%s" default-directory)
+	      (let ((org-ref-default-bibliography '("test.bib")))
+		(org-ref-find-bibliography)))))))
 
 
 (ert-deftest unique-keys ()
