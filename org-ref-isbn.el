@@ -32,6 +32,50 @@
 
 ;;* ISBN utility
 
+(defvar org-ref-isbn-clean-bibtex-entry-hook
+  '(oricb-remove-enclosing-brackets
+    oricb-clean-author-field
+    oricb-remove-period)
+  "Hook that is run in `org-ref-isbn-clean-bibtex-entry'.
+The functions should have no arguments, and operate on the bibtex
+entry at point. You can assume point starts at the beginning of the
+entry. These functions are wrapped in `save-restriction' and
+`save-excursion' so you do not need to save the point position."
+  :group 'org-ref-isbn
+  :type 'hook)
+
+(defun oricb-remove-enclosing-brackets ()
+  "Make sure all enclosing brackets are removed from the fields."
+  (while (re-search-forward "{\\[" nil t)
+    (replace-match "{"))
+  (bibtex-beginning-of-entry)
+  (while (re-search-forward "]}" nil t)
+    (replace-match "}")))
+
+(defun oricb-clean-author-field ()
+  "Clean additional information in the author's field."
+  (goto-char (cadr (bibtex-search-forward-field "author" t)))
+  (when (re-search-forward "{by \\|{ed. by " nil t)
+    (replace-match "{")))
+
+(defun oricb-remove-period ()
+  "Make sure the period is removed from the author's field."
+  (goto-char (cadr (bibtex-search-forward-field "author" t)))
+  (when (re-search-forward "\.},$" nil t)
+    (replace-match "},")))
+
+;;;###autoload
+(defun org-ref-isbn-clean-bibtex-entry ()
+  "Clean a bibtex entry inserted via `isbn-to-bibtex'.
+See functions in `org-ref-isbn-clean-bibtex-entry-hook'."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (mapc (lambda (x)
+	  (save-restriction
+	    (save-excursion
+	      (funcall x))))
+	org-ref-isbn-clean-bibtex-entry-hook))
+
 ;; I found this on the web. It can be handy, but the bibtex entry has a lot of stuff in it.
 
 ;;;###autoload
@@ -106,6 +150,7 @@ in the file. Data comes from worldcat."
     ;; build entry in temp buffer to get the key so we can check for duplicates
     (setq new-entry (with-temp-buffer
 		      (insert (decode-coding-string new-entry 'utf-8))
+		      (org-ref-isbn-clean-bibtex-entry) ; specific to isbn entries
                       (org-ref-clean-bibtex-entry)
                       (setq new-key (bibtex-key-in-head))
                       (buffer-string)))
