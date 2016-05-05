@@ -105,7 +105,7 @@ in the file. Data comes from worldcat."
 
     ;; build entry in temp buffer to get the key so we can check for duplicates
     (setq new-entry (with-temp-buffer
-                      (insert new-entry)
+		      (insert (decode-coding-string new-entry 'utf-8))
                       (org-ref-clean-bibtex-entry)
                       (setq new-key (bibtex-key-in-head))
                       (buffer-string)))
