@@ -1234,17 +1234,14 @@ error."
 	 (concat
 	  "http://search.crossref.org/dois?q="
 	  (url-hexify-string query)))
-      ;; remove html tags
+      ;; replace html entities
       (save-excursion
-	(goto-char (point-min))
-	(while (re-search-forward "<i>" nil t)
-	  (replace-match ""))
-	(goto-char (point-min))
-	(while (re-search-forward "&quot;" nil t)
-	  (replace-match "\\\"" nil t))
-	(goto-char (point-min))
-	(while (re-search-forward "</i>" nil t)
-	  (replace-match "")))
+      	(goto-char (point-min))
+      	(while (re-search-forward "<i>\\|</i>" nil t)
+      	  (replace-match ""))
+      	(goto-char (point-min))
+      	(while (re-search-forward "&quot;" nil t)
+      	  (replace-match "\\\"" nil t)))
       (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
       ;; encode json string
       (setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
