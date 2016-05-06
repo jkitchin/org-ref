@@ -23,7 +23,10 @@
 ;;
 
 ;;; Code:
-(require 'swiper)
+(unless (require 'ivy nil t)
+  (message "Org-ref is installing `ivy'...")
+  (package-install 'ivy)
+  (require 'ivy))
 (require 'org-ref-bibtex)
 
 ;;;###autoload

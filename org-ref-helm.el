@@ -23,6 +23,11 @@
 ;; These are not specific to helm-bibtex.
 
 ;;; Code:
+(unless (require 'helm-config nil t)
+  (message "Org-ref is installing `helm'...")
+  (package-install 'helm)
+  (require 'helm-config))
+(require 'helm)
 
 ;;;###autoload
 (defun org-ref-helm-insert-label-link ()
