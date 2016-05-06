@@ -32,7 +32,7 @@
 
 ;;* ISBN utility
 
-(defvar org-ref-isbn-clean-bibtex-entry-hook
+(defcustom org-ref-isbn-clean-bibtex-entry-hook
   '(oricb-remove-enclosing-brackets
     oricb-clean-author-field
     oricb-remove-period)
@@ -109,8 +109,8 @@ in the file. Data comes from worldcat."
        (buffer-substring (region-beginning) (region-end)))
       ;; if first entry in kill ring starts with a number assume it is an isbn
       ;; and use it as the guess
-      ((if (s-match "^[0-9]" (car kill-ring))
-           (car kill-ring)))
+      ;; ((if (s-match "^[0-9]" (car kill-ring)) ; FIXME
+      ;;      (car kill-ring)))
       ;; type or paste it in
       (t
        nil)))
