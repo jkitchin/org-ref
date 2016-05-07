@@ -56,8 +56,7 @@
     ("Edit notes" . bibtex-completion-edit-notes)
     ("Show entry" . bibtex-completion-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
-    ("Copy entry to clipboard" . bibtex-completion-copy-candidate)
-    ("Add keywords to entries" . org-ref-helm-tag-entries))
+    ("Copy entry to clipboard" . bibtex-completion-copy-candidate))
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.
 The cdr of the the cons cell is the function to use."
@@ -169,7 +168,9 @@ Argument CANDIDATES helm candidates."
                 (concat
                  keywords
                  ", " (bibtex-autokey-get-field "keywords")))
-               (save-buffer)))))
+	       (when (looking-back ", ")
+	       	 (delete-backward-char 2))
+	       (save-buffer)))))
 
 
 
