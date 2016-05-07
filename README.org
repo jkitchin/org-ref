@@ -93,6 +93,14 @@ There are alternative citation key completion methods.
 - org-ref-ivy-bibtex :: Uses ivy for key completion
 - org-ref-reftex :: Uses reftex and org-mode for completion (no longer developed)
 
+If you want to use one of them instead of the default helm-bibtex, you should set the variable `org-ref-completion-library' accordingly before loading org-ref. For example,
+
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-completion-library 'org-ref-helm-cite)
+#+END_SRC
+
+Whether you use the default or an alternative completion library, org-ref will automatically install the corresponding dependencies (if you do not use `package.el' then you are in charge of installing them yourself).
+
 Finally, add this to your init.el files.
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref)
