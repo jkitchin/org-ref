@@ -25,7 +25,8 @@
 ;;; Code:
 (unless (require 'helm-config nil t)
   (message "Org-ref is installing `helm'...")
-  (let ((package-archives '(("melpa" . "http://melpa.org/packages/"))))
+  (let ((package-archives '(("gnu"         . "http://elpa.gnu.org/packages/")
+			    ("melpa" . "http://melpa.org/packages/"))))
     (package-initialize)
     (package-refresh-contents)
     (package-install 'helm))

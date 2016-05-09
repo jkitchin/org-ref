@@ -25,7 +25,8 @@
 ;;; Code:
 (unless (require 'ivy nil t)
   (message "Org-ref is installing `ivy'...")
-  (let ((package-archives '(("melpa" . "http://melpa.org/packages/"))))
+  (let ((package-archives '(("gnu"         . "http://elpa.gnu.org/packages/")
+			    ("melpa" . "http://melpa.org/packages/"))))
     (package-initialize)
     (package-refresh-contents)
     (package-install 'ivy))
@@ -87,13 +88,13 @@ ENTRY is selected from `orhc-bibtex-candidates'."
   "Open the pdf associated with ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
   (with-ivy-window
-   (let ((pdf (expand-file-name
-	       (format "%s.pdf"
-		       (cdr (assoc "=key=" entry)))
-	       org-ref-pdf-directory)))
-     (if (file-exists-p pdf)
-	 (org-open-file pdf)
-       (message "No pdf found for %s" (cdr (assoc "=key=" entry)))))))
+    (let ((pdf (expand-file-name
+		(format "%s.pdf"
+			(cdr (assoc "=key=" entry)))
+		org-ref-pdf-directory)))
+      (if (file-exists-p pdf)
+	  (org-open-file pdf)
+	(message "No pdf found for %s" (cdr (assoc "=key=" entry)))))))
 
 
 (defun or-ivy-bibtex-open-notes (entry)
