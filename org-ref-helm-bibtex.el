@@ -25,7 +25,10 @@
 (require 'org-ref-helm)
 (unless (require 'helm-bibtex nil t)
   (message "Org-ref is installing `helm-bibtex'...")
-  (package-install 'helm-bibtex)
+  (let ((package-archives '(("melpa" . "http://melpa.org/packages/"))))
+    (package-initialize)
+    (package-refresh-contents)
+    (package-install 'helm-bibtex))
   (require 'helm-bibtex))
 
 ;;;###autoload
