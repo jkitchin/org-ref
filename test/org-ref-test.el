@@ -161,7 +161,7 @@ label:one
 
 "
     (should
-     (string= "1 occurence"
+     (string= "1 occurrence"
 	      (org-ref-link-message)))))
 
 
@@ -173,7 +173,7 @@ label:one
 
 "
     (should
-     (string= "2 occurences"
+     (string= "2 occurrences"
 	      (org-ref-link-message)))))
 
 
