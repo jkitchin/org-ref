@@ -2879,7 +2879,7 @@ move to the beginning of the previous cite link after this one."
                 ;; get plurality on occurrence correct
                 (message (concat
                           (number-to-string count)
-                          " occurence"
+                          " occurrence"
                           (when (or (= count 0)
                                     (> count 1))
                             "s")))))
