@@ -111,7 +111,7 @@ in the file. Data comes from worldcat."
       ;; and use it as the guess
       ((stringp (car kill-ring))
        (when (s-match "^[0-9]" (car kill-ring))
-      	 (car kill-ring)))
+	 (car kill-ring)))
       ;; type or paste it in
       (t
        nil)))
@@ -128,13 +128,15 @@ in the file. Data comes from worldcat."
                     (json-read-from-string
                      (buffer-substring url-http-end-of-headers (point-max)))))
          (status (cdr (assoc 'stat results)))
-         (metadata (aref  (cdr (assoc 'list results)) 0))
+         (metadata)
          (new-entry)
          (new-key))
 
     ;; check if we got something
     (unless (string= "ok" status)
       (error "Status is %s" status))
+
+    (setq metadata (aref  (cdr (assoc 'list results)) 0))
 
     ;; construct an alphabetically sorted bibtex entry. I assume ISBN numbers go
     ;; with book entries.
