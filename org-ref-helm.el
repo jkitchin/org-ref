@@ -25,6 +25,7 @@
 ;;; Code:
 (unless (require 'helm-config nil t)
   (message "Org-ref is installing `helm'...")
+  (package-initialize)
   (package-install 'helm)
   (require 'helm-config))
 (require 'helm)
