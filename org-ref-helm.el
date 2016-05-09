@@ -27,6 +27,7 @@
   (message "Org-ref is installing `helm'...")
   (let ((package-archives '(("melpa" . "http://melpa.org/packages/"))))
     (package-initialize)
+    (package-refresh-contents)
     (package-install 'helm))
   (require 'helm-config))
 (require 'helm)
