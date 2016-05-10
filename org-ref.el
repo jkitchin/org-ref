@@ -1084,9 +1084,7 @@ Ignore figures in COMMENTED sections."
 			     (format "[[file:%s::%s][Figure %s:]] %s\n" c-b linenum counter name))
 			    (fname
 			     (format "[[file:%s::%s][Figure %s:]] %s\n"
-				     c-b linenum counter
-				     (replace-regexp-in-string "\\.\\(png\\|jpg\\|eps\\|pdf\\)$" "" fname))))
-		      )))))))
+				     c-b linenum counter fname))))))))))
       (switch-to-buffer "*List of Figures*")
       (setq buffer-read-only nil)
       (org-mode)
