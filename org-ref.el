@@ -1069,22 +1069,33 @@ Ignore figures in COMMENTED sections."
 		  (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
+			 (linenum (progn (goto-char start) (line-number-at-pos)))
+			 (fname (org-element-property :path link))
 			 (parent (car (cdr
 				       (org-element-property :parent link))))
 			 (caption (cl-caaar (plist-get parent :caption)))
 			 (name (plist-get parent :name)))
+
 		    (if caption
-			(format
-			 "[[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-entry))][figure %s: %s]] %s\n"
-			 c-b start counter (or name "") caption)
-		      (format
-		       "[[elisp:(progn (switch-to-buffer \"%s\")(goto-char %s)(org-show-entry))][figure %s: %s]]\n"
-		       c-b start counter (or name "")))))))))
+			(format "[[file:%s::%s][Figure %s:]] %s\n" c-b linenum counter caption)
+		      ;; if it has no caption, try the name
+		      ;; if it has no name, use the file name
+		      (cond (name
+			     (format "[[file:%s::%s][Figure %s:]] %s\n" c-b linenum counter name))
+			    (fname
+			     (format "[[file:%s::%s][Figure %s:]] %s\n"
+				     c-b linenum counter
+				     (replace-regexp-in-string "\\.\\(png\\|jpg\\|eps\\|pdf\\)$" "" fname))))
+		      )))))))
       (switch-to-buffer "*List of Figures*")
       (setq buffer-read-only nil)
       (org-mode)
       (erase-buffer)
       (insert (mapconcat 'identity list-of-figures ""))
+      (goto-char (point-min))
+      ;; open links in the same window
+      (setq-local org-link-frame-setup
+		  '((file . find-file)))
       (setq buffer-read-only t)
       (use-local-map (copy-keymap org-mode-map))
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
