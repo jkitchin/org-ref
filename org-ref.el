@@ -513,7 +513,7 @@ If so return the position for `goto-char'."
 
 (defvar org-ref-cite-re
   (concat "\\(" (regexp-opt org-ref-cite-types) ":\\)"
-          "\\([a-zA-Z0-9-_:\\./]+,?\\)+")
+          "\\(\\([a-zA-Z0-9-_:\\./]+,?\\)+\\)")
   "Regexp for cite links.")
 
 
