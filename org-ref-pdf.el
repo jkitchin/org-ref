@@ -65,11 +65,12 @@ space or end of line.
 
 If there is a trailing . we chomp it off. Returns a list of doi
 strings, or nil.
+
 "
   (with-temp-buffer
     (insert (shell-command-to-string (format "%s %s -"
 					     pdftotext-executable
-					     (dnd-unescape-uri pdf))))
+					     (shell-quote-argument (dnd-unescape-uri pdf)))))
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward org-ref-pdf-doi-regex nil t)
@@ -217,7 +218,7 @@ variable `org-ref-pdf-doi-regex'."
   (erase-buffer)
   (insert (shell-command-to-string (format "%s %s -"
 					   pdftotext-executable
-					   pdf-file)))
+					   (shell-quote-argument pdf-file))))
   (goto-char (point-min))
   (highlight-regexp org-ref-pdf-doi-regex)
   (occur org-ref-pdf-doi-regex)
