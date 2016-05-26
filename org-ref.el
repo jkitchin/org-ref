@@ -717,7 +717,7 @@ Add tooltip to the link."
 
 (defun org-ref-make-org-link-cite-key-visible (&rest _)
   "Make the org-ref cite link visible in descriptive links."
-  (unless (string= (buffer-name) "*Org Agenda*")
+  (when (string-match-p "\\.org$\\|\\.txt$" (buffer-name))
     (save-match-data
       (let ((s (match-string 1))
 	    (s-begin (match-beginning 1))
