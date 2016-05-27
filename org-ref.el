@@ -1525,10 +1525,10 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-get-bibtex-key-under-cursor ()
   "Return key under the bibtex cursor.
-We search forward from
-point to get a comma, or the end of the link, and then backwards
-to get a comma, or the beginning of the link.  that delimits the
-keyword we clicked on.  We also strip the text properties."
+We search forward from point to get a comma, or the end of the link,
+and then backwards to get a comma, or the beginning of the link. that
+delimits the keyword we clicked on. We also strip the text
+properties."
   (let* ((object (org-element-context))
          (link-string (org-element-property :path object)))
     ;; you may click on the part before the citations. here we make
@@ -1569,8 +1569,44 @@ keyword we clicked on.  We also strip the text properties."
                       (buffer-substring key-beginning key-end))))
                 (set-text-properties 0 (length bibtex-key) nil bibtex-key)
                 bibtex-key))))
-      ;; link with description. assume only one key
-      link-string)))
+
+      ;; link with description and multiple keys
+      (if (and (org-element-property :contents-begin object)
+	       (string-match "," link-string)
+	       (equal (org-element-type object) 'link))
+	  ;; point is not on the link description
+	  (if (not (>= (point) (org-element-property :contents-begin object)))
+	      (let (link-string-beginning link-string-end)
+		(save-excursion
+		  (goto-char (org-element-property :begin object))
+		  (search-forward link-string nil t 1)
+		  (setq link-string-beginning (match-beginning 0))
+		  (setq link-string-end (match-end 0)))
+
+		(let (key-beginning key-end)
+		  ;; The key is the text between commas, or the link boundaries
+		  (save-excursion
+		    (if (search-forward "," link-string-end t 1)
+			(setq key-end (- (match-end 0) 1)) ; we found a match
+		      (setq key-end link-string-end))) ; no comma found so take the end
+		  ;; and backward to previous comma from point which defines the start character
+
+		  (save-excursion
+		    (if (search-backward "," link-string-beginning 1 1)
+			(setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+		      (setq key-beginning link-string-beginning))) ; no match found
+		  ;; save the key we clicked on.
+		  (let ((bibtex-key
+			 (org-ref-strip-string
+			  (buffer-substring key-beginning key-end))))
+		    (set-text-properties 0 (length bibtex-key) nil bibtex-key)
+		    bibtex-key)))
+	    ;; point is on the link description, assume we want the
+	    ;; last key
+	    (let ((last-key (replace-regexp-in-string "[a-zA-Z0-9-_]*," "" link-string)))
+	      last-key))
+	;; link with description. assume only one key
+	link-string))))
 
 
 (defun org-ref-find-bibliography ()
