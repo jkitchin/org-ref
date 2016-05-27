@@ -237,10 +237,12 @@ The default behavior adds entries to a long file with headlines
 for each entry.  It also tries to be compatible with `org-bibtex'.
 
 An alternative is
- (lambda ()
+ (lambda (thekey)
   (bibtex-completion-edit-notes (car (org-ref-get-bibtex-key-and-file thekey))))
 
-Use that if you like the one file one note approach of `helm-bibtex'."
+Use that if you prefer the `bibtex-completion' approach, which also
+supports an additional method for storing notes. See
+`bibtex-completion-notes-path' for more information."
   :type 'function
   :group 'org-ref)
 
@@ -1575,7 +1577,7 @@ keyword we clicked on.  We also strip the text properties."
   "Find the bibliography in the buffer.
 This function sets and returns cite-bibliography-files, which is
 a list of files either from bibliography:f1.bib,f2.bib
-\bibliography{f1,f2}, internal bibliographies, from files in the
+\\bibliography{f1,f2}, internal bibliographies, from files in the
 BIBINPUTS env var, and finally falling back to what the user has
 set in `org-ref-default-bibliography'"
   (catch 'result
