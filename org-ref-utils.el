@@ -316,10 +316,10 @@ Format according to the type in `org-ref-bibliography-entry-format'."
   "Return the pdf filename associated with a bibtex KEY.
 If `org-ref-pdf-directory' is non-nil, put filename there."
   (if org-ref-pdf-directory
-      (format
-       (concat
-	(file-name-as-directory org-ref-pdf-directory) "%s.pdf")
-       key)
+      (let ((pdf (-first 'f-file?
+			 (--map (f-join it (concat key ".pdf"))
+				(-flatten (list org-ref-pdf-directory))))))
+	(format "%s" pdf))
     (format "%s.pdf" key)))
 
 

@@ -456,9 +456,9 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
 #+end_src
 
-*** Opening PDFs from multiple directories
+*** A note for Mendeley, JabRef and Zotero users
 
-org-ref makes the process of opening PDFs as simple as possible. It assumes all PDFs are stored in a single directory specified in ~org-ref-library-path~. If, however, your PDFs are stored in multiple locations, you will need to use ~bibtex-completion~ instead, as in the example below.
+If ~bibtex-completion-pdf-field~ is defined, the function below should work with Mendeley, JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
 
 #+begin_src emacs-lisp
 (defun my/org-ref-open-pdf-at-point ()
@@ -473,10 +473,6 @@ org-ref makes the process of opening PDFs as simple as possible. It assumes all 
 
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
 #+end_src
-
-*** A note for Mendeley, JabRef and Zotero users
-
-If ~bibtex-completion-pdf-field~ is defined, the function above should work with Mendeley, JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
 
 ** Other things org-ref supports
 *** org-completion
