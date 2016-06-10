@@ -88,7 +88,7 @@ You should use full-paths for each file."
   nil
   "Directory where pdfs are stored by key.
 Put a trailing / in the name."
-  :type 'directory
+  :type '(choice directory (repeat directory))
   :group 'org-ref)
 
 
@@ -1639,7 +1639,7 @@ set in `org-ref-default-bibliography'"
 				(split-string (match-string 2) ",")))))
 	;; locate the corresponding bib files
 	(setq org-ref-bibliography-files
-	      (reftex-locate-bibliography-files default-directory
+	      (reftex-locate-bibliography-files default-edirectory
 						org-ref-bibliography-files))
 	(when org-ref-bibliography-files
 	  (throw 'result org-ref-bibliography-files))
@@ -1985,10 +1985,9 @@ the entry of interest in the bibfile.  but does not check that."
     (let* ((bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (format (concat
-			 (file-name-as-directory org-ref-pdf-directory)
-			 "%s.pdf")
-			key)))
+           (pdf (-first 'f-file?
+			(--map (f-join it (concat key ".pdf"))
+			       (-flatten (list org-ref-pdf-directory))))))
       (message "%s" pdf)
       (if (file-exists-p pdf)
           (org-open-link-from-string (format "[[file:%s]]" pdf))
@@ -2047,8 +2046,9 @@ construct the heading by hand."
 
 	  (insert (format "[[cite:%s]]" key))
 
-	  (setq pdf (expand-file-name
-		     (format "%s.pdf" key) org-ref-pdf-directory))
+	  (setq pdf (-first 'f-file?
+			    (--map (f-join it (concat key ".pdf"))
+				   (-flatten (list org-ref-pdf-directory)))))
 	  (if (file-exists-p pdf)
 	      (insert (format
 		       " [[file:%s][pdf]]\n\n"
