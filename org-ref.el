@@ -1639,7 +1639,7 @@ set in `org-ref-default-bibliography'"
 				(split-string (match-string 2) ",")))))
 	;; locate the corresponding bib files
 	(setq org-ref-bibliography-files
-	      (reftex-locate-bibliography-files default-edirectory
+	      (reftex-locate-bibliography-files default-directory
 						org-ref-bibliography-files))
 	(when org-ref-bibliography-files
 	  (throw 'result org-ref-bibliography-files))
