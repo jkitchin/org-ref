@@ -49,6 +49,11 @@
 (require 'parsebib)
 (require 'reftex-cite)
 
+(add-to-list 'load-path
+	     (expand-file-name
+	      "citeproc"
+	      (file-name-directory  (locate-library "org-ref"))))
+
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
 (declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
