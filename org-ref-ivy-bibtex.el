@@ -80,7 +80,7 @@
 (defun or-ivy-bibtex-insert-cite (entry)
   "Insert a citation for ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
-  (with-current-buffer (ivy-state-buffer ivy-last)
+  (with-ivy-window
     (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
 
 
