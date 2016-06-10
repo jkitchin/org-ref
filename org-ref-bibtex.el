@@ -61,16 +61,6 @@
 (require 's)
 
 ;;; Code:
-(add-to-list 'load-path
-	     (expand-file-name
-	      "citeproc"
-	      (file-name-directory  (locate-library "org-ref"))))
-
-(load-file (expand-file-name
-	    "org-ref-citeproc.el"
-	    (expand-file-name
-	     "citeproc"
-	     (file-name-directory  (locate-library "org-ref")))))
 
 ;;* Custom variables
 (defgroup org-ref-bibtex nil
