@@ -1916,7 +1916,7 @@ PATH is required for the org-link, but it does nothing here."
  (lambda (path desc format)
    (cond
     ((eq format 'latex)
-     (format "\\printindex")))))
+     (format "printindex")))))
 
 ;;* Utilities
 ;;** create text citations from a bibtex entry

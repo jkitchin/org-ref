@@ -3,6 +3,7 @@
 #+DATE: 2015-03-15 Sun
 #+OPTIONS: toc:nil ^:{}
 #+LATEX_HEADER: \usepackage{natbib}
+#+LATEX_HEADER: \usepackage[version=3]{mhchem}
 #+latex_header: \usepackage{glossaries}
 #+latex_header: \makeglossaries
 #+latex_header_extra: \newglossaryentry{acronym}{name={acronym},description={An acronym is an abbreviation used as a word which is formed from the initial components in a phrase or a word. Usually these components are individual letters (as in NATO or laser) or parts of words or names (as in Benelux)}}
@@ -251,7 +252,7 @@ The variable ~org-ref-bibtex-journal-abbreviations~ contains a mapping of a shor
      entry. Replacements are in `org-ref-nonascii-latex-replacements'. This
      function is a hook function in org-ref-clean-bibtex-entry.
 
-The non-ascii characters are looked up in a list of cons cells. You can add your own non-ascii replacements like this. Note backslashes must be escaped doubly, so one \ is \\\\ in the cons cell.
+The non-ascii characters are looked up in a list of cons cells. You can add your own non-ascii replacements like this. Note backslashes must be escaped doubly, so one =\= is =\\\\= in the cons cell.
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'org-ref-nonascii-latex-replacements
@@ -593,5 +594,5 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 * References
 <<bibliography link>>
 
-bibliographystyle:unsrtnat
+bibliographystyle:unsrt
 bibliography:org-ref.bib

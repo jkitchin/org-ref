@@ -1069,7 +1069,7 @@ Argument LINK-STRING Passed in on link click."
      (format "\\href{%s%s}{%s}"
 	     doi-utils-dx-doi-org-url
              doi
-             (or desc (concat "doi:%s" doi)))))))
+             (or desc (concat "doi:" doi)))))))
 
 
 ;;* Getting a doi for a bibtex entry missing one
