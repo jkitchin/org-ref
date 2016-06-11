@@ -8,3 +8,17 @@ sandbox
 log.org
 /test/.test-org-id-locations
 features
+auto/
+org-ref.aux
+org-ref.glo
+org-ref.ist
+org-ref.lof
+org-ref.log
+org-ref.lot
+org-ref.out
+org-ref.pdf
+org-ref.synctex.gz
+org-ref.tex
+org-ref.toc
+org-ref.bbl
+org-ref.blg
