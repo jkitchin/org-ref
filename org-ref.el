@@ -49,11 +49,6 @@
 (require 'parsebib)
 (require 'reftex-cite)
 
-(add-to-list 'load-path
-	     (expand-file-name
-	      "citeproc"
-	      (file-name-directory  (locate-library "org-ref"))))
-
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
 (declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
@@ -93,7 +88,7 @@ You should use full-paths for each file."
   nil
   "Directory where pdfs are stored by key.
 Put a trailing / in the name."
-  :type '(choice directory (repeat directory))
+  :type 'directory
   :group 'org-ref)
 
 
@@ -1990,9 +1985,10 @@ the entry of interest in the bibfile.  but does not check that."
     (let* ((bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (-first 'f-file?
-			(--map (f-join it (concat key ".pdf"))
-			       (-flatten (list org-ref-pdf-directory))))))
+           (pdf (format (concat
+			 (file-name-as-directory org-ref-pdf-directory)
+			 "%s.pdf")
+			key)))
       (message "%s" pdf)
       (if (file-exists-p pdf)
           (org-open-link-from-string (format "[[file:%s]]" pdf))
@@ -2051,19 +2047,19 @@ construct the heading by hand."
 
 	  (insert (format "[[cite:%s]]" key))
 
-	  (setq pdf (-first 'f-file?
-			    (--map (f-join it (concat key ".pdf"))
-				   (-flatten (list org-ref-pdf-directory)))))
+	  (setq pdf (expand-file-name
+		     (format "%s.pdf" key) org-ref-pdf-directory))
+	  (setq pdfrel (format "%s" key))
 	  (if (file-exists-p pdf)
 	      (insert (format
-		       " [[file:%s][pdf]]\n\n"
-		       pdf))
-	    ;; no pdf found. Prompt for a path, but allow no pdf to be inserted.
+	  	       " [[papers:%s][pdf]]\n\n"
+	  	       pdfrel))
+;;	    no pdf found. Prompt for a path, but allow no pdf to be inserted.
 	    (let ((pdf (read-file-name "PDF: " nil "no pdf" nil "no pdf")))
 	      (when (not (string= pdf "no pdf"))
-		(insert (format
-			 " [[file:%s][pdf]]\n\n"
-			 pdf)))))
+	  	(insert (format
+	  		 " [[file:%s][pdf]]\n\n"
+	  		 pdf)))))
 	  (save-buffer))))))
 
 
