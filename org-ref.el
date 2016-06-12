@@ -2054,10 +2054,11 @@ construct the heading by hand."
 	  (setq pdf (-first 'f-file?
 			    (--map (f-join it (concat key ".pdf"))
 				   (-flatten (list org-ref-pdf-directory)))))
+	  (setq pdfrel (format "%s" key))	
 	  (if (file-exists-p pdf)
 	      (insert (format
-		       " [[file:%s][pdf]]\n\n"
-		       pdf))
+		       " [[papers:%s][pdf]]\n\n"
+		       pdfrel))
 	    ;; no pdf found. Prompt for a path, but allow no pdf to be inserted.
 	    (let ((pdf (read-file-name "PDF: " nil "no pdf" nil "no pdf")))
 	      (when (not (string= pdf "no pdf"))
