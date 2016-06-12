@@ -121,9 +121,7 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
   (interactive)
   (let* ((labels (org-ref-get-labels))
          (bs (buffer-string))
-         (contexts (with-temp-buffer
-                     (insert bs)
-                     (mapcar 'org-ref-get-label-context labels)))
+         (contexts (mapcar 'org-ref-get-label-context labels))
          (cb (current-buffer)))
 
     (helm :input (thing-at-point 'word)
