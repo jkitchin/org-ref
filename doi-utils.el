@@ -768,8 +768,9 @@ Argument BIBFILE the bibliography to use."
       (if (search-forward doi nil t)
           (message "%s is already in this file" doi)
         (goto-char (point-max))
-	(if require-final-newline
-	    (insert "\n")
+	(if (re-search-backward "^}$" nil t)
+	    (progn (forward-char 1)
+		   (insert "\n\n"))
 	  (insert "\n\n"))
         (doi-utils-insert-bibtex-entry-from-doi doi)
         (save-buffer)))))
