@@ -163,18 +163,26 @@ CANDIDATE is ignored."
 User is prompted for tags.  This function is called from `helm-bibtex'.
 Argument CANDIDATES helm candidates."
   (message "")
-  (let ((keywords (read-string "Keywords (comma separated): ")))
-    (cl-loop for key in (helm-marked-candidates)
-             do
-             (save-window-excursion
-               (bibtex-completion-show-entry key)
-               (bibtex-set-field
-                "keywords"
-                (concat
-                 keywords
-                 ", " (bibtex-autokey-get-field "keywords")))
+  (let* ((keys (helm-marked-candidates))
+	 (entry (bibtex-completion-get-entry (car keys)))
+	 (field (cdr (assoc-string "keywords" entry)))
+	 (value (when field (replace-regexp-in-string "^{\\|}$" "" field)))
+	 (keywords (read-string "Keywords (comma separated): " value)))
+    (cl-loop for key in keys
+	     do
+	     (save-window-excursion
+	       (bibtex-completion-show-entry key)
+	       (bibtex-set-field
+		"keywords"
+		(concat
+	       	 (if (listp keywords)
+	       	     (if (string-match value keywords)
+	       		 (and (replace-match "")
+	       		      (mapconcat 'identity keywords ", "))
+	       	       (mapconcat 'identity keywords ", "))
+	       	   keywords)))
 	       (when (looking-back ", ")
-	       	 (delete-backward-char 2))
+		 (delete-backward-char 2))
 	       (save-buffer)))))
 
 
