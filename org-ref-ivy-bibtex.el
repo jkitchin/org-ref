@@ -23,14 +23,7 @@
 ;;
 
 ;;; Code:
-(unless (require 'ivy nil t)
-  (message "Org-ref is installing `ivy'...")
-  (let ((package-archives '(("gnu"         . "http://elpa.gnu.org/packages/")
-			    ("melpa" . "http://melpa.org/packages/"))))
-    (package-initialize)
-    (package-refresh-contents)
-    (package-install 'ivy))
-  (require 'ivy))
+(require 'ivy)
 (require 'org-ref-bibtex)
 
 ;;;###autoload

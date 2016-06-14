@@ -22,15 +22,10 @@
 ;; This file defines the completion engine for org-ref using `helm-bibtex'.
 
 ;;; Code:
+(require 'helm-config)
+(require 'helm)
+(require 'helm-bibtex)
 (require 'org-ref-helm)
-(unless (require 'helm-bibtex nil t)
-  (message "Org-ref is installing `helm-bibtex'...")
-  (let ((package-archives '(("gnu"         . "http://elpa.gnu.org/packages/")
-			    ("melpa" . "http://melpa.org/packages/"))))
-    (package-initialize)
-    (package-refresh-contents)
-    (package-install 'helm-bibtex))
-  (require 'helm-bibtex))
 
 ;;;###autoload
 (defun org-ref-bibtex-completion-completion ()

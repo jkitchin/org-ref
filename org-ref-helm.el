@@ -23,15 +23,6 @@
 ;; These are not specific to helm-bibtex.
 
 ;;; Code:
-(unless (require 'helm-config nil t)
-  (message "Org-ref is installing `helm'...")
-  (let ((package-archives '(("gnu"         . "http://elpa.gnu.org/packages/")
-			    ("melpa" . "http://melpa.org/packages/"))))
-    (package-initialize)
-    (package-refresh-contents)
-    (package-install 'helm))
-  (require 'helm-config))
-(require 'helm)
 
 ;;;###autoload
 (defun org-ref-helm-insert-label-link ()
