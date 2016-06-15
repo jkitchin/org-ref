@@ -24,13 +24,10 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
-
-;; Here is the MELPA recipe we will use.
-;; (org-ref-ivy :fetcher github
-;; 	     :repo "jkitchin/org-ref"
-;; 	     :files (:defaults "org-ref.org" "org-ref.bib" "citeproc"
-;; 			       (:exclude "org-ref-helm*.el")))
+;; Do not require this file, it is only for dependencies.
+;; Use
+;; (require 'org-ref)
+;; (require 'org-ref-ivy-cite)
 
 
 (provide 'org-ref-ivy)
