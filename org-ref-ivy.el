@@ -26,7 +26,13 @@
 ;;; Commentary:
 ;;
 
-(require 'org-ref-core)
+;; Here is the MELPA recipe we will use.
+;; (org-ref-ivy :fetcher github
+;; 	     :repo "jkitchin/org-ref"
+;; 	     :files (:defaults "org-ref.org" "org-ref.bib" "citeproc"
+;; 			       (:exclude "org-ref-helm*.el")))
+
+
 (require 'org-ref-ivy-cite)
 
 (provide 'org-ref-ivy)

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
-;; Keywords: org-mode, cite, ref, label
+;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
