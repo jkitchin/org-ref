@@ -172,17 +172,24 @@ Argument CANDIDATES helm candidates."
 	     do
 	     (save-window-excursion
 	       (bibtex-completion-show-entry key)
-	       (bibtex-set-field
-		"keywords"
-		(concat
-	       	 (if (listp keywords)
-	       	     (if (string-match value keywords)
-	       		 (and (replace-match "")
-	       		      (mapconcat 'identity keywords ", "))
-	       	       (mapconcat 'identity keywords ", "))
-	       	   keywords)))
+	       ;; delete keyword field if empty
+	       (if (string-match "^\s-*" keywords)
+		   (save-restriction
+		     (bibtex-narrow-to-entry)
+		     (bibtex-beginning-of-entry)
+		     (goto-char (car (cdr (bibtex-search-forward-field "keywords" t))))
+		     (bibtex-kill-field))
+		 (bibtex-set-field
+		  "keywords"
+		  (concat
+		   (if (listp keywords)
+		       (if (string-match value keywords)
+			   (and (replace-match "")
+				(mapconcat 'identity keywords ", "))
+			 (mapconcat 'identity keywords ", "))
+		     keywords))))
 	       (when (looking-back ", ")
-		 (delete-backward-char 2))
+	       	 (delete-backward-char 2))
 	       (save-buffer)))))
 
 
