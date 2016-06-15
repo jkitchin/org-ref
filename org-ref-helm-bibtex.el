@@ -176,7 +176,6 @@ Argument CANDIDATES helm candidates."
 	       (if (string-match "^\s-*" keywords)
 		   (save-restriction
 		     (bibtex-narrow-to-entry)
-		     (bibtex-beginning-of-entry)
 		     (goto-char (car (cdr (bibtex-search-forward-field "keywords" t))))
 		     (bibtex-kill-field))
 		 (bibtex-set-field
