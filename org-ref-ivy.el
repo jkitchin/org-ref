@@ -33,8 +33,6 @@
 ;; 			       (:exclude "org-ref-helm*.el")))
 
 
-(require 'org-ref-ivy-cite)
-
 (provide 'org-ref-ivy)
 
 ;;; org-ref-ivy.el ends here
