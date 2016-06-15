@@ -51,7 +51,7 @@ helm-cite:
 	${CASK_EXEC} ${emacs} -Q --eval="(setq jmax-load-user-dir nil)"  --eval="(setq org-ref-completion-library 'org-ref-helm-cite)" -l ../init.el tests/test-1.org
 
 ivy:
-	${CASK_EXEC} ${emacs} -Q --eval="(setq jmax-load-user-dir nil)"  --eval="(setq org-ref-completion-library 'org-ref-ivy-bibtex)" -l ../init.el tests/test-1.org
+	${CASK_EXEC} ${emacs} -Q --eval="(setq jmax-load-user-dir nil)"  --eval="(setq org-ref-completion-library 'org-ref-ivy-cite)" -l ../init.el tests/test-1.org
 
 vanilla:
 	${CASK_EXEC} ${emacs} -Q  -l ../init.el tests/test-1.org

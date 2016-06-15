@@ -1,4 +1,4 @@
-;;; org-ref-ivy-bibtex.el --- Use ivy for completion in org-ref  -*- lexical-binding: t; -*-
+;;; org-ref-ivy-cite.el --- Use ivy for completion in org-ref  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016  John Kitchin
 
@@ -27,7 +27,7 @@
 (require 'org-ref-bibtex)
 
 ;;;###autoload
-(defun org-ref-ivy-bibtex-completion ()
+(defun org-ref-ivy-cite-completion ()
   "Use ivy for completion."
   (interactive)
   ;; Define core functions for org-ref
@@ -42,7 +42,7 @@
     (kbd org-ref-insert-cite-key)
     org-ref-insert-link-function))
 
-(org-ref-ivy-bibtex-completion)
+(org-ref-ivy-cite-completion)
 
 (define-key org-mode-map (kbd "C-c C-r") 'ivy-resume)
 
@@ -290,5 +290,5 @@ _o_: Open entry   _e_: Email entry and pdf
    nil))
 
 
-(provide 'org-ref-ivy-bibtex)
-;;; org-ref-ivy-bibtex.el ends here
+(provide 'org-ref-ivy-cite)
+;;; org-ref-ivy-cite.el ends here

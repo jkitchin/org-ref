@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jkitchin/org-ref
 ;; Version: 0.8.1
 ;; Keywords: org-mode, cite, ref, label
-;; Package-Requires: ((dash "2.11.0") (helm "1.5.5") (helm-bibtex "2.0.0") (hydra "0.13.2") (key-chord "0") (s "1.10.0") (f "0.18.0") (emacs "24.4"))
+;; Package-Requires: ((dash "2.11.0") (helm "1.5.5") (helm-bibtex "2.0.0") (ivy "0.8.0") (hydra "0.13.2") (key-chord "0") (s "1.10.0") (f "0.18.0") (emacs "24.4"))
 
 ;; This file is not currently part of GNU Emacs.
 
@@ -122,7 +122,7 @@ the values of those functions."
   :type 'symbol
   :options '(org-ref-helm-bibtex	; completion with helm + helm-bibtex
 	     org-ref-helm-cite		; completion with helm in org-ref
-	     org-ref-ivy-bibtex		; completion with ivy
+	     org-ref-ivy-cite		; completion with ivy
 	     org-ref-reftex		; org-completion
 	     )
   :group 'org-ref)
@@ -414,13 +414,13 @@ label link."
 (defun org-ref-change-completion ()
   "Change the completion backend.
 Options are \"org-ref-helm-bibtex\", \"org-ref-helm-cite\",
-\"org-ref-ivy-bibtex\" and \"org-ref-reftex\"."
+\"org-ref-ivy-cite\" and \"org-ref-reftex\"."
   (interactive)
   (require
    (intern
     (completing-read "Backend: " '("org-ref-helm-bibtex"
 				   "org-ref-helm-cite"
-				   "org-ref-ivy-bibtex"
+				   "org-ref-ivy-cite"
 				   "org-ref-reftex")
 		     nil
 		     t

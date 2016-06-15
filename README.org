@@ -90,7 +90,7 @@ If you use helm-bibtex as the citation key completion method you should set thes
 
 There are alternative citation key completion methods.
 - org-ref-helm-cite :: An alternative to helm-bibtex
-- org-ref-ivy-bibtex :: Uses ivy for key completion
+- org-ref-ivy-cite :: Uses ivy for key completion
 - org-ref-reftex :: Uses reftex and org-mode for completion (no longer developed)
 
 Finally, add this to your init.el files.
