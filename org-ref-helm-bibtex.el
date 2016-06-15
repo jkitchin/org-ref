@@ -167,7 +167,7 @@ Argument CANDIDATES helm candidates."
 	 (entry (bibtex-completion-get-entry (car keys)))
 	 (field (cdr (assoc-string "keywords" entry)))
 	 (value (when field (replace-regexp-in-string "^{\\|}$" "" field)))
-	 (keywords (read-string "Keywords (comma separated): " value)))
+	 (keywords (read-string "Keywords (comma separated): " (concat value ", "))))
     (cl-loop for key in keys
 	     do
 	     (save-window-excursion
