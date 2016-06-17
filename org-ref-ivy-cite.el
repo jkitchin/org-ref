@@ -158,21 +158,24 @@ ENTRY is selected from `orhc-bibtex-candidates'."
   "Insert selected ENTRY and attach pdf file to an email.
 Create email unless called from an email."
   (with-ivy-window
-    (unless (memq major-mode '(message-mode mu4e-compose-mode))
-      (compose-mail))
-    (save-window-excursion
-      (or-ivy-bibtex-open-entry entry)
-      (bibtex-copy-entry-as-kill))
-    (message-goto-body)
-    (insert (pop bibtex-entry-kill-ring))
-    (insert "\n")
-    (let ((pdf (expand-file-name
-		(format "%s.pdf"
-			(cdr (assoc "=key=" entry)))
-		org-ref-pdf-directory)))
-      (if (file-exists-p pdf)
-	  (mml-attach-file pdf)))
-    (message-goto-to)))
+    (let ((goto-to nil))
+      (unless (memq major-mode '(message-mode mu4e-compose-mode))
+	(setq goto-to t)
+	(compose-mail)
+	(message-goto-body))
+      (save-window-excursion
+	(or-ivy-bibtex-open-entry entry)
+	(bibtex-copy-entry-as-kill))
+      (insert (pop bibtex-entry-kill-ring))
+      (insert "\n")
+      (let ((pdf (expand-file-name
+		  (format "%s.pdf"
+			  (cdr (assoc "=key=" entry)))
+		  org-ref-pdf-directory)))
+	(if (file-exists-p pdf)
+	    (mml-attach-file pdf)))
+      (when goto-to
+	(message-goto-to)))))
 
 
 (defun or-ivy-bibtex-formatted-citation (entry)
@@ -366,9 +369,11 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 	    :action 'or-ivy-bibtex-insert-cite
 	    :caller 'org-ref-ivy-insert-cite-link))
 
+
 (ivy-set-actions
  'org-ref-ivy-insert-cite-link
  org-ref-ivy-cite-actions)
+
 
 (defun org-ref-ivy-cite-transformer (s)
   "Make entry red if it is marked."
@@ -379,7 +384,6 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 (ivy-set-display-transformer
  'org-ref-ivy-insert-cite-link
  'org-ref-ivy-cite-transformer )
-
 
 
 (defun org-ref-ivy-insert-label-link ()
