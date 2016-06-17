@@ -194,7 +194,9 @@ Create email unless called from an email."
 
 
 (defun or-ivy-bibtex-add-entry (entry)
-  "Open a bibliography file and move point to the end, in order to add a new bibtex entry. ENTRY is selected from `orhc-bibtex-candidates' but ignored."
+  "Open a bibliography file and move point to the end, in order
+to add a new bibtex entry. ENTRY is selected from
+`orhc-bibtex-candidates' but ignored."
   (ivy-read "bibtex file: " org-ref-bibtex-files
 	    :require-match t
 	    :action 'find-file
