@@ -42,9 +42,8 @@
     (kbd org-ref-insert-cite-key)
     org-ref-insert-link-function))
 
+;; setup the functions and keybinding
 (org-ref-ivy-cite-completion)
-
-(define-key org-mode-map (kbd "C-c C-r") 'ivy-resume)
 
 ;; messages in minibuffer interfere with hydra menus.
 (setq org-ref-show-citation-on-enter nil)
@@ -72,9 +71,15 @@
 
 (defun or-ivy-bibtex-insert-cite (entry)
   "Insert a citation for ENTRY.
-ENTRY is selected from `orhc-bibtex-candidates'."
+If `org-ref-ivy-cite-marked-candidates' is non-nil then they are
+added instead of ENTRY. ENTRY is selected from
+`orhc-bibtex-candidates'."
   (with-ivy-window
-    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
+    (if org-ref-ivy-cite-marked-candidates
+	(loop for entry in org-ref-ivy-cite-marked-candidates
+	      do
+	      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))))
 
 
 (defun or-ivy-bibtex-open-pdf (entry)
