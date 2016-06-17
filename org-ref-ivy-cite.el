@@ -301,9 +301,16 @@ If candidate is already in, remove it."
   (ivy--reset-state ivy-last))
 
 
+(defvar org-ref-ivy-saved nil
+  "stores entries when marked candidates are restored.")
+
+
 (defun org-ref-ivy-show-marked-candidates ()
   "Show marked candidates."
-  (interactive) 
+  (interactive)
+  (setq org-ref-ivy-saved (-filter (lambda (x)
+				     (-contains? ivy--old-cands (car x)))
+				   (ivy-state-collection ivy-last)))
   (setf (ivy-state-collection ivy-last) org-ref-ivy-cite-marked-candidates)
   (setf (ivy-state-preselect ivy-last) ivy--current)
   (ivy--reset-state ivy-last))
@@ -312,7 +319,9 @@ If candidate is already in, remove it."
 (defun org-ref-ivy-show-all ()
   "Show all the candidates."
   (interactive)
-  (setf (ivy-state-collection ivy-last) (orhc-bibtex-candidates))
+  (setf (ivy-state-collection ivy-last)
+	org-ref-ivy-saved
+	org-ref-ivy-saved nil) 
   (ivy--reset-state ivy-last))
 
 ;; * org-ref-cite keymap
@@ -326,6 +335,14 @@ If candidate is already in, remove it."
     (define-key map (kbd "C-<down>") 'org-ref-ivy-move-down)
     (define-key map (kbd "C-y") 'org-ref-ivy-sort-year-ascending)
     (define-key map (kbd "C-M-y") 'org-ref-ivy-sort-year-descending)
+    (define-key map (kbd "C-k") (lambda ()
+				  (interactive)
+				  (beginning-of-line)
+				  (kill-visual-line)
+				  (setf (ivy-state-collection ivy-last)
+					(orhc-bibtex-candidates))
+				  (setf (ivy-state-preselect ivy-last) ivy--current)
+				  (ivy--reset-state ivy-last)))
     (define-key map (kbd "C-<return>")
       (lambda ()
 	"Apply action and move to next/previous candidate."
