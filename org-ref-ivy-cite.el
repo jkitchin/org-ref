@@ -71,9 +71,8 @@
 
 (defun or-ivy-bibtex-insert-cite (entry)
   "Insert a citation for ENTRY.
-If `org-ref-ivy-cite-marked-candidates' is non-nil then they are
-added instead of ENTRY. ENTRY is selected from
-`orhc-bibtex-candidates'."
+If `org-ref-ivy-cite-marked-candidates' is non-nil then they are added instead of ENTRY.
+ENTRY is selected from `orhc-bibtex-candidates'."
   (with-ivy-window
     (if org-ref-ivy-cite-marked-candidates
 	(loop for entry in org-ref-ivy-cite-marked-candidates
@@ -284,40 +283,24 @@ to add a new bibtex entry. ENTRY is selected from
 (defun org-ref-ivy-mark-candidate () 
   "Add current candidate to `org-ref-ivy-cite-marked-candidates'.
 If candidate is already in, remove it."
-  (interactive)
-  
+  (interactive) 
   (let ((cand (or (assoc ivy--current (ivy-state-collection ivy-last))
 		  ivy--current)))
     (if (-contains? org-ref-ivy-cite-marked-candidates cand)
 	;; remove it from the marked list
-	(progn
-	  (setf (car cand) (propertize (car cand) 'face nil))
-	  (setq org-ref-ivy-cite-marked-candidates
-		(-remove-item cand org-ref-ivy-cite-marked-candidates)))
+	(setq org-ref-ivy-cite-marked-candidates
+	      (-remove-item cand org-ref-ivy-cite-marked-candidates))
       
       ;; add to list
       (setq org-ref-ivy-cite-marked-candidates
-	    (append org-ref-ivy-cite-marked-candidates (list cand)))
-      (setf (car cand) (propertize (car cand) 'face 'font-lock-warning-face))))
+	    (append org-ref-ivy-cite-marked-candidates (list cand)))))
   
-  (setf (ivy-state-collection ivy-last)
-	(-filter (lambda (x)
-		   (-contains? ivy--old-cands (car x)))
-		 (ivy-state-collection ivy-last)))
-  (setf (ivy-state-preselect ivy-last) ivy--current)
-  (ivy--reset-state ivy-last))
-
-
-(defvar org-ref-ivy-saved nil
-  "stores entries when marked candidates are restored.")
+  (ivy-next-line))
 
 
 (defun org-ref-ivy-show-marked-candidates ()
   "Show marked candidates."
-  (interactive)
-  (setq org-ref-ivy-saved (-filter (lambda (x)
-				     (-contains? ivy--old-cands (car x)))
-				   (ivy-state-collection ivy-last)))
+  (interactive) 
   (setf (ivy-state-collection ivy-last) org-ref-ivy-cite-marked-candidates)
   (setf (ivy-state-preselect ivy-last) ivy--current)
   (ivy--reset-state ivy-last))
@@ -327,8 +310,7 @@ If candidate is already in, remove it."
   "Show all the candidates."
   (interactive)
   (setf (ivy-state-collection ivy-last)
-	org-ref-ivy-saved
-	org-ref-ivy-saved nil) 
+	(orhc-bibtex-candidates)) 
   (ivy--reset-state ivy-last))
 
 ;; * org-ref-cite keymap
@@ -377,10 +359,6 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 			       (org-ref-find-bibliography)))
   (setq org-ref-ivy-cite-marked-candidates '())
 
-  (mapcar (lambda (cand)
-	    (setf (car cand) (propertize (car cand) 'face nil)))
-	  (orhc-bibtex-candidates))
-
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
 	    :keymap org-ref-ivy-cite-keymap
@@ -391,6 +369,16 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 (ivy-set-actions
  'org-ref-ivy-insert-cite-link
  org-ref-ivy-cite-actions)
+
+(defun org-ref-ivy-cite-transformer (s)
+  "Make entry red if it is marked."
+  (if (-contains? (mapcar 'car org-ref-ivy-cite-marked-candidates) s)
+      (propertize s 'face 'font-lock-warning-face)
+    (propertize s 'face s)))
+
+(ivy-set-display-transformer
+ 'org-ref-ivy-insert-cite-link
+ 'org-ref-ivy-cite-transformer )
 
 
 
