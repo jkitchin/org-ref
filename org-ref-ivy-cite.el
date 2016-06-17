@@ -277,19 +277,28 @@ Create email unless called from an email."
 (defun org-ref-ivy-mark-candidate () 
   "Add current candidate to `org-ref-ivy-cite-marked-candidates'.
 If candidate is already in, remove it."
-  (interactive) 
+  (interactive)
+  
   (let ((cand (or (assoc ivy--current (ivy-state-collection ivy-last))
 		  ivy--current)))
     (if (-contains? org-ref-ivy-cite-marked-candidates cand)
-	;; remove it
+	;; remove it from the marked list
 	(progn
+	  (setf (car cand) (propertize (car cand) 'face nil))
 	  (setq org-ref-ivy-cite-marked-candidates
-		(-remove-item cand org-ref-ivy-cite-marked-candidates))
-	  ;; reset view
-	  (setf (ivy-state-collection ivy-last) org-ref-ivy-cite-marked-candidates)
-	  (ivy--reset-state ivy-last))
+		(-remove-item cand org-ref-ivy-cite-marked-candidates)))
+      
+      ;; add to list
       (setq org-ref-ivy-cite-marked-candidates
-	    (append org-ref-ivy-cite-marked-candidates (list cand))))))
+	    (append org-ref-ivy-cite-marked-candidates (list cand)))
+      (setf (car cand) (propertize (car cand) 'face 'font-lock-warning-face))))
+  
+  (setf (ivy-state-collection ivy-last)
+	(-filter (lambda (x)
+		   (-contains? ivy--old-cands (car x)))
+		 (ivy-state-collection ivy-last)))
+  (setf (ivy-state-preselect ivy-last) ivy--current)
+  (ivy--reset-state ivy-last))
 
 
 (defun org-ref-ivy-show-marked-candidates ()
@@ -343,6 +352,10 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 				 org-ref-default-bibliography
 			       (org-ref-find-bibliography)))
   (setq org-ref-ivy-cite-marked-candidates '())
+
+  (mapcar (lambda (cand)
+	    (setf (car cand) (propertize (car cand) 'face nil)))
+	  (orhc-bibtex-candidates))
 
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
