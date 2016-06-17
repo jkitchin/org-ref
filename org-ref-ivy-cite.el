@@ -222,15 +222,131 @@ Create email unless called from an email."
 (defvar org-ref-ivy-cite-re-builder 'ivy--regex-ignore-order
   "Regex builder to use in `org-ref-ivy-insert-cite-link'. Can be set to nil to use Ivy's default).")
 
+(defun org-ref-swap (i j lst)
+  "Swap index I and J in the list LST." 
+  (let ((tempi (nth i lst)))
+    (setf (nth i lst) (nth j lst))
+    (setf (nth j lst) tempi))
+  lst)
+
+(defun org-ref-ivy-move-up ()
+  "Move ivy candidate up and update candidates."
+  (interactive)
+  (setf (ivy-state-collection ivy-last)
+        (org-ref-swap ivy--index (1- ivy--index) (ivy-state-collection ivy-last)))
+  (setf (ivy-state-preselect ivy-last) ivy--current)
+  (ivy--reset-state ivy-last))
+
+(defun org-ref-ivy-move-down ()
+  "Move ivy candidate down."
+  (interactive)
+  (setf (ivy-state-collection ivy-last)
+        (org-ref-swap ivy--index (1+ ivy--index) (ivy-state-collection ivy-last)))
+  (setf (ivy-state-preselect ivy-last) ivy--current)
+  (ivy--reset-state ivy-last))
+
+(defun org-ref-ivy-sort-year-ascending ()
+  "Sort entries by year in ascending order."
+  (interactive)
+  (setf (ivy-state-collection ivy-last)
+	(cl-sort (copy-sequence (ivy-state-collection ivy-last))
+		 (lambda (a b)
+		   (let ((y1 (string-to-int (or (cdr (assoc "year" a)) "0")))
+			 (y2 (string-to-int (or (cdr (assoc "year" b)) "0"))))
+		     (< y1 y2)))))
+  (setf (ivy-state-preselect ivy-last) ivy--current)
+  (ivy--reset-state ivy-last))
+
+(defun org-ref-ivy-sort-year-descending ()
+  "sort entries by year in descending order."
+  (interactive)
+  (setf (ivy-state-collection ivy-last)
+	(cl-sort (copy-sequence (ivy-state-collection ivy-last))
+		 (lambda (a b)
+		   (let ((y1 (string-to-int (or (cdr (assoc "year" a)) "0")))
+			 (y2 (string-to-int (or (cdr (assoc "year" b)) "0"))))
+		     (> y1 y2)))))
+  (setf (ivy-state-preselect ivy-last) ivy--current)
+  (ivy--reset-state ivy-last))
+
+;; * marking candidates
+(defvar org-ref-ivy-cite-marked-candidates '()
+  "Holds entries marked in `org-ref-ivy-insert-cite-link'.")
+
+
+(defun org-ref-ivy-mark-candidate () 
+  "Add current candidate to `org-ref-ivy-cite-marked-candidates'.
+If candidate is already in, remove it."
+  (interactive) 
+  (let ((cand (or (assoc ivy--current (ivy-state-collection ivy-last))
+		  ivy--current)))
+    (if (-contains? org-ref-ivy-cite-marked-candidates cand)
+	;; remove it
+	(progn
+	  (setq org-ref-ivy-cite-marked-candidates
+		(-remove-item cand org-ref-ivy-cite-marked-candidates))
+	  ;; reset view
+	  (setf (ivy-state-collection ivy-last) org-ref-ivy-cite-marked-candidates)
+	  (ivy--reset-state ivy-last))
+      (setq org-ref-ivy-cite-marked-candidates
+	    (append org-ref-ivy-cite-marked-candidates (list cand))))))
+
+
+(defun org-ref-ivy-show-marked-candidates ()
+  "Show marked candidates."
+  (interactive) 
+  (setf (ivy-state-collection ivy-last) org-ref-ivy-cite-marked-candidates)
+  (setf (ivy-state-preselect ivy-last) ivy--current)
+  (ivy--reset-state ivy-last))
+
+
+(defun org-ref-ivy-show-all ()
+  "Show all the candidates."
+  (interactive)
+  (setf (ivy-state-collection ivy-last) (orhc-bibtex-candidates))
+  (ivy--reset-state ivy-last))
+
+;; * org-ref-cite keymap
+
+(defvar org-ref-ivy-cite-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-<SPC>") 'org-ref-ivy-mark-candidate)
+    (define-key map (kbd "C-,") 'org-ref-ivy-show-marked-candidates)
+    (define-key map (kbd "C-.") 'org-ref-ivy-show-all) 
+    (define-key map (kbd "C-<up>") 'org-ref-ivy-move-up)
+    (define-key map (kbd "C-<down>") 'org-ref-ivy-move-down)
+    (define-key map (kbd "C-y") 'org-ref-ivy-sort-year-ascending)
+    (define-key map (kbd "C-M-y") 'org-ref-ivy-sort-year-descending)
+    (define-key map (kbd "C-<return>")
+      (lambda ()
+	"Apply action and move to next/previous candidate."
+	(interactive)
+	(ivy-call)
+	(ivy-next-line)))
+    (define-key ivy-minibuffer-map (kbd "M-<return>")
+      (lambda ()
+	"Apply default action to all marked candidates."
+	(interactive)
+	(mapcar (ivy--get-action ivy-last)
+		org-ref-ivy-cite-marked-candidates)
+	(ivy-exit-with-action (function (lambda (x) nil)))))
+    map)
+  "A key map for `org-ref-ivy-insert-cite-link'.")
+
 
 (defun org-ref-ivy-insert-cite-link (&optional arg)
-  "ivy function for interacting with bibtex."
+  "ivy function for interacting with bibtex.
+Uses `org-ref-find-bibliography' for bibtex sources, unless a
+prefix ARG is used, which uses `org-ref-default-bibliography'."
   (interactive "P")
   (setq org-ref-bibtex-files (if arg
 				 org-ref-default-bibliography
 			       (org-ref-find-bibliography)))
+  (setq org-ref-ivy-cite-marked-candidates '())
+
   (ivy-read "Open: " (orhc-bibtex-candidates)
 	    :require-match t
+	    :keymap org-ref-ivy-cite-keymap
 	    :re-builder org-ref-ivy-cite-re-builder
 	    :action 'or-ivy-bibtex-insert-cite
 	    :caller 'org-ref-ivy-insert-cite-link))
@@ -265,7 +381,7 @@ Create email unless called from an email."
 _p_: Open pdf     _w_: WOS          _g_: Google Scholar _K_: Copy citation to clipboard
 _u_: Open url     _r_: WOS related  _P_: Pubmed         _k_: Copy key to clipboard
 _n_: Open notes   _c_: WOS citing   _C_: Crossref       _f_: Copy bibtex entry to file
-_o_: Open entry   _e_: Email entry and pdf
+_o_: Open entry   _e_: Email entry and pdf              _q_: quit
 "
   ("o" org-ref-open-citation-at-point nil)
   ("p" org-ref-open-pdf-at-point nil)
@@ -287,7 +403,8 @@ _o_: Open entry   _e_: Email entry and pdf
   ("e" (save-excursion
 	 (org-ref-open-citation-at-point)
 	 (org-ref-email-bibtex-entry))
-   nil))
+   nil)
+  ("q" nil))
 
 
 (provide 'org-ref-ivy-cite)
