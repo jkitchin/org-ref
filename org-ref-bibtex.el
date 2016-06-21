@@ -1076,11 +1076,11 @@ Update the cache if necessary."
 
 ;;* org-ref bibtex formatted citation
 (defun orhc-formatted-citation (entry)
-  "Get a formatted string for entry."
+  "Get a formatted string for ENTRY."
   (let* ((adaptive-fill-function '(lambda () "    "))
 	 (indent-tabs-mode nil)
 	 (entry-type (downcase
-		      (cdr (assoc "=type=" (cdr entry)))))
+		      (cdr (assoc "=type=" entry))))
 	 (entry-styles (cdr (assoc 'entries bibliography-style)))
 	 (entry-fields
 	  (progn
