@@ -24,12 +24,8 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Do not require this file, it is only for dependencies.
-;; Use
-;; (require 'org-ref)
-;; (require 'org-ref-ivy-cite)
 
-
+(require 'org-ref-core)
 (provide 'org-ref-ivy)
 
 ;;; org-ref-ivy.el ends here
