@@ -34,14 +34,6 @@
 (require 'f)
 (require 's)
 (require 'doi-utils)
-(require 'org-ref-bibtex)
-(require 'org-ref-utils)
-(require 'org-ref-glossary)
-(require 'org)
-(require 'org-element)
-(require 'ox)
-(require 'parsebib)
-(require 'reftex-cite)
 
 (add-to-list 'load-path
 	     (expand-file-name
@@ -52,6 +44,16 @@
 	     (expand-file-name
 	      "citeproc/csl"
 	      (file-name-directory  (locate-library "org-ref"))))
+
+(require 'org-ref-bibtex)
+(require 'org-ref-utils)
+(require 'org-ref-glossary)
+(require 'org)
+(require 'org-element)
+(require 'ox)
+(require 'parsebib)
+(require 'reftex-cite)
+
 
 ;;for byte-compile error avoidance
 (defvar-local org-export-exclude-tags nil)
