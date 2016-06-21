@@ -786,7 +786,6 @@ Collapsed ranges are separated by DELIMITER."
 		(mapcar 'reverse (reverse groups)))
 	       delimiter)))
 
-(provide 'org-ref-citeproc)
 
 ;;* Putting it all together
 
@@ -905,4 +904,6 @@ documents."
        (when link-replacements
          (message "Warning: No bibliography link found although there are citations to process"))))))
 
+;; * the end
+(provide 'org-ref-citeproc)
 ;;; org-ref-citeproc.el ends here
