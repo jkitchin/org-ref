@@ -441,5 +441,28 @@ _o_: Open entry   _e_: Email entry  ^ ^                 _q_: quit
   ("q" nil))
 
 
+
+(defun org-ref-ivy-onclick-actions ()
+  "An alternate click function that uses ivy for action selection.
+Each action is taken from `org-ref-ivy-cite-actions'. Each action
+should act on a bibtex entry that matches the key in
+`orhc-bibtex-candidates'. Set `org-ref-cite-onclick-function' to
+this function to use it."
+  (interactive)
+  (ivy-read
+   "action: "
+   (loop for i from 0
+	 for (char func s) in 
+	 org-ref-ivy-cite-actions
+	 collect (cons (format "%2s. %s" i s) func))
+   :action (lambda (f)
+	     (let* ((key (car (org-ref-get-bibtex-key-and-file))) 
+		    (entry (cdr (elt (orhc-bibtex-candidates)
+				     (-elem-index
+				      key
+				      (loop for entry in (orhc-bibtex-candidates)
+					    collect (cdr (assoc "=key=" entry )))))))) 
+	       (funcall f entry)))))
+
 (provide 'org-ref-ivy-cite)
 ;;; org-ref-ivy-cite.el ends here
