@@ -24,7 +24,6 @@
 
 ;;; Code:
 (require 'ivy)
-(require 'org-ref-core)
 (require 'org-ref-bibtex)
 (require 'org-ref-citeproc)
 (require 'unsrt)  			; a default citation style.

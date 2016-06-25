@@ -28,8 +28,7 @@
 
 (setq org-ref-completion-library 'org-ref-ivy-cite)
 
-(require 'org-ref-core)
-
+(require 'org-ref-ivy-cite)
 
 (provide 'org-ref-ivy)
 
