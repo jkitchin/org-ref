@@ -39,7 +39,7 @@
 
 ;;; Code:
 (require 'bibtex)
-(require 'org-ref)
+(require 'org-ref-core)
 
 ;;* RIS to bibtex
 
