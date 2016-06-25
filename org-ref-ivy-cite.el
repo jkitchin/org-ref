@@ -202,9 +202,9 @@ Create email unless called from an email."
   (kill-new (or-ivy-bibtex-formatted-citation entry)))
 
 
-(defun or-ivy-bibtex-add-entry (entry)
+(defun or-ivy-bibtex-add-entry (_)
   "Open a bibliography file and move point to the end, in order
-to add a new bibtex entry. ENTRY is selected from
+to add a new bibtex entry. The arg is selected from
 `orhc-bibtex-candidates' but ignored."
   (ivy-read "bibtex file: " org-ref-bibtex-files
 	    :require-match t
