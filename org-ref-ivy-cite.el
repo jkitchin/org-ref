@@ -452,7 +452,7 @@ this function to use it."
   (ivy-read
    "action: "
    (loop for i from 0
-	 for (char func s) in 
+	 for (_ func s) in 
 	 org-ref-ivy-cite-actions
 	 collect (cons (format "%2s. %s" i s) func))
    :action (lambda (f)
