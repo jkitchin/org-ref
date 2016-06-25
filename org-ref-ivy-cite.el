@@ -347,8 +347,8 @@ If candidate is already in, remove it."
       (lambda ()
 	"Apply default action to all marked candidates."
 	(interactive)
-	(mapcar (ivy--get-action ivy-last)
-		org-ref-ivy-cite-marked-candidates)
+	(mapc (ivy--get-action ivy-last)
+	      org-ref-ivy-cite-marked-candidates)
 	(ivy-exit-with-action (function (lambda (x) nil)))))
     map)
   "A key map for `org-ref-ivy-insert-cite-link'.")
