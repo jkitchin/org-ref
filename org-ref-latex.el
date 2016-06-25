@@ -24,7 +24,7 @@
 ;;
 
 ;;; Code:
-(require 'org-ref)
+(require 'org-ref-core)
 
 (defvar latex-mode-map)
 

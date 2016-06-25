@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'f)
 (require 'org)
-(require 'org-ref)
+(require 'org-ref-core)
 
 ;; byte-compile
 (defvar-local url-http-end-of-headers nil)

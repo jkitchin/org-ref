@@ -29,7 +29,7 @@
 (require 'dash)
 (require 'f)
 (require 'org)
-(require 'org-ref)
+(require 'org-ref-core)
 (require 's)
 
 ;; This is a local variable defined in `url-http'.  We need it to avoid
