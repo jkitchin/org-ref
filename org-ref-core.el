@@ -38,12 +38,14 @@
 (add-to-list 'load-path
 	     (expand-file-name
 	      "citeproc"
-	      (file-name-directory  (locate-library "org-ref"))))
+	      (file-name-directory
+	       (locate-library "org-ref-core"))))
 
 (add-to-list 'load-path
 	     (expand-file-name
 	      "citeproc/csl"
-	      (file-name-directory  (locate-library "org-ref"))))
+	      (file-name-directory
+	       (locate-library "org-ref-core"))))
 
 (require 'org-ref-bibtex)
 (require 'org-ref-utils)
@@ -2665,8 +2667,8 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
     (when (-contains? org-ref-cite-types type)
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (setq keys (org-ref-split-and-strip-string link-string))
-      (setq i (org-ref-list-index key keys))  ;; defined in org-ref
-      (if (> direction 0) ;; shift right
+      (setq i (org-ref-list-index key keys)) ;; defined in org-ref
+      (if (> direction 0)		     ;; shift right
           (org-ref-swap-keys i (+ i 1) keys)
         (org-ref-swap-keys i (- i 1) keys))
       (setq keys (mapconcat 'identity keys ","))
@@ -2685,7 +2687,8 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
           " ")))
       ;; now go forward to key so we can move with the key
       (re-search-forward key)
-      (goto-char (match-beginning 0)))))
+      (goto-char (match-beginning 0))
+      (org-element-cache-reset))))
 
 ;; add hooks to make it work
 (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
