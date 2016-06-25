@@ -153,7 +153,9 @@ the citation link into the buffer."
 
 (defcustom org-ref-cite-completion-function
   nil
-  "Function to prompt for keys with completion.")
+  "Function to prompt for keys with completion."
+  :type 'function
+  :group 'org-ref)
 
 
 (defcustom org-ref-insert-label-function
