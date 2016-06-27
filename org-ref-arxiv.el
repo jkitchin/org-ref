@@ -127,6 +127,8 @@ Returns a formatted BibTeX entry."
            (temp-bibtex (format arxiv-entry-format-string "" title names year arxiv-number category abstract url))
            (key (with-temp-buffer
                   (insert temp-bibtex)
+		  (bibtex-mode)
+		  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
                   (bibtex-generate-autokey))))
       (format arxiv-entry-format-string key title names year arxiv-number category abstract url))))
 
