@@ -38,14 +38,12 @@
 (add-to-list 'load-path
 	     (expand-file-name
 	      "citeproc"
-	      (file-name-directory
-	       (locate-library "org-ref-core"))))
+	      (file-name-directory (or load-file-name (buffer-file-name)))))
 
 (add-to-list 'load-path
 	     (expand-file-name
 	      "citeproc/csl"
-	      (file-name-directory
-	       (locate-library "org-ref-core"))))
+	      (file-name-directory (or load-file-name (buffer-file-name)))))
 
 (require 'org-ref-bibtex)
 (require 'org-ref-utils)
