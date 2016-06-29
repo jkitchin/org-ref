@@ -111,7 +111,6 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
 [[#custom-id]] link"
   (interactive)
   (let* ((labels (org-ref-get-labels))
-         (bs (buffer-string))
          (contexts (mapcar 'org-ref-get-label-context labels))
          (cb (current-buffer)))
 
