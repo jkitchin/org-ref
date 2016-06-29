@@ -45,6 +45,8 @@
 
 ;;; Code:
 
+(declare-function 'url-http-file-exists-p "url-http.el")
+
 ;;* Customization
 (defgroup doi-utils nil
   "Customization group for doi-utils."
