@@ -41,11 +41,9 @@
 (require 'json)
 (require 'org)                          ; org-add-link-type
 (require 'org-bibtex)                   ; org-bibtex-yank
-
+(require 'url-http)
 
 ;;; Code:
-
-(declare-function 'url-http-file-exists-p "url-http.el")
 
 ;;* Customization
 (defgroup doi-utils nil
