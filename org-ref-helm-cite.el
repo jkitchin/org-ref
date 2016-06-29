@@ -30,6 +30,9 @@
 
 ;;
 
+(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+
 ;;; Code:
 (require 'org-ref-helm)
 (require 'org-ref-bibtex)
