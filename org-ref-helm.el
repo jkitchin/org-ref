@@ -23,6 +23,12 @@
 ;; These are not specific to helm-bibtex.
 
 ;;; Code:
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function 'org-ref-bad-file-link-candidates "org-ref-core.el")
+(declare-function 'org-ref-get-labels "org-ref-core.el")
+(declare-function 'org-ref-bad-cite-candidates "org-ref-core.el")
+(declare-function 'org-ref-bad-ref-candidates "org-ref-core.el")
+(declare-function 'org-ref-bad-label-candidates "org-ref-core.el")
 
 ;;;###autoload
 (defun org-ref-helm-insert-label-link ()
