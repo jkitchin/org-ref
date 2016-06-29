@@ -21,6 +21,11 @@
 ;;; Commentary:
 ;; This file defines the completion engine for org-ref using `helm-bibtex'.
 
+(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function 'org-ref-get-citation-string-at-point "org-ref-core.el")
+
+
 ;;; Code:
 (require 'helm-config)
 (require 'helm)
