@@ -25,6 +25,9 @@
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-get-citation-string-at-point "org-ref-core.el")
 
+(defvar org-ref-get-pdf-filename-function)
+(defvar org-ref-default-citation-link)
+(defvar org-ref-cite-types)
 
 ;;; Code:
 (require 'helm-config)
