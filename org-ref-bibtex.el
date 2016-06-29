@@ -62,8 +62,20 @@
 
 (require 'org-ref-citeproc)
 
-
 ;;; Code:
+
+;; This is duplicated from org-ref-core to try to avoid a byte-compile error.
+(add-to-list 'load-path
+	     (expand-file-name
+	      "citeproc"
+	      (file-name-directory (or load-file-name (buffer-file-name)))))
+
+(add-to-list 'load-path
+	     (expand-file-name
+	      "citeproc/csl"
+	      (file-name-directory (or load-file-name (buffer-file-name)))))
+
+(require 'unsrt)
 
 ;;* Custom variables
 (defgroup org-ref-bibtex nil

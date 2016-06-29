@@ -23,12 +23,15 @@
 ;; These are not specific to helm-bibtex.
 
 ;;; Code:
+
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-bad-file-link-candidates "org-ref-core.el")
 (declare-function 'org-ref-get-labels "org-ref-core.el")
 (declare-function 'org-ref-bad-cite-candidates "org-ref-core.el")
 (declare-function 'org-ref-bad-ref-candidates "org-ref-core.el")
 (declare-function 'org-ref-bad-label-candidates "org-ref-core.el")
+
+(require 'org-element)
 
 ;;;###autoload
 (defun org-ref-helm-insert-label-link ()
@@ -117,7 +120,6 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
 [[#custom-id]] link"
   (interactive)
   (let* ((labels (org-ref-get-labels))
-         (bs (buffer-string))
          (contexts (mapcar 'org-ref-get-label-context labels))
          (cb (current-buffer)))
 

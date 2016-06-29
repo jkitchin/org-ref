@@ -66,6 +66,7 @@
 ;; acrfull:label
 ;; acrlong:label
 
+(require 'org-element)
 
 ;;; Code:
 (defgroup org-ref-glossary nil

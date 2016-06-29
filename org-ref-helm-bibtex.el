@@ -21,6 +21,7 @@
 ;;; Commentary:
 ;; This file defines the completion engine for org-ref using `helm-bibtex'.
 
+
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-get-citation-string-at-point "org-ref-core.el")
@@ -28,6 +29,12 @@
 (defvar org-ref-get-pdf-filename-function)
 (defvar org-ref-default-citation-link)
 (defvar org-ref-cite-types)
+(defvar org-ref-insert-link-function)
+(defvar org-ref-insert-cite-function)
+(defvar org-ref-insert-label-function)
+(defvar org-ref-insert-ref-function)
+(defvar org-ref-cite-onclick-function)
+(defvar org-ref-insert-cite-key)
 
 ;;; Code:
 (require 'helm-config)
@@ -191,8 +198,8 @@ Argument CANDIDATES helm candidates."
 				(mapconcat 'identity keywords ", "))
 			 (mapconcat 'identity keywords ", "))
 		     keywords))))
-	       (when (looking-back ", ")
-	       	 (delete-backward-char 2))
+	       (when (looking-back ", " (line-beginning-position))
+	       	 (delete-char 2))
 	       (save-buffer)))))
 
 

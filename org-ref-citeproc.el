@@ -10,6 +10,15 @@
 ;;; Commentary:
 ;;
 
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-keys "org-ref-core.el")
+(defvar org-export-current-backend)
+(defvar org-ref-cite-types)
+
+(require 'org-element)
+
+
+
 ;;; Code:
 (defvar *orcp-citation-links* '()
   "List of citation links in the text.
@@ -871,7 +880,7 @@ documents."
 
 	     ;; preserve trailing space
 	     (goto-char end)
-	     (setq trailing-space (if (looking-back " ") " " ""))
+	     (setq trailing-space (if (looking-back " " (line-beginning-position)) " " ""))
 
 	     (setf (buffer-substring start end) (concat repl trailing-space))
 
