@@ -26,7 +26,9 @@
 (require 'ivy)
 (require 'org-ref-bibtex)
 (require 'org-ref-citeproc)
-(require 'unsrt)  			; a default citation style.
+
+(defvar org-ref-ivy-cite-marked-candidates '()
+  "Holds entries marked in `org-ref-ivy-insert-cite-link'.")
 
 ;;;###autoload
 (defun org-ref-ivy-cite-completion ()
@@ -281,9 +283,6 @@ to add a new bibtex entry. The arg is selected from
   (ivy--reset-state ivy-last))
 
 ;; * marking candidates
-(defvar org-ref-ivy-cite-marked-candidates '()
-  "Holds entries marked in `org-ref-ivy-insert-cite-link'.")
-
 
 (defun org-ref-ivy-mark-candidate () 
   "Add current candidate to `org-ref-ivy-cite-marked-candidates'.
