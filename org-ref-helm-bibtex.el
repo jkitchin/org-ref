@@ -184,7 +184,7 @@ Argument CANDIDATES helm candidates."
 			 (mapconcat 'identity keywords ", "))
 		     keywords))))
 	       (when (looking-back ", ")
-	       	 (delete-backward-char 2))
+	       	 (delete-char 2))
 	       (save-buffer)))))
 
 
