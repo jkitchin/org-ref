@@ -75,8 +75,6 @@
 	      "citeproc/csl"
 	      (file-name-directory (or load-file-name (buffer-file-name)))))
 
-(require 'unsrt)
-
 ;;* Custom variables
 (defgroup org-ref-bibtex nil
   "Customization group for org-ref-bibtex."
@@ -1095,6 +1093,7 @@ Update the cache if necessary."
 ;;* org-ref bibtex formatted citation
 (defun orhc-formatted-citation (entry)
   "Get a formatted string for ENTRY."
+  (require 'unsrt)
   (let* ((adaptive-fill-function '(lambda () "    "))
 	 (indent-tabs-mode nil)
 	 (entry-type (downcase
