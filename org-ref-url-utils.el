@@ -32,6 +32,17 @@
 ;; DOIs at a URL, you can press Meta during the drag-n-drop.
 
 ;;; Code:
+(defvar org-ref-bibliography-entry-format)
+(defvar org-ref-get-pdf-filename-function)
+(defvar org-ref-notes-function)
+(defvar org-ref-cite-types)
+
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function 'org-ref-key-in-file-p "org-ref-core.el")
+(declare-function 'org-ref-bib-citation "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
+
 (require 'doi-utils)
 (require 'f)
 (eval-when-compile
