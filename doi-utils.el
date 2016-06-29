@@ -34,6 +34,13 @@
 ;; - doi-utils-add-bibtex-entry-from-doi to add an entry to your default bibliography (cleaned with pdf if possible).
 ;; - doi-utils-update-bibtex-entry-from-doi with cursor in an entry to update its fields.
 
+
+(defvar org-ref-pdf-directory)
+(defvar org-ref-bibliography-notes)
+(defvar org-ref-default-bibliography)
+(defvar reftex-default-bibliography)
+(declare-function 'org-ref-bib-citation "org-ref-core.el")
+
 (require 'bibtex)
 (eval-when-compile
   (require 'cl))
