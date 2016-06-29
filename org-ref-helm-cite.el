@@ -33,6 +33,18 @@
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 
+(defvar org-ref-pdf-directory)
+(defvar org-ref-notes-directory)
+(defvar org-ref-cite-types)
+(defvar org-ref-default-citation-link)
+(defvar org-ref-insert-link-function)
+(defvar org-ref-insert-cite-function)
+(defvar org-ref-insert-label-function)
+(defvar org-ref-insert-ref-function)
+(defvar org-ref-cite-onclick-function)
+(defvar org-ref-insert-cite-key)
+
+
 ;;; Code:
 (require 'org-ref-helm)
 (require 'org-ref-bibtex)
