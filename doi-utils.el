@@ -1238,7 +1238,8 @@ error."
                  "Bibfile: "
                  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                          org-ref-default-bibliography))))
-  (let* ((json-string)
+  (let* ((raw-json-string)
+	 (json-string)
 	 (json-data)
 	 (doi))
 
