@@ -1118,6 +1118,7 @@ error."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
+	 (raw-json-string)
          (json-string)
          (json-data)
          (doi))
