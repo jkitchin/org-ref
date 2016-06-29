@@ -21,6 +21,7 @@
 ;;; Commentary:
 
 ;;
+(require 'org-ref-pdf)  		; for pdftotext-executable
 
 ;;; Code:
 ;;;###autoload
