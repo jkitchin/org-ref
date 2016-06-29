@@ -27,6 +27,9 @@
 (require 'org-ref-bibtex)
 (require 'org-ref-citeproc)
 
+(defvar org-ref-cite-types)
+(defvar org-ref-show-citation-on-enter)
+
 (defvar org-ref-ivy-cite-marked-candidates '()
   "Holds entries marked in `org-ref-ivy-insert-cite-link'.")
 
