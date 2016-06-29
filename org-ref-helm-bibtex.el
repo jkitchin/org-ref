@@ -21,6 +21,13 @@
 ;;; Commentary:
 ;; This file defines the completion engine for org-ref using `helm-bibtex'.
 
+(defvar org-ref-insert-link-function)
+(defvar org-ref-insert-cite-function)
+(defvar org-ref-insert-label-function)
+(defvar org-ref-insert-ref-function)
+(defvar org-ref-cite-onclick-function)
+(defvar org-ref-insert-cite-key)
+
 ;;; Code:
 (require 'helm-config)
 (require 'helm)
