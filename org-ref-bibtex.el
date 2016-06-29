@@ -61,7 +61,7 @@
 (require 's)
 
 (require 'org-ref-citeproc)
-(require 'unsrt)
+
 
 ;;; Code:
 
