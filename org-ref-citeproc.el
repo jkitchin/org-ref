@@ -871,7 +871,7 @@ documents."
 
 	     ;; preserve trailing space
 	     (goto-char end)
-	     (setq trailing-space (if (looking-back " ") " " ""))
+	     (setq trailing-space (if (looking-back " " (line-beginning-position)) " " ""))
 
 	     (setf (buffer-substring start end) (concat repl trailing-space))
 
