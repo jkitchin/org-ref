@@ -28,6 +28,11 @@
 (require 'reftex-cite)
 (require 'org-ref-utils)
 
+(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function 'org-ref-bib-citation "org-ref-core.el")
+
+
 ;;;###autoload
 (defun org-ref-reftex-completion ()
   "Use reftex and org-mode for completion."
