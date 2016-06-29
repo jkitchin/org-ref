@@ -33,7 +33,9 @@
 
 ;; This is a local variable defined in `url-http'.  We need it to avoid
 ;; byte-compiler errors.
-(defvar-local url-http-end-of-headers nil)
+(defvar url-http-end-of-headers)
+(defvar org-ref-default-bibliography)
+(defvar org-ref-pdf-directory)
 
 ;;* The org-mode link
 ;; this just makes a clickable link that opens the entry.
