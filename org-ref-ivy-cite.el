@@ -22,10 +22,10 @@
 
 ;;
 
-(declare-function 'org-ref-insert-key-at-point "org-ref-bibtex.el")
-(declare-function 'org-ref-find-bibliography "org-ref-bibtex.el")
-(declare-function 'org-ref-get-labels "org-ref-bibtex.el")
-(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-bibtex.el")
+(declare-function 'org-ref-insert-key-at-point "org-ref-core.el")
+(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function 'org-ref-get-labels "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 
 
 ;;; Code:

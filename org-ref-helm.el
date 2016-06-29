@@ -23,6 +23,7 @@
 ;; These are not specific to helm-bibtex.
 
 ;;; Code:
+(require 'org-element)
 
 ;;;###autoload
 (defun org-ref-helm-insert-label-link ()
