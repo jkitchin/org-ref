@@ -23,6 +23,17 @@
 ;;
 (require 'org-ref-pdf)  		; for pdftotext-executable
 
+(defvar org-ref-cite-types)
+(defvar org-ref-get-pdf-filename-function)
+(defvar org-ref-notes-function)
+(defvar org-ref-bibliography-entry-format)
+
+(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function 'org-ref-key-in-file-p "org-ref-core.el")
+(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function 'org-ref-bib-citation "org-ref-core.el")
+(declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
+
 ;;; Code:
 ;;;###autoload
 (defun org-ref-version ()
