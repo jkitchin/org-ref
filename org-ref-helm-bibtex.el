@@ -53,6 +53,11 @@
 	org-ref-insert-ref-function 'org-ref-helm-insert-ref-link
 	org-ref-cite-onclick-function 'org-ref-cite-click-helm))
 
+(org-ref-bibtex-completion-completion)
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-link-function)
+
 (defcustom org-ref-bibtex-completion-actions
   '(("Insert citation" . helm-bibtex-insert-citation)
     ("Open PDF file (if present)" . helm-bibtex-open-pdf)

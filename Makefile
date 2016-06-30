@@ -4,7 +4,7 @@ CASK_EXEC ?= ${CASK} exec
 EL_SOURCES = *.el
 SOURCES =   ${EL_SOURCES}
 
-INIT = ../scimax/init.el
+INIT = init.el
 all: test
 
 test: clean
@@ -43,16 +43,30 @@ no-user:
 	${CASK_EXEC} ${emacs} -Q --eval="(setq scimax-load-user-dir nil)" -l ${INIT}
 
 reftex:
-	${CASK_EXEC} ${emacs} -Q --eval="(setq scimax-load-user-dir nil)"  --eval="(setq org-ref-completion-library 'org-ref-reftex)" -l ${INIT} tests/test-1.org
+	${CASK_EXEC} ${emacs} -Q \
+	--eval="(setq scimax-load-user-dir nil)"  \
+	--eval="(setq org-ref-completion-library 'org-ref-reftex)"  \
+	 -l ${INIT} tests/test-1.org
 
 helm-bibtex:
-	${CASK_EXEC} ${emacs} -Q --eval="(setq scimax-load-user-dir nil)" --eval="(setq org-ref-completion-library 'org-ref-helm-bibtex)" -l ${INIT} tests/test-1.org
+	${CASK_EXEC} ${emacs} -Q  \
+	--eval="(setq scimax-load-user-dir nil)" \
+	--eval="(setq org-ref-completion-library 'org-ref-helm-bibtex)"  \
+	-l ${INIT} \
+	tests/test-1.org
 
 helm-cite:
-	${CASK_EXEC} ${emacs} -Q --eval="(setq scimax-load-user-dir nil)"  --eval="(setq org-ref-completion-library 'org-ref-helm-cite)" -l ${INIT} tests/test-1.org
+	${CASK_EXEC} ${emacs} -Q  \
+	--eval="(setq scimax-load-user-dir nil)" \
+	--eval="(setq org-ref-completion-library 'org-ref-helm-cite)" \
+	-l ${INIT} tests/test-1.org
 
 ivy:
-	${CASK_EXEC} ${emacs} -Q --eval="(setq scimax-load-user-dir nil)"  --eval="(setq org-ref-completion-library 'org-ref-ivy-cite)" -l ${INIT} tests/test-1.org
+	${CASK_EXEC} ${emacs} -Q  \
+	--eval="(setq scimax-load-user-dir nil)" \
+	--eval="(setq org-ref-completion-library 'org-ref-ivy-cite)" \
+	-l ${INIT} \
+	tests/test-1.org
 
 vanilla:
 	${CASK_EXEC} ${emacs} -Q  -l ../init.el tests/test-1.org

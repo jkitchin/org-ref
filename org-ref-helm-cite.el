@@ -60,6 +60,12 @@
 	org-ref-insert-ref-function 'org-ref-helm-insert-ref-link
 	org-ref-cite-onclick-function 'org-ref-cite-click-helm))
 
+(org-ref-helm-cite-completion)
+
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-link-function)
+
 ;;* Variables
 (defvar org-ref-helm-cite-from nil
   "Variable to store the mode `org-ref-helm-cite' was called

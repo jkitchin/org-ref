@@ -26,7 +26,6 @@
 ;;; Code:
 (require 'reftex)
 (require 'reftex-cite)
-(require 'org-ref-core)
 (require 'org-ref-utils)
 
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
@@ -49,6 +48,11 @@
 	org-ref-insert-ref-function 'org-insert-link
 	org-ref-cite-onclick-function 'org-ref-cite-onclick-minibuffer-menu)
   (message "reftex completion in org-ref loaded."))
+
+(org-ref-reftex-completion)
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-link-function)
 
 ;; Messages in the minbuffer conflict with the minibuffer menu. So we turn them
 ;; off.

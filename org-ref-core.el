@@ -113,8 +113,8 @@ Put a trailing / in the name."
 
 
 (defcustom org-ref-completion-library
-  nil
-  "String for library to define completion functions.
+  'org-ref-helm-cite
+  "Symbol for library to define completion functions.
 The completion library should provide functions for
 `org-ref-insert-link-function', `org-ref-insert-cite-function',
 `org-ref-insert-label-function', `org-ref-insert-ref-function',
@@ -128,6 +128,7 @@ the values of those functions."
 	     )
   :group 'org-ref)
 
+(require org-ref-completion-library)
 
 (defcustom org-ref-insert-link-function
   nil

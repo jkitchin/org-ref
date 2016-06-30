@@ -30,7 +30,6 @@
 
 ;;; Code:
 (require 'ivy)
-(require 'org-ref-core)
 (require 'org-ref-bibtex)
 (require 'org-ref-citeproc)
 
@@ -50,6 +49,12 @@
 	org-ref-insert-label-function 'org-ref-ivy-insert-label-link
 	org-ref-insert-ref-function 'org-ref-ivy-insert-ref-link
 	org-ref-cite-onclick-function (lambda (_) (org-ref-cite-hydra/body))))
+
+(org-ref-ivy-cite-completion)
+
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-link-function)
 
 ;; messages in minibuffer interfere with hydra menus.
 (setq org-ref-show-citation-on-enter nil)
