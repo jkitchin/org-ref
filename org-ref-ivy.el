@@ -25,11 +25,11 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
-
 (setq org-ref-completion-library 'org-ref-ivy-cite)
 
 (require 'org-ref-ivy-cite)
+
+(org-ref-ivy-cite-completion)
 
 (provide 'org-ref-ivy)
 

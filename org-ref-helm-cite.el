@@ -58,14 +58,7 @@
 	org-ref-insert-cite-function 'org-ref-helm-cite
 	org-ref-insert-label-function 'org-ref-helm-insert-label-link
 	org-ref-insert-ref-function 'org-ref-helm-insert-ref-link
-	org-ref-cite-onclick-function 'org-ref-cite-click-helm)
-
-  ;; define key for inserting citations
-  (define-key org-mode-map
-    (kbd org-ref-insert-cite-key)
-    org-ref-insert-link-function))
-
-(org-ref-helm-cite-completion)
+	org-ref-cite-onclick-function 'org-ref-cite-click-helm))
 
 ;;* Variables
 (defvar org-ref-helm-cite-from nil
