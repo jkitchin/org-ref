@@ -11,12 +11,8 @@ test: clean
 	${CASK_EXEC} ert-runner
 
 unit:
-	${CASK_EXEC} ${emacs} -Q -batch -L "." -l org -l org-ref.el -l test/org-ref-test.el --eval "(ert t)"
+	${CASK_EXEC} ${emacs} -Q -batch -L "." -l ${INIT} -l org -l org-ref.el -l test/org-ref-test.el --eval "(ert t)"
 
-
-
-ert-runner:
-	${CASK_EXEC} exec ert-runner
 
 mytest:
 	${CASK_EXEC} ${emacs} -Q -batch  -l ${INIT}  -l test/org-test-setup.el -l test/org-ref-test.el -f ert-run-tests-batch-and-exit
