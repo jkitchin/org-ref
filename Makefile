@@ -4,7 +4,7 @@ CASK_EXEC ?= ${CASK} exec
 EL_SOURCES = *.el
 SOURCES =   ${EL_SOURCES}
 
-INIT = init.el
+INIT = test/init.el
 all: test
 
 test: clean
@@ -65,6 +65,6 @@ ivy:
 	tests/test-1.org
 
 vanilla:
-	${CASK_EXEC} ${emacs} -Q  -l ../init.el tests/test-1.org
+	${CASK_EXEC} ${emacs} -Q  -l ${INIT} tests/test-1.org
 
 .PHONY:	all test package clean-elc test-melpa
