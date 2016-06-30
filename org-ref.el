@@ -37,8 +37,11 @@
 ;;
 
 ;;; Code:
+(when (not (and (boundp 'org-ref-completion-library) org-ref-completion-library))
+  (setq org-ref-completion-library 'org-ref-helm-bibtex))
 
-(org-ref-bibtex-completion-completion)
+(require org-ref-completion-library)
+
 
 ;;* The end
 (provide 'org-ref)
