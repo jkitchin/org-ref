@@ -640,7 +640,7 @@ Add tooltip."
   "Find next ref link up to LIMIT.
 Add tooltip to the link. We avoid tags by not finding :ref: in
 tags."
-  (when (and (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "[^:]\\(eq\\)?ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
 	     ;; make sure we are not on a comment
 	     (save-excursion
 	       (beginning-of-line)
@@ -648,7 +648,8 @@ tags."
     ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
-      (if (string= "ref" (org-element-property :type this-link))
+      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+		      (org-element-property :type this-link))
 	  ;; we are, so we do our business
 	  (progn
 	    (add-text-properties
