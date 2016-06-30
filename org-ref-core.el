@@ -2684,8 +2684,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
           " ")))
       ;; now go forward to key so we can move with the key
       (re-search-forward key)
-      (goto-char (match-beginning 0))
-      (org-element-cache-reset))))
+      (goto-char (match-beginning 0)))))
 
 ;; add hooks to make it work
 (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
