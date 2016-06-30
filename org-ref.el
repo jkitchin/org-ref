@@ -37,8 +37,8 @@
 ;;
 
 ;;; Code:
-(setq org-ref-completion-library 'org-ref-helm-bibtex)
-(require 'org-ref-core)
+
+(org-ref-bibtex-completion-completion)
 
 ;;* The end
 (provide 'org-ref)

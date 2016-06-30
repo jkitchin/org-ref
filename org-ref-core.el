@@ -182,11 +182,6 @@ that was clicked on."
   :type 'function
   :group 'org-ref)
 
-;; now load the completion library.
-;; (message-box "Requiring %s" org-ref-completion-library)
-;; (load-file (format "%s.el" ))
-(require org-ref-completion-library)
-
 ;; define key for inserting citations
 (define-key org-mode-map
   (kbd org-ref-insert-cite-key)
