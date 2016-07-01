@@ -759,7 +759,7 @@ Argument BIBFILE the bibliography to use."
            (t
             nil)))
          ;;  now get the bibfile to add it to
-         (ido-completing-read
+         (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f)
 				   (and (not (string-match "#" f))
@@ -1242,7 +1242,7 @@ error."
                   ;; type or paste it in
                   (t
                    nil)))
-                (ido-completing-read
+                (completing-read
                  "Bibfile: "
                  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                          org-ref-default-bibliography))))
