@@ -294,7 +294,7 @@ Entries come from `org-ref-bibtex-journal-abbreviations'."
   "Set a bibtex journal name to the string that represents FULL-JOURNAL-NAME.
 This is defined in `org-ref-bibtex-journal-abbreviations'."
   (interactive (list
-                (ido-completing-read
+                (completing-read
                  "Journal: "
                  (mapcar
                   (lambda (x)
@@ -663,7 +663,7 @@ _S_: Sentence case
 	 (interactive)
          (bibtex-beginning-of-entry)
          (bibtex-kill-entry)
-         (find-file (ido-completing-read
+         (find-file (completing-read
                      "Bibtex file: "
                      (f-entries "." (lambda (f) (f-ext? f "bib")))))
          (goto-char (point-max))
