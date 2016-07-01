@@ -391,7 +391,11 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 
 (defun org-ref-ivy-cite-transformer (s)
   "Make entry red if it is marked."
-  (if (-contains? (mapcar 'car org-ref-ivy-cite-marked-candidates) s)
+  (if (-contains?
+       (if (listp (car org-ref-ivy-cite-marked-candidates))
+	   (mapcar 'car org-ref-ivy-cite-marked-candidates)
+	 org-ref-ivy-cite-marked-candidates)
+       s)
       (propertize s 'face 'font-lock-warning-face)
     (propertize s 'face s)))
 
@@ -480,6 +484,35 @@ this function to use it."
 				      (loop for entry in (orhc-bibtex-candidates)
 					    collect (cdr (assoc "=key=" entry )))))))) 
 	       (funcall f entry)))))
+
+
+;; * org-ref-ivy-set-keywords
+(defvar org-ref-ivy-set-keywords-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-<SPC>") 'org-ref-ivy-mark-candidate)
+    (define-key map (kbd "C-,") 'org-ref-ivy-show-marked-candidates)
+    (define-key map (kbd "C-.") 'org-ref-ivy-show-all) 
+    (define-key map (kbd "C-<up>") 'org-ref-ivy-move-up)
+    (define-key map (kbd "C-<down>") 'org-ref-ivy-move-down) 
+    map)
+  "A key map for `org-ref-ivy-set-keywords'.")
+
+(defun org-ref-ivy-set-keywords ()
+  (interactive)
+  (setq org-ref-ivy-cite-marked-candidates '())
+  (ivy-read "Keywords: " (org-ref-bibtex-keywords)
+	    :keymap org-ref-ivy-set-keywords-keymap
+	    :caller 'org-ref-ivy-set-keywords
+	    :action (lambda (key)
+		      (org-ref-set-bibtex-keywords
+		       (mapconcat
+			'identity
+			(or org-ref-ivy-cite-marked-candidates (list key))
+			", ")))))
+
+(ivy-set-display-transformer
+ 'org-ref-ivy-set-keywords
+ 'org-ref-ivy-cite-transformer)
 
 (provide 'org-ref-ivy-cite)
 ;;; org-ref-ivy-cite.el ends here
