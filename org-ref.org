@@ -20,9 +20,9 @@ The basic idea of org-ref is that it defines a convenient interface to insert ci
 
 org-ref provides a fairly large number of utilities for finding bad citations, extracting bibtex entries from citations in an org-file, and functions for interacting with bibtex entries. We find these utilities indispensable in scientific writing.
 
-org-ref is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]].
+org-ref is [[*Customizing org-ref][customizable]].
 
-org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. We have published a good number of scientific articles with it so far  cite:hallenbeck-2013-effec,mehta-2014-ident-poten,xu-2014-relat-elect,xu-2014-probin-cover,miller-2014-simul-temper,curnan-2014-effec-concen,boes-2015-estim-bulk,xu-2015-linear-respon,xu-2015-relat-between. Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information.
+org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. We have published several scientific articles with it so far  cite:hallenbeck-2013-effec,mehta-2014-ident-poten,xu-2014-relat-elect,xu-2014-probin-cover,miller-2014-simul-temper,curnan-2014-effec-concen,boes-2015-estim-bulk,xu-2015-linear-respon,xu-2015-relat-between. Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information. You may also find these two perspective articles cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien interesting, as well as this article on data sharing cite:kitchin-2016-autom-data we wrote.
 
 There has been a lot of recent discussion on the org-mode mailing list about a citation syntax for org-mode. It is not clear what the impact of this on org-ref will be. The new syntax will more cleanly support pre/post text, and it will be separate from the links used in org-ref. It is not clear if the new syntax will support all of the citation types, especially those in biblatex, that are supported in org-ref. The new citations are likely to be clickable, and could share functionality with org-ref. The new citation syntax will not cover labels and cross-references though, so these links from org-ref will still exist. We anticipate a long life for org-ref.
 
@@ -51,7 +51,7 @@ For simple citation needs, org-ref is simple to use. At the point you want to in
 
 If the cursor is on a citation key, you should see a message in the minibuffer that summarizes which citation it refers to. If you click on a key, you should see a helm selection buffer with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
 
-The default citation type is [[id:32B558A3-7B48-4581-982B-082017B0AEE8][customizable]], and set to "cite". If you want another type of citation type, then type ~C-u~ before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
+The default citation type is [[*Customizing org-ref][customizable]], and set to "cite". If you want another type of citation type, then type ~C-u~ before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
 
 Here is a list of supported citation types. You can customize this if you want. If you do not know what all these types are, you probably do not need them. The default cite is what you need. See http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf
  for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf
@@ -199,6 +199,36 @@ All org-ref links are designed to export to the corresponding LaTeX commands for
 index:export!html index:export!ascii
 
 There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export, the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~.
+
+* org-ref-ivy
+org-ref provides an alternative to reftex and helm with ivy as the backend completion engine for searching and entering citations. 
+
+You can set this backend in your init file like this
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-completion-library 'org-ref-ivy-cite)
+(require 'org-ref)
+#+END_SRC
+
+There are some non-standard ivy features in org-ref ;)
+
+1. You can mark entries with C-space like in helm, and pressing enter will insert the citations.
+
+2. C-, will show you the only the marked entries, and C-. will show them all again.
+
+3. C-up and C-down will move an entry up and down to reorder them.
+
+4. In the selection buffer C-y will sort in increasing year, C-M-y will sort in decreasing year.
+
+5. C-Ret will insert the current entry  and move to the next one.
+
+You still use C-c ] to insert a default citation.
+
+C-c ] C-u Ret will prompt you for a different citation type.
+
+C-u C-c ] will insert a ref link.
+
+C-u C-u C-c ] will insert a label link.
+
 
 * Other libraries in org-ref
 
@@ -432,10 +462,17 @@ Here is my minimal setup:
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
 
-For org-ref-bibtex I like:
+You can also specify different completion backends. The default is `org-ref-helm-bibtex'.
+
+- org-ref-helm-bibtex :: The default backend that uses helm-bibtex
+- org-ref-reftex :: A backend that uses reftex
+- org-ref-helm-cite :: An alternative helm completion backend (does not use helm-bibtex)
+- org-ref-ivy-cite :: uses ivy for the backend
+ 
+To use one of these, add a line like this before you "require" org-ref.
 
 #+BEGIN_SRC emacs-lisp
-(setq org-ref-bibtex-hydra-key-chord "jj")
+(setq org-ref-completion-library 'org-ref-ivy-cite)
 #+END_SRC
 
 ** Customizing how PDFs are opened
