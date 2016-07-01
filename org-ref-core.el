@@ -771,7 +771,7 @@ we open it, otherwise prompt for which one to open."
   (let ((bibfiles (split-string link-string ",")))
     (find-file (if (= 1 (length bibfiles))
 		   (car bibfiles)
-		 (ido-completing-read
+		 (completing-read
 		  "Bib file: " bibfiles nil t)))))
 
 (defun org-ref-open-bibliography (link-string)
@@ -945,7 +945,7 @@ we open it, otherwise prompt for which one to open."
 (defun org-bibliographystyle-complete-link (&optional arg)
   "Completion function for bibliographystyle link.
 ARG does nothing."
-  (format "bibliographystyle:%s" (ido-completing-read
+  (format "bibliographystyle:%s" (completing-read
                                   "style: "
                                   '("unsrt" "plain" "alpha"
                                     ;; natbib
@@ -1819,7 +1819,7 @@ citez link, with reftex key of z, and the completion function."
 ;;;###autoload
 (defun org-ref-insert-cite-with-completion (type)
   "Insert a cite link of TYPE with completion."
-  (interactive (list (ido-completing-read "Type: " org-ref-cite-types)))
+  (interactive (list (completing-read "Type: " org-ref-cite-types)))
   (insert (funcall (intern (format "org-%s-complete-link" type)))))
 
 
