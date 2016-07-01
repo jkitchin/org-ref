@@ -824,7 +824,10 @@ If KEYWORDS is a list, it is converted to a comma-separated
 string.  The KEYWORDS are added to the beginning of the
 field.  Otherwise KEYWORDS should be a string of comma-separate
 keywords.  Optional argument ARG prefix arg to replace keywords."
-  (interactive "sKeywords: \nP")
+  (interactive
+   (list
+    (ido-completing-read "Keyword: " (org-ref-bibtex-keywords))
+    current-prefix-arg))
   (bibtex-set-field
    "keywords"
    (if arg
