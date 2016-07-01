@@ -533,13 +533,13 @@ little more readable.")
   "Return string containing formatted citations for entries in
 `helm-marked-candidates'."
   (load-library
-   (ido-completing-read "Style: " '("unsrt" "author-year") nil nil "unsrt"))
+   (completing-read "Style: " '("unsrt" "author-year") nil nil "unsrt"))
 
   (with-temp-buffer
     (cl-loop for i from 1 to (length (helm-marked-candidates))
-	  for entry in (helm-marked-candidates)
-	  do
-	  (insert (format "%s. %s\n\n" i (orhc-formatted-citation entry))))
+	     for entry in (helm-marked-candidates)
+	     do
+	     (insert (format "%s. %s\n\n" i (orhc-formatted-citation entry))))
 
     (buffer-string)))
 
