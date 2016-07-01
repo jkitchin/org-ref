@@ -824,7 +824,7 @@ field.  Otherwise KEYWORDS should be a string of comma-separate
 keywords.  Optional argument ARG prefix arg to replace keywords."
   (interactive
    (list
-    (ido-completing-read "Keyword: " (org-ref-bibtex-keywords))
+    (completing-read "Keyword: " (org-ref-bibtex-keywords))
     current-prefix-arg))
   (bibtex-set-field
    "keywords"
