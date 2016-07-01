@@ -88,8 +88,14 @@ ENTRY is selected from `orhc-bibtex-candidates'."
     (if org-ref-ivy-cite-marked-candidates
 	(loop for entry in org-ref-ivy-cite-marked-candidates
 	      do
-	      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
-      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))))
+	      (if ivy-current-prefix-arg
+		  (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
+		    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+		(org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
+      (if ivy-current-prefix-arg
+	  (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
+	    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+	(org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))))
 
 
 (defun or-ivy-bibtex-open-pdf (entry)
