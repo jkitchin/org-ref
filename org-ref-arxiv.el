@@ -148,7 +148,7 @@ Returns a formatted BibTeX entry."
   (interactive
    (list (read-string "arxiv: ")
          ;;  now get the bibfile to add it to
-         (ido-completing-read
+         (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                   org-ref-default-bibliography))))
@@ -196,11 +196,11 @@ key."
   (interactive
    (list (read-string "arxiv: ")
          ;;  now get the bibfile to add it to
-         (ido-completing-read
+         (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                   org-ref-default-bibliography))
-         (ido-read-directory-name
+         (read-directory-name
           "PDF directory: "
           org-ref-pdf-directory)))
 
