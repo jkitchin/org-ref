@@ -211,6 +211,8 @@ You can set this backend in your init file like this
 
 There are some non-standard ivy features in org-ref ;)
 
+You still use C-c ] to search for a bibtex entry, and Ret to insert it as a citation.  C-c ] C-u Ret will prompt you for a different citation type.
+
 1. You can mark entries with C-space like in helm, and pressing enter will insert the citations.
 
 2. C-, will show you the only the marked entries, and C-. will show them all again.
@@ -221,14 +223,9 @@ There are some non-standard ivy features in org-ref ;)
 
 5. C-Ret will insert the current entry  and move to the next one.
 
-You still use C-c ] to insert a default citation.
+C-u C-c ] will insert a ref link. You will see a list of labels to select. Pres Ret to enter a ref link, or C-u Ret to select a different type of ref.
 
-C-c ] C-u Ret will prompt you for a different citation type.
-
-C-u C-c ] will insert a ref link.
-
-C-u C-u C-c ] will insert a label link.
-
+C-u C-u C-c ] will insert a label link. You should see a list of all the current labels to help you avoid duplicating them.
 
 * Other libraries in org-ref
 
