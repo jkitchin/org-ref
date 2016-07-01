@@ -465,7 +465,7 @@ Prompt for NEW-FILE includes bib files in
 `org-ref-default-bibliography', and bib files in current working
 directory.  You can also specify a new file."
   (interactive)
-  (let ((new-file (ido-completing-read
+  (let ((new-file (completing-read
                    "Copy to bibfile: "
                    (append org-ref-default-bibliography
                            (f-entries "." (lambda (f) (f-ext? f "bib"))))))
