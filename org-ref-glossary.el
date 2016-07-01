@@ -500,15 +500,15 @@ WINDOW and OBJECT are ignored."
 	     (action . (lambda (candidate)
 			 (insert (format
 				  "[[%s:%s][%s]]"
-				  (ido-completing-read "Type: "
-						       '("gls"
-							 "glspl"
-							 "Gls"
-							 "Glspl"
-							 "glssymbol"
-							 "glsdesc")
-						       nil t
-						       "gls")
+				  (completing-read "Type: "
+						   '("gls"
+						     "glspl"
+						     "Gls"
+						     "Glspl"
+						     "glssymbol"
+						     "glsdesc")
+						   nil t
+						   "gls")
 				  (nth 0 candidate)
 				  (nth 1 candidate))))))
 	    ((name . "Insert acronym term")
@@ -516,12 +516,12 @@ WINDOW and OBJECT are ignored."
 	     (action . (lambda (candidate)
 			 (insert (format
 				  "[[%s:%s][%s]]"
-				  (ido-completing-read "Type: "
-						       '("gls"
-							 "acrshort"
-							 "acrlong"
-							 "acrfull")
-						       nil t)
+				  (completing-read "Type: "
+						   '("gls"
+						     "acrshort"
+						     "acrlong"
+						     "acrfull")
+						   nil t)
 				  (nth 0 candidate)
 				  (nth 1 candidate))))))
 	    ((name . "Insert new entry")
