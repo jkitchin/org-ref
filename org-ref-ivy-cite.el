@@ -409,11 +409,16 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 
 
 (defun org-ref-ivy-insert-ref-link ()
-  "Insert a ref link with ivy."
+  "Insert a ref link with ivy.
+Use a prefix arg to select the ref type."
   (interactive)
-  (insert
-   (concat "ref:"
-	   (ivy-read "ref: " (org-ref-get-labels) :require-match t))))
+  (let ((label (ivy-read "label: " (org-ref-get-labels) :require-match t)))
+    (insert
+     (concat (if ivy-current-prefix-arg
+		 (ivy-read "type: " '("ref" "eqref" "nameref" "pageref"))
+	       "ref")
+	     ":"
+	     label))))
 
 
 (require 'hydra)
