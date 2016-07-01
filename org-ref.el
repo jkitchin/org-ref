@@ -38,7 +38,7 @@
 
 ;;; Code:
 (require 'org-ref-core)
-
+(require org-ref-completion-library)
 
 ;;* The end
 (provide 'org-ref)
