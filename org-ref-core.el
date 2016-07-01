@@ -113,8 +113,8 @@ Put a trailing / in the name."
 
 
 (defcustom org-ref-completion-library
-  nil
-  "String for library to define completion functions.
+  'org-ref-helm-bibtex
+  "Symbol for library to define completion functions.
 The completion library should provide functions for
 `org-ref-insert-link-function', `org-ref-insert-cite-function',
 `org-ref-insert-label-function', `org-ref-insert-ref-function',
@@ -128,6 +128,7 @@ the values of those functions."
 	     )
   :group 'org-ref)
 
+(require org-ref-completion-library)
 
 (defcustom org-ref-insert-link-function
   nil
@@ -181,11 +182,6 @@ The function must take one argument which is the path of the link
 that was clicked on."
   :type 'function
   :group 'org-ref)
-
-;; now load the completion library.
-;; (message-box "Requiring %s" org-ref-completion-library)
-;; (load-file (format "%s.el" ))
-(require org-ref-completion-library)
 
 ;; define key for inserting citations
 (define-key org-mode-map
@@ -645,7 +641,7 @@ Add tooltip."
   "Find next ref link up to LIMIT.
 Add tooltip to the link. We avoid tags by not finding :ref: in
 tags."
-  (when (and (re-search-forward "[^:]ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "[^:]\\(eq\\)?ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
 	     ;; make sure we are not on a comment
 	     (save-excursion
 	       (beginning-of-line)
@@ -653,7 +649,8 @@ tags."
     ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
-      (if (string= "ref" (org-element-property :type this-link))
+      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+		      (org-element-property :type this-link))
 	  ;; we are, so we do our business
 	  (progn
 	    (add-text-properties
@@ -2687,8 +2684,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
           " ")))
       ;; now go forward to key so we can move with the key
       (re-search-forward key)
-      (goto-char (match-beginning 0))
-      (org-element-cache-reset))))
+      (goto-char (match-beginning 0)))))
 
 ;; add hooks to make it work
 (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))

@@ -31,6 +31,7 @@
 (declare-function 'org-ref-bad-ref-candidates "org-ref-core.el")
 (declare-function 'org-ref-bad-label-candidates "org-ref-core.el")
 
+(require 'helm)
 (require 'org-element)
 
 ;;;###autoload

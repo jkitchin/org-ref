@@ -48,15 +48,13 @@
 	org-ref-insert-cite-function 'org-ref-ivy-insert-cite-link
 	org-ref-insert-label-function 'org-ref-ivy-insert-label-link
 	org-ref-insert-ref-function 'org-ref-ivy-insert-ref-link
-	org-ref-cite-onclick-function (lambda (_) (org-ref-cite-hydra/body)))
+	org-ref-cite-onclick-function (lambda (_) (org-ref-cite-hydra/body))))
 
-  ;; define key for inserting citations
-  (define-key org-mode-map
-    (kbd org-ref-insert-cite-key)
-    org-ref-insert-link-function))
-
-;; setup the functions and keybinding
 (org-ref-ivy-cite-completion)
+
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-link-function)
 
 ;; messages in minibuffer interfere with hydra menus.
 (setq org-ref-show-citation-on-enter nil)
@@ -90,8 +88,14 @@ ENTRY is selected from `orhc-bibtex-candidates'."
     (if org-ref-ivy-cite-marked-candidates
 	(loop for entry in org-ref-ivy-cite-marked-candidates
 	      do
-	      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
-      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))))
+	      (if ivy-current-prefix-arg
+		  (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
+		    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+		(org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
+      (if ivy-current-prefix-arg
+	  (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
+	    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+	(org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))))
 
 
 (defun or-ivy-bibtex-open-pdf (entry)
@@ -351,13 +355,13 @@ If candidate is already in, remove it."
 	(interactive)
 	(ivy-call)
 	(ivy-next-line)))
-    (define-key ivy-minibuffer-map (kbd "M-<return>")
-      (lambda ()
-	"Apply default action to all marked candidates."
-	(interactive)
-	(mapc (ivy--get-action ivy-last)
-	      org-ref-ivy-cite-marked-candidates)
-	(ivy-exit-with-action (function (lambda (_) nil)))))
+    ;; (define-key ivy-minibuffer-map (kbd "M-<return>")
+    ;;   (lambda ()
+    ;; 	"Apply default action to all marked candidates."
+    ;; 	(interactive)
+    ;; 	(mapc (ivy--get-action ivy-last)
+    ;; 	      org-ref-ivy-cite-marked-candidates)
+    ;; 	(ivy-exit-with-action (function (lambda (_) nil)))))
     map)
   "A key map for `org-ref-ivy-insert-cite-link'.")
 

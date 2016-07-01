@@ -51,14 +51,12 @@
 	org-ref-insert-cite-function 'org-ref-helm-insert-cite-link
 	org-ref-insert-label-function 'org-ref-helm-insert-label-link
 	org-ref-insert-ref-function 'org-ref-helm-insert-ref-link
-	org-ref-cite-onclick-function 'org-ref-cite-click-helm)
-
-  ;; define key for inserting citations
-  (define-key org-mode-map
-    (kbd org-ref-insert-cite-key)
-    org-ref-insert-link-function))
+	org-ref-cite-onclick-function 'org-ref-cite-click-helm))
 
 (org-ref-bibtex-completion-completion)
+(define-key org-mode-map
+  (kbd org-ref-insert-cite-key)
+  org-ref-insert-link-function)
 
 (defcustom org-ref-bibtex-completion-actions
   '(("Insert citation" . helm-bibtex-insert-citation)
