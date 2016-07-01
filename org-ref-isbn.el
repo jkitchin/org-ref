@@ -115,7 +115,7 @@ in the file. Data comes from worldcat."
       ;; type or paste it in
       (t
        nil)))
-    (ido-completing-read
+    (completing-read
      "Bibfile: "
      (append (f-entries "." (lambda (f) (f-ext? f "bib")))
              org-ref-default-bibliography))))
