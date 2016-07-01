@@ -128,8 +128,6 @@ the values of those functions."
 	     )
   :group 'org-ref)
 
-(require org-ref-completion-library)
-
 (defcustom org-ref-insert-link-function
   nil
   "Generic function for inserting org-ref links.
