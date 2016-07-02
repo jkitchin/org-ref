@@ -1927,9 +1927,12 @@ This assumes you are in an article."
          (bibtex-expand-strings t)
          (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
                          collect (cons (downcase key) value)))
-         (title (replace-regexp-in-string
-		 "\n\\|\t\\|\s+" " "
-		 (reftex-get-bib-field "title" entry)))
+         (title (and (replace-regexp-in-string
+	 	      "\n\\|\t\\|\s+" " "
+	 	      (reftex-get-bib-field "title" entry))
+	 	     (replace-regexp-in-string
+	 	      "[\\\.\"{}]+" ""
+	 	      (reftex-get-bib-field "title" entry))))
          (year  (reftex-get-bib-field "year" entry))
          (author (replace-regexp-in-string
 		  "\n\\|\t\\|\s+" " "

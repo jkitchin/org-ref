@@ -55,8 +55,9 @@ entry. These functions are wrapped in `save-restriction' and
 (defun oricb-clean-author-field ()
   "Clean additional information in the author's field."
   (goto-char (cadr (bibtex-search-forward-field "author" t)))
-  (when (re-search-forward "{by \\|{ed. by " nil t)
-    (replace-match "{")))
+  (let ((case-fold-search nil))
+    (when (re-search-forward "{by \\|{ed. by \\|{edited by " nil t)
+      (replace-match "{"))))
 
 (defun oricb-remove-period ()
   "Make sure the period is removed from the author's field."
