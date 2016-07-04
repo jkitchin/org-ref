@@ -567,5 +567,44 @@ KEY is returned for the selected item(s) in helm."
                                   (switch-to-buffer ,cb)
                                   (funcall f))))))))
 
+
+(defun org-ref-propertize-link-candidates (candidates)
+  (cl-loop for i in candidates
+	   collect (concat (propertize i 'font-lock-face `(:foreground ,org-ref-cite-color)))))
+
+
+;;;###autoload
+(defun org-ref-link-browser ()
+  "Quickly browse citation links."
+  (interactive)
+  (let ((keys '())
+	(alist '()))
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(let ((plist (nth 1 link)))
+	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
+	    (let ((start (org-element-property :begin link)))
+	      (dolist (key
+		       (org-ref-split-and-strip-string (plist-get plist ':path)))
+		(when (not (-contains? keys key))
+		  (setq keys (append keys (list key)))
+		  (setq alist (append alist (list (cons key start)))) )))))))
+    (helm :sources `((name . "Link Browser")
+		      (candidates . ,(mapcar (lambda (x)
+					       (format "%s" x))
+					     keys))
+		      (candidate-transformer org-ref-propertize-link-candidates)
+		      (action  . (("Menu" . (lambda (candidate)
+					      (save-excursion
+						(goto-char
+						 (cdr (assoc candidate alist)))
+						(org-open-at-point))))
+				  ("Go to link" . (lambda (candidate)
+						    (goto-char
+						     (cdr (assoc candidate alist)))
+						    (org-show-entry) )))))
+	  :buffer "*link browser*")))
+
+
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
