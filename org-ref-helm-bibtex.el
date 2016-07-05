@@ -594,11 +594,11 @@ KEY is returned for the selected item(s) in helm."
 					       (format "%s" x))
 					     keys))
 		      (candidate-transformer org-ref-propertize-link-candidates)
-		      (action  . (("Menu" . (lambda (candidate)
-					      (save-excursion
-						(goto-char
-						 (cdr (assoc candidate alist)))
-						(org-open-at-point))))
+		      (action  . (("Menu" . ,(lambda (candidate)
+					       (save-excursion
+						 (goto-char
+						  (cdr (assoc candidate alist)))
+						 (org-open-at-point))))
 				  ("Go to link" . (lambda (candidate)
 						    (goto-char
 						     (cdr (assoc candidate alist)))
