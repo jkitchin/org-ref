@@ -53,10 +53,8 @@ The default pattern matches:
   :type 'regexp
   :group 'org-ref-pdf)
 
-(run-with-timer 1 nil
-		(lambda ()
-		  (unless (executable-find pdftotext-executable)
-		    (warn "%s not found." pdftotext-executable))))
+(unless (executable-find pdftotext-executable)
+  (warn "%s not found." pdftotext-executable))
 
 (defun org-ref-extract-doi-from-pdf (pdf)
   "Try to extract a doi from a PDF file.
