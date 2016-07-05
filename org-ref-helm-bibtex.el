@@ -599,10 +599,10 @@ KEY is returned for the selected item(s) in helm."
 						 (goto-char
 						  (cdr (assoc candidate alist)))
 						 (org-open-at-point))))
-				  ("Go to link" . (lambda (candidate)
-						    (goto-char
-						     (cdr (assoc candidate alist)))
-						    (org-show-entry) )))))
+				  ("Go to link" . ,(lambda (candidate)
+						     (goto-char
+						      (cdr (assoc candidate alist)))
+						     (org-show-entry) )))))
 	  :buffer "*link browser*")))
 
 
