@@ -572,13 +572,37 @@ KEY is returned for the selected item(s) in helm."
   (cl-loop for i in candidates
 	   collect (concat (propertize i 'font-lock-face `(:foreground ,org-ref-cite-color)))))
 
+(defun org-ref-browse-links (candidate)
+  "Browse links with the same key."
+  (let ((keys nil))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward candidate nil t)
+	(backward-char 1)
+	(let* ((match (thing-at-point 'symbol t))
+	       (pos (point)))
+	  ;; ("key" . position)
+	  (setq keys (append keys (list (cons match pos))))))
+      (helm :sources
+	    (helm-build-sync-source "Browse links"
+	      :candidates (mapcar (lambda (pos)
+				    (format "%s" (cdr pos)))
+				  keys)
+	      :follow 1
+	      :persistent-action (lambda (candidate)
+				   (helm-goto-char
+				    (string-to-number candidate)))
+	      :action '(("Open menu" . (lambda (candidate)
+					 (helm-goto-char
+					  (string-to-number candidate))
+					 (org-open-at-point)))) )))))
 
 ;;;###autoload
-(defun org-ref-link-browser ()
+(defun org-ref-browser ()
   "Quickly browse citation links."
   (interactive)
-  (let ((keys '())
-	(alist '()))
+  (let ((keys nil)
+	(alist nil))
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
 	(let ((plist (nth 1 link)))
@@ -589,22 +613,19 @@ KEY is returned for the selected item(s) in helm."
 		(when (not (-contains? keys key))
 		  (setq keys (append keys (list key)))
 		  (setq alist (append alist (list (cons key start)))) )))))))
-    (helm :sources `((name . "Link Browser")
-		      (candidates . ,(mapcar (lambda (x)
-					       (format "%s" x))
-					     keys))
-		      (candidate-transformer org-ref-propertize-link-candidates)
-		      (action  . (("Menu" . ,(lambda (candidate)
-					       (save-excursion
-						 (goto-char
-						  (cdr (assoc candidate alist)))
-						 (org-open-at-point))))
-				  ("Go to link" . ,(lambda (candidate)
-						     (goto-char
-						      (cdr (assoc candidate alist)))
-						     (org-show-entry) )))))
-	  :buffer "*link browser*")))
-
+    (helm :sources
+	  (helm-build-sync-source "Browser"
+	    :candidates (mapcar (lambda (key)
+				  (format "%s" key))
+				keys)
+	    :candidate-transformer 'org-ref-propertize-link-candidates
+	    :action '(("Open Menu" . (lambda (candidate)
+				       (save-excursion
+					 (goto-char
+					  (cdr (assoc candidate alist)))
+					 (org-open-at-point))))
+		      ("Browse links" . org-ref-browse-links)))
+	  :buffer "*helm browser*")))
 
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
