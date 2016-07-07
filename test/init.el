@@ -9,7 +9,7 @@
 (package-initialize)
 (package-refresh-contents)
 
-(dolist (package (list 'dash 'helm 'helm-bibtex 'ivy 'hydra 'key-chord 's 'f))
+(dolist (package (list 'org-plus-contrib 'dash 'helm 'helm-bibtex 'ivy 'hydra 'key-chord 's 'f))
   (unless (package-installed-p package)
     (message "installing %s" package)
     (package-install package)))
