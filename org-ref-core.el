@@ -1919,8 +1919,9 @@ PATH is required for the org-link, but it does nothing here."
 ;;* Utilities
 ;;** create text citations from a bibtex entry
 (defun org-ref-bib-citation ()
-  "From a bibtex entry, create and return a simple citation string.
-This assumes you are in an article."
+  "From a bibtex entry, create and return a citation string.
+If `bibtex-completion' library is loaded, return reference in APA
+format. Otherwise return a generic article citation string."
   (bibtex-set-dialect nil t)
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
@@ -1945,12 +1946,15 @@ This assumes you are in an article."
          (volume (reftex-get-bib-field "volume" entry))
          (pages (reftex-get-bib-field "pages" entry))
          (doi (reftex-get-bib-field "doi" entry))
-         (url (reftex-get-bib-field "url" entry))
-         )
-    ;;authors, "title", Journal, vol(iss):pages (year).
-    (format "%s, \"%s\", %s, %s:%s (%s)"
-            author title journal  volume pages year)))
-
+         (url (reftex-get-bib-field "url" entry)))
+    (if (featurep 'bibtex-completion)
+	;; APA format
+    	(let* ((ref (bibtex-completion-apa-format-reference key))
+    	       (nodoi (replace-regexp-in-string "[ ]*http.?+" "" ref)))
+	  (format "%s" nodoi))
+      ;; authors, "title", Journal, vol(iss):pages (year).
+      (format "%s, \"%s\", %s, %s:%s (%s)"
+	      author title journal volume pages year))))
 
 (defun org-ref-bib-html-citation ()
   "From a bibtex entry, create and return a simple citation with html links."
@@ -3011,7 +3015,8 @@ If no KEY is provided, get the KEY at point."
             (insert-file-contents bibfile)
             (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
             (bibtex-search-entry key)
-            (org-ref-bib-citation)))
+	    (let ((bibtex-completion-bibliography bibfile))
+	      (org-ref-bib-citation))))
       "!!! No entry found !!!" )))
 
 

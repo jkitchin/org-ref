@@ -77,9 +77,9 @@
       "cite:kitchin-2015-examp
 
 bibliography:tests/test-1.bib
-"
+" 
     (should
-     (string= "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"
+     (string= "Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
 	      (org-ref-link-message)))))
 
 
