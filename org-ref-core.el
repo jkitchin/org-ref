@@ -3015,7 +3015,8 @@ If no KEY is provided, get the KEY at point."
             (insert-file-contents bibfile)
             (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
             (bibtex-search-entry key)
-            (org-ref-bib-citation)))
+	    (let ((bibtex-completion-bibliography bibfile))
+	      (org-ref-bib-citation))))
       "!!! No entry found !!!" )))
 
 
