@@ -591,7 +591,8 @@ KEY is returned for the selected item(s) in helm."
 	      :follow 1
 	      :persistent-action (lambda (candidate)
 				   (helm-goto-char
-				    (string-to-number candidate)))
+				    (string-to-number candidate))
+				   (helm-highlight-current-line nil nil nil nil 'pulse))
 	      :action '(("Open menu" . (lambda (candidate)
 					 (helm-goto-char
 					  (string-to-number candidate))
