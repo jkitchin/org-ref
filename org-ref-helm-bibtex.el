@@ -619,7 +619,7 @@ KEY is returned for the selected item(s) in helm."
 				  (format "%s" key))
 				keys)
 	    :candidate-transformer 'org-ref-propertize-link-candidates
-	    :action '(("Open Menu" . (lambda (candidate)
+	    :action `(("Open Menu" . ,(lambda (candidate)
 				       (save-excursion
 					 (goto-char
 					  (cdr (assoc candidate alist)))
