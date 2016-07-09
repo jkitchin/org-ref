@@ -568,6 +568,64 @@ KEY is returned for the selected item(s) in helm."
                                   (funcall f))))))))
 
 
+;; browse labels
+
+(defun org-ref-browser-label-source ()
+  (let ((labels (org-ref-get-labels)))
+    (helm-build-sync-source "Browse labels"
+      :follow 1
+      :candidates labels
+      :action '(("Browse labels" . (lambda (label)
+				     (with-selected-window (selected-window)
+				       (org-open-link-from-string
+					(format "ref:%s" label))))))
+      :persistent-action (lambda (label)
+			   (with-selected-window (selected-window)
+			     (org-open-link-from-string
+			      (format "ref:%s" label)))
+			   (helm-highlight-current-line nil nil nil nil 'pulse)))))
+
+;; browse citation links
+
+(defun org-ref-propertize-link-candidates (candidates)
+  (cl-loop for i in candidates
+	   collect (concat (propertize i 'font-lock-face `(:foreground ,org-ref-cite-color)))))
+
+(defun org-ref-browse-citation-links (candidate)
+  "Browse citation links with the same key."
+  (let ((keys nil))
+    (goto-char (point-min))
+    (while (re-search-forward candidate nil t)
+      ;; put cursor over the link
+      (backward-char 1)
+      (let ((match (thing-at-point 'symbol t))
+	    (pos (point)))
+	(when (and match
+		   ;; skip comments
+		   (save-excursion
+		     (goto-char pos)
+		     (not (or (org-in-commented-heading-p)
+			      (org-at-comment-p)
+			      (-intersection (org-get-tags-at) org-export-exclude-tags)))))
+	  ;; ("key" . position)
+	  (setq keys (append keys (list (cons match pos)))))))
+    ;; go to the first link
+    (goto-char (cdr (car keys)))
+    (helm :sources
+	  (helm-build-sync-source "Browse citation links"
+	    :follow 1
+	    :candidates (mapcar (lambda (pos)
+				  (format "%s" (cdr pos)))
+				keys)
+	    :persistent-action (lambda (candidate)
+				 (helm-goto-char
+				  (string-to-number candidate))
+				 (helm-highlight-current-line nil nil nil nil 'pulse))
+	    :action '(("Open menu" . (lambda (candidate)
+				       (helm-goto-char
+					(string-to-number candidate))
+				       (org-open-at-point))))))))
+
 (defun org-ref-propertize-link-candidates (candidates)
   (cl-loop for i in candidates
 	   collect (concat (propertize i 'font-lock-face `(:foreground ,org-ref-cite-color)))))
@@ -596,37 +654,50 @@ KEY is returned for the selected item(s) in helm."
 	      :action '(("Open menu" . (lambda (candidate)
 					 (helm-goto-char
 					  (string-to-number candidate))
-					 (org-open-at-point)))) )))))
+					 (org-open-at-point)))))))))
 
 ;;;###autoload
-(defun org-ref-browser ()
-  "Quickly browse citation links."
-  (interactive)
-  (let ((keys nil)
-	(alist nil))
-    (org-element-map (org-element-parse-buffer) 'link
-      (lambda (link)
-	(let ((plist (nth 1 link)))
-	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
-	    (let ((start (org-element-property :begin link)))
-	      (dolist (key
-		       (org-ref-split-and-strip-string (plist-get plist ':path)))
-		(when (not (-contains? keys key))
+(defun org-ref-browser (&optional arg)
+  "Quickly browse citation links.
+With a prefix ARG, browse labels."
+  (interactive "P")
+  (if arg
+      (helm :sources (org-ref-browser-label-source)
+	    :buffer "*helm labels*")
+    (let ((keys nil)
+	  (alist nil))
+      (show-all)
+      (org-element-map (org-element-parse-buffer) 'link
+	(lambda (link)
+	  (let ((plist (nth 1 link)))
+	    (when (-contains? org-ref-cite-types (plist-get plist ':type))
+	      (let ((start (org-element-property :begin link)))
+		(dolist (key
+			 (org-ref-split-and-strip-string (plist-get plist ':path)))
 		  (setq keys (append keys (list key)))
-		  (setq alist (append alist (list (cons key start)))) )))))))
-    (helm :sources
-	  (helm-build-sync-source "Browser"
-	    :candidates (mapcar (lambda (key)
-				  (format "%s" key))
-				keys)
-	    :candidate-transformer 'org-ref-propertize-link-candidates
-	    :action `(("Open Menu" . ,(lambda (candidate)
-				       (save-excursion
-					 (goto-char
-					  (cdr (assoc candidate alist)))
-					 (org-open-at-point))))
-		      ("Browse links" . org-ref-browse-links)))
-	  :buffer "*helm browser*")))
+		  (setq alist (append alist (list (cons key start)))) ))))))
+      (helm :sources
+	    (helm-build-sync-source "Browse citation links"
+	      :follow 1
+	      :candidates (mapcar (lambda (key)
+				    (format "%s" key))
+				  keys)
+	      :candidate-transformer 'org-ref-propertize-link-candidates
+	      :persistent-action (lambda (candidate)
+				   ;; FIXME: only works forward
+				   (goto-char
+				    (if (re-search-forward candidate nil t)
+					(point)
+				      nil))
+				   (backward-char 1)
+				   (helm-highlight-current-line nil nil nil nil 'pulse))
+	      :action `(("Open menu" . ,(lambda (candidate)
+					  (save-excursion
+					    (goto-char
+					     (cdr (assoc candidate alist)))
+					    (org-open-at-point))))
+			("Browse links" . org-ref-browse-citation-links)))
+	    :buffer "*helm browser*"))))
 
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
