@@ -691,7 +691,14 @@ With a prefix ARG, browse labels."
 				   ;; FIXME: only works forward
 				   (goto-char
 				    (if (re-search-forward candidate nil t)
-					(point)
+					(progn
+					  ;; here we replace the value
+					  ;; of the alist with the
+					  ;; current point position.
+					  ;; This is needed when the
+					  ;; citation link repeats.
+					  (setf (cdr (assoc candidate alist)) (point))
+					  (point))
 				      nil))
 				   (backward-char 1)
 				   (helm-highlight-current-line nil nil nil nil 'pulse))
