@@ -666,6 +666,7 @@ With a prefix ARG, browse labels."
 	    :buffer "*helm labels*")
     (let ((keys nil)
 	  (alist nil))
+      (widen)
       (show-all)
       (org-element-map (org-element-parse-buffer) 'link
 	(lambda (link)
@@ -676,30 +677,30 @@ With a prefix ARG, browse labels."
 			 (org-ref-split-and-strip-string (plist-get plist ':path)))
 		  (setq keys (append keys (list key)))
 		  (setq alist (append alist (list (cons key start))))))))))
-      (save-excursion
-	(goto-char (point-min))
-	(helm :sources
-	      (helm-build-sync-source "Browse citation links"
-		:follow 1
-		:candidates (mapcar (lambda (key)
-				      (format "%s" key))
-				    keys)
-		:candidate-transformer 'org-ref-propertize-link-candidates
-		:persistent-action (lambda (candidate)
-				     ;; FIXME: only works forward
-				     (goto-char
-				      (if (re-search-forward candidate nil t)
-					  (point)
-					nil))
-				     (backward-char 1)
-				     (helm-highlight-current-line nil nil nil nil 'pulse))
-		:action `(("Open menu" . ,(lambda (candidate)
-					    (save-excursion
-					      (goto-char
-					       (cdr (assoc candidate alist)))
-					      (org-open-at-point))))
-			  ("Browse links" . org-ref-browse-citation-links)))
-	      :buffer "*helm browser*")))))
+      ;; push mark to restore our position later with C-u C-SPC
+      (push-mark (point))
+      (goto-char (point-min))
+      (helm :sources
+	    (helm-build-sync-source "Browse citation links"
+	      :follow 1
+	      :candidates (mapcar (lambda (key)
+				    (format "%s" key))
+				  keys)
+	      :candidate-transformer 'org-ref-propertize-link-candidates
+	      :persistent-action (lambda (candidate)
+				   ;; FIXME: only works forward
+				   (goto-char
+				    (if (re-search-forward candidate nil t)
+					(point)
+				      nil))
+				   (backward-char 1)
+				   (helm-highlight-current-line nil nil nil nil 'pulse))
+	      :action `(("Open menu" . ,(lambda (candidate)
+					  (goto-char
+					   (cdr (assoc candidate alist)))
+					  (org-open-at-point)))
+			("Browse links" . org-ref-browse-citation-links)))
+	    :buffer "*helm browser*"))))
 
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
