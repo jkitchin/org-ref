@@ -679,7 +679,8 @@ With a prefix ARG, browse labels."
 		  (setq alist (append alist (list (cons key start))))))))))
       ;; push mark to restore our position later with C-u C-SPC
       (push-mark (point))
-      (goto-char (point-min))
+      ;; move point to the first link in the buffer
+      (goto-char (cdr (assoc (caar alist) alist)))
       (helm :sources
 	    (helm-build-sync-source "Browse citation links"
 	      :follow 1
@@ -705,6 +706,9 @@ With a prefix ARG, browse labels."
 	      :action `(("Open menu" . ,(lambda (candidate)
 					  (goto-char
 					   (cdr (assoc candidate alist)))
+					  ;; don't move the point on the first link
+					  (unless (eq (point) (cdr (assoc (caar alist) alist)))
+					    (backward-char 1))
 					  (org-open-at-point)))
 			("Browse links" . org-ref-browse-citation-links)))
 	    :buffer "*helm browser*"))))
