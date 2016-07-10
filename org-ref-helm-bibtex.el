@@ -587,6 +587,11 @@ KEY is returned for the selected item(s) in helm."
 
 ;; browse citation links
 
+(defun org-ref-browser-transformer (candidates)
+  (let ((counter 0))
+    (cl-loop for i in candidates
+	     collect (format "%s %s" (cl-incf counter) i))))
+
 ;;;###autoload
 (defun org-ref-browser (&optional arg)
   "Quickly browse citation links.
@@ -596,8 +601,7 @@ With a prefix ARG, browse labels."
       (helm :sources (org-ref-browser-label-source)
 	    :buffer "*helm labels*")
     (let ((keys nil)
-	  (alist nil)
-	  (counter nil))
+	  (alist nil))
       (widen)
       (show-all)
       (org-element-map (org-element-parse-buffer) 'link
@@ -608,17 +612,15 @@ With a prefix ARG, browse labels."
 		(dolist (key
 			 (org-ref-split-and-strip-string (plist-get plist ':path)))
 		  (setq keys (append keys (list key)))
-		  (setq counter (let ((i 0))
-			       (mapcar (lambda (x)
-					 (format "%s %s" (cl-incf i) x))
-				       keys)))
 		  (setq alist (append alist (list (cons key start))))))))))
-      (let ((i 0))
+      (let ((counter 0))
 	;; the idea here is to create an alist with ("counter key" .
 	;; position) to produce unique candidates
-	(setq x (list (mapcar (lambda (x)
-				(cons (format "%s %s" (cl-incf i) (car x)) (cdr x)))
-			      alist))))
+	(setq count-key-pos (list
+			     (mapcar (lambda (x)
+				       (cons
+					(format "%s %s" (cl-incf counter) (car x)) (cdr x)))
+				     alist))))
       ;; push mark to restore position with C-u C-SPC
       (push-mark (point))
       ;; move point to the first citation link in the buffer
@@ -626,14 +628,15 @@ With a prefix ARG, browse labels."
       (helm :sources
 	    (helm-build-sync-source "Browse citation links"
 	      :follow 1
-	      :candidates counter
+	      :candidates keys
+	      :candidate-transformer 'org-ref-browser-transformer
 	      :persistent-action (lambda (candidate)
 				   (goto-char
-				    (cdr (assoc candidate (car x))))
+				    (cdr (assoc candidate (car count-key-pos))))
 				   (helm-highlight-current-line nil nil nil nil 'pulse))
 	      :action `(("Open menu" . ,(lambda (candidate)
 					  (goto-char
-					   (cdr (assoc candidate (car x))))
+					   (cdr (assoc candidate (car count-key-pos))))
 					  (org-open-at-point)))))
 	    :candidate-number-limit 10000
 	    :buffer "*helm browser*"))))
