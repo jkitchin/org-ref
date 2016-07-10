@@ -587,75 +587,6 @@ KEY is returned for the selected item(s) in helm."
 
 ;; browse citation links
 
-(defun org-ref-propertize-link-candidates (candidates)
-  (cl-loop for i in candidates
-	   collect (concat (propertize i 'font-lock-face `(:foreground ,org-ref-cite-color)))))
-
-(defun org-ref-browse-citation-links (candidate)
-  "Browse citation links with the same key."
-  (let ((keys nil))
-    (goto-char (point-min))
-    (while (re-search-forward candidate nil t)
-      ;; put cursor over the link
-      (backward-char 1)
-      (let ((match (thing-at-point 'symbol t))
-	    (pos (point)))
-	(when (and match
-		   ;; skip comments
-		   (save-excursion
-		     (goto-char pos)
-		     (not (or (org-in-commented-heading-p)
-			      (org-at-comment-p)
-			      (-intersection (org-get-tags-at) org-export-exclude-tags)))))
-	  ;; ("key" . position)
-	  (setq keys (append keys (list (cons match pos)))))))
-    ;; go to the first link
-    (goto-char (cdr (car keys)))
-    (helm :sources
-	  (helm-build-sync-source "Browse citation links"
-	    :follow 1
-	    :candidates (mapcar (lambda (pos)
-				  (format "%s" (cdr pos)))
-				keys)
-	    :persistent-action (lambda (candidate)
-				 (helm-goto-char
-				  (string-to-number candidate))
-				 (helm-highlight-current-line nil nil nil nil 'pulse))
-	    :action '(("Open menu" . (lambda (candidate)
-				       (helm-goto-char
-					(string-to-number candidate))
-				       (org-open-at-point))))))))
-
-(defun org-ref-propertize-link-candidates (candidates)
-  (cl-loop for i in candidates
-	   collect (concat (propertize i 'font-lock-face `(:foreground ,org-ref-cite-color)))))
-
-(defun org-ref-browse-links (candidate)
-  "Browse links with the same key."
-  (let ((keys nil))
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward candidate nil t)
-	(backward-char 1)
-	(let* ((match (thing-at-point 'symbol t))
-	       (pos (point)))
-	  ;; ("key" . position)
-	  (setq keys (append keys (list (cons match pos))))))
-      (helm :sources
-	    (helm-build-sync-source "Browse links"
-	      :candidates (mapcar (lambda (pos)
-				    (format "%s" (cdr pos)))
-				  keys)
-	      :follow 1
-	      :persistent-action (lambda (candidate)
-				   (helm-goto-char
-				    (string-to-number candidate))
-				   (helm-highlight-current-line nil nil nil nil 'pulse))
-	      :action '(("Open menu" . (lambda (candidate)
-					 (helm-goto-char
-					  (string-to-number candidate))
-					 (org-open-at-point)))))))))
-
 ;;;###autoload
 (defun org-ref-browser (&optional arg)
   "Quickly browse citation links.
@@ -665,7 +596,8 @@ With a prefix ARG, browse labels."
       (helm :sources (org-ref-browser-label-source)
 	    :buffer "*helm labels*")
     (let ((keys nil)
-	  (alist nil))
+	  (alist nil)
+	  (counter nil))
       (widen)
       (show-all)
       (org-element-map (org-element-parse-buffer) 'link
@@ -676,42 +608,36 @@ With a prefix ARG, browse labels."
 		(dolist (key
 			 (org-ref-split-and-strip-string (plist-get plist ':path)))
 		  (setq keys (append keys (list key)))
+		  (setq counter (let ((i 0))
+			       (mapcar (lambda (x)
+					 (format "%s %s" (cl-incf i) x))
+				       keys)))
 		  (setq alist (append alist (list (cons key start))))))))))
-      ;; push mark to restore our position later with C-u C-SPC
+      (let ((i 0))
+	;; the idea here is to create an alist with ("counter key" .
+	;; position) to produce unique candidates
+	(setq x (list (mapcar (lambda (x)
+				(cons (format "%s %s" (cl-incf i) (car x)) (cdr x)))
+			      alist))))
+      ;; push mark to restore position with C-u C-SPC
       (push-mark (point))
-      ;; move point to the first link in the buffer
+      ;; move point to the first citation link in the buffer
       (goto-char (cdr (assoc (caar alist) alist)))
       (helm :sources
 	    (helm-build-sync-source "Browse citation links"
 	      :follow 1
-	      :candidates (mapcar (lambda (key)
-				    (format "%s" key))
-				  keys)
-	      :candidate-transformer 'org-ref-propertize-link-candidates
+	      :candidates counter
 	      :persistent-action (lambda (candidate)
-				   ;; FIXME: only works forward
 				   (goto-char
-				    (if (re-search-forward candidate nil t)
-					(progn
-					  ;; here we replace the value
-					  ;; of the alist with the
-					  ;; current point position.
-					  ;; This is needed when the
-					  ;; citation link repeats.
-					  (setf (cdr (assoc candidate alist)) (point))
-					  (point))
-				      nil))
-				   (backward-char 1)
+				    (cdr (assoc candidate (car x))))
 				   (helm-highlight-current-line nil nil nil nil 'pulse))
 	      :action `(("Open menu" . ,(lambda (candidate)
 					  (goto-char
-					   (cdr (assoc candidate alist)))
-					  ;; don't move the point on the first link
-					  (unless (eq (point) (cdr (assoc (caar alist) alist)))
-					    (backward-char 1))
-					  (org-open-at-point)))
-			("Browse links" . org-ref-browse-citation-links)))
+					   (cdr (assoc candidate (car x))))
+					  (org-open-at-point)))))
+	    :candidate-number-limit 10000
 	    :buffer "*helm browser*"))))
+
 
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
