@@ -621,11 +621,10 @@ With a prefix ARG, browse labels."
       (let ((counter 0))
       	;; the idea here is to create an alist with ("counter key" .
       	;; position) to produce unique candidates
-      	(setq count-key-pos (list
-      			     (mapcar (lambda (x)
-      				       (cons
-      					(format "%s %s" (cl-incf counter) (car x)) (cdr x)))
-      				     alist))))
+      	(setq count-key-pos (mapcar (lambda (x)
+				      (cons
+				       (format "%s %s" (cl-incf counter) (car x)) (cdr x)))
+				    alist)))
       ;; push mark to restore position with C-u C-SPC
       (push-mark (point))
       ;; move point to the first citation link in the buffer
@@ -638,11 +637,11 @@ With a prefix ARG, browse labels."
 	      :real-to-display 'org-ref-browser-display
 	      :persistent-action (lambda (candidate)
 	      			   (helm-goto-char
-	      			    (cdr (assoc candidate (car count-key-pos))))
+	      			    (cdr (assoc candidate count-key-pos)))
 	      			   (helm-highlight-current-line nil nil nil nil 'pulse))
 	      :action `(("Open menu" . ,(lambda (candidate)
 	      				  (helm-goto-char
-	      				   (cdr (assoc candidate (car count-key-pos))))
+	      				   (cdr (assoc candidate count-key-pos)))
 	      				  (org-open-at-point)))))
 	    :candidate-number-limit 10000
 	    :buffer "*helm browser*"))))
