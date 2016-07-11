@@ -588,9 +588,14 @@ KEY is returned for the selected item(s) in helm."
 ;; browse citation links
 
 (defun org-ref-browser-transformer (candidates)
+  "Add counter to candidates."
   (let ((counter 0))
     (cl-loop for i in candidates
 	     collect (format "%s %s" (cl-incf counter) i))))
+
+(defun org-ref-browser-display (candidate)
+  "Strip counter from candidates."
+  (replace-regexp-in-string "^[0-9]+? " "" candidate))
 
 ;;;###autoload
 (defun org-ref-browser (&optional arg)
@@ -614,13 +619,13 @@ With a prefix ARG, browse labels."
 		  (setq keys (append keys (list key)))
 		  (setq alist (append alist (list (cons key start))))))))))
       (let ((counter 0))
-	;; the idea here is to create an alist with ("counter key" .
-	;; position) to produce unique candidates
-	(setq count-key-pos (list
-			     (mapcar (lambda (x)
-				       (cons
-					(format "%s %s" (cl-incf counter) (car x)) (cdr x)))
-				     alist))))
+      	;; the idea here is to create an alist with ("counter key" .
+      	;; position) to produce unique candidates
+      	(setq count-key-pos (list
+      			     (mapcar (lambda (x)
+      				       (cons
+      					(format "%s %s" (cl-incf counter) (car x)) (cdr x)))
+      				     alist))))
       ;; push mark to restore position with C-u C-SPC
       (push-mark (point))
       ;; move point to the first citation link in the buffer
@@ -630,14 +635,15 @@ With a prefix ARG, browse labels."
 	      :follow 1
 	      :candidates keys
 	      :candidate-transformer 'org-ref-browser-transformer
+	      :real-to-display 'org-ref-browser-display
 	      :persistent-action (lambda (candidate)
-				   (goto-char
-				    (cdr (assoc candidate (car count-key-pos))))
-				   (helm-highlight-current-line nil nil nil nil 'pulse))
+	      			   (helm-goto-char
+	      			    (cdr (assoc candidate (car count-key-pos))))
+	      			   (helm-highlight-current-line nil nil nil nil 'pulse))
 	      :action `(("Open menu" . ,(lambda (candidate)
-					  (goto-char
-					   (cdr (assoc candidate (car count-key-pos))))
-					  (org-open-at-point)))))
+	      				  (helm-goto-char
+	      				   (cdr (assoc candidate (car count-key-pos))))
+	      				  (org-open-at-point)))))
 	    :candidate-number-limit 10000
 	    :buffer "*helm browser*"))))
 
