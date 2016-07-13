@@ -568,24 +568,92 @@ KEY is returned for the selected item(s) in helm."
                                   (funcall f))))))))
 
 
+;;; browser
+
+(defcustom org-ref-browser-actions
+  '(("Go to citations  `C-m'"   . (lambda (bibkey)
+				    (org-ref-browser-goto-citation-links bibkey)))
+    ("Open menu        `C-M-m'" . org-ref-browser-open-menu)
+    ("Open PDF         `C-M-p'" . helm-bibtex-open-pdf)
+    ("Insert citation  `C-M-c'" . helm-bibtex-insert-citation)
+    ("Edit notes       `C-M-n'" . bibtex-completion-edit-notes)
+    ("Add keywords     `C-M-k'" . org-ref-browser-tag-entries)
+    ("Show entry       `C-M-e'" . bibtex-completion-show-entry))
+  "Cons cells of string and function."
+  :type '(alist :key-type string :value-type function))
+
+;; keymap
+
+(defvar org-ref-browser-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-map)
+    (define-key map (kbd "C-M-m") 'org-ref-browser-run-open-menu)
+    (define-key map (kbd "C-M-p") 'org-ref-browser-open-pdf)
+    (define-key map (kbd "C-M-c") 'org-ref-browser-insert-citation)
+    (define-key map (kbd "C-M-n") 'org-ref-browser-edit-notes)
+    (define-key map (kbd "C-M-k") 'org-ref-browser-tag-entries)
+    (define-key map (kbd "C-M-e") 'org-ref-browser-show-entry)
+    map))
+
+(defun org-ref-browser-run-open-menu ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'org-ref-browser-open-menu)))
+
+(defun org-ref-browser-open-pdf ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-bibtex-open-pdf)))
+
+(defun org-ref-browser-insert-citation ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-bibtex-insert-citation)))
+
+(defun org-ref-browser-edit-notes ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'bibtex-completion-edit-notes)))
+
+(defun org-ref-browser-tag-entries ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'org-ref-helm-tag-entries)))
+
+(defun org-ref-browser-show-entry ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'bibtex-completion-show-entry)))
+
 ;; browse labels
 
-(defun org-ref-browser-label-source ()
+(defun org-ref-browse-labels ()
+  "Browse existing labels in the current buffer."
   (let ((labels (org-ref-get-labels)))
-    (helm-build-sync-source "Browse labels"
-      :follow 1
-      :candidates labels
-      :action '(("Browse labels" . (lambda (label)
-				     (with-selected-window (selected-window)
-				       (org-open-link-from-string
-					(format "ref:%s" label))))))
-      :persistent-action (lambda (label)
-			   (with-selected-window (selected-window)
-			     (org-open-link-from-string
-			      (format "ref:%s" label)))
-			   (helm-highlight-current-line nil nil nil nil 'pulse)))))
+    (helm :sources `(,(helm-build-sync-source "Browse labels"
+			:follow 1
+			:candidates labels
+			:action '(("Browse labels" . (lambda (label)
+						       (with-helm-current-buffer
+							 (org-open-link-from-string
+							  (format "ref:%s" label))))))
+			:persistent-action (lambda (label)
+					     (with-helm-current-buffer
+					       (org-open-link-from-string
+						(format "ref:%s" label)))
+					     (helm-highlight-current-line nil nil nil nil 'pulse)))
+		     ,(helm-build-dummy-source "Create new label"
+			:action (lambda (label)
+				  (with-helm-current-buffer
+				    (insert (concat "label:" label))))))
+	  :buffer "*helm labels*")))
 
 ;; browse citation links
+
+(defun org-ref-browser-open-menu (candidate)
+  (goto-char
+   (cdr (assoc candidate alist1)))
+  (org-open-at-point))
 
 (defun org-ref-browser-transformer (candidates)
   "Add counter to candidates."
@@ -598,54 +666,93 @@ KEY is returned for the selected item(s) in helm."
   (replace-regexp-in-string "^[0-9]+? " "" candidate))
 
 ;;;###autoload
-(defun org-ref-browser (&optional arg)
-  "Quickly browse citation links.
+(defun org-ref-browser-goto-citation-links (&optional bibkey)
+  "Quickly browse citation links in the current buffer.
+With an optional BIBKEY argument, narrow to citation links that share
+the same key."
+  (interactive)
+  (let ((keys nil)
+	(alist nil))
+    (widen)
+    (show-all)
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(let ((plist (nth 1 link)))
+	  (when (-contains? org-ref-cite-types (plist-get plist ':type))
+	    (let ((start (org-element-property :begin link)))
+	      (dolist (key
+		       (org-ref-split-and-strip-string (plist-get plist ':path)))
+		;; when called from org-ref-browser, narrow to
+		;; citation links matching the current candidate.
+		;; Otherwise use all keys as candidates.
+		(if bibkey
+		    (when (string= key bibkey)
+		      (setq keys (append keys (list key)))
+		      (setq alist (append alist (list (cons key start)))))
+		  (setq keys (append keys (list key)))
+		  (setq alist (append alist (list (cons key start)))))))))))
+    (let ((counter 0))
+      ;; the idea here is to create an alist with ("counter key" .
+      ;; position) to produce unique candidates
+      (setq count-key-pos (mapcar (lambda (x)
+				    (cons
+				     (format "%s %s" (cl-incf counter) (car x)) (cdr x)))
+				  alist)))
+    ;; push mark to restore position with C-u C-SPC
+    (push-mark (point))
+    ;; move point to the first citation link in the buffer
+    (goto-char (cdr (assoc (caar alist) alist)))
+    (helm :sources
+	  (helm-build-sync-source "Browse citation links"
+	    :follow 1
+	    :candidates keys
+	    :candidate-transformer 'org-ref-browser-transformer
+	    :real-to-display 'org-ref-browser-display
+	    :persistent-action (lambda (candidate)
+				 (helm-goto-char
+				  (cdr (assoc candidate count-key-pos)))
+				 (helm-highlight-current-line nil nil nil nil 'pulse))
+	    :action `(("Open menu" . ,(lambda (candidate)
+					(helm-goto-char
+					 (cdr (assoc candidate count-key-pos)))
+					(org-open-at-point)))))
+	  :buffer "*helm goto links*")))
+
+;; browse keys
+
+;;;###autoload
+(defun org-ref-browser (arg)
+  "Quickly browse citation keys in the current buffer.
 With a prefix ARG, browse labels."
   (interactive "P")
   (if arg
-      (helm :sources (org-ref-browser-label-source)
-	    :buffer "*helm labels*")
-    (let ((keys nil)
-	  (alist nil))
+      (org-ref-browse-labels)
+    (save-excursion
       (widen)
       (show-all)
-      (org-element-map (org-element-parse-buffer) 'link
-	(lambda (link)
-	  (let ((plist (nth 1 link)))
-	    (when (-contains? org-ref-cite-types (plist-get plist ':type))
-	      (let ((start (org-element-property :begin link)))
-		(dolist (key
-			 (org-ref-split-and-strip-string (plist-get plist ':path)))
-		  (setq keys (append keys (list key)))
-		  (setq alist (append alist (list (cons key start))))))))))
-      (let ((counter 0))
-      	;; the idea here is to create an alist with ("counter key" .
-      	;; position) to produce unique candidates
-      	(setq count-key-pos (mapcar (lambda (x)
-				      (cons
-				       (format "%s %s" (cl-incf counter) (car x)) (cdr x)))
-				    alist)))
-      ;; push mark to restore position with C-u C-SPC
-      (push-mark (point))
-      ;; move point to the first citation link in the buffer
-      (goto-char (cdr (assoc (caar alist) alist)))
-      (helm :sources
-	    (helm-build-sync-source "Browse citation links"
-	      :follow 1
-	      :candidates keys
-	      :candidate-transformer 'org-ref-browser-transformer
-	      :real-to-display 'org-ref-browser-display
-	      :persistent-action (lambda (candidate)
-	      			   (helm-goto-char
-	      			    (cdr (assoc candidate count-key-pos)))
-	      			   (helm-highlight-current-line nil nil nil nil 'pulse))
-	      :action `(("Open menu" . ,(lambda (candidate)
-	      				  (helm-goto-char
-	      				   (cdr (assoc candidate count-key-pos)))
-	      				  (org-open-at-point)))))
-	    :candidate-number-limit 10000
-	    :buffer "*helm browser*"))))
-
+      (let ((keys nil)
+	    (alist nil))
+	(org-element-map (org-element-parse-buffer) 'link
+	  (lambda (link)
+	    (let ((plist (nth 1 link)))
+	      (when (-contains? org-ref-cite-types (plist-get plist ':type))
+		(let ((start (org-element-property :begin link)))
+		  (dolist (key
+			   (org-ref-split-and-strip-string (plist-get plist ':path)))
+		    (when (not (-contains? keys key))
+		      (setq keys (append keys (list key)))
+		      (setq alist (append alist (list (cons key start)))))))))))
+	;; recycle alist so that we can reuse it later in the list of actions
+	(setq alist1 alist)
+	;; push mark to restore position with C-u C-SPC
+	(push-mark (point))
+	(helm :sources
+	      (helm-build-sync-source "Browse keys"
+		:candidates keys
+		:action org-ref-browser-actions
+		:keymap org-ref-browser-map)
+	      :candidate-number-limit 10000
+	      :buffer "*helm browser*")))))
 
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
