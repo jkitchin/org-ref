@@ -524,14 +524,11 @@ WINDOW and OBJECT are ignored."
 						   "gls")
 				  (nth 0 candidate)
 				  (nth 1 candidate)))))
-	    ,(helm-build-dummy-source "Add new glossary term"
-	       :action (lambda (candidate)
-			 (call-interactively
-			  'org-ref-add-glossary-entry)))
-	    ,(helm-build-dummy-source "Add new acronym term"
-	       :action (lambda (candidate)
-			 (call-interactively
-			  'org-ref-add-acronym-entry)))))))
+	    ,(helm-build-sync-source "Add new term"
+	       :candidates '(("Add glossary term" . org-ref-add-glossary-entry)
+			     ("Add acronym term" . org-ref-add-acronym-entry))
+	       :action (lambda (x)
+			 (call-interactively x)))))))
 
 
 (provide 'org-ref-glossary)
