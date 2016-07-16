@@ -318,7 +318,7 @@ ABBRV is the abbreviated form.
 FULL is the expanded acronym."
   (interactive "sLabel: \nsAcronym: \nsFull name: ")
   (save-excursion
-    (re-search-backward "#\\+latex_header:" nil t)
+    (re-search-backward "#\\+latex_header" nil t)
     (forward-line)
     (when (not (looking-at "^$"))
       (beginning-of-line)
@@ -531,7 +531,7 @@ WINDOW and OBJECT are ignored."
 						  'org-ref-add-glossary-entry)))
 			("New acronym term" . (lambda (candidate)
 						(call-interactively
-						 org-ref-add-acronym-entry))))))))))
+						 'org-ref-add-acronym-entry))))))))))
 
 
 (provide 'org-ref-glossary)
