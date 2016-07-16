@@ -494,44 +494,44 @@ WINDOW and OBJECT are ignored."
 		       (plist-get entry :abbrv))))))))
 
     (helm :sources
-	  `(((name . "Insert glossary term")
-	     (multiline)
-	     (candidates . ,glossary-candidates)
-	     (action . (lambda (candidate)
-			 (insert (format
-				  "[[%s:%s][%s]]"
-				  (completing-read "Type: "
-						   '("gls"
-						     "glspl"
-						     "Gls"
-						     "Glspl"
-						     "glssymbol"
-						     "glsdesc")
-						   nil t
-						   "gls")
-				  (nth 0 candidate)
-				  (nth 1 candidate))))))
-	    ((name . "Insert acronym term")
-	     (candidates . ,acronym-candidates)
-	     (action . (lambda (candidate)
-			 (insert (format
-				  "[[%s:%s][%s]]"
-				  (completing-read "Type: "
-						   '("gls"
-						     "acrshort"
-						     "acrlong"
-						     "acrfull")
-						   nil t)
-				  (nth 0 candidate)
-				  (nth 1 candidate))))))
-	    ((name . "Insert new entry")
-	     (dummy)
-	     (action . (("New glossary term" . (lambda (candidate)
-						 (call-interactively
-						  'org-ref-add-glossary-entry)))
-			("New acronym term" . (lambda (candidate)
-						(call-interactively
-						 'org-ref-add-acronym-entry))))))))))
+	  `(,(helm-build-sync-source "Insert glossary term"
+	    :candidates glossary-candidates
+	    :action (lambda (candidate)
+		       (insert (format
+				"[[%s:%s][%s]]"
+				(completing-read "Type: "
+						 '("gls"
+						   "glspl"
+						   "Gls"
+						   "Glspl"
+						   "glssymbol"
+						   "glsdesc")
+						 nil t
+						 "gls")
+				(nth 0 candidate)
+				(nth 1 candidate)))))
+	    ,(helm-build-sync-source "Insert acronym term"
+	       :candidates acronym-candidates
+	       :action (lambda (candidate)
+			  (insert (format
+				   "[[%s:%s][%s]]"
+				   (completing-read "Type: "
+						    '("gls"
+						      "acrshort"
+						      "acrlong"
+						      "acrfull")
+						    nil t
+						    "gls")
+				   (nth 0 candidate)
+				   (nth 1 candidate)))))
+	    ,(helm-build-dummy-source "Add new glossary term"
+	       :action (lambda (candidate)
+			 (call-interactively
+			  'org-ref-add-glossary-entry)))
+	    ,(helm-build-dummy-source "Add new acronym term"
+	       :action (lambda (candidate)
+			 (call-interactively
+			  'org-ref-add-acronym-entry)))))))
 
 
 (provide 'org-ref-glossary)
