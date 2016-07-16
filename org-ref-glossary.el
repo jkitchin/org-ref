@@ -176,7 +176,7 @@ Entry gets added after the last #+latex_header line."
   "Goto beginning of the glossary ENTRY."
   (org-mark-ring-push)
   (goto-char (point-min))
-  (re-search-forward (format "\\newglossaryentry{%s}" entry))
+  (re-search-forward (format "\\newglossaryentry{%s}\\|\\newacronym{%s}" entry entry))
   (goto-char (match-beginning 0)))
 
 ;; link to glossary entry
