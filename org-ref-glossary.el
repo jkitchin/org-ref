@@ -495,35 +495,35 @@ WINDOW and OBJECT are ignored."
 
     (helm :sources
 	  `(,(helm-build-sync-source "Insert glossary term"
-	    :candidates glossary-candidates
-	    :action (lambda (candidate)
-		       (insert (format
-				"[[%s:%s][%s]]"
-				(completing-read "Type: "
-						 '("gls"
-						   "glspl"
-						   "Gls"
-						   "Glspl"
-						   "glssymbol"
-						   "glsdesc")
-						 nil t
-						 "gls")
-				(nth 0 candidate)
-				(nth 1 candidate)))))
+	       :candidates glossary-candidates
+	       :action (lambda (candidate)
+			 (insert (format
+				  "[[%s:%s][%s]]"
+				  (completing-read "Type: "
+						   '("gls"
+						     "glspl"
+						     "Gls"
+						     "Glspl"
+						     "glssymbol"
+						     "glsdesc")
+						   nil t
+						   "gls")
+				  (nth 0 candidate)
+				  (nth 1 candidate)))))
 	    ,(helm-build-sync-source "Insert acronym term"
 	       :candidates acronym-candidates
 	       :action (lambda (candidate)
-			  (insert (format
-				   "[[%s:%s][%s]]"
-				   (completing-read "Type: "
-						    '("gls"
-						      "acrshort"
-						      "acrlong"
-						      "acrfull")
-						    nil t
-						    "gls")
-				   (nth 0 candidate)
-				   (nth 1 candidate)))))
+			 (insert (format
+				  "[[%s:%s][%s]]"
+				  (completing-read "Type: "
+						   '("gls"
+						     "acrshort"
+						     "acrlong"
+						     "acrfull")
+						   nil t
+						   "gls")
+				  (nth 0 candidate)
+				  (nth 1 candidate)))))
 	    ,(helm-build-dummy-source "Add new glossary term"
 	       :action (lambda (candidate)
 			 (call-interactively
