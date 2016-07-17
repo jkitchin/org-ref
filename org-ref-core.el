@@ -563,10 +563,8 @@ If so return the position for `goto-char'."
   "Search forward to next cite link up to LIMIT
 Add a tooltip to the match."
   (when (and (re-search-forward org-ref-cite-re limit t)
-	     ;; make sure we are not in a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     ;; we think we are on a cite link lets get on it and make sure
     (forward-char -2)
     (let ((this-link (org-element-context)))
@@ -603,10 +601,8 @@ Add a tooltip to the match."
   "Find next label link up to LIMIT.
 Add tooltip."
   (if (and (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
-	   ;; make sure we are not in a comment
-	   (save-excursion
-	     (beginning-of-line)
-	     (not (looking-at "# "))))
+	   (not (org-in-src-block-p))
+	   (not (org-at-comment-p)))
       (progn
 	(forward-char -2)
 	(let ((this-link (org-element-context)))
@@ -640,10 +636,8 @@ Add tooltip."
 Add tooltip to the link. We avoid tags by not finding :ref: in
 tags."
   (when (and (re-search-forward "[^:]\\(eq\\)?ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
-	     ;; make sure we are not on a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
@@ -676,7 +670,9 @@ tags."
 (defun org-ref-match-next-bibliography-link (limit)
   "Find next bibliography link up to LIMIT.
 Add tooltip to the link."
-  (when (re-search-forward "bibliography:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "bibliography:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
@@ -702,7 +698,9 @@ Add tooltip to the link."
 (defun org-ref-match-next-bibliographystyle-link (limit)
   "Find next bibliographystyle link up to LIMIT.
 Add tooltip to the link."
-  (when (re-search-forward "bibliographystyle:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "bibliographystyle:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let* ((this-link (org-element-context))
 	   (path (org-element-property :path this-link))
