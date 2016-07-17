@@ -273,15 +273,19 @@ Used in fontification."
 (defun or-next-glossary-link (limit)
   "Search to next glossary link up to LIMIT.
 Adds a tooltip to the link that is found."
-  (when (re-search-forward
-	 (concat
-	  (regexp-opt '("gls" "glspl"
-			"Gls" "Glspl"
-			"glslink"
-			"glssymbol"
-			"glsdesc"))
-	  ":[a-zA-Z]\\{2,\\}")
-	 limit t)
+  (when (and (re-search-forward
+	      (concat
+	       (regexp-opt '("gls" "glspl"
+			     "Gls" "Glspl"
+			     "glslink"
+			     "glssymbol"
+			     "glsdesc"))
+	       ":[a-zA-Z]\\{2,\\}")
+	      limit t)
+	     ;; make sure we are not on a comment
+	     (save-excursion
+	       (beginning-of-line)
+	       (not (looking-at "# "))))
     (forward-char -2)
     (let ((next-link (org-element-context)))
       (if next-link
@@ -410,11 +414,15 @@ WINDOW and OBJECT are ignored."
 ;; hard to do with regexps.
 (defun or-next-acronym-link (limit)
   "Search to next acronym link up to LIMIT and add a tooltip."
-  (when (re-search-forward
-	 (concat
-	  (regexp-opt '("acrshort" "acrfull" "acrlong"))
-	  ":[a-zA-Z]\\{2,\\}")
-	 limit t)
+  (when (and (re-search-forward
+	      (concat
+	       (regexp-opt '("acrshort" "acrfull" "acrlong"))
+	       ":[a-zA-Z]\\{2,\\}")
+	      limit t)
+	     ;; make sure we are not on a comment
+	     (save-excursion
+	       (beginning-of-line)
+	       (not (looking-at "# "))))
     (save-excursion
       (forward-char -2)
       (let ((next-link (org-element-context)))
