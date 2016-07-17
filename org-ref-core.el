@@ -1942,8 +1942,7 @@ This assumes you are in an article."
          (volume (reftex-get-bib-field "volume" entry))
          (pages (reftex-get-bib-field "pages" entry))
          (doi (reftex-get-bib-field "doi" entry))
-         (url (reftex-get-bib-field "url" entry))
-         )
+         (url (reftex-get-bib-field "url" entry)))
     ;;authors, "title", Journal, vol(iss):pages (year).
     (format "%s, \"%s\", %s, %s:%s (%s)"
             author title journal  volume pages year)))
