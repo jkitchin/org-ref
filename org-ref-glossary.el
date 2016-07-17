@@ -521,7 +521,7 @@ WINDOW and OBJECT are ignored."
 						     "acrlong"
 						     "acrfull")
 						   nil t
-						   "gls")
+						   "acrshort")
 				  (nth 0 candidate)
 				  (nth 1 candidate)))))
 	    ,(helm-build-sync-source "Add new term"
