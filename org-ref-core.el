@@ -1235,7 +1235,6 @@ A number greater than one means multiple labels!"
        :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
 
     ;; and to #+label: lines
-
     (when (and (equal (org-element-type object) 'paragraph)
                (org-element-property :name object))
       (org-store-link-props

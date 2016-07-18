@@ -9,7 +9,8 @@
 (package-initialize)
 (package-refresh-contents)
 
-(dolist (package (list 'org-plus-contrib 'dash 'helm 'helm-bibtex 'ivy 'hydra 'key-chord 's 'f))
+(dolist (package (list 'org-plus-contrib 'dash 'helm 'helm-bibtex
+		       'ivy 'hydra 'key-chord 's 'f))
   (unless (package-installed-p package)
     (message "installing %s" package)
     (package-install package)))
@@ -23,6 +24,7 @@
 
 (setq org-src-fontify-natively t
       org-confirm-babel-evaluate nil
+      org-confirm-elisp-link-function nil
       org-src-preserve-indentation t)
 
 (org-babel-do-load-languages
@@ -37,6 +39,5 @@
 
 (require 'org-ref)
 
-(find-file "test-1.org")
 
 (message "done")

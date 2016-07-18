@@ -1,0 +1,2404 @@
+* Setup
+
+#+BEGIN_SRC emacs-lisp :results silent
+(add-to-list 'org-structure-template-alist
+	     '("elt" "#+BEGIN_SRC emacs-lisp :test\n?\n#+END_SRC"
+	       "<src lang=\"emacs-lisp\">\n?\n</src>"))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(org-ert-tangle "all-org-test.el")
+(find-file "all-org-test.el")
+(lispy--indent-region (point-min) (point-max))
+(save-buffer)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC emacs-lisp 
+;(require 'org-ert)
+(load-file "org-ert.el")
+(load-file "org-test-setup.el")
+(org-ert-run-tests)
+#+END_SRC
+
+#+RESULTS:
+| [[elisp:(org-babel-goto-nth-test-block 1)][test-1]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 2)][or-split-key-1]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 3)][or-split-key-2]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 4)][or-key-file-p]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 5)][or-key-file-p-nil]]      | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 6)][or-key-file]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 7)][swap-1]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 8)][swap-2]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 9)][test-9]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 10)][test-10]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 11)][orlm]]                   | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 12)][orlm-nil]]               | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 13)][orlm-ref-1]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 14)][orlm-ref-2]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 15)][orlm-ref-3]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 16)][orlm-ref-4]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 17)][orlm-label-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 18)][orlm-label-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 19)][or-get-pdf]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 20)][or-get-pdf-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 21)][or-get-key]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 22)][or-get-key1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 23)][or-get-key2]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 24)][orfb-1]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 25)][orfb-1a]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 26)][orfb-2]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 27)][orfb-2a]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 28)][orfb-3]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 29)][orfb-3a]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 30)][orfb-4]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 31)][unique-keys]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 32)][unique-keys-sort]]       | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 33)][get-doi]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 34)][short-titles]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 35)][long-titles]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 36)][title-case-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 37)][title-case-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 38)][title-case-3]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 39)][sentence-case-1]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 40)][sentence-case-2]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 41)][stringify]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 42)][next-entry-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 43)][prev-entry-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 44)][get-bibtex-keys]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 45)][set-bibtex-keys]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 46)][get-year]]               | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 47)][clean-year-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 48)][clean-year-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 49)][clean-&]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 50)][clean-comma]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 51)][clean-pages-1]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 52)][clean-doi-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 53)][bib-1]]                  | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 54)][bib-1a]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 55)][bib-2]]                  | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 56)][get-labels-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 57)][get-labels-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 58)][get-labels-3]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 59)][get-labels-4]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 60)][get-labels-5]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 61)][bad-cites]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 62)][bad-ref]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 63)][multiple-labels]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 64)][bad-file-link]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 65)][swap-link-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 66)][swap-link-2]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 67)][parse-link-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 68)][next-link-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 69)][next-link-2]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 70)][prev-link-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 71)][del-key-1]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 72)][del-key-2]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 73)][del-key-3]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 74)][del-key-4]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 75)][del-key-5]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 76)][del-cite-1]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 77)][del-cite-2]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 78)][rep-key-1]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 79)][rep-key-2]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 80)][rep-key-3]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 81)][rep-key-4]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 82)][sort-by-year]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 83)][ins-key-1]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 84)][ins-key-2]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 85)][ins-key-2a]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 86)][ins-key-3]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 87)][ins-key-4]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 88)][ins-key-5]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 89)][cite-export-1]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 90)][cite-export-2]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 91)][cite-export-3]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 92)][label-export-1]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 93)][ref-export-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 94)][bib-export-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 95)][bib-export-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 96)][curly-1]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 97)][curly-2]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 98)][curly-3]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 99)][bad-citations-1]]        | 25                                 |
+| [[elisp:(org-babel-goto-nth-test-block 100)][extract-bibtex]]         | 136                                |
+| [[elisp:(org-babel-goto-nth-test-block 101)][mendeley-fname]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 102)][fl-next-cite]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 103)][cite-face]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 104)][cite-face]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 105)][cite-in-comment]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 106)][fl-next-ref]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 107)][ref-face]]               | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 108)][fl-next-label]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 109)][label-face]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 110)][fl-next-bib]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 111)][fl-next-bibstyle]]       | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 112)][store-label-link]]       | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 113)][store-label-link-table]] | ((:type ref :link [[ref:test-table]])) |
+| [[elisp:(org-babel-goto-nth-test-block 114)][store-label-headline]]   | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 115)][store-label-label]]      | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 116)][store-bibtex-link]]      | t                                  |
+
+* Reminders about code blocks
+
+(org-babel-get-src-block-info)
+Returns a list
+ (language body header-arguments-alist switches name indent block-head).
+
+Getting the language
+#+BEGIN_SRC emacs-lisp
+(nth 0 (org-babel-get-src-block-info))
+#+END_SRC
+
+#+RESULTS:
+: emacs-lisp
+
+The body
+#+BEGIN_SRC emacs-lisp 
+(nth 1 (org-babel-get-src-block-info))
+#+END_SRC
+
+#+RESULTS:
+: (nth 1 (org-babel-get-src-block-info))
+
+header-arguments
+#+BEGIN_SRC emacs-lisp
+(nth 2 (org-babel-get-src-block-info))
+#+END_SRC
+
+#+RESULTS:
+: ((:colname-names) (:rowname-names) (:result-params replace) (:result-type . value) (:comments . ) (:shebang . ) (:cache . no) (:padline . ) (:noweb . no) (:tangle . no) (:exports . code) (:results . replace) (:test . ignore) (:hlines . no) (:session . none))
+
+Name
+#+name: yepper
+#+BEGIN_SRC emacs-lisp
+(nth 4 (org-babel-get-src-block-info))
+#+END_SRC
+
+#+RESULTS: yepper
+: yepper
+
+#+RESULTS:
+
+Is it a test? If this returns non-nil, 
+#+BEGIN_SRC emacs-lisp 
+(and (assoc :test (nth 2 (org-babel-get-src-block-info)))
+     (not (string= "ignore" (cdr (assoc :test (nth 2 (org-babel-get-src-block-info)))))))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+* Basic tests
+
+#+name: or-split-key-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    (org-ref-split-and-strip-string " key1,key2 ")
+    '("key1" "key2")))
+#+END_SRC
+
+#+RESULTS: or-split-key-1
+: t
+
+#+name: or-split-key-2
+#+BEGIN_SRC emacs-lisp :test
+"Check if keys are split correctly"
+(should
+ (equal
+  (org-ref-split-and-strip-string " key1 ")
+  '("key1")))
+#+END_SRC
+
+#+RESULTS: or-split-key-2
+: t
+
+
+#+name: or-key-file-p
+#+BEGIN_SRC emacs-lisp :test
+"Check `org-ref-key-in-file-p'"
+(should
+ (not
+  (null
+   (org-ref-key-in-file-p "kitchin-2015-examp"
+			  (expand-file-name
+			   "tests/test-1.bib"
+			   (file-name-directory (locate-library "org-ref")))))))
+#+END_SRC
+
+#+RESULTS: or-key-file-p
+: t
+
+#+name: or-key-file-p-nil
+#+BEGIN_SRC emacs-lisp :test
+"Check `org-ref-key-in-file-p' for non-existent key"
+(should
+ (null
+  (org-ref-key-in-file-p "bad-key"
+			 (expand-file-name
+			  "tests/test-1.bib"
+			  (file-name-directory (locate-library "org-ref"))))))
+#+END_SRC
+
+#+RESULTS: or-key-file-p-nil
+: t
+
+
+#+name: or-key-file
+#+BEGIN_SRC emacs-lisp :test
+"Check we find a key in a file"
+(should
+ (equal
+  (cons "kitchin-2015-examp" (expand-file-name
+			      "tests/test-1.bib"
+			      (file-name-directory
+			       (locate-library "org-ref"))))
+  (let ((org-ref-default-bibliography (list (expand-file-name
+					     "tests/test-1.bib"
+					     (file-name-directory
+					      (locate-library "org-ref"))))))
+    (org-ref-get-bibtex-key-and-file "kitchin-2015-examp"))))
+#+END_SRC
+
+#+RESULTS: or-key-file
+: t
+
+#+name: swap-1
+#+BEGIN_SRC emacs-lisp :test
+"org swap test"
+(should
+ (equal
+  '(b a)
+  (org-ref-swap-keys 0 1 '(a b))))
+#+END_SRC
+
+#+RESULTS: swap-1
+: t
+
+#+name: swap-2
+#+BEGIN_SRC emacs-lisp :test
+"org swap test"
+(should
+ (equal
+  '(a c b)
+  (org-ref-swap-keys 1 2 '(a b c))))
+#+END_SRC
+
+#+RESULTS: swap-2
+: t
+
+* Messages on links
+
+Note: the bibliography links are a little troublesome in these tests. We use calculated absolute paths everywhere. That is so the tests work locally, and on Travis (where the paths are different). We cannot get away with relative paths because when we run locally, we are in org-ref/test, and when we run on Travis, we are in /org-ref, so either way we have to compute paths.
+
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    (format "cite:kitchin-2015-examp 
+
+bibliography:%s
+" (expand-file-name
+			 "tests/test-1.bib"
+			 (file-name-directory
+			  (locate-library "org-ref"))))
+  (should
+   (string=
+    (org-ref-link-message)
+    (if (featurep 'bibtex-completion)
+	"Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
+      "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"))))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    (format "cite:kitchin-2015
+
+bibliography:%s
+"
+	    (expand-file-name
+			 "tests/test-1.bib"
+			 (file-name-directory
+			  (locate-library "org-ref"))))
+    (should 
+     (string= "!!! No entry found !!!"
+	      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+* Messages on links
+#+name: orlm
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    (format "cite:kitchin-2015-examp
+
+bibliography:%s
+" (expand-file-name
+   "tests/test-1.bib"
+   (file-name-directory
+    (locate-library "org-ref"))))
+    (should
+     (string= (org-ref-link-message)
+	      (if (featurep 'bibtex-completion)
+		  "Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
+		"Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"))))
+#+END_SRC
+
+#+RESULTS: orlm
+: t
+
+#+name: orlm-nil
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    (format "cite:kitchin-2015
+
+bibliography:%s
+" (expand-file-name
+   "tests/test-1.bib"
+   (file-name-directory
+    (locate-library "org-ref"))))
+    (should
+     (string= "!!! No entry found !!!"
+	      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-nil
+: t
+
+#+name: orlm-ref-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "!!! NO CONTEXT FOUND !!!count: 0"
+    (org-test-with-temp-text
+	"ref:one
+
+cite:kitchin-2015
+
+bibliography:tests/test-1.bib
+"
+      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-ref-1
+: t
+
+#+name: orlm-ref-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "
+#+caption: some text label:one
+count: 1"
+    (org-test-with-temp-text
+	"ref:one
+
+#+caption: some text label:one
+"
+      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-ref-2
+: t
+
+#+name: orlm-ref-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "
+\\begin{equation}\\label{one}
+4
+\\end{equation}
+count: 1"
+    (org-test-with-temp-text
+	"eqref:one
+
+\\begin{equation}\\\label{one}
+4
+\\end{equation}
+"
+      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-ref-3
+: t
+
+
+#+name: orlm-ref-4
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "
+label:one
+count: 2"
+    (org-test-with-temp-text
+	"eqref:one
+
+\\begin{equation}\\\label{one}
+4
+\\end{equation}
+
+label:one
+"
+      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-ref-4
+: t
+
+
+#+name: orlm-label-1
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "label:one
+
+"
+    (should
+     (string= "1 occurrence"
+	      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-label-1
+: t
+
+
+#+name: orlm-label-2
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "label:one
+
+label:one
+
+"
+    (should
+     (string= "2 occurrences"
+	      (org-ref-link-message))))
+#+END_SRC
+
+#+RESULTS: orlm-label-2
+: t
+
+* get pdf/key
+#+name: or-get-pdf
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "kitchin-2015.pdf"
+    (org-test-with-temp-text
+	"cite:kitchin-2015"
+      (let ((org-ref-pdf-directory nil))
+	(org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor))))))
+#+END_SRC
+
+#+RESULTS: or-get-pdf
+: t
+
+#+name: or-get-pdf-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+ (string=
+  (expand-file-name
+   "tests/bibtex-pdfs/kitchin-2015.pdf"
+   (file-name-directory
+    (locate-library "org-ref"))) 
+  (org-test-with-temp-text
+      "cite:kitchin-2015"
+    (let ((org-ref-pdf-directory (expand-file-name
+				  "tests/bibtex-pdfs/"
+				  (file-name-directory
+				   (locate-library "org-ref")))))
+      (org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor))))))
+
+#+END_SRC
+
+#+RESULTS: or-get-pdf-2
+: t
+
+#+name: or-get-key
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "kitchin-2015"
+    (org-test-with-temp-text
+	"cite:kitchin-2015"
+      (org-ref-get-bibtex-key-under-cursor))))
+#+END_SRC
+
+#+RESULTS: or-get-key
+: t
+
+
+#+name: or-get-key1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "key1"
+    (org-test-with-temp-text
+	"cite:key1,key2"
+      (goto-char 5)
+      (org-ref-get-bibtex-key-under-cursor))))
+#+END_SRC
+
+#+RESULTS: or-get-key1
+: t
+
+#+name: or-get-key2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "key2"
+    (org-test-with-temp-text
+	"cite:key1,key2"
+      (goto-char 11)
+      (org-ref-get-bibtex-key-under-cursor))))
+#+END_SRC
+
+#+RESULTS: or-get-key2
+: t
+
+* Get bibliography
+;; This is a confusing set of tests. The tests get run in the directory above
+;; this file, so these tests fail when run in this directory, but pass there.
+;; They are written to pass on Travis, and in the Makefile in the directory
+;; above us.
+
+#+name: orfb-1
+#+BEGIN_SRC emacs-lisp :test
+"test a single bibliography link."
+(should
+ (equal
+    (list (expand-file-name
+	   "tests/test-1.bib"
+	   (file-name-directory
+	    (locate-library "org-ref"))))
+    (org-test-with-temp-text
+		(format "bibliography:%s"
+			  (expand-file-name
+			   "tests/test-1.bib"
+			   (file-name-directory
+			    (locate-library "org-ref"))))
+	      (org-ref-find-bibliography))))
+#+END_SRC
+
+#+RESULTS: orfb-1
+: t
+
+#+name: orfb-1a
+#+BEGIN_SRC emacs-lisp :test
+"Get multiple bib files."
+(let ((bibstring ))
+  (should
+   (equal
+    (list (expand-file-name
+	   "tests/test-1.bib"
+	   (file-name-directory
+	    (locate-library "org-ref")))
+	  (expand-file-name
+	   "tests/test-2.bib"
+	   (file-name-directory
+	    (locate-library "org-ref"))))
+    (org-test-with-temp-text
+	(format "bibliography:%s,%s"
+			 (expand-file-name
+			  "tests/test-1.bib"
+			  (file-name-directory
+			   (locate-library "org-ref")))
+			 (expand-file-name
+			  "tests/test-2.bib"
+			  (file-name-directory
+			   (locate-library "org-ref"))))
+      (org-ref-find-bibliography)))))
+#+END_SRC
+
+#+RESULTS: orfb-1a
+: t
+
+#+name: orfb-2
+#+BEGIN_SRC emacs-lisp :test
+"Get bibfile in latex format."
+(should
+   (equal
+    (list (expand-file-name
+	   "tests/test-1.bib"
+	   (file-name-directory
+	    (locate-library "org-ref"))))
+    (org-test-with-temp-text
+	(format "
+\\bibliography{%s}"
+			 (file-name-sans-extension (expand-file-name
+						    "tests/test-1.bib"
+						    (file-name-directory
+						     (locate-library "org-ref")))))
+      (org-ref-find-bibliography))))
+#+END_SRC
+
+#+RESULTS: orfb-2
+: t
+
+#+name: orfb-2a
+#+BEGIN_SRC emacs-lisp :test
+"Get bibfile in latex format."
+(should
+   (equal
+    (list (expand-file-name
+	   "tests/test-1.bib"
+	   (file-name-directory
+	    (locate-library "org-ref")))
+	  (expand-file-name
+	   "tests/test-2.bib"
+	   (file-name-directory
+	    (locate-library "org-ref"))))
+    (org-test-with-temp-text
+	(format "
+\\bibliography{%s,%s}"
+			 (file-name-sans-extension (expand-file-name
+						    "tests/test-1.bib"
+						    (file-name-directory
+						     (locate-library "org-ref"))))
+			 (file-name-sans-extension (expand-file-name
+						    "tests/test-2.bib"
+						    (file-name-directory
+						     (locate-library "org-ref")))))
+      (org-ref-find-bibliography))))
+#+END_SRC
+
+#+RESULTS: orfb-2a
+: t
+
+#+name: orfb-3
+#+BEGIN_SRC emacs-lisp :test
+"addbibresource form of bibliography."
+(should
+ (equal
+    (list (expand-file-name
+	   "tests/test-1.bib"
+	   (file-name-directory
+	    (locate-library "org-ref"))))
+    (mapcar 'file-truename
+	    (org-test-with-temp-text
+		(format "\\addbibresource{%s}"
+			  (expand-file-name
+			   "tests/test-1.bib"
+			   (file-name-directory
+			    (locate-library "org-ref"))))	      
+	      (org-ref-find-bibliography)))))
+#+END_SRC
+
+#+RESULTS: orfb-3
+: t
+
+#+name: orfb-3a
+#+BEGIN_SRC emacs-lisp :test
+"multiple bibliographies addbibresource form of bibliography."
+(should
+ (equal
+    (list (expand-file-name
+	   "tests/test-1.bib"
+	   (file-name-directory
+	    (locate-library "org-ref")))
+	  (expand-file-name
+	   "tests/test-2.bib"
+	   (file-name-directory
+	    (locate-library "org-ref"))))
+    (org-test-with-temp-text
+		(format "\\addbibresource{%s,%s}"
+			  (expand-file-name
+			   "tests/test-1.bib"
+			   (file-name-directory
+			    (locate-library "org-ref")))
+			  (expand-file-name
+			   "tests/test-2.bib"
+			   (file-name-directory
+			    (locate-library "org-ref"))))	      
+	      (org-ref-find-bibliography))))
+#+END_SRC
+
+#+RESULTS: orfb-3a
+: t
+
+#+name: orfb-4
+#+BEGIN_SRC emacs-lisp :test
+"getting default bibfile in file with no bib specification."
+(should
+ (equal
+  (list (file-truename "test.bib"))
+  (mapcar 'file-truename
+	  (org-test-with-temp-text
+	      ""
+	    (let ((org-ref-default-bibliography '("test.bib")))
+	      (org-ref-find-bibliography))))))
+#+END_SRC
+
+#+RESULTS: orfb-4
+: t
+
+
+#+name: unique-keys
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal '("kitchin-2008-alloy" "kitchin-2004-role")
+	  (org-test-with-temp-text
+	      "cite:kitchin-2008-alloy,kitchin-2004-role
+
+cite:kitchin-2004-role
+
+bibliography:tests/test-1.bib
+"
+	    (org-ref-get-bibtex-keys))))
+#+END_SRC
+
+#+RESULTS: unique-keys
+: t
+
+#+name: unique-keys-sort
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal '("kitchin-2004-role" "kitchin-2008-alloy")
+	  (org-test-with-temp-text
+	      "cite:kitchin-2008-alloy,kitchin-2004-role
+
+cite:kitchin-2004-role
+
+bibliography:tests/test-1.bib
+"
+	    (org-ref-get-bibtex-keys t))))
+#+END_SRC
+
+#+RESULTS: unique-keys-sort
+: t
+
+#+name: get-doi
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "10.1103/PhysRevB.77.075437"
+    (org-test-with-temp-text
+	(format
+	 "cite:kitchin-2008-alloy
+
+bibliography:%s
+"
+	 (expand-file-name
+	  "tests/test-1.bib"
+	  (file-name-directory
+	   (locate-library "org-ref"))))
+      (org-ref-get-doi-at-point))))
+#+END_SRC
+
+#+RESULTS: get-doi
+: t
+
+* Bibtex tests
+
+#+name: short-titles
+#+BEGIN_SRC emacs-lisp :test
+(org-ref-bibtex-generate-shorttitles)
+(prog1 
+    (should
+     (file-exists-p "shorttitles.bib"))
+  (delete-file "shorttitles.bib"))
+#+END_SRC
+
+#+RESULTS: short-titles
+: t
+
+#+name: long-titles
+#+BEGIN_SRC emacs-lisp :test
+(org-ref-bibtex-generate-longtitles)
+
+(prog1
+    (should
+     (file-exists-p "longtitles.bib"))
+  (delete-file "longtitles.bib"))
+#+END_SRC
+
+#+RESULTS: long-titles
+: t
+
+** Changing the case of titles
+#+name: title-case-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "Examples of Effective Data Sharing"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (org-ref-title-case-article)
+      (bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: title-case-1
+: t
+
+#+name: title-case-2
+#+BEGIN_SRC emacs-lisp :test
+(should (string=
+	   "Examples of Effective Data-Sharing"
+	   (with-temp-buffer
+	     (bibtex-mode)
+	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	     (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of effective data-sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+	     (goto-char (point-min))
+	     (org-ref-title-case-article)
+	     (bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: title-case-2
+: t
+
+#+name: title-case-3
+#+BEGIN_SRC emacs-lisp :test
+(should (string=
+	   "An Example of Effective Data-Sharing"
+	   (with-temp-buffer
+	     (bibtex-mode)
+	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	     (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {An example of effective data-sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+	     (goto-char (point-min))
+	     (org-ref-title-case-article)
+	     (bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: title-case-3
+: t
+
+#+name: sentence-case-1
+#+BEGIN_SRC emacs-lisp :test
+(should (string=
+	   "Examples of effective data sharing"
+	   (with-temp-buffer
+	     (bibtex-mode)
+	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	     (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of Effective Data Sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+	     (goto-char (point-min))
+	     (org-ref-sentence-case-article)
+	     (bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: sentence-case-1
+: t
+
+#+name: sentence-case-2
+#+BEGIN_SRC emacs-lisp :test
+(should (string=
+	   "Effective data sharing: A study"
+	   (with-temp-buffer
+	     (bibtex-mode)
+	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	     (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Effective Data Sharing: A study},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+	     (goto-char (point-min))
+	     (org-ref-sentence-case-article)
+	     (bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: sentence-case-2
+: t
+
+** Convert journal title to string
+#+name: stringify
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "JCP"
+    (with-temp-buffer
+      (insert "@article{xu-2015-relat,
+  author =	 {Zhongnan Xu and John R. Kitchin},
+  title =	 {Relationships Between the Surface Electronic and Chemical
+                  Properties of Doped 4d and 5d Late Transition Metal Dioxides},
+  keywords =	 {orgmode},
+  journal =	 {The Journal of Chemical Physics},
+  volume =	 142,
+  number =	 10,
+  pages =	 104703,
+  year =	 2015,
+  doi =		 {10.1063/1.4914093},
+  url =		 {http://dx.doi.org/10.1063/1.4914093},
+  date_added =	 {Sat Oct 24 10:57:22 2015},
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (org-ref-stringify-journal-name)
+      (bibtex-autokey-get-field "journal"))))
+#+END_SRC
+
+#+RESULTS: stringify
+: t
+
+** next/previous bibtex entries 
+#+name: next-entry-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "@article{xu-2015-relat,"
+    (with-temp-buffer
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of Effective Data Sharing in Scientific Publishing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}
+
+@article{xu-2015-relat,
+  author =	 {Zhongnan Xu and John R. Kitchin},
+  title =	 {Relationships Between the Surface Electronic and Chemical
+                  Properties of Doped 4d and 5d Late Transition Metal Dioxides},
+  keywords =	 {orgmode},
+  journal =	 {The Journal of Chemical Physics},
+  volume =	 142,
+  number =	 10,
+  pages =	 104703,
+  year =	 2015,
+  doi =		 {10.1063/1.4914093},
+  url =		 {http://dx.doi.org/10.1063/1.4914093},
+  date_added =	 {Sat Oct 24 10:57:22 2015},
+}
+
+")
+      (goto-char (point-min))
+      (org-ref-bibtex-next-entry)
+      (buffer-substring (line-beginning-position) (line-end-position)))))
+#+END_SRC
+
+#+RESULTS: next-entry-1
+: t
+
+#+name: prev-entry-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "@article{kitchin-2015-examp,"
+    (with-temp-buffer
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of Effective Data Sharing in Scientific Publishing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}
+
+@article{xu-2015-relat,
+  author =	 {Zhongnan Xu and John R. Kitchin},
+  title =	 {Relationships Between the Surface Electronic and Chemical
+                  Properties of Doped 4d and 5d Late Transition Metal Dioxides},
+  keywords =	 {orgmode},
+  journal =	 {The Journal of Chemical Physics},
+  volume =	 142,
+  number =	 10,
+  pages =	 104703,
+  year =	 2015,
+  doi =		 {10.1063/1.4914093},
+  url =		 {http://dx.doi.org/10.1063/1.4914093},
+  date_added =	 {Sat Oct 24 10:57:22 2015},
+}
+
+")
+      (re-search-backward "xu-2015")
+      (org-ref-bibtex-previous-entry)
+      (buffer-substring (line-beginning-position) (line-end-position)))))
+#+END_SRC
+
+#+RESULTS: prev-entry-1
+: t
+
+** Get/set bibtex keys
+#+name: get-bibtex-keys
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '("DESC0004031" "early-career" "orgmode" "Data sharing ")
+    (with-temp-buffer
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of Effective Data Sharing in Scientific Publishing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}
+
+@article{xu-2015-relat,
+  author =	 {Zhongnan Xu and John R. Kitchin},
+  title =	 {Relationships Between the Surface Electronic and Chemical
+                  Properties of Doped 4d and 5d Late Transition Metal Dioxides},
+  keywords =	 {orgmode},
+  journal =	 {The Journal of Chemical Physics},
+  volume =	 142,
+  number =	 10,
+  pages =	 104703,
+  year =	 2015,
+  doi =		 {10.1063/1.4914093},
+  url =		 {http://dx.doi.org/10.1063/1.4914093},
+  date_added =	 {Sat Oct 24 10:57:22 2015},
+}
+
+")
+      (org-ref-bibtex-keywords))))
+#+END_SRC
+
+#+RESULTS: get-bibtex-keys
+: t
+
+#+name: set-bibtex-keys
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '("key1" "key2" "orgmode")
+    (with-temp-buffer
+      (insert "@article{xu-2015-relat,
+  author =	 {Zhongnan Xu and John R. Kitchin},
+  title =	 {Relationships Between the Surface Electronic and Chemical
+                  Properties of Doped 4d and 5d Late Transition Metal Dioxides},
+  keywords =	 {orgmode},
+  journal =	 {The Journal of Chemical Physics},
+  volume =	 142,
+  number =	 10,
+  pages =	 104703,
+  year =	 2015,
+  doi =		 {10.1063/1.4914093},
+  url =		 {http://dx.doi.org/10.1063/1.4914093},
+  date_added =	 {Sat Oct 24 10:57:22 2015},
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (org-ref-set-bibtex-keywords '("key1" "key2"))
+      (org-ref-bibtex-keywords))))
+#+END_SRC
+
+#+RESULTS: set-bibtex-keys
+: t
+
+#+name: get-year
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "2015"
+	    (org-test-with-temp-text
+		(format "bibliography:%s"
+			(expand-file-name
+			 "tests/test-1.bib"
+			 (file-name-directory
+			  (locate-library "org-ref"))))
+	      (org-ref-get-citation-year "kitchin-2015-examp"))))
+#+END_SRC
+
+#+RESULTS: get-year
+: t
+
+#+name: clean-year-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "2015"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 {0},
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (orcb-clean-year "2015")
+      (bibtex-autokey-get-field "year"))))
+#+END_SRC
+
+#+RESULTS: clean-year-1
+: t
+
+#+name: clean-year-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "2015"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 {2015},
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (orcb-clean-year "2014")
+      (bibtex-autokey-get-field "year"))))
+#+END_SRC
+
+#+RESULTS: clean-year-2
+: t
+
+#+name: clean-&
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "Examples of \\& effective data sharing"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of & effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 {2015},
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (orcb-&)
+      (bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: clean-&
+: t
+
+#+name: clean-comma
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "@article{kitchin-2015-examp,"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of & effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 {2015},
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (orcb-key-comma)
+      (buffer-substring-no-properties (point-min)
+				      (line-end-position)))))
+#+END_SRC
+
+#+RESULTS: clean-comma
+: t
+
+#+name: clean-pages-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "123456789"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of & effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {},
+  eid = {123456789},
+  year =	 {2015},
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (orcb-clean-pages)
+      (bibtex-autokey-get-field "pages"))))
+#+END_SRC
+
+#+RESULTS: clean-pages-1
+: t
+
+#+name: clean-doi-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "10.1021/acscatal.5b00538"
+    (with-temp-buffer
+      (insert "@article{kitchin-2015-examp
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of & effective data sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {},
+  eid = {123456789},
+  year =	 {2015},
+  doi =		 {http://dx.doi.org/10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+      (bibtex-mode)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (goto-char (point-min))
+      (orcb-clean-doi)
+      (bibtex-autokey-get-field "doi"))))
+#+END_SRC
+
+#+RESULTS: clean-doi-1
+: t
+
+
+** bibtex functionality
+We rely a lot on bibtex functionality. These are tests to make sure it works as
+we expect. I don't have clear evidence, but I feel like I have had trouble with
+the in the past.
+
+#+name: bib-1
+#+BEGIN_SRC emacs-lisp :test
+"test finding an entry in a temp-buffer"
+  (should
+   (= 1 (with-temp-buffer
+	  (insert "@article{rippmann-2013-rethin,
+  author =	 {Matthias Rippmann and Philippe Block},
+  title =	 {Rethinking Structural Masonry: Unreinforced, Stone-Cut Shells},
+  journal =	 {Proceedings of the ICE - Construction Materials},
+  volume =	 166,
+  number =	 6,
+  pages =	 {378-389},
+  year =	 2013,
+  doi =		 {10.1680/coma.12.00033},
+  url =		 {http://dx.doi.org/10.1680/coma.12.00033},
+  date_added =	 {Mon Jun 1 09:11:23 2015},
+}")
+	  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	  (bibtex-search-entry "rippmann-2013-rethin"))))
+#+END_SRC
+
+#+RESULTS: bib-1
+: t
+
+#+name: bib-1a
+#+BEGIN_SRC emacs-lisp :test
+"Test finding an entry from an existing file."
+(should
+ (not (null
+       (with-temp-buffer
+	 (insert-file-contents (expand-file-name
+				"tests/test-1.bib"
+				(file-name-directory
+				 (locate-library "org-ref"))))
+	 (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	 (bibtex-search-entry "kitchin-2015-examp")))))
+#+END_SRC
+
+#+RESULTS: bib-1a
+: t
+
+#+name: bib-2
+#+BEGIN_SRC emacs-lisp :test
+"Test for null entry"
+(should
+ (null (with-temp-buffer
+	 (insert-file-contents (expand-file-name
+				"tests/test-1.bib"
+				(file-name-directory
+				 (locate-library "org-ref"))))
+	 (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	 (bibtex-search-entry "bad-key"))))
+#+END_SRC
+
+#+RESULTS: bib-2
+: t
+
+* Test labels
+
+#+name: get-labels-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+	"#+label: test"
+      (org-ref-get-org-labels))))
+#+END_SRC
+
+#+RESULTS: get-labels-1
+: t
+
+#+name: get-labels-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+     "\\label{test}"
+     (org-ref-get-latex-labels))))
+#+END_SRC
+
+#+RESULTS: get-labels-2
+: t
+
+#+name: get-labels-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+     "
+#+tblname: test
+| 1 |"
+     (org-ref-get-tblnames))))
+#+END_SRC
+
+#+RESULTS: get-labels-3
+: t
+
+#+name: get-labels-4
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '("test")
+    (org-test-with-temp-text
+	"* header
+  :PROPERTIES:
+  :CUSTOM_ID: test
+  :END:
+"
+      (org-ref-get-custom-ids))))
+#+END_SRC
+
+#+RESULTS: get-labels-4
+: t
+
+#+name: get-labels-5
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 5
+      (length
+       (org-test-with-temp-text
+	"* header
+  :PROPERTIES:
+  :CUSTOM_ID: test
+  :END:
+
+#+tblname: one
+| 3 |
+
+,** subsection \\label{three}
+  :PROPERTIES:
+  :CUSTOM_ID: two
+  :END: 
+
+label:four
+"
+	(org-ref-get-labels)))))
+#+END_SRC
+
+#+RESULTS: get-labels-5
+: t
+
+** bad cites/labels/refs
+#+name: bad-cites
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 2
+      (length
+       (org-test-with-temp-text
+	"cite:bad1  cite:bad2"
+	(org-ref-bad-cite-candidates)))))
+#+END_SRC
+
+#+RESULTS: bad-cites
+: t
+
+#+name: bad-ref
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 5
+      (length
+       (org-test-with-temp-text
+	   "ref:bad1  ref:bad2 eqref:bad3 pageref:bad4 nameref:bad5"
+	 (org-ref-bad-ref-candidates)))))
+#+END_SRC
+
+#+RESULTS: bad-ref
+: t
+
+#+name: multiple-labels
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 4
+      (length
+       (org-test-with-temp-text
+	"
+label:one
+\\label{one}
+#+tblname: one
+| 3|
+
+#+label:one"
+	(org-ref-bad-label-candidates)))))
+#+END_SRC
+
+#+RESULTS: multiple-labels
+: t
+
+#+name: bad-file-link
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 5
+      (length
+       (org-test-with-temp-text
+	"
+file:not.here  [[./or.here]].
+
+We should catch  \\attachfile{latex.style} too.
+
+Why don't we catch [[attachfile:filepath]] or attachfile:some.file?
+I think they must be defined in jmax, and are unknown links if it is
+not loaded.
+"
+	(org-add-link-type "attachfile" nil nil)
+	(org-ref-bad-file-link-candidates)))))
+#+END_SRC
+
+#+RESULTS: bad-file-link
+: t
+
+#+name: swap-link-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key2,key1"
+	    (org-test-with-temp-text
+	     "cite:key1,key2"
+	     (goto-char 6)
+	     (org-ref-swap-citation-link 1)
+	     (buffer-string))))
+#+END_SRC
+
+#+RESULTS: swap-link-1
+: t
+
+#+name: swap-link-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1,key2"
+	    (org-test-with-temp-text
+		"cite:key2,key1"
+	      (goto-char 6)
+	      (org-ref-swap-citation-link 1)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: swap-link-2
+: t
+
+* next/prev links
+#+name: parse-link-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (equal
+    '(("key1" 6 10) ("key2" 11 15))
+    (org-test-with-temp-text
+	"cite:key1,key2"
+      (org-ref-parse-cite))))
+#+END_SRC
+
+#+RESULTS: parse-link-1
+: t
+
+#+name: next-link-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 11
+      (org-test-with-temp-text
+	  "cite:key1,key2"
+	(goto-char 6)
+	(org-ref-next-key) (point))))
+#+END_SRC
+
+#+RESULTS: next-link-1
+: t
+
+#+name: next-link-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 16
+      (org-test-with-temp-text
+	  "cite:key3 cite:key1,key2"
+	(goto-char 6)
+	(org-ref-next-key) (point))))
+#+END_SRC
+
+#+RESULTS: next-link-2
+: t
+
+#+name: prev-link-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 6
+      (org-test-with-temp-text
+	  "cite:key1,key2"
+	(goto-char 11)
+	(org-ref-previous-key) (point))))
+#+END_SRC
+
+#+RESULTS: prev-link-1
+: t
+
+* Delete/replace keys
+#+name: del-key-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key2 test"
+	    (org-test-with-temp-text
+		"cite:key1,key2 test"
+	      (goto-char 6)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-key-1
+: t
+
+#+name: del-key-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1 test"
+	    (org-test-with-temp-text
+		"cite:key1,key2 test"
+	      (goto-char 11)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-key-2
+: t
+
+#+name: del-key-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1 text"
+	    (org-test-with-temp-text
+		"cite:key1,key2 text"
+	      (goto-char 11)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-key-3
+: t
+
+#+name: del-key-4
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key2 text"
+	    (org-test-with-temp-text
+		"cite:key1,key2 text"
+	      (goto-char 6)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-key-4
+: t
+
+#+name: del-key-5
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "[[cite:key2]] text"
+	    (org-test-with-temp-text
+		"[[cite:key1,key2]] text"
+	      (goto-char 6)
+	      (org-ref-delete-key-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-key-5
+: t
+
+#+name: del-cite-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "at text"
+	    (org-test-with-temp-text
+		"at [[cite:key1,key2]] text"
+	      (goto-char 6)
+	      (org-ref-delete-cite-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-cite-1
+: t
+
+#+name: del-cite-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "at text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 6)
+	      (org-ref-delete-cite-at-point)
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: del-cite-2
+: t
+
+#+name: rep-key-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "at citenum:key3,key2 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 12)
+	      (org-ref-replace-key-at-point "key3")
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: rep-key-1
+: t
+
+#+name: rep-key-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "at citenum:key1,key3 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 17)
+	      (org-ref-replace-key-at-point "key3")
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: rep-key-2
+: t
+
+#+name: rep-key-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "at citenum:key1,key3,key5 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 17)
+	      (org-ref-replace-key-at-point "key3,key5")
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: rep-key-3
+: t
+
+#+name: rep-key-4
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "at citenum:key3,key5,key2 text"
+	    (org-test-with-temp-text
+		"at citenum:key1,key2 text"
+	      (goto-char 12)
+	      (org-ref-replace-key-at-point "key3,key5")
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: rep-key-4
+: t
+
+#+name: sort-by-year
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:kitchin-2004-role,kitchin-2008-alloy"
+	    (org-test-with-temp-text
+		(format
+		 "cite:kitchin-2008-alloy,kitchin-2004-role
+
+bibliography:%s
+"
+		 (expand-file-name
+		  "tests/test-1.bib"
+		  (file-name-directory (locate-library "org-ref"))))
+	      (org-ref-sort-citation-link))))
+#+END_SRC
+
+#+RESULTS: sort-by-year
+: t
+
+* Inserting keys
+#+name: ins-key-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1"
+	    (org-test-with-temp-text
+		""
+	      (org-ref-insert-key-at-point '("key1"))
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: ins-key-1
+: t
+
+#+name: ins-key-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key2,key1"
+	    (org-test-with-temp-text
+		"cite:key1"
+	      (org-ref-insert-key-at-point '("key2"))
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: ins-key-2
+: t
+
+#+name: ins-key-2a
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1,key2,key3"
+	    (org-test-with-temp-text
+		"cite:key1,key2"
+	      (goto-char 12)
+	      (org-ref-insert-key-at-point '("key3"))
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: ins-key-2a
+: t
+
+#+name: ins-key-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1,key2"
+	    (org-test-with-temp-text
+		"cite:key1"
+	      (goto-char 6)
+	      (org-ref-insert-key-at-point '("key2"))
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: ins-key-3
+: t
+
+#+name: ins-key-4
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1,key3,key2"
+	    (org-test-with-temp-text
+		"cite:key1,key2"
+	      (goto-char 6)
+	      (org-ref-insert-key-at-point '("key3"))
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: ins-key-4
+: t
+
+#+name: ins-key-5
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string= "cite:key1,key2 "
+	    (org-test-with-temp-text
+		"cite:key1 "
+	      (goto-char (point-max))
+	      (org-ref-insert-key-at-point '("key2"))
+	      (buffer-string))))
+#+END_SRC
+
+#+RESULTS: ins-key-5
+: t
+
+* exports
+#+name: cite-export-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "\\cite{kitchin-2008-alloy}
+"
+    (org-test-with-temp-text
+	"cite:kitchin-2008-alloy"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: cite-export-1
+: t
+
+#+name: cite-export-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "\\cite[page 2]{kitchin-2008-alloy}
+"
+    (org-test-with-temp-text
+	"[[cite:kitchin-2008-alloy][page 2]]"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: cite-export-2
+: t
+
+#+name: cite-export-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "\\cite[page 2][post text]{kitchin-2008-alloy}
+"
+    (org-test-with-temp-text
+	"[[cite:kitchin-2008-alloy][page 2::post text]]"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: cite-export-3
+: t
+
+** labels
+#+name: label-export-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "\\label{test}
+"
+    (org-test-with-temp-text
+	"label:test"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: label-export-1
+: t
+
+** ref
+#+name: ref-export-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    "\\ref{test}
+"
+    (org-test-with-temp-text
+	"ref:test"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: ref-export-1
+: t
+
+#+name: bib-export-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    (format
+     "\\bibliography{%s}
+" (file-relative-name "test"))
+    (org-test-with-temp-text
+	"bibliography:test.bib"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: bib-export-1
+: t
+
+#+name: bib-export-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string=
+    (format
+     "\\bibliography{%s,%s}
+" (file-relative-name "test")
+(file-relative-name "titles"))
+(org-test-with-temp-text
+    "bibliography:test.bib,titles.bib"
+  (org-latex-export-as-latex nil nil nil t)
+  (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: bib-export-2
+: t
+
+* org-ref-glossary
+#+name: curly-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 2
+      (org-test-with-temp-text
+	  "{}"
+	(require 'org-ref-glossary)
+	(or-find-closing-curly-bracket))))
+#+END_SRC
+
+#+RESULTS: curly-1
+: t
+
+#+name: curly-2
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 4
+      (org-test-with-temp-text
+	  "{{}}"
+	(require 'org-ref-glossary)
+	(or-find-closing-curly-bracket))))
+#+END_SRC
+
+#+RESULTS: curly-2
+: t
+
+#+name: curly-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (= 3
+      (org-test-with-temp-text
+	  "{{}}"
+	(require 'org-ref-glossary)
+	(goto-char 2)
+	(or-find-closing-curly-bracket))))
+#+END_SRC
+
+#+RESULTS: curly-3
+: t
+
+#+name: bad-citations-1
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (org-test-with-temp-text
+       (format "
+cite:bad
+
+bibliography:%s
+"
+	       (expand-file-name
+		  "tests/test-1.bib"
+		  (file-name-directory (locate-library "org-ref"))))
+     (message "-------------------\n%S" (mapconcat
+					 (lambda (x)
+					   (file-name-directory (file-truename x)))
+					 (org-ref-find-bibliography)		    ":"))
+     (org-ref-find-bad-citations)
+     (with-current-buffer "*Missing citations*"
+       (string-match "^bad \\[\\["
+		     (buffer-substring-no-properties (point-min)
+						     (point-max))))))
+#+END_SRC
+
+#+RESULTS: bad-citations-1
+: 25
+
+#+name: extract-bibtex
+#+BEGIN_SRC emacs-lisp :test
+(should
+   (string-match "@article{kitchin-2015-examp,"
+		 (org-test-with-temp-text
+		     (format
+		      "cite:kitchin-2015-examp
+
+bibliography:%s
+" (expand-file-name
+		  "tests/test-1.bib"
+		  (file-name-directory (locate-library "org-ref"))))
+		   (org-ref-extract-bibtex-entries)
+		   (buffer-substring-no-properties (point-min) (point-max)))))
+#+END_SRC
+
+#+RESULTS: extract-bibtex
+: 136
+
+#+name: mendeley-fname
+#+BEGIN_SRC emacs-lisp :test
+(should
+ (let ((bibstring (format "bibliography:%s"
+			  (expand-file-name
+			   "tests/test-1.bib"
+			   (file-name-directory
+			    (locate-library
+			     "org-ref"))))))
+   (string= "/Users/jkitchin/Dropbox/bibliography/bibtex-pdfs/abild-pedersen-2007-scalin-proper.pdf"
+	    (org-test-with-temp-text
+		bibstring	      
+	      ""
+	      (org-ref-get-mendeley-filename "Abild-Pedersen2007")))))
+#+END_SRC
+
+#+RESULTS: mendeley-fname
+: t
+
+* Font-lock code test
+These are not really good tests. The next-link functions have a while loop in them, so they end up going to the end of the buffer. These mostly check that no errors are raised.
+
+** cite links
+#+name: fl-next-cite
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "   cite:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+    (goto-char (point-min))
+    (org-ref-match-next-cite-link nil)
+    (should
+     (= 27 (point))))
+#+END_SRC
+
+#+RESULTS: fl-next-cite
+: t
+
+
+#+name: cite-face
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "cite:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+  (font-lock-add-keywords
+   nil
+   '((org-ref-match-next-cite-link (0  'org-ref-cite-face t))
+     (org-ref-match-next-label-link (0  'org-ref-label-face t))
+     (org-ref-match-next-ref-link (0  'org-ref-ref-face t))
+     (org-ref-match-next-bibliography-link (0  'org-link t))
+     (org-ref-match-next-bibliographystyle-link (0  'org-link t)))
+   t) 
+  (font-lock-fontify-region (point-min) (point-max))
+  (should (eq 'org-ref-cite-face (get-char-property 1 'face))))
+#+END_SRC
+
+#+name: cite-face
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "# cite:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+  (font-lock-add-keywords
+   nil
+   '((org-ref-match-next-cite-link (0  'org-ref-cite-face t)))
+   t) 
+  (font-lock-fontify-region (point-min) (point-max))
+  (should (not (eq 'org-ref-cite-face (get-char-property 5 'face)))))
+#+END_SRC
+
+#+RESULTS: cite-face
+: t
+
+#+RESULTS:
+: t
+
+#+name: cite-in-comment
+#+BEGIN_SRC emacs-lisp :test
+(should
+ (org-test-with-temp-text
+     "# cite:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+   (font-lock-fontify-region (point-min) (point-max))
+   (eq 'font-lock-comment-face (get-char-property 10 'face))))
+#+END_SRC
+
+#+RESULTS: cite-in-comment
+: t
+
+#+RESULTS:
+: t
+
+
+** ref links
+
+#+name: fl-next-ref
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "   ref:one
+"
+    (goto-char (point-min))
+    (org-ref-match-next-ref-link nil)
+    (should
+     (= 11 (point))))
+#+END_SRC
+
+#+RESULTS: fl-next-ref
+: t
+
+[2016-07-17 Sun] I do not recall why ref links can't be at the beginning of a line. That is why there is a space at the beginning of this test.
+#+name: ref-face
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    " ref:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+  (font-lock-add-keywords
+   nil
+   '((org-ref-match-next-ref-link (0  'org-ref-ref-face t)))
+   t) 
+  (font-lock-fontify-region (point-min) (point-max))
+  (should (eq 'org-ref-ref-face (get-char-property 2 'face))))
+#+END_SRC
+
+#+RESULTS: ref-face
+: t
+
+** labels links
+
+#+name: fl-next-label
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "   label:one
+"
+    (goto-char (point-min))
+    (org-ref-match-next-label-link nil)
+    (should
+     (= 13 (point))))
+#+END_SRC
+
+#+RESULTS: fl-next-label
+: t
+
+#+name: label-face
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "label:kitchin-2015-examp
+
+bibliography:tests/test-1.bib
+"
+  (font-lock-add-keywords
+   nil
+   '((org-ref-match-next-label-link (0  'org-ref-label-face t)))
+   t) 
+  (font-lock-fontify-region (point-min) (point-max))
+  (should (eq 'org-ref-label-face (get-char-property 2 'face))))
+#+END_SRC
+
+#+RESULTS: label-face
+: t
+
+** bibliography and bibliographystyle links
+
+#+name: fl-next-bib
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "   bibliography:one
+
+stuff
+"
+    (goto-char (point-min))
+    (org-ref-match-next-bibliography-link nil)
+    (should
+     (= 20 (point))))
+#+END_SRC
+
+#+RESULTS: fl-next-bib
+: t
+
+#+name: fl-next-bibstyle
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+      "   bibliographystyle:one
+
+cite
+"
+    (goto-char (point-min))
+    (org-ref-match-next-bibliographystyle-link nil)
+    (should
+     (= 25 (point))))
+#+END_SRC
+
+#+RESULTS: fl-next-bibstyle
+: t
+
+* Store link tests
+
+org-store-link-plist 
+#+name: store-label-link
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "label:test"
+  (goto-char 1)
+  (org-label-store-link)
+  (should
+   (string=
+    (plist-get org-store-link-plist :type) "ref")))
+#+END_SRC
+
+#+RESULTS: store-label-link
+: t
+
+#+name: store-label-link-table
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "#+tblname: test-table
+|1 | 2|"
+  (goto-char 1)
+  (org-label-store-link)
+  (should
+   (string=
+    (plist-get org-store-link-plist :type) "ref"))
+  org-store-link-plist)
+#+END_SRC
+
+#+RESULTS: store-label-link-table
+| :type | ref | :link | [[ref:test-table]] |
+
+#+name: store-label-headline
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "* headline
+ :PROPERTIES:
+ :CUSTOM_ID: test
+ :END:
+"
+  (goto-char 1)
+  (org-label-store-link)
+  (should
+   (string=
+    (plist-get org-store-link-plist :type) "custom_id")))
+#+END_SRC
+
+#+RESULTS: store-label-headline
+: t
+
+
+#+name: store-label-label
+#+BEGIN_SRC emacs-lisp :test
+(org-test-with-temp-text
+    "#+LABEL: test
+[[./file.png]]
+"
+  (goto-char 1)
+  (org-label-store-link)
+  (should
+   (string=
+    (plist-get org-store-link-plist :type) "ref")))
+#+END_SRC
+
+#+RESULTS: store-label-label
+: t
+
+#+name: store-bibtex-link
+#+BEGIN_SRC emacs-lisp :test
+(should (string= "cite:kitchin-2015-examp"
+		 (with-temp-buffer
+		   (bibtex-mode)
+		   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+		   (insert "@article{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {Examples of effective data-sharing},
+  journal =	 {ACS Catalysis},
+  volume =	 {5},
+  number =	 {6},
+  pages =	 {3894-3899},
+  year =	 2015,
+  doi =		 {10.1021/acscatal.5b00538},
+  url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+  eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
+}")
+		   (car (org-ref-store-bibtex-entry-link)))))
+#+END_SRC
+
+#+RESULTS: store-bibtex-link
+: t
+
