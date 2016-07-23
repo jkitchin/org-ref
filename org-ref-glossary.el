@@ -282,10 +282,8 @@ Adds a tooltip to the link that is found."
 			     "glsdesc"))
 	       ":[a-zA-Z]\\{2,\\}")
 	      limit t)
-	     ;; make sure we are not on a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let ((next-link (org-element-context)))
       (if next-link
@@ -419,10 +417,8 @@ WINDOW and OBJECT are ignored."
 	       (regexp-opt '("acrshort" "acrfull" "acrlong"))
 	       ":[a-zA-Z]\\{2,\\}")
 	      limit t)
-	     ;; make sure we are not on a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (save-excursion
       (forward-char -2)
       (let ((next-link (org-element-context)))
