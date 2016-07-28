@@ -65,6 +65,10 @@
 ;; acrshort:label
 ;; acrfull:label
 ;; acrlong:label
+;; ac:label  (exports to \gls{label})
+;; Ac:label  (exports to \Gls{label})
+;; acp:label (exports to \glspl{label})
+;; Acp:label (exports to \Glspl{label})
 
 (require 'org-element)
 
@@ -282,10 +286,8 @@ Adds a tooltip to the link that is found."
 			     "glsdesc"))
 	       ":[a-zA-Z]\\{2,\\}")
 	      limit t)
-	     ;; make sure we are not on a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let ((next-link (org-element-context)))
       (if next-link
@@ -385,6 +387,40 @@ FULL is the expanded acronym."
     ((eq format 'latex)
      (format "\\acrfull{%s}" path)))))
 
+;; Shortcuts
+
+(org-add-link-type
+ "ac"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\gls{%s}" path)))))
+
+(org-add-link-type
+ "Ac"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\Gls{%s}" path)))))
+
+(org-add-link-type
+ "acp"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\glspl{%s}" path)))))
+
+(org-add-link-type
+ "Acp"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\Glspl{%s}" path)))))
+
 
 ;;** Tooltips on acronyms
 (defface org-ref-acronym-face
@@ -416,13 +452,11 @@ WINDOW and OBJECT are ignored."
   "Search to next acronym link up to LIMIT and add a tooltip."
   (when (and (re-search-forward
 	      (concat
-	       (regexp-opt '("acrshort" "acrfull" "acrlong"))
+	       (regexp-opt '("acrshort" "acrfull" "acrlong" "ac" "Ac" "acp" "Acp"))
 	       ":[a-zA-Z]\\{2,\\}")
 	      limit t)
-	     ;; make sure we are not on a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (save-excursion
       (forward-char -2)
       (let ((next-link (org-element-context)))
@@ -524,12 +558,15 @@ WINDOW and OBJECT are ignored."
 			 (insert (format
 				  "[[%s:%s][%s]]"
 				  (completing-read "Type: "
-						   '("gls"
-						     "acrshort"
+						   '("acrshort"
 						     "acrlong"
-						     "acrfull")
+						     "acrfull"
+						     "ac"
+						     "Ac"
+						     "acp"
+						     "Acp")
 						   nil t
-						   "acrshort")
+						   "ac")
 				  (nth 0 candidate)
 				  (nth 1 candidate)))))
 	    ,(helm-build-sync-source "Add new term"
