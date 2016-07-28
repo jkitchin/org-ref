@@ -563,10 +563,8 @@ If so return the position for `goto-char'."
   "Search forward to next cite link up to LIMIT
 Add a tooltip to the match."
   (when (and (re-search-forward org-ref-cite-re limit t)
-	     ;; make sure we are not in a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     ;; we think we are on a cite link lets get on it and make sure
     (forward-char -2)
     (let ((this-link (org-element-context)))
@@ -603,10 +601,8 @@ Add a tooltip to the match."
   "Find next label link up to LIMIT.
 Add tooltip."
   (if (and (re-search-forward "label:\\([[:alnum:]]\\)\\{2,\\}" limit t)
-	   ;; make sure we are not in a comment
-	   (save-excursion
-	     (beginning-of-line)
-	     (not (looking-at "# "))))
+	   (not (org-in-src-block-p))
+	   (not (org-at-comment-p)))
       (progn
 	(forward-char -2)
 	(let ((this-link (org-element-context)))
@@ -640,10 +636,8 @@ Add tooltip."
 Add tooltip to the link. We avoid tags by not finding :ref: in
 tags."
   (when (and (re-search-forward "[^:]\\(eq\\)?ref:\\([[:alnum:]]\\)\\{2,\\}" limit t)
-	     ;; make sure we are not on a comment
-	     (save-excursion
-	       (beginning-of-line)
-	       (not (looking-at "# "))))
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
@@ -676,7 +670,9 @@ tags."
 (defun org-ref-match-next-bibliography-link (limit)
   "Find next bibliography link up to LIMIT.
 Add tooltip to the link."
-  (when (re-search-forward "bibliography:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "bibliography:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let ((this-link (org-element-context)))
       (add-text-properties
@@ -702,7 +698,9 @@ Add tooltip to the link."
 (defun org-ref-match-next-bibliographystyle-link (limit)
   "Find next bibliographystyle link up to LIMIT.
 Add tooltip to the link."
-  (when (re-search-forward "bibliographystyle:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+  (when (and (re-search-forward "bibliographystyle:\\([[:alnum:]]\\)\\{2,\\}" limit t)
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let* ((this-link (org-element-context))
 	   (path (org-element-property :path this-link))
@@ -1237,7 +1235,6 @@ A number greater than one means multiple labels!"
        :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
 
     ;; and to #+label: lines
-
     (when (and (equal (org-element-type object) 'paragraph)
                (org-element-property :name object))
       (org-store-link-props
@@ -1919,17 +1916,21 @@ PATH is required for the org-link, but it does nothing here."
 ;;* Utilities
 ;;** create text citations from a bibtex entry
 (defun org-ref-bib-citation ()
-  "From a bibtex entry, create and return a simple citation string.
-This assumes you are in an article."
+  "From a bibtex entry, create and return a citation string.
+If `bibtex-completion' library is loaded, return reference in APA
+format. Otherwise return a generic article citation string."
   (bibtex-set-dialect nil t)
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
          (bibtex-expand-strings t)
          (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
                          collect (cons (downcase key) value)))
-         (title (replace-regexp-in-string
-		 "\n\\|\t\\|\s+" " "
-		 (reftex-get-bib-field "title" entry)))
+         (title (and (replace-regexp-in-string
+	 	      "\n\\|\t\\|\s+" " "
+	 	      (reftex-get-bib-field "title" entry))
+	 	     (replace-regexp-in-string
+	 	      "[\\\.\"{}]+" ""
+	 	      (reftex-get-bib-field "title" entry))))
          (year  (reftex-get-bib-field "year" entry))
          (author (replace-regexp-in-string
 		  "\n\\|\t\\|\s+" " "
@@ -1943,10 +1944,14 @@ This assumes you are in an article."
          (pages (reftex-get-bib-field "pages" entry))
          (doi (reftex-get-bib-field "doi" entry))
          (url (reftex-get-bib-field "url" entry)))
-    ;;authors, "title", Journal, vol(iss):pages (year).
-    (format "%s, \"%s\", %s, %s:%s (%s)"
-            author title journal  volume pages year)))
-
+    (if (featurep 'bibtex-completion)
+	;; APA format
+    	(let* ((ref (bibtex-completion-apa-format-reference key))
+    	       (nodoi (replace-regexp-in-string "[ ]*http.?+" "" ref)))
+	  (format "%s" nodoi))
+      ;; authors, "title", Journal, vol(iss):pages (year).
+      (format "%s, \"%s\", %s, %s:%s (%s)"
+	      author title journal volume pages year))))
 
 (defun org-ref-bib-html-citation ()
   "From a bibtex entry, create and return a simple citation with html links."
@@ -3007,7 +3012,8 @@ If no KEY is provided, get the KEY at point."
             (insert-file-contents bibfile)
             (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
             (bibtex-search-entry key)
-            (org-ref-bib-citation)))
+	    (let ((bibtex-completion-bibliography bibfile))
+	      (org-ref-bib-citation))))
       "!!! No entry found !!!" )))
 
 

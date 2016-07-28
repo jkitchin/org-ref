@@ -1129,6 +1129,36 @@ Update the cache if necessary."
 			 ""))
       (buffer-string))))
 
+;; * Extract bibtex blocks from an org-file
+;;;###autoload
+(defun org-ref-extract-bibtex-blocks (bibfile)
+  "Extract all bibtex blocks in buffer to BIBFILE.
+If BIBFILE exists, append, unless you use a prefix arg (C-u), which
+will clobber the file."
+  (interactive
+   (list (read-file-name "Bibfile: " nil nil nil
+			 (file-name-nondirectory
+			  (concat (file-name-sans-extension
+				   (buffer-file-name))
+				  ".bib")))))
+
+  (let ((contents ""))
+    (when (and (file-exists-p bibfile)
+	       (not current-prefix-arg))
+      (setq contents (with-temp-buffer
+		       (insert-file-contents bibfile)
+		       (buffer-string))))
+
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "#\\+BEGIN_SRC bibtex" nil t)
+	(setq contents
+	      (concat
+	       contents
+	       (org-element-property :value (org-element-at-point))))))
+
+    (with-temp-file bibfile
+      (insert contents))))
 
 ;;* The end
 (provide 'org-ref-bibtex)

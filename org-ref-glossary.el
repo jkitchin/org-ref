@@ -65,6 +65,10 @@
 ;; acrshort:label
 ;; acrfull:label
 ;; acrlong:label
+;; ac:label  (exports to \gls{label})
+;; Ac:label  (exports to \Gls{label})
+;; acp:label (exports to \glspl{label})
+;; Acp:label (exports to \Glspl{label})
 
 (require 'org-element)
 
@@ -273,15 +277,17 @@ Used in fontification."
 (defun or-next-glossary-link (limit)
   "Search to next glossary link up to LIMIT.
 Adds a tooltip to the link that is found."
-  (when (re-search-forward
-	 (concat
-	  (regexp-opt '("gls" "glspl"
-			"Gls" "Glspl"
-			"glslink"
-			"glssymbol"
-			"glsdesc"))
-	  ":[a-zA-Z]\\{2,\\}")
-	 limit t)
+  (when (and (re-search-forward
+	      (concat
+	       (regexp-opt '("gls" "glspl"
+			     "Gls" "Glspl"
+			     "glslink"
+			     "glssymbol"
+			     "glsdesc"))
+	       ":[a-zA-Z]\\{2,\\}")
+	      limit t)
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (forward-char -2)
     (let ((next-link (org-element-context)))
       (if next-link
@@ -318,7 +324,7 @@ ABBRV is the abbreviated form.
 FULL is the expanded acronym."
   (interactive "sLabel: \nsAcronym: \nsFull name: ")
   (save-excursion
-    (re-search-backward "#\\+latex_header:" nil t)
+    (re-search-backward "#\\+latex_header" nil t)
     (forward-line)
     (when (not (looking-at "^$"))
       (beginning-of-line)
@@ -381,6 +387,40 @@ FULL is the expanded acronym."
     ((eq format 'latex)
      (format "\\acrfull{%s}" path)))))
 
+;; Shortcuts
+
+(org-add-link-type
+ "ac"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\gls{%s}" path)))))
+
+(org-add-link-type
+ "Ac"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\Gls{%s}" path)))))
+
+(org-add-link-type
+ "acp"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\glspl{%s}" path)))))
+
+(org-add-link-type
+ "Acp"
+ 'or-follow-acronym
+ (lambda (path _ format)
+   (cond
+    ((eq format 'latex)
+     (format "\\Glspl{%s}" path)))))
+
 
 ;;** Tooltips on acronyms
 (defface org-ref-acronym-face
@@ -410,11 +450,13 @@ WINDOW and OBJECT are ignored."
 ;; hard to do with regexps.
 (defun or-next-acronym-link (limit)
   "Search to next acronym link up to LIMIT and add a tooltip."
-  (when (re-search-forward
-	 (concat
-	  (regexp-opt '("acrshort" "acrfull" "acrlong"))
-	  ":[a-zA-Z]\\{2,\\}")
-	 limit t)
+  (when (and (re-search-forward
+	      (concat
+	       (regexp-opt '("acrshort" "acrfull" "acrlong" "ac" "Ac" "acp" "Acp"))
+	       ":[a-zA-Z]\\{2,\\}")
+	      limit t)
+	     (not (org-in-src-block-p))
+	     (not (org-at-comment-p)))
     (save-excursion
       (forward-char -2)
       (let ((next-link (org-element-context)))
@@ -494,10 +536,9 @@ WINDOW and OBJECT are ignored."
 		       (plist-get entry :abbrv))))))))
 
     (helm :sources
-	  `(((name . "Insert glossary term")
-	     (multiline)
-	     (candidates . ,glossary-candidates)
-	     (action . (lambda (candidate)
+	  `(,(helm-build-sync-source "Insert glossary term"
+	       :candidates glossary-candidates
+	       :action (lambda (candidate)
 			 (insert (format
 				  "[[%s:%s][%s]]"
 				  (completing-read "Type: "
@@ -510,28 +551,29 @@ WINDOW and OBJECT are ignored."
 						   nil t
 						   "gls")
 				  (nth 0 candidate)
-				  (nth 1 candidate))))))
-	    ((name . "Insert acronym term")
-	     (candidates . ,acronym-candidates)
-	     (action . (lambda (candidate)
+				  (nth 1 candidate)))))
+	    ,(helm-build-sync-source "Insert acronym term"
+	       :candidates acronym-candidates
+	       :action (lambda (candidate)
 			 (insert (format
 				  "[[%s:%s][%s]]"
 				  (completing-read "Type: "
-						   '("gls"
-						     "acrshort"
+						   '("acrshort"
 						     "acrlong"
-						     "acrfull")
-						   nil t)
+						     "acrfull"
+						     "ac"
+						     "Ac"
+						     "acp"
+						     "Acp")
+						   nil t
+						   "ac")
 				  (nth 0 candidate)
-				  (nth 1 candidate))))))
-	    ((name . "Insert new entry")
-	     (dummy)
-	     (action . (("New glossary term" . (lambda (candidate)
-						 (call-interactively
-						  'org-ref-add-glossary-entry)))
-			("New acronym term" . (lambda (candidate)
-						(call-interactively
-						 org-ref-add-acronym-entry))))))))))
+				  (nth 1 candidate)))))
+	    ,(helm-build-sync-source "Add new term"
+	       :candidates '(("Add glossary term" . org-ref-add-glossary-entry)
+			     ("Add acronym term" . org-ref-add-acronym-entry))
+	       :action (lambda (x)
+			 (call-interactively x)))))))
 
 
 (provide 'org-ref-glossary)

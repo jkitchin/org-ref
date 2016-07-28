@@ -1,3 +1,5 @@
+;; This get loaded by .ert-runner.
+
 (require 'undercover)
 (undercover "org-ref.el")
 

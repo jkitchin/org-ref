@@ -567,5 +567,85 @@ KEY is returned for the selected item(s) in helm."
                                   (switch-to-buffer ,cb)
                                   (funcall f))))))))
 
+
+;; browse labels
+
+(defun org-ref-browser-label-source ()
+  (let ((labels (org-ref-get-labels)))
+    (helm-build-sync-source "Browse labels"
+      :follow 1
+      :candidates labels
+      :action '(("Browse labels" . (lambda (label)
+				     (with-selected-window (selected-window)
+				       (org-open-link-from-string
+					(format "ref:%s" label))))))
+      :persistent-action (lambda (label)
+			   (with-selected-window (selected-window)
+			     (org-open-link-from-string
+			      (format "ref:%s" label)))
+			   (helm-highlight-current-line nil nil nil nil 'pulse)))))
+
+;; browse citation links
+
+(defun org-ref-browser-transformer (candidates)
+  "Add counter to candidates."
+  (let ((counter 0))
+    (cl-loop for i in candidates
+	     collect (format "%s %s" (cl-incf counter) i))))
+
+(defun org-ref-browser-display (candidate)
+  "Strip counter from candidates."
+  (replace-regexp-in-string "^[0-9]+? " "" candidate))
+
+;;;###autoload
+(defun org-ref-browser (&optional arg)
+  "Quickly browse citation links.
+With a prefix ARG, browse labels."
+  (interactive "P")
+  (if arg
+      (helm :sources (org-ref-browser-label-source)
+	    :buffer "*helm labels*")
+    (let ((keys nil)
+	  (alist nil))
+      (widen)
+      (show-all)
+      (org-element-map (org-element-parse-buffer) 'link
+	(lambda (link)
+	  (let ((plist (nth 1 link)))
+	    (when (-contains? org-ref-cite-types (plist-get plist ':type))
+	      (let ((start (org-element-property :begin link)))
+		(dolist (key
+			 (org-ref-split-and-strip-string (plist-get plist ':path)))
+		  (setq keys (append keys (list key)))
+		  (setq alist (append alist (list (cons key start))))))))))
+      (let ((counter 0))
+      	;; the idea here is to create an alist with ("counter key" .
+      	;; position) to produce unique candidates
+      	(setq count-key-pos (mapcar (lambda (x)
+				      (cons
+				       (format "%s %s" (cl-incf counter) (car x)) (cdr x)))
+				    alist)))
+      ;; push mark to restore position with C-u C-SPC
+      (push-mark (point))
+      ;; move point to the first citation link in the buffer
+      (goto-char (cdr (assoc (caar alist) alist)))
+      (helm :sources
+	    (helm-build-sync-source "Browse citation links"
+	      :follow 1
+	      :candidates keys
+	      :candidate-transformer 'org-ref-browser-transformer
+	      :real-to-display 'org-ref-browser-display
+	      :persistent-action (lambda (candidate)
+	      			   (helm-goto-char
+	      			    (cdr (assoc candidate count-key-pos)))
+	      			   (helm-highlight-current-line nil nil nil nil 'pulse))
+	      :action `(("Open menu" . ,(lambda (candidate)
+	      				  (helm-goto-char
+	      				   (cdr (assoc candidate count-key-pos)))
+	      				  (org-open-at-point)))))
+	    :candidate-number-limit 10000
+	    :buffer "*helm browser*"))))
+
+
 (provide 'org-ref-helm-bibtex)
 ;;; org-ref-helm-bibtex.el ends here
