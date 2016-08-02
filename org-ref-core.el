@@ -1124,26 +1124,26 @@ ARG does nothing."
             (org-element-map (org-element-parse-buffer 'element) 'table
               (lambda (table)
                 "create a link for to the table"
-		(when
-		    ;; ignore commented sections
-		    (save-excursion
+		(save-excursion
+		  (when
+		      ;; ignore commented sections
 		      (goto-char (org-element-property :begin table))
-		      (not (or (org-in-commented-heading-p)
-			       (-intersection (org-get-tags-at) org-export-exclude-tags))))
-		  (cl-incf counter)
-		  (let* ((start (org-element-property :begin table))
-			 (linenum (progn (goto-char start) (line-number-at-pos)))
-			 (caption (cl-caaar (org-element-property :caption table)))
-			 (name (org-element-property :name table)))
-		    (if caption
-			(format "[[file:%s::%s][Table %s:]] %s\n" c-b linenum counter caption)
-		      ;; if it has no caption, try the name
-		      ;; if it has no name, use generic name
-		      (cond (name
-			     (format "[[file:%s::%s][Table %s:]] %s\n" c-b linenum counter name))
-			    (t
-			     (format "[[file:%s::%s][Table %s:]] No caption\n"
-				     c-b linenum counter))))))))))
+		    (not (or (org-in-commented-heading-p)
+			     (-intersection (org-get-tags-at) org-export-exclude-tags)))
+		    (cl-incf counter)
+		    (let* ((start (org-element-property :begin table))
+			   (linenum (progn (goto-char start) (line-number-at-pos)))
+			   (caption (cl-caaar (org-element-property :caption table)))
+			   (name (org-element-property :name table)))
+		      (if caption
+			  (format "[[file:%s::%s][Table %s:]] %s\n" c-b linenum counter caption)
+			;; if it has no caption, try the name
+			;; if it has no name, use generic name
+			(cond (name
+			       (format "[[file:%s::%s][Table %s:]] %s\n" c-b linenum counter name))
+			      (t
+			       (format "[[file:%s::%s][Table %s:]] No caption\n"
+				       c-b linenum counter)))))))))))
       (switch-to-buffer "*List of Tables*")
       (setq buffer-read-only nil)
       (org-mode)
