@@ -10,7 +10,7 @@
 (package-refresh-contents)
 
 (dolist (package (list 'org-plus-contrib 'dash 'helm 'helm-bibtex
-		       'ivy 'hydra 'key-chord 's 'f))
+		       'ivy 'hydra 'key-chord 's 'f 'lispy))
   (unless (package-installed-p package)
     (message "installing %s" package)
     (package-install package)))
