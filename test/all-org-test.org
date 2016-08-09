@@ -1810,10 +1810,14 @@ not loaded.
 #+name: sort-by-year
 #+BEGIN_SRC emacs-lisp :test
 (should
- (string= "cite:kitchin-2004-role,kitchin-2008-alloy
+ (string= (format
+	   "cite:kitchin-2004-role,kitchin-2008-alloy
 
-bibliography:/Users/jkitchin/vc/jkitchin-github/scimax/org-ref/tests/test-1.bib
+bibliography:%s
 "
+	   (expand-file-name
+	    "tests/test-1.bib"
+	    (file-name-directory (locate-library "org-ref")))) 
 	  (org-test-with-temp-text
 	      (format
 	       "cite:kitchin-2008-alloy,kitchin-2004-role
