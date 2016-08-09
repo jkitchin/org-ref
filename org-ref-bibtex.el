@@ -619,19 +619,37 @@ calls functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
+;;;###autoload
+
+(defun org-ref-bibtex-assoc-pdf-with-entry (file)
+  "Associates a file with a bibtex entry at point.
+Checks whether a pdf file already exists with the name '[bibtexkey].pdf'
+in the directory given by org-ref-pdf-directory."
+  (interactive "fWhich file should be associated with this entry: ")
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let* ((bibtex-expand-strings t)
+           (entry (bibtex-parse-entry t))
+           (key (reftex-get-bib-field "=key=" entry))
+           (pdf (concat org-ref-pdf-directory (concat key ".pdf"))))
+      (if (file-exists-p pdf)
+	  (message "There is already a pdf associated with that entry")
+	(progn 
+	   (copy-file file pdf)
+	   (message (format "Created file %s" pdf)))))))
 
 ;;* Hydra menus
 ;;** Hydra menu for bibtex entries
 ;; hydra menu for actions on bibtex entries
 (defhydra org-ref-bibtex-hydra (:color blue)
   "
-_p_: Open pdf     _y_: Copy key               _n_: New entry     _w_: WOS
-_b_: Open url     _f_: Copy formatted entry   _o_: Copy entry    _c_: WOS citing
-_r_: Refile entry _k_: Add keywords           _d_: delete entry  _a_: WOS related
-_e_: Email entry  _K_: Edit keywords          _L_: clean entry   _P_: Pubmed
-_U_: Update entry _N_: Open notes             _R_: Crossref      _g_: Google Scholar
-_s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex   _q_: quit
-_u_: Update field _F_: file funcs
+_p_: Open pdf     _y_: Copy key               _n_: New entry            _w_: WOS
+_b_: Open url     _f_: Copy formatted entry   _o_: Copy entry           _c_: WOS citing
+_r_: Refile entry _k_: Add keywords           _d_: delete entry         _a_: WOS related
+_e_: Email entry  _K_: Edit keywords          _L_: clean entry          _P_: Pubmed
+_U_: Update entry _N_: Open notes             _R_: Crossref             _g_: Google Scholar
+_s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex          _q_: quit
+_u_: Update field _F_: file funcs             _A_: Assoc pdf with entry
 _T_: Title case
 _S_: Sentence case
 "
@@ -675,6 +693,7 @@ _S_: Sentence case
   ("u" doi-utils-update-field)
   ("F" org-ref-bibtex-file/body)
   ("h" helm-bibtex)
+  ("A" org-ref-bibtex-assoc-pdf-with-entry)
   ("a" org-ref-replace-nonascii)
   ("s" org-ref-sort-bibtex-entry)
   ("T" org-ref-title-case-article)
