@@ -23,122 +23,121 @@
 #+END_SRC
 
 #+RESULTS:
-| [[elisp:(org-babel-goto-nth-test-block 1)][test-1]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 2)][or-split-key-1]]         | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 3)][or-split-key-2]]         | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 4)][or-key-file-p]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 5)][or-key-file-p-nil]]      | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 6)][or-key-file]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 7)][swap-1]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 8)][swap-2]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 1)][or-split-key-1]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 2)][or-split-key-2]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 3)][or-key-file-p]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 4)][or-key-file-p-nil]]      | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 5)][or-key-file]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 6)][swap-1]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 7)][swap-2]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 8)][test-8]]                 | t                                  |
 | [[elisp:(org-babel-goto-nth-test-block 9)][test-9]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 10)][test-10]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 11)][orlm]]                   | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 12)][orlm-nil]]               | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 13)][orlm-ref-1]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 14)][orlm-ref-2]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 15)][orlm-ref-3]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 16)][orlm-ref-4]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 17)][orlm-label-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 18)][orlm-label-2]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 19)][or-get-pdf]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 20)][or-get-pdf-2]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 21)][or-get-key]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 22)][or-get-key1]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 23)][or-get-key2]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 24)][orfb-1]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 25)][orfb-1a]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 26)][orfb-2]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 27)][orfb-2a]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 28)][orfb-3]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 29)][orfb-3a]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 30)][orfb-4]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 31)][unique-keys]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 32)][unique-keys-sort]]       | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 33)][get-doi]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 34)][short-titles]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 35)][long-titles]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 36)][title-case-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 37)][title-case-2]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 38)][title-case-3]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 39)][sentence-case-1]]        | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 40)][sentence-case-2]]        | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 41)][stringify]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 42)][next-entry-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 43)][prev-entry-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 44)][get-bibtex-keys]]        | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 45)][set-bibtex-keys]]        | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 46)][get-year]]               | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 47)][clean-year-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 48)][clean-year-2]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 49)][clean-&]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 50)][clean-comma]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 51)][clean-pages-1]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 52)][clean-doi-1]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 53)][bib-1]]                  | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 54)][bib-1a]]                 | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 55)][bib-2]]                  | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 56)][get-labels-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 57)][get-labels-2]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 58)][get-labels-3]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 59)][get-labels-4]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 60)][get-labels-5]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 61)][bad-cites]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 62)][bad-ref]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 63)][multiple-labels]]        | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 64)][bad-file-link]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 65)][swap-link-1]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 66)][swap-link-2]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 67)][parse-link-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 68)][next-link-1]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 69)][next-link-2]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 70)][prev-link-1]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 71)][del-key-1]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 72)][del-key-2]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 73)][del-key-3]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 74)][del-key-4]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 75)][del-key-5]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 76)][del-cite-1]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 77)][del-cite-2]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 78)][rep-key-1]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 79)][rep-key-2]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 80)][rep-key-3]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 81)][rep-key-4]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 82)][sort-by-year]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 83)][ins-key-1]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 84)][ins-key-2]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 85)][ins-key-2a]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 86)][ins-key-3]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 87)][ins-key-4]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 88)][ins-key-5]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 89)][cite-export-1]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 90)][cite-export-2]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 91)][cite-export-3]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 92)][label-export-1]]         | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 93)][ref-export-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 94)][bib-export-1]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 95)][bib-export-2]]           | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 96)][curly-1]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 97)][curly-2]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 98)][curly-3]]                | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 99)][bad-citations-1]]        | 25                                 |
-| [[elisp:(org-babel-goto-nth-test-block 100)][extract-bibtex]]         | 136                                |
-| [[elisp:(org-babel-goto-nth-test-block 101)][mendeley-fname]]         | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 102)][fl-next-cite]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 10)][orlm]]                   | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 11)][orlm-nil]]               | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 12)][orlm-ref-1]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 13)][orlm-ref-2]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 14)][orlm-ref-3]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 15)][orlm-ref-4]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 16)][orlm-label-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 17)][orlm-label-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 18)][or-get-pdf]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 19)][or-get-pdf-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 20)][or-get-key]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 21)][or-get-key1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 22)][or-get-key2]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 23)][orfb-1]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 24)][orfb-1a]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 25)][orfb-2]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 26)][orfb-2a]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 27)][orfb-3]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 28)][orfb-3a]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 29)][orfb-4]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 30)][unique-keys]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 31)][unique-keys-sort]]       | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 32)][get-doi]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 33)][short-titles]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 34)][long-titles]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 35)][title-case-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 36)][title-case-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 37)][title-case-3]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 38)][sentence-case-1]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 39)][sentence-case-2]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 40)][stringify]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 41)][next-entry-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 42)][prev-entry-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 43)][get-bibtex-keys]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 44)][set-bibtex-keys]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 45)][get-year]]               | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 46)][clean-year-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 47)][clean-year-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 48)][clean-&]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 49)][clean-comma]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 50)][clean-pages-1]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 51)][clean-doi-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 52)][bib-1]]                  | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 53)][bib-1a]]                 | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 54)][bib-2]]                  | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 55)][get-labels-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 56)][get-labels-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 57)][get-labels-3]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 58)][get-labels-4]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 59)][get-labels-5]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 60)][bad-cites]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 61)][bad-ref]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 62)][multiple-labels]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 63)][bad-file-link]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 64)][swap-link-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 65)][swap-link-2]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 66)][parse-link-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 67)][next-link-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 68)][next-link-2]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 69)][prev-link-1]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 70)][del-key-1]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 71)][del-key-2]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 72)][del-key-3]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 73)][del-key-4]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 74)][del-key-5]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 75)][del-cite-1]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 76)][del-cite-2]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 77)][rep-key-1]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 78)][rep-key-2]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 79)][rep-key-3]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 80)][rep-key-4]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 81)][sort-by-year]]           | error                              |
+| [[elisp:(org-babel-goto-nth-test-block 82)][ins-key-1]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 83)][ins-key-2]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 84)][ins-key-2a]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 85)][ins-key-3]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 86)][ins-key-4]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 87)][ins-key-5]]              | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 88)][cite-export-1]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 89)][cite-export-2]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 90)][cite-export-3]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 91)][label-export-1]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 92)][ref-export-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 93)][bib-export-1]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 94)][bib-export-2]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 95)][curly-1]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 96)][curly-2]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 97)][curly-3]]                | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 98)][bad-citations-1]]        | 25                                 |
+| [[elisp:(org-babel-goto-nth-test-block 99)][extract-bibtex]]         | 143                                |
+| [[elisp:(org-babel-goto-nth-test-block 100)][mendeley-fname]]         | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 101)][fl-next-cite]]           | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 102)][cite-face]]              | t                                  |
 | [[elisp:(org-babel-goto-nth-test-block 103)][cite-face]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 104)][cite-face]]              | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 105)][cite-in-comment]]        | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 106)][fl-next-ref]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 107)][ref-face]]               | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 108)][fl-next-label]]          | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 109)][label-face]]             | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 110)][fl-next-bib]]            | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 111)][fl-next-bibstyle]]       | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 112)][store-label-link]]       | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 113)][store-label-link-table]] | ((:type ref :link [[ref:test-table]])) |
-| [[elisp:(org-babel-goto-nth-test-block 114)][store-label-headline]]   | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 115)][store-label-label]]      | t                                  |
-| [[elisp:(org-babel-goto-nth-test-block 116)][store-bibtex-link]]      | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 104)][cite-in-comment]]        | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 105)][fl-next-ref]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 106)][ref-face]]               | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 107)][fl-next-label]]          | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 108)][label-face]]             | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 109)][fl-next-bib]]            | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 110)][fl-next-bibstyle]]       | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 111)][store-label-link]]       | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 112)][store-label-link-table]] | ((:type ref :link [[ref:test-table]])) |
+| [[elisp:(org-babel-goto-nth-test-block 113)][store-label-headline]]   | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 114)][store-label-label]]      | t                                  |
+| [[elisp:(org-babel-goto-nth-test-block 115)][store-bibtex-link]]      | t                                  |
 
 * Reminders about code blocks
 
@@ -1811,17 +1810,21 @@ not loaded.
 #+name: sort-by-year
 #+BEGIN_SRC emacs-lisp :test
 (should
-   (string= "cite:kitchin-2004-role,kitchin-2008-alloy"
-	    (org-test-with-temp-text
-		(format
-		 "cite:kitchin-2008-alloy,kitchin-2004-role
+ (string= "cite:kitchin-2004-role,kitchin-2008-alloy
+
+bibliography:/Users/jkitchin/vc/jkitchin-github/scimax/org-ref/tests/test-1.bib
+"
+	  (org-test-with-temp-text
+	      (format
+	       "cite:kitchin-2008-alloy,kitchin-2004-role
 
 bibliography:%s
 "
-		 (expand-file-name
-		  "tests/test-1.bib"
-		  (file-name-directory (locate-library "org-ref"))))
-	      (org-ref-sort-citation-link))))
+	       (expand-file-name
+		"tests/test-1.bib"
+		(file-name-directory (locate-library "org-ref"))))
+	    (org-ref-sort-citation-link)
+	    (buffer-string))))
 #+END_SRC
 
 #+RESULTS: sort-by-year
@@ -2105,7 +2108,7 @@ bibliography:%s
 #+END_SRC
 
 #+RESULTS: extract-bibtex
-: 136
+: 143
 
 #+name: mendeley-fname
 #+BEGIN_SRC emacs-lisp :test

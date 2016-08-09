@@ -1,7 +1,3 @@
-(ert-deftest test-1 ()
-(and (assoc :test (nth 2 (org-babel-get-src-block-info)))
-(not (string= "ignore" (cdr (assoc :test (nth 2 (org-babel-get-src-block-info))))))))
-
 (ert-deftest or-split-key-1 ()
 (should
 (equal
@@ -62,7 +58,7 @@
 '(a c b)
 (org-ref-swap-keys 1 2 '(a b c)))))
 
-(ert-deftest test-9 ()
+(ert-deftest test-8 ()
 (org-test-with-temp-text
 (format "cite:kitchin-2015-examp 
 
@@ -78,7 +74,7 @@ bibliography:%s
 "Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
 "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)")))))
 
-(ert-deftest test-10 ()
+(ert-deftest test-9 ()
 (org-test-with-temp-text
 (format "cite:kitchin-2015
 
@@ -1185,7 +1181,10 @@ not loaded.
 
 (ert-deftest sort-by-year ()
 (should
-(string= "cite:kitchin-2004-role,kitchin-2008-alloy"
+(string= "cite:kitchin-2004-role,kitchin-2008-alloy
+
+bibliography:/Users/jkitchin/vc/jkitchin-github/scimax/org-ref/tests/test-1.bib
+"
 (org-test-with-temp-text
 (format
 "cite:kitchin-2008-alloy,kitchin-2004-role
@@ -1195,7 +1194,8 @@ bibliography:%s
 (expand-file-name
 "tests/test-1.bib"
 (file-name-directory (locate-library "org-ref"))))
-(org-ref-sort-citation-link)))))
+(org-ref-sort-citation-link)
+(buffer-string)))))
 
 (ert-deftest ins-key-1 ()
 (should
