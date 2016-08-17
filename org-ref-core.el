@@ -2915,14 +2915,10 @@ move to the beginning of the previous cite link after this one."
               (message (org-ref-get-citation-string-at-point)))
 
              ;; message some context about the label we are referring to
-             ((string= type "ref")
-              (message "%scount: %s"
-                       (org-ref-get-label-context
-                        (org-element-property :path object))
-                       (org-ref-count-labels
-                        (org-element-property :path object))))
-
-             ((string= type "eqref")
+             ((or (string= type "ref")
+		  (string= type "eqref")
+		  (string= type "pageref")
+		  (string= type "nameref"))
               (message "%scount: %s"
                        (org-ref-get-label-context
                         (org-element-property :path object))
