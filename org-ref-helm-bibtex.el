@@ -41,6 +41,8 @@
 (require 'helm)
 (require 'helm-bibtex)
 (require 'org-ref-helm)
+(require 'async)
+(require 'package)
 
 ;;;###autoload
 (defun org-ref-bibtex-completion-completion ()
@@ -312,6 +314,30 @@ change the key at point to the selected keys."
                (s-join "," keys))))))
   ;; return empty string for helm
   "")
+
+
+;;;###autoload
+(defun org-ref-helm-load-completion-source-async ()
+  "Load the bibtex files into helm sources asynchronously.
+For large bibtext files, the intial call to ‘org-ref-helm-insert-cite-link’
+can take a long time to load the completion sources.  This function loads
+the completion sources in the background so the initial call to ‘org-ref-helm-insert-cite-link’ is much faster."
+  (interactive)
+  (async-start
+   (lambda ()
+     (require 'package)
+     (package-initialize)
+     (require 'org-ref)
+     (async-inject-variables "bibtex-completion-bibliography")
+     (bibtex-completion-candidates))
+   (lambda (result)
+     (setq bibtex-completion-cached-candidates result)
+     (with-temp-buffer
+       (mapc #'insert-file-contents
+	     (-flatten (list bibtex-completion-bibliography)))
+       (setq bibtex-completion-bibliography-hash (secure-hash 'sha256 (current-buffer))))
+     (message "Loaded org-ref completion candidates"))))
+
 
 
 ;;;###autoload
