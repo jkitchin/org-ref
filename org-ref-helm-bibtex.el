@@ -355,7 +355,7 @@ the completion sources in the background so the initial call to ‘org-ref-helm-
      (lambda (result)
        (setq bibtex-completion-cached-candidates (cdr result))
        (setq bibtex-completion-bibliography-hash (car result))
-       (message "All Done Loading Candidates"))))
+       (message "Finished loading org-ref completions"))))
  
 
 
