@@ -44,12 +44,12 @@ path, or you want to use another version."
   :group 'org-ref-pdf)
 
 (defcustom org-ref-pdf-doi-regex
-  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\):\\s-?\\(?1:[^]}\n \"]*\\)"
+  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\):?\\s-?\\(?1:[^]}\n \"]*\\)"
   "Regular expression to match DOIs in a pdf converted to text.
 The DOI should be in group 1 of the regex.
 The default pattern matches:
 1. http://dx.do.org/doi
-2. doi: doi"
+2. doi: doi, where the colon is optional"
   :type 'regexp
   :group 'org-ref-pdf)
 
