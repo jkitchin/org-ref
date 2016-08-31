@@ -107,6 +107,15 @@ I like \C-cj."
   "List of (string journal-full-name journal-abbreviation). Find
   new abbreviations at http://cassi.cas.org/search.jsp.")
 
+(defcustom org-ref-bibtex-assoc-pdf-with-entry-move-function 'rename-file
+  "Function to use when associating pdf files with bibtex entries.
+The value should be either `rename-file' or `copy-file'. The former
+will move and rename the original file. The latter will leave the
+original file in place while creating a renamed copy in
+`org-ref-pdf-directory'."
+  :type 'function
+  :group 'org-ref-bibtex)
+
 (setq org-ref-bibtex-journal-abbreviations
       '(("ACR" "Accounts of Chemical Research" "Acc. Chem. Res.")
         ("ACAT" "ACS Catalysis" "ACS Catal.")
@@ -619,24 +628,43 @@ calls functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
-;;;###autoload
+(defun org-ref-bibtex-get-file-move-func (prefix)
+  "Determine whether to use `rename-file' or `copy-file' for `org-ref-bibtex-assoc-pdf-with-entry'.
+When called with a PREFIX argument,
+`org-ref-bibtex-assoc-pdf-with-entry-move-function' switches to the
+opposite function from that which is defined in
+`org-ref-assoc-pdf-with-entry-move-function'."
+  (message (format "%s" prefix))
+  (if (eq prefix nil)
+      org-ref-bibtex-assoc-pdf-with-entry-move-function
+    (if (eq org-ref-bibtex-assoc-pdf-with-entry-move-function 'rename-file)
+	'copy-file
+      'rename-file)))
 
-(defun org-ref-bibtex-assoc-pdf-with-entry (file)
-  "Associates a file with a bibtex entry at point.
-Checks whether a pdf file already exists with the name '[bibtexkey].pdf'
-in the directory given by org-ref-pdf-directory."
-  (interactive "fWhich file should be associated with this entry: ")
+;;;###autoload
+(defun org-ref-bibtex-assoc-pdf-with-entry (&optional prefix)
+  "Prompt for pdf associated with entry at point and rename it.
+Check whether a pdf already exists in `org-ref-pdf-directory' with the
+name '[bibtexkey].pdf'. If the file does not exist, rename it to
+'[bibtexkey].pdf' using
+`org-ref-bibtex-assoc-pdf-with-entry-move-function' and place it in
+`org-ref-pdf-directory'. Optional PREFIX argument toggles between
+`rename-file' and `copy-file'."
+  (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
-    (let* ((bibtex-expand-strings t)
+    (let* ((file (read-file-name "Select file associated with entry: "))
+	   (bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (concat org-ref-pdf-directory (concat key ".pdf"))))
+           (pdf (concat org-ref-pdf-directory (concat key ".pdf")))
+	   (file-move-func (org-ref-bibtex-get-file-move-func prefix)))
       (if (file-exists-p pdf)
-	  (message "There is already a pdf associated with that entry")
-	(progn 
-	   (copy-file file pdf)
-	   (message (format "Created file %s" pdf)))))))
+	  (message (format "A file named %s already exists" pdf))
+	(progn
+	  (funcall file-move-func file pdf)
+	  (message (format "Created file %s" pdf)))))))
+
 
 ;;* Hydra menus
 ;;** Hydra menu for bibtex entries
