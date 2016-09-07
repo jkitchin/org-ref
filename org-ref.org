@@ -88,6 +88,7 @@ index:label
 LaTeX uses labels to define places you can refer to. These can be labels in the captions of figures and tables, or labels in sections. We illustrate some uses here.
 
 label links are "functional" if you put your cursor on the link, you will get a message in the minibuffer showing you the number of occurrences of that label in the buffer. That number should be one! It is most preferable to put a label link into a caption like this.
+
 #+caption: Another simple table. label:tab-ydata
 | y |
 | 4 |
@@ -101,18 +102,28 @@ org-ref can help you insert unique labels with the command elisp:org-ref-helm-in
     :END:
 index:ref
 
-A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
+A ref link refers to a label of some sort.Ll For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
 
-#+tblname: table-1
+#+name: table-1
 #+caption: A simple table.
 | x |
 | 1 |
 | 2 |
 
-Or you can refer to an org-mode label as in Table ref:table-3.
+Or you can refer to an org-mode label as in Table ref:table-3. 
 
-#+label: table-3
-#+caption: Another simple table.
+
+Note: You may need to set org-latex-prefer-user-labels to t if you refer to times by their "name" for the export to use the name you create.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-prefer-user-labels t) 
+#+END_SRC
+
+#+RESULTS:
+: t
+
+
+#+caption: Another simple table. label:table-3
 | y |
 |---|
 | 3 |
@@ -125,6 +136,8 @@ To help you insert ref links, use the "Org -> org-ref -> Insert ref" menu, or ru
 ref links are functional. If you put the cursor on a ref link, you should see a message in the minibuffer with some context of the corresponding label. If you click on the ref link, the cursor will jump to the label.
 
 A brief note about references to a section. This only works if you put a label in the org-mode headline. Otherwise, you must use a CUSTOM_ID and a CUSTOM_ID link. For example section [[#citations]] has a CUSTOM_ID of citations. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty.
+
+Also note that "#+tblname:" and "#+label:" are deprecated in org-mode now, and "#+name:" is preferred.
 
 **** Miscellaneous ref links  label:sec-misc
 index:ref!pageref index:ref!nameref index:ref!eqref
@@ -354,6 +367,9 @@ This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofkno
 (require 'org-ref-wos)
 #+END_SRC
 
+#+RESULTS:
+: org-ref-wos
+
 - wos :: Convenience function to open WOK in a browser.
 - wos-search :: Search WOK with the selected text or word at point
 
@@ -365,6 +381,9 @@ This is a small utility to interact with Scopus (http://www.scopus.com). Scopus 
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref-scopus)
 #+END_SRC
+
+#+RESULTS:
+: org-ref-scopus
 
 Interactive functions:
 
@@ -400,6 +419,9 @@ index:pubmed
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref-pubmed)
 #+END_SRC
+
+#+RESULTS:
+: org-ref-pubmed
 
 This library provides a number of new org-mode links to PubMed entries. See http://www.ncbi.nlm.nih.gov/pmc/about/public-access-info/#p3 for details of these identifiers. These links open the page in PubMed for the identifier.
 
