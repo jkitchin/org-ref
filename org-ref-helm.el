@@ -33,6 +33,7 @@
 
 (require 'helm)
 (require 'org-element)
+(require 'org-ref-core)
 
 ;;;###autoload
 (defun org-ref-helm-insert-label-link ()
