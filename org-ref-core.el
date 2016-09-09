@@ -2202,11 +2202,13 @@ construct the heading by hand."
 (defun org-ref-extract-bibtex-entries ()
   "Extract the bibtex entries in the current buffer into a src block."
   (interactive)
-  (let ((bibtex-files (org-ref-find-bibliography))
-	(bibtex-entry-kill-ring '()))
+  (let* ((bibtex-files (org-ref-find-bibliography))
+	 (keys (reverse (org-ref-get-bibtex-keys)))
+	 (bibtex-entry-kill-ring-max (length keys))
+	 (bibtex-entry-kill-ring '()))
 
     (save-window-excursion
-      (cl-loop for key in (reverse (org-ref-get-bibtex-keys))
+      (cl-loop for key in keys
 	       do
 	       (bibtex-search-entry key t)
 	       (bibtex-kill-entry t)))
