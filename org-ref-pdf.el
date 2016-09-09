@@ -105,26 +105,26 @@ Used when multiple dois are found in a pdf file."
 
 
 ;;;###autoload
-(defun org-ref-pdf-dnd-func (event)
-  "Drag-n-drop support to add a bibtex entry from a pdf file."
-  (interactive "e")
-  (goto-char (nth 1 (event-start event)))
-  (x-focus-frame nil)
-  (let* ((payload (car (last event)))
-         (pdf (cadr payload))
-	 (dois (org-ref-extract-doi-from-pdf pdf)))
-    (cond
-     ((null dois)
-      (message "No doi found in %s" pdf))
-     ((= 1 (length dois))
-      (doi-utils-add-bibtex-entry-from-doi
-       (car dois)
-       (buffer-file-name)))
-     ;; Multiple DOIs found
-     (t
-      (helm :sources `((name . "Select a DOI")
-		       (candidates . ,(org-ref-pdf-doi-candidates dois))
-		       (action . org-ref-pdf-add-dois)))))))
+;; (defun org-ref-pdf-dnd-func (event)
+;;   "Drag-n-drop support to add a bibtex entry from a pdf file."
+;;   (interactive "e")
+;;   (goto-char (nth 1 (event-start event)))
+;;   (x-focus-frame nil)
+;;   (let* ((payload (car (last event)))
+;;          (pdf (cadr payload))
+;; 	 (dois (org-ref-extract-doi-from-pdf pdf))) 
+;;     (cond
+;;      ((null dois)
+;;       (message "No doi found in %s" pdf))
+;;      ((= 1 (length dois))
+;;       (doi-utils-add-bibtex-entry-from-doi
+;;        (car dois)
+;;        (buffer-file-name)))
+;;      ;; Multiple DOIs found
+;;      (t
+;;       (helm :sources `((name . "Select a DOI")
+;; 		       (candidates . ,(org-ref-pdf-doi-candidates dois))
+;; 		       (action . org-ref-pdf-add-dois)))))))
 
 ;; This isn't very flexible, as it hijacks all drag-n-drop events. I switched to
 ;; using `dnd-protocol-alist'.
@@ -140,38 +140,46 @@ Used when multiple dois are found in a pdf file."
 ;; that is essentially what ns-drag-n-drop enables, multiple handlers for
 ;; different uris that get dropped on the windwo.
 
-(defun org-ref-pdf-dnd-protocol (pdf action)
+(defun org-ref-pdf-dnd-protocol (uri action)
   "Drag-n-drop protocol.
 PDF will be a string like file:path.
 ACTION is what to do. It is required for `dnd-protocol-alist'.
-This function should only apply when in a bibtex file.
-"
+This function should only apply when in a bibtex file." 
   (if (and (buffer-file-name)
 	   (f-ext? (buffer-file-name) "bib"))
-      (let ((dois (org-ref-extract-doi-from-pdf
-		   (substring pdf 5))))
+      (let* ((path (substring uri 5))
+	     dois) 
 	(cond
-	 ((null dois)
-	  (message "No doi found in %s" pdf)
-	  nil)
-	 ((= 1 (length dois))
-	  (doi-utils-add-bibtex-entry-from-doi
-	   (car dois)
-	   (buffer-file-name))
-	  action)
-	 ;; Multiple DOIs found
-	 (t
-	  (helm :sources `((name . "Select a DOI")
-			   (candidates . ,(org-ref-pdf-doi-candidates dois))
-			   (action . org-ref-pdf-add-dois)))
-	  action)))
+	 ((f-ext? path "pdf")
+	  (setq dois (org-ref-extract-doi-from-pdf
+		      path))
+	  (cond
+	   ((null dois)
+	    (message "No doi found in %s" path)
+	    nil)
+	   ((= 1 (length dois))
+	    (doi-utils-add-bibtex-entry-from-doi
+	     (car dois)
+	     (buffer-file-name))
+	    action)
+	   ;; Multiple DOIs found
+	   (t
+	    (helm :sources `((name . "Select a DOI")
+			     (candidates . ,(org-ref-pdf-doi-candidates dois))
+			     (action . org-ref-pdf-add-dois)))
+	    action)))
+	 ;; drag a bib file on and add contents to the end of the file.
+	 ((f-ext? path "bib")
+	  (goto-char (point-max))
+	  (insert "\n")
+	  (insert-file-contents path))))
     ;; ignoring. pass back to dnd. Copied from `org-download-dnd'. Apparently
     ;; returning nil does not do this.
     (let ((dnd-protocol-alist
            (rassq-delete-all
             'org-ref-pdf-dnd-protocol
             (copy-alist dnd-protocol-alist))))
-      (dnd-handle-one-url nil action pdf))))
+      (dnd-handle-one-url nil action uri))))
 
 
 (add-to-list 'dnd-protocol-alist '("^file:" . org-ref-pdf-dnd-protocol))
