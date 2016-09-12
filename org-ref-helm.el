@@ -276,6 +276,11 @@ at the end of you file.
                       (action . (lambda (x)
                                   (switch-to-buffer ,cb)
                                   (funcall x))))
+		     ((name . "Miscellaneous")
+		      (candidates . (,(format "org-latex-prefer-user-labels = %s"
+					      org-latex-prefer-user-labels)
+				     ,(format "bibtex-dialect = %s" bibtex-dialect)))
+		      (action . nil))
                      ;;
                      ((name . "Utilities")
                       (candidates . (("Check buffer again" . org-ref)
