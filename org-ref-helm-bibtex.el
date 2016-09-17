@@ -356,7 +356,7 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
-	 (pdf-bibtex-completion (bibtex-completion-find-pdf key))
+	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
 	 (pdf-mendeley (org-ref-get-mendeley-filename key))
          (bibfile (cdr results))
          (url (save-excursion
