@@ -403,7 +403,6 @@ Checks for pdf and doi, and add appropriate functions."
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
 	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
-	 (pdf-mendeley (org-ref-get-mendeley-filename key))
          (bibfile (cdr results))
          (url (save-excursion
                 (with-temp-buffer
@@ -436,13 +435,6 @@ Checks for pdf and doi, and add appropriate functions."
 
 	   ;; try with bibtex-completion
     	  (pdf-bibtex-completion
-    	   (cl-pushnew
-    	    '("Open pdf" . (lambda ()
-    			     (funcall org-ref-open-pdf-function)))
-    	    candidates))
-
-	  ;; try with mendeley function
-    	  ((file-exists-p pdf-mendeley)
     	   (cl-pushnew
     	    '("Open pdf" . (lambda ()
     			     (funcall org-ref-open-pdf-function)))
