@@ -772,7 +772,7 @@ Argument BIBFILE the bibliography to use."
         (find-file-noselect bibfile)
       ;; Check if the doi already exists
       (goto-char (point-min))
-      (if (search-forward doi nil t)
+      (if (word-search-forward (concat doi) nil t)
           (message "%s is already in this file" doi)
         (goto-char (point-max))
 	(if (re-search-backward "^}$" nil t)
