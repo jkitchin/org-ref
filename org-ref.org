@@ -546,7 +546,7 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
 
 *** A note for Mendeley, JabRef and Zotero users
 
-If ~bibtex-completion-pdf-field~ is defined, the function below should work with Mendeley, JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
+If ~bibtex-completion-pdf-field~ is defined, the function below should work with JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
 
 #+begin_src emacs-lisp
 (defun my/org-ref-open-pdf-at-point ()
@@ -562,7 +562,7 @@ If ~bibtex-completion-pdf-field~ is defined, the function below should work with
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
 #+end_src
 
-Alternatively, org-ref also provides a function specific to Mendeley users:
+Mendeley users should set to:
 
 #+BEGIN_SRC emacs-lisp
 (setq org-ref-open-pdf-function 'org-ref-get-mendeley-filename)
