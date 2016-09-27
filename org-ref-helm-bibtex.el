@@ -403,6 +403,8 @@ Checks for pdf and doi, and add appropriate functions."
          (key (car results))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
 	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
+	 (entry (bibtex-completion-get-entry key))
+	 (notes-p (cdr (assoc "=has-note=" entry)))
          (bibfile (cdr results))
          (url (save-excursion
                 (with-temp-buffer
@@ -450,10 +452,13 @@ Checks for pdf and doi, and add appropriate functions."
     				     (doi-utils-get-bibtex-entry-pdf))))
     	    candidates)))
 
-
-    (cl-pushnew
-     '("Open notes" . org-ref-open-notes-at-point)
-     candidates)
+    (if notes-p
+	(cl-pushnew
+	 '("Open notes" . org-ref-open-notes-at-point)
+	 candidates)
+      (cl-pushnew
+       '("Add notes" . org-ref-open-notes-at-point)
+       candidates))
 
     ;; conditional url and doi functions
     (when (or url doi)
