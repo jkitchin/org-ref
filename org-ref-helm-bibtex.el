@@ -177,14 +177,15 @@ Argument CANDIDATES helm candidates."
 	 (entry (bibtex-completion-get-entry (car keys)))
 	 (field (cdr (assoc-string "keywords" entry)))
 	 (value (when field (replace-regexp-in-string "^{\\|}$" "" field)))
-	 (keywords (read-string "Keywords (comma separated): " (when value
-								 (concat value ", ")))))
+	 (keywords (read-string "Keywords (comma separated): "
+				(when (and value (not (equal "" value)))
+				  (concat value ", ")))))
     (cl-loop for key in keys
 	     do
 	     (save-window-excursion
 	       (bibtex-completion-show-entry key)
 	       ;; delete keyword field if empty
-	       (if (string-match "^\s-*" keywords)
+	       (if (equal "" keywords)
 		   (save-restriction
 		     (bibtex-narrow-to-entry)
 		     (goto-char (car (cdr (bibtex-search-forward-field "keywords" t))))
@@ -194,14 +195,12 @@ Argument CANDIDATES helm candidates."
 		  (concat
 		   (if (listp keywords)
 		       (if (string-match value keywords)
-			   (and (replace-match "")
-				(mapconcat 'identity keywords ", "))
-			 (mapconcat 'identity keywords ", "))
-		     keywords))))
-	       (when (looking-back ", " (line-beginning-position))
-	       	 (delete-char 2))
+		  	   (and (replace-match "")
+		  		(mapconcat 'identity keywords ", "))
+		  	 (mapconcat 'identity keywords ", "))
+		     ;; remove trailing comma
+		     (replace-regexp-in-string ", $" "" keywords)))))
 	       (save-buffer)))))
-
 
 
 
