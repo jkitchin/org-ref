@@ -136,7 +136,7 @@ To help you insert ref links, use the "Org -> org-ref -> Insert ref" menu, or ru
 
 ref links are functional. If you put the cursor on a ref link, you should see a message in the minibuffer with some context of the corresponding label. If you click on the ref link, the cursor will jump to the label.
 
-A brief note about references to a section. You can make a ref link to a CUSTOM_ID. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty. Section ref:ref-links uses the CUSTOM_ID property.
+A brief note about references to a section. You can make a ref link to a CUSTOM_ID. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty. Section ref:ref-links uses the CUSTOM_ID property. For this to work, you should set ~org-latex-prefer-user-labels~ to t.
 
 Also note that "#+tblname:" and "#+label:" are deprecated in org-mode now, and "#+name:" is preferred.
 
