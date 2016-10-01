@@ -68,8 +68,8 @@
     ("Insert BibTeX key" . helm-bibtex-insert-key)
     ("Insert BibTeX entry" . helm-bibtex-insert-bibtex)
     ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
-    ("Edit notes" . bibtex-completion-edit-notes)
-    ("Show entry" . bibtex-completion-show-entry)
+    ("Edit notes" . helm-bibtex-edit-notes)
+    ("Show entry" . helm-bibtex-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
     ("Copy entry to clipboard" . bibtex-completion-copy-candidate))
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
@@ -107,7 +107,7 @@ The cdr of the the cons cell is the function to use."
 ;;* Helm bibtex setup.
 (setq bibtex-completion-additional-search-fields '(keywords))
 
-(defun bibtex-completion-candidates-formatter (candidates _source)
+(defun helm-bibtex-candidates-formatter (candidates _source)
   "Formats BibTeX entries for display in results list.
 Argument CANDIDATES helm candidates.
 Argument SOURCE the helm source.
