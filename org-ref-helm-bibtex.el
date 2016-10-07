@@ -133,7 +133,7 @@ fields, the keywords I think."
    collect
    (cons (s-format "$0 $1 $2 $3 $4$5 $6" 'elt
                    (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
-                              fields (list 36 (- width 85) 4 1 1 7 7)))
+                              fields (list 36 (- width 85) 4 1 1 7 31)))
          entry-key)))
 
 
