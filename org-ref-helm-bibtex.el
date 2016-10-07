@@ -162,11 +162,6 @@ CANDIDATE is ignored."
 	(kill-new (buffer-string))))))
 
 
-(helm-add-action-to-source
- "Copy entry to clipboard"
- 'bibtex-completion-copy-candidate
- helm-source-bibtex)
-
 
 (defun org-ref-helm-tag-entries (_candidates)
   "Set tags on selected bibtex entries from `helm-bibtex'.
@@ -203,12 +198,6 @@ Argument CANDIDATES helm candidates."
 	       (save-buffer)))))
 
 
-
-;; Add a new action
-(helm-add-action-to-source
- "Add keywords to entries"
- 'org-ref-helm-tag-entries
- helm-source-bibtex)
 
 
 (defun org-ref-bibtex-completion-format-org (keys)
