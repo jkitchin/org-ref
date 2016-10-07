@@ -183,7 +183,7 @@ Argument CANDIDATES helm candidates."
     (cl-loop for key in keys
 	     do
 	     (save-window-excursion
-	       (bibtex-completion-show-entry key)
+	       (bibtex-completion-show-entry (list key))
 	       ;; delete keyword field if empty
 	       (if (equal "" keywords)
 		   (save-restriction
