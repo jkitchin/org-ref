@@ -62,7 +62,7 @@
 
 (defcustom org-ref-bibtex-completion-actions
   '(("Insert citation" . helm-bibtex-insert-citation)
-    ("Open PDF file (if present)" . helm-bibtex-open-pdf)
+    ("Open PDF, URL or DOI" . helm-bibtex-open-any)
     ("Open URL or DOI in browser" . helm-bibtex-open-url-or-doi)
     ("Insert reference" . helm-bibtex-insert-reference)
     ("Insert BibTeX key" . helm-bibtex-insert-key)
