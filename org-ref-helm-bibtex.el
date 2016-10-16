@@ -621,12 +621,7 @@ KEY is returned for the selected item(s) in helm."
       :action '(("Browse labels" . (lambda (label)
 				     (with-selected-window (selected-window)
 				       (org-open-link-from-string
-					(format "ref:%s" label))))))
-      :persistent-action (lambda (label)
-			   (with-selected-window (selected-window)
-			     (org-open-link-from-string
-			      (format "ref:%s" label)))
-			   (helm-highlight-current-line nil nil nil nil 'pulse)))))
+					(format "ref:%s" label)))))))))
 
 ;; browse citation links
 
@@ -680,8 +675,7 @@ With a prefix ARG, browse labels."
 	      :real-to-display 'org-ref-browser-display
 	      :persistent-action (lambda (candidate)
 	      			   (helm-goto-char
-	      			    (cdr (assoc candidate count-key-pos)))
-	      			   (helm-highlight-current-line nil nil nil nil 'pulse))
+	      			    (cdr (assoc candidate count-key-pos))))
 	      :action `(("Open menu" . ,(lambda (candidate)
 	      				  (helm-goto-char
 	      				   (cdr (assoc candidate count-key-pos)))
