@@ -526,18 +526,21 @@ little more readable.")
 (defalias 'orhc 'org-ref-helm-cite)
 
 ;; ** Onclick function
-;; These are duplicated from org-ref-helm-bibtex
+;; These are adapted from org-ref-helm-bibtex, and the dependencies on helm-bibtex removed.
 
 (defun org-ref-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
-         (pdf-file (funcall org-ref-get-pdf-filename-function key))
-	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
-	 (entry (bibtex-completion-get-entry key))
-	 (notes-p (cdr (assoc "=has-note=" entry)))
          (bibfile (cdr results))
+	 (pdf-file (funcall org-ref-get-pdf-filename-function key)) 
+	 (entry (save-excursion
+		  (with-temp-buffer
+		    (insert-file-contents bibfile)
+		    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+		    (bibtex-search-entry key)
+		    (bibtex-parse-entry t))))
          (url (save-excursion
                 (with-temp-buffer
                   (insert-file-contents bibfile)
@@ -584,13 +587,9 @@ Checks for pdf and doi, and add appropriate functions."
     				     (doi-utils-get-bibtex-entry-pdf))))
     	    candidates)))
 
-    (if notes-p
-	(cl-pushnew
-	 '("Open notes" . org-ref-open-notes-at-point)
-	 candidates)
-      (cl-pushnew
-       '("Add notes" . org-ref-open-notes-at-point)
-       candidates))
+    (cl-pushnew
+     '("Add/Open notes" . org-ref-open-notes-at-point)
+     candidates)
 
     ;; conditional url and doi functions
     (when (or url doi)
