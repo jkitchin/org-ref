@@ -390,11 +390,12 @@ With two prefix ARGs, insert a label link."
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
-         (pdf-file (funcall org-ref-get-pdf-filename-function key))
-	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
-	 (entry (bibtex-completion-get-entry key))
-	 (notes-p (cdr (assoc "=has-note=" entry)))
          (bibfile (cdr results))
+	 (bibtex-completion-bibliography (list bibfile))
+	 (entry (bibtex-completion-get-entry key))
+	 (pdf-file (funcall org-ref-get-pdf-filename-function key))
+	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
+         (notes-p (cdr (assoc "=has-note=" entry)))
          (url (save-excursion
                 (with-temp-buffer
                   (insert-file-contents bibfile)
@@ -424,7 +425,7 @@ Checks for pdf and doi, and add appropriate functions."
     			     (funcall org-ref-open-pdf-function)))
     	    candidates))
 
-	   ;; try with bibtex-completion
+	  ;; try with bibtex-completion
     	  (pdf-bibtex-completion
     	   (cl-pushnew
     	    '("Open pdf" . (lambda ()
