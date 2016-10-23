@@ -456,6 +456,12 @@ Create email unless called from an email."
 This adds a small separator between the candidates which is a
 little more readable.")
 
+(defvar org-ref-helm-user-candidates '()
+  "List of user-defined candidates to act when clicking on a cite link.
+This is a list of cons cells '((\"description\" . action)). The
+action function should not take an argument, and should assume
+point is on the cite key of interest.")
+
 (defvar org-ref-helm-cite-source
   (helm-build-sync-source "org-ref Bibtex"
     :init #'org-ref-helm-cite-init
