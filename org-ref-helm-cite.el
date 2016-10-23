@@ -50,7 +50,6 @@
 (require 'org-ref-bibtex)
 
 
-
 (defun org-ref-helm-cite-completion ()
   "Use helm and org-ref for completion."
   (interactive)
@@ -525,6 +524,216 @@ little more readable.")
 
 
 (defalias 'orhc 'org-ref-helm-cite)
+
+;; ** Onclick function
+;; These are duplicated from org-ref-helm-bibtex
+
+(defun org-ref-cite-candidates ()
+  "Generate the list of possible candidates for click actions on a cite link.
+Checks for pdf and doi, and add appropriate functions."
+  (let* ((results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key))
+	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
+	 (entry (bibtex-completion-get-entry key))
+	 (notes-p (cdr (assoc "=has-note=" entry)))
+         (bibfile (cdr results))
+         (url (save-excursion
+                (with-temp-buffer
+                  (insert-file-contents bibfile)
+                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+                  (bibtex-search-entry key)
+                  (bibtex-autokey-get-field "url"))))
+         (doi (save-excursion
+                (with-temp-buffer
+                  (insert-file-contents bibfile)
+                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+                  (bibtex-search-entry key)
+                  ;; I like this better than bibtex-url which does not always find
+                  ;; the urls
+                  (bibtex-autokey-get-field "doi"))))
+         (candidates `(("Quit" . org-ref-citation-at-point)
+                       ("Open bibtex entry" . org-ref-open-citation-at-point))))
+    ;; for some reason, when there is no doi or url, they are returned as "". I
+    ;; prefer nil so we correct this here.
+    (when (string= doi "") (setq doi nil))
+    (when (string= url "") (setq url nil))
+
+    ;; Conditional pdf functions
+    ;; try with org-ref first
+    (cond ((file-exists-p pdf-file)
+    	   (cl-pushnew
+    	    '("Open pdf" . (lambda ()
+    			     (funcall org-ref-open-pdf-function)))
+    	    candidates))
+
+	  ;; try with bibtex-completion
+    	  (pdf-bibtex-completion
+    	   (cl-pushnew
+    	    '("Open pdf" . (lambda ()
+    			     (funcall org-ref-open-pdf-function)))
+    	    candidates))
+
+	  ;; try with doi
+    	  (t
+    	   (cl-pushnew
+    	    '("Try to get pdf" . (lambda ()
+    				   (save-window-excursion
+    				     (org-ref-open-citation-at-point)
+    				     (bibtex-beginning-of-entry)
+    				     (doi-utils-get-bibtex-entry-pdf))))
+    	    candidates)))
+
+    (if notes-p
+	(cl-pushnew
+	 '("Open notes" . org-ref-open-notes-at-point)
+	 candidates)
+      (cl-pushnew
+       '("Add notes" . org-ref-open-notes-at-point)
+       candidates))
+
+    ;; conditional url and doi functions
+    (when (or url doi)
+      (cl-pushnew
+       '("Open in browser" . org-ref-open-url-at-point)
+       candidates))
+
+    (when doi
+      (mapc (lambda (x)
+              (cl-pushnew x candidates))
+            `(("WOS" . org-ref-wos-at-point)
+              ("Related articles in WOS" . org-ref-wos-related-at-point)
+              ("Citing articles in WOS" . org-ref-wos-citing-at-point)
+              ("Google Scholar" . org-ref-google-scholar-at-point)
+              ("Pubmed" . org-ref-pubmed-at-point)
+              ("Crossref" . org-ref-crossref-at-point))))
+
+    (cl-pushnew
+     '("Insert new citation" . (lambda ()
+                                 (org-ref-helm-insert-cite-link nil)))
+     candidates)
+
+    (cl-pushnew
+     '("Delete key at point" . org-ref-delete-key-at-point)
+     candidates)
+
+    ;;  This is kind of clunky. We store the key at point. Add the new ref. Get
+    ;;  it off the end, and put it in the original position.
+    (cl-pushnew
+     '("Replace key at point" . org-ref-replace-key-at-point)
+     candidates)
+
+    (cl-pushnew
+     '("Delete citation at point" . org-ref-delete-cite-at-point)
+     candidates)
+
+    (cl-pushnew
+     '("Sort keys by year" . org-ref-sort-citation-link)
+     candidates)
+
+    (cl-pushnew
+     '("Copy formatted citation to clipboard" . org-ref-copy-entry-as-summary)
+     candidates)
+
+    (cl-pushnew
+     '("Copy key to clipboard" . (lambda ()
+                                   (kill-new
+                                    (car (org-ref-get-bibtex-key-and-file)))))
+     candidates)
+
+    (cl-pushnew
+     '("Copy bibtex entry to file" . org-ref-copy-entry-at-point-to-file)
+     candidates)
+
+    (cl-pushnew
+     '("Email bibtex entry and pdf" . (lambda ()
+                                        (save-excursion
+                                          (org-ref-open-citation-at-point)
+                                          (org-ref-email-bibtex-entry))))
+     candidates)
+
+    ;; add Scopus functions. These work by looking up a DOI to get a Scopus
+    ;; EID. This may only work for Scopus articles. Not all DOIs are recognized
+    ;; in the Scopus API. We only load these if you have defined a
+    ;; `*scopus-api-key*', which is required to do the API queries. See
+    ;; `scopus'. These functions are appended to the candidate list.
+    (when (and (boundp '*scopus-api-key*) *scopus-api-key*)
+      (cl-pushnew
+       '("Open in Scopus" . (lambda ()
+                              (let ((eid (scopus-doi-to-eid (org-ref-get-doi-at-point))))
+                                (if eid
+                                    (scopus-open-eid eid)
+                                  (message "No EID found.")))))
+       candidates)
+
+      (cl-pushnew
+       '("Scopus citing articles" . (lambda ()
+                                      (let ((url (scopus-citing-url
+                                                  (org-ref-get-doi-at-point))))
+                                        (if url
+                                            (browse-url url)
+                                          (message "No url found.")))))
+       candidates)
+
+      (cl-pushnew
+       '("Scopus related by authors" . (lambda ()
+                                         (let ((url (scopus-related-by-author-url
+                                                     (org-ref-get-doi-at-point))))
+                                           (if url
+                                               (browse-url url)
+                                             (message "No url found.")))))
+       candidates)
+
+      (cl-pushnew
+       '("Scopus related by references" . (lambda ()
+                                            (let ((url (scopus-related-by-references-url
+                                                        (org-ref-get-doi-at-point))))
+                                              (if url
+                                                  (browse-url url)
+                                                (message "No url found.")))))
+       candidates)
+
+      (cl-pushnew
+       '("Scopus related by keywords" . (lambda ()
+                                          (let ((url (scopus-related-by-keyword-url
+                                                      (org-ref-get-doi-at-point))))
+                                            (if url
+                                                (browse-url url)
+                                              (message "No url found.")))))
+       candidates))
+
+    ;; finally return a numbered list of the candidates
+    (cl-loop for i from 0
+             for cell in (reverse candidates)
+             collect (cons (format "%2s. %s" i (car cell))
+                           (cdr cell)))))
+
+(defun org-ref-cite-click-helm (_key)
+  "Open helm for actions on a cite link.
+subtle points.
+
+1. get name and candidates before entering helm because we need
+the org-buffer.
+
+2. switch back to the org buffer before evaluating the
+action.  most of them need the point and buffer.
+
+KEY is returned for the selected item(s) in helm."
+  (interactive)
+  (let ((name (org-ref-get-citation-string-at-point))
+        (candidates (org-ref-cite-candidates))
+        (cb (current-buffer)))
+
+    (helm :sources `(((name . ,name)
+                      (candidates . ,candidates)
+                      (action . (lambda (f)
+                                  (switch-to-buffer ,cb)
+                                  (funcall f))))
+                     ((name . "User functions")
+                      (candidates . ,org-ref-helm-user-candidates)
+                      (action . (lambda (f)
+                                  (switch-to-buffer ,cb)
+                                  (funcall f))))))))
 
 
 ;;* Formatted citations
