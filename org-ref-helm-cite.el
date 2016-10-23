@@ -569,14 +569,7 @@ Checks for pdf and doi, and add appropriate functions."
     	    '("Open pdf" . (lambda ()
     			     (funcall org-ref-open-pdf-function)))
     	    candidates))
-
-	  ;; try with bibtex-completion
-    	  (pdf-bibtex-completion
-    	   (cl-pushnew
-    	    '("Open pdf" . (lambda ()
-    			     (funcall org-ref-open-pdf-function)))
-    	    candidates))
-
+	  
 	  ;; try with doi
     	  (t
     	   (cl-pushnew
