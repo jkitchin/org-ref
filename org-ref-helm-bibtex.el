@@ -71,7 +71,8 @@
     ("Edit notes" . helm-bibtex-edit-notes)
     ("Show entry" . helm-bibtex-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
-    ("Copy entry to clipboard" . bibtex-completion-copy-candidate))
+    ("Copy entry to clipboard" . bibtex-completion-copy-candidate)
+    ("Add PDF to library" . helm-bibtex-add-pdf-to-library))
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.
 The cdr of the the cons cell is the function to use."
