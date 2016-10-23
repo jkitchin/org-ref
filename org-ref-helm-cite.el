@@ -57,7 +57,7 @@
 	org-ref-insert-cite-function 'org-ref-helm-cite
 	org-ref-insert-label-function 'org-ref-helm-insert-label-link
 	org-ref-insert-ref-function 'org-ref-helm-insert-ref-link
-	org-ref-cite-onclick-function 'org-ref-cite-click-helm))
+	org-ref-cite-onclick-function 'org-ref-helm-cite-click))
 
 (org-ref-helm-cite-completion)
 
@@ -534,7 +534,7 @@ point is on the cite key of interest.")
 ;; ** Onclick function
 ;; These are adapted from org-ref-helm-bibtex, and the dependencies on helm-bibtex removed.
 
-(defun org-ref-cite-candidates ()
+(defun org-ref-helm-cite-candidates ()
   "Generate the list of possible candidates for click actions on a cite link.
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
@@ -706,7 +706,7 @@ Checks for pdf and doi, and add appropriate functions."
              collect (cons (format "%2s. %s" i (car cell))
                            (cdr cell)))))
 
-(defun org-ref-cite-click-helm (_key)
+(defun org-ref-helm-cite-click (_key)
   "Open helm for actions on a cite link.
 subtle points.
 
@@ -719,7 +719,7 @@ action.  most of them need the point and buffer.
 KEY is returned for the selected item(s) in helm."
   (interactive)
   (let ((name (org-ref-get-citation-string-at-point))
-        (candidates (org-ref-cite-candidates))
+        (candidates (org-ref-helm-cite-candidates))
         (cb (current-buffer)))
 
     (helm :sources `(((name . ,name)
