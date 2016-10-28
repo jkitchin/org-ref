@@ -148,6 +148,7 @@ org-ref also provides these links:
 - pageref :: The page a label is on
 - nameref :: The name of a section a label is in
 - eqref :: Puts the equation number in parentheses
+- autoref :: A command from hyperref that automatically prefixes the reference number.
 
 Note for eqref, you must use a LaTeX label like this:
 
@@ -156,6 +157,8 @@ e^x = 4 \label{eq:1}
 \end{equation}
 
 Then you can refer to Eq. eqref:eq:1 in your documents.
+
+Autoref works like this: autoref:table-3, autoref:sec-misc.
 
 *** Some other links
 [[index:list of tables]] [[index:list of figures]]
@@ -408,6 +411,9 @@ index:isbn
 (require 'org-ref-isbn)
 #+END_SRC
 
+#+RESULTS:
+: org-ref-isbn
+
 This library provides some functions to get bibtex entries for books from their ISBN.
 
 - isbn-to-bibtex
@@ -453,6 +459,9 @@ This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-
 (require 'org-ref-arxiv)
 #+END_SRC
 
+#+RESULTS:
+: org-ref-arxiv
+
 - ~arxiv-add-bibtex-entry~
 - ~arxiv-get-pdf~
 
@@ -466,6 +475,9 @@ index:orcid [[index:researcher id]]
 (require 'org-ref-sci-id)
 #+END_SRC
 
+#+RESULTS:
+: org-ref-sci-id
+
 This package just defines two new org-mode links for http://www.orcid.org, and http://www.researcherid.com. Here are two examples:
 
 orcid:0000-0003-2625-9232
@@ -478,6 +490,9 @@ index:bibtex!conversion
 #+BEGIN_SRC emacs-lisp
 (require 'x2bib)
 #+END_SRC
+
+#+RESULTS:
+: x2bib
 
 If you find you need to convert some bibliographies in some format into bibtex, this library is a starting point. This code is mostly wrappers around the command line utilities at http://sourceforge.net/p/bibutils/home/Bibutils. I thankfully have not had to use this often, but it is here when I need it again.
 
