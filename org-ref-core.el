@@ -642,7 +642,7 @@ tags."
     ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
-      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+      (if (-contains? '("ref" "eqref" "pageref" "nameref" "autoref")
 		      (org-element-property :type this-link))
 	  ;; we are, so we do our business
 	  (progn
@@ -1529,6 +1529,36 @@ Optional argument ARG Does nothing."
     ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
     ((eq format 'html) (format "\\eqref{%s}" keyword)))))
 
+;;*** autoref link
+
+(org-add-link-type
+ "autoref"
+ (lambda (label)
+   "on clicking goto the label. Navigate back with C-c &"
+   (org-mark-ring-push)
+   ;; next search from beginning of the buffer
+   (widen)
+   (goto-char (point-min))
+   (unless
+       (or
+        ;; search forward for the first match
+        ;; our label links
+        (re-search-forward (format "label:%s" label) nil t)
+        ;; a latex label
+        (re-search-forward (format "\\label{%s}" label) nil t)
+        ;; #+label: name  org-definition
+        (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+     (org-mark-ring-goto)
+     (error "%s not found" label))
+   (message "go back with (org-mark-ring-goto) `C-c &`"))
+                                        ;formatting
+ (lambda (keyword desc format)
+   (cond
+    ((eq format 'latex) (format "\\autoref{%s}" keyword))
+    ;;considering the fact that latex's the standard of math formulas, just use mathjax to render the html
+    ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
+    ((eq format 'html) (format "\\autoref{%s}" keyword)))))
+
 ;;** cite link
 
 (defun org-ref-get-bibtex-key-under-cursor ()
@@ -2341,7 +2371,8 @@ file.  Makes a new buffer with clickable links."
           (when (or  (equal (plist-get plist ':type) "ref")
                      (equal (plist-get plist ':type) "eqref")
                      (equal (plist-get plist ':type) "pageref")
-                     (equal (plist-get plist ':type) "nameref"))
+                     (equal (plist-get plist ':type) "nameref")
+		     (equal (plist-get plist ':type) "autoref"))
             (unless (-contains? labels (plist-get plist :path))
               (goto-char (plist-get plist :begin))
               (add-to-list
@@ -2920,7 +2951,8 @@ move to the beginning of the previous cite link after this one."
              ((or (string= type "ref")
 		  (string= type "eqref")
 		  (string= type "pageref")
-		  (string= type "nameref"))
+		  (string= type "nameref")
+		  (string= type "autoref"))
               (message "%scount: %s"
                        (org-ref-get-label-context
                         (org-element-property :path object))
