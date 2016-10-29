@@ -1677,7 +1677,7 @@ set in `org-ref-default-bibliography'"
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
-  "Return the bibtex KEY and file that it is in.
+  "Return a  a cons cell of (KEY . file) that KEY is in.
 If no key is provided, get one under point."
   (let ((org-ref-bibliography-files (org-ref-find-bibliography))
         (file))
