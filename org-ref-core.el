@@ -954,8 +954,40 @@ ARG does nothing."
 
 (defun org-bibliography-complete-link (&optional arg)
   "Completion function for bibliography link.
-ARG does nothing."
-  (format "bibliography:%s" (read-file-name "enter file: " nil nil t)))
+This will scan the org-file for citations, and if it finds the
+citation keys in `org-ref-default-bibliography' or bib files in
+the current directory it will insert them. Otherwise you will be
+prompted for a file.
+
+ARG does nothing. I think it is a required signature."
+  (let* ((keys (reverse (org-ref-get-bibtex-keys)))
+	 (possible-files (append org-ref-default-bibliography
+				 (f-entries "." (lambda (f) (f-ext? f "bib")))))
+	 (found '()))
+
+    ;; remove bib links
+    (org-element-map (org-element-parse-buffer)
+	'link (lambda (link)
+		(when (string= "bibliography"
+			       (org-element-property :type link))
+		  (setf (buffer-substring (org-element-property :begin link)
+					  (org-element-property :end link))
+			""))))
+
+    ;; Get bibfiles
+    (setq found (-uniq (loop for key in keys
+			     collect
+			     (catch 'result
+			       (cl-loop for file in possible-files do
+					(if (org-ref-key-in-file-p
+					     key
+					     (file-truename file))
+					    (throw 'result
+						   (file-relative-name file))))))))
+    
+    (format "bibliography:%s"
+	    (or (mapconcat #'identity found ",")
+		(read-file-name "enter file: " nil nil nil)))))
 
 
 ;;;###autoload
