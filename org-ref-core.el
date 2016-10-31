@@ -642,7 +642,7 @@ tags."
     ;; we think we are on a ref link, lets make sure.
     (forward-char -2)
     (let ((this-link (org-element-context)))
-      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+      (if (-contains? '("ref" "eqref" "pageref" "nameref" "autoref")
 		      (org-element-property :type this-link))
 	  ;; we are, so we do our business
 	  (progn
@@ -954,8 +954,40 @@ ARG does nothing."
 
 (defun org-bibliography-complete-link (&optional arg)
   "Completion function for bibliography link.
-ARG does nothing."
-  (format "bibliography:%s" (read-file-name "enter file: " nil nil t)))
+This will scan the org-file for citations, and if it finds the
+citation keys in `org-ref-default-bibliography' or bib files in
+the current directory it will insert them. Otherwise you will be
+prompted for a file.
+
+ARG does nothing. I think it is a required signature."
+  (let* ((keys (reverse (org-ref-get-bibtex-keys)))
+	 (possible-files (append org-ref-default-bibliography
+				 (f-entries "." (lambda (f) (f-ext? f "bib")))))
+	 (found '()))
+
+    ;; remove bib links
+    (org-element-map (org-element-parse-buffer)
+	'link (lambda (link)
+		(when (string= "bibliography"
+			       (org-element-property :type link))
+		  (setf (buffer-substring (org-element-property :begin link)
+					  (org-element-property :end link))
+			""))))
+
+    ;; Get bibfiles
+    (setq found (-uniq (loop for key in keys
+			     collect
+			     (catch 'result
+			       (cl-loop for file in possible-files do
+					(if (org-ref-key-in-file-p
+					     key
+					     (file-truename file))
+					    (throw 'result
+						   (file-relative-name file))))))))
+    
+    (format "bibliography:%s"
+	    (or (mapconcat #'identity found ",")
+		(read-file-name "enter file: " nil nil nil)))))
 
 
 ;;;###autoload
@@ -1529,6 +1561,36 @@ Optional argument ARG Does nothing."
     ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
     ((eq format 'html) (format "\\eqref{%s}" keyword)))))
 
+;;*** autoref link
+
+(org-add-link-type
+ "autoref"
+ (lambda (label)
+   "on clicking goto the label. Navigate back with C-c &"
+   (org-mark-ring-push)
+   ;; next search from beginning of the buffer
+   (widen)
+   (goto-char (point-min))
+   (unless
+       (or
+        ;; search forward for the first match
+        ;; our label links
+        (re-search-forward (format "label:%s" label) nil t)
+        ;; a latex label
+        (re-search-forward (format "\\label{%s}" label) nil t)
+        ;; #+label: name  org-definition
+        (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+     (org-mark-ring-goto)
+     (error "%s not found" label))
+   (message "go back with (org-mark-ring-goto) `C-c &`"))
+                                        ;formatting
+ (lambda (keyword desc format)
+   (cond
+    ((eq format 'latex) (format "\\autoref{%s}" keyword))
+    ;;considering the fact that latex's the standard of math formulas, just use mathjax to render the html
+    ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
+    ((eq format 'html) (format "\\autoref{%s}" keyword)))))
+
 ;;** cite link
 
 (defun org-ref-get-bibtex-key-under-cursor ()
@@ -1677,7 +1739,7 @@ set in `org-ref-default-bibliography'"
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
-  "Return the bibtex KEY and file that it is in.
+  "Return a  a cons cell of (KEY . file) that KEY is in.
 If no key is provided, get one under point."
   (let ((org-ref-bibliography-files (org-ref-find-bibliography))
         (file))
@@ -2342,7 +2404,8 @@ file.  Makes a new buffer with clickable links."
           (when (or  (equal (plist-get plist ':type) "ref")
                      (equal (plist-get plist ':type) "eqref")
                      (equal (plist-get plist ':type) "pageref")
-                     (equal (plist-get plist ':type) "nameref"))
+                     (equal (plist-get plist ':type) "nameref")
+		     (equal (plist-get plist ':type) "autoref"))
             (unless (-contains? labels (plist-get plist :path))
               (goto-char (plist-get plist :begin))
               (add-to-list
@@ -2921,7 +2984,8 @@ move to the beginning of the previous cite link after this one."
              ((or (string= type "ref")
 		  (string= type "eqref")
 		  (string= type "pageref")
-		  (string= type "nameref"))
+		  (string= type "nameref")
+		  (string= type "autoref"))
               (message "%scount: %s"
                        (org-ref-get-label-context
                         (org-element-property :path object))
