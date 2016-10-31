@@ -297,8 +297,12 @@ The default behavior is to remove : from the key."
 
 
 (defcustom org-ref-show-citation-on-enter t
-  "If non-nil show the citation summary.
-Uses a hook function to display the message in the minibuffer."
+  "If non-nil shows a citation summary on entering or hovering.
+If non-nil, fetches information about a citation link from the
+bibtex file and displays a summary as a tooltip and in the
+minibuffer when a link is entered or hovered over. Uses a 
+hook function to display the message in the minibuffer and 
+help for the tooltips."
   :type 'boolean
   :group 'org-ref)
 
@@ -581,7 +585,10 @@ Add a tooltip to the match."
 			   (save-excursion
 			     (goto-char position)
 			     ;; Here we wrap the citation string to a reasonable size.
-			     (let ((s (org-ref-get-citation-string-at-point)))
+			     (let ((s
+                        (if org-ref-show-citation-on-enter
+                            (org-ref-get-citation-string-at-point)
+                          (org-ref-get-bibtex-key-under-cursor))))
 			       (with-temp-buffer
 				 (insert s)
 				 (fill-paragraph)
