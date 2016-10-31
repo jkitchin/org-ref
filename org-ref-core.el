@@ -399,9 +399,10 @@ label link."
 ;;;###autoload
 (defun org-ref-cancel-link-messages ()
   "Stop showing messages in minibuffer when on a link."
-  (interactive)
+  (interactive) 
   (cancel-timer org-ref-message-timer)
-  (setq org-ref-message-timer nil))
+  (setq org-ref-message-timer nil
+	org-ref-show-citation-on-enter nil))
 
 
 (when org-ref-show-citation-on-enter
@@ -572,20 +573,21 @@ Add a tooltip to the match."
       (if (-contains? org-ref-cite-types (org-element-property :type this-link))
 	  ;; we are on a cite link
 	  (progn
-	    (add-text-properties
-	     (org-element-property :begin this-link)
-	     (- (org-element-property :end this-link)
-		(org-element-property :post-blank this-link))
-	     (list
-	      'help-echo (lambda (window object position)
-			   (save-excursion
-			     (goto-char position)
-			     ;; Here we wrap the citation string to a reasonable size.
-			     (let ((s (org-ref-get-citation-string-at-point)))
-			       (with-temp-buffer
-				 (insert s)
-				 (fill-paragraph)
-				 (buffer-string)))))))
+	    (when org-ref-show-citation-on-enter
+	      (add-text-properties
+	       (org-element-property :begin this-link)
+	       (- (org-element-property :end this-link)
+		  (org-element-property :post-blank this-link))
+	       (list
+		'help-echo (lambda (window object position)
+			     (save-excursion
+			       (goto-char position)
+			       ;; Here we wrap the citation string to a reasonable size.
+			       (let ((s (org-ref-get-citation-string-at-point)))
+				 (with-temp-buffer
+				   (insert s)
+				   (fill-paragraph)
+				   (buffer-string))))))))
 	    (set-match-data
 	     (list (org-element-property :begin this-link)
 		   (- (org-element-property :end this-link)
@@ -1944,9 +1946,9 @@ PATH is required for the org-link, but it does nothing here."
 			  ;; get a sentence
 			  (let ((s (thing-at-point 'sentence)))
 			    (cl-loop for char in '("[" "]" "\n")
-				  do
-				  (setq s (replace-regexp-in-string
-					   (regexp-quote char) " " s)))
+				     do
+				     (setq s (replace-regexp-in-string
+					      (regexp-quote char) " " s)))
 			    (concat s " "))
 			;; or call it a link
 			"link")))))))))
