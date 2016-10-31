@@ -2027,7 +2027,8 @@ construct the heading by hand."
          (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
                          collect (cons (downcase key) value)))
          (key (reftex-get-bib-field "=key=" entry))
-	 pdf)
+	 ;; pdf
+	 )
 
     ;; save key to clipboard to make saving pdf later easier by pasting.
     (with-temp-buffer
@@ -2058,21 +2059,21 @@ construct the heading by hand."
 	  (insert (org-ref-reftex-format-citation
 		   entry (concat "\n" org-ref-note-title-format)))
 
-	  (insert (format "[[cite:%s]]" key))
+	  ;; (insert (format "[[cite:%s]]" key))
 
-	  (setq pdf (-first 'f-file?
-			    (--map (f-join it (concat key ".pdf"))
-				   (-flatten (list org-ref-pdf-directory)))))
-	  (if (file-exists-p pdf)
-	      (insert (format
-		       " [[file:%s][pdf]]\n\n"
-		       pdf))
-	    ;; no pdf found. Prompt for a path, but allow no pdf to be inserted.
-	    (let ((pdf (read-file-name "PDF: " nil "no pdf" nil "no pdf")))
-	      (when (not (string= pdf "no pdf"))
-		(insert (format
-			 " [[file:%s][pdf]]\n\n"
-			 pdf)))))
+	  ;; (setq pdf (-first 'f-file?
+	  ;; 		    (--map (f-join it (concat key ".pdf"))
+	  ;; 			   (-flatten (list org-ref-pdf-directory)))))
+	  ;; (if (file-exists-p pdf)
+	  ;;     (insert (format
+	  ;; 	       " [[file:%s][pdf]]\n\n"
+	  ;; 	       pdf))
+	  ;;   ;; no pdf found. Prompt for a path, but allow no pdf to be inserted.
+	  ;;   (let ((pdf (read-file-name "PDF: " nil "no pdf" nil "no pdf")))
+	  ;;     (when (not (string= pdf "no pdf"))
+	  ;; 	(insert (format
+	  ;; 		 " [[file:%s][pdf]]\n\n"
+	  ;; 		 pdf)))))
 	  (save-buffer))))))
 
 
