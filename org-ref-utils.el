@@ -387,16 +387,16 @@ Argument KEY is the bibtex key."
         ;; I like this better than bibtex-url which does not always find
         ;; the urls
         (catch 'done
-          (let ((url (bibtex-autokey-get-field "url")))
-            (when  url
-              (browse-url (s-trim url))
+          (let ((url (s-trim (bibtex-autokey-get-field "url"))))
+            (unless (s-blank? url)
+              (browse-url url)
               (throw 'done nil)))
 
-          (let ((doi (bibtex-autokey-get-field "doi")))
-            (when doi
+          (let ((doi (s-trim (bibtex-autokey-get-field "doi"))))
+            (unless (s-blank? doi)
               (if (string-match "^http" doi)
                   (browse-url doi)
-                (browse-url (format "http://dx.doi.org/%s" (s-trim doi))))
+                (browse-url (format "http://dx.doi.org/%s" doi)))
               (throw 'done nil))))))))
 
 
