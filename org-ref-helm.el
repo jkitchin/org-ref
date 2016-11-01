@@ -295,12 +295,14 @@ at the end of you file.
 	    (pushnew (cons (match-string 1) (point)) matches))
 
 
+	  ;; unreference labels
 	  (let ((refs (org-element-map (org-element-parse-buffer) 'link
 			(lambda (el) 
 			  (when (or (string= "ref" (org-element-property :type el))
 				    (string= "eqref" (org-element-property :type el))
 				    (string= "pageref" (org-element-property :type el))
-				    (string= "nameref" (org-element-property :type el)))
+				    (string= "nameref" (org-element-property :type el))
+				    (string= "autoref" (org-element-property :type el)))
 			    (org-element-property :path el))))))
 	    (loop for (label . p) in matches 
 		  do
