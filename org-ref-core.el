@@ -1775,7 +1775,7 @@ If no key is provided, get one under point."
      ,(format "Formatting function for %s links.
 [[%s:KEYWORD][DESC]]
 FORMAT is a symbol for the export backend.
-Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
+Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
      (cond
       ((eq format 'org)
        (mapconcat
@@ -1814,8 +1814,8 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md" type type)
       ((eq format 'odt)
        (format "[%s]" keyword))
 
-      ;; for markdown we generate pandoc citations
-      ((eq format 'md)
+      ;; for markdown and pandoc we generate pandoc citations
+      ((or (eq format 'md) (eq format 'pandoc))
        (cond
   (desc ;; pre and or post text
    (let* ((text (split-string desc "::"))
