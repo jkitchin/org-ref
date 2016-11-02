@@ -359,6 +359,26 @@ Argument KEY is the bibtex key."
                    "%s.pdf")
                   key))))))
 
+(defun org-ref-get-pdf-filename-from-field (key)
+  "Wraps `bibtex-completion-find-pdf' for the case when it might
+not be loaded yet. Requires `bibtex-completion' to be installed,
+which is part of `helm-bibtex' or `ivy-bibtex'. Returns
+the (first) pdf filename indicated by the field specified by
+`bibtex-completion-pdf-field', or the \"file\", otherwise falls
+back to the pdf filename returned by `org-ref-get-pdf-filename'.
+Argument KEY is the bibtex key."
+  (unless (fboundp 'bibtex-completion-find-pdf)
+    (require 'bibtex-completion))
+  ;; Temporarily set `bibtex-completion-pdf-field' to "file" if it
+  ;; isn't set already
+  (let* ((bibtex-completion-pdf-field
+          (or (and (boundp 'bibtex-completion-pdf-field)
+                   (not (s-blank-str? bibtex-completion-pdf-field))
+                   bibtex-completion-pdf-field)
+              "file"))
+         (pdf-file (car (bibtex-completion-find-pdf key))))
+    (or pdf-file
+        (org-ref-get-pdf-filename key))))
 
 ;;;###autoload
 (defun org-ref-open-pdf-at-point ()

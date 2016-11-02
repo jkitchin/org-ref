@@ -282,8 +282,9 @@ file, then open it.  The default function is
   "User-defined function to get a filename from a bibtex key.
 The function must take a key as an argument, and return the path
 to the corresponding filename.  The default is
-`org-ref-get-pdf-filename'.  An alternative value is
-`org-ref-get-mendeley-filename'."
+`org-ref-get-pdf-filename'.  Alternative values are
+`org-ref-get-mendeley-filename' and
+`org-ref-get-pdf-filename-from-field'."
   :type 'function
   :group 'org-ref)
 
