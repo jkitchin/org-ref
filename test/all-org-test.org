@@ -2237,10 +2237,11 @@ bibliography:tests/test-1.bib
 
 bibliography:tests/test-1.bib
 "
-  (font-lock-add-keywords
-   nil
-   '((org-ref-match-next-ref-link (0  'org-ref-ref-face t)))
-   t) 
+  (unless (fboundp 'org-link-set-parameters) 
+    (font-lock-add-keywords
+     nil
+     '((org-ref-match-next-ref-link (0  'org-ref-ref-face t)))
+     t)) 
   (font-lock-fontify-region (point-min) (point-max))
   (should (eq 'org-ref-ref-face (get-char-property 2 'face))))
 #+END_SRC
