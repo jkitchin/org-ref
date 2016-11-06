@@ -1609,7 +1609,8 @@ Optional argument ARG Does nothing."
     (org-link-set-parameters
      "nameref"
      :follow #'org-ref-follow-nameref
-     :export #'org-ref-export-nameref)
+     :export #'org-ref-export-nameref
+     :complete #'org-ref-complete-link)
   (org-add-link-type
    "nameref"
    #'org-ref-follow-nameref
@@ -1647,7 +1648,9 @@ Optional argument ARG Does nothing."
     (org-link-set-parameters
      "eqref"
      :follow #'org-ref-eqref-follow
-     :export #'org-ref-eqref-export)
+     :export #'org-ref-eqref-export
+     ;; This isn't equation specific, one day we might try to make it that way.
+     :complete #'org-ref-complete-link)
   (org-add-link-type
    "eqref"
    #'org-ref-eqref-follow
@@ -1689,7 +1692,8 @@ Optional argument ARG Does nothing."
     (org-link-set-parameters
      "autoref"
      :follow #'org-ref-autoref-follow
-     :export #'org-ref-autoref-export)
+     :export #'org-ref-autoref-export
+     :complete #'org-ref-complete-link)
   
   (org-add-link-type
    "autoref"
