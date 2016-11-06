@@ -1390,6 +1390,16 @@ Optional argument ARG Does nothing."
     (format "ref:%s" label)))
 
 
+(defun org-ref-ref-help-echo (window object position)
+  "A help-echo function for ref links."
+  (save-excursion
+    (goto-char position)
+    (let ((s (org-ref-link-message)))
+      (with-temp-buffer
+	(insert s)
+	(fill-paragraph)
+	(buffer-string)))))
+
 (if (fboundp 'org-link-set-parameters)
     (org-link-set-parameters
      "ref"
@@ -1401,14 +1411,7 @@ Optional argument ARG Does nothing."
 		 (format "\\ref{%s}" keyword))))
      :complete #'org-ref-complete-link
      :face 'org-ref-ref-face
-     :help-echo (lambda (window object position)
-		  (save-excursion
-		    (goto-char position)
-		    (let ((s (org-ref-link-message)))
-		      (with-temp-buffer
-			(insert s)
-			(fill-paragraph)
-			(buffer-string))))))
+     :help-echo #'org-ref-ref-help-echo)
   
   (org-add-link-type
    "ref"
@@ -1555,7 +1558,9 @@ This is used to complete ref links."
 		((eq format 'html) (format "(<pageref>%s</pageref>)" path))
 		((eq format 'latex)
 		 (format "\\pageref{%s}" path))))
-     :complete #'org-pageref-complete-link)
+     :face 'org-ref-ref-face
+     :complete #'org-pageref-complete-link
+     :help-echo #'org-ref-ref-help-echo)
   (org-add-link-type
    "pageref"
    #'org-ref-follow-pageref 
@@ -1610,7 +1615,9 @@ Optional argument ARG Does nothing."
      "nameref"
      :follow #'org-ref-follow-nameref
      :export #'org-ref-export-nameref
-     :complete #'org-ref-complete-link)
+     :complete #'org-ref-complete-link
+     :face 'org-ref-ref-face
+     :help-echo #'org-ref-ref-help-echo)
   (org-add-link-type
    "nameref"
    #'org-ref-follow-nameref
@@ -1650,7 +1657,9 @@ Optional argument ARG Does nothing."
      :follow #'org-ref-eqref-follow
      :export #'org-ref-eqref-export
      ;; This isn't equation specific, one day we might try to make it that way.
-     :complete #'org-ref-complete-link)
+     :complete #'org-ref-complete-link
+     :face 'org-ref-ref-face
+     :help-echo #'org-ref-ref-help-echo)
   (org-add-link-type
    "eqref"
    #'org-ref-eqref-follow
@@ -1693,8 +1702,9 @@ Optional argument ARG Does nothing."
      "autoref"
      :follow #'org-ref-autoref-follow
      :export #'org-ref-autoref-export
-     :complete #'org-ref-complete-link)
-  
+     :complete #'org-ref-complete-link
+     :face 'org-ref-ref-face
+     :help-echo #'org-ref-ref-help-echo)
   (org-add-link-type
    "autoref"
    #'org-ref-autoref-follow
@@ -1980,7 +1990,8 @@ citez link, with reftex key of z, and the completion function."
 			  (with-temp-buffer
 			    (insert s)
 			    (fill-paragraph)
-			    (buffer-string))))))
+			    (buffer-string)))))
+	 :face 'org-ref-cite-face)
       (org-add-link-type
        ,type
        (lambda (_path) (funcall org-ref-cite-onclick-function nil))
