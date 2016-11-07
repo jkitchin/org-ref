@@ -2042,7 +2042,8 @@ citez link, with reftex key of z, and the completion function."
 			    (insert s)
 			    (fill-paragraph)
 			    (buffer-string)))))
-	 :face 'org-ref-cite-face)
+	 :face 'org-ref-cite-face
+	 :display 'full)
       (org-add-link-type
        ,type
        (lambda (_path) (funcall org-ref-cite-onclick-function nil))
