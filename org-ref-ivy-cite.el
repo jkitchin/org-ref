@@ -390,7 +390,7 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 
 
 (defun org-ref-ivy-cite-transformer (s)
-  "Make entry red if it is marked."
+  "Make entry red if it is marked." 
   (let* ((fill-column (frame-width))
 	 (fill-prefix "   ")
 	 (wrapped-s (with-temp-buffer
@@ -403,7 +403,7 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 	   org-ref-ivy-cite-marked-candidates)
 	 s) 
 	(propertize wrapped-s 'face 'font-lock-warning-face)
-      (propertize wrapped-s 'face s))))
+      (propertize wrapped-s 'face nil))))
 
 (ivy-set-display-transformer
  'org-ref-ivy-insert-cite-link
