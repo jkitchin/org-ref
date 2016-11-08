@@ -240,8 +240,9 @@ for each entry.  It also tries to be compatible with `org-bibtex'.
 
 An alternative is
 (lambda (thekey)
-  (bibtex-completion-edit-notes
-   (list (car (org-ref-get-bibtex-key-and-file thekey)))))
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (bibtex-completion-edit-notes
+     (list (car (org-ref-get-bibtex-key-and-file thekey))))))
 
 Use that if you prefer the `bibtex-completion' approach, which also
 supports an additional method for storing notes. See
