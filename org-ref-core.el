@@ -960,7 +960,8 @@ ARG does nothing. I think it is a required signature."
      "bibliographystyle"
      :export (lambda (keyword desc format)
 	       (cond
-		((eq format 'latex)
+		((or (eq format 'latex)
+		     (eq format 'beamer))
 		 ;; write out the latex bibliography command
 		 (format "\\bibliographystyle{%s}" keyword))
 		;; Other styles should not have an output for this
