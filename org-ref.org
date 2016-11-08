@@ -37,7 +37,7 @@ There is also a nobibliography link, which is useful for specifying a bibliograp
 
 There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command.
 
-If you use biblatex, then you use an addbibresource link. biblatex support is not very well tested by me, because we do not use it.
+If you use biblatex, then you use an addbibresource link. biblatex support is not very well tested by me, because we do not use it. Biblatex users may wish to consult the documentation for ~bibtex-set-dialect~, and possibly do ~(bibtex-set-dialect 'biblatex)~ either globally or file-locally, as otherwise reftex and thus org-ref may fail to find some entry types (e.g. @report) in .bib files.
 
 *** Citations
     :PROPERTIES:
