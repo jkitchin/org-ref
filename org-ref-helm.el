@@ -356,7 +356,8 @@ at the end of you file.
 		      (candidates . (,(format "org-latex-prefer-user-labels = %s"
 					      org-latex-prefer-user-labels)
 				     ,(format "bibtex-dialect = %s" bibtex-dialect)
-				     ,(format "org-version = %s" (org-version))))
+				     ,(format "org-version = %s" (org-version))
+				     ,(format "completion backend = %s" org-ref-completion-library)))
 		      (action . nil))
                      ;;
                      ((name . "Utilities")
