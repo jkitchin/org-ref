@@ -416,11 +416,11 @@ REDIRECT-URL is where the pdf url will be in."
   (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
       (goto-char (point-min))
-      (when (re-search-forward "<meta name=\"citation_pdf_url\" content=\"\\([[:ascii:]]*?\\)\">")
+      (when (re-search-forward "<meta name=\"citation_pdf_url\" content=\"\\([[:ascii:]]*?\\)\">" nil t)
 	(let ((framed-url (match-string 1)))
           (with-current-buffer (url-retrieve-synchronously framed-url)
             (goto-char (point-min))
-            (when (re-search-forward "<frame src=\"\\(http[[:ascii:]]*?\\)\"")
+            (when (re-search-forward "<frame src=\"\\(http[[:ascii:]]*?\\)\"" nil t)
               (match-string 1))))))))
 
 ;; ACM Digital Library
@@ -430,9 +430,9 @@ REDIRECT-URL is where the pdf url will be in."
   "Get a url to the pdf from *DOI-UTILS-REDIRECT* for ACM urls."
   (when (string-match "^http://dl.acm.org" *doi-utils-redirect*)
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
-          (goto-char (point-min))
-          (when (re-search-forward "<a name=\"FullTextPDF\".*href=\"\\([[:ascii:]]*?\\)\"")
-            (concat "http://dl.acm.org/" (match-string 1))))))
+      (goto-char (point-min))
+      (when (re-search-forward "<a name=\"FullTextPDF\".*href=\"\\([[:ascii:]]*?\\)\"" nil t)
+	(concat "http://dl.acm.org/" (match-string 1))))))
 
 
 ;;** Add all functions
