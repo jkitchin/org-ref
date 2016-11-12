@@ -2036,6 +2036,7 @@ citez link, with reftex key of z, and the completion function."
 	 :export (quote ,(intern (format "org-ref-format-%s" type)))
 	 :complete (quote ,(intern (format "org-%s-complete-link" type)))
 	 :help-echo (lambda (window object position)
+                  (when org-ref-show-citation-on-enter
 		      (save-excursion
 			(goto-char position)
 			;; Here we wrap the citation string to a reasonable size.
@@ -2043,7 +2044,7 @@ citez link, with reftex key of z, and the completion function."
 			  (with-temp-buffer
 			    (insert s)
 			    (fill-paragraph)
-			    (buffer-string)))))
+			    (buffer-string))))))
 	 :face 'org-ref-cite-face
 	 :display 'full)
       (org-add-link-type
