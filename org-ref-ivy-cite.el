@@ -56,9 +56,6 @@
   (kbd org-ref-insert-cite-key)
   org-ref-insert-link-function)
 
-;; messages in minibuffer interfere with hydra menus.
-(setq org-ref-show-citation-on-enter nil)
-
 
 (defun or-looking-forward-cite ()
   "Return if point is in the position before a citation."
