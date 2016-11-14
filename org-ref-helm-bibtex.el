@@ -108,35 +108,8 @@ The cdr of the the cons cell is the function to use."
 ;;* Helm bibtex setup.
 (setq bibtex-completion-additional-search-fields '(keywords))
 
-(defun helm-bibtex-candidates-formatter (candidates _source)
-  "Formats BibTeX entries for display in results list.
-Argument CANDIDATES helm candidates.
-Argument SOURCE the helm source.
-
-Adapted from the function in `helm-bibtex' to include additional
-fields, the keywords I think."
-  (cl-loop
-   with width = (with-helm-window (helm-bibtex-window-width))
-   for entry in candidates
-   for entry = (cdr entry)
-   for entry-key = (bibtex-completion-get-value "=key=" entry)
-   if (assoc-string "author" entry 'case-fold)
-   for fields = '("author" "title"  "year" "=has-pdf=" "=has-note=" "=type=")
-   else
-   for fields = '("editor" "title" "year" "=has-pdf=" "=has-note=" "=type=")
-   for fields = (--map (bibtex-completion-clean-string
-                        (bibtex-completion-get-value it entry " "))
-                       fields)
-   for fields = (-update-at 0 'bibtex-completion-shorten-authors fields)
-   for fields = (append fields
-                        (list (or (bibtex-completion-get-value "keywords" entry)
-                                  "")))
-   collect
-   (cons (s-format "$0 $1 $2 $3 $4$5 $6" 'elt
-                   (-zip-with (lambda (f w) (truncate-string-to-width f w 0 ?\s))
-                              fields (list 36 (- width 85) 4 1 1 7 31)))
-         entry-key)))
-
+(setq bibtex-completion-display-formats
+      '((t . "${author:36} ${title:*} ${year:4} ${=has-pdf=:1}${=has-note=:1} ${=type=:7} ${keywords:31}")))
 
 (defun bibtex-completion-copy-candidate (_candidate)
   "Copy the selected bibtex entries to the clipboard.
