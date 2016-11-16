@@ -564,23 +564,13 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
 If ~bibtex-completion-pdf-field~ is defined, the function below should work with JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
 
 #+begin_src emacs-lisp
-(defun my/org-ref-open-pdf-at-point ()
-  "Open the pdf for bibtex key under point if it exists."
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-	 (pdf-file (car (bibtex-completion-find-pdf key))))
-    (if (file-exists-p pdf-file)
-	(org-open-file pdf-file)
-      (message "No PDF found for %s" key))))
-
-(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
+(setq org-ref-get-pdf-filename-function #'org-ref-get-pdf-filename-from-field)
 #+end_src
 
 Mendeley users should set to:
 
 #+BEGIN_SRC emacs-lisp
-(setq org-ref-open-pdf-function 'org-ref-get-mendeley-filename)
+(setq org-ref-get-pdf-filename-function 'org-ref-get-mendeley-filename)
 #+END_SRC
 
 ** Other things org-ref supports
