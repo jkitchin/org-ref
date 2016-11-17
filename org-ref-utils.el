@@ -359,6 +359,15 @@ Argument KEY is the bibtex key."
                    "%s.pdf")
                   key))))))
 
+(defun org-ref-get-pdf-filename-helm-bibtex (key)
+  "Use helm-bibtex to retrieve a PDF filename for KEY.
+helm-bibtex looks in both the configured directory
+`bibtex-completion-library-path' and in the fields of the bibtex
+item for a filename. It understands file fields exported by
+Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (or (car (bibtex-completion-find-pdf key)) "")))
+
 
 ;;;###autoload
 (defun org-ref-open-pdf-at-point ()
