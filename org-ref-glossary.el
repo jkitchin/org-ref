@@ -190,6 +190,7 @@ Entry gets added after the last #+latex_header line."
      "gls"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -209,6 +210,7 @@ Entry gets added after the last #+latex_header line."
      "glspl"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -228,6 +230,7 @@ Entry gets added after the last #+latex_header line."
      "Gls"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -246,6 +249,7 @@ Entry gets added after the last #+latex_header line."
      "Glspl"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -264,6 +268,7 @@ Entry gets added after the last #+latex_header line."
      "glslink"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path desc format)
 	       (cond
 		((eq format 'latex)
@@ -282,6 +287,7 @@ Entry gets added after the last #+latex_header line."
      "glssymbol"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path _desc format)
 	       (cond
 		((eq format 'latex)
@@ -300,6 +306,7 @@ Entry gets added after the last #+latex_header line."
      "glsdesc"
      :follow #'or-follow-glossary
      :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -424,6 +431,7 @@ FULL is the expanded acronym."
      "acrshort"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -442,6 +450,7 @@ FULL is the expanded acronym."
      "acrlong"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -460,6 +469,7 @@ FULL is the expanded acronym."
      "acrfull"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -479,6 +489,7 @@ FULL is the expanded acronym."
      "ac"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -497,6 +508,7 @@ FULL is the expanded acronym."
      "Ac"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -515,6 +527,7 @@ FULL is the expanded acronym."
      "acp"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
@@ -533,6 +546,7 @@ FULL is the expanded acronym."
      "Acp"
      :follow #'or-follow-acronym
      :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
      :export (lambda (path _ format)
 	       (cond
 		((eq format 'latex)
