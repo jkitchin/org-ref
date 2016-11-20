@@ -183,68 +183,128 @@ Entry gets added after the last #+latex_header line."
   (re-search-forward (format "\\newglossaryentry{%s}" entry))
   (goto-char (match-beginning 0)))
 
+
 ;; link to glossary entry
-(org-add-link-type
- "gls"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\gls{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "gls"
+     :follow #'or-follow-glossary
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\gls{%s}" path)))))
+  (org-add-link-type
+   "gls"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\gls{%s}" path))))))
+
 
 ;; plural
-(org-add-link-type
- "glspl"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glspl{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glspl"
+     :follow #'or-follow-glossary
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glspl{%s}" path)))))
+  (org-add-link-type
+   "glspl"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glspl{%s}" path))))))
+
 
 ;; capitalized link
-(org-add-link-type
- "Gls"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Gls{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Gls"
+     :follow #'or-follow-glossary
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Gls{%s}" path)))))
+  (org-add-link-type
+   "Gls"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Gls{%s}" path))))))
 
 ;; capitalized plural link
-(org-add-link-type
- "Glspl"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Glspl{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Glspl"
+     :follow #'or-follow-glossary
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Glspl{%s}" path)))))
+  (org-add-link-type
+   "Glspl"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Glspl{%s}" path))))))
 
 
-(org-add-link-type
- "glslink"
- 'or-follow-glossary
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glslink{%s}{%s}" path desc)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glslink"
+     :follow #'or-follow-glossary
+     :export (lambda (path desc format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glslink{%s}{%s}" path desc)))))
+  (org-add-link-type
+   "glslink"
+   'or-follow-glossary
+   (lambda (path desc format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glslink{%s}{%s}" path desc))))))
 
 
-(org-add-link-type
- "glssymbol"
- 'or-follow-glossary
- (lambda (path _desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glssymbol{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glssymbol"
+     :follow #'or-follow-glossary
+     :export (lambda (path _desc format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glssymbol{%s}" path)))))
+  (org-add-link-type
+   "glssymbol"
+   'or-follow-glossary
+   (lambda (path _desc format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glssymbol{%s}" path))))))
 
 
-(org-add-link-type
- "glsdesc"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glsdesc{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glsdesc"
+     :follow #'or-follow-glossary
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glsdesc{%s}" path)))))
+  (org-add-link-type
+   "glsdesc"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glsdesc{%s}" path))))))
+
 
 ;;** Tooltips on glossary entries
 (defface org-ref-glossary-face
@@ -361,65 +421,124 @@ FULL is the expanded acronym."
   (goto-char (match-beginning 0)))
 
 
-(org-add-link-type
- "acrshort"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\acrshort{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acrshort"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\acrshort{%s}" path)))))
+  (org-add-link-type
+   "acrshort"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\acrshort{%s}" path))))))
 
 
-(org-add-link-type
- "acrlong"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\acrlong{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acrlong"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\acrlong{%s}" path)))))
+  (org-add-link-type
+   "acrlong"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\acrlong{%s}" path))))))
 
 
-(org-add-link-type
- "acrfull"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\acrfull{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acrfull"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\acrfull{%s}" path)))))
+  (org-add-link-type
+   "acrfull"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\acrfull{%s}" path))))))
 
 ;; Shortcuts
 
-(org-add-link-type
- "ac"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\gls{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "ac"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\gls{%s}" path)))))
+  (org-add-link-type
+   "ac"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\gls{%s}" path))))))
 
-(org-add-link-type
- "Ac"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Gls{%s}" path)))))
 
-(org-add-link-type
- "acp"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glspl{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Ac"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Gls{%s}" path)))))
+  (org-add-link-type
+   "Ac"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Gls{%s}" path))))))
 
-(org-add-link-type
- "Acp"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Glspl{%s}" path)))))
+
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acp"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glspl{%s}" path)))))
+  (org-add-link-type
+   "acp"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glspl{%s}" path))))))
+
+
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Acp"
+     :follow #'or-follow-acronym
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Glspl{%s}" path)))))
+  (org-add-link-type
+   "Acp"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Glspl{%s}" path))))))
 
 
 ;;** Tooltips on acronyms
