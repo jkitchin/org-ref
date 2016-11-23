@@ -101,19 +101,18 @@ Set `doi-utils-make-notes' to nil if you want no notes."
   :group 'doi-utils)
 
 (defcustom doi-utils-dx-doi-org-url
-  "http://dx.doi.org/"
-  "Base url to retrieve doi metadata from. A trailing / is required.
-Some users require https://dx.doi.org/."
+  "https://doi.org/"
+  "Base url to retrieve doi metadata from. A trailing / is required."
   :type 'string
   :group 'doi-utils)
 
 
 ;;* Getting pdf files from a DOI
 
-;; The idea here is simple. When you visit http://dx.doi.org/doi, you get
-;; redirected to the journal site. Once you have the url for the article, you
-;; can usually compute the url to the pdf, or find it in the page. Then you
-;; simply download it.
+;; The idea here is simple. When you visit http://dx.doi.org/doi or
+;; https://doi.org/doi, you get redirected to the journal site. Once you have
+;; the url for the article, you can usually compute the url to the pdf, or find
+;; it in the page. Then you simply download it.
 
 ;; There are some subtleties in doing this that are described here. To get the
 ;; redirect, we have to use url-retrieve, and a callback function. The callback
@@ -431,7 +430,7 @@ REDIRECT-URL is where the pdf url will be in."
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
       (goto-char (point-min))
       (when (re-search-forward "\"pdfUrl\":\"\\([[:ascii:]]*?\\)\"" nil t)
-    (let ((framed-url (match-string 1)))
+	(let ((framed-url (match-string 1)))
           (with-current-buffer (url-retrieve-synchronously (concat "http://ieeexplore.ieee.org" framed-url))
             (goto-char (point-min))
             (when (re-search-forward "<frame src=\"\\(http[[:ascii:]]*?\\)\"" nil t)
@@ -517,7 +516,7 @@ checked."
     (bibtex-beginning-of-entry)
     (let (;; get doi, removing http://dx.doi.org/ if it is there.
           (doi (replace-regexp-in-string
-                "https?://dx.doi.org/" ""
+                "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
           (key)
           (pdf-url)
@@ -862,7 +861,7 @@ Optional argument NODELIM see `bibtex-make-field'."
 Every field will be updated, so previous change will be lost."
   (interactive (list
                 (or (replace-regexp-in-string
-                     "https?://dx.doi.org/" ""
+                     "https?://\\(dx.\\)?doi.org/" ""
                      (bibtex-autokey-get-field "doi"))
                     (read-string "DOI: "))))
   (let* ((results (doi-utils-get-json-metadata doi))
@@ -1198,7 +1197,7 @@ error."
                                                                 (bibtex-make-field "doi" t)
                                                                 (backward-char)
                                                                 ;; crossref returns doi url, but I prefer only a doi for the doi field
-                                                                (insert (replace-regexp-in-string "^https?://dx.doi.org/" "" doi))
+                                                                (insert (replace-regexp-in-string "^https?://\\(dx.\\)?doi.org/" "" doi))
                                                                 (when (string= ""(reftex-get-bib-field "url" entry))
                                                                   (bibtex-make-field "url" t)
                                                                   (backward-char)
@@ -1328,7 +1327,7 @@ error."
 								     do
 								     (doi-utils-add-bibtex-entry-from-doi
 								      (replace-regexp-in-string
-								       "^https?://dx.doi.org/" "" doi)
+								       "^https?://\\(dx.\\)?.doi.org/" "" doi)
 								      ,bibtex-file))
 							    (when doi-utils--bibtex-file
 							      (recenter-top-bottom 0))))
