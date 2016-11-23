@@ -183,68 +183,142 @@ Entry gets added after the last #+latex_header line."
   (re-search-forward (format "\\newglossaryentry{%s}" entry))
   (goto-char (match-beginning 0)))
 
+
 ;; link to glossary entry
-(org-add-link-type
- "gls"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\gls{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "gls"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\gls{%s}" path)))))
+  (org-add-link-type
+   "gls"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\gls{%s}" path))))))
+
 
 ;; plural
-(org-add-link-type
- "glspl"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glspl{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glspl"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glspl{%s}" path)))))
+  (org-add-link-type
+   "glspl"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glspl{%s}" path))))))
+
 
 ;; capitalized link
-(org-add-link-type
- "Gls"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Gls{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Gls"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Gls{%s}" path)))))
+  (org-add-link-type
+   "Gls"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Gls{%s}" path))))))
 
 ;; capitalized plural link
-(org-add-link-type
- "Glspl"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Glspl{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Glspl"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Glspl{%s}" path)))))
+  (org-add-link-type
+   "Glspl"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Glspl{%s}" path))))))
 
 
-(org-add-link-type
- "glslink"
- 'or-follow-glossary
- (lambda (path desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glslink{%s}{%s}" path desc)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glslink"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path desc format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glslink{%s}{%s}" path desc)))))
+  (org-add-link-type
+   "glslink"
+   'or-follow-glossary
+   (lambda (path desc format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glslink{%s}{%s}" path desc))))))
 
 
-(org-add-link-type
- "glssymbol"
- 'or-follow-glossary
- (lambda (path _desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glssymbol{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glssymbol"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path _desc format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glssymbol{%s}" path)))))
+  (org-add-link-type
+   "glssymbol"
+   'or-follow-glossary
+   (lambda (path _desc format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glssymbol{%s}" path))))))
 
 
-(org-add-link-type
- "glsdesc"
- 'or-follow-glossary
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glsdesc{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "glsdesc"
+     :follow #'or-follow-glossary
+     :face 'org-ref-glossary-face
+     :help-echo 'or-glossary-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glsdesc{%s}" path)))))
+  (org-add-link-type
+   "glsdesc"
+   'or-follow-glossary
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glsdesc{%s}" path))))))
+
 
 ;;** Tooltips on glossary entries
 (defface org-ref-glossary-face
@@ -274,46 +348,37 @@ Used in fontification."
 	 (buffer-string))))))
 
 
-(defun or-next-glossary-link (limit)
-  "Search to next glossary link up to LIMIT.
+(unless (fboundp 'org-link-set-parameters)
+  (defun or-next-glossary-link (limit)
+    "Search to next glossary link up to LIMIT.
 Adds a tooltip to the link that is found."
-  (when (and (re-search-forward
-	      (concat
-	       (regexp-opt '("gls" "glspl"
-			     "Gls" "Glspl"
-			     "glslink"
-			     "glssymbol"
-			     "glsdesc"))
-	       ":[a-zA-Z]\\{2,\\}")
-	      limit t)
-	     (not (org-in-src-block-p))
-	     (not (org-at-comment-p)))
-    (forward-char -2)
-    (let ((next-link (org-element-context)))
-      (if next-link
-	  (progn
-	    (set-match-data (list (org-element-property :begin next-link)
-				  (- (org-element-property :end next-link)
-				     (org-element-property :post-blank next-link))))
-	    (add-text-properties
-	     (org-element-property :begin next-link)
-	     (- (org-element-property :end next-link)
-		(org-element-property :post-blank next-link))
-	     (list
-	      'help-echo 'or-glossary-tooltip))
-	    (goto-char (org-element-property :end next-link)))
-	(goto-char limit)
-	nil))))
-
-
-(add-hook
- 'org-mode-hook
- (lambda ()
-   (font-lock-add-keywords
-    nil
-    '((or-next-glossary-link (0  'org-ref-glossary-face t)))
-    t)))
-
+    (when (and (re-search-forward
+		(concat
+		 (regexp-opt '("gls" "glspl"
+			       "Gls" "Glspl"
+			       "glslink"
+			       "glssymbol"
+			       "glsdesc"))
+		 ":[a-zA-Z]\\{2,\\}")
+		limit t)
+	       (not (org-in-src-block-p))
+	       (not (org-at-comment-p)))
+      (forward-char -2)
+      (let ((next-link (org-element-context)))
+	(if next-link
+	    (progn
+	      (set-match-data (list (org-element-property :begin next-link)
+				    (- (org-element-property :end next-link)
+				       (org-element-property :post-blank next-link))))
+	      (add-text-properties
+	       (org-element-property :begin next-link)
+	       (- (org-element-property :end next-link)
+		  (org-element-property :post-blank next-link))
+	       (list
+		'help-echo 'or-glossary-tooltip))
+	      (goto-char (org-element-property :end next-link)))
+	  (goto-char limit)
+	  nil)))))
 
 
 ;;* Acronyms
@@ -361,65 +426,138 @@ FULL is the expanded acronym."
   (goto-char (match-beginning 0)))
 
 
-(org-add-link-type
- "acrshort"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\acrshort{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acrshort"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\acrshort{%s}" path)))))
+  (org-add-link-type
+   "acrshort"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\acrshort{%s}" path))))))
 
 
-(org-add-link-type
- "acrlong"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\acrlong{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acrlong"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\acrlong{%s}" path)))))
+  (org-add-link-type
+   "acrlong"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\acrlong{%s}" path))))))
 
 
-(org-add-link-type
- "acrfull"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\acrfull{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acrfull"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\acrfull{%s}" path)))))
+  (org-add-link-type
+   "acrfull"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\acrfull{%s}" path))))))
 
 ;; Shortcuts
 
-(org-add-link-type
- "ac"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\gls{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "ac"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\gls{%s}" path)))))
+  (org-add-link-type
+   "ac"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\gls{%s}" path))))))
 
-(org-add-link-type
- "Ac"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Gls{%s}" path)))))
 
-(org-add-link-type
- "acp"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\glspl{%s}" path)))))
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Ac"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Gls{%s}" path)))))
+  (org-add-link-type
+   "Ac"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Gls{%s}" path))))))
 
-(org-add-link-type
- "Acp"
- 'or-follow-acronym
- (lambda (path _ format)
-   (cond
-    ((eq format 'latex)
-     (format "\\Glspl{%s}" path)))))
+
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "acp"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\glspl{%s}" path)))))
+  (org-add-link-type
+   "acp"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\glspl{%s}" path))))))
+
+
+(if (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "Acp"
+     :follow #'or-follow-acronym
+     :face 'org-ref-acronym-face
+     :help-echo 'or-acronym-tooltip
+     :export (lambda (path _ format)
+	       (cond
+		((eq format 'latex)
+		 (format "\\Glspl{%s}" path)))))
+  (org-add-link-type
+   "Acp"
+   'or-follow-acronym
+   (lambda (path _ format)
+     (cond
+      ((eq format 'latex)
+       (format "\\Glspl{%s}" path))))))
 
 
 ;;** Tooltips on acronyms
@@ -448,42 +586,34 @@ WINDOW and OBJECT are ignored."
 
 ;; We use search instead of a regexp to match links with descriptions. These are
 ;; hard to do with regexps.
-(defun or-next-acronym-link (limit)
-  "Search to next acronym link up to LIMIT and add a tooltip."
-  (when (and (re-search-forward
-	      (concat
-	       (regexp-opt '("acrshort" "acrfull" "acrlong" "ac" "Ac" "acp" "Acp"))
-	       ":[a-zA-Z]\\{2,\\}")
-	      limit t)
-	     (not (org-in-src-block-p))
-	     (not (org-at-comment-p)))
-    (save-excursion
-      (forward-char -2)
-      (let ((next-link (org-element-context)))
-	(if next-link
-	    (progn
-	      (set-match-data
-	       (list (org-element-property :begin next-link)
-		     (- (org-element-property :end next-link)
-			(org-element-property :post-blank next-link))))
-	      (add-text-properties
-	       (org-element-property :begin next-link)
-	       (- (org-element-property :end next-link)
-		  (org-element-property :post-blank next-link))
-	       (list
-		'help-echo 'or-acronym-tooltip))
-	      (goto-char (org-element-property :end next-link)))
-	  (goto-char limit)
-	  nil)))))
-
-
-(add-hook
- 'org-mode-hook
- (lambda ()
-   (font-lock-add-keywords
-    nil
-    '((or-next-acronym-link (0  'org-ref-acronym-face t)))
-    t)))
+(unless (fboundp 'org-link-set-parameters)
+  (defun or-next-acronym-link (limit)
+    "Search to next acronym link up to LIMIT and add a tooltip."
+    (when (and (re-search-forward
+		(concat
+		 (regexp-opt '("acrshort" "acrfull" "acrlong" "ac" "Ac" "acp" "Acp"))
+		 ":[a-zA-Z]\\{2,\\}")
+		limit t)
+	       (not (org-in-src-block-p))
+	       (not (org-at-comment-p)))
+      (save-excursion
+	(forward-char -2)
+	(let ((next-link (org-element-context)))
+	  (if next-link
+	      (progn
+		(set-match-data
+		 (list (org-element-property :begin next-link)
+		       (- (org-element-property :end next-link)
+			  (org-element-property :post-blank next-link))))
+		(add-text-properties
+		 (org-element-property :begin next-link)
+		 (- (org-element-property :end next-link)
+		    (org-element-property :post-blank next-link))
+		 (list
+		  'help-echo 'or-acronym-tooltip))
+		(goto-char (org-element-property :end next-link)))
+	    (goto-char limit)
+	    nil))))))
 
 
 ;; * Helm command to insert entries
