@@ -2018,6 +2018,56 @@ text]]."
    (t (format "[%s]" desc))))
 
 
+(defun org-ref-bibtex-store-link ()
+  "Store a link from a bibtex file. Only supports the cite link.
+This essentially the same as the store link in org-bibtex, but it
+creates a cite link."
+  (when (eq major-mode 'bibtex-mode)
+    (let* ((entry (mapcar
+		   ;; repair strings enclosed in "..." or {...}
+		   (lambda(c)
+		     (if (string-match
+			  "^\\(?:{\\|\"\\)\\(.*\\)\\(?:}\\|\"\\)$" (cdr c))
+			 (cons (car c) (match-string 1 (cdr c))) c))
+		   (save-excursion
+		     (bibtex-beginning-of-entry)
+		     (bibtex-parse-entry))))
+	   (link (concat "cite:" (cdr (assoc "=key=" entry)))))
+      (org-store-link-props
+       :key (cdr (assoc "=key=" entry))
+       :author (or (cdr (assoc "author" entry)) "[no author]")
+       :editor (or (cdr (assoc "editor" entry)) "[no editor]")
+       :title (or (cdr (assoc "title" entry)) "[no title]")
+       :booktitle (or (cdr (assoc "booktitle" entry)) "[no booktitle]")
+       :journal (or (cdr (assoc "journal" entry)) "[no journal]")
+       :publisher (or (cdr (assoc "publisher" entry)) "[no publisher]")
+       :pages (or (cdr (assoc "pages" entry)) "[no pages]")
+       :url (or (cdr (assoc "url" entry)) "[no url]")
+       :year (or (cdr (assoc "year" entry)) "[no year]")
+       :month (or (cdr (assoc "month" entry)) "[no month]")
+       :address (or (cdr (assoc "address" entry)) "[no address]")
+       :volume (or (cdr (assoc "volume" entry)) "[no volume]")
+       :number (or (cdr (assoc "number" entry)) "[no number]")
+       :annote (or (cdr (assoc "annote" entry)) "[no annotation]")
+       :series (or (cdr (assoc "series" entry)) "[no series]")
+       :abstract (or (cdr (assoc "abstract" entry)) "[no abstract]")
+       :btype (or (cdr (assoc "=type=" entry)) "[no type]")
+       :type "bibtex"
+       :link link
+       :description (let ((bibtex-autokey-names 1)
+			  (bibtex-autokey-names-stretch 1)
+			  (bibtex-autokey-name-case-convert-function 'identity)
+			  (bibtex-autokey-name-separator " & ")
+			  (bibtex-autokey-additional-names " et al.")
+			  (bibtex-autokey-year-length 4)
+			  (bibtex-autokey-name-year-separator " ")
+			  (bibtex-autokey-titlewords 3)
+			  (bibtex-autokey-titleword-separator " ")
+			  (bibtex-autokey-titleword-case-convert-function 'identity)
+			  (bibtex-autokey-titleword-length 'infty)
+			  (bibtex-autokey-year-title-separator ": "))
+		      (setq org-bibtex-description (bibtex-generate-autokey)))))))
+
 ;;;###autoload
 (defun org-ref-define-citation-link (type &optional key)
   "Add a citation link of TYPE for `org-ref'.
@@ -2070,6 +2120,7 @@ citez link, with reftex key of z, and the completion function."
 (dolist (type org-ref-cite-types)
   (org-ref-define-citation-link type))
 
+(org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link)
 
 ;;;###autoload
 (defun org-ref-insert-cite-with-completion (type)
