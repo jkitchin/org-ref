@@ -2120,7 +2120,8 @@ citez link, with reftex key of z, and the completion function."
 (dolist (type org-ref-cite-types)
   (org-ref-define-citation-link type))
 
-(org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link)
+(when (fboundp 'org-link-set-parameters)
+  (org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link))
 
 ;;;###autoload
 (defun org-ref-insert-cite-with-completion (type)
