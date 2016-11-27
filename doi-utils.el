@@ -1327,7 +1327,7 @@ error."
 								     do
 								     (doi-utils-add-bibtex-entry-from-doi
 								      (replace-regexp-in-string
-								       "^https?://\\(dx.\\)?.doi.org/" "" doi)
+								       "^https?://\\(dx.\\)?doi.org/" "" doi)
 								      ,bibtex-file))
 							    (when doi-utils--bibtex-file
 							      (recenter-top-bottom 0))))
