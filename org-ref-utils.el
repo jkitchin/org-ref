@@ -462,9 +462,10 @@ function, and functions are conditionally added to it.")
 (defun org-ref-copy-entry-as-summary ()
   "Copy the bibtex entry for the citation at point as a summary."
   (interactive)
-  (save-window-excursion
-    (org-ref-open-citation-at-point)
-    (kill-new (org-ref-bib-citation))))
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (save-window-excursion
+      (org-ref-open-citation-at-point)
+      (kill-new (org-ref-bib-citation)))))
 
 
 ;;;###autoload
