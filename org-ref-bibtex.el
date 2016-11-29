@@ -610,7 +610,13 @@ there is a DOI."
 (defun org-ref-bibtex-google-scholar ()
   "Open the bibtex entry at point in google-scholar by its doi."
   (interactive)
-  (doi-utils-google-scholar (org-ref-bibtex-entry-doi)))
+  (let ((doi (org-ref-bibtex-entry-doi))) 
+    (doi-utils-google-scholar
+     (if (string= "" doi)
+	 (save-excursion
+	   (bibtex-beginning-of-entry)
+	   (reftex-get-bib-field "title" (bibtex-parse-entry t))) 
+       doi))))
 
 
 ;;;###autoload
