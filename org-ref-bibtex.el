@@ -693,7 +693,10 @@ _S_: Sentence case
   ("o" bibtex-copy-entry-as-kill)
   ("d" bibtex-kill-entry)
   ("L" org-ref-clean-bibtex-entry)
-  ("y" (kill-new  (bibtex-autokey-get-field "=key=")))
+  ("y" (save-excursion
+	 (bibtex-beginning-of-entry)
+	 (when (looking-at bibtex-entry-maybe-empty-head)
+	   (kill-new (bibtex-key-in-head)))))
   ("f" (progn
 	 (bibtex-beginning-of-entry)
 	 (kill-new (orhc-formatted-citation (bibtex-parse-entry t)))))
