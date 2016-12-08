@@ -346,7 +346,8 @@ Uses a hook function to display the message in the minibuffer."
 
 
 (defcustom org-ref-clean-bibtex-entry-hook
-  '(orcb-key-comma
+  '(org-ref-bibtex-format-url-if-doi
+    orcb-key-comma
     org-ref-replace-nonascii
     orcb-&
     orcb-%
