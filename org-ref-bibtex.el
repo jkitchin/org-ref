@@ -444,16 +444,28 @@ all the title entries in articles."
 		  (cdr (assoc "=type=" (bibtex-parse-entry)))))
       (setq words (mapcar
                    (lambda (word)
-                     (if (or
-                          ;; match words containing {} or \ which are probably
-                          ;; LaTeX or protected words
-                          (string-match "\\$\\|{\\|}\\|\\\\" word)
-                          ;; these words should not be capitalized, unless they
-                          ;; are the first word
-                          (-contains? org-ref-lower-case-words
-				      (s-downcase word)))
-                         word
-                       (s-capitalize word)))
+		     (cond
+		      ;; words containing more than one . are probably
+		      ;; abbreviations. We do not change those.
+		      ((with-temp-buffer
+			 (insert word)
+			 (goto-char (point-min))
+			 (> (count-matches "\\.") 1))
+		       word)
+		      ;; match words containing {} or \ which are probably
+		      ;; LaTeX or protected words, ignore
+		      ((string-match "\\$\\|{\\|}\\|\\\\" word)
+		       word)
+		      ;; these words should not be capitalized, unless they
+		      ;; are the first word
+		      ((-contains? org-ref-lower-case-words
+				   (s-downcase word))
+		       word)
+		      ;; Words that are quoted
+		      ((s-starts-with? "\"" word)
+		       (concat "\"" (s-capitalize (substring word 1))))
+		      (t
+		       (s-capitalize word))))
                    words))
 
       ;; Check if first word should be capitalized
