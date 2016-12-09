@@ -213,6 +213,8 @@ Just the reference, no numbering at the beginning, etc... see the
   :DOI: %D
   :URL: %U
  :END:
+
+[[file:%F][%f]]
 "
   "String to format the title and properties drawer of a note.
 See the `org-ref-reftex-format-citation' docstring for the escape
@@ -2088,15 +2090,15 @@ citez link, with reftex key of z, and the completion function."
 	 :export (quote ,(intern (format "org-ref-format-%s" type)))
 	 :complete (quote ,(intern (format "org-%s-complete-link" type)))
 	 :help-echo (lambda (window object position)
-                  (when org-ref-show-citation-on-enter
-		      (save-excursion
-			(goto-char position)
-			;; Here we wrap the citation string to a reasonable size.
-			(let ((s (org-ref-get-citation-string-at-point)))
-			  (with-temp-buffer
-			    (insert s)
-			    (fill-paragraph)
-			    (buffer-string))))))
+		      (when org-ref-show-citation-on-enter
+			(save-excursion
+			  (goto-char position)
+			  ;; Here we wrap the citation string to a reasonable size.
+			  (let ((s (org-ref-get-citation-string-at-point)))
+			    (with-temp-buffer
+			      (insert s)
+			      (fill-paragraph)
+			      (buffer-string))))))
 	 :face 'org-ref-cite-face
 	 :display 'full)
       (org-add-link-type
@@ -2348,9 +2350,7 @@ construct the heading by hand."
          (bibtex-expand-strings t)
          (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
                          collect (cons (downcase key) value)))
-         (key (reftex-get-bib-field "=key=" entry))
-	 ;; pdf
-	 )
+         (key (reftex-get-bib-field "=key=" entry)))
 
     ;; save key to clipboard to make saving pdf later easier by pasting.
     (with-temp-buffer
@@ -2380,22 +2380,6 @@ construct the heading by hand."
 	  (goto-char (point-max))
 	  (insert (org-ref-reftex-format-citation
 		   entry (concat "\n" org-ref-note-title-format)))
-
-	  ;; (insert (format "[[cite:%s]]" key))
-
-	  ;; (setq pdf (-first 'f-file?
-	  ;; 		    (--map (f-join it (concat key ".pdf"))
-	  ;; 			   (-flatten (list org-ref-pdf-directory)))))
-	  ;; (if (file-exists-p pdf)
-	  ;;     (insert (format
-	  ;; 	       " [[file:%s][pdf]]\n\n"
-	  ;; 	       pdf))
-	  ;;   ;; no pdf found. Prompt for a path, but allow no pdf to be inserted.
-	  ;;   (let ((pdf (read-file-name "PDF: " nil "no pdf" nil "no pdf")))
-	  ;;     (when (not (string= pdf "no pdf"))
-	  ;; 	(insert (format
-	  ;; 		 " [[file:%s][pdf]]\n\n"
-	  ;; 		 pdf)))))
 	  (save-buffer))))))
 
 
