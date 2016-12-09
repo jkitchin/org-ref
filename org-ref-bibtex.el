@@ -587,6 +587,20 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
     (bibtex-beginning-of-entry)
     (reftex-get-bib-field "doi" (bibtex-parse-entry t))))
 
+;; function that ensures that the url field of a bibtex entry is the
+;; properly-formatted hyperlink of the DOI. See
+;; http://blog.crossref.org/2016/09/new-crossref-doi-display-guidelines.html
+;; for more information.
+;;;###autoload
+(defun org-ref-bibtex-format-url-if-doi ()
+  "Hook function to format url to follow the current DOI conventions."
+  (interactive)
+  (if (eq (org-ref-bibtex-entry-doi) "") nil
+    (let ((front-url "https://doi.org/")
+          (doi (org-ref-bibtex-entry-doi)))
+      (bibtex-set-field "url"
+                        (concat front-url doi)))))
+
 
 ;;;###autoload
 (defun org-ref-bibtex-wos ()
