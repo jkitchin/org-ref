@@ -214,7 +214,6 @@ Just the reference, no numbering at the beginning, etc... see the
   :URL: %U
  :END:
 
-[[file:%F][%f]]
 "
   "String to format the title and properties drawer of a note.
 See the `org-ref-reftex-format-citation' docstring for the escape
