@@ -268,6 +268,15 @@ moves the headline to the top of the buffer."
   :group 'org-ref)
 
 
+(defcustom org-ref-create-notes-hook
+  '((lambda ()
+      (org-narrow-to-subtree)
+      (insert (format "cite:%s\n" (org-entry-get (point) "Custom_ID")))))
+  "List of hook functions to run in the note entry after it is created.
+The function takes no arguments. It could be used to insert links
+to the citation, or pdf, etc...")
+
+
 (defcustom org-ref-open-pdf-function
   'org-ref-open-pdf-at-point
   "User-defined function to open a pdf from a link.
@@ -2379,6 +2388,11 @@ construct the heading by hand."
 	  (goto-char (point-max))
 	  (insert (org-ref-reftex-format-citation
 		   entry (concat "\n" org-ref-note-title-format)))
+	  (mapc (lambda (x)
+		  (save-restriction
+		    (save-excursion 
+		      (funcall x))))
+		org-ref-create-notes-hook)
 	  (save-buffer))))))
 
 
