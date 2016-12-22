@@ -727,7 +727,11 @@ _S_: Sentence case
   ("g" org-ref-bibtex-google-scholar)
   ("n" org-ref-bibtex-new-entry/body)
   ("N" org-ref-open-bibtex-notes)
-  ("o" bibtex-copy-entry-as-kill)
+  ("o" (lambda ()
+	 (interactive)
+	 (bibtex-copy-entry-as-kill)
+	 (message "Use %s to paste the entry"
+		  (substitute-command-keys (format "\\[bibtex-yank]")))))
   ("d" bibtex-kill-entry)
   ("L" org-ref-clean-bibtex-entry)
   ("y" (save-excursion
