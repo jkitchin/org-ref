@@ -575,7 +575,7 @@ checked."
         (json-data))
     (with-current-buffer
         (url-retrieve-synchronously
-         (concat doi-utils-dx-doi-org-url doi))
+         (concat "http://dx.doi.org/" doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
       (if (string-match "Resource not found" json-data)
           (progn
