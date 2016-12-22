@@ -585,7 +585,12 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
   (interactive)
   (save-excursion
     (bibtex-beginning-of-entry)
-    (reftex-get-bib-field "doi" (bibtex-parse-entry t))))
+    (when (not (looking-at bibtex-any-valid-entry-type))
+      (error "This entry does not appear to be a valid type."))
+    (let ((entry (bibtex-parse-entry t)))
+      (when (null entry)
+	(error "Unable to parse this bibtex entry."))
+      (reftex-get-bib-field "doi" entry))))
 
 ;; function that ensures that the url field of a bibtex entry is the
 ;; properly-formatted hyperlink of the DOI. See
