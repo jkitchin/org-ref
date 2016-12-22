@@ -61,18 +61,17 @@
   org-ref-insert-link-function)
 
 (defcustom org-ref-bibtex-completion-actions
-  '(("Insert citation" . helm-bibtex-insert-citation)
-    ("Open PDF, URL or DOI" . helm-bibtex-open-any)
-    ("Open URL or DOI in browser" . helm-bibtex-open-url-or-doi)
-    ("Insert reference" . helm-bibtex-insert-reference)
-    ("Insert BibTeX key" . helm-bibtex-insert-key)
-    ("Insert BibTeX entry" . helm-bibtex-insert-bibtex)
-    ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
-    ("Edit notes" . helm-bibtex-edit-notes)
-    ("Show entry" . helm-bibtex-show-entry)
+  '(("Insert citation" . bibtex-completion-insert-citation)
+    ("Open PDF" . bibtex-completion-open-pdf)
+    ("Open URL or DOI in browser" . bibtex-completion-open-url-or-doi)
+    ("Insert reference" . bibtex-completion-insert-reference)
+    ("Insert BibTeX key" . bibtex-completion-insert-key)
+    ("Insert BibTeX entry" . bibtex-completion-insert-bibtex)
+    ("Attach PDF to email" . bibtex-completion-add-PDF-attachment)
+    ("Edit notes" . bibtex-completion-edit-notes)
+    ("Show entry" . bibtex-completion-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
-    ("Copy entry to clipboard" . bibtex-completion-copy-candidate)
-    ("Add PDF to library" . helm-bibtex-add-pdf-to-library))
+    ("Copy entry to clipboard" . bibtex-completion-copy-candidate))
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.
 The cdr of the the cons cell is the function to use."
