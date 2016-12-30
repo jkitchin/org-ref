@@ -3064,41 +3064,37 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 Otherwise run `right-word'. If the cursor moves off the link,
 move to the beginning of the next cite link after this one."
   (interactive)
-  (if (-contains? org-ref-cite-types
-		  (org-element-property :type (org-element-context)))
-      ;; We are on a link, go to next key or cite link
-      (let ((cps (org-ref-parse-cite))
-	    (p (point)))
-	(cond
-	 ;; point is before first key
-	 ((< (point) (nth 1 (car cps)))
-	  (goto-char (nth 1 (car cps))))
-	 ;; point is on a single key, or on the last key
-	 ((or (= 1 (length cps))
-	      (> p (nth 1 (car (last cps)))))
-	  (re-search-forward org-ref-cite-re nil t)
-	  (goto-char (match-end 1))
-	  (forward-char 1))
-	 ;; in a link with multiple keys. We need to figure out if there is a
-	 ;; next key and go to beginning
-	 (t
-	  (goto-char (min
-		      (point-max)
-		      (+ 1
-			 (loop for (k s e) in cps
-			       if (and (>= p s)
-				       (<= p e))
-			       return e))))))
-	;; if we get off a link,jump to the next one.
-	(when
-	    (not (-contains? org-ref-cite-types
-			     (org-element-property
-			      :type
-			      (org-element-context))))
-	  (when  (re-search-forward org-ref-cite-re nil t)
-	    (goto-char (match-beginning 0))
-	    (re-search-forward ":"))))
-    (right-word)))
+  (let ((cps (org-ref-parse-cite))
+	(p (point)))
+    (cond
+     ;; point is before first key
+     ((< (point) (nth 1 (car cps)))
+      (goto-char (nth 1 (car cps))))
+     ;; point is on a single key, or on the last key
+     ((or (= 1 (length cps))
+	  (> p (nth 1 (car (last cps)))))
+      (re-search-forward org-ref-cite-re nil t)
+      (goto-char (match-end 1))
+      (forward-char 1))
+     ;; in a link with multiple keys. We need to figure out if there is a
+     ;; next key and go to beginning
+     (t
+      (goto-char (min
+		  (point-max)
+		  (+ 1
+		     (loop for (k s e) in cps
+			   if (and (>= p s)
+				   (<= p e))
+			   return e))))))
+    ;; if we get off a link,jump to the next one.
+    (when
+	(not (-contains? org-ref-cite-types
+			 (org-element-property
+			  :type
+			  (org-element-context))))
+      (when  (re-search-forward org-ref-cite-re nil t)
+	(goto-char (match-beginning 0))
+	(re-search-forward ":")))))
 
 
 ;;;###autoload
@@ -3107,37 +3103,33 @@ move to the beginning of the next cite link after this one."
 Otherwise run `left-word'. If the cursor moves off the link,
 move to the beginning of the previous cite link after this one."
   (interactive)
-  (if (-contains? org-ref-cite-types
-		  (org-element-property :type (org-element-context)))
-      ;; We are on a link, go to next key or cite link
-      (let ((cps (org-ref-parse-cite))
-	    (p (point))
-	    index)
-	(cond
-	 ;; point is on or before first key, go to previous link.
-	 ((<= (point) (nth 1 (car cps)))
-	  (unless (re-search-backward org-ref-cite-re nil t)
-	    (left-word))
-	  (when (re-search-backward org-ref-cite-re nil t)
-	    (goto-char (match-end 0))
-	    (re-search-backward ",\\|:")
-	    (forward-char)))
-	 ;; point is less than end of first key, goto beginning
-	 ((< p (nth 2 (car cps)))
-	  ;; we do this twice. the first one just goes to the beginning of the
-	  ;; current link
-	  (goto-char (nth 1 (car cps))))
-	 ;; in a link with multiple keys. We need to figure out if there is a
-	 ;; previous key and go to beginning
-	 (t
-	  (setq index (loop
-		       for i from 0
-		       for (k s e) in cps
-		       if (and (>= p s)
-			       (<= p e))
-		       return i))
-	  (goto-char (nth 1 (nth (- index 1) cps))))))
-    (left-word)))
+  (let ((cps (org-ref-parse-cite))
+	(p (point))
+	index)
+    (cond
+     ;; point is on or before first key, go to previous link.
+     ((<= (point) (nth 1 (car cps)))
+      (unless (re-search-backward org-ref-cite-re nil t)
+	(left-word))
+      (when (re-search-backward org-ref-cite-re nil t)
+	(goto-char (match-end 0))
+	(re-search-backward ",\\|:")
+	(forward-char)))
+     ;; point is less than end of first key, goto beginning
+     ((< p (nth 2 (car cps)))
+      ;; we do this twice. the first one just goes to the beginning of the
+      ;; current link
+      (goto-char (nth 1 (car cps))))
+     ;; in a link with multiple keys. We need to figure out if there is a
+     ;; previous key and go to beginning
+     (t
+      (setq index (loop
+		   for i from 0
+		   for (k s e) in cps
+		   if (and (>= p s)
+			   (<= p e))
+		   return i))
+      (goto-char (nth 1 (nth (- index 1) cps)))))))
 
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
