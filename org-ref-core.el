@@ -1414,57 +1414,58 @@ Optional argument ARG Does nothing."
 	(fill-paragraph)
 	(buffer-string)))))
 
-(defun org-ref-ref-html-export (orig-func &rest args)
-  "Exports a ref link for html.
-It advises org-html-link. It is needed because the label we ref
-is not what org exports, it uses a custom id. Also, this gets us
-the table/figure number I think. This is hackier than I would
-like, ideally one day there is org-html-prefer-user-labels to
-avoid this."
-  ;; args are link, desc and info
-  ;; link is a proper org-element
-  (if (string= "ref" (org-element-property :type (car args)))
-      (destructuring-bind (link desc info) args
-	(let* ((attributes-plist
-		(let* ((parent (org-export-get-parent-element link))
-		       (link (let ((container (org-export-get-parent link)))
-			       (if (and (eq (org-element-type container) 'link)
-					(org-html-inline-image-p link info))
-				   container
-				 link))))
-		  (and (eq (org-element-map parent 'link 'identity info t) link)
-		       (org-export-read-attribute :attr_html parent))))
-	       (attributes
-		(let ((attr (org-html--make-attribute-string attributes-plist)))
-		  (if (org-string-nw-p attr) (concat " " attr) "")))
-	       (destination (org-export-resolve-fuzzy-link link info))
-	       (ref (org-export-get-reference
-		     destination
-		     info))
-	       (org-html-standalone-image-predicate
-		#'org-html--has-caption-p)
-	       (number (cond
-			(desc nil)
-			((org-html-standalone-image-p destination info)
-			 (org-export-get-ordinal
-			  (org-element-map destination 'link
-			    #'identity info t)
-			  info 'link 'org-html-standalone-image-p))
-			(t (org-export-get-ordinal
-			    destination info nil 'org-html--has-caption-p))))
-	       (desc (cond (desc)
-			   ((not number) "No description for this link")
-			   ((numberp number) (number-to-string number))
-			   (t (mapconcat #'number-to-string number ".")))))
-	  (format "<a href=\"#%s\"%s>%s</a>" ref attributes desc)))
-    (apply orig-func args)))
+;; (defun org-ref-ref-html-export (orig-func &rest args)
+;;   "Exports a ref link for html.
+;; It advises org-html-link. It is needed because the label we ref
+;; is not what org exports, it uses a custom id. Also, this gets us
+;; the table/figure number I think. This is hackier than I would
+;; like, ideally one day there is org-html-prefer-user-labels to
+;; avoid this."
+;;   ;; args are link, desc and info
+;;   ;; link is a proper org-element
+;;   (if (string= "ref" (org-element-property :type (car args)))
+;;       (destructuring-bind (link desc info) args
+;; 	(let* ((attributes-plist
+;; 		(let* ((parent (org-export-get-parent-element link))
+;; 		       (link (let ((container (org-export-get-parent link)))
+;; 			       (if (and (eq (org-element-type container) 'link)
+;; 					(org-html-inline-image-p link info))
+;; 				   container
+;; 				 link))))
+;; 		  (and (eq (org-element-map parent 'link 'identity info t) link)
+;; 		       (org-export-read-attribute :attr_html parent))))
+;; 	       (attributes
+;; 		(let ((attr (org-html--make-attribute-string attributes-plist)))
+;; 		  (if (org-string-nw-p attr) (concat " " attr) "")))
+;; 	       (destination (org-export-resolve-fuzzy-link link info))
+;; 	       (ref (org-export-get-reference
+;; 		     destination
+;; 		     info))
+;; 	       (org-html-standalone-image-predicate
+;; 		#'org-html--has-caption-p)
+;; 	       (number (cond
+;; 			(desc nil)
+;; 			((org-html-standalone-image-p destination info)
+;; 			 (org-export-get-ordinal
+;; 			  (org-element-map destination 'link
+;; 			    #'identity info t)
+;; 			  info 'link 'org-html-standalone-image-p))
+;; 			(t (org-export-get-ordinal
+;; 			    destination info nil 'org-html--has-caption-p))))
+;; 	       (desc (cond (desc)
+;; 			   ((not number) "No description for this link")
+;; 			   ((numberp number) (number-to-string number))
+;; 			   (t (mapconcat #'number-to-string number ".")))))
+;; 	  (format "<a href=\"#%s\"%s>%s</a>" ref attributes desc)))
+;;     (apply orig-func args)))
 
-(advice-add 'org-html-link :around #'org-ref-ref-html-export)
+;; (advice-add 'org-html-link :around #'org-ref-ref-html-export)
 
 (defun org-ref-ref-export (keyword desc format)
   "An export function for ref links."
   (cond
-   ((eq format 'html) nil)
+   ((eq format 'html)
+    (format "<a href=\"#%s\">%s</a>" keyword (or desc keyword)))
    ((eq format 'latex)
     (format "\\ref{%s}" keyword))))
 
