@@ -186,6 +186,20 @@ that was clicked on."
   (kbd org-ref-insert-cite-key)
   org-ref-insert-link-function)
 
+(defcustom org-ref-cite-keymap
+  (let ((map (copy-keymap org-mouse-map)))
+    (define-key map (kbd "H-b") 'org-ref-open-citation-at-point)
+    (define-key map (kbd "H-u") 'org-ref-open-url-at-point)
+    (define-key map (kbd "H-p") 'org-ref-open-pdf-at-point)
+    (define-key map (kbd "H-n") 'org-ref-open-notes-at-point)
+    (define-key map (kbd "C-<left>") 'org-ref-previous-key)
+    (define-key map (kbd "C-<right>") 'org-ref-next-key)
+    (define-key map (kbd "S-<left>") (lambda () (interactive) (org-ref-swap-citation-link -1)))
+    (define-key map (kbd "S-<right>") (lambda () (interactive) (org-ref-swap-citation-link 1))) 
+    map)
+  "Keymap for cite links."
+  :group 'org-ref)
+
 
 (defcustom org-ref-bibliography-entry-format
   '(("article" . "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>.")
@@ -2109,7 +2123,8 @@ citez link, with reftex key of z, and the completion function."
 			      (fill-paragraph)
 			      (buffer-string))))))
 	 :face 'org-ref-cite-face
-	 :display 'full)
+	 :display 'full
+	 :keymap org-ref-cite-keymap)
       (org-add-link-type
        ,type
        (lambda (_path) (funcall org-ref-cite-onclick-function nil))
@@ -3016,8 +3031,8 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
       (goto-char (match-beginning 0)))))
 
 ;; add hooks to make it work
-(add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
-(add-hook 'org-shiftleft-hook (lambda () (org-ref-swap-citation-link -1)))
+;; (add-hook 'org-shiftright-hook (lambda () (org-ref-swap-citation-link 1)))
+;; (add-hook 'org-shiftleft-hook (lambda () (org-ref-swap-citation-link -1)))
 
 ;;** C-arrow navigation of cite keys
 (defun org-ref-parse-cite ()
@@ -3123,10 +3138,6 @@ move to the beginning of the previous cite link after this one."
 		       return i))
 	  (goto-char (nth 1 (nth (- index 1) cps))))))
     (left-word)))
-
-
-(define-key org-mode-map (kbd "<C-right>") 'org-ref-next-key)
-(define-key org-mode-map (kbd "<C-left>") 'org-ref-previous-key)
 
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
