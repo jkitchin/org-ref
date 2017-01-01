@@ -968,7 +968,13 @@ ARG does nothing. I think it is a required signature."
     (org-link-set-parameters
      "printbibliography"
      :follow #'org-ref-open-bibliography
-     :export #'org-ref-nobibliography-format)
+     :export (lambda (keyword desc format)
+	       (cond
+		((eq format 'org) (org-ref-get-org-bibliography))
+		((eq format 'html) (org-ref-get-html-bibliography))
+		((eq format 'latex)
+		 ;; write out the biblatex bibliography command
+		 "\\printbibliography"))))
   (org-add-link-type
    "printbibliography"
    (lambda (arg) (message "Nothing implemented for clicking here."))
