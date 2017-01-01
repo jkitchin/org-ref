@@ -14,6 +14,7 @@
 
 
 * Introduction to org-ref
+
 Org-ref is a library for org-mode cite:Dominik201408 that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
 
 The basic idea of org-ref is that it defines a convenient interface to insert citations from a reference database (e.g. from a bibtex file(s)), and a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref interfaces with helm-bibtex to facilitate citation entry, and it can also use reftex.
@@ -26,6 +27,8 @@ org-ref has been in development since sometime in 2013. It was written to aid in
 
 There has been a lot of recent discussion on the org-mode mailing list about a citation syntax for org-mode. It is not clear what the impact of this on org-ref will be. The new syntax will more cleanly support pre/post text, and it will be separate from the links used in org-ref. It is not clear if the new syntax will support all of the citation types, especially those in biblatex, that are supported in org-ref. The new citations are likely to be clickable, and could share functionality with org-ref. The new citation syntax will not cover labels and cross-references though, so these links from org-ref will still exist. We anticipate a long life for org-ref.
 
+Biblatex users should read this [[id:212B487E-CC38-4BDF-9F0E-6993845AF49B][section]].
+
 ** Basic usage of org-ref
 
 *** Bibliography links
@@ -36,8 +39,6 @@ org-ref provides a bibliography link to specify which bibtex files to use in the
 There is also a nobibliography link, which is useful for specifying a bibliography file, but not listing a bibliography in the exported document.
 
 There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command.
-
-If you use biblatex, then you use an addbibresource link. biblatex support is not very well tested by me, because we do not use it. Biblatex users may wish to consult the documentation for ~bibtex-set-dialect~, and possibly do ~(bibtex-set-dialect 'biblatex)~ either globally or file-locally, as otherwise reftex and thus org-ref may fail to find some entry types (e.g. @report) in .bib files.
 
 *** Citations
     :PROPERTIES:
@@ -164,6 +165,7 @@ Autoref works like this: autoref:table-3, autoref:sec-misc.
 [[index:list of tables]] [[index:list of figures]]
 
 org-ref provides clickable links for a list-of-tables:nil and list-of-figures:nil. We have to put some text in the link, anything will do. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
+
 
 ** org-ref customization of helm-bibtex
 index:helm-bibtex
@@ -664,6 +666,45 @@ A gls:computer is good for computing. Gls:computer is capitalized. We can also u
 #+END_EXAMPLE
 
 This is not supported in anything but LaTeX export.
+
+** biblatex users
+   :PROPERTIES:
+   :ID:       212B487E-CC38-4BDF-9F0E-6993845AF49B
+   :END:
+
+In the latex header you specify the style and bibliography file using addbibresource. Here is an example:
+
+#+BEGIN_EXAMPLE
+#+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,backref=true,maxcitenames=3,url=true,backend=biber,natbib=true] {biblatex}
+#+latex_header: \addbibresource{tests/test-1.bib}
+#+END_EXAMPLE
+
+Sometimes it is necessary to tell bibtex what dialect you are using to support the different bibtex entries that are possible in biblatex. You can do it like this globally.
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-dialect 'biblatex)
+#+END_SRC
+
+#+RESULTS:
+: biblatex
+
+Or like this in a bibtex file:
+#+BEGIN_EXAMPLE
+% -*- mode:bibtex; eval: (bibtex-set-dialect 'biblatex); -*-
+#+END_EXAMPLE
+
+Make sure you invoke biblatex in the org-latex-pdf-process. Here is one way to do it.
+
+#+BEGIN_SRC emacs-lisp :results silent
+(setq  org-latex-pdf-process
+       '("latexmk -shell-escape -bibtex -pdf %f"))
+#+END_SRC
+
+Finally, where you want the bibliography put this command:
+
+#+BEGIN_EXAMPLE
+\printbibliography
+#+END_EXAMPLE
 
 * Index
 This is a functional link that will open a buffer of clickable index entries:
