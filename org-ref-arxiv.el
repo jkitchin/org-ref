@@ -95,6 +95,7 @@
 ;; extracts the necessary information, and formats a new BibTeX entry.
 
 (defvar arxiv-entry-format-string "@article{%s,
+  journal = {CoRR},
   title = {%s},
   author = {%s},
   archivePrefix = {arXiv},
