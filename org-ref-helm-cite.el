@@ -275,8 +275,18 @@ SOURCE is ignored, but required."
 		 '(("Add keywords" . org-ref-helm-cite-set-keywords)
 		   ("copy to clipboard" . org-ref-helm-cite-copy-entries)
 		   ("email" . org-ref-helm-cite-email-entries)
-		   ("Insert formatted entries" . orhc-insert-formatted-citations)
-		   ("Copy formatted entry" . orhc-copy-formatted-citations))))
+		   ("Insert formatted entries" . (lambda (_)
+						   (insert
+						    (mapconcat 'identity
+							       (loop for key in (helm-marked-candidates)
+								     collect (org-ref-format-entry key))
+							       "\n\n"))))
+		   ("Copy formatted entry" . (lambda (_)
+					       (kill-new
+						(mapconcat 'identity
+							   (loop for key in (helm-marked-candidates)
+								 collect (org-ref-format-entry key))
+							   "\n\n")))))))
 
   ;; this is where we could add WOK/scopus functions
   actions)

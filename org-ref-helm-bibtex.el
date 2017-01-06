@@ -66,11 +66,17 @@
     ("Insert reference" . helm-bibtex-insert-reference)
     ("Insert BibTeX key" . helm-bibtex-insert-key)
     ("Insert BibTeX entry" . helm-bibtex-insert-bibtex)
+    ("Insert formatted citation(s)" . (lambda (_)
+					(insert
+					 (mapconcat 'identity
+						    (loop for key in (helm-marked-candidates)
+							  collect (org-ref-format-entry key))
+						    "\n\n"))))
     ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
     ("Edit notes" . helm-bibtex-edit-notes)
     ("Show entry" . helm-bibtex-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
-    ("Copy entry to clipboard" . bibtex-completion-copy-candidate)
+    ("Copy entry to clipboard" . bibtex-completion-copy-candidate) 
     ("Add PDF to library" . helm-bibtex-add-pdf-to-library))
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.

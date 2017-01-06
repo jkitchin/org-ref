@@ -206,8 +206,12 @@ This uses a citeproc library."
 
 (defun or-ivy-bibtex-insert-formatted-citation (entry)
   "Insert formatted citations at point for selected ENTRY."
-  (with-ivy-window
-    (insert (org-ref-format-entry entry))))
+  (with-ivy-window 
+    (insert (mapconcat
+	     'identity
+	     (loop for entry in org-ref-ivy-cite-marked-candidates 
+		   collect (org-ref-format-bibtex-entry entry))
+	     "\n\n"))))
 
 
 (defun or-ivy-bibtex-copy-formatted-citation (entry)
@@ -364,6 +368,11 @@ If candidate is already in, remove it."
   "A key map for `org-ref-ivy-insert-cite-link'.")
 
 
+(ivy-set-actions
+ 'org-ref-ivy-insert-cite-link
+ org-ref-ivy-cite-actions)
+
+
 (defun org-ref-ivy-insert-cite-link (&optional arg)
   "ivy function for interacting with bibtex.
 Uses `org-ref-find-bibliography' for bibtex sources, unless a
@@ -380,11 +389,6 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 	    :re-builder org-ref-ivy-cite-re-builder
 	    :action 'or-ivy-bibtex-insert-cite
 	    :caller 'org-ref-ivy-insert-cite-link))
-
-
-(ivy-set-actions
- 'org-ref-ivy-insert-cite-link
- org-ref-ivy-cite-actions)
 
 
 (defun org-ref-ivy-cite-transformer (s)
