@@ -1217,21 +1217,34 @@ Update the cache if necessary."
 
 ;;* org-ref bibtex formatted citation
 
-(defun org-ref-format-entry (key)
-  "Returns a formatted bibtex entry.
+(defun org-ref-format-bibtex-entry (entry)
+  "Return a formatted citation for the bibtex entry at point.
 Formats are from `org-ref-formatted-citation-formats'. The
 variable `org-ref-formatted-citation-backend' determines the set
 of format strings used."
-  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (entry (ignore-errors (bibtex-completion-get-entry key)))
-	 (formats (cdr (assoc org-ref-formatted-citation-backend  org-ref-formatted-citation-formats)))
-	 (format-string)
-	 (ref))
-    (if (null entry)
-	"!!! No entry found !!!"
-      (setq format-string (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats)))
-      (setq ref (s-format format-string 'bibtex-completion-apa-get-value entry))
-      (replace-regexp-in-string "\\([.?!]\\)\\." "\\1" ref))))
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let* ((formats (cdr (assoc org-ref-formatted-citation-backend  org-ref-formatted-citation-formats)))
+	   (format-string)
+	   (ref))
+      (if (null entry)
+	  "!!! No entry found !!!"
+	(setq format-string (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats)))
+	(setq ref (s-format format-string 'bibtex-completion-apa-get-value entry))
+	(replace-regexp-in-string "\\([.?!]\\)\\." "\\1" ref)))))
+
+
+(defun org-ref-format-entry (key)
+  "Returns a formatted bibtex entry for KEY."
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))) 
+    (org-ref-format-bibtex-entry (ignore-errors (bibtex-completion-get-entry key)))))
+
+
+(defun org-ref-format-bibtex-entry-at-point ()
+  "Return a formatted citation for the bibtex entry at point."
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (org-ref-format-bibtex-entry (bibtex-parse-entry t))))
 
 
 ;; ** using citeproc
