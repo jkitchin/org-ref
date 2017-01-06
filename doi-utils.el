@@ -732,7 +732,8 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
       (when (f-file? org-ref-bibliography-notes)
 	(find-file-noselect org-ref-bibliography-notes)
 	(save-buffer))
-      (funcall doi-utils-make-notes-function))))
+      (let ((bibtex-completion-bibliography (list (buffer-file-name))))
+	(funcall doi-utils-make-notes-function)))))
 
 
 ;; It may be you are in some other place when you want to add a bibtex entry.
