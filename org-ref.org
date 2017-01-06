@@ -302,6 +302,7 @@ You can check if a url for the PDF can be found like this:
 These are functions I use often in bibtex files.
 
 *** Generate new bibtex files with adapted journal names
+
 The variable ~org-ref-bibtex-journal-abbreviations~ contains a mapping of a short string to a full journal title, and an abbreviated journal title. We can use these to create new versions of a bibtex file with full or abbreviated journal titles. You can add new strings like this:
 
 #+BEGIN_SRC emacs-lisp
@@ -341,12 +342,13 @@ These functions are compatible with ~bibtex-map-entries~, so it is possible to c
 (bibtex-map-entries 'org-ref-title-case-article)
 #+END_SRC
 
-
 *** Bibtex entry navigation
+
 - org-ref-bibtex-next-entry :: bound to M-n
 - org-ref-bibtex-previous-entry :: bound to M-p
 
 *** Hydra menus for bibtex entries and files
+
 - Functions to act on a bibtex entry or file
   - org-ref-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
        like opening the pdf, or the entry in a browser, or searching in a
@@ -365,6 +367,21 @@ Or this if you like key-chord:
 #+BEGIN_SRC emacs-lisp
 (key-chord-define-global "jj" 'org-ref-bibtex-hydra/body)
 #+END_SRC
+
+*** Formatted bibtex entry citations
+
+org-ref has some limited capability to make formatted bibliography entries from a bibtex entry or citation link. This is generally a hard problem, and the first solution is not a replacement for a dedicated citation processor like BibTeX. Two variable determine the behavior of formatted citations:
+
+- Formats are from `org-ref-formatted-citation-formats' is an a-list of (backend . formats). formats is an alist of (entry-type . format-string). 
+- The variable `org-ref-formatted-citation-backend' determines which set of format strings is used. The default is "text", and "org" format strings are also defined.
+
+So, if you click on a citation link, there should be a menu option to copy a formatted citation, which will copy the citation string to the clipboard.
+
+If you are on a bibtex entry, the `org-ref-bibtex-hydra/body' has an option to copy a formatted citation for the entry your cursor is in.
+
+Finally, depending on your org-ref backend, there may be an action in the org-ref-insert-link command.
+
+For the second approach see [[./citeproc/readme.org]]. It is more advanced in someways, but it is currently limited to a few formats, and is a long-term work in progress.
 
 ** org-ref-wos
 This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofknowledge.com).
