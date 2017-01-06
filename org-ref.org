@@ -54,7 +54,7 @@ If the cursor is on a citation key, you should see a message in the minibuffer t
 
 The default citation type is [[*Customizing org-ref][customizable]], and set to "cite". If you want another type of citation type, then type ~C-u~ before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
 
-Here is a list of supported citation types. You can customize this if you want. If you do not know what all these types are, you probably do not need them. The default cite is what you need. See http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf
+Here is a list of supported citation types. You can customize this if you want. If you do not know what all these types are, you probably do not need them. The default cite is what you need. See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf
  for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf
  for the commands supported in biblatex. For most scientific journals, only bibtex is supported. index:biblatex
 
@@ -519,6 +519,8 @@ Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a b
 index:customization
 
 You will probably want to customize a few variables before using org-ref. One way to do this is through the Emacs customization interface: [[elisp:(customize-group "org-ref")]].
+
+Also see:  [[elisp:(customize-group "org-ref-bibtex")]].
 
 Here is my minimal setup:
 #+BEGIN_SRC emacs-lisp
