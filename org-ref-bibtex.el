@@ -1223,11 +1223,15 @@ Formats are from `org-ref-formatted-citation-formats'. The
 variable `org-ref-formatted-citation-backend' determines the set
 of format strings used."
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (entry (bibtex-completion-get-entry key))
+	 (entry (ignore-errors (bibtex-completion-get-entry key)))
 	 (formats (cdr (assoc org-ref-formatted-citation-backend  org-ref-formatted-citation-formats)))
-	 (format-string (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats)))
-	 (ref (s-format format-string 'bibtex-completion-apa-get-value entry)))
-    (replace-regexp-in-string "\\([.?!]\\)\\." "\\1" ref)))
+	 (format-string)
+	 (ref))
+    (if (null entry)
+	"!!! No entry found !!!"
+      (setq format-string (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats)))
+      (setq ref (s-format format-string 'bibtex-completion-apa-get-value entry))
+      (replace-regexp-in-string "\\([.?!]\\)\\." "\\1" ref))))
 
 
 ;; ** using citeproc

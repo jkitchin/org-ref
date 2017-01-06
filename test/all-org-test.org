@@ -131,7 +131,7 @@
 | [[elisp:(org-babel-goto-nth-test-block 106)][ref-face]]               | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 107)][fl-next-label]]          | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 108)][label-face]]             | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 109)][fl-next-bib]]            | error                                                                                                                     |
+| [[elisp:(org-babel-goto-nth-test-block 109)][fl-next-bib]]            | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 110)][fl-next-bibstyle]]       | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 111)][store-label-link]]       | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 112)][store-label-link-table]] | ((:type ref :link ref:test-table :date-timestamp <1999-12-31 Fri 19:00> :date-timestamp-inactive [1999-12-31 Fri 19:00])) |
@@ -291,22 +291,20 @@ Is it a test? If this returns non-nil,
 * Messages on links
 
 Note: the bibliography links are a little troublesome in these tests. We use calculated absolute paths everywhere. That is so the tests work locally, and on Travis (where the paths are different). We cannot get away with relative paths because when we run locally, we are in org-ref/test, and when we run on Travis, we are in /org-ref, so either way we have to compute paths.
-
+cite:kitchin-2015-examp  
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
     (format "cite:kitchin-2015-examp 
 
 bibliography:%s
 " (expand-file-name
-			 "tests/test-1.bib"
-			 (file-name-directory
-			  (locate-library "org-ref"))))
+   "tests/test-1.bib"
+   (file-name-directory
+    (locate-library "org-ref"))))
   (should
    (string=
     (org-ref-link-message)
-    (if (featurep 'bibtex-completion)
-	"Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
-      "Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"))))
+    "Kitchin, J. R., /Examples of effective data sharing in scientific publishing/, ACS Catalysis, *5(6)*, 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
 #+END_SRC
 
 #+RESULTS:
@@ -342,11 +340,9 @@ bibliography:%s
    "tests/test-1.bib"
    (file-name-directory
     (locate-library "org-ref"))))
-    (should
-     (string= (org-ref-link-message)
-	      (if (featurep 'bibtex-completion)
-		  "Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
-		"Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)"))))
+  (should
+   (string= (org-ref-link-message)
+	    "Kitchin, J. R., /Examples of effective data sharing in scientific publishing/, ACS Catalysis, *5(6)*, 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
 #+END_SRC
 
 #+RESULTS: orlm
