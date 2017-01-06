@@ -158,9 +158,14 @@ This function should only apply when in a bibtex file."
 	    (message "No doi found in %s" path)
 	    nil)
 	   ((= 1 (length dois))
-	    (doi-utils-add-bibtex-entry-from-doi
-	     (car dois)
-	     (buffer-file-name))
+	    ;; we do not need to get the pdf, since we have one.
+	    (let ((doi-utils-download-pdf nil))
+	      (doi-utils-add-bibtex-entry-from-doi
+	       (car dois)
+	       (buffer-file-name))
+	      ;; we should copy the pdf to the pdf directory though
+	      (let ((key (cdr (assoc "=key=" (bibtex-parse-entry)))))
+	      	(copy-file path (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))))
 	    action)
 	   ;; Multiple DOIs found
 	   (t
