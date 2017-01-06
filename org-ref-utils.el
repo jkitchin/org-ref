@@ -296,6 +296,7 @@ environment, only %l is available."
     (setq format (replace-match "" t t format)))
   format)
 
+
 (defun org-ref-get-bibtex-entry-citation (key)
   "Return a string for the bibliography entry corresponding to KEY.
 Format according to the type in `org-ref-bibliography-entry-format'."
@@ -327,6 +328,7 @@ Format according to the type in `org-ref-bibliography-entry-format'."
           (bibtex-narrow-to-entry)
           (setq entry (buffer-string)))))
     entry))
+
 
 ;;*** key at point functions
 (defun org-ref-get-pdf-filename (key)
@@ -426,15 +428,17 @@ Can also be called with THEKEY in a program."
 (defun org-ref-citation-at-point ()
   "Give message of current citation at point."
   (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-         (bibfile (cdr results)))
-    (message "%s" (progn
-                    (with-temp-buffer
-                      (insert-file-contents bibfile)
-                      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-                      (bibtex-search-entry key)
-                      (org-ref-bib-citation))))))
+  (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor))
+  ;; (let* ((results (org-ref-get-bibtex-key-and-file))
+  ;;        (key (car results))
+  ;;        (bibfile (cdr results)))
+  ;;   (message "%s" (progn
+  ;;                   (with-temp-buffer
+  ;;                     (insert-file-contents bibfile)
+  ;;                     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+  ;;                     (bibtex-search-entry key)
+  ;;                     (org-ref-bib-citation)))))
+  )
 
 
 ;;;###autoload

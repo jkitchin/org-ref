@@ -24,7 +24,6 @@
 
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
-(declare-function 'org-ref-get-citation-string-at-point "org-ref-core.el")
 
 (defvar org-ref-get-pdf-filename-function)
 (defvar org-ref-default-citation-link)
@@ -570,7 +569,7 @@ action.  most of them need the point and buffer.
 
 KEY is returned for the selected item(s) in helm."
   (interactive)
-  (let ((name (org-ref-get-citation-string-at-point))
+  (let ((name (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
         (candidates (org-ref-cite-candidates))
         (cb (current-buffer)))
 
