@@ -30,9 +30,9 @@
 | [[elisp:(org-babel-goto-nth-test-block 5)][or-key-file]]            | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 6)][swap-1]]                 | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 7)][swap-2]]                 | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 8)][test-8]]                 | t                                                                                                                         |
+| [[elisp:(org-babel-goto-nth-test-block 8)][test-8]]                 | error                                                                                                                     |
 | [[elisp:(org-babel-goto-nth-test-block 9)][test-9]]                 | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 10)][orlm]]                   | t                                                                                                                         |
+| [[elisp:(org-babel-goto-nth-test-block 10)][orlm]]                   | error                                                                                                                     |
 | [[elisp:(org-babel-goto-nth-test-block 11)][orlm-nil]]               | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 12)][orlm-ref-1]]             | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 13)][orlm-ref-2]]             | t                                                                                                                         |
@@ -304,7 +304,7 @@ bibliography:%s
   (should
    (string=
     (org-ref-link-message)
-    "Kitchin, J. R., /Examples of effective data sharing in scientific publishing/, ACS Catalysis, *5(6)*, 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
+    "Kitchin, J. R., Examples of effective data sharing in scientific publishing, ACS Catalysis, 5(6), 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
 #+END_SRC
 
 #+RESULTS:
@@ -342,11 +342,8 @@ bibliography:%s
     (locate-library "org-ref"))))
   (should
    (string= (org-ref-link-message)
-	    "Kitchin, J. R., /Examples of effective data sharing in scientific publishing/, ACS Catalysis, *5(6)*, 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
+	    "Kitchin, J. R., Examples of effective data sharing in scientific publishing, ACS Catalysis, 5(6), 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
 #+END_SRC
-
-#+RESULTS: orlm
-: t
 
 #+name: orlm-nil
 #+BEGIN_SRC emacs-lisp :test
