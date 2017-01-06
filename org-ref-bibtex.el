@@ -96,10 +96,39 @@ I like \C-cj."
   :type 'string
   :group 'org-ref-bibtex)
 
+
 (defcustom org-ref-helm-cite-shorten-authors nil
   "If non-nil show only last names in the helm selection buffer."
   :type 'boolean
   :group 'org-ref-bibtex)
+
+
+(defcustom org-ref-formatted-citation-formats
+  '(("text"  . (("article"  . "${author}, ${title}, ${journal}, ${volume}(${number}), ${pages} (${year}). ${doi}")
+		("inproceedings" . "${author}, ${title}, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+		("book" . "${author}, ${title} (${year}), ${address}: ${publisher}.")
+		("phdthesis" . "${author}, ${title} (Doctoral dissertation) (${year}). ${school}, ${address}.")
+		("inbook" . "${author}, ${title}, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+		("incollection" . "${author}, ${title}, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+		("proceedings" . "${editor} (Eds.), ${booktitle} (${year}). ${address}: ${publisher}.")
+		("unpublished" . "${author}, ${title} (${year}). Unpublished manuscript.")
+		(nil . "${author}, ${title} (${year}).")))
+    ("org"  . (("article"  . "${author}, /${title}/, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
+	       ("inproceedings" . "${author}, /${title}/, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+	       ("book" . "${author}, /${title}/ (${year}), ${address}: ${publisher}.")
+	       ("phdthesis" . "${author}, /${title}/ (Doctoral dissertation) (${year}). ${school}, ${address}.")
+	       ("inbook" . "${author}, /${title}/, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+	       ("incollection" . "${author}, /${title}/, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+	       ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
+	       ("unpublished" . "${author}, /${title}/ (${year}). Unpublished manuscript.")
+	       (nil . "${author}, /${title}/ (${year})."))))
+  "Format strings for formatted bibtex entries for different citation backends.
+Used in `org-ref-format-entry'."
+  :group 'org-ref-bibtex)
+
+(defcustom org-ref-formatted-citation-backend "text"
+  "The backend format for formatted citations.
+Should be one of the cars of `org-ref-formatted-citation-formats'.")
 
 ;;* Journal abbreviations
 (defvar org-ref-bibtex-journal-abbreviations
@@ -740,7 +769,9 @@ _S_: Sentence case
 	   (kill-new (bibtex-key-in-head)))))
   ("f" (progn
 	 (bibtex-beginning-of-entry)
-	 (kill-new (orhc-formatted-citation (bibtex-parse-entry t)))))
+	 (kill-new
+	  (org-ref-format-entry
+	   (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
   ("k" helm-tag-bibtex-entry)
   ("K" (lambda ()
          (interactive)
@@ -1185,6 +1216,21 @@ Update the cache if necessary."
 
 
 ;;* org-ref bibtex formatted citation
+
+(defun org-ref-format-entry (key)
+  "Returns a formatted bibtex entry.
+Formats are from `org-ref-formatted-citation-formats'. The
+variable `org-ref-formatted-citation-backend' determines the set
+of format strings used."
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (entry (bibtex-completion-get-entry key))
+	 (formats (cdr (assoc org-ref-formatted-citation-backend  org-ref-formatted-citation-formats)))
+	 (format-string (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats)))
+	 (ref (s-format format-string 'bibtex-completion-apa-get-value entry)))
+    (replace-regexp-in-string "\\([.?!]\\)\\." "\\1" ref)))
+
+
+;; ** using citeproc
 (defun orhc-formatted-citation (entry)
   "Get a formatted string for ENTRY."
   (require 'unsrt)

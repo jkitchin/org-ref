@@ -718,7 +718,7 @@ action.  most of them need the point and buffer.
 
 KEY is returned for the selected item(s) in helm."
   (interactive)
-  (let ((name (org-ref-get-citation-string-at-point))
+  (let ((name (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
         (candidates (org-ref-helm-cite-candidates))
         (cb (current-buffer)))
 

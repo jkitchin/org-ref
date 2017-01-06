@@ -611,7 +611,8 @@ Add a tooltip to the match."
 			       (save-excursion
 				 (goto-char position)
 				 ;; Here we wrap the citation string to a reasonable size.
-				 (let ((s (org-ref-get-citation-string-at-point)))
+				 (let ((s (org-ref-format-entry
+					   (org-ref-get-bibtex-key-under-cursor))))
 				   (with-temp-buffer
 				     (insert s)
 				     (fill-paragraph)
@@ -2123,7 +2124,8 @@ citez link, with reftex key of z, and the completion function."
 			(save-excursion
 			  (goto-char position)
 			  ;; Here we wrap the citation string to a reasonable size.
-			  (let ((s (org-ref-get-citation-string-at-point)))
+			  (let ((s (org-ref-format-entry
+				    (org-ref-get-bibtex-key-under-cursor))))
 			    (with-temp-buffer
 			      (insert s)
 			      (fill-paragraph)
@@ -2280,66 +2282,9 @@ PATH is required for the org-link, but it does nothing here."
 (defun org-ref-bib-citation ()
   "From a bibtex entry, create and return a citation string.
 If `bibtex-completion' library is loaded, return reference in APA
-format. Otherwise return a generic article citation string."
-  (bibtex-set-dialect nil t)
-  (bibtex-beginning-of-entry)
-  (let* ((cb (current-buffer))
-         (bibtex-expand-strings t)
-         (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-                         collect (cons (downcase key) value)))
-         (title (replace-regexp-in-string
-		 "\n\\|\t\\|\s+" " "
-		 (replace-regexp-in-string
-		  "[\\\.\"{}]+" ""
-		  (reftex-get-bib-field "title" entry))))
-         (year  (reftex-get-bib-field "year" entry))
-         (author (replace-regexp-in-string
-		  "\n\\|\t\\|\s+" " "
-		  (reftex-get-bib-field "author" entry)))
-         (key (reftex-get-bib-field "=key=" entry))
-         (journal (let ((jt (reftex-get-bib-field "journal" entry)))
-                    (if (string= "" jt)
-                        (reftex-get-bib-field "journaltitle" entry)
-                      jt)))
-         (volume (reftex-get-bib-field "volume" entry))
-         (pages (reftex-get-bib-field "pages" entry))
-         (doi (reftex-get-bib-field "doi" entry))
-         (url (reftex-get-bib-field "url" entry)))
-    (if (featurep 'bibtex-completion)
-	;; APA format
-    	(let* ((ref (bibtex-completion-apa-format-reference key))
-    	       (nodoi (replace-regexp-in-string "[ ]*http.?+" "" ref)))
-	  (format "%s" nodoi))
-      ;; authors, "title", Journal, vol(iss):pages (year).
-      (format "%s, \"%s\", %s, %s:%s (%s)"
-	      author title journal volume pages year))))
+format. Otherwise return a  citation string from `org-ref-get-bibtex-entry-citation'." 
+  (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
 
-(defun org-ref-bib-html-citation ()
-  "From a bibtex entry, create and return a simple citation with html links."
-  (bibtex-beginning-of-entry)
-  (let* ((cb (current-buffer))
-         (bibtex-expand-strings t)
-         (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-                         collect (cons (downcase key) value)))
-         (title (replace-regexp-in-string
-		 "\n\\|\t\\|\s+" " "
-		 (reftex-get-bib-field "title" entry)))
-         (year  (reftex-get-bib-field "year" entry))
-         (author (replace-regexp-in-string
-		  "\n\\|\t\\|\s+" " "
-		  (reftex-get-bib-field "author" entry)))
-         (key (reftex-get-bib-field "=key=" entry))
-         (journal (reftex-get-bib-field "journal" entry))
-         (volume (reftex-get-bib-field "volume" entry))
-         (pages (reftex-get-bib-field "pages" entry))
-         (doi (reftex-get-bib-field "doi" entry))
-         (url (reftex-get-bib-field "url" entry)))
-    ;;authors, "title", Journal, vol(iss):pages (year).
-    (concat (format "%s, \"%s\", %s, %s:%s (%s)."
-                    author title journal  volume pages year)
-            (when url (format " <a href=\"%s\">link</a>" url))
-            (when doi
-              (format " <a href=\"http://dx.doi.org/%s\">doi</a>" doi)))))
 
 ;;** Open pdf in bibtex entry
 ;;;###autoload
@@ -3245,7 +3190,7 @@ move to the beginning of the previous cite link after this one."
             (cond
              ;; cite links
              ((-contains? org-ref-cite-types type)
-              (message (org-ref-get-citation-string-at-point)))
+              (message (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor))))
 
              ;; message some context about the label we are referring to
              ((or (string= type "ref")
@@ -3331,24 +3276,6 @@ move to the beginning of the previous cite link after this one."
 (defalias 'orsl 'org-ref-store-bibtex-entry-link)
 
 (defalias 'orcb 'org-ref-clean-bibtex-entry)
-
-
-(defun org-ref-get-citation-string-at-point (&optional key)
-  "Get a string of a formatted citation for the KEY.
-If no KEY is provided, get the KEY at point."
-  (let* ((results (org-ref-get-bibtex-key-and-file key))
-         (key (car results))
-         (bibfile (cdr results)))
-    (if bibfile
-        (save-excursion
-          (with-temp-buffer
-            (insert-file-contents bibfile)
-            (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-            (bibtex-search-entry key)
-	    (let ((bibtex-completion-bibliography bibfile))
-	      (org-ref-bib-citation))))
-      "!!! No entry found !!!" )))
-
 
 (defun org-ref-delete-cite-at-point ()
   "Delete the citation link at point."

@@ -193,7 +193,8 @@ Create email unless called from an email."
 
 
 (defun or-ivy-bibtex-formatted-citation (entry)
-  "Return string containing formatted citations for ENTRY."
+  "Return string containing formatted citations for ENTRY.
+This uses a citeproc library."
   (let ((enable-recursive-minibuffers t))
     (ivy-read "Style: " '("unsrt" "author-year")
 	      :action 'load-library
@@ -206,12 +207,12 @@ Create email unless called from an email."
 (defun or-ivy-bibtex-insert-formatted-citation (entry)
   "Insert formatted citations at point for selected ENTRY."
   (with-ivy-window
-    (insert (or-ivy-bibtex-formatted-citation entry))))
+    (insert (org-ref-format-entry entry))))
 
 
 (defun or-ivy-bibtex-copy-formatted-citation (entry)
   "Copy formatted citation to clipboard for ENTRY."
-  (kill-new (or-ivy-bibtex-formatted-citation entry)))
+  (kill-new (org-ref-format-entry entry)))
 
 
 (defun or-ivy-bibtex-add-entry (_)
@@ -453,9 +454,8 @@ _o_: Open entry   _e_: Email entry  ^ ^                 _q_: quit
 	 (kill-new
 	  (car (org-ref-get-bibtex-key-and-file))))
    nil)
-  ("f" (save-window-excursion
-	 (org-ref-open-citation-at-point)
-	 (kill-new (orhc-formatted-citation (bibtex-parse-entry t))))
+  ("f" (kill-new
+	(org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
    nil)
 
   ("e" (kill-new (save-excursion
@@ -501,6 +501,7 @@ this function to use it."
   "A key map for `org-ref-ivy-set-keywords'.")
 
 (defun org-ref-ivy-set-keywords ()
+  "Add keywords to bibtex entries selected by org-ref-ivy."
   (interactive)
   (setq org-ref-ivy-cite-marked-candidates '())
   (ivy-read "Keywords: " (org-ref-bibtex-keywords)
