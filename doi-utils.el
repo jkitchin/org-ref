@@ -93,7 +93,7 @@ Set to nil to avoid setting timestamps in the entries."
 (defcustom doi-utils-make-notes-function
   (lambda ()
     (bibtex-beginning-of-entry)
-    (bibtex-completion-edit-notes (cdr (assoc "=key=" (bibtex-parse-entry)))))
+    (bibtex-completion-edit-notes (list (cdr (assoc "=key=" (bibtex-parse-entry))))))
   "Function to create notes for a bibtex entry.
 
 Set `doi-utils-make-notes' to nil if you want no notes."
