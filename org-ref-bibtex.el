@@ -737,15 +737,15 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
 ;; hydra menu for actions on bibtex entries
 (defhydra org-ref-bibtex-hydra (:color blue)
   "
-_p_: Open pdf     _y_: Copy key               _n_: New entry            _w_: WOS
+_p_: Open pdf     _y_: Copy key               _N_: New entry            _w_: WOS
 _b_: Open url     _f_: Copy formatted entry   _o_: Copy entry           _c_: WOS citing
 _r_: Refile entry _k_: Add keywords           _d_: delete entry         _a_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry          _P_: Pubmed
 _U_: Update entry _N_: Open notes             _R_: Crossref             _g_: Google Scholar
 _s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex          _q_: quit
 _u_: Update field _F_: file funcs             _A_: Assoc pdf with entry
-_T_: Title case
-_S_: Sentence case
+_n_: Open notes                               _T_: Title case
+                                              _S_: Sentence case
 "
   ("p" org-ref-open-bibtex-pdf)
   ("P" org-ref-bibtex-pubmed)
@@ -754,8 +754,11 @@ _S_: Sentence case
   ("a" org-ref-bibtex-wos-related)
   ("R" org-ref-bibtex-crossref)
   ("g" org-ref-bibtex-google-scholar)
-  ("n" org-ref-bibtex-new-entry/body)
-  ("N" org-ref-open-bibtex-notes)
+  ("N" org-ref-bibtex-new-entry/body)
+  ("n" (progn
+	 (bibtex-beginning-of-entry)
+	 (bibtex-completion-edit-notes
+	  (list (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
   ("o" (lambda ()
 	 (interactive)
 	 (bibtex-copy-entry-as-kill)
