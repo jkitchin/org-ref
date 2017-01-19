@@ -1243,10 +1243,11 @@ error."
 "
 	  (let ((url-request-method "GET")
 		(url-mime-accept-string "application/citeproc+json"))
-	    (with-current-buffer
-		(url-retrieve-synchronously
-		 (concat doi-utils-dx-doi-org-url doi))
-	      (buffer-substring url-http-end-of-headers (point-max))))
+	    (pp
+	     (json-read-from-string (with-current-buffer
+					(url-retrieve-synchronously
+					 (concat doi-utils-dx-doi-org-url doi))
+				      (buffer-substring url-http-end-of-headers (point-max))))))
 	  "\n\n")
   (goto-char (point-min)))
 
