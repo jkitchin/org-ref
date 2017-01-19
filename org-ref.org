@@ -73,8 +73,6 @@ If you want to /replace/ an existing key in a citation, put the cursor on the ke
 [[index:cite!shift]]
 Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command ~org-ref-sort-citation-link~ which will sort the keys by year, oldest to newest.
 
-org-ref has basic and limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is not easy (maybe not possible) to extend this for the humanities style of citations (e.g. harvard) with nested pre/post text on multiple citations. If anyone knows how to do it, pull requests are welcome! There is an ongoing effort in org-mode for a new citation syntax that may make this more feasible.
-
 You may want to bind a hydra menu to a key-binding or key-chord. For example:
 
 #+BEGIN_SRC emacs-lisp
@@ -82,6 +80,18 @@ You may want to bind a hydra menu to a key-binding or key-chord. For example:
 #+END_SRC
 
 This will allow you to quickly press ~kk~ while on a cite link to access functions that can act on the link.
+
+*** Pre/post text support
+
+org-ref has basic and limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is not easy (maybe not possible) to extend this for the humanities style of citations (e.g. harvard) with nested pre/post text on multiple citations. If anyone knows how to do it, pull requests are welcome! There is an ongoing effort in org-mode for a new citation syntax that may make this more feasible.
+
+If you use helm-bibtex and would like pre/post text support enabled, you can add ~org-ref-format-citation~ to ~bibtex-completion-format-citation-functions~:
+
+#+BEGIN_SRC emacs-lisp
+(setf (cdr (assoc 'org-mode bibtex-completion-format-citation-functions)) 'org-ref-format-citation)
+#+END_SRC
+
+See also: [[https://github.com/tmalsburg/helm-bibtex#format-of-citations][Format of citations]] and [[https://github.com/tmalsburg/helm-bibtex#latex-citation-commands][Insert LaTeX cite commands]]. Note that pre/post prompt can also be switched off by setting the variable ~bibtex-completion-cite-prompt-for-optional-arguments~ to nil.
 
 *** label links
 index:label
