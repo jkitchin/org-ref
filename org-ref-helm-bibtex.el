@@ -378,7 +378,7 @@ the completion sources in the background so the initial call to ‘org-ref-helm-
 
 
 ;;;###autoload
-(defun org-ref-helm-insert-cite-link (arg)
+(defun org-ref-helm-insert-cite-link (&optional arg)
   "Insert a citation link with `helm-bibtex'.
 With one prefix ARG, insert a ref link.
 With two prefix ARGs, insert a label link."
