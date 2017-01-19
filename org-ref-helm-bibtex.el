@@ -283,6 +283,56 @@ change the key at point to the selected keys."
   "")
 
 
+(defun org-ref-format-citation (keys)
+  "Formatter for org-ref citation commands.
+Prompt for the command and additional arguments if the commands can
+take any. If point is inside a citation link, append KEYS. Otherwise
+prompt for pre/post text. Prompts can also be switched off by setting
+the variable `bibtex-completion-cite-prompt-for-optional-arguments' to
+nil. To enable this formatter, add it to
+`bibtex-completion-format-citation-functions'. For example:
+
+\(setf (cdr (assoc 'org-mode bibtex-completion-format-citation-functions)) 'org-ref-format-citation)
+
+Note also that pre text is preceded by a double colon, for example:
+
+\[[cite:key][See::Chapter 1]], which exports to:
+
+\\cite[See][Chapter 1]{key}."
+  ;; Check if point is inside a cite link
+  (let ((link (org-element-context)))
+    (if (-contains? org-ref-cite-types (org-element-property :type link))
+	(progn
+	  (setq end (org-element-property :end link)
+		path (org-element-property :path link))
+	  (goto-char end)
+	  ;; Check if link has pre/post text
+	  (if (looking-back "\]")
+	      (progn
+		(re-search-backward path nil t)
+		(re-search-forward "\]" nil t)
+		(backward-char 1)
+		(format ",%s" (s-join "," keys))))
+	  (format ",%s" (s-join "," keys)))
+      (let* ((initial (when bibtex-completion-cite-default-as-initial-input bibtex-completion-cite-default-command))
+	     (default
+	       (unless bibtex-completion-cite-default-as-initial-input bibtex-completion-cite-default-command))
+	     (default-info
+	       (if default (format " (default \"%s\")" default) ""))
+	     (cite-command
+	      (completing-read (format "Cite command%s: " default-info)
+			       bibtex-completion-cite-commands nil nil initial
+			       'bibtex-completion-cite-command-history default nil)))
+	(if (member cite-command '("nocite" "supercite"))  ; These don't want arguments.
+	    (format "%s:%s" cite-command (s-join "," keys))
+	  (let ((text (if bibtex-completion-cite-prompt-for-optional-arguments
+			  (read-from-minibuffer "Pre/post text: ")
+			"")))
+	    (if (string= "" text)
+		(format "%s:%s" cite-command (s-join "," keys))
+	      (format "[[%s:%s][%s]]" cite-command (s-join "," keys) text))))))))
+
+
 ;;;###autoload
 (defun org-ref-helm-load-completions-async ()
   "Load the bibtex files into helm sources asynchronously.
@@ -328,7 +378,7 @@ the completion sources in the background so the initial call to ‘org-ref-helm-
 
 
 ;;;###autoload
-(defun org-ref-helm-insert-cite-link (arg)
+(defun org-ref-helm-insert-cite-link (&optional arg)
   "Insert a citation link with `helm-bibtex'.
 With one prefix ARG, insert a ref link.
 With two prefix ARGs, insert a label link."
@@ -462,6 +512,11 @@ Checks for pdf and doi, and add appropriate functions."
     (cl-pushnew
      '("Delete citation at point" . org-ref-delete-cite-at-point)
      candidates)
+
+    (when bibtex-completion-cite-prompt-for-optional-arguments
+      (cl-pushnew
+       '("Update pre/post text" . org-ref-update-pre-post-text)
+       candidates))
 
     (cl-pushnew
      '("Sort keys by year" . org-ref-sort-citation-link)
