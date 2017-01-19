@@ -463,6 +463,11 @@ Checks for pdf and doi, and add appropriate functions."
      '("Delete citation at point" . org-ref-delete-cite-at-point)
      candidates)
 
+    (when bibtex-completion-cite-prompt-for-optional-arguments
+      (cl-pushnew
+       '("Update pre/post text" . org-ref-update-pre-post-text)
+       candidates))
+
     (cl-pushnew
      '("Sort keys by year" . org-ref-sort-citation-link)
      candidates)
