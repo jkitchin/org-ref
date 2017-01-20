@@ -1913,12 +1913,23 @@ set in `org-ref-default-bibliography'"
 		(append org-ref-bibliography-files
 			(mapcar 'org-ref-strip-string
 				(split-string (match-string 2) ",")))))
-	;; locate the corresponding bib files
-	(setq org-ref-bibliography-files
-	      (reftex-locate-bibliography-files default-directory
-						org-ref-bibliography-files))
+	
 	(when org-ref-bibliography-files
 	  (throw 'result org-ref-bibliography-files))
+
+	
+	;; Try addbibresource. It appears that reftex does not do this
+	;; correctly, it only finds the first one.
+	(goto-char (point-min))
+	(while (re-search-forward
+		"\\\\addbibresource{\\(.*\\)?}"
+		nil t)
+	  (setq org-ref-bibliography-files
+		(append org-ref-bibliography-files (list (match-string 1)))))
+
+	(when org-ref-bibliography-files
+	  (throw 'result org-ref-bibliography-files))
+	
 
 	;; we did not find org-ref links. now look for latex links
 	(goto-char (point-min))
