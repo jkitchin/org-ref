@@ -27,12 +27,12 @@
 | [[elisp:(org-babel-goto-nth-test-block 2)][or-split-key-2]]         | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 3)][or-key-file-p]]          | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 4)][or-key-file-p-nil]]      | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 5)][or-key-file]]            | t                                                                                                                         |
+| [[elisp:(org-babel-goto-nth-test-block 5)][or-key-file]]            | error                                                                                                                     |
 | [[elisp:(org-babel-goto-nth-test-block 6)][swap-1]]                 | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 7)][swap-2]]                 | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 8)][test-8]]                 | error                                                                                                                     |
+| [[elisp:(org-babel-goto-nth-test-block 8)][test-8]]                 | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 9)][test-9]]                 | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 10)][orlm]]                   | error                                                                                                                     |
+| [[elisp:(org-babel-goto-nth-test-block 10)][orlm]]                   | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 11)][orlm-nil]]               | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 12)][orlm-ref-1]]             | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 13)][orlm-ref-2]]             | t                                                                                                                         |
@@ -46,7 +46,7 @@
 | [[elisp:(org-babel-goto-nth-test-block 21)][or-get-key1]]            | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 22)][or-get-key2]]            | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 23)][orfb-1]]                 | t                                                                                                                         |
-| [[elisp:(org-babel-goto-nth-test-block 24)][orfb-1a]]                | t                                                                                                                         |
+| [[elisp:(org-babel-goto-nth-test-block 24)][orfb-1a]]                | error                                                                                                                     |
 | [[elisp:(org-babel-goto-nth-test-block 25)][orfb-2]]                 | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 26)][orfb-2a]]                | t                                                                                                                         |
 | [[elisp:(org-babel-goto-nth-test-block 27)][orfb-3]]                 | t                                                                                                                         |
@@ -261,9 +261,6 @@ Is it a test? If this returns non-nil,
     (org-ref-get-bibtex-key-and-file "kitchin-2015-examp"))))
 #+END_SRC
 
-#+RESULTS: or-key-file
-: t
-
 #+name: swap-1
 #+BEGIN_SRC emacs-lisp :test
 "org swap test"
@@ -344,6 +341,9 @@ bibliography:%s
    (string= (org-ref-link-message)
 	    "Kitchin, J. R., Examples of effective data sharing in scientific publishing, ACS Catalysis, 5(6), 3894–3899 (2015).  http://dx.doi.org/10.1021/acscatal.5b00538")))
 #+END_SRC
+
+#+RESULTS: orlm
+: t
 
 #+name: orlm-nil
 #+BEGIN_SRC emacs-lisp :test
@@ -608,9 +608,6 @@ label:one
       (org-ref-find-bibliography)))))
 #+END_SRC
 
-#+RESULTS: orfb-1a
-: t
-
 #+name: orfb-2
 #+BEGIN_SRC emacs-lisp :test
 "Get bibfile in latex format."
@@ -690,25 +687,26 @@ label:one
 "multiple bibliographies addbibresource form of bibliography."
 (should
  (equal
-    (list (expand-file-name
-	   "tests/test-1.bib"
-	   (file-name-directory
-	    (locate-library "org-ref")))
-	  (expand-file-name
-	   "tests/test-2.bib"
-	   (file-name-directory
-	    (locate-library "org-ref"))))
-    (org-test-with-temp-text
-		(format "\\addbibresource{%s,%s}"
-			  (expand-file-name
-			   "tests/test-1.bib"
-			   (file-name-directory
-			    (locate-library "org-ref")))
-			  (expand-file-name
-			   "tests/test-2.bib"
-			   (file-name-directory
-			    (locate-library "org-ref"))))	      
-	      (org-ref-find-bibliography))))
+  (list (expand-file-name
+	 "tests/test-1.bib"
+	 (file-name-directory
+	  (locate-library "org-ref")))
+	(expand-file-name
+	 "tests/test-2.bib"
+	 (file-name-directory
+	  (locate-library "org-ref"))))
+  (org-test-with-temp-text
+      (format "\\addbibresource{%s}
+\\addbibresource{%s}"
+	      (expand-file-name
+	       "tests/test-1.bib"
+	       (file-name-directory
+		(locate-library "org-ref")))
+	      (expand-file-name
+	       "tests/test-2.bib"
+	       (file-name-directory
+		(locate-library "org-ref"))))	      
+    (org-ref-find-bibliography))))
 #+END_SRC
 
 #+RESULTS: orfb-3a

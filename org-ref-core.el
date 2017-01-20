@@ -1907,7 +1907,7 @@ set in `org-ref-default-bibliography'"
 	;; look for org-ref bibliography or addbibresource links
 	(setq org-ref-bibliography-files nil)
 	(while (re-search-forward
-		"\\<\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
+		"\\<\\(bibliography\\|addbibresource\\):\\([.a-zA-z0-9-_:/]+\\)"
 		nil t)
 	  (setq org-ref-bibliography-files
 		(append org-ref-bibliography-files
