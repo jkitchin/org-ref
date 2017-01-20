@@ -3299,6 +3299,26 @@ move to the beginning of the previous cite link after this one."
        ""))))
 
 
+(defun org-ref-update-pre-post-text ()
+  "Prompt for pre/post text and update link accordingly.
+A blank string deletes pre/post text."
+  (save-excursion
+    (let* ((cite (org-element-context))
+	   (type (org-element-property :type cite))
+	   (key (org-element-property :path cite))
+	   (text (read-from-minibuffer "Pre/post text: ")))
+      ;; First we delete the citation
+      (when (-contains? org-ref-cite-types type)
+	(cl--set-buffer-substring
+	 (org-element-property :begin cite)
+	 (org-element-property :end cite)
+	 ""))
+      ;; Then we reformat the citation
+      (if (string= text "")
+	  (insert (format "%s:%s" type key))
+	(insert (format "[[%s:%s][%s]]" type key text))))))
+
+
 (defun org-ref-delete-key-at-point ()
   "Delete the key at point."
   (save-excursion
