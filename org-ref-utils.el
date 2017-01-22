@@ -21,6 +21,7 @@
 ;;; Commentary:
 
 ;;
+(require 'org)
 (require 'org-ref-pdf)  		; for pdftotext-executable
 
 (defvar org-ref-cite-types)
@@ -767,6 +768,13 @@ From the PDF specification 1.7:
                   (insert-file-contents-literally filename nil 0 5)
                   (buffer-string))))
     (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
+
+(defmacro org-ref-link-set-parameters (type &rest parameters)
+  "Set link TYPE properties to PARAMETERS."
+  (declare (indent 1))
+  (if (fboundp 'org-link-set-parameters)
+      `(org-link-set-parameters ,type ,@parameters)
+    `(org-add-link-type ,type ,(plist-get parameters :follow) ,(plist-get parameters :export))))
 
 (provide 'org-ref-utils)
 ;;; org-ref-utils.el ends here

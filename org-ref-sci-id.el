@@ -27,29 +27,28 @@
 ;;; Code:
 
 (require 'org)
+(require 'org-ref-utils)
 
-(org-add-link-type
- "orcid"
- (lambda
-   (link-string)
-   (browse-url
-    (format "http://orcid.org/%s" link-string)))
- (lambda (keyword desc format)
-   (cond
-    ((eq format 'html)
-     (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword (or desc keyword))))))
+(org-ref-link-set-parameters "orcid"
+  :follow (lambda
+            (link-string)
+            (browse-url
+             (format "http://orcid.org/%s" link-string)))
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'html)
+              (format "<a href=\"http://orcid.org/%s\">orcid:%s</a>" keyword (or desc keyword))))))
 
-(org-add-link-type
- "researcherid"
- (lambda
-   (link-string)
-   (browse-url
-    (format "http://www.researcherid.com/rid/%s" link-string)))
- (lambda (keyword desc format)
-   (cond
-    ((eq format 'html)
-     (format "<a href=\"http://www.researcherid.com/rid/%s\">ResearcherID:%s</a>"
-             keyword (or desc keyword))))))
+(org-ref-link-set-parameters "researcherid"
+  :follow (lambda
+            (link-string)
+            (browse-url
+             (format "http://www.researcherid.com/rid/%s" link-string)))
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'html)
+              (format "<a href=\"http://www.researcherid.com/rid/%s\">ResearcherID:%s</a>"
+                      keyword (or desc keyword))))))
 
 (provide 'org-ref-sci-id)
 ;;; org-ref-sci-id.el ends here

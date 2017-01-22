@@ -31,6 +31,7 @@
 (require 'org)
 (require 'hydra)
 (require 'xml)
+(require 'org-ref-utils)
 
 ;; avoiding byte-compiler warnings/errors
 ;;scopus.el:49:1:Warning: Unused lexical variable `url-request-extra-headers'
@@ -163,69 +164,63 @@ Requires `*scopus-api-key*' to be defined."
    "Citing articles"))
 
 
-(org-add-link-type
- "eid"
- (lambda (eid)
-   "Opens the hydra menu."
-   (setq *hydra-eid* eid)
-   (scopus-hydra/body))
- (lambda (keyword desc format)
-   (cond
-    ((eq format 'html)
-     (format "<a href=\" http://www.scopus.com/record/display.url?eid=%s&origin=resultslist\">%s</a>" keyword (or desc keyword)))
-    ((eq format 'latex)
-     (format "\\href{http://www.scopus.com/record/display.url?eid=%s&origin=resultslist}{%s}"
-             keyword (or desc keyword))))))
+(org-ref-link-set-parameters "eid"
+  :follow (lambda (eid)
+            "Opens the hydra menu."
+            (setq *hydra-eid* eid)
+            (scopus-hydra/body))
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'html)
+              (format "<a href=\" http://www.scopus.com/record/display.url?eid=%s&origin=resultslist\">%s</a>" keyword (or desc keyword)))
+             ((eq format 'latex)
+              (format "\\href{http://www.scopus.com/record/display.url?eid=%s&origin=resultslist}{%s}"
+                      keyword (or desc keyword))))))
 
 
-(org-add-link-type
- "scopus-search"
- (lambda (query)
-   (scopus-basic-search query))
- (lambda (query desc format)
-   (let ((url (format
-               "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=b&sdt=b&sl=%s&s=TITLE-ABS-KEY%%28%s%%29&origin=searchbasic"
-               (length (url-unhex-string (concat "TITLE-ABS-KEY%28" (url-hexify-string query) "%29")))
-               (url-hexify-string query))))
-     (cond
-      ((eq format 'html)
-       (format "<a href=\"%s\">%s</a>" url (or desc query)))
-      ((eq format 'latex)
-       (format "\\href{%s}{%s}" url (or desc query)))))))
+(org-ref-link-set-parameters "scopus-search"
+  :follow (lambda (query)
+            (scopus-basic-search query))
+  :export (lambda (query desc format)
+            (let ((url (format
+                        "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=b&sdt=b&sl=%s&s=TITLE-ABS-KEY%%28%s%%29&origin=searchbasic"
+                        (length (url-unhex-string (concat "TITLE-ABS-KEY%28" (url-hexify-string query) "%29")))
+                        (url-hexify-string query))))
+              (cond
+               ((eq format 'html)
+                (format "<a href=\"%s\">%s</a>" url (or desc query)))
+               ((eq format 'latex)
+                (format "\\href{%s}{%s}" url (or desc query)))))))
 
+(org-ref-link-set-parameters "scopus-advanced-search"
+  :follow (lambda (query)
+            (scopus-advanced-search query))
+  :export (lambda (query desc format)
+            (let ((url (format
+                        "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=a&sdt=a&sl=%s&s=%s&origin=searchadvanced"
+                        (length (url-hexify-string query))
+                        (url-hexify-string query))))
+              (cond
+               ((eq format 'html)
+                (format "<a href=\"%s\">%s</a>" url (or desc query)))
+               ((eq format 'latex)
+                (format "\\href{%s}{%s}" url (or desc query)))))))
 
-(org-add-link-type
- "scopus-advanced-search"
- (lambda (query)
-   (scopus-advanced-search query))
- (lambda (query desc format)
-   (let ((url (format
-               "http://www.scopus.com/results/results.url?sort=plf-f&src=s&sot=a&sdt=a&sl=%s&s=%s&origin=searchadvanced"
-               (length (url-hexify-string query))
-               (url-hexify-string query))))
-     (cond
-      ((eq format 'html)
-       (format "<a href=\"%s\">%s</a>" url (or desc query)))
-      ((eq format 'latex)
-       (format "\\href{%s}{%s}" url (or desc query)))))))
-
-
-(org-add-link-type
- "scopusid"
- (lambda
-   (link-string)
-   (browse-url
-    (format
-     "http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s"
-     link-string)))
- (lambda (keyword desc format)
-   (cond
-    ((eq format 'latex)
-     (format "\\href{http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s}{%s}"
-	     keyword (or desc (concat "scopusid:" keyword))))
-    ((eq format 'html)
-     (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">%s</a>"
-	     keyword (or desc (concat "scopusid:" keyword)))))))
+(org-ref-link-set-parameters "scopusid"
+  :follow (lambda
+            (link-string)
+            (browse-url
+             (format
+              "http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s"
+              link-string)))
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'latex)
+              (format "\\href{http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s}{%s}"
+                      keyword (or desc (concat "scopusid:" keyword))))
+             ((eq format 'html)
+              (format "<a href=\"http://www.scopus.com/authid/detail.url?origin=AuthorProfile&authorId=%s\">%s</a>"
+                      keyword (or desc (concat "scopusid:" keyword)))))))
 
 
 (provide 'org-ref-scopus)

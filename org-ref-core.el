@@ -918,31 +918,18 @@ ARG does nothing. I think it is a required signature."
 	    (or (mapconcat #'identity found ",")
 		(read-file-name "enter file: " nil nil nil)))))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "bibliography"
-     :follow #'org-ref-open-bibliography
-     :export #'org-ref-bibliography-format
-     :complete #'org-bibliography-complete-link
-     :help-echo (lambda (window object position)
-		  (save-excursion
-		    (goto-char position)
-		    (let ((s (org-ref-link-message)))
-		      (with-temp-buffer
-			(insert s)
-			(fill-paragraph)
-			(buffer-string))))))
-  ;; org 8
-  (org-add-link-type
-   "bibliography"
-   ;; this code is run on clicking. The bibliography
-   ;; may contain multiple files. this code finds the
-   ;; one you clicked on and opens it.
-   #'org-ref-open-bibliography
-   ;; formatting code
-   #'org-ref-bibliography-format))
-
+(org-ref-link-set-parameters "bibliography"
+  :follow #'org-ref-open-bibliography
+  :export #'org-ref-bibliography-format
+  :complete #'org-bibliography-complete-link
+  :help-echo (lambda (window object position)
+               (save-excursion
+                 (goto-char position)
+                 (let ((s (org-ref-link-message)))
+                   (with-temp-buffer
+                     (insert s)
+                     (fill-paragraph)
+                     (buffer-string))))))
 
 (defun org-ref-nobibliography-format (keyword desc format)
   "Format function for nobibliography link export"
@@ -961,66 +948,30 @@ ARG does nothing. I think it is a required signature."
 				(split-string keyword ","))
 			","))))))
 
+(org-ref-link-set-parameters "nobibliography"
+  :follow #'org-ref-open-bibliography
+  :export #'org-ref-nobibliography-format)
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "nobibliography"
-     :follow #'org-ref-open-bibliography
-     :export #'org-ref-nobibliography-format)
-  
-  (org-add-link-type
-   "nobibliography"
-   #'org-ref-open-bibliography
-   #'org-ref-nobibliography-format))
+(org-ref-link-set-parameters "printbibliography"
+  :follow #'org-ref-open-bibliography
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'org) (org-ref-get-org-bibliography))
+             ((eq format 'html) (org-ref-get-html-bibliography))
+             ((eq format 'latex)
+              ;; write out the biblatex bibliography command
+              "\\printbibliography"))))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "printbibliography"
-     :follow #'org-ref-open-bibliography
-     :export (lambda (keyword desc format)
-	       (cond
-		((eq format 'org) (org-ref-get-org-bibliography))
-		((eq format 'html) (org-ref-get-html-bibliography))
-		((eq format 'latex)
-		 ;; write out the biblatex bibliography command
-		 "\\printbibliography"))))
-  (org-add-link-type
-   "printbibliography"
-   (lambda (arg) (message "Nothing implemented for clicking here."))
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'org) (org-ref-get-org-bibliography))
-      ((eq format 'html) (org-ref-get-html-bibliography))
-      ((eq format 'latex)
-       ;; write out the biblatex bibliography command
-       "\\printbibliography")))))
-
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "bibliographystyle"
-     :export (lambda (keyword desc format)
-	       (cond
-		((or (eq format 'latex)
-		     (eq format 'beamer))
-		 ;; write out the latex bibliography command
-		 (format "\\bibliographystyle{%s}" keyword))
-		;; Other styles should not have an output for this
-		(t
-		 ""))))
-  (org-add-link-type
-   "bibliographystyle"
-   (lambda (arg) (message "Nothing implemented for clicking here."))
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'latex)
-       ;; write out the latex bibliography command
-       (format "\\bibliographystyle{%s}" keyword))
-      ;; Other styles should not have an output for this
-      (t
-       "")))))
-
+(org-ref-link-set-parameters "bibliographystyle"
+  :export (lambda (keyword desc format)
+            (cond
+             ((or (eq format 'latex)
+                  (eq format 'beamer))
+              ;; write out the latex bibliography command
+              (format "\\bibliographystyle{%s}" keyword))
+             ;; Other styles should not have an output for this
+             (t
+              ""))))
 
 ;;;###autoload
 (defun org-ref-insert-bibliography-link ()
@@ -1072,27 +1023,14 @@ ARG does nothing. I think it is a required signature."
 		     (buffer-substring key-beginning key-end)))
       (find-file bibfile))))
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "addbibresource"
-     :follow #'org-ref-follow-addbibresource
-     :export (lambda (keyword desc format)
-	       (cond
-		((eq format 'html) (format ""))	; no output for html
-		((eq format 'latex)
-		 ;; write out the latex addbibresource command
-		 (format "\\addbibresource{%s}" keyword)))))
-  (org-add-link-type
-   "addbibresource"
-   'org-ref-follow-addbibresource 
-   ;; formatting code
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'html) (format ""))	; no output for html
-      ((eq format 'latex)
-       ;; write out the latex addbibresource command
-       (format "\\addbibresource{%s}" keyword))))))
-
+(org-ref-link-set-parameters "addbibresource"
+  :follow #'org-ref-follow-addbibresource
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'html) (format "")) ; no output for html
+             ((eq format 'latex)
+              ;; write out the latex addbibresource command
+              (format "\\addbibresource{%s}" keyword)))))
 
 ;;** List of figures
 
@@ -1175,22 +1113,12 @@ Ignore figures in COMMENTED sections."
       (use-local-map (copy-keymap org-mode-map))
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "list-of-figures"
-     :follow #'org-ref-list-of-figures
-     :export (lambda (keyword desc format)
-	       (cond
-		((eq format 'latex)
-		 (format "\\listoffigures")))))
-  (org-add-link-type
-   "list-of-figures"
-   'org-ref-list-of-figures		; on click
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'latex)
-       (format "\\listoffigures"))))))
+(org-ref-link-set-parameters "list-of-figures"
+  :follow #'org-ref-list-of-figures
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'latex)
+              (format "\\listoffigures")))))
 
 ;;** List of tables
 ;;;###autoload
@@ -1240,23 +1168,12 @@ ARG does nothing."
       (use-local-map (copy-keymap org-mode-map))
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "list-of-tables"
-     :follow #'org-ref-list-of-tables
-     :export (lambda (keyword desc format)
-	       (cond
-		((eq format 'latex)
-		 (format "\\listoftables")))))
-  (org-add-link-type
-   "list-of-tables"
-   'org-ref-list-of-tables
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'latex)
-       (format "\\listoftables"))))))
-
+(org-ref-link-set-parameters "list-of-tables"
+  :follow #'org-ref-list-of-tables
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'latex)
+              (format "\\listoftables")))))
 
 ;;** label link
 (defun org-ref-count-labels (label)
@@ -1322,57 +1239,33 @@ ARG does nothing."
        :type "ref"
        :link (concat "ref:" (org-element-property :name object))))))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "label"
-     :follow (lambda (label)
-	       "On clicking count the number of label tags used in the buffer.
+(org-ref-link-set-parameters "label"
+  :follow (lambda (label)
+            "On clicking count the number of label tags used in the buffer.
 A number greater than one means multiple labels!"
-	       (let ((count (org-ref-count-labels label)))
-		 (message (format "%s occurence%s"
-				  count
-				  (if (or (= count 0)
-					  (> count 1))
-				      "s"
-				    ""))
-			  (org-ref-count-labels label))))
-     :export (lambda (keyword desc format)
-	       (cond
-		((eq format 'html) (format "<div id=\"%s\">" keyword))
-		((eq format 'latex)
-		 (format "\\label{%s}" keyword))))
-     :store #'org-label-store-link
-     :face 'org-ref-label-face
-     :help-echo (lambda (window object position)
-		  (save-excursion
-		    (goto-char position)
-		    (let ((s (org-ref-link-message)))
-		      (with-temp-buffer
-			(insert s)
-			(fill-paragraph)
-			(buffer-string))))))
-  
-  (org-add-link-type
-   "label"
-   (lambda (label)
-     "On clicking count the number of label tags used in the buffer.
-A number greater than one means multiple labels!"
-     (let ((count (org-ref-count-labels label)))
-       (message (format "%s occurence%s"
-			count
-			(if (or (= count 0)
-				(> count 1))
-			    "s"
-			  ""))
-		(org-ref-count-labels label))))
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'html) (format "<div id=\"%s\">" keyword))
-      ((eq format 'latex)
-       (format "\\label{%s}" keyword)))))
-  (add-hook 'org-store-link-functions 'org-label-store-link))
-
+            (let ((count (org-ref-count-labels label)))
+              (message (format "%s occurence%s"
+                               count
+                               (if (or (= count 0)
+                                       (> count 1))
+                                   "s"
+                                 ""))
+                       (org-ref-count-labels label))))
+  :export (lambda (keyword desc format)
+            (cond
+             ((eq format 'html) (format "<div id=\"%s\">" keyword))
+             ((eq format 'latex)
+              (format "\\label{%s}" keyword))))
+  :store #'org-label-store-link
+  :face 'org-ref-label-face
+  :help-echo (lambda (window object position)
+               (save-excursion
+                 (goto-char position)
+                 (let ((s (org-ref-link-message)))
+                   (with-temp-buffer
+                     (insert s)
+                     (fill-paragraph)
+                     (buffer-string))))))
 
 ;;** ref link
 (defun org-ref-ref-follow (label)
@@ -1460,25 +1353,12 @@ Optional argument ARG Does nothing."
    ((eq format 'latex)
     (format "\\ref{%s}" keyword))))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "ref"
-     :follow #'org-ref-ref-follow
-     :export #'org-ref-ref-export
-     :complete #'org-ref-complete-link
-     :face 'org-ref-ref-face
-     :help-echo #'org-ref-ref-help-echo)
-  
-  (org-add-link-type
-   "ref"
-   #'org-ref-ref-follow
-   (lambda (keyword desc format)
-     (cond
-      ((eq format 'html) (format "<a href=\"#%s\">%s</a>" keyword keyword))
-      ((eq format 'latex)
-       (format "\\ref{%s}" keyword))))))
-
+(org-ref-link-set-parameters "ref"
+  :follow #'org-ref-ref-follow
+  :export #'org-ref-ref-export
+  :complete #'org-ref-complete-link
+  :face 'org-ref-ref-face
+  :help-echo #'org-ref-ref-help-echo)
 
 (defun org-ref-get-org-labels ()
   "Return a list of #+LABEL: labels."
@@ -1615,27 +1495,17 @@ This is used to complete ref links."
     (org-mark-ring-goto)
     (error "%s not found" label))
   (message "go back with (org-mark-ring-goto) `C-c &`"))
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "pageref"
-     :follow #'org-ref-follow-pageref
-     :export (lambda (path desc format)
-	       (cond
-		((eq format 'html) (format "(<pageref>%s</pageref>)" path))
-		((eq format 'latex)
-		 (format "\\pageref{%s}" path))))
-     :face 'org-ref-ref-face
-     :complete #'org-pageref-complete-link
-     :help-echo #'org-ref-ref-help-echo)
-  (org-add-link-type
-   "pageref"
-   #'org-ref-follow-pageref 
-   (lambda (path desc format)
-     (cond
-      ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
-      ((eq format 'latex)
-       (format "\\pageref{%s}" path))))))
 
+(org-ref-link-set-parameters "pageref"
+  :follow #'org-ref-follow-pageref
+  :export (lambda (path desc format)
+            (cond
+             ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
+             ((eq format 'latex)
+              (format "\\pageref{%s}" path))))
+  :face 'org-ref-ref-face
+  :complete #'org-pageref-complete-link
+  :help-echo #'org-ref-ref-help-echo)
 
 (defun org-pageref-complete-link (&optional arg)
   "Completion function for ref links.
@@ -1676,18 +1546,12 @@ Optional argument ARG Does nothing."
    ((eq format 'latex)
     (format "\\nameref{%s}" path))))
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "nameref"
-     :follow #'org-ref-follow-nameref
-     :export #'org-ref-export-nameref
-     :complete #'org-ref-complete-link
-     :face 'org-ref-ref-face
-     :help-echo #'org-ref-ref-help-echo)
-  (org-add-link-type
-   "nameref"
-   #'org-ref-follow-nameref
-   #'org-ref-export-nameref))
+(org-ref-link-set-parameters "nameref"
+  :follow #'org-ref-follow-nameref
+  :export #'org-ref-export-nameref
+  :complete #'org-ref-complete-link
+  :face 'org-ref-ref-face
+  :help-echo #'org-ref-ref-help-echo)
 
 ;;** eqref link
 
@@ -1717,19 +1581,13 @@ Optional argument ARG Does nothing."
    ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
    ((eq format 'html) (format "\\eqref{%s}" keyword))))
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "eqref"
-     :follow #'org-ref-eqref-follow
-     :export #'org-ref-eqref-export
-     ;; This isn't equation specific, one day we might try to make it that way.
-     :complete #'org-ref-complete-link
-     :face 'org-ref-ref-face
-     :help-echo #'org-ref-ref-help-echo)
-  (org-add-link-type
-   "eqref"
-   #'org-ref-eqref-follow
-   #'org-ref-eqref-export))
+(org-ref-link-set-parameters "eqref"
+  :follow #'org-ref-eqref-follow
+  :export #'org-ref-eqref-export
+  ;; This isn't equation specific, one day we might try to make it that way.
+  :complete #'org-ref-complete-link
+  :face 'org-ref-ref-face
+  :help-echo #'org-ref-ref-help-echo)
 
 ;;** autoref link
 
@@ -1763,18 +1621,12 @@ Optional argument ARG Does nothing."
    ;;'autonumber'
    ((eq format 'html) (format "\\autoref{%s}" keyword))))
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "autoref"
-     :follow #'org-ref-autoref-follow
-     :export #'org-ref-autoref-export
-     :complete #'org-ref-complete-link
-     :face 'org-ref-ref-face
-     :help-echo #'org-ref-ref-help-echo)
-  (org-add-link-type
-   "autoref"
-   #'org-ref-autoref-follow
-   #'org-ref-autoref-export))
+(org-ref-link-set-parameters "autoref"
+  :follow #'org-ref-autoref-follow
+  :export #'org-ref-autoref-export
+  :complete #'org-ref-complete-link
+  :face 'org-ref-ref-face
+  :help-echo #'org-ref-ref-help-echo)
 
 ;;** cite link
 
@@ -2186,24 +2038,13 @@ Save in the default link type."
     (car org-stored-links)))
 
 ;;* Index link
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "index"
-     :follow (lambda (path)
-	       (occur path))
-     :export (lambda (path desc format)
-	       (cond
-		((eq format 'latex)
-		 (format "\\index{%s}" path)))))
-  (org-add-link-type
-   "index"
-   (lambda (path)
-     (occur path))
-
-   (lambda (path desc format)
-     (cond
-      ((eq format 'latex)
-       (format "\\index{%s}" path))))))
+(org-ref-link-set-parameters "index"
+  :follow (lambda (path)
+            (occur path))
+  :export (lambda (path desc format)
+            (cond
+             ((eq format 'latex)
+              (format "\\index{%s}" path)))))
 
 ;; this will generate a temporary index of entries in the file when clicked on.
 ;;;###autoload
@@ -2264,23 +2105,12 @@ PATH is required for the org-link, but it does nothing here."
 	  (insert (format "%s %s\n\n" (car link) (cdr link))))))
     (switch-to-buffer "*index*")))
 
-
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "printindex"
-     :follow #'org-ref-index
-     :export (lambda (path desc format)
-	       (cond
-		((eq format 'latex)
-		 (format "printindex")))))
-  (org-add-link-type
-   "printindex"
-   'org-ref-index
-   ;; formatting
-   (lambda (path desc format)
-     (cond
-      ((eq format 'latex)
-       (format "printindex"))))))
+(org-ref-link-set-parameters "printindex"
+  :follow #'org-ref-index
+  :export (lambda (path desc format)
+            (cond
+             ((eq format 'latex)
+              (format "printindex")))))
 
 ;;* Utilities
 ;;** create text citations from a bibtex entry
