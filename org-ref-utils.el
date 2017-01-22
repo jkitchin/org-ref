@@ -769,6 +769,7 @@ From the PDF specification 1.7:
                   (buffer-string))))
     (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
 
+;;;###autoload
 (defmacro org-ref-link-set-parameters (type &rest parameters)
   "Set link TYPE properties to PARAMETERS."
   (declare (indent 1))
