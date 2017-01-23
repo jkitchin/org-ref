@@ -864,7 +864,7 @@ documents."
 		    'chomp-trailing-space
 		    (intern (org-element-property :type link)))
 	       (goto-char end)
-	       (while (looking-at " " (- (point) 2))
+	       (while (looking-back " " (- (point) 2))
 		 (delete-char 1)))
 
 	     ;; Check for transposing punctuation
