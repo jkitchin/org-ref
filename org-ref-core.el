@@ -3304,8 +3304,14 @@ A blank string deletes pre/post text."
 	 ""))
       ;; Then we reformat the citation
       (if (string= text "")
-	  (insert (format "%s:%s" type key))
-	(insert (format "[[%s:%s][%s]]" type key text))))))
+	  (progn
+	    (insert (format "%s:%s " type key))
+	    ;; Avoid space before punctuation
+	    (when (looking-at "[[:punct:]]")
+	      (delete-backward-char 1)))
+	(insert (format "[[%s:%s][%s]] " type key text))
+	(when (looking-at "[[:punct:]]")
+	  (delete-backward-char 1))))))
 
 
 (defun org-ref-delete-key-at-point ()
