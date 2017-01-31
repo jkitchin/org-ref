@@ -750,14 +750,9 @@ key.  This is a variant of `org-ref-get-ascii-bibliography' where
 some things are escaped since odt is an xml format."
   (let ((keys (org-ref-get-bibtex-keys sort)))
     (when keys
-      (concat
-       "Bibliography
-=============
-"
-       (mapconcat (lambda (x)
-		    (xml-escape-string (org-ref-get-bibtex-entry-ascii x)))
-		  keys "\n")
-       "\n"))))
+      (mapconcat (lambda (x)
+		   (xml-escape-string (org-ref-get-bibtex-entry-ascii x)))
+		 keys "\n"))))
 
 (provide 'org-ref-utils)
 ;;; org-ref-utils.el ends here
