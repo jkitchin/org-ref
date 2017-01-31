@@ -306,6 +306,7 @@ Note also that pre text is preceded by a double colon, for example:
 	  (setq end (org-element-property :end link)
 		path (org-element-property :path link))
 	  (goto-char end)
+	  (skip-chars-backward " ")
 	  ;; Check if link has pre/post text
 	  (if (looking-back "\]")
 	      (progn
