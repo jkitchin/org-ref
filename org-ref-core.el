@@ -1909,10 +1909,21 @@ set in `org-ref-default-bibliography'"
 	(while (re-search-forward
 		"\\<\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
 		nil t)
-	  (setq org-ref-bibliography-files
-		(append org-ref-bibliography-files
-			(mapcar 'org-ref-strip-string
-				(split-string (match-string 2) ",")))))
+	  (loop for bibfile in (mapcar 'org-ref-strip-string
+				       (split-string (match-string 2) ","))
+		do
+		(cond
+		 ((file-exists-p bibfile)
+		  (add-to-list 'org-ref-bibliography-files bibfile t))
+		 ((getenv "BIBINPUTS")
+		  (loop for bibdir in (split-string (getenv "BIBINPUTS") ";")
+			do
+			(when (file-exists-p (expand-file-name
+					      bibfile
+					      bibdir))
+			  (add-to-list 'org-ref-bibliography-files bibfile t))))
+		 (t
+		  (error "%s does not seem to exist" bibfile)))))
 	
 	(when org-ref-bibliography-files
 	  (throw 'result org-ref-bibliography-files))
