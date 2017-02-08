@@ -1921,7 +1921,11 @@ set in `org-ref-default-bibliography'"
 			(when (file-exists-p (expand-file-name
 					      bibfile
 					      bibdir))
-			  (add-to-list 'org-ref-bibliography-files bibfile t))))
+			  (add-to-list 'org-ref-bibliography-files
+				       (expand-file-name
+					bibfile
+					bibdir)
+				       t))))
 		 (t
 		  (error "%s does not seem to exist" bibfile)))))
 	
@@ -3282,7 +3286,21 @@ move to the beginning of the previous cite link after this one."
                          (buffer-substring key-beginning key-end)))
                   (if (file-exists-p bibfile)
                       (message "%s exists." bibfile)
-                    (message "!!! %s NOT FOUND !!!" bibfile))))))))))))
+		    ;; Check for BIBINPUTS
+		    (message "bibinputs")
+		    (if (getenv "BIBINPUTS")
+			(catch 'message
+			  (loop for d in (split-string (getenv "BIBINPUTS") ";")
+				if (file-exists-p (expand-file-name
+						   bibfile
+						   d)) 
+				do
+				(throw 'message (message "%s exists"
+							 (expand-file-name
+							  bibfile
+							  d))))
+			  (throw 'message (message "!!! %s NOT FOUND !!!" bibfile)))
+		      (message "!!! %s NOT FOUND !!!" bibfile)))))))))))))
 
 ;;** aliases
 (defalias 'oro 'org-ref-open-citation-at-point)
