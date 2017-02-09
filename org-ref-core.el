@@ -1551,7 +1551,7 @@ Optional argument ARG Does nothing."
   (save-excursion
     (goto-char (point-min))
     (let ((matches '()))
-      (while (re-search-forward "\\\\label{\\([a-zA-z0-9:-]*\\)}"
+      (while (re-search-forward "\\\\label{\\([a-zA-Z0-9:-_\\.]*\\)}"
 				(point-max) t)
         (add-to-list 'matches (match-string-no-properties 1) t))
       matches)))
@@ -1586,7 +1586,7 @@ This is used to complete ref links."
       (let ((matches '()))
         ;; these are the org-ref label:stuff  kinds
         (while (re-search-forward
-                "[^#+]label:\\([a-zA-z0-9:-]*\\)" (point-max) t)
+                "[^#+]label:\\([a-zA-Z0-9:-\\._]*\\)" (point-max) t)
 	  (setq matches (append matches
 				(list
 				 (match-string-no-properties 1)))))
