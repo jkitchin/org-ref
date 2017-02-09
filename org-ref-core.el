@@ -851,7 +851,16 @@ we open it, otherwise prompt for which one to open."
 	(setq bibfile (org-ref-strip-string
 		       (buffer-substring key-beginning key-end)))
 	;; open file on click
-	(find-file bibfile)))))
+	(if (file-exists-p bibfile)
+	    (find-file bibfile)
+	  ;; Maybe it is in BIBINPUTS
+	  (catch 'done
+	    (loop for path in (split-string (getenv "BIBINPUTS") ":")
+		  do
+		  (when (file-exists-p
+			 (expand-file-name bibfile path))
+		    (find-file (expand-file-name bibfile path))
+		    (throw 'done (expand-file-name bibfile path))))))))))
 
 
 (defun org-ref-bibliography-format (keyword desc format)
