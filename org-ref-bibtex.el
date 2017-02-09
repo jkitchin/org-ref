@@ -1232,7 +1232,8 @@ of format strings used."
 	   (ref))
       (if (null entry)
 	  "!!! No entry found !!!"
-	(setq format-string (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats)))
+	(setq format-string (or (cdr (assoc (downcase (bibtex-completion-get-value "=type=" entry)) formats))
+				"${author}, /${title}/ (${year})."))
 	(setq ref (s-format format-string 'bibtex-completion-apa-get-value entry))
 	(replace-regexp-in-string "\\([.?!]\\)\\." "\\1" ref)))))
 
