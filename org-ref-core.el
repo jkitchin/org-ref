@@ -1916,7 +1916,7 @@ set in `org-ref-default-bibliography'"
 		 ((file-exists-p bibfile)
 		  (add-to-list 'org-ref-bibliography-files bibfile t))
 		 ((getenv "BIBINPUTS")
-		  (loop for bibdir in (split-string (getenv "BIBINPUTS") ";")
+		  (loop for bibdir in (split-string (getenv "BIBINPUTS") ":")
 			do
 			(when (file-exists-p (expand-file-name
 					      bibfile
@@ -3290,7 +3290,7 @@ move to the beginning of the previous cite link after this one."
 		    (message "bibinputs")
 		    (if (getenv "BIBINPUTS")
 			(catch 'message
-			  (loop for d in (split-string (getenv "BIBINPUTS") ";")
+			  (loop for d in (split-string (getenv "BIBINPUTS") ":")
 				if (file-exists-p (expand-file-name
 						   bibfile
 						   d)) 
