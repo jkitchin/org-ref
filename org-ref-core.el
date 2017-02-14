@@ -1264,6 +1264,9 @@ ARG does nothing."
   (+ (count-matches
       (format "label:%s\\b[^-:]" label)
       (point-min) (point-max))
+     (count-matches
+      (format "<<%s>>" label)
+      (point-min) (point-max))
      ;; for tblname, it is not enough to get word boundary
      ;; tab-little and tab-little-2 match then.
      (count-matches
@@ -1417,7 +1420,11 @@ A number greater than one means multiple labels!"
 		   (format "CUSTOM_ID=\"%s\"" label))))
 	   (if (not (= 1 (length p)))
 	       nil
-	     (goto-char (car p))))))
+	     (goto-char (car p)))))
+       (progn
+	 (goto-char (point-min))
+	 (re-search-forward
+	  (format "<<%s>>" label) nil t)))
 
     ;; we did not find anything, so go back to where we came
     (org-mark-ring-goto)
@@ -1444,52 +1451,6 @@ Optional argument ARG Does nothing."
 	(fill-paragraph)
 	(buffer-string)))))
 
-;; (defun org-ref-ref-html-export (orig-func &rest args)
-;;   "Exports a ref link for html.
-;; It advises org-html-link. It is needed because the label we ref
-;; is not what org exports, it uses a custom id. Also, this gets us
-;; the table/figure number I think. This is hackier than I would
-;; like, ideally one day there is org-html-prefer-user-labels to
-;; avoid this."
-;;   ;; args are link, desc and info
-;;   ;; link is a proper org-element
-;;   (if (string= "ref" (org-element-property :type (car args)))
-;;       (destructuring-bind (link desc info) args
-;; 	(let* ((attributes-plist
-;; 		(let* ((parent (org-export-get-parent-element link))
-;; 		       (link (let ((container (org-export-get-parent link)))
-;; 			       (if (and (eq (org-element-type container) 'link)
-;; 					(org-html-inline-image-p link info))
-;; 				   container
-;; 				 link))))
-;; 		  (and (eq (org-element-map parent 'link 'identity info t) link)
-;; 		       (org-export-read-attribute :attr_html parent))))
-;; 	       (attributes
-;; 		(let ((attr (org-html--make-attribute-string attributes-plist)))
-;; 		  (if (org-string-nw-p attr) (concat " " attr) "")))
-;; 	       (destination (org-export-resolve-fuzzy-link link info))
-;; 	       (ref (org-export-get-reference
-;; 		     destination
-;; 		     info))
-;; 	       (org-html-standalone-image-predicate
-;; 		#'org-html--has-caption-p)
-;; 	       (number (cond
-;; 			(desc nil)
-;; 			((org-html-standalone-image-p destination info)
-;; 			 (org-export-get-ordinal
-;; 			  (org-element-map destination 'link
-;; 			    #'identity info t)
-;; 			  info 'link 'org-html-standalone-image-p))
-;; 			(t (org-export-get-ordinal
-;; 			    destination info nil 'org-html--has-caption-p))))
-;; 	       (desc (cond (desc)
-;; 			   ((not number) "No description for this link")
-;; 			   ((numberp number) (number-to-string number))
-;; 			   (t (mapconcat #'number-to-string number ".")))))
-;; 	  (format "<a href=\"#%s\"%s>%s</a>" ref attributes desc)))
-;;     (apply orig-func args)))
-
-;; (advice-add 'org-html-link :around #'org-ref-ref-html-export)
 
 (defun org-ref-ref-export (keyword desc format)
   "An export function for ref links."
@@ -1592,16 +1553,19 @@ This is used to complete ref links."
 				 (match-string-no-properties 1)))))
         ;; now add all the other kinds of labels.
         (append matches
-                ;; #+label:
-                (org-ref-get-org-labels)
-                ;; \label{}
-                (org-ref-get-latex-labels)
-                ;; #+tblname: and actually #+label
-                (org-ref-get-tblnames)
-                ;; CUSTOM_IDs
-                (org-ref-get-custom-ids)
+		;; #+label:
+		(org-ref-get-org-labels)
+		;; \label{}
+		(org-ref-get-latex-labels)
+		;; #+tblname: and actually #+label
+		(org-ref-get-tblnames)
+		;; CUSTOM_IDs
+		(org-ref-get-custom-ids)
 		;; names
-		(org-ref-get-names))))))
+		(org-ref-get-names)
+		;; radio targets
+		(org-element-map (org-element-parse-buffer) 'target
+		  (lambda (tg) (org-element-property :value tg))))))))
 
 
 ;;;###autoload
@@ -1640,7 +1604,13 @@ This is used to complete ref links."
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)))
+	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
+
+       ;; radio link
+       (progn
+	 (goto-char (point-min))
+	 (re-search-forward
+	  (format "<<%s>>" label) nil t)))
     ;; we did not find anything, so go back to where we came
     (org-mark-ring-goto)
     (error "%s not found" label))
@@ -1684,7 +1654,7 @@ Optional argument ARG Does nothing."
 ;; ** nameref link
 
 (defun org-ref-follow-nameref (label)
-  "on clicking goto the label. Navigate back with C-c &"
+  "On clicking goto the LABEL. Navigate back with C-c &"
   (org-mark-ring-push)
   ;; next search from beginning of the buffer
   (widen)
@@ -1764,7 +1734,7 @@ Optional argument ARG Does nothing."
 ;;** autoref link
 
 (defun org-ref-autoref-follow (label)
-  "on clicking goto the label. Navigate back with C-c &"
+  "On clicking goto the LABEL. Navigate back with C-c &."
   (org-mark-ring-push)
   ;; next search from beginning of the buffer
   (widen)
@@ -3198,6 +3168,10 @@ move to the beginning of the previous cite link after this one."
 	;; (message-box heading)
 	(when heading
 	  (throw 'result (car heading))))
+      ;; radio target
+      (goto-char (point-min))
+      (when (re-search-forward (format "<<%s>>" label) nil t)
+	(throw 'result (match-string 0)))
 
 
       (throw 'result "!!! NO CONTEXT FOUND !!!"))))
