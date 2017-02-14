@@ -39,7 +39,8 @@
 (defun org-ref-helm-insert-label-link ()
   "Insert label link at point.
 Helm will display existing labels in the current buffer to avoid
-duplication."
+duplication. If you use a prefix arg insert a radio target
+instead of a label."
   (interactive)
   (let ((labels (org-ref-get-labels)))
     (helm :sources `(,(helm-build-sync-source "Existing labels"
@@ -49,9 +50,11 @@ duplication."
 				    (org-open-link-from-string
 				     (format "ref:%s" label)))))
 		     ,(helm-build-dummy-source "Create new label"
-			:action (lambda (label)
+			:action (lambda (label) 
 				  (with-helm-current-buffer
-				    (insert (concat "label:" label))))))
+				    (if helm-current-prefix-arg
+					(insert (concat "<<" label ">>"))
+				      (insert (concat "label:" label)))))))
 	  :buffer "*helm labels*")))
 
 
