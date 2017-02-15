@@ -447,6 +447,12 @@ REDIRECT-URL is where the pdf url will be in."
       (when (re-search-forward "<a name=\"FullTextPDF\".*href=\"\\([[:ascii:]]*?\\)\"" nil t)
 	(concat "http://dl.acm.org/" (match-string 1))))))
 
+;;** Optical Society of America (OSA)
+(defun osa-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^https//www.osapublishing.org" *doi-utils-redirect*)
+    (replace-regexp-in-string "abstract.cfm" "viewmedia.cfm" *doi-utils-redirect* )))
+
 
 ;;** Add all functions
 
@@ -475,6 +481,7 @@ REDIRECT-URL is where the pdf url will be in."
        'ieee-pdf-url
        'ieee2-pdf-url
        'acm-pdf-url
+       'osa-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
