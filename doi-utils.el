@@ -450,7 +450,7 @@ REDIRECT-URL is where the pdf url will be in."
 ;;** Optical Society of America (OSA)
 (defun osa-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
-  (when (string-match "^https//www.osapublishing.org" *doi-utils-redirect*)
+  (when (string-match "^https://www.osapublishing.org" *doi-utils-redirect*)
     (replace-regexp-in-string "abstract.cfm" "viewmedia.cfm" *doi-utils-redirect* )))
 
 
