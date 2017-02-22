@@ -1,0 +1,8 @@
+
+* 388 
+
+https://github.com/jkitchin/org-ref/issues/388
+
+Click on this, and press "g". It should get the bibtex entry from the doi.
+
+doi:10.1016/j.calphad.2017.01.009
