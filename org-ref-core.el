@@ -3212,7 +3212,7 @@ move to the beginning of the previous cite link after this one."
 		  (= (org-ref-count-labels
 		      (org-element-property :path object))
 		     0)
-		  (message "No label found for %s" (org-element-property :path object))
+		  (message "!!! NO CONTEXT FOUND !!!count: 0")
 		(message "%scount: %s"
 			 (org-ref-get-label-context
 			  (org-element-property :path object))
