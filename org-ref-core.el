@@ -1262,7 +1262,7 @@ ARG does nothing."
 (defun org-ref-count-labels (label)
   "Count number of LABELs in the document."
   (+ (count-matches
-      (format "label:%s\\b[^-:]" label)
+      (format "label:%s\\( \\|]\\|$\\)" (regexp-quote label))
       (point-min) (point-max))
      (count-matches
       (format "<<%s>>" label)
@@ -1386,30 +1386,30 @@ A number greater than one means multiple labels!"
        ;; our label links
        (progn
 	 (goto-char (point-min))
-	 (re-search-forward (format "label:%s\\b" label) nil t))
+	 (re-search-forward (format "label:%s\\b" (regexp-quote label)) nil t))
 
        ;; a latex label
        (progn
 	 (goto-char (point-min))
-	 (re-search-forward (format "\\label{%s}" label) nil t))
+	 (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t))
 
        ;; #+label: name  org-definition
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+	  (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; org tblname
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
+	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; a #+name
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+name:\\s-*\\(%s\\)\\b" label) nil t))
+	  (format "^#\\+name:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; CUSTOM_ID
        (progn
@@ -1424,7 +1424,7 @@ A number greater than one means multiple labels!"
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "<<%s>>" label) nil t)))
+	  (format "<<%s>>" (regexp-quote label)) nil t)))
 
     ;; we did not find anything, so go back to where we came
     (org-mark-ring-goto)
@@ -1547,7 +1547,7 @@ This is used to complete ref links."
       (let ((matches '()))
         ;; these are the org-ref label:stuff  kinds
         (while (re-search-forward
-                "[^#+]label:\\([a-zA-Z0-9:\\._-]*\\)" (point-max) t)
+                "[^#+]label:\\([a-zA-Z0-9:\\._-]*\\)\\_>" (point-max) t)
 	  (setq matches (append matches
 				(list
 				 (match-string-no-properties 1)))))
@@ -1587,30 +1587,30 @@ This is used to complete ref links."
        ;; our label links
        (progn
 	 (goto-char (point-min))
-	 (re-search-forward (format "label:%s\\b" label) nil t))
+	 (re-search-forward (format "label:%s\\b" (regexp-quote label)) nil t))
 
        ;; a latex label
        (progn
 	 (goto-char (point-min))
-	 (re-search-forward (format "\\label{%s}" label) nil t))
+	 (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t))
 
        ;; #+label: name  org-definition
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+	  (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; org tblname
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t))
+	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; radio link
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "<<%s>>" label) nil t)))
+	  (format "<<%s>>" (regexp-quote label)) nil t)))
     ;; we did not find anything, so go back to where we came
     (org-mark-ring-goto)
     (error "%s not found" label))
@@ -1663,7 +1663,7 @@ Optional argument ARG Does nothing."
        ;; a latex label
        (progn
 	 (goto-char (point-min))
-	 (re-search-forward (format "\\label{%s}" label) nil t)))
+	 (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t)))
     ;; we did not find anything, so go back to where we came
     (org-mark-ring-goto)
     (error "%s not found" label))
@@ -1701,11 +1701,11 @@ Optional argument ARG Does nothing."
       (or
        ;; search forward for the first match
        ;; our label links
-       (re-search-forward (format "label:%s" label) nil t)
+       (re-search-forward (format "label:%s" (regexp-quote label)) nil t)
        ;; a latex label
-       (re-search-forward (format "\\label{%s}" label) nil t)
+       (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t)
        ;; #+label: name  org-definition
-       (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+       (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
     (org-mark-ring-goto)
     (error "%s not found" label))
   (message "go back with (org-mark-ring-goto) `C-c &`"))
@@ -1743,11 +1743,11 @@ Optional argument ARG Does nothing."
       (or
        ;; search forward for the first match
        ;; our label links
-       (re-search-forward (format "label:%s" label) nil t)
+       (re-search-forward (format "label:%s" (regexp-quote label)) nil t)
        ;; a latex label
-       (re-search-forward (format "\\label{%s}" label) nil t)
+       (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t)
        ;; #+label: name  org-definition
-       (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t))
+       (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
     (org-mark-ring-goto)
     (error "%s not found" label))
   (message "go back with (org-mark-ring-goto) `C-c &`"))
@@ -3170,7 +3170,7 @@ move to the beginning of the previous cite link after this one."
 	  (throw 'result (car heading))))
       ;; radio target
       (goto-char (point-min))
-      (when (re-search-forward (format "<<%s>>" label) nil t)
+      (when (re-search-forward (format "<<%s>>" (regexp-quote label)) nil t)
 	(throw 'result (match-string 0)))
 
 
@@ -3187,14 +3187,15 @@ move to the beginning of the previous cite link after this one."
   (when (not (or (looking-at " ")	;looking at a space
 		 (looking-at "^$")	;looking at a blank line
 		 (looking-at "]")	;looking at a bracket at the end
-		 (looking-at "$"	;looking at the end of the line.
-			     )))
+					;looking at the end of the line.
+		 (looking-at "$")))
 
     (save-restriction
       (widen)
       (when (eq major-mode 'org-mode)
         (let* ((object (org-element-context))
                (type (org-element-property :type object)))
+	  (message "%s" object)
           (save-excursion
             (cond
              ;; cite links
@@ -3207,11 +3208,16 @@ move to the beginning of the previous cite link after this one."
 		  (string= type "pageref")
 		  (string= type "nameref")
 		  (string= type "autoref"))
-              (message "%scount: %s"
-                       (org-ref-get-label-context
-                        (org-element-property :path object))
-                       (org-ref-count-labels
-                        (org-element-property :path object))))
+	      (if
+		  (= (org-ref-count-labels
+		      (org-element-property :path object))
+		     0)
+		  (message "No label found for %s" (org-element-property :path object))
+		(message "%scount: %s"
+			 (org-ref-get-label-context
+			  (org-element-property :path object))
+			 (org-ref-count-labels
+			  (org-element-property :path object)))))
 
              ;; message the count
              ((string= type "label")

@@ -1,4 +1,32 @@
 
+
+* 381 Testing labels
+
+label:test.1
+
+label:test-1
+
+ref:test.1  ref:test  ref:test-1
+
+<2017-02-22 Wed>
+
+I found some minor inconsistencies with labels and ref messages that are caused by allowing . in the name. The . in particular is tricky since it is a special regexp character. I added regexp-quote in a lot of places to accomodate this.
+
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-get-labels)
+#+END_SRC
+
+#+RESULTS:
+| test.1 | test-1 |
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-count-labels "test")
+#+END_SRC
+
+#+RESULTS:
+: 0
+
 * 388 
 
 https://github.com/jkitchin/org-ref/issues/388
