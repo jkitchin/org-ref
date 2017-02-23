@@ -3195,7 +3195,6 @@ move to the beginning of the previous cite link after this one."
       (when (eq major-mode 'org-mode)
         (let* ((object (org-element-context))
                (type (org-element-property :type object)))
-	  (message "%s" object)
           (save-excursion
             (cond
              ;; cite links
