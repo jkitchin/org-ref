@@ -10,7 +10,7 @@ ref:test.1  ref:test  ref:test-1
 
 <2017-02-22 Wed>
 
-I found some minor inconsistencies with labels and ref messages that are caused by allowing . in the name. The . in particular is tricky since it is a special regexp character. I added regexp-quote in a lot of places to accomodate this.
+I found some minor inconsistencies with labels and ref messages that are caused by allowing . in the name. The . in particular is tricky since it is a special regexp character. I added regexp-quote in a lot of places to accommodate this.
 
 
 #+BEGIN_SRC emacs-lisp
