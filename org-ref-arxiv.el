@@ -177,17 +177,10 @@ Returns a formatted BibTeX entry."
                    (match-string 1))))
     (url-copy-file pdf-url pdf)
     ;; now check if we got a pdf
-    (with-temp-buffer
-      (insert-file-contents pdf)
-      ;; PDFS start with %PDF-1.x as the first few characters.
-      (if (not (string= (buffer-substring 1 6) "%PDF-"))
-          (progn
-            (message "%s" (buffer-string))
-            (delete-file pdf))
-        (message "%s saved" pdf)))
-
-    (org-open-file pdf)))
-
+    (if (org-ref-pdf-p pdf)
+        (org-open-file pdf)
+      (delete-file pdf)
+      (message "Error downloading arxiv pdf %s" pdf-url))))
 
 ;;;###autoload
 (defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile pdfdir)

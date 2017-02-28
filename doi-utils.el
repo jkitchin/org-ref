@@ -544,15 +544,11 @@ checked."
 	       (setq pdf-url (doi-utils-get-pdf-url doi)))
 	  (url-copy-file pdf-url pdf-file)
 	  ;; now check if we got a pdf
-	  (with-temp-buffer
-	    (insert-file-contents pdf-file)
-	    ;; PDFS start with %PDF-1.x as the first few characters.
-	    (if (not (string= (buffer-substring 1 (min 6 (point-max))) "%PDF-"))
-		(progn
-		  (delete-file pdf-file)
-		  (message "No pdf was downloaded.")
-		  (browse-url pdf-url))
-	      (message "%s saved" pdf-file))))
+          (if (org-ref-pdf-p pdf-file)
+              (message "%s saved" pdf-file)
+            (delete-file pdf-file)
+            (message "No pdf was downloaded.")
+            (browse-url pdf-url)))
 	 ((equal arg '(4))
 	  (copy-file (expand-file-name (read-file-name "Pdf file: " nil nil t))
 		     pdf-file))
