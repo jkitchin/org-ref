@@ -272,11 +272,7 @@ Argument REDIRECT-URL URL you are redirected to."
 (defun iop-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http://iopscience.iop.org" *doi-utils-redirect*)
-    (let ((tail (replace-regexp-in-string
-                 "^http://iopscience.iop.org" "" *doi-utils-redirect*)))
-      (concat "http://iopscience.iop.org" tail
-              "/pdf" (replace-regexp-in-string "/" "_" tail) ".pdf"))))
-
+    (replace-regexp-in-string "/meta" "/pdf" *doi-utils-redirect*)))
 
 ;;** JSTOR
 
