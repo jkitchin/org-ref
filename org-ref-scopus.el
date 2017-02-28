@@ -32,15 +32,10 @@
 (require 'hydra)
 (require 'xml)
 
-;; avoiding byte-compiler warnings/errors
-;;scopus.el:49:1:Warning: Unused lexical variable `url-request-extra-headers'
-;;scopus.el:49:1:Warning: Unused lexical variable `url-mime-accept-string'
-;;scopus.el:49:1:Warning: Unused lexical variable `url-request-method'
-(defvar-local url-request-extra-headers nil)
-(defvar-local url-mime-accept-string nil)
-(defvar-local url-request-method nil)
-(defvar-local url-http-end-of-headers nil)
-
+(defvar url-request-method)
+(defvar url-mime-accept-string)
+(defvar url-http-end-of-headers)
+(defvar url-request-extra-headers)
 
 (defvar *scopus-api-key* nil
   "Your Scopus API key.
