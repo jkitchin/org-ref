@@ -54,9 +54,7 @@
 (require 'parsebib)
 (require 'reftex-cite)
 
-
-;;for byte-compile error avoidance
-(defvar-local org-export-exclude-tags nil)
+(defvar org-export-exclude-tags)
 (declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
 
 ;;* Custom variables

@@ -27,8 +27,7 @@
 (require 'org)
 (require 'org-ref-core)
 
-;; byte-compile
-(defvar-local url-http-end-of-headers nil)
+(defvar url-http-end-of-headers)
 
 ;;* ISBN utility
 
