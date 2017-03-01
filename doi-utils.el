@@ -51,6 +51,7 @@
 (require 'org)                          ; org-add-link-type
 (require 'org-bibtex)                   ; org-bibtex-yank
 (require 'url-http)
+(require 'org-ref-utils)
 
 ;;* Customization
 (defgroup doi-utils nil
@@ -1080,38 +1081,20 @@ Argument LINK-STRING Passed in on link click."
         2)
        link-string))))
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "doi"
-     :follow #'doi-link-menu
-     :export (lambda (doi desc format)
-	       (cond
-		((eq format 'html)
-		 (format "<a href=\"%s%s\">%s</a>"
-			 doi-utils-dx-doi-org-url
-			 doi
-			 (or desc (concat "doi:" doi))))
-		((eq format 'latex)
-		 (format "\\href{%s%s}{%s}"
-			 doi-utils-dx-doi-org-url
-			 doi
-			 (or desc (concat "doi:" doi)))))))
-  (org-add-link-type
-   "doi"
-   'doi-link-menu
-   (lambda (doi desc format)
-     (cond
-      ((eq format 'html)
-       (format "<a href=\"%s%s\">%s</a>"
-	       doi-utils-dx-doi-org-url
-	       doi
-	       (or desc (concat "doi:" doi))))
-      ((eq format 'latex)
-       (format "\\href{%s%s}{%s}"
-	       doi-utils-dx-doi-org-url
-	       doi
-	       (or desc (concat "doi:" doi))))))))
-
+(org-ref-link-set-parameters "doi"
+  :follow #'doi-link-menu
+  :export (lambda (doi desc format)
+            (cond
+             ((eq format 'html)
+              (format "<a href=\"%s%s\">%s</a>"
+                      doi-utils-dx-doi-org-url
+                      doi
+                      (or desc (concat "doi:" doi))))
+             ((eq format 'latex)
+              (format "\\href{%s%s}{%s}"
+                      doi-utils-dx-doi-org-url
+                      doi
+                      (or desc (concat "doi:" doi)))))))
 
 ;;* Getting a doi for a bibtex entry missing one
 
