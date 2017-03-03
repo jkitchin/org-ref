@@ -796,10 +796,13 @@ Argument BIBFILE the bibliography to use."
       (if (word-search-forward (concat doi) nil t)
           (message "%s is already in this file" doi)
         (goto-char (point-max))
-	(if (re-search-backward "^}$" nil t)
-	    (progn (forward-char 1)
-		   (insert "\n\n"))
+	;; make sure we are at the beginning of a line
+	(when (not (= (point) (line-beginning-position)))
+	  (forward-char 1))
+
+	(when (not (looking-back "\n\n" 3))
 	  (insert "\n\n"))
+	
         (doi-utils-insert-bibtex-entry-from-doi doi)
         (save-buffer)))))
 

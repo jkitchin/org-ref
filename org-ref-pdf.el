@@ -98,10 +98,7 @@ Used when multiple dois are found in a pdf file."
 	   do
 	   (doi-utils-add-bibtex-entry-from-doi
 	    doi
-	    (buffer-file-name))
-	   ;; this removes two blank lines before each entry.
-	   (bibtex-beginning-of-entry)
-	   (delete-char -2)))
+	    (buffer-file-name)))))
 
 
 ;;;###autoload
@@ -193,29 +190,31 @@ This function should only apply when in a bibtex file."
 ;;;###autoload
 (defun org-ref-pdf-dir-to-bibtex (bibfile directory)
   "Create BIBFILE from pdf files in DIRECTORY."
-  (interactive "sBibtex file: \nDDirectory: ")
+  (interactive (list
+		(read-file-name "Bibtex file: ")
+		(read-directory-name "Directory: ")))
   (find-file bibfile)
   (goto-char (point-max))
 
   (cl-loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
-	do
-	(goto-char (point-max))
-	(insert (format "\n%% [[file:%s]]\n" pdf))
-	(let ((dois (org-ref-extract-doi-from-pdf pdf)))
-	  (cond
-	   ((null dois)
-	    (insert "% No doi found to create entry.\n"))
-	   ((= 1 (length dois))
-	    (doi-utils-add-bibtex-entry-from-doi
-	     (car dois)
-	     (buffer-file-name))
-	    (bibtex-beginning-of-entry)
-	    (delete-char -2))
-	   ;; Multiple DOIs found
-	   (t
-	    (helm :sources `((name . "Select a DOI")
-			     (candidates . ,(org-ref-pdf-doi-candidates dois))
-			     (action . org-ref-pdf-add-dois))))))))
+	   do
+	   (goto-char (point-max)) 
+	   (let ((dois (org-ref-extract-doi-from-pdf pdf)))
+	     (cond
+	      ((null dois)
+	       (insert (format "%% No doi found to create entry in %s.\n" pdf)))
+	      ((= 1 (length dois))
+	       (doi-utils-add-bibtex-entry-from-doi
+		(car dois)
+		(buffer-file-name))
+	       (bibtex-beginning-of-entry) 
+	       (insert (format "%% [[file:%s]]\n" pdf)))
+	      ;; Multiple DOIs found
+	      (t 
+	       (insert (format "%% Multiple dois found in %s\n" pdf))
+	       (helm :sources `((name . "Select a DOI")
+				(candidates . ,(org-ref-pdf-doi-candidates dois))
+				(action . org-ref-pdf-add-dois))))))))
 
 
 ;;;###autoload
