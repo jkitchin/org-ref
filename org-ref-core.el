@@ -917,17 +917,17 @@ ARG does nothing. I think it is a required signature."
 		(read-file-name "enter file: " nil nil nil)))))
 
 (org-ref-link-set-parameters "bibliography"
-  :follow #'org-ref-open-bibliography
-  :export #'org-ref-bibliography-format
-  :complete #'org-bibliography-complete-link
-  :help-echo (lambda (window object position)
-               (save-excursion
-                 (goto-char position)
-                 (let ((s (org-ref-link-message)))
-                   (with-temp-buffer
-                     (insert s)
-                     (fill-paragraph)
-                     (buffer-string))))))
+			     :follow #'org-ref-open-bibliography
+			     :export #'org-ref-bibliography-format
+			     :complete #'org-bibliography-complete-link
+			     :help-echo (lambda (window object position)
+					  (save-excursion
+					    (goto-char position)
+					    (let ((s (org-ref-link-message)))
+					      (with-temp-buffer
+						(insert s)
+						(fill-paragraph)
+						(buffer-string))))))
 
 (defun org-ref-nobibliography-format (keyword desc format)
   "Format function for nobibliography link export"
@@ -1390,7 +1390,7 @@ Optional argument ARG Does nothing."
   (save-excursion
     (goto-char (point-min))
     (let ((matches '()))
-      (while (re-search-forward "\\\\label{\\([a-zA-Z0-9:-_\\.]*\\)}"
+      (while (re-search-forward "\\\\label{\\([-a-zA-Z0-9:_\\.]*\\)}"
 				(point-max) t)
         (add-to-list 'matches (match-string-no-properties 1) t))
       matches)))

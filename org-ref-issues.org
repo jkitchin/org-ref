@@ -4,7 +4,7 @@
 
 label:test.1
 
-label:test-1
+label:test-1 \label{fig:test-foo} \label{fig:testfoo}
 
 ref:test.1  ref:test  ref:test-1
 
@@ -18,7 +18,7 @@ I found some minor inconsistencies with labels and ref messages that are caused 
 #+END_SRC
 
 #+RESULTS:
-| test.1 | test-1 |
+| test.1 | test-1 | fig:test-foo | fig:testfoo |
 
 #+BEGIN_SRC emacs-lisp
 (org-ref-count-labels "test")
