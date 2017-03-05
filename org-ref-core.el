@@ -1267,7 +1267,8 @@ A number greater than one means multiple labels!"
 
 ;;** ref link
 (defun org-ref-ref-follow (label)
-  "on clicking goto the label. Navigate back with C-c &"
+  "On clicking goto the LABEL.
+Navigate back with \`\\[org-mark-ring-goto]'."
   ;; Suppress minibuffer message in helm. See `org-ref-browser'.
   (if helm-alive-p
       (lambda (&optional pos buffer)
@@ -1330,7 +1331,8 @@ A number greater than one means multiple labels!"
     (error "%s not found" label))
   (org-show-entry)
   (unless helm-alive-p
-    (message "go back with (org-mark-ring-goto) `C-c &`"))
+    (substitute-command-keys
+     "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'.")))
 
 
 (defun org-ref-complete-link (&optional arg)
