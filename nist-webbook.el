@@ -8,6 +8,7 @@
 ;;; Code:
 
 (require 'org)
+(require 'org-ref-utils)
 
 ;;;###autoload
 (defun nist-webbook-formula (formula)
@@ -28,16 +29,13 @@
            (url-hexify-string name)
            "&Units=SI")))
 
+(org-ref-link-set-parameters "nist-wb-name"
+  :follow (lambda (name)
+            (nist-webbook-name name)))
 
-(org-add-link-type
- "nist-wb-name"
- (lambda (name)
-   (nist-webbook-name name)))
-
-(org-add-link-type
- "nist-wb-formula"
- (lambda (formula)
-   (nist-webbook-formula formula)))
+(org-ref-link-set-parameters "nist-wb-formula"
+  :follow (lambda (formula)
+            (nist-webbook-formula formula)))
 
 (provide 'nist-webbook)
 

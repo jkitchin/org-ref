@@ -34,11 +34,13 @@
 ;; - doi-utils-add-bibtex-entry-from-doi to add an entry to your default bibliography (cleaned with pdf if possible).
 ;; - doi-utils-update-bibtex-entry-from-doi with cursor in an entry to update its fields.
 
+;;; Code:
 
 (defvar org-ref-pdf-directory)
 (defvar org-ref-bibliography-notes)
 (defvar org-ref-default-bibliography)
 (defvar reftex-default-bibliography)
+(defvar url-http-end-of-headers)
 (declare-function 'org-ref-bib-citation "org-ref-core.el")
 
 (require 'bibtex)
@@ -49,8 +51,7 @@
 (require 'org)                          ; org-add-link-type
 (require 'org-bibtex)                   ; org-bibtex-yank
 (require 'url-http)
-
-;;; Code:
+(require 'org-ref-utils)
 
 ;;* Customization
 (defgroup doi-utils nil
@@ -561,10 +562,6 @@ checked."
 ;; you can download metadata about a DOI from http://dx.doi.org. You just have
 ;; to construct the right http request to get it. Here is a function that gets
 ;; the metadata as a plist in emacs.
-
-;; This is a local variable defined in `url-http'.  We need it to avoid
-;; byte-compiler errors.
-(defvar-local url-http-end-of-headers nil)
 
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
@@ -1087,38 +1084,20 @@ Argument LINK-STRING Passed in on link click."
         2)
        link-string))))
 
-(if (fboundp 'org-link-set-parameters)
-    (org-link-set-parameters
-     "doi"
-     :follow #'doi-link-menu
-     :export (lambda (doi desc format)
-	       (cond
-		((eq format 'html)
-		 (format "<a href=\"%s%s\">%s</a>"
-			 doi-utils-dx-doi-org-url
-			 doi
-			 (or desc (concat "doi:" doi))))
-		((eq format 'latex)
-		 (format "\\href{%s%s}{%s}"
-			 doi-utils-dx-doi-org-url
-			 doi
-			 (or desc (concat "doi:" doi)))))))
-  (org-add-link-type
-   "doi"
-   'doi-link-menu
-   (lambda (doi desc format)
-     (cond
-      ((eq format 'html)
-       (format "<a href=\"%s%s\">%s</a>"
-	       doi-utils-dx-doi-org-url
-	       doi
-	       (or desc (concat "doi:" doi))))
-      ((eq format 'latex)
-       (format "\\href{%s%s}{%s}"
-	       doi-utils-dx-doi-org-url
-	       doi
-	       (or desc (concat "doi:" doi))))))))
-
+(org-ref-link-set-parameters "doi"
+  :follow #'doi-link-menu
+  :export (lambda (doi desc format)
+            (cond
+             ((eq format 'html)
+              (format "<a href=\"%s%s\">%s</a>"
+                      doi-utils-dx-doi-org-url
+                      doi
+                      (or desc (concat "doi:" doi))))
+             ((eq format 'latex)
+              (format "\\href{%s%s}{%s}"
+                      doi-utils-dx-doi-org-url
+                      doi
+                      (or desc (concat "doi:" doi)))))))
 
 ;;* Getting a doi for a bibtex entry missing one
 
