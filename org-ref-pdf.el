@@ -98,7 +98,7 @@ Used when multiple dois are found in a pdf file."
 	   do
 	   (doi-utils-add-bibtex-entry-from-doi
 	    doi
-	    (buffer-file-name)))))
+	    (buffer-file-name))))
 
 
 ;;;###autoload
