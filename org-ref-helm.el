@@ -147,7 +147,26 @@ This widens the file so that all links go to the right place."
         (bad-labels (org-ref-bad-label-candidates))
         (bad-files (org-ref-bad-file-link-candidates))
         (bib-candidates '())
-	(unreferenced-labels '()))
+	(unreferenced-labels '())
+	natbib-required
+	natbib-used)
+
+    ;; See if natbib is required
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(when (member (org-element-property :type link) org-ref-natbib-types)
+	  (setq natbib-required t)))
+      nil t)
+
+    ;; See if natbib is probably used. This will miss a case where natbib is included somehow.
+    (setq natbib-used
+	  (or
+	   (member "natbib" (mapcar (lambda (x) (nth 1 x)) org-latex-default-packages-alist))
+	   (member "natbib" (mapcar (lambda (x) (nth 1 x)) org-latex-packages-alist))
+	   ;; see of something like \usepackage{natbib} exists.
+	   (save-excursion
+	     (goto-char (point-min))
+	     (re-search-forward "{natbib}" nil t))))
 
     ;; setup bib-candidates. This checks a variety of things in the
     ;; bibliography, bibtex files. check for which bibliographies are used
@@ -321,21 +340,21 @@ at the end of you file.
                                   (switch-to-buffer (marker-buffer marker))
                                   (goto-char marker)
 				  (org-show-entry))))
-                     ;;
+
                      ((name . "Multiply defined labels")
                       (candidates . ,bad-labels)
                       (action . (lambda (marker)
                                   (switch-to-buffer (marker-buffer marker))
                                   (goto-char marker)
 				  (org-show-entry))))
-                     ;;
+
                      ((name . "Bad ref links")
                       (candidates . ,bad-refs)
                       (action . (lambda (marker)
                                   (switch-to-buffer (marker-buffer marker))
                                   (goto-char marker)
 				  (org-show-entry))))
-                     ;;
+
                      ((name . "Bad file links")
                       (candidates . ,bad-files)
                       (lambda (marker)
@@ -355,14 +374,18 @@ at the end of you file.
                       (action . (lambda (x)
                                   (switch-to-buffer ,cb)
                                   (funcall x))))
+
 		     ((name . "Miscellaneous")
 		      (candidates . (,(format "org-latex-prefer-user-labels = %s"
 					      org-latex-prefer-user-labels)
 				     ,(format "bibtex-dialect = %s" bibtex-dialect)
 				     ,(format "org-version = %s" (org-version))
-				     ,(format "completion backend = %s" org-ref-completion-library)))
+				     ,(format "completion backend = %s" org-ref-completion-library)
+				     ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
+				     ,(format "natbib is%srequired." (if natbib-required " " " not "))
+				     ,(format "natbib is%sused." (if natbib-used " " " not "))))
 		      (action . nil))
-                     ;;
+
                      ((name . "Utilities")
                       (candidates . (("Check buffer again" . org-ref)
                                      ("Insert citation" . helm-bibtex)
@@ -374,7 +397,7 @@ at the end of you file.
                       (action . (lambda (x)
                                   (switch-to-buffer ,cb)
                                   (funcall x))))
-                     ;;
+
                      ((name . "Document utilities")
                       (candidates . (("Spell check document" . ispell)))
                       (action . (lambda (x)
