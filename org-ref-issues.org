@@ -1,4 +1,13 @@
 
+#+BEGIN_SRC emacs-lisp
+(org-link-set-parameters
+ "github-issue"
+ :follow (lambda (path)
+	   (browse-url
+	    (format "https://github.com/jkitchin/org-ref/issues/%s" path))))
+#+END_SRC
+
+#+RESULTS:
 
 * 381 Testing labels
 
@@ -34,3 +43,9 @@ https://github.com/jkitchin/org-ref/issues/388
 Click on this, and press "g". It should get the bibtex entry from the doi.
 
 doi:10.1016/j.calphad.2017.01.009
+* 399
+github-issue:399
+
+This is a natbib type, and if you do not use the natbib package, it will not work correctly in pdf export.
+
+citenum:akhade-2011-effec
