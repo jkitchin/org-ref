@@ -327,18 +327,19 @@ Uses a hook function to display the message in the minibuffer."
   :group 'org-ref)
 
 
-(defcustom org-ref-cite-types
-  '("cite" "nocite" ;; the default latex cite commands
-    ;; natbib cite commands, http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf
-    "citet" "citet*" "citep" "citep*"
+(defcustom org-ref-natbib-types
+  '("citet" "citet*" "citep" "citep*"
     "citealt" "citealt*" "citealp" "citealp*"
     "citenum" "citetext"
     "citeauthor" "citeauthor*"
     "citeyear" "citeyear*"
-    "Citet" "Citep" "Citealt" "Citealp" "Citeauthor"
-    ;; biblatex commands
-    ;; http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf
-    "Cite"
+    "Citet" "Citep" "Citealt" "Citealp" "Citeauthor")
+  "natbib cite commands, http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf"
+  :type '(repeat :tag "List of citation types" string)
+  :group 'org-ref)
+
+(defcustom org-ref-biblatex-types
+  '("Cite"
     "parencite" "Parencite"
     "footcite" "footcitetext"
     "textcite" "Textcite"
@@ -358,10 +359,20 @@ Uses a hook function to display the message in the minibuffer."
     "cites" "Cites" "parencites" "Parencites"
     "footcites" "footcitetexts"
     "smartcites" "Smartcites" "textcites" "Textcites"
-    "supercites" "autocites" "Autocites"
-    ;; for the bibentry package
-    "bibentry"
-    )
+    "supercites" "autocites" "Autocites")
+  "biblatex commands
+http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
+  :type '(repeat :tag "List of citation types" string)
+  :group 'org-ref)
+
+
+(defcustom org-ref-cite-types
+  (append
+   '("cite" "nocite") ;; the default latex cite commands
+   org-ref-natbib-types
+   org-ref-biblatex-types
+   ;; for the bibentry package
+   '("bibentry"))
   "List of citation types known in `org-ref'."
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
