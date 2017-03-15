@@ -573,7 +573,8 @@ checked."
         (url-retrieve-synchronously
          (concat "http://dx.doi.org/" doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
-      (if (string-match "Resource not found" json-data)
+      (if (or (string-match "Resource not found" json-data)
+              (string-match "Status *406" json-data))
           (progn
             (browse-url (concat doi-utils-dx-doi-org-url doi))
             (error "Resource not found.  Opening website"))
