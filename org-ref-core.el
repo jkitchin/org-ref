@@ -1196,15 +1196,15 @@ ARG does nothing."
      ;; for tblname, it is not enough to get word boundary
      ;; tab-little and tab-little-2 match then.
      (count-matches
-      (format "^#\\+tblname:\\s-*%s\\b[^-:]" label)
+      (format "^\\( \\)*#\\+tblname:\\s-*%s\\b[^-:]" label)
       (point-min) (point-max))
      (count-matches (format "\\label{%s}" label)
                     (point-min) (point-max))
      ;; this is the org-format #+label:
-     (count-matches (format "^#\\+label:\\s-*%s\\b[^-:]" label)
+     (count-matches (format "^\\( \\)*#\\+label:\\s-*%s\\b[^-:]" label)
                     (point-min) (point-max))
      ;; #+name:
-     (count-matches (format "^#\\+name:\\s-*%s\\b[^-:]" label)
+     (count-matches (format "^\\( \\)*#\\+name:\\s-*%s\\b[^-:]" label)
 		    (point-min) (point-max))
      (let ((custom-id-count 0))
        (when (and (buffer-file-name)
@@ -1308,19 +1308,19 @@ Navigate back with \`\\[org-mark-ring-goto]'."
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
+	  (format "^\\( \\)*#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; org tblname
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
+	  (format "^\\( \\)*#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; a #+name
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+name:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
+	  (format "^\\( \\)*#\\+name:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; CUSTOM_ID
        (progn
@@ -1432,7 +1432,7 @@ Optional argument ARG Does nothing."
       (widen)
       (goto-char (point-min))
       (let ((matches '()))
-	(while (re-search-forward "^#\\+name:\\s-+\\(.*\\)" nil t)
+	(while (re-search-forward "^\\( \\)*#\\+name:\\s-+\\(.*\\)" nil t)
 	  (pushnew (match-string 1) matches))
 	matches))))
 
@@ -1498,13 +1498,13 @@ This is used to complete ref links."
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
+	  (format "^\\( \\)*#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; org tblname
        (progn
 	 (goto-char (point-min))
 	 (re-search-forward
-	  (format "^#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
+	  (format "^\\( \\)*#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
 
        ;; radio link
        (progn
@@ -2531,7 +2531,7 @@ file.  Makes a new buffer with clickable links."
 	    ;; keyword style
             (goto-char (point-min))
             (while (re-search-forward
-                    (format  "^#\\+label:\\s-*%s" label) nil t)
+                    (format  "^\\( \\)*#\\+label:\\s-*%s" label) nil t)
               (cl-pushnew (cons label (point-marker)) multiple-labels
 			  :test (lambda (a b)
 				  (and (string= (car a) (car b))
@@ -2540,7 +2540,7 @@ file.  Makes a new buffer with clickable links."
 
             (goto-char (point-min))
             (while (re-search-forward
-                    (format   "^#\\+tblname:\\s-*%s" label) nil t)
+                    (format "^\\( \\)*#\\+tblname:\\s-*%s" label) nil t)
               (cl-pushnew (cons label (point-marker)) multiple-labels
 			  :test (lambda (a b)
 				  (and (string= (car a) (car b))
@@ -2968,7 +2968,7 @@ move to the beginning of the previous cite link after this one."
 
       (goto-char (point-min))
       (when (re-search-forward
-             (format "^#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
+             (format "^\\( \\)*#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
         (throw 'result (buffer-substring
                         (progn
                           (forward-line -1)
@@ -2980,7 +2980,7 @@ move to the beginning of the previous cite link after this one."
 
       (goto-char (point-min))
       (when (re-search-forward
-             (format "^#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
+             (format "^\\( \\)*#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
         (throw 'result (buffer-substring
                         (progn
                           (forward-line -1)
@@ -2992,7 +2992,7 @@ move to the beginning of the previous cite link after this one."
 
       (goto-char (point-min))
       (when (re-search-forward
-             (format "^#\\+name:\\s-*\\(%s\\)\\b" label) nil t)
+             (format "^\\( \\)*#\\+name:\\s-*\\(%s\\)\\b" label) nil t)
         (throw 'result (buffer-substring
                         (progn
                           (forward-line -1)
