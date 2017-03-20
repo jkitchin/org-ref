@@ -109,3 +109,8 @@ ref:test-table
 
   #+name: test-table
   | 5 | 6 |
+* 404 isbn issues
+
+#+BEGIN_SRC emacs-lisp
+(isbn-to-bibtex "9783540330363")
+#+END_SRC
