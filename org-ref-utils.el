@@ -187,7 +187,7 @@ In the format, the following percent escapes will be expanded.
 %a   List of author names, see also `reftex-cite-punctuation'.
 %2a  Like %a, but abbreviate more than 2 authors like Jones et al.
 %A   First author name only.
-%e   Works like %a, but on list of editor names.  (%2e and %E work a well)
+%e   Works like %a, but on list of editor names.  (%2e and %E work as well)
 
 It is also possible to access all other BibTeX database fields:
 %b booktitle     %c chapter        %d edition    %h howpublished
