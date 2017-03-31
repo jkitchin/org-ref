@@ -153,29 +153,28 @@ in the file. Data comes from worldcat."
     ;; build entry in temp buffer to get the key so we can check for duplicates
     (setq new-entry (with-temp-buffer
 		      (insert (decode-coding-string new-entry 'utf-8))
-		      (org-ref-isbn-clean-bibtex-entry) ; specific to isbn entries
-                      (org-ref-clean-bibtex-entry)
+		      (org-ref-isbn-clean-bibtex-entry)
                       (setq new-key (bibtex-key-in-head))
-                      (buffer-string)))
+                      (s-trim  (buffer-string))))
     (find-file bibfile)
     (goto-char (point-min))
-    (when (search-forward new-key nil t)
+
+    (when (and new-key (search-forward new-key nil t))
       (beep)
       (setq new-key (read-string
-                     (format  "%s already exists. Enter new key (C-g to cancel): " new-key)
-                     new-key)))
+		     (format  "%s already exists. Enter new key (C-g to cancel): " new-key)
+		     new-key)))
     (goto-char (point-max))
     (insert new-entry)
     ;; set key. It is simplest to just replace it, even if it is the same.
-    (bibtex-beginning-of-entry)
+    (org-ref-clean-bibtex-entry)
     (re-search-forward bibtex-entry-maybe-empty-head)
     (if (match-beginning bibtex-key-in-head)
         (delete-region (match-beginning bibtex-key-in-head)
                        (match-end bibtex-key-in-head)))
-    (insert new-key)
+    (insert (or new-key ""))
     (bibtex-fill-entry)
-    ;; (save-buffer)
-    ))
+    (save-buffer)))
 
 (provide 'org-ref-isbn)
 ;;; org-ref-isbn.el ends here
