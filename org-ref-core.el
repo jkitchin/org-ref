@@ -1454,7 +1454,7 @@ Optional argument ARG Does nothing."
       (goto-char (point-min))
       (let ((matches '()))
 	(while (re-search-forward "^\\( \\)*#\\+name:\\s-+\\(.*\\)" nil t)
-	  (pushnew (match-string 1) matches))
+	  (pushnew (match-string 2) matches))
 	matches))))
 
 
