@@ -112,5 +112,17 @@ ref:test-table
 * 404 isbn issues
 
 #+BEGIN_SRC emacs-lisp
-(isbn-to-bibtex "9783540330363")
+(let ((org-ref-clean-bibtex-entry-hook
+       '(org-ref-bibtex-format-url-if-doi
+	 orcb-key-comma
+	 org-ref-replace-nonascii
+	 orcb-& orcb-%
+	 org-ref-title-case-article
+	 orcb-clean-year
+	 orcb-clean-doi
+	 orcb-clean-pages
+	 org-ref-sort-bibtex-entry)))
+  (isbn-to-bibtex "9783540330363" "org-ref.bib"))
 #+END_SRC
+
+#+RESULTS:
