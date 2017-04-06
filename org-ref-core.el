@@ -3214,7 +3214,8 @@ A blank string deletes pre/post text."
 	     (when bracketp "[[")
 	     type ":" (mapconcat 'identity keys ",")
 	     (when bracketp "]]")
-	     trailing-space)))))
+	     trailing-space)))
+    (kill-new key)))
 
 
 (defun org-ref-insert-key-at-point (keys)
