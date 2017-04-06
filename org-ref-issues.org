@@ -126,3 +126,20 @@ ref:test-table
 #+END_SRC
 
 #+RESULTS:
+* 410
+
+#+STARTUP: content indent hidestars fninline
+#+OPTIONS: toc:nil
+
+* Introduction
+
+Here is reference Figure
+
+#+BEGIN_SRC R :results output graphics :exports results :file test.pdf :height 4 :width 8
+plot(1:10,1:10)
+#+END_SRC
+
+#+CAPTION: A caption to a plot
+#+NAME: fig:test
+#+RESULTS:
+[[file:test.pdf]]
