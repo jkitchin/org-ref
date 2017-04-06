@@ -1486,7 +1486,8 @@ This is used to complete ref links."
 		(org-ref-get-names)
 		;; radio targets
 		(org-element-map (org-element-parse-buffer) 'target
-		  (lambda (tg) (org-element-property :value tg))))))))
+		  (lambda (tg) (org-element-property :value tg))))
+	matches))))
 
 
 ;;;###autoload
