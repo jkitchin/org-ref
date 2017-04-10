@@ -32,6 +32,7 @@
 (require 'ivy)
 (require 'org-ref-bibtex)
 (require 'org-ref-citeproc)
+(require 'bibtex-completion)
 
 (defvar org-ref-cite-types)
 (defvar org-ref-show-citation-on-enter)
