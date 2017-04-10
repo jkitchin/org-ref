@@ -1881,22 +1881,22 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
      (cond
       ((eq format 'org)
        (mapconcat
-  (lambda (key)
-    (format "[[#%s][%s]]" key key))
-  (org-ref-split-and-strip-string keyword) ","))
+	(lambda (key)
+	  (format "[[#%s][%s]]" key key))
+	(org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'ascii)
        (concat "["
          (mapconcat
-    (lambda (key)
-      (format "%s" key))
-    (org-ref-split-and-strip-string keyword) ",") "]"))
+	  (lambda (key)
+	    (format "%s" key))
+	  (org-ref-split-and-strip-string keyword) ",") "]"))
 
       ((eq format 'html)
        (mapconcat
-  (lambda (key)
-    (format "<a class='org-ref-reference' href=\"#%s\">%s</a>" key key))
-  (org-ref-split-and-strip-string keyword) ","))
+	(lambda (key)
+	  (format "<a class='org-ref-reference' href=\"#%s\">%s</a>" key key))
+	(org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'latex)
        (if (string= (substring ,type -1) "s")
@@ -1919,21 +1919,21 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
       ;; for markdown and pandoc we generate pandoc citations
       ((or (eq format 'md) (eq format 'pandoc))
        (cond
-  (desc ;; pre and or post text
-   (let* ((text (split-string desc "::"))
-    (pre (car text))
-    (post (cadr text)))
-     (concat
-      (format "[@%s," keyword)
-      (when pre (format " %s" pre))
-      (when post (format ", %s" post))
-      "]")))
-  (t
-   (format "[%s]"
-     (mapconcat
-      (lambda (key) (concat "@" key))
-      (org-ref-split-and-strip-string keyword)
-      "; "))))))))
+	(desc ;; pre and or post text
+	 (let* ((text (split-string desc "::"))
+		(pre (car text))
+		(post (cadr text)))
+	   (concat
+	    (format "[@%s," keyword)
+	    (when pre (format " %s" pre))
+	    (when post (format ", %s" post))
+	    "]")))
+	(t
+	 (format "[%s]"
+		 (mapconcat
+		  (lambda (key) (concat "@" key))
+		  (org-ref-split-and-strip-string keyword)
+		  "; "))))))))
 
 
 (defun org-ref-format-citation-description (desc)
