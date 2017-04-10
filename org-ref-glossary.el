@@ -193,7 +193,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\gls{%s}" path)))))
+              (format "\\gls{%s}" path))
+	     (t
+	      (format "%s" path)))))
 
 ;; plural
 (org-ref-link-set-parameters "glspl"
@@ -203,7 +205,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\glspl{%s}" path)))))
+              (format "\\glspl{%s}" path))
+	     (t
+	      (format "%s" path)))))
 
 ;; capitalized link
 (org-ref-link-set-parameters "Gls"
@@ -213,7 +217,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\Gls{%s}" path)))))
+              (format "\\Gls{%s}" path))
+	     (t
+	      (format "%s" path)))))
 
 ;; capitalized plural link
 (org-ref-link-set-parameters "Glspl"
@@ -223,7 +229,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\Glspl{%s}" path)))))
+              (format "\\Glspl{%s}" path))
+	     (t
+	      (format "%s" path)))))
 
 
 (org-ref-link-set-parameters "glslink"
@@ -233,7 +241,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path desc format)
             (cond
              ((eq format 'latex)
-              (format "\\glslink{%s}{%s}" path desc)))))
+              (format "\\glslink{%s}{%s}" path desc))
+	     (t
+	      (format "%s" path)))))
 
 (org-ref-link-set-parameters "glssymbol"
   :follow #'or-follow-glossary
@@ -242,7 +252,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path _desc format)
             (cond
              ((eq format 'latex)
-              (format "\\glssymbol{%s}" path)))))
+              (format "\\glssymbol{%s}" path))
+	     (t
+	      (format "%s" path)))))
 
 (org-ref-link-set-parameters "glsdesc"
   :follow #'or-follow-glossary
@@ -251,7 +263,9 @@ Entry gets added after the last #+latex_header line."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\glsdesc{%s}" path)))))
+              (format "\\glsdesc{%s}" path))
+	     (t
+	      (format "%s" path)))))
 
 ;;** Tooltips on glossary entries
 (defface org-ref-glossary-face
@@ -365,7 +379,9 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\acrshort{%s}" path)))))
+              (format "\\acrshort{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
 
 (org-ref-link-set-parameters "acrlong"
   :follow #'or-follow-acronym
@@ -374,7 +390,9 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\acrlong{%s}" path)))))
+              (format "\\acrlong{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
 
 (org-ref-link-set-parameters "acrfull"
   :follow #'or-follow-acronym
@@ -383,7 +401,10 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\acrfull{%s}" path)))))
+              (format "\\acrfull{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
+
 ;; Shortcuts
 (org-ref-link-set-parameters "ac"
   :follow #'or-follow-acronym
@@ -392,7 +413,9 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\gls{%s}" path)))))
+              (format "\\gls{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
 
 (org-ref-link-set-parameters "Ac"
   :follow #'or-follow-acronym
@@ -401,7 +424,9 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\Gls{%s}" path)))))
+              (format "\\Gls{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
 
 (org-ref-link-set-parameters "acp"
   :follow #'or-follow-acronym
@@ -410,7 +435,9 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\glspl{%s}" path)))))
+              (format "\\glspl{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
 
 (org-ref-link-set-parameters "Acp"
   :follow #'or-follow-acronym
@@ -419,7 +446,9 @@ FULL is the expanded acronym."
   :export (lambda (path _ format)
             (cond
              ((eq format 'latex)
-              (format "\\Glspl{%s}" path)))))
+              (format "\\Glspl{%s}" path))
+	     (t
+	      (format "%s" (upcase path))))))
 
 ;;** Tooltips on acronyms
 (defface org-ref-acronym-face
