@@ -416,7 +416,11 @@ The functions should have no arguments, and
 operate on the bibtex entry at point. You can assume point starts
 at the beginning of the entry. These functions are wrapped in
 `save-restriction' and `save-excursion' so you do not need to
-save the point position."
+save the point position.
+
+Org ref contains some functions that are not included by default
+such as `orcb-clean-nil' or `orcb-clean-nil-opinionated' that
+users may be interested in adding themselves."
   :group 'org-ref
   :type 'hook)
 
