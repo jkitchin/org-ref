@@ -2681,6 +2681,29 @@ file.  Makes a new buffer with clickable links."
 
 ;;** Clean a bibtex entry
 ;; These functions operate on a bibtex entry and "clean" it in some way.
+
+(defun orcb-clean-nil ()
+  "Remove nil from some article fields.
+The removal is conditional. Sometimes it is useful to have nil
+around, e.g. for ASAP articles where the fields are not defined
+yet but will be in the future.
+"
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (type (downcase (cdr (assoc "=type=" entry)))))
+    (when (string= type "article")
+      (cond
+       ;; we have volume and pages but number is nil.
+       ;; remove the number field.
+       ((and (string= type "article")
+	     (not (string= (cdr (assoc "volume" entry)) "{nil}"))
+	     (not (string= (cdr (assoc "pages" entry)) "{nil}"))
+	     (string= (cdr (assoc "number" entry)) "{nil}"))
+	(bibtex-set-field "number" "")
+	(bibtex-clean-entry))))))
+
+
 (defun orcb-clean-doi ()
   "Remove http://dx.doi.org/ in the doi field."
   (let ((doi (bibtex-autokey-get-field "doi")))
