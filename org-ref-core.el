@@ -2703,6 +2703,16 @@ yet but will be in the future.
 	(bibtex-set-field "number" "")
 	(bibtex-clean-entry))))))
 
+(defun orcb-clean-nil-opinionated ()
+  "Remove nil from all article fields."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (type (downcase (cdr (assoc "=type=" entry)))))
+    (when (string= type "article")
+      (cl-loop for (field . text) in entry do
+               (if (string= text "{nil}")
+                   (bibtex-set-field field ""))))))
 
 (defun orcb-clean-doi ()
   "Remove http://dx.doi.org/ in the doi field."
