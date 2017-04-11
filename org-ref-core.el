@@ -2682,13 +2682,15 @@ file.  Makes a new buffer with clickable links."
 ;;** Clean a bibtex entry
 ;; These functions operate on a bibtex entry and "clean" it in some way.
 
-(defun orcb-clean-nil ()
+(defun orcb-clean-nil (arg)
   "Remove nil from some article fields.
 The removal is conditional. Sometimes it is useful to have nil
 around, e.g. for ASAP articles where the fields are not defined
 yet but will be in the future.
+
+With \\[univeral-argument], run `bibtex-clean-entry' after.
 "
-  (interactive)
+  (interactive "P")
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
          (type (downcase (cdr (assoc "=type=" entry)))))
@@ -2701,7 +2703,8 @@ yet but will be in the future.
 	     (not (string= (cdr (assoc "pages" entry)) "{nil}"))
 	     (string= (cdr (assoc "number" entry)) "{nil}"))
 	(bibtex-set-field "number" "")
-	(bibtex-clean-entry))))))
+	(if arg
+            (bibtex-clean-entry)))))))
 
 (defun orcb-clean-nil-opinionated ()
   "Remove nil from all article fields."
