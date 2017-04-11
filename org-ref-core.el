@@ -416,7 +416,11 @@ The functions should have no arguments, and
 operate on the bibtex entry at point. You can assume point starts
 at the beginning of the entry. These functions are wrapped in
 `save-restriction' and `save-excursion' so you do not need to
-save the point position."
+save the point position.
+
+Org ref contains some functions that are not included by default
+such as `orcb-clean-nil' or `orcb-clean-nil-opinionated' that
+users may be interested in adding themselves."
   :group 'org-ref
   :type 'hook)
 
@@ -2682,13 +2686,15 @@ file.  Makes a new buffer with clickable links."
 ;;** Clean a bibtex entry
 ;; These functions operate on a bibtex entry and "clean" it in some way.
 
-(defun orcb-clean-nil ()
+(defun orcb-clean-nil (arg)
   "Remove nil from some article fields.
 The removal is conditional. Sometimes it is useful to have nil
 around, e.g. for ASAP articles where the fields are not defined
 yet but will be in the future.
+
+With \\[univeral-argument], run `bibtex-clean-entry' after.
 "
-  (interactive)
+  (interactive "P")
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
          (type (downcase (cdr (assoc "=type=" entry)))))
@@ -2701,8 +2707,19 @@ yet but will be in the future.
 	     (not (string= (cdr (assoc "pages" entry)) "{nil}"))
 	     (string= (cdr (assoc "number" entry)) "{nil}"))
 	(bibtex-set-field "number" "")
-	(bibtex-clean-entry))))))
+	(if arg
+            (bibtex-clean-entry)))))))
 
+(defun orcb-clean-nil-opinionated ()
+  "Remove nil from all article fields."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (type (downcase (cdr (assoc "=type=" entry)))))
+    (when (string= type "article")
+      (cl-loop for (field . text) in entry do
+               (if (string= text "{nil}")
+                   (bibtex-set-field field ""))))))
 
 (defun orcb-clean-doi ()
   "Remove http://dx.doi.org/ in the doi field."
