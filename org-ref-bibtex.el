@@ -971,7 +971,6 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
     (save-buffer)))
 
 
-
 (defun org-ref-save-all-bibtex-buffers ()
   "Save all bibtex-buffers."
   (cl-loop for buffer in (buffer-list)
@@ -979,8 +978,6 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
 	   (with-current-buffer buffer
 	     (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
 	       (save-buffer)))))
-
-
 
 
 ;;* org-ref bibtex cache
