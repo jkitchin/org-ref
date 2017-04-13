@@ -74,7 +74,7 @@
 						    "\n\n"))))
     ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
     ("Edit notes" . helm-bibtex-edit-notes)
-    ("Show entry" . helm-bibtex-show-entry)
+    ("Show BibTeX entry" . helm-bibtex-show-entry)
     ("Add keywords to entries" . org-ref-helm-tag-entries)
     ("Copy entry to clipboard" . bibtex-completion-copy-candidate) 
     ("Add PDF to library" . helm-bibtex-add-pdf-to-library))
