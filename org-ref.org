@@ -114,7 +114,7 @@ org-ref can help you insert unique labels with the command elisp:org-ref-helm-in
     :END:
 index:ref
 
-A ref link refers to a label of some sort.Ll For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
+A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
 
 #+name: table-1
 #+caption: A simple table.
