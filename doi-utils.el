@@ -1316,10 +1316,11 @@ error."
 							      (find-file bibtex-file))
 							    (cl-loop for doi in (helm-marked-candidates)
 								     do
-								     (doi-utils-add-bibtex-entry-from-doi
-								      (replace-regexp-in-string
-								       "^https?://\\(dx.\\)?doi.org/" "" doi)
-								      ,bibtex-file))
+								     (ignore-errors
+								       (doi-utils-add-bibtex-entry-from-doi
+									(replace-regexp-in-string
+									 "^https?://\\(dx.\\)?doi.org/" "" doi)
+									,bibtex-file)))
 							    (when doi-utils--bibtex-file
 							      (recenter-top-bottom 0))))
 				("Open url" . (lambda (doi)
