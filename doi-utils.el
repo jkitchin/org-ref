@@ -690,7 +690,7 @@ MATCHING-TYPES."
 (doi-utils-def-bibtex-type book ("book")
                            author title series publisher year pages doi url)
 
-(doi-utils-def-bibtex-type inbook ("book-chapter")
+(doi-utils-def-bibtex-type inbook ("book-chapter" "reference-entry")
                            author title booktitle series publisher year pages doi url)
 
 
