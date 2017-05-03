@@ -278,6 +278,21 @@ This will prompt you for a query string, which is usually the title of an articl
 
 This library also redefines the org-mode doi link. Now, when you click on this link you will get a menu of options, e.g. to open a bibtex entry or a pdf if you have it, or to search the doi in some scientific search engines. Try it out  doi:10.1021/jp511426q.
 
+*** Bibtex key format
+
+The key is formatted according to the settings of bibtex-autokey-* variables. I use these settings. Look at the documentation of them to see how to get the format you want. The function (bibtex-generate-autokey) does this.
+
+The settings I use are:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-autokey-year-length 4
+	bibtex-autokey-name-year-separator "-"
+	bibtex-autokey-year-title-separator "-"
+	bibtex-autokey-titleword-separator "-"
+	bibtex-autokey-titlewords 2
+	bibtex-autokey-titlewords-stretch 1
+	bibtex-autokey-titleword-length 5)
+#+END_SRC
 
 *** Troubleshooting doi-utils
 Occasionally weird things happen with a DOI. The first thing you should check is if the json data for the DOI can be retrieved. You can do that at the command line, or in a sh block like this:
