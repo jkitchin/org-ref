@@ -161,8 +161,8 @@ This widens the file so that all links go to the right place."
     ;; See if natbib is probably used. This will miss a case where natbib is included somehow.
     (setq natbib-used
 	  (or
-	   (member "natbib" (mapcar (lambda (x) (nth 1 x)) org-latex-default-packages-alist))
-	   (member "natbib" (mapcar (lambda (x) (nth 1 x)) org-latex-packages-alist))
+	   (member "natbib" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-default-packages-alist))
+	   (member "natbib" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-packages-alist))
 	   ;; see of something like \usepackage{natbib} exists.
 	   (save-excursion
 	     (goto-char (point-min))
