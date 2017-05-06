@@ -255,6 +255,12 @@ codes."
   :group 'org-ref)
 
 
+(defcustom org-ref-ref-html "<a class='org-ref-reference' href=\"#%s\">%s</a>"
+  "HTML code to represent a reference."
+  :type 'string
+  :group 'org-ref)
+
+
 (defcustom org-ref-notes-function
   (lambda (thekey)
     (let* ((results (org-ref-get-bibtex-key-and-file thekey))
@@ -1899,7 +1905,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
       ((eq format 'html)
        (mapconcat
 	(lambda (key)
-	  (format "<a class='org-ref-reference' href=\"#%s\">%s</a>" key key))
+	  (format org-ref-ref-html key key))
 	(org-ref-split-and-strip-string keyword) ","))
 
       ((eq format 'latex)
