@@ -128,8 +128,7 @@ in the file. Data comes from worldcat."
                      (buffer-substring url-http-end-of-headers (point-max)))))
          (status (cdr (assoc 'stat results)))
          (metadata)
-         (new-entry)
-         (new-key))
+         (new-entry))
 
     ;; check if we got something
     (unless (string= "ok" status)
@@ -152,7 +151,6 @@ in the file. Data comes from worldcat."
     ;; build entry in temp buffer to get the key so we can check for duplicates
     (setq new-entry (with-temp-buffer
 		      (insert (decode-coding-string new-entry 'utf-8))
-                      (setq new-key (bibtex-key-in-head))
                       (s-trim  (buffer-string))))
     (find-file bibfile)
     (goto-char (point-max))
