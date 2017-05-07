@@ -44,25 +44,24 @@ entry. These functions are wrapped in `save-restriction' and
   :type 'hook)
 
 (defun oricb-remove-enclosing-brackets ()
-  "Make sure all enclosing brackets are removed from the fields."
-  (while (re-search-forward "{\\[" nil t)
-    (replace-match "{"))
-  (bibtex-beginning-of-entry)
-  (while (re-search-forward "]}" nil t)
-    (replace-match "}")))
+  "Remove enclosing brackets from fields."
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (while (re-search-forward "\\({\\)\\(\\[\\)\\(.+\\)\\(]\\)\\(}\\)" nil t)
+      (replace-match "\\1\\3\\5"))))
 
 (defun oricb-clean-author-field ()
-  "Clean additional information in the author's field."
+  "Remove extra information from author's field."
   (goto-char (cadr (bibtex-search-forward-field "author" t)))
   (let ((case-fold-search nil))
-    (when (re-search-forward "{by \\|{ed. by \\|{edited by " nil t)
-      (replace-match "{"))))
+    (when (re-search-forward "\\({\\)\\(by \\|ed. by \\|edited by \\)" nil t)
+      (replace-match "\\1"))))
 
 (defun oricb-remove-period ()
-  "Make sure the period is removed from the author's field."
+  "Remove period from author's field."
   (goto-char (cadr (bibtex-search-forward-field "author" t)))
-  (when (re-search-forward "\.},$" nil t)
-    (replace-match "},")))
+  (when (re-search-forward "\\(\\.\\)\\(}\\)" nil t)
+    (replace-match "\\2")))
 
 ;;;###autoload
 (defun org-ref-isbn-clean-bibtex-entry ()
