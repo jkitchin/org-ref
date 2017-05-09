@@ -44,25 +44,24 @@ entry. These functions are wrapped in `save-restriction' and
   :type 'hook)
 
 (defun oricb-remove-enclosing-brackets ()
-  "Make sure all enclosing brackets are removed from the fields."
-  (while (re-search-forward "{\\[" nil t)
-    (replace-match "{"))
-  (bibtex-beginning-of-entry)
-  (while (re-search-forward "]}" nil t)
-    (replace-match "}")))
+  "Remove enclosing brackets from fields."
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (while (re-search-forward "\\({\\)\\(\\[\\)\\(.+\\)\\(]\\)\\(}\\)" nil t)
+      (replace-match "\\1\\3\\5"))))
 
 (defun oricb-clean-author-field ()
-  "Clean additional information in the author's field."
+  "Remove extra information from author's field."
   (goto-char (cadr (bibtex-search-forward-field "author" t)))
   (let ((case-fold-search nil))
-    (when (re-search-forward "{by \\|{ed. by \\|{edited by " nil t)
-      (replace-match "{"))))
+    (when (re-search-forward "\\({\\)\\(by \\|ed. by \\|edited by \\)" nil t)
+      (replace-match "\\1"))))
 
 (defun oricb-remove-period ()
-  "Make sure the period is removed from the author's field."
+  "Remove period from author's field."
   (goto-char (cadr (bibtex-search-forward-field "author" t)))
-  (when (re-search-forward "\.},$" nil t)
-    (replace-match "},")))
+  (when (re-search-forward "\\(\\.\\)\\(}\\)" nil t)
+    (replace-match "\\2")))
 
 ;;;###autoload
 (defun org-ref-isbn-clean-bibtex-entry ()
@@ -129,8 +128,7 @@ in the file. Data comes from worldcat."
                      (buffer-substring url-http-end-of-headers (point-max)))))
          (status (cdr (assoc 'stat results)))
          (metadata)
-         (new-entry)
-         (new-key))
+         (new-entry))
 
     ;; check if we got something
     (unless (string= "ok" status)
@@ -153,26 +151,12 @@ in the file. Data comes from worldcat."
     ;; build entry in temp buffer to get the key so we can check for duplicates
     (setq new-entry (with-temp-buffer
 		      (insert (decode-coding-string new-entry 'utf-8))
-		      (org-ref-isbn-clean-bibtex-entry)
-                      (setq new-key (bibtex-key-in-head))
                       (s-trim  (buffer-string))))
     (find-file bibfile)
-    (goto-char (point-min))
-
-    (when (and new-key (search-forward new-key nil t))
-      (beep)
-      (setq new-key (read-string
-		     (format  "%s already exists. Enter new key (C-g to cancel): " new-key)
-		     new-key)))
     (goto-char (point-max))
     (insert new-entry)
-    ;; set key. It is simplest to just replace it, even if it is the same.
+    (org-ref-isbn-clean-bibtex-entry)
     (org-ref-clean-bibtex-entry)
-    (re-search-forward bibtex-entry-maybe-empty-head)
-    (if (match-beginning bibtex-key-in-head)
-        (delete-region (match-beginning bibtex-key-in-head)
-                       (match-end bibtex-key-in-head)))
-    (insert (or new-key ""))
     (bibtex-fill-entry)
     (save-buffer)))
 
