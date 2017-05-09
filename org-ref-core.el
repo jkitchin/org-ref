@@ -1245,9 +1245,10 @@ ARG does nothing."
 (defun org-label-store-link ()
   "Store a link to a label.  The output will be a ref to that label."
   ;; First we have to make sure we are on a label link.
-  (let* ((object (org-element-context)))
-    (when (and (equal (org-element-type object) 'link)
-               (equal (org-element-property :type object) "label"))
+  (let* ((object (and (eq major-mode 'org-mode) (org-element-context))))
+    (when (and
+	   (equal (org-element-type object) 'link)
+	   (equal (org-element-property :type object) "label"))
       (org-store-link-props
        :type "ref"
        :link (concat "ref:" (org-element-property :path object))))
