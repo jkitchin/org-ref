@@ -1,4 +1,4 @@
-
+#+TODO: ISSUE | COMPLETED
 #+BEGIN_SRC emacs-lisp
 (org-link-set-parameters
  "github-issue"
@@ -9,7 +9,8 @@
 
 #+RESULTS:
 
-* 381 Testing labels
+* COMPLETED TODO 381 Testing labels
+CLOSED: [2017-05-07 Sun 19:50]
 
 label:test.1
 
@@ -36,14 +37,17 @@ I found some minor inconsistencies with labels and ref messages that are caused 
 #+RESULTS:
 : 0
 
-* 388 
+github-issue:381
+* COMPLETED 388
+CLOSED: [2017-05-07 Sun 19:49]
 
 https://github.com/jkitchin/org-ref/issues/388
 
 Click on this, and press "g". It should get the bibtex entry from the doi.
 
 doi:10.1016/j.calphad.2017.01.009
-* 399
+* COMPLETED 399
+CLOSED: [2017-05-07 Sun 19:50]
 github-issue:399
 
 This is a natbib type, and if you do not use the natbib package, it will not work correctly in pdf export.
@@ -54,10 +58,12 @@ citenum:akhade-2011-effec
 #+latex_header: \addbibresource{org-ref.bib}
 
 
-* 356
+* COMPLETED 356
+CLOSED: [2017-05-07 Sun 19:51]
   :PROPERTIES:
   :CUSTOM_ID:       8E93EBF7-D0D3-4024-B005-45729C6AC6E0
   :END:
+github-issue:356
 
 cite:jkitchin76:online
 
@@ -103,13 +109,16 @@ printbibliography:nil
 : 9765
 ref:8E93EBF7-D0D3-4024-B005-45729C6AC6E0e
 
-* 405
-
+* COMPLETED 405
+CLOSED: [2017-05-07 Sun 19:51]
+github-issue:405
 ref:test-table
 
   #+name: test-table
   | 5 | 6 |
-* 404 isbn issues
+* COMPLETED 404 isbn issues
+CLOSED: [2017-05-07 Sun 19:51]
+github-issue:404
 
 #+BEGIN_SRC emacs-lisp
 (let ((org-ref-clean-bibtex-entry-hook
@@ -126,20 +135,27 @@ ref:test-table
 #+END_SRC
 
 #+RESULTS:
-* 410
+* COMPLETED 410
+CLOSED: [2017-05-07 Sun 19:51]
+github-issue:410
 
 #+STARTUP: content indent hidestars fninline
 #+OPTIONS: toc:nil
 
-* Introduction
 
-Here is reference Figure
+* ISSUE Wrong type argument: listp, "\\tolerance=1000" #430
+github-issue:430
+* ISSUE org-ref invalid org-store-link in org babel #433                :bug:
+  :PROPERTIES:
+  :ID:       57D3E663-E37A-4372-9832-A82DC9A1BC01
+  :END:
 
-#+BEGIN_SRC R :results output graphics :exports results :file test.pdf :height 4 :width 8
-plot(1:10,1:10)
+github-issue:433
+
+#+BEGIN_SRC clojure
+(defn )                                                             (ref:hello)
 #+END_SRC
 
-#+CAPTION: A caption to a plot
-#+NAME: fig:test
-#+RESULTS:
-[[file:test.pdf]]
+[[id:57D3E663-E37A-4372-9832-A82DC9A1BC01][org-ref invalid org-store-link in org babel #433]]
+
+It looks like I fixed it in [[orgit-rev:~/vc/jkitchin-github/scimax/org-ref/::ad6fb5c][~/vc/jkitchin-github/scimax/org-ref/ (magit-rev ad6fb5c)]].
