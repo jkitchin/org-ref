@@ -221,7 +221,7 @@ All org-ref links are designed to export to the corresponding LaTeX commands for
       '("pdflatex -interaction nonstopmode -output-directory %o %f"
 	"bibtex %b"
 	"pdflatex -interaction nonstopmode -output-directory %o %f"
-	"pdflatex -interaction nonstopmode -output-directory %o %f")
+	"pdflatex -interaction nonstopmode -output-directory %o %f"))
 #+END_SRC
 
 ** Other exports
