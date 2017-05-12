@@ -158,7 +158,8 @@ in the file. Data comes from worldcat."
     (completing-read
      "Bibfile: "
      (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-             org-ref-default-bibliography))))
+	     ;; Convert relative path to absolute path
+	     (list (file-truename (car org-ref-default-bibliography)))))))
 
   (let* ((results (with-current-buffer
                       (url-retrieve-synchronously
