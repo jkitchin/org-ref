@@ -798,7 +798,7 @@ Argument BIBFILE the bibliography to use."
 	(when (not (= (point) (line-beginning-position)))
 	  (forward-char 1))
 
-	(when (not (looking-back "\n\n" 3))
+	(when (not (looking-back "\n\n" (min 3 (point))))
 	  (insert "\n\n"))
 	
         (doi-utils-insert-bibtex-entry-from-doi doi)
