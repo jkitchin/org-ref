@@ -432,6 +432,7 @@ Use a prefix arg to select the ref type."
   (interactive)
   (let ((label (ivy-read "label: " (org-ref-get-labels) :require-match t)))
     (insert
+     (or (when (looking-at "$") " ") "")
      (concat (if ivy-current-prefix-arg
 		 (ivy-read "type: " '("ref" "eqref" "nameref" "pageref"))
 	       "ref")
