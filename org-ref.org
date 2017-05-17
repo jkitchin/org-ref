@@ -195,7 +195,7 @@ The command ~org-ref~ does a lot for you automatically. It will check the buffer
 2. makes sure the DOI field is an actual DOI, and not a URL
 3. fixes bad year entries
 4. fixes empty pages
-5. escapes & to \& and % to \%
+5. escapes ampersand and percentage signs
 6. generate a key according to your setup
 7. runs your hook functions
 8. sorts the fields in the entry
