@@ -191,17 +191,16 @@ The command ~org-ref~ does a lot for you automatically. It will check the buffer
 
 ~org-ref-clean-bibtex-entry~ will sort the fields of a bibtex entry, clean it, and give it a bibtex key. This function does a lot of cleaning:
 
-#+begin_example
 1. adds a comma if needed in the first line of the entry
-2. makes sure the doi field is an actual doi, and not a url.
+2. makes sure the DOI field is an actual DOI, and not a URL
 3. fixes bad year entries
 4. fixes empty pages
-5. Escapes & to \&
+5. escapes & to \& and % to \%
 6. generate a key according to your setup
-7. Runs your hook functions
+7. runs your hook functions
 8. sorts the fields in the entry
-9. checks the buffer for non-ascii characters.
-#+end_example
+9. checks the buffer for non-ascii characters
+10. converts article title to title case
 
 This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add functions to of your own. Each function must work on a bibtex entry at point.
 
