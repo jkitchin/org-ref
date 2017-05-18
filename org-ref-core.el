@@ -894,13 +894,14 @@ we open it, otherwise prompt for which one to open."
 	(if (file-exists-p bibfile)
 	    (find-file bibfile)
 	  ;; Maybe it is in BIBINPUTS
-	  (catch 'done
-	    (loop for path in (split-string (getenv "BIBINPUTS") ":")
-		  do
-		  (when (file-exists-p
-			 (expand-file-name bibfile path))
-		    (find-file (expand-file-name bibfile path))
-		    (throw 'done (expand-file-name bibfile path))))))))))
+	  (unless (catch 'done
+		    (loop for path in (split-string (or (getenv "BIBINPUTS") "") ":")
+			  do
+			  (when (file-exists-p
+				 (expand-file-name bibfile path))
+			    (find-file (expand-file-name bibfile path))
+			    (throw 'done (expand-file-name bibfile path)))))
+	    (find-file bibfile)))))))
 
 
 (defun org-ref-bibliography-format (keyword desc format)
@@ -959,17 +960,17 @@ ARG does nothing. I think it is a required signature."
 		(read-file-name "enter file: " nil nil nil)))))
 
 (org-ref-link-set-parameters "bibliography"
-			     :follow #'org-ref-open-bibliography
-			     :export #'org-ref-bibliography-format
-			     :complete #'org-bibliography-complete-link
-			     :help-echo (lambda (window object position)
-					  (save-excursion
-					    (goto-char position)
-					    (let ((s (org-ref-link-message)))
-					      (with-temp-buffer
-						(insert s)
-						(fill-paragraph)
-						(buffer-string))))))
+  :follow #'org-ref-open-bibliography
+  :export #'org-ref-bibliography-format
+  :complete #'org-bibliography-complete-link
+  :help-echo (lambda (window object position)
+	       (save-excursion
+		 (goto-char position)
+		 (let ((s (org-ref-link-message)))
+		   (with-temp-buffer
+		     (insert s)
+		     (fill-paragraph)
+		     (buffer-string))))))
 
 (defun org-ref-nobibliography-format (keyword desc format)
   "Format function for nobibliography link export"
@@ -3193,7 +3194,6 @@ move to the beginning of the previous cite link after this one."
                   (if (file-exists-p bibfile)
                       (message "%s exists." bibfile)
 		    ;; Check for BIBINPUTS
-		    (message "bibinputs")
 		    (if (getenv "BIBINPUTS")
 			(catch 'message
 			  (loop for d in (split-string (getenv "BIBINPUTS") ":")
