@@ -45,7 +45,7 @@ entry. These functions are wrapped in `save-restriction' and
   :group 'org-ref-isbn
   :type 'hook)
 
-(defcustom org-ref-isbn-kill-fields nil
+(defcustom org-ref-isbn-exclude-fields nil
   "List of bibtex fields to kill when new entry is inserted."
   :group 'org-ref-isbn
   :type '(repeat :tag "List of bibtex fields to kill" string))
