@@ -465,7 +465,7 @@ This library provides some functions to get bibtex entries for books from their 
 It also provides some variables for customizing the bibtex entry.
 
 - org-ref-isbn-clean-bibtex-entry-hook
-- org-ref-isbn-kill-fields
+- org-ref-isbn-exclude-fields
 - org-ref-isbn-field-name-replacements
 
 ** org-ref-pubmed
