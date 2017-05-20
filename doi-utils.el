@@ -334,7 +334,7 @@ Argument REDIRECT-URL URL you are redirected to."
 
 ;;** Science Direct
 (defun doi-utils-get-science-direct-pdf-url (redirect-url)
-  "Science direct hides the pdf url in html.  W get it out here.
+  "Science direct hides the pdf url in html.  We get it out here.
 REDIRECT-URL is where the pdf url will be in."
   (setq *doi-utils-waiting* t)
   (url-retrieve
@@ -451,6 +451,39 @@ REDIRECT-URL is where the pdf url will be in."
     (replace-regexp-in-string "abstract.cfm" "viewmedia.cfm" *doi-utils-redirect* )))
 
 
+
+;;** ASME Biomechanical Journal
+
+(defun asme-biomechanical-pdf-url (*doi-utils-redirect*)
+  "Typical URL:  http://biomechanical.asmedigitalcollection.asme.org/article.aspx?articleid=1427237
+
+On this page the pdf might be here:     <meta name=\"citation_author\" content=\"Dalong Li\" /><meta name=\"citation_author_email\" content=\"dal40@pitt.edu\" /><meta name=\"citation_author\" content=\"Anne M. Robertson\" /><meta name=\"citation_author_email\" content=\"rbertson@pitt.edu\" /><meta name=\"citation_title\" content=\"A Structural Multi-Mechanism Damage Model for Cerebral Arterial Tissue\" /><meta name=\"citation_firstpage\" content=\"101013\" /><meta name=\"citation_doi\" content=\"10.1115/1.3202559\" /><meta name=\"citation_keyword\" content=\"Mechanisms\" /><meta name=\"citation_keyword\" content=\"Biological tissues\" /><meta name=\"citation_keyword\" content=\"Stress\" /><meta name=\"citation_keyword\" content=\"Fibers\" /><meta name=\"citation_journal_title\" content=\"Journal of Biomechanical Engineering\" /><meta name=\"citation_journal_abbrev\" content=\"J Biomech Eng\" /><meta name=\"citation_volume\" content=\"131\" /><meta name=\"citation_issue\" content=\"10\" /><meta name=\"citation_publication_date\" content=\"2009/10/01\" /><meta name=\"citation_issn\" content=\"0148-0731\" /><meta name=\"citation_publisher\" content=\"American Society of Mechanical Engineers\" /><meta name=\"citation_pdf_url\" content=\"http://biomechanical.asmedigitalcollection.asme.org/data/journals/jbendy/27048/101013_1.pdf\" />
+
+It is in the citation_pdf_url.
+
+It would be better to parse this, but here I just use a regexp.
+"
+
+  (when (string-match "^http://biomechanical.asmedigitalcollection.asme.org" *doi-utils-redirect*)
+    (setq *doi-utils-waiting* 0)
+    (url-retrieve
+     *doi-utils-redirect*
+     (lambda (status)
+       (goto-char (point-min))
+       (re-search-forward "citation_pdf_url\" content=\"\\(.*\\)\"" nil t)
+       (message-box (match-string 1))
+       (setq *doi-utils-pdf-url* (match-string 1)
+	     *doi-utils-waiting* nil)))
+    (while (and *doi-utils-waiting* (< *doi-utils-waiting* 5))
+      (setq *doi-utils-waiting* (+ *doi-utils-waiting* 0.1))
+      (sleep-for 0.1))
+    *doi-utils-pdf-url*))
+
+
+
+
+
+
 ;;** Add all functions
 
 (setq doi-utils-pdf-url-functions
@@ -479,6 +512,7 @@ REDIRECT-URL is where the pdf url will be in."
        'ieee2-pdf-url
        'acm-pdf-url
        'osa-pdf-url
+       'asme-biomechanical-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
