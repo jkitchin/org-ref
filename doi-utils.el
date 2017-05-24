@@ -1340,23 +1340,13 @@ error."
 		     (candidates . ,helm-candidates)
 		     ;; just return the candidate
 		     (action . (("Insert bibtex entry" .  (lambda (doi)
-							    ;; always show bibtex entry
-							    (if (string= (buffer-name (current-buffer))
-									 (file-name-nondirectory bibtex-file))
-								(setq doi-utils--bibtex-file nil)
-							      (setq doi-utils--bibtex-file t)
-							      (split-window-below)
-							      (other-window 1)
-							      (find-file bibtex-file))
-							    (cl-loop for doi in (helm-marked-candidates)
-								     do
-								     (ignore-errors
+							    (with-current-buffer (find-file-noselect bibtex-file)
+							      (cl-loop for doi in (helm-marked-candidates)
+								       do
 								       (doi-utils-add-bibtex-entry-from-doi
 									(replace-regexp-in-string
 									 "^https?://\\(dx.\\)?doi.org/" "" doi)
-									,bibtex-file)))
-							    (when doi-utils--bibtex-file
-							      (recenter-top-bottom 0))))
+									,bibtex-file)))))
 				("Open url" . (lambda (doi)
 						(browse-url doi))))))))
       (helm :sources source
