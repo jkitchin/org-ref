@@ -310,7 +310,7 @@ Note also that pre text is preceded by a double colon, for example:
 	  (goto-char end)
 	  (skip-chars-backward " ")
 	  ;; Check if link has pre/post text
-	  (if (looking-back "\]")
+	  (if (looking-back "\]" (line-beginning-position))
 	      (progn
 		(re-search-backward path nil t)
 		(re-search-forward "\]" nil t)
