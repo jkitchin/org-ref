@@ -336,6 +336,9 @@ Note also that pre text is preceded by a double colon, for example:
 	      (format "[[%s:%s][%s]]" cite-command (s-join "," keys) text))))))))
 
 
+(defvar bibtex-completion-cached-candidates)
+(defvar bibtex-completion-bibliography-hash)
+
 ;;;###autoload
 (defun org-ref-helm-load-completions-async ()
   "Load the bibtex files into helm sources asynchronously.
