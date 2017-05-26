@@ -301,7 +301,8 @@ Note also that pre text is preceded by a double colon, for example:
 
 \\cite[See][Chapter 1]{key}."
   ;; Check if point is inside a cite link
-  (let ((link (org-element-context)))
+  (let ((link (org-element-context))
+	end path)
     (if (-contains? org-ref-cite-types (org-element-property :type link))
 	(progn
 	  (setq end (org-element-property :end link)
