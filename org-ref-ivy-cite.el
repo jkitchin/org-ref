@@ -205,8 +205,8 @@ This uses a citeproc library."
     (format "%s\n\n" (orhc-formatted-citation entry))))
 
 
-(defun or-ivy-bibtex-insert-formatted-citation (entry)
-  "Insert formatted citations at point for selected ENTRY."
+(defun or-ivy-bibtex-insert-formatted-citation (_)
+  "Insert formatted citations at point for selected entries."
   (with-ivy-window
     (insert (mapconcat
 	     'identity
