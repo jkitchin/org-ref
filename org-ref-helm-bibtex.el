@@ -342,41 +342,41 @@ Note also that pre text is preceded by a double colon, for example:
 For large bibtext files, the intial call to ‘org-ref-helm-insert-cite-link’
 can take a long time to load the completion sources.  This function loads
 the completion sources in the background so the initial call to ‘org-ref-helm-insert-cite-link’ is much faster."
-(interactive)
-    (async-start
-     `(lambda (&optional formatter)
-       (require 'package)
-       (package-initialize)
-       (require 'helm-bibtex)
-       ,(async-inject-variables "bibtex-compl.*")
-       ;;(setq bibtex-completion-bibliography "C:\\Users\\A6419643\\Documents\\library.bib")
-       (with-temp-buffer
-	 (mapc #'insert-file-contents
-	       (-flatten (list bibtex-completion-bibliography)))
-	 ;; Check hash of bibliography and reparse if necessary:
-	 (let ((bibliography-hash (secure-hash 'sha256 (current-buffer))))
-	   (unless (and bibtex-completion-cached-candidates
-			(string= bibtex-completion-bibliography-hash bibliography-hash))
-	     (message "Loading bibliography ...")
-	     (let* ((entries (bibtex-completion-parse-bibliography))
-		    (entries (bibtex-completion-resolve-crossrefs entries))
-		    (entries (bibtex-completion-prepare-entries entries))
-		    (entries (nreverse entries))
-		    (entries
-		     (--map (cons (bibtex-completion-clean-string
-				   (s-join " " (-map #'cdr it))) it)
-			    entries)))
-	       (setq bibtex-completion-cached-candidates
-		     (if (functionp formatter)
-			 (funcall formatter entries)
-		       entries)))
-	     (setq bibtex-completion-bibliography-hash bibliography-hash))
+  (interactive)
+  (async-start
+   `(lambda (&optional formatter)
+      (require 'package)
+      (package-initialize)
+      (require 'helm-bibtex)
+      ,(async-inject-variables "bibtex-compl.*")
+
+      (with-temp-buffer
+	(mapc #'insert-file-contents
+	      (-flatten (list bibtex-completion-bibliography)))
+	;; Check hash of bibliography and reparse if necessary:
+	(let ((bibliography-hash (secure-hash 'sha256 (current-buffer))))
+	  (unless (and bibtex-completion-cached-candidates
+		       (string= bibtex-completion-bibliography-hash bibliography-hash))
+	    (message "Loading bibliography ...")
+	    (let* ((entries (bibtex-completion-parse-bibliography))
+		   (entries (bibtex-completion-resolve-crossrefs entries))
+		   (entries (bibtex-completion-prepare-entries entries))
+		   (entries (nreverse entries))
+		   (entries
+		    (--map (cons (bibtex-completion-clean-string
+				  (s-join " " (-map #'cdr it))) it)
+			   entries)))
+	      (setq bibtex-completion-cached-candidates
+		    (if (functionp formatter)
+			(funcall formatter entries)
+		      entries)))
+	    (setq bibtex-completion-bibliography-hash bibliography-hash))
 	  (cons bibliography-hash bibtex-completion-cached-candidates))))
-     (lambda (result)
-       (setq bibtex-completion-cached-candidates (cdr result))
-       (setq bibtex-completion-bibliography-hash (car result))
-       (message "Finished loading org-ref completions"))))
- 
+   (lambda (result)
+     (setq bibtex-completion-cached-candidates (cdr result))
+     (setq bibtex-completion-bibliography-hash (car result))
+     (message "Finished loading org-ref completions"))))
+
 
 
 
