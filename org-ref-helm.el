@@ -274,10 +274,10 @@ at the end of you file.
 	  ;; these are the org-ref label:stuff  kinds
 	  (while (re-search-forward
 		  "[^#+]label:\\([a-zA-z0-9:-]*\\)" nil t)
-	    (setq matches (append matches
-				  (list (cons
-					 (match-string-no-properties 1)
-					 (point))))))
+	    (cl-pushnew (cons
+			 (match-string-no-properties 1)
+			 (point))
+			matches))
 	  ;; now add all the other kinds of labels.
 	  ;; #+label:
 	  (save-excursion
@@ -287,15 +287,14 @@ at the end of you file.
 	      ;; who would have thought you have save match data here? Trust me. When
 	      ;; I wrote this, you did.
 	      (unless (save-match-data  (equal (car (org-element-at-point)) 'table))
-		(add-to-list 'matches (cons (match-string-no-properties 1) (point))
-			     t))))
+		(cl-pushnew (cons (match-string-no-properties 1) (point)) matches))))
 
 	  ;; \label{}
 	  (save-excursion
 	    (goto-char (point-min))
 	    (while (re-search-forward "\\\\label{\\([a-zA-z0-9:-]*\\)}"
 				      nil t)
-	      (add-to-list 'matches (cons (match-string-no-properties 1) (point)) t)))
+	      (cl-pushnew (cons (match-string-no-properties 1) (point)) matches)))
 
 	  ;; #+tblname: and actually #+label
 	  (loop for cell in (org-element-map (org-element-parse-buffer 'element) 'table
@@ -303,18 +302,18 @@ at the end of you file.
 				(cons (org-element-property :name table)
 				      (org-element-property :begin table))))
 		do
-		(add-to-list 'matches cell t))
+		(cl-pushnew cell matches))
 
 	  ;; CUSTOM_IDs
 	  (org-map-entries
 	   (lambda ()
 	     (let ((custom_id (org-entry-get (point) "CUSTOM_ID")))
 	       (when (not (null custom_id))
-		 (add-to-list 'matches (cons custom_id (point)))))))
+		 (cl-pushnew (cons custom_id (point)) matches)))))
 
 	  (goto-char (point-min))
 	  (while (re-search-forward "^#\\+name:\\s-+\\(.*\\)" nil t)
-	    (pushnew (cons (match-string 1) (point)) matches))
+	    (cl-pushnew (cons (match-string 1) (point)) matches))
 
 
 	  ;; unreference labels
