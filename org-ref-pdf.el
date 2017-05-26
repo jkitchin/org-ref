@@ -27,7 +27,9 @@
 ;; get a doi. This needs a reliable title/citation.
 
 ;;; Code:
+
 (require 'f)
+(require 'pdf-tools)
 (eval-when-compile
   (require 'cl))
 
@@ -233,14 +235,15 @@ variable `org-ref-pdf-doi-regex'."
   (occur org-ref-pdf-doi-regex)
   (switch-to-buffer-other-window "*Occur*"))
 
+
 ;;;###autoload
 (defun org-ref-pdf-crossref-lookup ()
-	"Lookup highlighted text in PDFView in CrossRef."
-	(interactive)
-	(pdf-view-assert-active-region)
-	(let* ((txt (pdf-view-active-region-text)))
-		(pdf-view-deactivate-region)
-		(crossref-lookup (mapconcat 'identity txt "	 \n"))))
+  "Lookup highlighted text in PDFView in CrossRef."
+  (interactive)
+  (pdf-view-assert-active-region)
+  (let* ((txt (pdf-view-active-region-text)))
+    (pdf-view-deactivate-region)
+    (crossref-lookup (mapconcat 'identity txt "	 \n"))))
 
 
 (provide 'org-ref-pdf)
