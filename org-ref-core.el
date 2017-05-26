@@ -57,6 +57,7 @@
 (defvar org-export-exclude-tags)
 (declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
 
+
 ;;* Custom variables
 (defgroup org-ref nil
   "Customization group for org-ref."
@@ -627,6 +628,13 @@ If so return the position for `goto-char'."
 ;; [[cite:key] [text]]. Using regexps might be a bit more efficient, so if they
 ;; ever get figured out, we could eliminate the org-element code in these
 ;; functions.
+
+;; These functions are not used with org-9. I define them here to make
+;; byte-compiling quiet.
+(defun org-ref-match-next-cite-link (_) nil)
+(defun org-ref-match-next-label-link (_) nil)
+(defun org-ref-match-next-ref-link (_) nil)
+(defun org-ref-make-org-link-cite-key-visible (_) nil)
 
 (when (not (fboundp 'org-link-set-parameters))
 
