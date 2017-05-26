@@ -682,7 +682,7 @@ With a prefix ARG, browse citation links."
       (let ((keys nil)
 	    (alist nil))
 	(widen)
-	(show-all)
+	(outline-show-all)
 	(org-element-map (org-element-parse-buffer) 'link
 	  (lambda (link)
 	    (let ((plist (nth 1 link)))
