@@ -692,32 +692,33 @@ With a prefix ARG, browse citation links."
 			   (org-ref-split-and-strip-string (plist-get plist ':path)))
 		    (setq keys (append keys (list key)))
 		    (setq alist (append alist (list (cons key start))))))))))
-	(let ((counter 0))
+	(let ((counter 0)
+	      count-key-pos)
 	  ;; the idea here is to create an alist with ("counter key" .
 	  ;; position) to produce unique candidates
 	  (setq count-key-pos (mapcar (lambda (x)
 					(cons
 					 (format "%s %s" (cl-incf counter) (car x)) (cdr x)))
-				      alist)))
-	;; push mark to restore position with C-u C-SPC
-	(push-mark (point))
-	;; move point to the first citation link in the buffer
-	(goto-char (cdr (assoc (caar alist) alist)))
-	(helm :sources
-	      (helm-build-sync-source "Browse citation links"
-		:follow 1
-		:candidates keys
-		:candidate-transformer 'org-ref-browser-transformer
-		:real-to-display 'org-ref-browser-display
-		:persistent-action (lambda (candidate)
-				     (helm-goto-char
-				      (cdr (assoc candidate count-key-pos))))
-		:action `(("Open menu" . ,(lambda (candidate)
-					    (helm-goto-char
-					     (cdr (assoc candidate count-key-pos)))
-					    (org-open-at-point)))))
-	      :candidate-number-limit 10000
-	      :buffer "*helm browser*"))
+				      alist))
+	  ;; push mark to restore position with C-u C-SPC
+	  (push-mark (point))
+	  ;; move point to the first citation link in the buffer
+	  (goto-char (cdr (assoc (caar alist) alist)))
+	  (helm :sources
+		(helm-build-sync-source "Browse citation links"
+		  :follow 1
+		  :candidates keys
+		  :candidate-transformer 'org-ref-browser-transformer
+		  :real-to-display 'org-ref-browser-display
+		  :persistent-action (lambda (candidate)
+				       (helm-goto-char
+					(cdr (assoc candidate count-key-pos))))
+		  :action `(("Open menu" . ,(lambda (candidate)
+					      (helm-goto-char
+					       (cdr (assoc candidate count-key-pos)))
+					      (org-open-at-point)))))
+		:candidate-number-limit 10000
+		:buffer "*helm browser*")))
     (helm :sources (org-ref-browser-label-source)
 	  :buffer "*helm labels*")))
 
