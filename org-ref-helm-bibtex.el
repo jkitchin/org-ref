@@ -39,6 +39,7 @@
 (require 'helm-config)
 (require 'helm)
 (require 'helm-bibtex)
+(require 'helm-utils)
 (require 'org-ref-helm)
 (require 'async)
 (require 'package)
