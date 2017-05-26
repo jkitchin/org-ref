@@ -550,13 +550,7 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results))
-	 (pdf-file (funcall org-ref-get-pdf-filename-function key)) 
-	 (entry (save-excursion
-		  (with-temp-buffer
-		    (insert-file-contents bibfile)
-		    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		    (bibtex-search-entry key)
-		    (bibtex-parse-entry t))))
+	 (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (url (save-excursion
                 (with-temp-buffer
                   (insert-file-contents bibfile)
