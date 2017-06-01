@@ -176,7 +176,8 @@ insert the ref link."
   nil
   "Function that runs when you click on a cite link.
 The function must take one argument which is the path of the link
-that was clicked on."
+that was clicked on. This function is normally set by the
+function in `org-ref-completion-library'."
   :type 'function
   :group 'org-ref)
 
@@ -2035,7 +2036,7 @@ citez link, with reftex key of z, and the completion function."
    `(if (fboundp 'org-link-set-parameters)
 	(org-link-set-parameters
 	 ,type
-	 :follow (lambda (_path) (funcall org-ref-cite-onclick-function nil))
+	 :follow (lambda (_) (funcall org-ref-cite-onclick-function nil))
 	 :export (quote ,(intern (format "org-ref-format-%s" type)))
 	 :complete (quote ,(intern (format "org-%s-complete-link" type)))
 	 :help-echo (lambda (window object position)
