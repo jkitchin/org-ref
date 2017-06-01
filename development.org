@@ -1,0 +1,33 @@
+This document is mostly for me (John Kitchin) to document how to add features in a reasonable way to org-ref.
+
+First make sure the repo is on master, and up to date.
+
+Then, checkout a feature branch, e.g. here I am fixing issue #453 which is to add this document.
+
+#+BEGIN_SRC sh
+git checkout -b issue-453
+#+END_SRC
+
+Or, in magit type: b c Ret <branchname>.
+
+Make any changes you want in this branch and finally commit them.
+
+Run the tests.
+
+#+BEGIN_SRC sh
+make mytest
+#+END_SRC
+
+If that passes you are probably good to either merge with master, or create a pull request.
+
+#+BEGIN_SRC sh
+git checkout master
+git merge issue-453
+git push
+#+END_SRC
+
+If that goes ok, then delete the branch:
+
+#+BEGIN_SRC sh
+git branch -d issue-453
+#+END_SRC

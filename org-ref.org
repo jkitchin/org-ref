@@ -795,3 +795,38 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 
 bibliographystyle:unsrt
 bibliography:org-ref.bib
+* Appendix
+** Tips from users
+*** Setup pdf-tools
+
+Adapted from https://github.com/jkitchin/org-ref/issues/184
+
+Install org-pdfview (on MELPA).
+
+Add this to your init file (to my org-mode configuration):
+#+BEGIN_SRC emacs-lisp
+;; PDF links for org-mode
+(with-eval-after-load "pdf-tools"
+  (use-package org-pdfview
+    :config
+    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00169.html
+    ;; Before adding, remove it (to avoid clogging)
+    (delete '("\\.pdf\\'" . default) org-file-apps)
+    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00176.html
+    (add-to-list 'org-file-apps
+		 '("\\.pdf\\'" . (lambda (file link)
+				   (org-pdfview-open link))))))
+#+END_SRC
+
+*** Setting up notes to work with multiple notes.org files
+
+Adapted from https://github.com/jkitchin/org-ref/issues/443. This setup lets helm-bibtex find the note file for an entry.
+
+#+BEGIN_SRC emacs-lisp
+;; Tell org-ref to let helm-bibtex find notes for it
+(setq org-ref-notes-function
+      (lambda (thekey)
+	(let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+	  (bibtex-completion-edit-notes
+	   (list (car (org-ref-get-bibtex-key-and-file thekey)))))))
+#+END_SRC
