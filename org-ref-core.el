@@ -2272,10 +2272,7 @@ the entry of interest in the bibfile.  but does not check that."
     (let* ((bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (-first 'f-file?
-			(--map (f-join it (concat key ".pdf"))
-			       (-flatten (list org-ref-pdf-directory))))))
-      (message "%s" pdf)
+           (pdf (funcall org-ref-get-pdf-filename-function key)))
       (if (file-exists-p pdf)
           (org-open-link-from-string (format "[[file:%s]]" pdf))
         (ding)))))
