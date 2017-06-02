@@ -23,11 +23,29 @@ org-ref provides a fairly large number of utilities for finding bad citations, e
 
 org-ref is [[*Customizing org-ref][customizable]].
 
-org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. We have published several scientific articles with it so far  cite:hallenbeck-2013-effec,mehta-2014-ident-poten,xu-2014-relat-elect,xu-2014-probin-cover,miller-2014-simul-temper,curnan-2014-effec-concen,boes-2015-estim-bulk,xu-2015-linear-respon,xu-2015-relat-between. Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information. You may also find these two perspective articles cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien interesting, as well as this article on data sharing cite:kitchin-2016-autom-data we wrote.
+org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. We have published over a dozen scientific articles with it so far:
+
+- cite:hallenbeck-2013-effec
+- cite:mehta-2014-ident-poten
+- cite:xu-2014-relat-elect
+- cite:xu-2014-probin-cover
+- cite:miller-2014-simul-temper
+- cite:curnan-2014-effec-concen
+- cite:boes-2015-estim-bulk
+- cite:xu-2015-linear-respon
+- cite:xu-2015-relat-between
+- cite:boes-2016-neural-networ
+- cite:boes-2017-neural-networ
+- cite:xu-2017-first-princ
+- cite:geng-2017-first-princ
+
+Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information. You may also find these two perspective articles cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien interesting, as well as this article on data sharing cite:kitchin-2016-autom-data we wrote.
 
 There has been a lot of recent discussion on the org-mode mailing list about a citation syntax for org-mode. It is not clear what the impact of this on org-ref will be. The new syntax will more cleanly support pre/post text, and it will be separate from the links used in org-ref. It is not clear if the new syntax will support all of the citation types, especially those in biblatex, that are supported in org-ref. The new citations are likely to be clickable, and could share functionality with org-ref. The new citation syntax will not cover labels and cross-references though, so these links from org-ref will still exist. We anticipate a long life for org-ref.
 
 Biblatex users should read this [[id:212B487E-CC38-4BDF-9F0E-6993845AF49B][section]].
+
+If you want to export this document to another format like PDF or HTML, see [[id:5BBB8F29-3C82-4C7B-8FDB-9D146751D187][Other forms of this document]].
 
 ** Basic usage of org-ref
 
@@ -38,7 +56,7 @@ org-ref provides a bibliography link to specify which bibtex files to use in the
 
 There is also a nobibliography link, which is useful for specifying a bibliography file, but not listing a bibliography in the exported document.
 
-There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command.
+There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command. For LaTeX export a bibliography and bibliographystyle link is /required/.
 
 *** Citations
     :PROPERTIES:
@@ -80,6 +98,29 @@ You may want to bind a hydra menu to a key-binding or key-chord. For example:
 #+END_SRC
 
 This will allow you to quickly press ~kk~ while on a cite link to access functions that can act on the link.
+
+Alternatively, there is now a keymap defined on cite links. By default this map is defined in the variable ~org-ref-cite-keymap~. Note if you change any of these, you have to either restart emacs or run ~org-ref-generate-cite-links~. I am a fan of the [[http://ergoemacs.org/emacs/emacs_hyper_super_keys.html][hyper]] key, so the following are defined by default:
+
+| H-b | Open the citation to the bibtex entry      |
+| H-u | Open the citation URL                      |
+| H-p | Open the citation PDF (if it exists)       |
+| H-n | Open the citation notes                    |
+| H-c | Open Web of Science citing articles        |
+| H-e | Email the bibtex entry and pdf             |
+| H-f | Copy a formatted entry string              |
+| H-g | Open Google Scholar                        |
+| H-w | Copy the key at point                      |
+| H-y | Paste the key in an existing link          |
+
+There are navigation bindings:
+
+| C-left  | Jump to previous key              |
+| C-right | Jump to next key                  |
+| S-left  | move key to the left              |
+| S-right | move key to the right             |
+
+You can also sort
+| S-up    | sort keys by ascending year       |
 
 *** Pre/post text support
 
@@ -176,6 +217,29 @@ Autoref works like this: autoref:table-3, autoref:sec-misc.
 
 org-ref provides clickable links for a list-of-tables:nil and list-of-figures:nil. We have to put some text in the link, anything will do. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
 
+*** Controlling link messages and tooltips
+
+Org-ref is setup to provide messages in the minibuffer when your cursor is on a link, and tooltips when your mouse hovers over a link. If this is distracting you can turn it off by putting this in your init file:
+
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-show-citation-on-enter nil)
+#+END_SRC
+
+Alternatively, you can turn this on and off interactively with the commands:
+
+- org-ref-mouse-messages-on
+- org-ref-mouse-messages-off
+
+Org-ref can also be configured to show bad label,ref and cite links by setting this in your init files:
+
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-show-broken-links t)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+This may be slow in large files, so you can turn it off by setting that variable to nil.
 
 ** org-ref customization of helm-bibtex
 index:helm-bibtex
@@ -223,12 +287,19 @@ All org-ref links are designed to export to the corresponding LaTeX commands for
 	"pdflatex -interaction nonstopmode -output-directory %o %f"))
 #+END_SRC
 
+I have also had success with this setup:
+
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+#+END_SRC
+
 ** Other exports
 index:export!html index:export!ascii
 
 There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export, the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~.
 
 * org-ref-ivy
+
 org-ref provides an alternative to reftex and helm with ivy as the backend completion engine for searching and entering citations. 
 
 You can set this backend in your init file like this
@@ -294,6 +365,7 @@ The settings I use are:
 #+END_SRC
 
 *** Troubleshooting doi-utils
+
 Occasionally weird things happen with a DOI. The first thing you should check is if the json data for the DOI can be retrieved. You can do that at the command line, or in a sh block like this:
 
 #+BEGIN_SRC sh
@@ -551,13 +623,16 @@ If you find you need to convert some bibliographies in some format into bibtex, 
 - clean-entries :: Map over a converted bibtex file and "clean it".
 
 ** org-ref-latex
+
 This provides some org-ref like capabilities in LaTeX files, e.g. the links are clickable with tooltips.
 
 ** org-ref-pdf
-Allows you to drag and drop a PDF onto a bibtex file to add a bibtex entry (as long as you have pdftotext, and the pdf has an identifiable DOI in it.)
+
+Allows you to drag and drop a PDF onto a bibtex file to add a bibtex entry (as long as you have pdftotext, and the pdf has an identifiable DOI in it.) This library is known to not work on Windows very well.
 
 ** org-ref-url-utils
-Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about).
+
+Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about). This library does not work well on Windows.
 
 * Appendix
 ** Customizing org-ref
@@ -611,6 +686,23 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
 #+end_src
 
+An alternative approach adapted from https://github.com/jkitchin/org-ref/issues/184 to use pdfview is described here. First, unstall org-pdfview (on MELPA).
+
+Add this to your init file:
+#+BEGIN_SRC emacs-lisp
+;; PDF links for org-mode
+(with-eval-after-load "pdf-tools"
+  (use-package org-pdfview
+    :config
+    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00169.html
+    ;; Before adding, remove it (to avoid clogging)
+    (delete '("\\.pdf\\'" . default) org-file-apps)
+    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00176.html
+    (add-to-list 'org-file-apps
+		 '("\\.pdf\\'" . (lambda (file link)
+				   (org-pdfview-open link))))))
+#+END_SRC
+
 *** A note for Mendeley, JabRef and Zotero users
 
 If ~bibtex-completion-pdf-field~ is defined, the function below should work with JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
@@ -635,6 +727,19 @@ Mendeley users should set to:
 (setq org-ref-open-pdf-function 'org-ref-get-mendeley-filename)
 #+END_SRC
 
+
+*** Setting up notes to work with multiple notes.org files
+
+Adapted from https://github.com/jkitchin/org-ref/issues/443. This setup lets helm-bibtex find the note file for an entry.
+
+#+BEGIN_SRC emacs-lisp
+;; Tell org-ref to let helm-bibtex find notes for it
+(setq org-ref-notes-function
+      (lambda (thekey)
+	(let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+	  (bibtex-completion-edit-notes
+	   (list (car (org-ref-get-bibtex-key-and-file thekey)))))))
+#+END_SRC
 ** Other things org-ref supports
 *** org-completion
 index:completion index:link!completion
@@ -656,6 +761,7 @@ index:link!storing
 If you are on a label link, or on a table name, or on an org-mode label you can "store" a link to it by typing C-c l. Then you can insert the corresponding ref link with ~C-c C-l~. This will insert a ref link or custom_id link as needed. This usually works, but it is not used by me too often, so it is not tested too deeply.
 
 *** Storing links to bibtex entries
+
 If you have a bibtex file open, you type ~C-c C-l~ with your cursor in a bibtex entry to store a link to that entry. In an org buffer if you then type ~C-c l~, you can enter a cite link.
 
 *** Indexes
@@ -756,77 +862,49 @@ Finally, where you want the bibliography put this command:
 \printbibliography
 #+END_EXAMPLE
 
-* Index
-This is a functional link that will open a buffer of clickable index entries:
-printindex:nil
+** Other forms of this document
+   :PROPERTIES:
+   :ID:       5BBB8F29-3C82-4C7B-8FDB-9D146751D187
+   :END:
 
-* Other forms of this document
-
-** Build notes				:noexport:
+*** Build notes
 
 Before building this file you need to require the following libraries so the links will be resolved.
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
+(require 'org-id)
 (require 'org-ref-wos)
 (require 'org-ref-scopus)
 (require 'org-ref-pubmed)
-#+END_SRC
+ #+END_SRC
 
-** PDF
+ #+RESULTS:
+ : org-ref-pubmed
+
+*** PDF
+
 You may want to build a pdf of this file. Here is an emacs-lisp block that will create and open the PDF.
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (org-open-file (org-latex-export-to-pdf))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
 
-** HTML
+*** HTML
+
 You may want to build an html version of this file. Here is an emacs-lisp block that will create and open the html in your browser. You will see the bibliography is not perfect, but it is pretty functional.
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (browse-url (org-html-export-to-html))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
+* Index
+
+This is a functional link that will open a buffer of clickable index entries:
+printindex:nil
 
 * References
 <<bibliography link>>
 
 bibliographystyle:unsrt
 bibliography:org-ref.bib
-* Appendix
-** Tips from users
-*** Setup pdf-tools
-
-Adapted from https://github.com/jkitchin/org-ref/issues/184
-
-Install org-pdfview (on MELPA).
-
-Add this to your init file (to my org-mode configuration):
-#+BEGIN_SRC emacs-lisp
-;; PDF links for org-mode
-(with-eval-after-load "pdf-tools"
-  (use-package org-pdfview
-    :config
-    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00169.html
-    ;; Before adding, remove it (to avoid clogging)
-    (delete '("\\.pdf\\'" . default) org-file-apps)
-    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00176.html
-    (add-to-list 'org-file-apps
-		 '("\\.pdf\\'" . (lambda (file link)
-				   (org-pdfview-open link))))))
-#+END_SRC
-
-*** Setting up notes to work with multiple notes.org files
-
-Adapted from https://github.com/jkitchin/org-ref/issues/443. This setup lets helm-bibtex find the note file for an entry.
-
-#+BEGIN_SRC emacs-lisp
-;; Tell org-ref to let helm-bibtex find notes for it
-(setq org-ref-notes-function
-      (lambda (thekey)
-	(let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-	  (bibtex-completion-edit-notes
-	   (list (car (org-ref-get-bibtex-key-and-file thekey)))))))
-#+END_SRC
