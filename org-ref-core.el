@@ -458,7 +458,13 @@ have fields sorted alphabetically."
   nil
   "Variable to hold bibliography files to be searched.")
 
+
+(defcustom org-ref-show-broken-links t
+  "If non-nil show bad org-ref links in a warning face."
+  :group 'org-ref)
+
 ;;* Messages for link at cursor
+
 (defvar org-ref-message-timer nil
   "Variable to store the link message timer in.")
 
@@ -1236,6 +1242,7 @@ ARG does nothing."
               (format "\\listoftables")))))
 
 ;;** label link
+
 (defun org-ref-count-labels (label)
   "Count number of LABELs in the document."
   (+ (count-matches
@@ -1300,6 +1307,18 @@ ARG does nothing."
        :type "ref"
        :link (concat "ref:" (org-element-property :name object))))))
 
+
+(defun org-ref-label-face-fn (label)
+  "Return a face for the label link."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (= 1 (org-ref-count-labels label)))
+      'org-ref-label-face)
+     (t
+      'font-lock-warning-face))))
+
+
 (org-ref-link-set-parameters "label"
   :follow (lambda (label)
             "On clicking count the number of label tags used in the buffer.
@@ -1318,7 +1337,7 @@ A number greater than one means multiple labels!"
              ((eq format 'latex)
               (format "\\label{%s}" keyword))))
   :store #'org-label-store-link
-  :face 'org-ref-label-face
+  :face 'org-ref-label-face-fn
   :help-echo (lambda (window object position)
                (save-excursion
                  (goto-char position)
@@ -1329,6 +1348,7 @@ A number greater than one means multiple labels!"
                      (buffer-string))))))
 
 ;;** ref link
+
 (defun org-ref-ref-follow (label)
   "On clicking goto the LABEL.
 Navigate back with \`\\[org-mark-ring-goto]'."
@@ -1425,12 +1445,25 @@ Optional argument ARG Does nothing."
    ((eq format 'latex)
     (format "\\ref{%s}" keyword))))
 
+
+(defun org-ref-ref-face-fn (label)
+  "Return a face for a ref link."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (member label (org-ref-get-labels)))
+      'org-ref-ref-face)
+     (t
+      'font-lock-warning-face))))
+
+
 (org-ref-link-set-parameters "ref"
   :follow #'org-ref-ref-follow
   :export #'org-ref-ref-export
   :complete #'org-ref-complete-link
-  :face 'org-ref-ref-face
+  :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
+
 
 (defun org-ref-get-org-labels ()
   "Return a list of #+LABEL: labels."
@@ -1575,7 +1608,7 @@ This is used to complete ref links."
              ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
              ((eq format 'latex)
               (format "\\pageref{%s}" path))))
-  :face 'org-ref-ref-face
+  :face 'org-ref-ref-face-fn
   :complete #'org-pageref-complete-link
   :help-echo #'org-ref-ref-help-echo)
 
@@ -1593,7 +1626,7 @@ Optional argument ARG Does nothing."
   (interactive)
   (insert (org-pageref-complete-link)))
 
-;; ** nameref link
+;;** nameref link
 
 (defun org-ref-follow-nameref (label)
   "On clicking goto the LABEL. Navigate back with C-c &"
@@ -1622,7 +1655,7 @@ Optional argument ARG Does nothing."
   :follow #'org-ref-follow-nameref
   :export #'org-ref-export-nameref
   :complete #'org-ref-complete-link
-  :face 'org-ref-ref-face
+  :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
 ;;** eqref link
@@ -1658,7 +1691,7 @@ Optional argument ARG Does nothing."
   :export #'org-ref-eqref-export
   ;; This isn't equation specific, one day we might try to make it that way.
   :complete #'org-ref-complete-link
-  :face 'org-ref-ref-face
+  :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
 ;;** autoref link
@@ -1697,7 +1730,7 @@ Optional argument ARG Does nothing."
   :follow #'org-ref-autoref-follow
   :export #'org-ref-autoref-export
   :complete #'org-ref-complete-link
-  :face 'org-ref-ref-face
+  :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
 ;;** cite link
@@ -2030,6 +2063,34 @@ creates a cite link."
 			  (bibtex-autokey-year-title-separator ": "))
 		      (setq org-bibtex-description (bibtex-generate-autokey)))))))
 
+
+;; This suppresses showing the warning buffer. helm-bibtex seems to make this
+;; pop up in an irritating way.
+(unless (boundp 'warning-suppress-types)
+  (require 'warnings))
+
+(add-to-list 'warning-suppress-types '(:warning))
+
+(defun org-ref-cite-link-face-fn (keys)
+  "Return a face for a cite link.
+KEYS may be a comma-separated list of keys.
+This is not smart enough yet to only highlight the bad key. If any key is bad, the whole cite will be red."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+	    (-every?
+	     'identity
+	     (mapcar
+	      (lambda (key)
+		(assoc "=key="
+		       (bibtex-completion-get-entry key)))
+	      (split-string keys ",")))))
+      'org-ref-cite-face)
+     (t
+      'font-lock-warning-face))))
+
+
 ;;;###autoload
 (defun org-ref-define-citation-link (type &optional key)
   "Add a citation link of TYPE for `org-ref'.
@@ -2059,7 +2120,7 @@ citez link, with reftex key of z, and the completion function."
 			      (insert s)
 			      (fill-paragraph)
 			      (buffer-string))))))
-	 :face 'org-ref-cite-face
+	 :face 'org-ref-cite-link-face-fn
 	 :display 'full
 	 :keymap org-ref-cite-keymap)
       (org-add-link-type
@@ -2080,12 +2141,18 @@ citez link, with reftex key of z, and the completion function."
           (append (nth 2 (assoc 'org reftex-cite-format-builtin))
                   `((,key  . ,(concat type ":%l")))))))
 
-;; create all the link types and their completion functions
-(dolist (type org-ref-cite-types)
-  (org-ref-define-citation-link type))
 
-(when (fboundp 'org-link-set-parameters)
-  (org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link))
+(defun org-ref-generate-cite-links ()
+  "Create all the link types and their completion functions."
+  (interactive)
+  (dolist (type org-ref-cite-types)
+    (org-ref-define-citation-link type))
+  (when (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link)))
+
+;; This is what actually generated the cite links
+(org-ref-generate-cite-links)
+
 
 ;;;###autoload
 (defun org-ref-insert-cite-with-completion (type)
