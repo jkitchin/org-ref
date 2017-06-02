@@ -194,10 +194,19 @@ function in `org-ref-completion-library'."
     (define-key map (kbd "H-n") 'org-ref-open-notes-at-point)
     (define-key map (kbd "H-r") 'org-ref-wos-related-at-point)
     (define-key map (kbd "H-c") 'org-ref-wos-citing-at-point)
+    (define-key map (kbd "H-e") (lambda ()
+				  "Email entry at point"
+				  (interactive)
+				  (org-ref-open-citation-at-point)
+				  (org-ref-email-bibtex-entry)))
     (define-key map (kbd "H-g") 'org-ref-google-scholar-at-point)
-    (define-key map (kbd "H-f") 'org-ref-format-bibtex-entry-at-point)
+    (define-key map (kbd "H-f") (lambda ()
+				  (interactive)
+				  (save-excursion
+				    (org-ref-open-citation-at-point)
+				    (kill-new
+				     (org-ref-format-bibtex-entry-at-point)))))
     (define-key map (kbd "H-w") (lambda ()
-				  "Copy the key at point."
 				  (interactive)
 				  (kill-new (car (org-ref-get-bibtex-key-and-file)))))
     (define-key map (kbd "H-W") (lambda ()
