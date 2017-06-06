@@ -147,6 +147,9 @@ the citation link into the buffer."
   :group 'org-ref)
 
 
+(defcustom org-ref-prefer-bracket-links nil
+  "If non-nil use bracketed links when inserting them.")
+
 (defcustom org-ref-cite-completion-function
   nil
   "Function to prompt for keys with completion."
@@ -3400,6 +3403,7 @@ point. Leaves point at end of added keys."
        opath (org-element-property :path cite)
        okeys (org-ref-split-and-strip-string opath)
        newkeys (append keys okeys)
+       bracket-p (string= "[" (buffer-substring begin (+ 1 begin)))
        new-cite (concat
 		 (when bracket-p "[[")
 		 type
@@ -3454,6 +3458,7 @@ point. Leaves point at end of added keys."
        end (point)
        type org-ref-default-citation-link
        newkeys keys
+       bracket-p org-ref-prefer-bracket-links
        new-cite (concat
 		 (when bracket-p "[[")
 		 type
@@ -3466,7 +3471,9 @@ point. Leaves point at end of added keys."
     (goto-char begin)
     (insert new-cite)
     (goto-char begin)
-    (re-search-forward (mapconcat 'identity keys ","))))
+    (re-search-forward (mapconcat 'identity keys ","))
+    (when (looking-at "]")
+      (forward-char 2))))
 
 
 (defun org-ref-replace-key-at-point (&optional replacement-keys)
