@@ -2924,52 +2924,52 @@ bibliography:tests/test-1.bib
 
 
 
-[2016-07-17 Sun] I do not recall why ref links can't be at the beginning of a line. That is why there is a space at the beginning of this test.
-#+name: ref-face-1
-#+BEGIN_SRC emacs-lisp :test
-(org-test-with-temp-text
-    " ref:kitchin-2015-examp
+# [2016-07-17 Sun] I do not recall why ref links can't be at the beginning of a line. That is why there is a space at the beginning of this test.
+# #+name: ref-face-1
+# #+BEGIN_SRC emacs-lisp :test
+# (org-test-with-temp-text
+#     " ref:kitchin-2015-examp
 
-bibliography:tests/test-1.bib
-"
-  (unless (fboundp 'org-link-set-parameters)
-    (font-lock-add-keywords
-     nil
-     '((org-ref-match-next-ref-link (0  'font-lock-warning-face t)))
-     t))
-  (font-lock-fontify-region (point-min) (point-max))
-  (should (eq 'font-lock-warning-face (get-char-property 2 'face))))
-#+END_SRC
+# bibliography:tests/test-1.bib
+# "
+#   (unless (fboundp 'org-link-set-parameters)
+#     (font-lock-add-keywords
+#      nil
+#      '((org-ref-match-next-ref-link (0  'font-lock-warning-face t)))
+#      t))
+#   (font-lock-fontify-region (point-min) (point-max))
+#   (should (eq 'font-lock-warning-face (get-char-property 2 'face))))
+# #+END_SRC
 
-#+RESULTS: ref-face-1
-: t
-
-
-
-#+RESULTS: ref-face
-: t
+# #+RESULTS: ref-face-1
+# : t
 
 
-#+name: ref-face-2
-#+BEGIN_SRC emacs-lisp :test
-(org-test-with-temp-text
-    " ref:kitchin-2015-examp
 
-label:kitchin-2015-examp
+# #+RESULTS: ref-face
+# : t
 
-bibliography:tests/test-1.bib
-"
-  (unless (fboundp 'org-link-set-parameters)
-    (font-lock-add-keywords
-     nil
-     '((org-ref-match-next-ref-link (0  'font-lock-warning-face t)))
-     t))
-  (font-lock-fontify-region (point-min) (point-max))
-  (should (eq 'org-ref-ref-face (get-char-property 2 'face))))
-#+END_SRC
 
-#+RESULTS: ref-face-2
-: t
+# #+name: ref-face-2
+# #+BEGIN_SRC emacs-lisp :test
+# (org-test-with-temp-text
+#     " ref:kitchin-2015-examp
+
+# label:kitchin-2015-examp
+
+# bibliography:tests/test-1.bib
+# "
+#   (unless (fboundp 'org-link-set-parameters)
+#     (font-lock-add-keywords
+#      nil
+#      '((org-ref-match-next-ref-link (0  'font-lock-warning-face t)))
+#      t))
+#   (font-lock-fontify-region (point-min) (point-max))
+#   (should (eq 'org-ref-ref-face (get-char-property 2 'face))))
+# #+END_SRC
+
+# #+RESULTS: ref-face-2
+# : t
 
 
 
