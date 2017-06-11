@@ -178,8 +178,6 @@ Argument CANDIDATES helm candidates."
 	       (save-buffer)))))
 
 
-
-
 (defun org-ref-bibtex-completion-format-org (keys)
   "Insert selected KEYS as cite link.
 Append KEYS if you are on a link.
@@ -271,15 +269,17 @@ change the key at point to the selected keys."
 
      ;; insert fresh link
      (t
-      ;;(message-box "fresh link")
       (insert
-       (concat (if (equal helm-current-prefix-arg '(4))
-                   (helm :sources `((name . "link types")
-                                    (candidates . ,org-ref-cite-types)
-                                    (action . (lambda (x) x))))
-                 org-ref-default-citation-link)
-               ":"
-               (s-join "," keys))))))
+       (concat
+	(when org-ref-prefer-bracket-links "[[")
+	(if (equal helm-current-prefix-arg '(4))
+	    (helm :sources `((name . "link types")
+			     (candidates . ,org-ref-cite-types)
+			     (action . (lambda (x) x))))
+	  org-ref-default-citation-link)
+	":"
+	(s-join "," keys)
+	(when org-ref-prefer-bracket-links "]]"))))))
   ;; return empty string for helm
   "")
 
