@@ -236,6 +236,7 @@ change the key at point to the selected keys."
 	   ","
 	   (org-element-property :end object) 'mv)
 	  (skip-chars-backward " ")
+	  (skip-chars-backward "]")
 	  (unless (looking-at ",") (insert ","))
 	  (insert (mapconcat 'identity keys ",")))))
        ;; double prefix, replace key at point
