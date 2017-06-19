@@ -430,6 +430,7 @@ http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
     orcb-key
     orcb-clean-doi
     orcb-clean-pages
+    orcb-check-journal
     org-ref-sort-bibtex-entry)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
 The functions should have no arguments, and
