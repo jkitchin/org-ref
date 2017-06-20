@@ -127,6 +127,7 @@ the values of those functions."
 	     )
   :group 'org-ref)
 
+
 (defcustom org-ref-insert-link-function
   nil
   "Generic function for inserting org-ref links.
@@ -149,6 +150,7 @@ the citation link into the buffer."
 
 (defcustom org-ref-prefer-bracket-links nil
   "If non-nil use bracketed links when inserting them.")
+
 
 (defcustom org-ref-cite-completion-function
   nil
@@ -184,10 +186,12 @@ function in `org-ref-completion-library'."
   :type 'function
   :group 'org-ref)
 
+
 ;; define key for inserting citations
 (define-key org-mode-map
   (kbd org-ref-insert-cite-key)
   org-ref-insert-link-function)
+
 
 (defcustom org-ref-cite-keymap
   (let ((map (copy-keymap org-mouse-map)))
@@ -378,6 +382,7 @@ Uses a hook function to display the message in the minibuffer."
   "natbib cite commands, http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf"
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
+
 
 (defcustom org-ref-biblatex-types
   '("Cite"
@@ -884,6 +889,7 @@ we open it, otherwise prompt for which one to open."
 		 (completing-read
 		  "Bib file: " bibfiles nil t)))))
 
+
 (defun org-ref-open-bibliography (link-string)
   "The click function for a bibliography link."
   ;; get link-string boundaries we have to go to the
@@ -964,6 +970,7 @@ we open it, otherwise prompt for which one to open."
 		      (split-string keyword ","))
 	      ","))))))
 
+
 (defun org-bibliography-complete-link (&optional arg)
   "Completion function for bibliography link.
 This will scan the org-file for citations, and if it finds the
@@ -1001,6 +1008,7 @@ ARG does nothing. I think it is a required signature."
 	    (or (mapconcat #'identity found ",")
 		(read-file-name "enter file: " nil nil nil)))))
 
+
 (org-ref-link-set-parameters "bibliography"
   :follow #'org-ref-open-bibliography
   :export #'org-ref-bibliography-format
@@ -1013,6 +1021,7 @@ ARG does nothing. I think it is a required signature."
 		     (insert s)
 		     (fill-paragraph)
 		     (buffer-string))))))
+
 
 (defun org-ref-nobibliography-format (keyword desc format)
   "Format function for nobibliography link export"
@@ -1031,9 +1040,11 @@ ARG does nothing. I think it is a required signature."
 				(split-string keyword ","))
 			","))))))
 
+
 (org-ref-link-set-parameters "nobibliography"
   :follow #'org-ref-open-bibliography
   :export #'org-ref-nobibliography-format)
+
 
 (org-ref-link-set-parameters "printbibliography"
   :follow #'org-ref-open-bibliography
@@ -1044,6 +1055,7 @@ ARG does nothing. I think it is a required signature."
              ((eq format 'latex)
               ;; write out the biblatex bibliography command
               "\\printbibliography"))))
+
 
 (org-ref-link-set-parameters "bibliographystyle"
   :export (lambda (keyword desc format)
@@ -1106,6 +1118,7 @@ ARG does nothing. I think it is a required signature."
 		     (buffer-substring key-beginning key-end)))
       (find-file bibfile))))
 
+
 (org-ref-link-set-parameters "addbibresource"
   :follow #'org-ref-follow-addbibresource
   :export (lambda (keyword desc format)
@@ -1138,6 +1151,7 @@ unless optional argument NO-INHERITANCE is non-nil."
      (no-inheritance nil)
      (t
       (save-excursion (and (org-up-heading-safe) (org-in-commented-heading-p)))))))
+
 
 ;;;###autoload
 (defun org-ref-list-of-figures (&optional arg)
@@ -1196,6 +1210,7 @@ Ignore figures in COMMENTED sections."
       (use-local-map (copy-keymap org-mode-map))
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
+
 (org-ref-link-set-parameters "list-of-figures"
   :follow #'org-ref-list-of-figures
   :export (lambda (keyword desc format)
@@ -1250,6 +1265,7 @@ ARG does nothing."
       (setq buffer-read-only t)
       (use-local-map (copy-keymap org-mode-map))
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
+
 
 (org-ref-link-set-parameters "list-of-tables"
   :follow #'org-ref-list-of-tables
@@ -1618,6 +1634,7 @@ This is used to complete ref links."
     (error "%s not found" label))
   (message "go back with (org-mark-ring-goto) `C-c &`"))
 
+
 (org-ref-link-set-parameters "pageref"
   :follow #'org-ref-follow-pageref
   :export (lambda (path desc format)
@@ -1628,6 +1645,7 @@ This is used to complete ref links."
   :face 'org-ref-ref-face-fn
   :complete #'org-pageref-complete-link
   :help-echo #'org-ref-ref-help-echo)
+
 
 (defun org-pageref-complete-link (&optional arg)
   "Completion function for ref links.
@@ -1661,12 +1679,14 @@ Optional argument ARG Does nothing."
     (error "%s not found" label))
   (message "go back with (org-mark-ring-goto) `C-c &`"))
 
+
 (defun org-ref-export-nameref (path desc format)
   "Export function for nameref links."
   (cond
    ((eq format 'html) (format "(<nameref>%s</nameref>)" path))
    ((eq format 'latex)
     (format "\\nameref{%s}" path))))
+
 
 (org-ref-link-set-parameters "nameref"
   :follow #'org-ref-follow-nameref
@@ -1696,12 +1716,14 @@ Optional argument ARG Does nothing."
     (error "%s not found" label))
   (message "go back with (org-mark-ring-goto) `C-c &`"))
 
+
 (defun org-ref-eqref-export (keyword desc format)
   (cond
    ((eq format 'latex) (format "\\eqref{%s}" keyword))
    ;;considering the fact that latex's the standard of math formulas, just use mathjax to render the html
    ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
    ((eq format 'html) (format "\\eqref{%s}" keyword))))
+
 
 (org-ref-link-set-parameters "eqref"
   :follow #'org-ref-eqref-follow
@@ -1742,6 +1764,7 @@ Optional argument ARG Does nothing."
    ;;'org-html-mathjax-template' and 'org-html-mathjax-options' refering to
    ;;'autonumber'
    ((eq format 'html) (format "\\autoref{%s}" keyword))))
+
 
 (org-ref-link-set-parameters "autoref"
   :follow #'org-ref-autoref-follow
@@ -2131,7 +2154,9 @@ creates a cite link."
 (unless (boundp 'warning-suppress-types)
   (require 'warnings))
 
+
 (add-to-list 'warning-suppress-types '(:warning))
+
 
 (defun org-ref-cite-link-face-fn (keys)
   "Return a face for a cite link.
@@ -2212,6 +2237,7 @@ citez link, with reftex key of z, and the completion function."
   (when (fboundp 'org-link-set-parameters)
     (org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link)))
 
+
 ;; This is what actually generated the cite links
 (org-ref-generate-cite-links)
 
@@ -2246,6 +2272,7 @@ Save in the default link type."
             (cond
              ((eq format 'latex)
               (format "\\index{%s}" path)))))
+
 
 ;; this will generate a temporary index of entries in the file when clicked on.
 ;;;###autoload
@@ -2306,12 +2333,14 @@ PATH is required for the org-link, but it does nothing here."
 	  (insert (format "%s %s\n\n" (car link) (cdr link))))))
     (switch-to-buffer "*index*")))
 
+
 (org-ref-link-set-parameters "printindex"
   :follow #'org-ref-index
   :export (lambda (path desc format)
             (cond
              ((eq format 'latex)
               (format "printindex")))))
+
 
 ;;* Utilities
 ;;** create text citations from a bibtex entry
@@ -2616,6 +2645,7 @@ file.  Makes a new buffer with clickable links."
         (kill-buffer "*Missing citations*"))
       (message "No bad cite links found"))))
 
+
 ;;** bad citations, labels, refs and files in orgfile
 (defun org-ref-bad-cite-candidates ()
   "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
@@ -2865,6 +2895,7 @@ With \\[univeral-argument], run `bibtex-clean-entry' after.
 	(if arg
             (bibtex-clean-entry)))))))
 
+
 (defun orcb-clean-nil-opinionated ()
   "Remove nil from all article fields."
   (interactive)
@@ -2875,6 +2906,7 @@ With \\[univeral-argument], run `bibtex-clean-entry' after.
       (cl-loop for (field . text) in entry do
                (if (string= text "{nil}")
                    (bibtex-set-field field ""))))))
+
 
 (defun orcb-clean-doi ()
   "Remove http://dx.doi.org/ in the doi field."
@@ -2964,6 +2996,7 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
     (insert key)
     (kill-new key)))
 
+
 (defun orcb-check-journal ()
   "Check entry at point to see if journal exists in `org-ref-bibtex-journal-abbreviations'.
 If not, issue a warning."
@@ -2980,6 +3013,7 @@ If not, issue a warning."
           (error "Unable to get journal for this entry."))
         (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))
           (message "Journal \"%s\" not found in org-ref-bibtex-journal-abbreviations." journal))))))
+
 
 ;;;###autoload
 (defun org-ref-clean-bibtex-entry ()
@@ -3030,6 +3064,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
       (goto-char begin)
       (re-search-forward link-string)
       (replace-match keys))))
+
 
 ;;** Shift-arrow sorting of keys in a cite link
 (defun org-ref-swap-keys (i j keys)
@@ -3095,6 +3130,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 	    (re-search-forward key end)
 	    collect
 	    (list key (match-beginning 0) (match-end 0))))))
+
 
 ;;;###autoload
 (defun org-ref-next-key ()
@@ -3168,6 +3204,7 @@ move to the beginning of the previous cite link after this one."
 			   (<= p e))
 		   return i))
       (goto-char (nth 1 (nth (- index 1) cps)))))))
+
 
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
@@ -3285,6 +3322,7 @@ move to the beginning of the previous cite link after this one."
 
              ;; message some context about the label we are referring to
              ((or (string= type "ref")
+		  (string= type "cref")
 		  (string= type "eqref")
 		  (string= type "pageref")
 		  (string= type "nameref")
@@ -3629,6 +3667,7 @@ provide their own version."
               "org-ref.org"
               (file-name-directory
                (find-library-name "org-ref")))))
+
 
 ;;* org-ref menu
 
