@@ -434,8 +434,8 @@ Use a prefix arg to select the ref type."
     (insert
      (or (when (looking-at "$") " ") "")
      (concat (if ivy-current-prefix-arg
-		 (ivy-read "type: " '("ref" "eqref" "nameref" "pageref"))
-	       "ref")
+		 (ivy-read "type: " org-ref-ref-types)
+	       org-ref-default-ref-type)
 	     ":"
 	     label))))
 

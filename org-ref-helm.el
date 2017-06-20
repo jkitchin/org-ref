@@ -101,7 +101,7 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
 					      (if (looking-at " ")
 						  " "
 						""))))
-                                      (if (-contains? '("ref" "eqref" "pageref" "nameref")
+                                      (if (-contains? org-ref-ref-types
                                                       (org-element-property :type object))
                                           ;; we are on a link, so replace it.
                                           (setf
@@ -117,16 +117,15 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
                                         ;; insert a new link
                                         (insert
                                          (concat
-                                          "ref:" label))
+                                          org-ref-default-ref-type ":" label))
                                         )))
                                    ;; one prefix, alternate ref link
                                    ((equal helm-current-prefix-arg '(4))
                                     (insert
                                      (concat
-                                      (helm :sources '((name . "Ref link types")
-                                                       (candidates . ("ref" "eqref"
-								      "pageref" "nameref"))
-                                                       (action . (lambda (x) x))))
+                                      (helm :sources `((name . "Ref link types")
+						      (candidates . ,org-ref-ref-types)
+						      (action . (lambda (x) x))))
                                       ":" label)))
                                    ;; two prefixes, insert section custom-id link
                                    ((equal helm-current-prefix-arg '(16))

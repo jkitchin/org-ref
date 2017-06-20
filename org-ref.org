@@ -201,6 +201,7 @@ org-ref also provides these links:
 - nameref :: The name of a section a label is in
 - eqref :: Puts the equation number in parentheses
 - autoref :: A command from hyperref that automatically prefixes the reference number.
+- cref & Cref :: [[https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref?lang=en][cleveref – Intelligent cross-referencing]] (crefrange is not supported)
 
 Note for eqref, you must use a LaTeX label like this:
 
@@ -211,6 +212,8 @@ e^x = 4 \label{eq:1}
 Then you can refer to Eq. eqref:eq:1 in your documents.
 
 Autoref works like this: autoref:table-3, autoref:sec-misc.
+
+You can specify the default ref link type in `org-ref-default-ref-type'.
 
 *** Some other links
 [[index:list of tables]] [[index:list of figures]]

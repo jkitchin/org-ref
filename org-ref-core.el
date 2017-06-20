@@ -1,6 +1,6 @@
-;;; org-ref-core.el --- citations, cross-references and bibliographies in org-mode
+;;; org-ref-core.el --- citations, cross-references and bibliographies in org-mode  -*- lexical-binding: t; -*-
 
-;; Copyright(C) 2014,2015 John Kitchin
+;; Copyright(C) 2014-2017 John Kitchin
 
 ;; This file is not currently part of GNU Emacs.
 
@@ -419,6 +419,19 @@ http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   :group 'org-ref)
 
 
+(defcustom org-ref-ref-types
+  '("ref" "eqref" "pageref" "nameref" "autoref" "cref" "Cref")
+  "List of ref link types."
+  :type '(repeat :tag "List of ref types" string)
+  :group 'org-ref)
+
+
+(defcustom org-ref-default-ref-type "ref"
+  "Default ref link type to use when inserting ref links"
+  :type 'string
+  :group 'org-ref)
+
+
 (defcustom org-ref-clean-bibtex-entry-hook
   '(org-ref-bibtex-format-url-if-doi
     orcb-key-comma
@@ -742,7 +755,7 @@ tags."
       ;; we think we are on a ref link, lets make sure.
       (forward-char -2)
       (let ((this-link (org-element-context)))
-	(if (-contains? '("ref" "eqref" "pageref" "nameref" "autoref")
+	(if (-contains? org-ref-ref-types
 			(org-element-property :type this-link))
 	    ;; we are, so we do our business
 	    (progn
@@ -1737,6 +1750,51 @@ Optional argument ARG Does nothing."
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
+;;** cref link
+;; for LaTeX cleveref package:
+;; https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref
+
+(defun org-ref-cref-export (keyword desc format)
+  "cref link export function.
+See https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
+  (cond
+   ((eq format 'latex) (format "\\cref{%s}" keyword))
+   ;; considering the fact that latex's the standard of math formulas, just use
+   ;;mathjax to render the html customize the variable
+   ;;'org-html-mathjax-template' and 'org-html-mathjax-options' refering to
+   ;;'autonumber'
+   ((eq format 'html) (format "\\cref{%s}" keyword))))
+
+
+(defun org-ref-Cref-export (keyword desc format)
+  "Cref link export function.
+The capitalized version. See
+https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
+  (cond
+   ((eq format 'latex) (format "\\Cref{%s}" keyword))
+   ;; considering the fact that latex's the standard of math formulas, just use
+   ;;mathjax to render the html customize the variable
+   ;;'org-html-mathjax-template' and 'org-html-mathjax-options' refering to
+   ;;'autonumber'
+   ((eq format 'html) (format "\\Cref{%s}" keyword))))
+
+
+(org-ref-link-set-parameters "cref"
+  :follow #'org-ref-ref-follow
+  :export #'org-ref-cref-export
+  :complete #'org-ref-complete-link
+  :face 'org-ref-ref-face-fn
+  :help-echo #'org-ref-ref-help-echo)
+
+
+(org-ref-link-set-parameters "Cref"
+  :follow #'org-ref-ref-follow
+  :export #'org-ref-Cref-export
+  :complete #'org-ref-complete-link
+  :face 'org-ref-ref-face-fn
+  :help-echo #'org-ref-ref-help-echo)
+
+
 ;;** cite link
 
 (defun org-ref-get-bibtex-key-under-cursor ()
@@ -2604,7 +2662,9 @@ file.  Makes a new buffer with clickable links."
                      (equal (plist-get plist ':type) "eqref")
                      (equal (plist-get plist ':type) "pageref")
                      (equal (plist-get plist ':type) "nameref")
-		     (equal (plist-get plist ':type) "autoref"))
+		     (equal (plist-get plist ':type) "autoref")
+		     (equal (plist-get plist ':type) "cref")
+		     (equal (plist-get plist ':type) "Cref"))
             (unless (-contains? labels (plist-get plist :path))
               (goto-char (plist-get plist :begin))
               (add-to-list
