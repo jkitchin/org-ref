@@ -148,13 +148,21 @@ This widens the file so that all links go to the right place."
         (bib-candidates '())
 	(unreferenced-labels '())
 	natbib-required
-	natbib-used)
+	natbib-used
+	cleveref-required
+	cleveref-used
+	biblatex-required
+	biblatex-used)
 
-    ;; See if natbib is required
+    ;; See if natbib, biblatex or cleveref are required
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
 	(when (member (org-element-property :type link) org-ref-natbib-types)
-	  (setq natbib-required t)))
+	  (setq natbib-required t))
+	(when (member (org-element-property :type link) org-ref-biblatex-types)
+	  (setq biblatex-required t))
+	(when (member (org-element-property :type link) '("cref" "Cref"))
+	  (setq cleveref-required t)))
       nil t)
 
     ;; See if natbib is probably used. This will miss a case where natbib is included somehow.
@@ -166,6 +174,24 @@ This widens the file so that all links go to the right place."
 	   (save-excursion
 	     (goto-char (point-min))
 	     (re-search-forward "{natbib}" nil t))))
+
+    (setq biblatex-used
+	  (or
+	   (member "biblatex" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-default-packages-alist))
+	   (member "biblatex" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-packages-alist))
+	   ;; see of something like \usepackage{biblatex} exists.
+	   (save-excursion
+	     (goto-char (point-min))
+	     (re-search-forward "{biblatex}" nil t))))
+
+    (setq cleveref-used
+	  (or
+	   (member "cleveref" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-default-packages-alist))
+	   (member "cleveref" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-packages-alist))
+	   ;; see of something like \usepackage{cleveref} exists.
+	   (save-excursion
+	     (goto-char (point-min))
+	     (re-search-forward "{cleveref}" nil t))))
 
     ;; setup bib-candidates. This checks a variety of things in the
     ;; bibliography, bibtex files. check for which bibliographies are used
@@ -322,7 +348,9 @@ at the end of you file.
 				    (string= "eqref" (org-element-property :type el))
 				    (string= "pageref" (org-element-property :type el))
 				    (string= "nameref" (org-element-property :type el))
-				    (string= "autoref" (org-element-property :type el)))
+				    (string= "autoref" (org-element-property :type el))
+				    (string= "cref" (org-element-property :type el))
+				    (string= "Cref" (org-element-property :type el)))
 			    (org-element-property :path el))))))
 	    (loop for (label . p) in matches 
 		  do
@@ -377,11 +405,15 @@ at the end of you file.
 		      (candidates . (,(format "org-latex-prefer-user-labels = %s"
 					      org-latex-prefer-user-labels)
 				     ,(format "bibtex-dialect = %s" bibtex-dialect)
+				     ,(format "biblatex is%srequired." (if biblatex-required " " " not "))
+				     ,(format "biblatex is%sused." (if biblatex-used " " " not "))
 				     ,(format "org-version = %s" (org-version))
 				     ,(format "completion backend = %s" org-ref-completion-library)
 				     ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
 				     ,(format "natbib is%srequired." (if natbib-required " " " not "))
-				     ,(format "natbib is%sused." (if natbib-used " " " not "))))
+				     ,(format "natbib is%sused." (if natbib-used " " " not "))
+				     ,(format "cleveref is%srequired." (if cleveref-required " " " not "))
+				     ,(format "cleveref is%sused." (if cleveref-used " " " not "))))
 		      (action . nil))
 
                      ((name . "Utilities")
