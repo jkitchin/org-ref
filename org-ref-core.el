@@ -1386,7 +1386,7 @@ A number greater than one means multiple labels!"
   "On clicking goto the LABEL.
 Navigate back with \`\\[org-mark-ring-goto]'."
   ;; Suppress minibuffer message in helm. See `org-ref-browser'.
-  (if helm-alive-p
+  (if (and (boundp 'helm-alive-p) helm-alive-p)
       (lambda (&optional pos buffer)
 	(setq pos (or pos (point)))
 	(setq org-mark-ring (nthcdr (1- org-mark-ring-length) org-mark-ring))
@@ -1446,7 +1446,7 @@ Navigate back with \`\\[org-mark-ring-goto]'."
     (org-mark-ring-goto)
     (error "%s not found" label))
   (org-show-entry)
-  (unless helm-alive-p
+  (unless (and (boundp 'helm-alive-p) helm-alive-p)
     (substitute-command-keys
      "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'.")))
 
