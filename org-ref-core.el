@@ -2475,8 +2475,8 @@ construct the heading by hand."
     (shell-command (concat "pdflatex " bib-base))
     (shell-command (concat "pdflatex " bib-base))
     (kill-buffer texfile)
-    (org-open-file pdffile)
-    ))
+    (org-open-file pdffile)))
+
 
 ;;** Extract bibtex entries in org-file
 
