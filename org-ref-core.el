@@ -312,8 +312,8 @@ supports an additional method for storing notes. See
 (defcustom org-ref-open-notes-function
   (lambda ()
     (org-show-entry)
-    (show-branches)
-    (show-children)
+    (outline-show-branches)
+    (outline-show-children)
     (org-cycle '(64))
     (recenter-top-bottom 0))
   "User-defined way to open a notes entry.
