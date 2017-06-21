@@ -1,4 +1,4 @@
-;;; org-ref-core.el --- citations, cross-references and bibliographies in org-mode  -*- lexical-binding: t; -*-
+;;; org-ref-core.el --- citations, cross-references and bibliographies in org-mode
 
 ;; Copyright(C) 2014-2017 John Kitchin
 
