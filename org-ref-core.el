@@ -1009,6 +1009,24 @@ ARG does nothing. I think it is a required signature."
 		(read-file-name "enter file: " nil nil nil)))))
 
 
+(defun org-ref-bibliography-face-fn (path)
+  "Return face for a bibliography link.
+org-link if the files exist.
+font-lock-warning-face if any file does not exist."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (-every?
+	   'identity
+	   (mapcar
+	    (lambda (bibfile)
+	      (file-exists-p bibfile))
+	    (split-string path ","))))
+      'org-link)
+     (t
+      'font-lock-warning-face))))
+
+
 (org-ref-link-set-parameters "bibliography"
   :follow #'org-ref-open-bibliography
   :export #'org-ref-bibliography-format
@@ -1020,7 +1038,8 @@ ARG does nothing. I think it is a required signature."
 		   (with-temp-buffer
 		     (insert s)
 		     (fill-paragraph)
-		     (buffer-string))))))
+		     (buffer-string)))))
+  :face #'org-ref-bibliography-face-fn)
 
 
 (defun org-ref-nobibliography-format (keyword desc format)
