@@ -1947,27 +1947,31 @@ set in `org-ref-default-bibliography'"
 	;; look for org-ref bibliography or addbibresource links
 	(setq org-ref-bibliography-files nil)
 	(while (re-search-forward
-		"\\<\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
+		;; I added the + here to avoid matching +bibliography: keywords.
+		"[^\\+]\\<\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
 		nil t)
-	  (loop for bibfile in (mapcar 'org-ref-strip-string
-				       (split-string (match-string 2) ","))
-		do
-		(cond
-		 ((file-exists-p bibfile)
-		  (add-to-list 'org-ref-bibliography-files bibfile t))
-		 ((getenv "BIBINPUTS")
-		  (loop for bibdir in (split-string (getenv "BIBINPUTS") ":")
-			do
-			(when (file-exists-p (expand-file-name
-					      bibfile
-					      bibdir))
-			  (add-to-list 'org-ref-bibliography-files
-				       (expand-file-name
-					bibfile
-					bibdir)
-				       t))))
-		 (t
-		  (error "%s does not seem to exist" bibfile)))))
+	  (skip-chars-backward " ")
+	  (when (member (org-element-property :type (org-element-context))
+			'("bibliography" "addbibresources"))
+	    (loop for bibfile in (mapcar 'org-ref-strip-string
+					 (split-string (match-string 2) ","))
+		  do
+		  (cond
+		   ((file-exists-p bibfile)
+		    (add-to-list 'org-ref-bibliography-files bibfile t))
+		   ((getenv "BIBINPUTS")
+		    (loop for bibdir in (split-string (getenv "BIBINPUTS") ":")
+			  do
+			  (when (file-exists-p (expand-file-name
+						bibfile
+						bibdir))
+			    (add-to-list 'org-ref-bibliography-files
+					 (expand-file-name
+					  bibfile
+					  bibdir)
+					 t))))
+		   (t
+		    (error "%s does not seem to exist" bibfile))))))
 	
 	(when org-ref-bibliography-files
 	  (throw 'result org-ref-bibliography-files))
@@ -1991,7 +1995,15 @@ set in `org-ref-default-bibliography'"
 	(setq org-ref-bibliography-files
 	      (reftex-locate-bibliography-files default-directory))
 	(when org-ref-bibliography-files
+	  (throw 'result org-ref-bibliography-files))
+
+	;; last try For something like #+bibliography: bibfile-noext style options
+	(goto-char (point-min))
+	(when (re-search-forward "^#\\+bibliography:\\(.*\\)" nil t)
+	  (setq org-ref-bibliography-files
+		(concat (car (split-string (s-trim (match-string 1)) " ")) ".bib"))
 	  (throw 'result org-ref-bibliography-files))))
+
 
     ;; we did not find anything. use defaults
     (setq org-ref-bibliography-files org-ref-default-bibliography))
