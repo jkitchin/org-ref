@@ -2414,7 +2414,7 @@ construct the heading by hand."
   (let* ((cb (current-buffer))
          (bibtex-expand-strings t)
          (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-                         collect (cons (downcase key) value)))
+                         collect (cons (downcase key) (s-collapse-whitespace value))))
          (key (reftex-get-bib-field "=key=" entry)))
 
     ;; save key to clipboard to make saving pdf later easier by pasting.
