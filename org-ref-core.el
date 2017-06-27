@@ -1316,10 +1316,7 @@ ARG does nothing."
      ;; #+name:
      (count-matches (format "^\\( \\)*#\\+name:\\s-*%s\\b[^-:]" label)
 		    (point-min) (point-max))
-     (let ((custom-id-count 0))
-       (when (and (buffer-file-name)
-		  (file-exists-p (buffer-file-name)))
-	 (save-buffer))
+     (let ((custom-id-count 0)) 
        (org-map-entries
         (lambda ()
           (when (string= label (org-entry-get (point) "CUSTOM_ID"))
@@ -1532,9 +1529,7 @@ Optional argument ARG Does nothing."
 
 
 (defun org-ref-get-custom-ids ()
-  "Return a list of custom_id properties in the buffer."
-  (when (and (buffer-file-name) (file-exists-p (buffer-file-name)))
-    (save-buffer))
+  "Return a list of custom_id properties in the buffer." 
   (let ((results '()) custom_id)
     (org-map-entries
      (lambda ()
