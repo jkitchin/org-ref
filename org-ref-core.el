@@ -2853,7 +2853,12 @@ With \\[univeral-argument], run `bibtex-clean-entry' after.
 
 
 (defun orcb-clean-nil-opinionated ()
-  "Remove nil from all article fields."
+  "Remove nil from all article fields.
+
+Note that by default, this will leave the entry empty, which may
+then get deleted by `bibtex-clean-entry.' To disable this
+behavior, remove opts-or-alts from `bibtex-entry-format'. This
+will leave the empty entries so that you may fill them in later."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
