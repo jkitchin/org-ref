@@ -485,7 +485,7 @@ all the title entries in articles."
 		       word)
 		      ;; match words containing {} or \ which are probably
 		      ;; LaTeX or protected words, ignore
-		      ((string-match "\\$\\|{\\|}\\|\\\\" word)
+		      ((string-match "\\$\\|{\\|}\\|(\\|)\\|\\\\" word)
 		       word)
 		      ;; these words should not be capitalized, unless they
 		      ;; are the first word
