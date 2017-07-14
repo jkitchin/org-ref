@@ -52,6 +52,9 @@
     (title . ((font-style . italics)
 	      (suffix . "")
 	      (field-separator . ", ")))
+    (booktitle . ((font-style . italics)
+		  (suffix . "")
+		  (field-separator . "in ")))
     (journal . ((suffix . "")
 		(field-separator . ", ")))
     ;; here we use some logic to group volume(issue) or volume
@@ -75,8 +78,14 @@
 	    (formatter . orcp-doi-formatter)))
     ;; Formatting of entries
     (entries . ((article . (author title journal volume pages year doi))
+		(inproceedings . (author title booktitle year))
 		(book . (author title year))
-		(misc . (author title url doi))))))
+		(manual . (author title url doi))
+		(misc . (author title url doi))
+		(techreport . (author title institution year))
+		(mastersthesis . (author title school year))
+		(phdthesis . (author title school year))
+		(t . (author title year))))))
 
 (provide 'author-year)
 
