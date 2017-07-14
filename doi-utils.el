@@ -793,6 +793,25 @@ Argument BIBFILE the bibliography to use."
                                   (region-beginning)
                                   (region-end))))
             (buffer-substring (region-beginning) (region-end)))
+	   ((and  (region-active-p)
+                  (s-match "^http://dx\\.doi\\.org/" (buffer-substring
+						      (region-beginning)
+						      (region-end))))
+            (replace-regexp-in-string "^http://dx\\.doi\\.org/" ""
+				      (buffer-substring (region-beginning) (region-end))))
+	   ((and  (region-active-p)
+		  (s-match "^https://dx\\.doi\\.org/" (buffer-substring
+						       (region-beginning)
+						       (region-end))))
+	    (replace-regexp-in-string "^https://dx\\.doi\\.org/" ""
+				      (buffer-substring (region-beginning) (region-end))))
+	   ((and  (region-active-p)
+                  (s-match (regexp-quote doi-utils-dx-doi-org-url) (buffer-substring
+								    (region-beginning)
+								    (region-end))))
+	    (replace-regexp-in-string  (regexp-quote doi-utils-dx-doi-org-url) ""
+				       (buffer-substring (region-beginning) (region-end)))
+            (buffer-substring (region-beginning) (region-end)))
            ;; if the first entry in the kill-ring looks
            ;; like a DOI, let's use it.
            ((and
@@ -800,11 +819,27 @@ Argument BIBFILE the bibliography to use."
              (stringp (car kill-ring))
              (s-match "^10" (car kill-ring)))
             (car kill-ring))
+	   ;; maybe kill-ring matches http://dx.doi or somthing
+	   ((and
+             ;; make sure the kill-ring has something in it
+             (stringp (car kill-ring))
+             (s-match "^http://dx\\.doi\\.org/" (car kill-ring)))
+            (replace-regexp-in-string "^http://dx\\.doi\\.org/" "" (car kill-ring)))
+	   ((and
+             ;; make sure the kill-ring has something in it
+             (stringp (car kill-ring))
+             (s-match "^https://dx\\.doi\\.org/" (car kill-ring)))
+            (replace-regexp-in-string "^https://dx\\.doi\\.org/" "" (car kill-ring)))
+	   ((and
+             ;; make sure the kill-ring has something in it
+             (stringp (car kill-ring))
+             (s-match (regexp-quote doi-utils-dx-doi-org-url) (car kill-ring)))
+            (replace-regexp-in-string (regexp-quote doi-utils-dx-doi-org-url) "" (car kill-ring)))
            ;; otherwise, we have no initial input. You
            ;; will have to type it in.
            (t
             nil)))))
-
+  
   (unless bibfile
     (setq bibfile (completing-read
 		   "Bibfile: "
