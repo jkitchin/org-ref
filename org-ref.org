@@ -56,7 +56,7 @@ org-ref provides a bibliography link to specify which bibtex files to use in the
 
 There is also a nobibliography link, which is useful for specifying a bibliography file, but not listing a bibliography in the exported document.
 
-There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command. For LaTeX export a bibliography and bibliographystyle link is /required/.
+There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command. For LaTeX export a bibliography and bibliographystyle link is /required/ if you use bibtex. If you use biblatex see [[id:212B487E-CC38-4BDF-9F0E-6993845AF49B][biblatex users]].
 
 *** Citations
     :PROPERTIES:
