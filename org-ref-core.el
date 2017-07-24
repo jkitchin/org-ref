@@ -1943,7 +1943,7 @@ set in `org-ref-default-bibliography'"
 	(setq org-ref-bibliography-files nil)
 	(while (re-search-forward
 		;; I added the + here to avoid matching +bibliography: keywords.
-		"^\\<\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)\\>"
+		"\\(?:^[\[]\\{2\\}\\)?\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
 		nil t)
 	  (loop for bibfile in (mapcar 'org-ref-strip-string
 				       (split-string (match-string 2) ","))
