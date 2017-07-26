@@ -1318,7 +1318,9 @@ will clobber the file."
       (insert contents))))
 
 (defun org-ref-bibtex-key-from-doi (doi &optional bib)
-  "Return a bib entry's key from a doi."
+  "Return a bibtex entry's key from a DOI.
+BIB is an optional filename to get the entry from. Defaults to
+the first entry of `org-ref-default-bibliography'."
   (let ((bibfile (if bib bib (car org-ref-default-bibliography))))
     (with-temp-buffer
       (insert-file-contents (expand-file-name bibfile))

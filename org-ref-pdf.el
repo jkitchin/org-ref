@@ -106,7 +106,9 @@ Used when multiple dois are found in a pdf file."
 
 ;;;###autoload
 (defun org-ref-pdf-to-bibtex ()
-  "Add pdf of current buffer to bib file and save pdf to `org-ref-default-bibliography'."
+  "Add pdf of current buffer to bib file and save pdf to
+`org-ref-default-bibliography'. The pdf should be open in Emacs
+using the `pdf-tools' package."
   (interactive)
   (when (not (f-ext? (buffer-file-name) "pdf"))
     (error "Buffer is not a pdf file"))

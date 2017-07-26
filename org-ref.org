@@ -634,7 +634,7 @@ This provides some org-ref like capabilities in LaTeX files, e.g. the links are 
 =org-ref-pdf= allows Emacs to get bibliography information from pdf files that contain a DOI. You must have =pdftotext= installed where Emacs can find it. This library is known to not work on Windows very well.
 
 - Drag and drop a PDF onto a bibtex file to add a bibtex entry
-- If you have a pdf file open (from, for example, an email attachment), use ~org-ref-pdf-to-bibtex~ to write the bibliography information to a bib file, (defaulting to ~org-ref-default-bibliography~) and save the pdf to ~org-ref-pdf-directory~.
+- If you have a pdf file open in Emacs (from, for example, an email attachment), use ~org-ref-pdf-to-bibtex~ to try to extract and write the bibliography information to a bib file, (defaulting to ~org-ref-default-bibliography~) and save the pdf to ~org-ref-pdf-directory~.
 
 ** org-ref-url-utils
 
