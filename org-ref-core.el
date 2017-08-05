@@ -377,9 +377,9 @@ Uses a hook function to display the message in the minibuffer."
     "citealt" "citealt*" "citealp" "citealp*"
     "citenum" "citetext"
     "citeauthor" "citeauthor*"
-    "citeyear" "citeyear*"
+    "citeyear" "citeyear*" "citeyearpar"
     "Citet" "Citep" "Citealt" "Citealp" "Citeauthor")
-  "natbib cite commands, http://ctan.unixbrain.com/macros/latex/contrib/natbib/natnotes.pdf"
+  "natbib cite commands, http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf"
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
 
