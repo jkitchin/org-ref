@@ -2238,6 +2238,9 @@ citez link, with reftex key of z, and the completion function."
   ;; for existence in this list
   (add-to-list 'org-ref-cite-types type)
 
+  (unless (assoc 'org reftex-cite-format-builtin)
+    (add-to-list 'reftex-cite-format-builtin '(org "org-ref citations" ())))
+
   ;; and finally if a key is specified, we modify the reftex menu
   (when key
     (setf (nth 2 (assoc 'org reftex-cite-format-builtin))
