@@ -163,13 +163,13 @@ A ref link refers to a label of some sort. For example, you can refer to a table
 | 1 |
 | 2 |
 
-Or you can refer to an org-mode label as in Table ref:table-3. 
+Or you can refer to an org-mode label as in Table ref:table-3.
 
 
 Note: You may need to set org-latex-prefer-user-labels to t if you refer to times by their "name" for the export to use the name you create.
 
 #+BEGIN_SRC emacs-lisp
-(setq org-latex-prefer-user-labels t) 
+(setq org-latex-prefer-user-labels t)
 #+END_SRC
 
 #+RESULTS:
@@ -267,7 +267,7 @@ The command ~org-ref~ does a lot for you automatically. It will check the buffer
 7. runs your hook functions
 8. sorts the fields in the entry
 9. checks the buffer for non-ascii characters
-10. converts article title to title case
+10. converts article title to title case (note: see below to convert titles in other entry types)
 
 This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add functions to of your own. Each function must work on a bibtex entry at point.
 
@@ -303,7 +303,7 @@ There is some basic support for HTML and ascii export. Not all bibtex entry type
 
 * org-ref-ivy
 
-org-ref provides an alternative to reftex and helm with ivy as the backend completion engine for searching and entering citations. 
+org-ref provides an alternative to reftex and helm with ivy as the backend completion engine for searching and entering citations.
 
 You can set this backend in your init file like this
 #+BEGIN_SRC emacs-lisp
@@ -380,7 +380,7 @@ curl -LH "Accept: application/citeproc+json" "http://doi.org/10.1021/jp511426q"
 
 If you do not get json data, doi-utils will not be able to generate the bibtex entry.
 
-Not all PDFs can be retrieved. doi-utils uses a set of functions to attempt this. Here is the list. 
+Not all PDFs can be retrieved. doi-utils uses a set of functions to attempt this. Here is the list.
 
 #+BEGIN_SRC emacs-lisp
 doi-utils-pdf-url-functions
@@ -422,6 +422,7 @@ The variable ~org-ref-bibtex-journal-abbreviations~ contains a mapping of a shor
      with a string selected interactively.
 
 - org-ref-title-case-article :: title case the title in an article entry.
+- org-ref-title-case :: title case the title for entries listed in `org-ref-title-case-types'.
 - org-ref-sentence-case-article :: sentence case the title in an article entry.
 
 - org-ref-replace-nonascii :: replace nonascii characters in a bibtex
@@ -471,7 +472,7 @@ Or this if you like key-chord:
 
 org-ref has some limited capability to make formatted bibliography entries from a bibtex entry or citation link. This is generally a hard problem, and the first solution is not a replacement for a dedicated citation processor like BibTeX. Two variable determine the behavior of formatted citations:
 
-- Formats are from `org-ref-formatted-citation-formats' is an a-list of (backend . formats). formats is an alist of (entry-type . format-string). 
+- Formats are from `org-ref-formatted-citation-formats' is an a-list of (backend . formats). formats is an alist of (entry-type . format-string).
 - The variable `org-ref-formatted-citation-backend' determines which set of format strings is used. The default is "text", and "org" format strings are also defined.
 
 So, if you click on a citation link, there should be a menu option to copy a formatted citation, which will copy the citation string to the clipboard.
@@ -666,7 +667,7 @@ You can also specify different completion backends. The default is `org-ref-helm
 - org-ref-reftex :: A backend that uses reftex
 - org-ref-helm-cite :: An alternative helm completion backend (does not use helm-bibtex)
 - org-ref-ivy-cite :: uses ivy for the backend
- 
+
 To use one of these, add a line like this before you "require" org-ref.
 
 #+BEGIN_SRC emacs-lisp
