@@ -2979,16 +2979,17 @@ If not, issue a warning."
   "Clean and replace the key in a bibtex entry.
 See functions in `org-ref-clean-bibtex-entry-hook'."
   (interactive)
-  (bibtex-beginning-of-entry)
-  ;; run hooks. each of these operates on the entry with no arguments.
-  ;; this did not work like  i thought, it gives a symbolp error.
-  ;; (run-hooks org-ref-clean-bibtex-entry-hook)
-  (mapc (lambda (x)
-	  (save-restriction
-	    (save-excursion
-	      (funcall x))))
-	org-ref-clean-bibtex-entry-hook))
-
+  (save-excursion
+    (bibtex-narrow-to-entry)
+    (bibtex-beginning-of-entry)
+    ;; run hooks. each of these operates on the entry with no arguments.
+    ;; this did not work like  i thought, it gives a symbolp error.
+    ;; (run-hooks org-ref-clean-bibtex-entry-hook)
+    (mapc (lambda (x)
+	    (save-restriction
+	      (save-excursion
+		(funcall x))))
+	  org-ref-clean-bibtex-entry-hook)))
 
 (defun org-ref-get-citation-year (key)
   "Get the year of an entry with KEY.  Return year as a string."
