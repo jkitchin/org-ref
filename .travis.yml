@@ -11,6 +11,9 @@ before_install:
   - EMACS=`evm bin` cask
   - EMACS=`evm bin` cask install
 
+allow_failures:
+    - env: EVM_EMACS=remacs-git-snapshot-travis
+
 env:
   - EVM_EMACS=emacs-24.4-travis
   - EVM_EMACS=emacs-24.5-travis
