@@ -10,5 +10,6 @@ env:
   - EVM_EMACS=emacs-git-snapshot-travis
 
 script:
+  - evm config path /tmp
   - emacs --version
   - make test
