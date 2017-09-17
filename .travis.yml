@@ -3,6 +3,7 @@ sudo: false
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
   - evm install $EVM_EMACS --use --skip
+  - evm list
   - cask
 env:
   - EVM_EMACS=emacs-24.4-travis
@@ -10,6 +11,5 @@ env:
   - EVM_EMACS=emacs-git-snapshot-travis
 
 script:
-  - evm config path /tmp
   - emacs --version
   - make test
