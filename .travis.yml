@@ -5,6 +5,7 @@ before_install:
   - evm install $EVM_EMACS --use --skip
   - evm list
   - evm use $EVM_EMACS
+  - evm bin
   - cask
 env:
   - EVM_EMACS=emacs-24.4-travis
