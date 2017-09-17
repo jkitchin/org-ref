@@ -8,8 +8,7 @@ before_install:
   - evm bin
   - which emacs
   - emacs --version
-  - cask upgrade-cask
-  - cask --debug
+  - EMACS=/home/travis/.evm/bin/emacs cask --debug
 
 env:
   - EVM_EMACS=emacs-24.4-travis
