@@ -8,7 +8,9 @@ before_install:
   - evm bin
   - which emacs
   - emacs --version
-  - cask
+  - cask upgrade-cask
+  - cask --debug
+
 env:
   - EVM_EMACS=emacs-24.4-travis
   - EVM_EMACS=emacs-24.5-travis
