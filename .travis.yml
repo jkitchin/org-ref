@@ -6,6 +6,8 @@ before_install:
   - evm list
   - evm use $EVM_EMACS
   - evm bin
+  - which emacs
+  - emacs --version
   - cask
 env:
   - EVM_EMACS=emacs-24.4-travis
