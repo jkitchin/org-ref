@@ -150,7 +150,7 @@ Getting the language
 : emacs-lisp
 
 The body
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (nth 1 (org-babel-get-src-block-info))
 #+END_SRC
 
@@ -176,8 +176,8 @@ Name
 
 #+RESULTS:
 
-Is it a test? If this returns non-nil, 
-#+BEGIN_SRC emacs-lisp 
+Is it a test? If this returns non-nil,
+#+BEGIN_SRC emacs-lisp
 (and (assoc :test (nth 2 (org-babel-get-src-block-info)))
      (not (string= "ignore" (cdr (assoc :test (nth 2 (org-babel-get-src-block-info)))))))
 #+END_SRC
@@ -519,7 +519,7 @@ label:one
   (expand-file-name
    "tests/bibtex-pdfs/kitchin-2015.pdf"
    (file-name-directory
-    (locate-library "org-ref"))) 
+    (locate-library "org-ref")))
   (org-test-with-temp-text
       "cite:kitchin-2015"
     (let ((org-ref-pdf-directory (expand-file-name
@@ -763,7 +763,7 @@ label:one
 			  (expand-file-name
 			   "tests/test-1.bib"
 			   (file-name-directory
-			    (locate-library "org-ref"))))	      
+			    (locate-library "org-ref"))))
 	      (org-ref-find-bibliography)))))
 #+END_SRC
 
@@ -801,7 +801,7 @@ label:one
 	      (expand-file-name
 	       "tests/test-2.bib"
 	       (file-name-directory
-		(locate-library "org-ref"))))	      
+		(locate-library "org-ref"))))
     (org-ref-find-bibliography))))
 #+END_SRC
 
@@ -924,7 +924,7 @@ bibliography:%s
 #+name: short-titles
 #+BEGIN_SRC emacs-lisp :test
 (org-ref-bibtex-generate-shorttitles)
-(prog1 
+(prog1
     (should
      (file-exists-p "shorttitles.bib"))
   (delete-file "shorttitles.bib"))
@@ -1062,6 +1062,29 @@ bibliography:%s
 #+RESULTS: title-case-3
 : t
 
+#+name: title-case-4
+#+BEGIN_SRC emacs-lisp :test
+(should (string=
+	   "An Example of Effective Data-Sharing"
+	   (with-temp-buffer
+	     (bibtex-mode)
+	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	     (insert "@thesis{kitchin-2015-examp,
+  author =	 {Kitchin, John R.},
+  title =	 {An example of effective data-sharing},
+  publisher = {Awesome Publishing},
+  year =	 2015,
+  keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+}")
+	     (goto-char (point-min))
+	     (let ((org-ref-title-case-types '("article" "book")))
+	       (org-ref-title-case))
+(bibtex-autokey-get-field "title"))))
+#+END_SRC
+
+#+RESULTS: title-case-4
+: t
+
 
 
 
@@ -1176,7 +1199,7 @@ bibliography:%s
 
 
 
-** next/previous bibtex entries 
+** next/previous bibtex entries
 #+name: next-entry-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1818,7 +1841,7 @@ the in the past.
 ** subsection \\label{three}
   :PROPERTIES:
   :CUSTOM_ID: two
-  :END: 
+  :END:
 
 label:four
 "
@@ -2332,7 +2355,7 @@ bibliography:%s
 "
 	   (expand-file-name
 	    "tests/test-1.bib"
-	    (file-name-directory (locate-library "org-ref")))) 
+	    (file-name-directory (locate-library "org-ref"))))
 	  (org-test-with-temp-text
 	      (format
 	       "cite:kitchin-2008-alloy,kitchin-2004-role
@@ -2789,7 +2812,7 @@ bibliography:%s
 			     "org-ref"))))))
    (string= "/Users/jkitchin/Dropbox/bibliography/bibtex-pdfs/abild-pedersen-2007-scalin-proper.pdf"
 	    (org-test-with-temp-text
-		bibstring	      
+		bibstring
 	      ""
 	      (org-ref-get-mendeley-filename "Abild-Pedersen2007")))))
 #+END_SRC
@@ -2832,10 +2855,10 @@ bibliography:tests/test-1.bib
 
 
 
- cite:kitchin-2015-examp   
+ cite:kitchin-2015-examp
 
 
- 
+
 #+name: cite-face-1
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
@@ -2851,7 +2874,7 @@ bibliography:tests/test-1.bib
        (org-ref-match-next-ref-link (0  'org-ref-ref-face t))
        (org-ref-match-next-bibliography-link (0  'org-link t))
        (org-ref-match-next-bibliographystyle-link (0  'org-link t)))
-     t)) 
+     t))
   (org-mode)
   (font-lock-fontify-region (point-min) (point-max))
   (describe-text-properties 1)
@@ -2875,7 +2898,7 @@ bibliography:tests/test-1.bib
     (font-lock-add-keywords
      nil
      '((org-ref-match-next-cite-link (0  'org-ref-cite-face t)))
-     t)) 
+     t))
   (font-lock-fontify-region (point-min) (point-max))
   (should (not (eq 'org-ref-cite-face (get-char-property 5 'face)))))
 #+END_SRC
@@ -3081,7 +3104,7 @@ cite
 
 * Store link tests
 
-org-store-link-plist 
+org-store-link-plist
 #+name: store-label-link
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text

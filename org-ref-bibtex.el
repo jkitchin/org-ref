@@ -34,7 +34,7 @@
 ;; org-ref-set-journal-string :: in a bibtex entry run this to replace the
 ;; journal with a string
 ;;
-;; org-ref-title-case-article :: title case the title in an article
+;; org-ref-title-case-article :: title case the title in an article or book
 ;; org-ref-sentence-case-article :: sentence case the title in an article.
 
 ;; org-ref-replace-nonascii :: replace nonascii characters in a bibtex
@@ -456,13 +456,19 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
     "the" "of" "in")
   "List of words to keep lowercase when changing case in a title.")
 
+(defcustom org-ref-title-case-types '("article" "book")
+  "List of bibtex entry types in which the title will be converted to
+title-case by org-ref-title-case."
+  :type '(repeat string)
+  :group 'org-ref-bibtex)
 
 ;;;###autoload
-(defun org-ref-title-case-article (&optional key start end)
-  "Convert a bibtex entry article title to title-case.
-The arguments KEY, START and END are optional, and are only there
-so you can use this function with `bibtex-map-entries' to change
-all the title entries in articles."
+(defun org-ref-title-case (&optional key start end)
+  "Convert a bibtex entry title to title-case if the entry type
+is a member of the list org-ref-title-case-types. The arguments
+KEY, START and END are optional, and are only there so you can
+use this function with `bibtex-map-entries' to change all the
+title entries in articles and books."
   (interactive)
   (bibtex-beginning-of-entry)
 
@@ -470,9 +476,9 @@ all the title entries in articles."
          (words (split-string title))
          (start 0))
     (when
-        (string= "article"
-		 (downcase
-		  (cdr (assoc "=type=" (bibtex-parse-entry)))))
+        (member (downcase
+		 (cdr (assoc "=type=" (bibtex-parse-entry))))
+		org-ref-title-case-types)
       (setq words (mapcar
                    (lambda (word)
 		     (cond
@@ -518,6 +524,16 @@ all the title entries in articles."
        "title"
        title)
       (bibtex-fill-entry))))
+
+;;;###autoload
+(defun org-ref-title-case-article (&optional key start end)
+  "Convert a bibtex entry article or book title to title-case.
+The arguments KEY, START and END are optional, and are only there
+so you can use this function with `bibtex-map-entries' to change
+all the title entries in articles and books."
+  (interactive)
+  (let ((org-ref-title-case-types '("article")))
+    (org-ref-title-case)))
 
 
 ;;;###autoload
@@ -672,12 +688,12 @@ there is a DOI."
 (defun org-ref-bibtex-google-scholar ()
   "Open the bibtex entry at point in google-scholar by its doi."
   (interactive)
-  (let ((doi (org-ref-bibtex-entry-doi))) 
+  (let ((doi (org-ref-bibtex-entry-doi)))
     (doi-utils-google-scholar
      (if (string= "" doi)
 	 (save-excursion
 	   (bibtex-beginning-of-entry)
-	   (reftex-get-bib-field "title" (bibtex-parse-entry t))) 
+	   (reftex-get-bib-field "title" (bibtex-parse-entry t)))
        doi))))
 
 
@@ -1239,7 +1255,7 @@ of format strings used."
 
 (defun org-ref-format-entry (key)
   "Returns a formatted bibtex entry for KEY."
-  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))) 
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography)))
     (org-ref-format-bibtex-entry (ignore-errors (bibtex-completion-get-entry key)))))
 
 
