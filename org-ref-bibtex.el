@@ -1046,9 +1046,9 @@ the cache."
 	 (cl-loop
 	  for bibfile in org-ref-bibtex-files
 	  collect
-	  (string= (progn
-		     (with-current-buffer (find-file-noselect bibfile)
-		       (secure-hash 'sha256 (current-buffer))))
+	  (string= (with-temp-buffer
+		     (insert-file-contents bibfile)
+		     (secure-hash 'sha256 (current-buffer))) 
 		   (or (cdr (assoc
 			     bibfile
 			     (cdr (assoc 'hashes orhc-bibtex-cache-data)))) "")))))
