@@ -499,8 +499,7 @@ label link."
   (interactive)
   (or org-ref-message-timer
       (setq org-ref-message-timer
-            (run-with-idle-timer 0.5 t 'org-ref-link-message)
-	    org-ref-message-timer t
+            (run-with-idle-timer 0.5 t 'org-ref-link-message) 
 	    org-ref-show-citation-on-enter t)))
 
 
