@@ -1123,67 +1123,71 @@ easier to search specifically for them."
 This generates the candidates for the file. Some of this code is
 adapted from `helm-bibtex-parse-bibliography'. This function runs
 when called, it resets the cache for the BIBFILE."
-  (with-current-buffer (find-file-noselect bibfile)
-    (bibtex-beginning-of-first-entry)
-    (message "Updating cache for %s" bibfile)
-    (let ((hash (secure-hash 'sha256 (current-buffer)))
-	  (entries
-	   (cl-loop
-	    for entry-type = (parsebib-find-next-item)
-	    while entry-type
-	    unless (member-ignore-case entry-type
-				       '("preamble" "string" "comment"))
-	    collect
-	    (let* ((entry (cl-loop for cons-cell in (parsebib-read-entry entry-type)
-				   ;; we remove all properties too. they
-				   ;; cause errors in reading/writing.
-				   collect
-				   (cons (substring-no-properties
-					  (downcase (car cons-cell)))
-					 (substring-no-properties
-					  ;; clumsy way to remove surrounding
-					  ;; brackets
-					  (let ((s (cdr cons-cell)))
-					    (if (or (and (s-starts-with? "{" s)
-							 (s-ends-with? "}" s))
-						    (and (s-starts-with? "\"" s)
-							 (s-ends-with? "\"" s)))
-						(substring s 1 -1)
-					      s))))))
-		   ;; (key (cdr (assoc "=key=" entry)))
-		   )
-	      (cons
-	       ;; this is the display string for helm. We try to use the formats
-	       ;; in `orhc-candidate-formats', but if there isn't one we just put
-	       ;; all the fields in.
-	       (s-format
-		(or (cdr (assoc (downcase entry-type) orhc-candidate-formats))
-		    (format "%s: %s" (cdr (assoc "=key=" entry)) entry))
-		'orhc-bibtex-field-formatter
-		entry)
-	       ;; this is the candidate that is returned, the entry a-list +
-	       ;; file and position.
-	       (append entry (list (cons "bibfile" (buffer-file-name))
-				   (cons "position" (point)))))))))
+  ;; check if the bibfile is already open, and preserve this state. i.e. if it
+  ;; is not open close it, and if it is leave it open.
+  (let ((bibfile-open (find-buffer-visiting bibfile)))
+    (with-current-buffer (find-file-noselect bibfile)
+      (bibtex-beginning-of-first-entry)
+      (message "Updating cache for %s" bibfile)
+      (let ((hash (secure-hash 'sha256 (current-buffer)))
+	    (entries
+	     (cl-loop
+	      for entry-type = (parsebib-find-next-item)
+	      while entry-type
+	      unless (member-ignore-case entry-type
+					 '("preamble" "string" "comment"))
+	      collect
+	      (let* ((entry (cl-loop for cons-cell in (parsebib-read-entry entry-type)
+				     ;; we remove all properties too. they
+				     ;; cause errors in reading/writing.
+				     collect
+				     (cons (substring-no-properties
+					    (downcase (car cons-cell)))
+					   (substring-no-properties
+					    ;; clumsy way to remove surrounding
+					    ;; brackets
+					    (let ((s (cdr cons-cell)))
+					      (if (or (and (s-starts-with? "{" s)
+							   (s-ends-with? "}" s))
+						      (and (s-starts-with? "\"" s)
+							   (s-ends-with? "\"" s)))
+						  (substring s 1 -1)
+						s))))))
+		     ;; (key (cdr (assoc "=key=" entry)))
+		     )
+		(cons
+		 ;; this is the display string for helm. We try to use the formats
+		 ;; in `orhc-candidate-formats', but if there isn't one we just put
+		 ;; all the fields in.
+		 (s-format
+		  (or (cdr (assoc (downcase entry-type) orhc-candidate-formats))
+		      (format "%s: %s" (cdr (assoc "=key=" entry)) entry))
+		  'orhc-bibtex-field-formatter
+		  entry)
+		 ;; this is the candidate that is returned, the entry a-list +
+		 ;; file and position.
+		 (append entry (list (cons "bibfile" (buffer-file-name))
+				     (cons "position" (point)))))))))
 
-      ;; Now update the cache variables for hash and entries
-      (if (assoc bibfile (cdr (assoc 'candidates orhc-bibtex-cache-data)))
-	  (setf (cdr (assoc bibfile
-			    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
-		entries)
-	(cl-pushnew (cons bibfile entries)
-		    (cdr (assoc 'candidates orhc-bibtex-cache-data))))
-      (if (assoc bibfile (cdr (assoc 'hashes orhc-bibtex-cache-data)))
-	  (setf (cdr (assoc
-		      bibfile
+	;; Now update the cache variables for hash and entries
+	(if (assoc bibfile (cdr (assoc 'candidates orhc-bibtex-cache-data)))
+	    (setf (cdr (assoc bibfile
+			      (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+		  entries)
+	  (cl-pushnew (cons bibfile entries)
+		      (cdr (assoc 'candidates orhc-bibtex-cache-data))))
+	(if (assoc bibfile (cdr (assoc 'hashes orhc-bibtex-cache-data)))
+	    (setf (cdr (assoc
+			bibfile
+			(cdr (assoc 'hashes orhc-bibtex-cache-data))))
+		  hash)
+	  (cl-pushnew (cons bibfile hash)
 		      (cdr (assoc 'hashes orhc-bibtex-cache-data))))
-		hash)
-	(cl-pushnew (cons bibfile hash)
-		    (cdr (assoc 'hashes orhc-bibtex-cache-data))))
 
-      ;; And save it to disk for persistent use
-      (with-temp-file orhc-bibtex-cache-file
-	(print orhc-bibtex-cache-data (current-buffer))))))
+	;; And save it to disk for persistent use
+	(with-temp-file orhc-bibtex-cache-file
+	  (print orhc-bibtex-cache-data (current-buffer)))))
+    (unless bibfile-open (kill-buffer (find-buffer-visiting bibfile)))))
 
 (defun orhc-update-bibtex-cache ()
   "Conditionally update cache for all files in `org-ref-bibtex-files'.
