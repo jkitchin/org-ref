@@ -1189,9 +1189,9 @@ when called, it resets the cache for the BIBFILE."
   "Conditionally update cache for all files in `org-ref-bibtex-files'.
 Files that have the same hash as in the cache are not updated."
   (cl-loop for bibfile in org-ref-bibtex-files
-	   unless (string= (progn
-			     (with-current-buffer (find-file-noselect bibfile)
-			       (secure-hash 'sha256 (current-buffer))))
+	   unless (string= (with-temp-buffer
+			     (insert-file-contents bibfile)
+			     (secure-hash 'sha256 (current-buffer))) 
 			   (or (cdr
 				(assoc bibfile
 				       (cdr
