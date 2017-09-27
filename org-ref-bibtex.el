@@ -446,9 +446,7 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
 			  org-ref-nonascii-latex-replacements))
       (while (re-search-forward char nil t)
         (replace-match (cdr (assoc char org-ref-nonascii-latex-replacements))))
-      (goto-char (point-min))))
-  (occur "[^[:ascii:]]"))
-
+      (goto-char (point-min)))))
 
 ;;* Title case transformations
 (defvar org-ref-lower-case-words
@@ -1064,7 +1062,7 @@ the cache."
 	  collect
 	  (string= (with-temp-buffer
 		     (insert-file-contents bibfile)
-		     (secure-hash 'sha256 (current-buffer))) 
+		     (secure-hash 'sha256 (current-buffer)))
 		   (or (cdr (assoc
 			     bibfile
 			     (cdr (assoc 'hashes orhc-bibtex-cache-data)))) "")))))
@@ -1195,7 +1193,7 @@ Files that have the same hash as in the cache are not updated."
   (cl-loop for bibfile in org-ref-bibtex-files
 	   unless (string= (with-temp-buffer
 			     (insert-file-contents bibfile)
-			     (secure-hash 'sha256 (current-buffer))) 
+			     (secure-hash 'sha256 (current-buffer)))
 			   (or (cdr
 				(assoc bibfile
 				       (cdr
