@@ -256,7 +256,7 @@ We change the order of the actions in helm-bibtex to suit our work flow, and add
 
 The command ~org-ref~ does a lot for you automatically. It will check the buffer for errors, e.g. multiply-defined labels, bad citations or ref links, and provide easy access to a few commands through a helm buffer.
 
-~org-ref-clean-bibtex-entry~ will sort the fields of a bibtex entry, clean it, and give it a bibtex key. This function does a lot of cleaning:
+~org-ref-clean-bibtex-entry~ will sort the fields of a bibtex entry, clean it, and give it a bibtex key. By default, this function does a lot of cleaning:
 
 1. adds a comma if needed in the first line of the entry
 2. makes sure the DOI field is an actual DOI, and not a URL
@@ -266,10 +266,10 @@ The command ~org-ref~ does a lot for you automatically. It will check the buffer
 6. generate a key according to your setup
 7. runs your hook functions
 8. sorts the fields in the entry
-9. checks the buffer for non-ascii characters
+9. checks the entry for non-ascii characters
 10. converts article title to title case (note: see below to convert titles in other entry types)
 
-This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add functions to of your own. Each function must work on a bibtex entry at point.
+This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add functions to of your own. Each function must work on a bibtex entry at point. (Note: the default behavior can be changed by removing the relevant functions from the initial value of ~org-ref-clean-bibtex-entry-hook~.)
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
