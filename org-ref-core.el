@@ -2758,7 +2758,7 @@ file.  Makes a new buffer with clickable links."
          (other-fields)
          (type (cdr (assoc "=type=" entry)))
          (key (cdr (assoc "=key=" entry)))
-	 (field-order (cdr (assoc (if type (downcase-type))
+	 (field-order (cdr (assoc (if type (downcase type))
 				  org-ref-bibtex-sort-order))))
 
     ;; these are the fields we want to order that are in this entry
