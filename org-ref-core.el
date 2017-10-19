@@ -1966,8 +1966,7 @@ set in `org-ref-default-bibliography'"
                  (t
                   (error "%s does not seem to exist" bibfile)))))
         
-        (when org-ref-bibliography-files
-          (message "got bibliography link")
+        (when org-ref-bibliography-files 
           (throw 'result org-ref-bibliography-files))
         
         ;; Try addbibresource as a latex command. It appears that reftex does
