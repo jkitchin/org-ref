@@ -718,7 +718,7 @@ MATCHING-TYPES."
 (doi-utils-def-bibtex-type article ("journal-article" "article-journal")
                            author title journal year volume number pages doi url)
 
-(doi-utils-def-bibtex-type inproceedings ("proceedings-article")
+(doi-utils-def-bibtex-type inproceedings ("proceedings-article" "paper-conference")
                            author title booktitle year month pages doi url)
 
 (doi-utils-def-bibtex-type book ("book")
