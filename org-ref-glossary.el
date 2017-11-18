@@ -189,7 +189,7 @@ Entry gets added after the last #+latex_header line."
   '("gls" "glspl" "Gls" "Glspl" "glssymbol" "glsdesc"))
 
 
-(dolist (type org-ref-glossary-gls-commands)
+(dolist (command org-ref-glossary-gls-commands)
   (org-ref-link-set-parameters command
     :follow #'or-follow-glossary
     :face 'org-ref-glossary-face
@@ -324,7 +324,7 @@ FULL is the expanded acronym."
   '("acrshort" "acrlong" "acrfull" "ac" "Ac" "acp" "Acp"))
 
 
-(dolist (type org-ref-glossary-acr-commands)
+(dolist (command org-ref-glossary-acr-commands)
   (org-ref-link-set-parameters command
     :follow #'or-follow-acronym
     :face 'org-ref-acronym-face
