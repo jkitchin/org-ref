@@ -891,6 +891,18 @@ we open it, otherwise prompt for which one to open."
 		  "Bib file: " bibfiles nil t)))))
 
 
+(defun org-ref-bibinputs ()
+  "Feed BIBINPUTS environment variable to `parse-colon-path'."
+  (parse-colon-path (getenv "BIBINPUTS")))
+
+
+(defun org-ref-locate-file (filename path)
+  "Search for FILENAME through PATH.
+Like `locate-file-internal', but with `file-exists-p' as
+PREDICATE."
+  (locate-file-internal filename path () #'file-exists-p))
+
+
 (defun org-ref-open-bibliography (link-string)
   "The click function for a bibliography link."
   ;; get link-string boundaries we have to go to the
@@ -940,17 +952,12 @@ we open it, otherwise prompt for which one to open."
 	(setq bibfile (org-ref-strip-string
 		       (buffer-substring key-beginning key-end)))
 	;; open file on click
-	(if (file-exists-p bibfile)
-	    (find-file bibfile)
-	  ;; Maybe it is in BIBINPUTS
-	  (unless (catch 'done
-		    (loop for path in (split-string (or (getenv "BIBINPUTS") "") ":")
-			  do
-			  (when (file-exists-p
-				 (expand-file-name bibfile path))
-			    (find-file (expand-file-name bibfile path))
-			    (throw 'done (expand-file-name bibfile path)))))
-	    (find-file bibfile)))))))
+        (find-file
+         (cond ((file-exists-p bibfile)
+                bibfile)
+               ((org-ref-locate-file bibfile (org-ref-bibinputs)))
+               (t
+                bibfile)))))))
 
 
 (defun org-ref-bibliography-format (keyword desc format)
@@ -1930,9 +1937,8 @@ BIBINPUTS env var, and finally falling back to what the user has
 set in `org-ref-default-bibliography'"
   (catch 'result
     ;; If you call this in a bibtex file, assume we want this file
-    (when (string= (or (f-ext (or (buffer-file-name) "")) "")  "bib")
-      (setq org-ref-bibliography-files (list (buffer-file-name)))
-      (throw 'result org-ref-bibliography-files))
+    (when (and buffer-file-name (f-ext? buffer-file-name "bib"))
+      (throw 'result (setq org-ref-bibliography-files (list buffer-file-name))))
 
     ;; otherwise, check current file for a bibliography source
     (save-excursion
@@ -1941,34 +1947,27 @@ set in `org-ref-default-bibliography'"
         (goto-char (point-min))
 
         ;; look for org-ref bibliography or addbibresource links
-        (setq org-ref-bibliography-files nil)
+        (setq org-ref-bibliography-files ())
         (while (re-search-forward
                 ;; I added the + here to avoid matching +bibliography: keywords.
                 "\\(?:^[\[]\\{2\\}\\)?\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
                 nil t)
-          (loop for bibfile in (mapcar 'org-ref-strip-string
-                                       (split-string (match-string 2) ","))
-                do
-                (cond
-                 ((file-exists-p bibfile)
-                  (add-to-list 'org-ref-bibliography-files bibfile t))
-                 ((getenv "BIBINPUTS")
-                  (loop for bibdir in (split-string (getenv "BIBINPUTS") ":")
-                        do
-                        (when (file-exists-p (expand-file-name
-                                              bibfile
-                                              bibdir))
-                          (add-to-list 'org-ref-bibliography-files
-                                       (expand-file-name
-                                        bibfile
-                                        bibdir)
-                                       t))))
-                 (t
-                  (error "%s does not seem to exist" bibfile)))))
-        
-        (when org-ref-bibliography-files 
-          (throw 'result org-ref-bibliography-files))
-        
+          (dolist (bibfile (org-ref-split-and-strip-string (match-string 2)))
+            (cond ((file-exists-p bibfile)
+                   (push bibfile org-ref-bibliography-files))
+                  ((let ((bibinputs (org-ref-bibinputs)))
+                     (dolist (bibdir bibinputs bibinputs)
+                       (let ((file (org-ref-locate-file bibfile (list bibdir))))
+                         (when file
+                           (push file org-ref-bibliography-files))))))
+                  (t
+                   (error "%s does not seem to exist" bibfile)))))
+
+        (when org-ref-bibliography-files
+          (throw 'result
+                 (setq org-ref-bibliography-files
+                       (nreverse (delete-dups org-ref-bibliography-files)))))
+
         ;; Try addbibresource as a latex command. It appears that reftex does
         ;; not do this correctly, it only finds the first one but there could be
         ;; many.
@@ -1976,12 +1975,12 @@ set in `org-ref-default-bibliography'"
         (while (re-search-forward
                 "\\\\addbibresource{\\(.*\\)?}"
                 nil t)
-          (setq org-ref-bibliography-files
-                (append org-ref-bibliography-files (list (match-string 1)))))
+          (push (match-string 1) org-ref-bibliography-files))
 
         (when org-ref-bibliography-files
-          (throw 'result org-ref-bibliography-files))
-        
+          (throw 'result (setq org-ref-bibliography-files
+                               (nreverse org-ref-bibliography-files))))
+
         ;; we did not find org-ref links. now look for latex links
         (goto-char (point-min))
         (setq org-ref-bibliography-files
@@ -3349,22 +3348,12 @@ move to the beginning of the previous cite link after this one."
                   (setq bibfile
                         (org-ref-strip-string
                          (buffer-substring key-beginning key-end)))
-                  (if (file-exists-p bibfile)
-                      (message "%s exists." bibfile)
-		    ;; Check for BIBINPUTS
-		    (if (getenv "BIBINPUTS")
-			(catch 'message
-			  (loop for d in (split-string (getenv "BIBINPUTS") ":")
-				if (file-exists-p (expand-file-name
-						   bibfile
-						   d)) 
-				do
-				(throw 'message (message "%s exists"
-							 (expand-file-name
-							  bibfile
-							  d))))
-			  (throw 'message (message "!!! %s NOT FOUND !!!" bibfile)))
-		      (message "!!! %s NOT FOUND !!!" bibfile)))))))))))))
+                  (let ((file (if (file-exists-p bibfile)
+                                  bibfile
+                                (org-ref-locate-file bibfile
+                                                     (org-ref-bibinputs)))))
+                    (message (if file "%s exists." "!!! %s NOT FOUND !!!")
+                             file))))))))))))
 
 ;;** aliases
 (defalias 'oro 'org-ref-open-citation-at-point)
