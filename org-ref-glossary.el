@@ -320,19 +320,25 @@ FULL is the expanded acronym."
   (goto-char (match-beginning 0)))
 
 
-(defvar org-ref-glossary-acr-commands
-  '("acrshort" "acrlong" "acrfull" "ac" "Ac" "acp" "Acp"))
+(defvar org-ref-glossary-acr-commands-mapping
+  '(("acrshort" . "acrshort")
+    ("acrlong"  . "acrlong")
+    ("acrfull"  . "acrfull")
+    ("ac"       . "gls")
+    ("Ac"       . "Gls")
+    ("acp"      . "glspl")
+    ("Acp"      . "Glspl")))
 
 
-(dolist (command org-ref-glossary-acr-commands)
-  (org-ref-link-set-parameters command
+(dolist (mapping org-ref-glossary-acr-commands-mapping)
+  (org-ref-link-set-parameters (car mapping)
     :follow #'or-follow-acronym
     :face 'org-ref-acronym-face
     :help-echo 'or-acronym-tooltip
     :export (lambda (path _ format)
 	      (cond
 	       ((eq format 'latex)
-		(format "\\%s{%s}" command path))
+		(format "\\%s{%s}" (cdr mapping) path))
 	       (t
 		(format "%s" (upcase path)))))))
 
