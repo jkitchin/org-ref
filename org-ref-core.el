@@ -1617,48 +1617,8 @@ This is used to complete ref links."
 
 ;;** pageref link
 
-(defun org-ref-follow-pageref (label)
-  "on clicking goto the label. Navigate back with C-c &"
-  (org-mark-ring-push)
-  ;; next search from beginning of the buffer
-  (widen)
-  (unless
-      (or
-       ;; our label links
-       (progn
-	 (goto-char (point-min))
-	 (re-search-forward (format "label:%s\\b" (regexp-quote label)) nil t))
-
-       ;; a latex label
-       (progn
-	 (goto-char (point-min))
-	 (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t))
-
-       ;; #+label: name  org-definition
-       (progn
-	 (goto-char (point-min))
-	 (re-search-forward
-	  (format "^\\( \\)*#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
-
-       ;; org tblname
-       (progn
-	 (goto-char (point-min))
-	 (re-search-forward
-	  (format "^\\( \\)*#\\+tblname:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
-
-       ;; radio link
-       (progn
-	 (goto-char (point-min))
-	 (re-search-forward
-	  (format "<<%s>>" (regexp-quote label)) nil t)))
-    ;; we did not find anything, so go back to where we came
-    (org-mark-ring-goto)
-    (error "%s not found" label))
-  (message "go back with (org-mark-ring-goto) `C-c &`"))
-
-
 (org-ref-link-set-parameters "pageref"
-  :follow #'org-ref-follow-pageref
+  :follow #'org-ref-ref-follow
   :export (lambda (path desc format)
             (cond
              ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
@@ -1685,23 +1645,6 @@ Optional argument ARG Does nothing."
 
 ;;** nameref link
 
-(defun org-ref-follow-nameref (label)
-  "On clicking goto the LABEL. Navigate back with C-c &"
-  (org-mark-ring-push)
-  ;; next search from beginning of the buffer
-  (widen)
-  (unless
-      (or
-       ;; a latex label
-       (progn
-	 (goto-char (point-min))
-	 (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t)))
-    ;; we did not find anything, so go back to where we came
-    (org-mark-ring-goto)
-    (error "%s not found" label))
-  (message "go back with (org-mark-ring-goto) `C-c &`"))
-
-
 (defun org-ref-export-nameref (path desc format)
   "Export function for nameref links."
   (cond
@@ -1711,33 +1654,13 @@ Optional argument ARG Does nothing."
 
 
 (org-ref-link-set-parameters "nameref"
-  :follow #'org-ref-follow-nameref
+  :follow #'org-ref-ref-follow
   :export #'org-ref-export-nameref
   :complete #'org-ref-complete-link
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
 ;;** eqref link
-
-(defun org-ref-eqref-follow (label)
-  "on clicking goto the label. Navigate back with C-c &"
-  (org-mark-ring-push)
-  ;; next search from beginning of the buffer
-  (widen)
-  (goto-char (point-min))
-  (unless
-      (or
-       ;; search forward for the first match
-       ;; our label links
-       (re-search-forward (format "label:%s" (regexp-quote label)) nil t)
-       ;; a latex label
-       (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t)
-       ;; #+label: name  org-definition
-       (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
-    (org-mark-ring-goto)
-    (error "%s not found" label))
-  (message "go back with (org-mark-ring-goto) `C-c &`"))
-
 
 (defun org-ref-eqref-export (keyword desc format)
   (cond
@@ -1748,7 +1671,7 @@ Optional argument ARG Does nothing."
 
 
 (org-ref-link-set-parameters "eqref"
-  :follow #'org-ref-eqref-follow
+  :follow #'org-ref-ref-follow
   :export #'org-ref-eqref-export
   ;; This isn't equation specific, one day we might try to make it that way.
   :complete #'org-ref-complete-link
@@ -1756,26 +1679,6 @@ Optional argument ARG Does nothing."
   :help-echo #'org-ref-ref-help-echo)
 
 ;;** autoref link
-
-(defun org-ref-autoref-follow (label)
-  "On clicking goto the LABEL. Navigate back with C-c &."
-  (org-mark-ring-push)
-  ;; next search from beginning of the buffer
-  (widen)
-  (goto-char (point-min))
-  (unless
-      (or
-       ;; search forward for the first match
-       ;; our label links
-       (re-search-forward (format "label:%s" (regexp-quote label)) nil t)
-       ;; a latex label
-       (re-search-forward (format "\\label{%s}" (regexp-quote label)) nil t)
-       ;; #+label: name  org-definition
-       (re-search-forward (format "^#\\+label:\\s-*\\(%s\\)\\b" (regexp-quote label)) nil t))
-    (org-mark-ring-goto)
-    (error "%s not found" label))
-  (message "go back with (org-mark-ring-goto) `C-c &`"))
-
 
 (defun org-ref-autoref-export (keyword desc format)
   "Autoref export function."
@@ -1789,7 +1692,7 @@ Optional argument ARG Does nothing."
 
 
 (org-ref-link-set-parameters "autoref"
-  :follow #'org-ref-autoref-follow
+  :follow #'org-ref-ref-follow
   :export #'org-ref-autoref-export
   :complete #'org-ref-complete-link
   :face 'org-ref-ref-face-fn
