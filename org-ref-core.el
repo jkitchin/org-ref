@@ -1390,7 +1390,7 @@ A number greater than one means multiple labels!"
                        (org-ref-count-labels label))))
   :export (lambda (keyword desc format)
             (cond
-             ((eq format 'html) (format "<div id=\"%s\">" keyword))
+             ((eq format 'html) (format "<div id=\"%s\"></div>" keyword))
              ((eq format 'latex)
               (format "\\label{%s}" keyword))))
   :store #'org-label-store-link
