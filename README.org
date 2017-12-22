@@ -41,7 +41,7 @@ org-ref can analyze your org-file and tell you about it, for example if there ar
 
 ** Package installation via Melpa
 
-org-ref has been added to Melpa.
+org-ref has been added to Melpa. This is the recommended way to install org-ref as it will also install all the [[https://github.com/jkitchin/org-ref/blob/master/org-ref.el#L9][dependencies]].
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'package-archives
@@ -56,10 +56,17 @@ Then, you should be able to do M-x package-list-packages, find org-ref and insta
 
 
 ** Installation via github
-Clone this repo, add it to your load-path, and require org-ref.
+
+Make sure all the  [[https://github.com/jkitchin/org-ref/blob/master/org-ref.el#L9][dependencies]] are installed. Then clone this repo, add it to your load-path. 
 
 #+BEGIN_SRC sh
 git clone https://github.com/jkitchin/org-ref.git
+#+END_SRC
+
+Add this to your .emacs file
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref)
 #+END_SRC
 
 ** Configuration
