@@ -41,7 +41,9 @@
 (defvar org-ref-default-bibliography)
 (defvar reftex-default-bibliography)
 (defvar url-http-end-of-headers)
-(declare-function 'org-ref-bib-citation "org-ref-core.el")
+(declare-function org-ref-bib-citation "org-ref-core")
+(declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function reftex-get-bib-field "reftex-cite")
 
 (require 'bibtex)
 (eval-when-compile

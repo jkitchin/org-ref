@@ -10,8 +10,9 @@
 ;;; Commentary:
 ;;
 
-(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
-(declare-function 'org-ref-get-bibtex-keys "org-ref-core.el")
+(declare-function org-ref-get-bibtex-key-and-file "org-ref-core")
+(declare-function org-ref-get-bibtex-keys "org-ref-core")
+(declare-function parsebib-find-bibtex-dialect "parsebib")
 (defvar org-export-current-backend)
 (defvar org-ref-cite-types)
 
