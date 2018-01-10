@@ -55,7 +55,8 @@
 (require 'reftex-cite)
 
 (defvar org-export-exclude-tags)
-(declare-function 'org-ref-email-bibtex-entry "org-ref-bibtex.el")
+(defvar warning-suppress-types)
+(declare-function bibtex-completion-get-entry "bibtex-completion")
 
 
 ;;* Custom variables

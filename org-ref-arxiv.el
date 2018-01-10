@@ -38,6 +38,8 @@
 (defvar org-ref-default-bibliography)
 (defvar org-ref-pdf-directory)
 
+(declare-function parsebib-find-bibtex-dialect "parsebib")
+
 ;;* The org-mode link
 ;; this just makes a clickable link that opens the entry.
 ;; example: arxiv:cond-mat/0410285

@@ -73,6 +73,8 @@
 (require 'org-element)
 (require 'org-ref-utils)
 
+(declare-function helm-build-sync-source "helm-source")
+
 ;;; Code:
 (defgroup org-ref-glossary nil
   "Customization group for org-ref-glossary."

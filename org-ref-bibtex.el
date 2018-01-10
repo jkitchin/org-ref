@@ -62,6 +62,19 @@
 
 (require 'org-ref-citeproc)
 
+(defvar org-ref-pdf-directory)
+(defvar org-ref-notes-directory)
+(defvar org-ref-default-bibliography)
+
+(declare-function reftex-get-bib-field "reftex-cite")
+(declare-function key-chord-define-global "key-chord")
+(declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function bibtex-completion-edit-notes "bibtex-completion")
+(declare-function bibtex-completion-get-value "bibtex-completion")
+(declare-function bibtex-completion-get-entry "bibtex-completion")
+(declare-function parsebib-find-next-item "parsebib")
+(declare-function parsebib-read-entry "parsebib")
+
 ;;; Code:
 
 ;; This is duplicated from org-ref-core to try to avoid a byte-compile error.
