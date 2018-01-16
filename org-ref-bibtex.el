@@ -61,6 +61,7 @@
 (require 's)
 
 (require 'org-ref-citeproc)
+(require 'doi-utils)
 
 (defvar org-ref-pdf-directory)
 (defvar org-ref-notes-directory)
@@ -69,11 +70,19 @@
 (declare-function reftex-get-bib-field "reftex-cite")
 (declare-function key-chord-define-global "key-chord")
 (declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function org-ref-open-bibtex-pdf "org-ref-core")
+(declare-function org-ref-clean-bibtex-entry "org-ref-core")
+(declare-function org-ref-open-in-browser "org-ref-core")
+(declare-function org-ref-sort-bibtex-entry "org-ref-core")
+(declare-function org-ref-build-full-bibliography "org-ref-core")
+(declare-function helm-tag-bibtex-entry "org-ref-helm")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
 (declare-function bibtex-completion-get-value "bibtex-completion")
 (declare-function bibtex-completion-get-entry "bibtex-completion")
 (declare-function parsebib-find-next-item "parsebib")
 (declare-function parsebib-read-entry "parsebib")
+(declare-function helm-bibtex "helm-bibtex")
+
 
 ;;; Code:
 

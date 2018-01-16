@@ -43,6 +43,7 @@
 (defvar url-http-end-of-headers)
 (declare-function org-ref-bib-citation "org-ref-core")
 (declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function org-ref-clean-bibtex-entry "org-ref-core")
 (declare-function reftex-get-bib-field "reftex-cite")
 
 (require 'bibtex)
