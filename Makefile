@@ -22,8 +22,8 @@ orgtest:
 mytest: orgtest
 	${CASK_EXEC} ${emacs} -Q -batch  -l ${INIT}  -l test/org-test-setup.el -l test/*-test.el -f ert-run-tests-batch-and-exit
 
-compile:
-	${CASK_EXEC} ${emacs} -Q -batch -l ${INIT} --eval "(setq byte-compile-error-on-warn t)"-L "." -f batch-byte-compile *.el
+compile: ${EL_SOURCES}
+	${CASK_EXEC} ${emacs} -Q -batch -l ${INIT} --eval "(setq byte-compile-error-on-warn t)" -L "." -f batch-byte-compile $<
 
 clean:
 	rm -f *.elc
