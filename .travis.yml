@@ -27,3 +27,4 @@ matrix:
 script:
   - emacs --version
   - EMACS=`evm bin` make test
+  - EMACS=`evm bin` make compile
