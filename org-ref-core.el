@@ -150,7 +150,9 @@ the citation link into the buffer."
 
 
 (defcustom org-ref-prefer-bracket-links nil
-  "If non-nil use bracketed links when inserting them.")
+  "If non-nil use bracketed links when inserting them."
+  :type 'boolean
+  :group 'org-ref)
 
 
 (defcustom org-ref-cite-completion-function
@@ -236,6 +238,7 @@ function in `org-ref-completion-library'."
     (define-key map (kbd "S-<up>") 'org-ref-sort-citation-link)
     map)
   "Keymap for cite links."
+  :type 'symbol
   :group 'org-ref)
 
 
@@ -332,7 +335,9 @@ moves the headline to the top of the buffer."
       (insert (format "cite:%s\n" (org-entry-get (point) "Custom_ID")))))
   "List of hook functions to run in the note entry after it is created.
 The function takes no arguments. It could be used to insert links
-to the citation, or pdf, etc...")
+to the citation, or pdf, etc..."
+  :type 'hook
+  :group 'org-ref)
 
 
 (defcustom org-ref-open-pdf-function
@@ -484,6 +489,7 @@ have fields sorted alphabetically."
 
 (defcustom org-ref-show-broken-links t
   "If non-nil show bad org-ref links in a warning face."
+  :type 'boolean
   :group 'org-ref)
 
 ;;* Messages for link at cursor
