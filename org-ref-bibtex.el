@@ -146,11 +146,14 @@ I like \C-cj."
 	       (nil . "${author}, /${title}/ (${year})."))))
   "Format strings for formatted bibtex entries for different citation backends.
 Used in `org-ref-format-entry'."
+  :type '(alist)
   :group 'org-ref-bibtex)
 
 (defcustom org-ref-formatted-citation-backend "text"
   "The backend format for formatted citations.
-Should be one of the cars of `org-ref-formatted-citation-formats'.")
+Should be one of the cars of `org-ref-formatted-citation-formats'."
+  :type 'string
+  :group 'org-ref-bibtex)
 
 ;;* Journal abbreviations
 (defvar org-ref-bibtex-journal-abbreviations
