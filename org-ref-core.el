@@ -70,7 +70,9 @@
 (defcustom org-ref-bibliography-notes
   nil
   "Filename where you will put all your notes about an entry in the default bibliography.
-Used by backends that append all notes as entries in a single file."
+Used by backends that append all notes as entries in a single file.
+
+See also `org-ref-notes-function'"
   :type 'file
   :group 'org-ref)
 
@@ -78,7 +80,9 @@ Used by backends that append all notes as entries in a single file."
 (defcustom org-ref-notes-directory
   nil
   "Directory where you will put all your notes about an entry in the default bibliography.
-Used for backends that create a single file of notes per entry."
+Used for backends that create a single file of notes per entry.
+
+See also `org-ref-notes-function'."
   :type 'directory
   :group 'org-ref)
 
@@ -293,7 +297,8 @@ for each entry.  It also tries to be compatible with `org-bibtex'.
 An alternative is `org-ref-notes-function-many-files'.  Use that
 if you prefer the `bibtex-completion' approach, which also
 supports an additional method for storing notes.  See
-`bibtex-completion-notes-path' for more information."
+`bibtex-completion-notes-path' for more information.  You may also
+want to set `org-ref-notes-directory'."
   :type 'function
   :group 'org-ref)
 
