@@ -5,6 +5,7 @@
 (package-file "org-ref.el")
 
 (development
+ (depends-on "s")
  (depends-on "org-plus-contrib")
  (depends-on "ecukes")
  (depends-on "ert-runner")

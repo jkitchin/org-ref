@@ -23,7 +23,7 @@ mytest: orgtest
 	${CASK_EXEC} ${emacs} -Q -batch  -l ${INIT}  -l test/org-test-setup.el -l test/*-test.el -f ert-run-tests-batch-and-exit
 
 compile:
-	${CASK_EXEC} ${emacs} -Q -batch -l ${INIT} -L "." -f batch-byte-compile *.el
+	${CASK} build
 
 clean:
 	rm -f *.elc
