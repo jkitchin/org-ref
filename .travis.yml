@@ -1,5 +1,8 @@
 language: generic
-sudo: false
+sudo: required
+dist: trusty
+group: deprecated-2017Q4
+
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
   - evm install $EVM_EMACS --use --skip
@@ -22,7 +25,7 @@ env:
 matrix:
   allow_failures:
   - env: EVM_EMACS=emacs-git-snapshot-travis
-  
+
 script:
   - emacs --version
   - EMACS=`evm bin` make test
