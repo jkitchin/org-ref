@@ -57,6 +57,7 @@
 (defvar org-export-exclude-tags)
 (defvar warning-suppress-types)
 (declare-function bibtex-completion-get-entry "bibtex-completion")
+(declare-function bibtex-completion-edit-notes "bibtex-completion")
 
 
 ;;* Custom variables
@@ -69,7 +70,9 @@
 (defcustom org-ref-bibliography-notes
   nil
   "Filename where you will put all your notes about an entry in the default bibliography.
-Used by backends that append all notes as entries in a single file."
+Used by backends that append all notes as entries in a single file.
+
+See also `org-ref-notes-function'"
   :type 'file
   :group 'org-ref)
 
@@ -77,7 +80,9 @@ Used by backends that append all notes as entries in a single file."
 (defcustom org-ref-notes-directory
   nil
   "Directory where you will put all your notes about an entry in the default bibliography.
-Used for backends that create a single file of notes per entry."
+Used for backends that create a single file of notes per entry.
+
+See also `org-ref-notes-function'."
   :type 'directory
   :group 'org-ref)
 
@@ -283,32 +288,17 @@ codes."
   :group 'org-ref)
 
 
-(defcustom org-ref-notes-function
-  (lambda (thekey)
-    (let* ((results (org-ref-get-bibtex-key-and-file thekey))
-           (key (car results))
-           (bibfile (cdr results)))
-
-      (save-excursion
-        (with-temp-buffer
-          (insert-file-contents bibfile)
-          (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-          (bibtex-search-entry key)
-          (org-ref-open-bibtex-notes)))))
+(defcustom org-ref-notes-function #'org-ref-notes-function-one-file
   "Function to open the notes for the bibtex key in a cite link at point.
 
 The default behavior adds entries to a long file with headlines
 for each entry.  It also tries to be compatible with `org-bibtex'.
 
-An alternative is
- (lambda (thekey)
-  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-    (bibtex-completion-edit-notes
-     (list (car (org-ref-get-bibtex-key-and-file thekey))))))
-
-Use that if you prefer the `bibtex-completion' approach, which also
-supports an additional method for storing notes. See
-`bibtex-completion-notes-path' for more information."
+An alternative is `org-ref-notes-function-many-files'.  Use that
+if you prefer the `bibtex-completion' approach, which also
+supports an additional method for storing notes.  See
+`bibtex-completion-notes-path' for more information.  You may also
+want to set `org-ref-notes-directory'."
   :type 'function
   :group 'org-ref)
 
@@ -2303,6 +2293,36 @@ the entry of interest in the bibfile.  but does not check that."
       (if (file-exists-p pdf)
           (org-open-link-from-string (format "[[file:%s]]" pdf))
         (ding)))))
+
+(defun org-ref-notes-function-one-file (thekey)
+  "Function to open note belonging to THEKEY.
+
+ Set `org-ref-notes-function' to this function if you use one
+long file with headlines for each entry."
+  (let*
+      ((results
+        (org-ref-get-bibtex-key-and-file thekey))
+       (key
+        (car results))
+       (bibfile
+        (cdr results)))
+    (save-excursion
+      (with-temp-buffer
+        (insert-file-contents bibfile)
+        (bibtex-set-dialect
+         (parsebib-find-bibtex-dialect)
+         t)
+        (bibtex-search-entry key)
+        (org-ref-open-bibtex-notes)))))
+
+(defun org-ref-notes-function-many-files (thekey)
+  "Function to open note belonging to THEKEY.
+
+Set `org-ref-notes-function' to this function if you use one file
+for each bib entry."
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (bibtex-completion-edit-notes
+     (list (car (org-ref-get-bibtex-key-and-file thekey))))))
 
 ;;** Open notes from bibtex entry
 ;;;###autoload
