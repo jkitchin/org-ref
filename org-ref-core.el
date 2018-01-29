@@ -904,15 +904,10 @@ we open it, otherwise prompt for which one to open."
 
 (defun org-ref-find-bibfile (bibfile)
   "Find BIBFILE as local file, or using kpsewhich or bibinputs."
-  (let* ((local-file (if (file-exists-p bibfile) bibfile))
-	 (kpsew-file (if local-file
-			 local-file
-		       (org-ref-bibfile-kpsewhich bibfile)))
-	 ;; this should never be reached because kpsewhich is stronger
-	 (final-file (if kpsew-file kpsew-file
-		       (org-ref-locate-file bibfile
-					    (org-ref-bibinputs)))))
-    final-file))
+  (or (if (file-exists-p bibfile) bibfile)
+      (org-ref-bibfile-kpsewhich bibfile)
+      ;; this should never be reached because kpsewhich is stronger
+      (org-ref-locate-file bibfile (org-ref-bibinputs))))
 
 
 (defun org-ref-locate-file (filename path)
