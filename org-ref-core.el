@@ -895,9 +895,25 @@ we open it, otherwise prompt for which one to open."
 
 (defun org-ref-bibfile-kpsewhich (bibfile)
   "Try to find BIBFILE using kpsewhich."
-  (let ((f (shell-command-to-string (format "kpsewhich %s" bibfile))))
+  (let ((f (replace-regexp-in-string
+	    "\n$" ""
+	    (shell-command-to-string (format "kpsewhich %s" bibfile)))))
     (unless (string= "" f)
       f)))
+
+
+(defun org-ref-find-bibfile (bibfile)
+  "Try to find BIBFILE as local file, kpsewhich, using bibinputs."
+  (let* ((local-file (if (file-exists-p bibfile) bibfile))
+	 (kpsew-file (if local-file
+			 local-file
+		       (org-ref-bibfile-kpsewhich bibfile)))
+	 ;; this should never be reached because kpsewhich is stronger
+	 (final-file (if kpsew-file kpsew-file
+		       (org-ref-locate-file bibfile
+					    (org-ref-bibinputs)))))
+    final-file))
+
 
 (defun org-ref-locate-file (filename path)
   "Search for FILENAME through PATH.
@@ -955,13 +971,7 @@ PREDICATE."
 	(setq bibfile (org-ref-strip-string
 		       (buffer-substring key-beginning key-end)))
 	;; open file on click
-        (find-file
-         (cond ((file-exists-p bibfile)
-                bibfile)
-	       (org-ref-bibfile-kpsewhich bibfile)
-               ((org-ref-locate-file bibfile (org-ref-bibinputs)))
-               (t
-                bibfile)))))))
+        (find-file (org-ref-find-bibfile bibfile))))))
 
 
 (defun org-ref-bibliography-format (keyword desc format)
@@ -1860,16 +1870,9 @@ set in `org-ref-default-bibliography'"
                 "\\(?:^[\[]\\{2\\}\\)?\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
                 nil t)
           (dolist (bibfile (org-ref-split-and-strip-string (match-string 2)))
-            (cond ((file-exists-p bibfile)
-                   (push bibfile org-ref-bibliography-files))
-		  (org-ref-bibfile-kpsewhich bibfile)
-                  ((let ((bibinputs (org-ref-bibinputs)))
-                     (dolist (bibdir bibinputs bibinputs)
-                       (let ((file (org-ref-locate-file bibfile (list bibdir))))
-                         (when file
-                           (push file org-ref-bibliography-files))))))
-                  (t
-                   (error "%s does not seem to exist" bibfile)))))
+	    (let ((bibf (org-ref-find-bibfile bibfile)))
+	      (when bibf
+		(push bibf org-ref-bibliography-files)))))
 
         (when org-ref-bibliography-files
           (throw 'result
@@ -3286,11 +3289,7 @@ move to the beginning of the previous cite link after this one."
                   (setq bibfile
                         (org-ref-strip-string
                          (buffer-substring key-beginning key-end)))
-                  (let ((file (cond ((file-exists-p bibfile)
-				     bibfile)
-				    (org-ref-bibfile-kpsewhich bibfile)
-				    (org-ref-locate-file bibfile
-							 (org-ref-bibinputs)))))
+                  (let ((file (org-ref-find-bibfile bibfile)))
                     (message (if file "%s exists." "!!! %s NOT FOUND !!!")
                              file))))))))))))
 
