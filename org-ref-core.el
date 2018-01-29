@@ -903,6 +903,12 @@ we open it, otherwise prompt for which one to open."
   (parse-colon-path (getenv "BIBINPUTS")))
 
 
+(defun org-ref-bibfile-kpsewhich (bibfile)
+  "Try to find BIBFILE using kpsewhich."
+  (let ((f (shell-command-to-string (format "kpsewhich %s" bibfile))))
+    (unless (string= "" f)
+      f)))
+
 (defun org-ref-locate-file (filename path)
   "Search for FILENAME through PATH.
 Like `locate-file-internal', but with `file-exists-p' as
@@ -962,6 +968,7 @@ PREDICATE."
         (find-file
          (cond ((file-exists-p bibfile)
                 bibfile)
+	       (org-ref-bibfile-kpsewhich bibfile)
                ((org-ref-locate-file bibfile (org-ref-bibinputs)))
                (t
                 bibfile)))))))
@@ -1865,6 +1872,7 @@ set in `org-ref-default-bibliography'"
           (dolist (bibfile (org-ref-split-and-strip-string (match-string 2)))
             (cond ((file-exists-p bibfile)
                    (push bibfile org-ref-bibliography-files))
+		  (org-ref-bibfile-kpsewhich bibfile)
                   ((let ((bibinputs (org-ref-bibinputs)))
                      (dolist (bibdir bibinputs bibinputs)
                        (let ((file (org-ref-locate-file bibfile (list bibdir))))
@@ -3258,10 +3266,11 @@ move to the beginning of the previous cite link after this one."
                   (setq bibfile
                         (org-ref-strip-string
                          (buffer-substring key-beginning key-end)))
-                  (let ((file (if (file-exists-p bibfile)
-                                  bibfile
-                                (org-ref-locate-file bibfile
-                                                     (org-ref-bibinputs)))))
+                  (let ((file (cond ((file-exists-p bibfile)
+				     bibfile)
+				    (org-ref-bibfile-kpsewhich bibfile)
+				    (org-ref-locate-file bibfile
+							 (org-ref-bibinputs)))))
                     (message (if file "%s exists." "!!! %s NOT FOUND !!!")
                              file))))))))))))
 
