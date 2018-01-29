@@ -903,7 +903,7 @@ we open it, otherwise prompt for which one to open."
 
 
 (defun org-ref-find-bibfile (bibfile)
-  "Try to find BIBFILE as local file, kpsewhich, using bibinputs."
+  "Find BIBFILE as local file, or using kpsewhich or bibinputs."
   (let* ((local-file (if (file-exists-p bibfile) bibfile))
 	 (kpsew-file (if local-file
 			 local-file
