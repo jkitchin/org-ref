@@ -83,17 +83,17 @@
 If `org-ref-ivy-cite-marked-candidates' is non-nil then they are added instead of ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
   (with-ivy-window
-    (if org-ref-ivy-cite-marked-candidates
-	(loop for entry in org-ref-ivy-cite-marked-candidates
-	      do
-	      (if ivy-current-prefix-arg
-		  (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
-		    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
-		(org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
-      (if ivy-current-prefix-arg
-	  (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
-	    (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
-	(org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))))
+   (if org-ref-ivy-cite-marked-candidates
+       (cl-loop for entry in org-ref-ivy-cite-marked-candidates
+	        do
+	        (if ivy-current-prefix-arg
+		    (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
+		      (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+		  (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))
+     (if ivy-current-prefix-arg
+	 (let ((org-ref-default-citation-link (ivy-read "Type: " org-ref-cite-types)))
+	   (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry)))))
+       (org-ref-insert-key-at-point (list (cdr (assoc "=key=" entry))))))))
 
 
 (defun or-ivy-bibtex-open-pdf (entry)
@@ -208,11 +208,11 @@ This uses a citeproc library."
 (defun or-ivy-bibtex-insert-formatted-citation (_)
   "Insert formatted citations at point for selected entries."
   (with-ivy-window
-    (insert (mapconcat
-	     'identity
-	     (loop for entry in org-ref-ivy-cite-marked-candidates
-		   collect (org-ref-format-bibtex-entry entry))
-	     "\n\n"))))
+   (insert (mapconcat
+	    'identity
+	    (cl-loop for entry in org-ref-ivy-cite-marked-candidates
+		     collect (org-ref-format-bibtex-entry entry))
+	    "\n\n"))))
 
 
 (defun or-ivy-bibtex-copy-formatted-citation (entry)
@@ -486,17 +486,17 @@ this function to use it."
   (interactive)
   (ivy-read
    "action: "
-   (loop for i from 0
-	 for (_ func s) in
-	 org-ref-ivy-cite-actions
-	 collect (cons (format "%2s. %s" i s) func))
+   (cl-loop for i from 0
+	    for (_ func s) in
+	    org-ref-ivy-cite-actions
+	    collect (cons (format "%2s. %s" i s) func))
    :action (lambda (f)
 	     (let* ((key (car (org-ref-get-bibtex-key-and-file)))
 		    (entry (cdr (elt (orhc-bibtex-candidates)
 				     (-elem-index
 				      key
-				      (loop for entry in (orhc-bibtex-candidates)
-					    collect (cdr (assoc "=key=" entry ))))))))
+				      (cl-loop for entry in (orhc-bibtex-candidates)
+					       collect (cdr (assoc "=key=" entry ))))))))
 	       (funcall f entry)))))
 
 

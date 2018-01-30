@@ -45,10 +45,11 @@
 (declare-function org-ref-find-bibliography "org-ref-core")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
 (declare-function reftex-get-bib-field "reftex-cite")
+(declare-function bibtex-completion-edit-notes "bibtex-completion")
 
-(require 'bibtex)
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
+(require 'bibtex)
 (require 'dash)
 (require 'json)
 (require 'org)                          ; org-add-link-type

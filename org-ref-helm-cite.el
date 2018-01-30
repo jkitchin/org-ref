@@ -278,14 +278,14 @@ SOURCE is ignored, but required."
 		   ("Insert formatted entries" . (lambda (_)
 						   (insert
 						    (mapconcat 'identity
-							       (loop for key in (helm-marked-candidates)
-								     collect (org-ref-format-entry key))
+							       (cl-loop for key in (helm-marked-candidates)
+								        collect (org-ref-format-entry key))
 							       "\n\n"))))
 		   ("Copy formatted entry" . (lambda (_)
 					       (kill-new
 						(mapconcat 'identity
-							   (loop for key in (helm-marked-candidates)
-								 collect (org-ref-format-entry key))
+							   (cl-loop for key in (helm-marked-candidates)
+								    collect (org-ref-format-entry key))
 							   "\n\n")))))))
 
   ;; this is where we could add WOK/scopus functions

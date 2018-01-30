@@ -180,7 +180,7 @@ Dealing with these brackets is somewhat tricky. We cannot simply split on spaces
 
 Here are examples of case 1.
 #+BEGIN_SRC emacs-lisp
-(loop for author in '("John R. Kitchin"
+(cl-loop for author in '("John R. Kitchin"
                       "John von Kitchin"
                       "John von de La von Kitchin"
                       "John von de Kitchin Jr."
@@ -213,7 +213,7 @@ Here are examples of case 1.
 
 Case 2.
 #+BEGIN_SRC emacs-lisp
-(loop for author in '("von Beethoven, Ludwig"
+(cl-loop for author in '("von Beethoven, Ludwig"
                       "{van {M}ieghem}, Jan A."
                       "De Gaulle, Charles"
                       "Van Buren, Martin"
@@ -240,7 +240,7 @@ Case 2.
 
 And case 3
 #+BEGIN_SRC emacs-lisp
-(loop for author in '("von de la Kitchin, Sr., John Robert"
+(cl-loop for author in '("von de la Kitchin, Sr., John Robert"
                       "von Kitchin, Sr., John Robert")
       collect (citeproc-parse-authorname author))
 #+END_SRC
@@ -254,7 +254,7 @@ I am pretty satisfied with that. This is a foundation for formatting author name
 
 From http://maverick.inria.fr/~Xavier.Decoret/resources/xdkbibtex/bibtex_summary.html#names
 #+BEGIN_SRC emacs-lisp
-(loop for author in '("Aa Bb"
+(cl-loop for author in '("Aa Bb"
                       "Aa"
                       "Aa bb"
                       "aa"
@@ -1467,7 +1467,7 @@ citeyear:wang-2013-immob-co2
 : Antony, Abbin; Asthagiri, Aravind and Weaver, Jason F., /Pathways for {C-H} Bond Cleavage of Propane $\sigma$-complexes on {PdO}(101)/, Phys. Chem. Chem. Phys., 14*(35)*, pp. 12202 (2012).doi:10.1039/c2cp41900a.
 
 #+BEGIN_SRC emacs-lisp
-(mapconcat 'identity (loop for entry in (orcp-collect-unique-entries)
+(mapconcat 'identity (cl-loop for entry in (orcp-collect-unique-entries)
                            collect
                            (concat
                             (orcp-author entry)
@@ -1585,7 +1585,7 @@ You run these to get the replacements
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(loop for link in *orcp-citation-links*
+(cl-loop for link in *orcp-citation-links*
       for repl in (orcp-get-citation-replacements)
       collect
       (list repl
@@ -1664,7 +1664,7 @@ You run these to get the replacements
 
 
 #+BEGIN_SRC emacs-lisp
-(loop for link in (org-element-map
+(cl-loop for link in (org-element-map
                         (org-element-parse-buffer) 'link 'identity)
         if (string= "bibliographystyle"
                     (org-element-property :type link))
