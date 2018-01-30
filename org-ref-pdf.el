@@ -31,7 +31,7 @@
 (require 'f)
 (require 'pdf-tools)
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 
 (declare-function org-ref-bibtex-key-from-doi "org-ref-bibtex.el")
 

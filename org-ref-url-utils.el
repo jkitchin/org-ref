@@ -46,7 +46,7 @@
 (require 'doi-utils)
 (require 'f)
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 
 (defgroup org-ref-url nil
   "Customization group for org-ref-url-utils"

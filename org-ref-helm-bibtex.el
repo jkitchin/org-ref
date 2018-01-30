@@ -70,8 +70,8 @@
     ("Insert formatted citation(s)" . (lambda (_)
 					(insert
 					 (mapconcat 'identity
-						    (loop for key in (helm-marked-candidates)
-							  collect (org-ref-format-entry key))
+						    (cl-loop for key in (helm-marked-candidates)
+							     collect (org-ref-format-entry key))
 						    "\n\n"))))
     ("Attach PDF to email" . helm-bibtex-add-PDF-attachment)
     ("Edit notes" . helm-bibtex-edit-notes)

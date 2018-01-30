@@ -108,10 +108,10 @@ there is an escaped \" for example. This seems pretty robust."
       (forward-char)
       (when (and (looking-at "{")
 		 (not (looking-back "\\\\" (- (point) 2))))
-	(incf level))
+	(cl-incf level))
       (when (and (looking-at "}")
 		 (not (looking-back "\\\\" (- (point) 2))))
-	(decf level)))
+	(cl-decf level)))
     (point)))
 
 

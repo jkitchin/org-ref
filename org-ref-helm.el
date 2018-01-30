@@ -322,12 +322,12 @@ at the end of you file.
 	      (cl-pushnew (cons (match-string-no-properties 1) (point)) matches)))
 
 	  ;; #+tblname: and actually #+label
-	  (loop for cell in (org-element-map (org-element-parse-buffer 'element) 'table
-			      (lambda (table)
-				(cons (org-element-property :name table)
-				      (org-element-property :begin table))))
-		do
-		(cl-pushnew cell matches))
+	  (cl-loop for cell in (org-element-map (org-element-parse-buffer 'element) 'table
+			         (lambda (table)
+				   (cons (org-element-property :name table)
+				         (org-element-property :begin table))))
+		   do
+		   (cl-pushnew cell matches))
 
 	  ;; CUSTOM_IDs
 	  (org-map-entries
@@ -352,12 +352,12 @@ at the end of you file.
 				    (string= "cref" (org-element-property :type el))
 				    (string= "Cref" (org-element-property :type el)))
 			    (org-element-property :path el))))))
-	    (loop for (label . p) in matches 
-		  do
-		  (when (not (-contains? refs label))
-		    (cl-pushnew
-		     (cons label (set-marker (make-marker) p))
-		     unreferenced-labels)))))))
+	    (cl-loop for (label . p) in matches
+		     do
+		     (when (not (-contains? refs label))
+		       (cl-pushnew
+		        (cons label (set-marker (make-marker) p))
+		        unreferenced-labels)))))))
 
 
     (helm :sources `(((name . "Bad citations")

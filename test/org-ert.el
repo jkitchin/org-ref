@@ -25,7 +25,7 @@
 (defun org-babel-goto-nth-test-block (n)
   "Move point to the Nth test block."
   (goto-char (point-min))
-  (loop for i from 1 to n do (org-goto-next-test-block))
+  (cl-loop for i from 1 to n do (org-goto-next-test-block))
   (recenter-top-bottom 1))
 
 
