@@ -29,7 +29,7 @@
 
 ;;; Code:
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 (require 'dash)
 (require 'f)
 (require 's)
@@ -1011,15 +1011,15 @@ ARG does nothing. I think it is a required signature."
 			""))))
 
     ;; Get bibfiles
-    (setq found (-uniq (loop for key in keys
-			     collect
-			     (catch 'result
-			       (cl-loop for file in possible-files do
-					(if (org-ref-key-in-file-p
-					     key
-					     (file-truename file))
-					    (throw 'result
-						   (file-relative-name file))))))))
+    (setq found (-uniq (cl-loop for key in keys
+			        collect
+			        (catch 'result
+			          (cl-loop for file in possible-files do
+					   (if (org-ref-key-in-file-p
+					        key
+					        (file-truename file))
+					       (throw 'result
+						      (file-relative-name file))))))))
     
     (format "bibliography:%s"
 	    (or (mapconcat #'identity found ",")
@@ -1582,7 +1582,7 @@ Optional argument ARG Does nothing."
       (goto-char (point-min))
       (let ((matches '()))
 	(while (re-search-forward "^\\( \\)*#\\+name:\\s-+\\(.*\\)" nil t)
-	  (pushnew (match-string 2) matches))
+	  (cl-pushnew (match-string 2) matches))
 	matches))))
 
 
@@ -3016,12 +3016,12 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 
     (setq keys (org-ref-split-and-strip-string path))
     (save-excursion
-      (loop for key in keys
-	    do
-	    (goto-char begin)
-	    (re-search-forward key end)
-	    collect
-	    (list key (match-beginning 0) (match-end 0))))))
+      (cl-loop for key in keys
+	       do
+	       (goto-char begin)
+	       (re-search-forward key end)
+	       collect
+	       (list key (match-beginning 0) (match-end 0))))))
 
 
 ;;;###autoload
@@ -3048,10 +3048,10 @@ move to the beginning of the next cite link after this one."
       (goto-char (min
 		  (point-max)
 		  (+ 1
-		     (loop for (k s e) in cps
-			   if (and (>= p s)
-				   (<= p e))
-			   return e))))))
+		     (cl-loop for (k s e) in cps
+			      if (and (>= p s)
+				      (<= p e))
+			      return e))))))
     ;; if we get off a link,jump to the next one.
     (when
 	(not (-contains? org-ref-cite-types
@@ -3089,7 +3089,7 @@ move to the beginning of the previous cite link after this one."
      ;; in a link with multiple keys. We need to figure out if there is a
      ;; previous key and go to beginning
      (t
-      (setq index (loop
+      (setq index (cl-loop
 		   for i from 0
 		   for (k s e) in cps
 		   if (and (>= p s)
