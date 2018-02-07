@@ -484,7 +484,11 @@ It would be better to parse this, but here I just use a regexp.
     *doi-utils-pdf-url*))
 
 
-
+;; Society for Industrial and Applied Mathematics (SIAM)
+(defun siam-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^http://epubs.siam.org" *doi-utils-redirect*)
+    (replace-regexp-in-string "/doi/" "/doi/pdf/" *doi-utils-redirect* )))
 
 
 
@@ -517,6 +521,7 @@ It would be better to parse this, but here I just use a regexp.
        'acm-pdf-url
        'osa-pdf-url
        'asme-biomechanical-pdf-url
+       'siam-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
