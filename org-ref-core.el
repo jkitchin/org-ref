@@ -496,14 +496,14 @@ label link."
   (interactive)
   (or org-ref-message-timer
       (setq org-ref-message-timer
-            (run-with-idle-timer 0.5 t 'org-ref-link-message) 
+            (run-with-idle-timer 0.5 t 'org-ref-link-message)
 	    org-ref-show-citation-on-enter t)))
 
 
 ;;;###autoload
 (defun org-ref-cancel-link-messages ()
   "Stop showing messages in minibuffer when on a link."
-  (interactive) 
+  (interactive)
   (cancel-timer org-ref-message-timer)
   (setq org-ref-message-timer nil
 	org-ref-show-citation-on-enter nil))
@@ -1020,7 +1020,7 @@ ARG does nothing. I think it is a required signature."
 					        (file-truename file))
 					       (throw 'result
 						      (file-relative-name file))))))))
-    
+
     (format "bibliography:%s"
 	    (or (mapconcat #'identity found ",")
 		(read-file-name "enter file: " nil nil nil)))))
@@ -1333,7 +1333,7 @@ ARG does nothing."
      ;; #+name:
      (count-matches (format "^\\( \\)*#\\+name:\\s-*%s\\b[^-:]" label)
 		    (point-min) (point-max))
-     (let ((custom-id-count 0)) 
+     (let ((custom-id-count 0))
        (org-map-entries
         (lambda ()
           (when (string= label (org-entry-get (point) "CUSTOM_ID"))
@@ -1514,6 +1514,7 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-ref-face-fn (label)
   "Return a face for a ref link."
+  (message "%s - %s" label (org-ref-get-labels))
   (save-match-data
     (cond
      ((or (not org-ref-show-broken-links)
@@ -1546,7 +1547,7 @@ Optional argument ARG Does nothing."
 
 
 (defun org-ref-get-custom-ids ()
-  "Return a list of custom_id properties in the buffer." 
+  "Return a list of custom_id properties in the buffer."
   (let ((results '()) custom_id)
     (org-map-entries
      (lambda ()
@@ -1580,7 +1581,8 @@ Optional argument ARG Does nothing."
     (save-restriction
       (widen)
       (goto-char (point-min))
-      (let ((matches '()))
+      (let ((case-fold-search t)
+	    (matches '()))
 	(while (re-search-forward "^\\( \\)*#\\+name:\\s-+\\(.*\\)" nil t)
 	  (cl-pushnew (match-string 2) matches))
 	matches))))
@@ -2271,7 +2273,7 @@ PATH is required for the org-link, but it does nothing here."
 (defun org-ref-bib-citation ()
   "From a bibtex entry, create and return a citation string.
 If `bibtex-completion' library is loaded, return reference in APA
-format. Otherwise return a  citation string from `org-ref-get-bibtex-entry-citation'." 
+format. Otherwise return a  citation string from `org-ref-get-bibtex-entry-citation'."
   (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
 
 
@@ -2373,7 +2375,7 @@ construct the heading by hand."
 		   entry (concat "\n" org-ref-note-title-format)))
 	  (mapc (lambda (x)
 		  (save-restriction
-		    (save-excursion 
+		    (save-excursion
 		      (funcall x))))
 		org-ref-create-notes-hook)
 	  (save-buffer))))))
@@ -2977,7 +2979,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
   (let* ((object (org-element-context))
          (type (org-element-property :type object))
          (begin (org-element-property :begin object))
-         (end (org-element-property :end object)) 
+         (end (org-element-property :end object))
          (link-string (org-element-property :path object))
          key keys i)
     ;;   We only want this to work on citation links
@@ -2993,7 +2995,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
       (save-excursion
 	(goto-char begin)
 	(re-search-forward link-string)
-	(replace-match keys)) 
+	(replace-match keys))
       ;; now go forward to key so we can move with the key
       (re-search-forward key)
       (goto-char (match-beginning 0)))))
