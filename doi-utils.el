@@ -437,6 +437,20 @@ REDIRECT-URL is where the pdf url will be in."
             (when (re-search-forward "<frame src=\"\\(http[[:ascii:]]*?\\)\"" nil t)
               (match-string 1))))))))
 
+;; Another try to get the ieee pdf
+;; <iframe src="http://ieeexplore.ieee.org/ielx5/8/4538127/04538164.pdf?tp=&arnumber=4538164&isnumber=4538127" frameborder=0>
+(defun ieee3-pdf-url (*doi-utils-redirect*)
+  "Get a url to the pdf from *DOI-UTILS-REDIRECT* for IEEE urls."
+  (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
+    (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
+      (goto-char (point-min))
+      (when (re-search-forward "\"pdfUrl\":\"\\([[:ascii:]]*?\\)\"" nil t)
+	(let ((framed-url (match-string 1)))
+          (with-current-buffer (url-retrieve-synchronously (concat "http://ieeexplore.ieee.org" framed-url))
+            (goto-char (point-min))
+            (when (re-search-forward "<iframe src=\"\\(http[[:ascii:]]*?\\)\"" nil t)
+              (match-string 1))))))))
+
 ;; ACM Digital Library
 ;; http://dl.acm.org/citation.cfm?doid=1368088.1368132
 ;; <a name="FullTextPDF" title="FullText PDF" href="ft_gateway.cfm?id=1368132&ftid=518423&dwn=1&CFID=766519780&CFTOKEN=49739320" target="_blank">
@@ -484,7 +498,11 @@ It would be better to parse this, but here I just use a regexp.
     *doi-utils-pdf-url*))
 
 
-
+;; Society for Industrial and Applied Mathematics (SIAM)
+(defun siam-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^http://epubs.siam.org" *doi-utils-redirect*)
+    (replace-regexp-in-string "/doi/" "/doi/pdf/" *doi-utils-redirect* )))
 
 
 
@@ -514,9 +532,11 @@ It would be better to parse this, but here I just use a regexp.
        'jneurosci-pdf-url
        'ieee-pdf-url
        'ieee2-pdf-url
+       'ieee3-pdf-url
        'acm-pdf-url
        'osa-pdf-url
        'asme-biomechanical-pdf-url
+       'siam-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
