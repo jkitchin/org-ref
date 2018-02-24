@@ -1514,6 +1514,7 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-ref-face-fn (label)
   "Return a face for a ref link."
+  (message "%s - %s" label (org-ref-get-labels))
   (save-match-data
     (cond
      ((or (not org-ref-show-broken-links)
