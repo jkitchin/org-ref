@@ -974,6 +974,7 @@ PREDICATE."
   (cond
    ((eq format 'org) (org-ref-get-org-bibliography))
    ((eq format 'ascii) (org-ref-get-ascii-bibliography))
+   ((eq format 'md) (org-ref-get-md-bibliography))
    ((eq format 'odt) (org-ref-get-odt-bibliography))
    ((eq format 'html) (org-ref-get-html-bibliography))
    ((eq format 'latex)
@@ -1400,6 +1401,7 @@ A number greater than one means multiple labels!"
   :export (lambda (keyword desc format)
             (cond
              ((eq format 'html) (format "<div id=\"%s\"></div>" keyword))
+	     ((eq format 'md) (format "<a name=\"%s\">%s</a>" keyword keyword))
              ((eq format 'latex)
               (format "\\label{%s}" keyword))))
   :store #'org-label-store-link
@@ -1509,7 +1511,9 @@ Optional argument ARG Does nothing."
    ((eq format 'html)
     (format "<a href=\"#%s\">%s</a>" keyword (or desc keyword)))
    ((eq format 'latex)
-    (format "\\ref{%s}" keyword))))
+    (format "\\ref{%s}" keyword))
+   ((eq format 'md)
+    (format "[%s](#%s)" keyword keyword))))
 
 
 (defun org-ref-ref-face-fn (label)
@@ -1958,10 +1962,10 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 
       ((eq format 'ascii)
        (concat "["
-         (mapconcat
-	  (lambda (key)
-	    (format "%s" key))
-	  (org-ref-split-and-strip-string keyword) ",") "]"))
+	       (mapconcat
+		(lambda (key)
+		  (format "%s" key))
+		(org-ref-split-and-strip-string keyword) ",") "]"))
 
       ((eq format 'html)
        (mapconcat
@@ -1987,8 +1991,11 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
       ((eq format 'odt)
        (format "[%s]" keyword))
 
-      ;; for markdown and pandoc we generate pandoc citations
-      ((or (eq format 'md) (eq format 'pandoc))
+      ((eq format 'md)
+       (mapconcat (lambda (s) (format "[^%s]" s)) (s-split "," keyword) "<sup>,</sup>"))
+
+      ;; for  pandoc we generate pandoc citations
+      ((eq format 'pandoc)
        (cond
 	(desc ;; pre and or post text
 	 (let* ((text (split-string desc "::"))

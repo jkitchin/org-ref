@@ -734,6 +734,11 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
 
   (format "[%s] %s" key (org-ref-get-bibtex-entry-citation key)))
 
+(defun org-ref-get-bibtex-entry-md (key)
+  "Return a md string for the bibliography entry corresponding to KEY."
+
+  (format "[^%s]: %s" key (org-ref-get-bibtex-entry-citation key)))
+
 
 (defun org-ref-get-ascii-bibliography (&optional sort)
   "Create an ascii bibliography when there are keys.
@@ -745,6 +750,16 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
 =============
 "
        (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys "\n")
+       "\n"))))
+
+(defun org-ref-get-md-bibliography (&optional sort)
+  "Create an md bibliography when there are keys.
+if SORT is non-nil the bibliography is sorted alphabetically by key."
+  (let ((keys (org-ref-get-bibtex-keys sort)))
+    (when keys
+      (concat
+       "# Bibliography\n"
+       (mapconcat (lambda (x) (org-ref-get-bibtex-entry-md x)) keys "\n\n")
        "\n"))))
 
 (defun org-ref-get-odt-bibliography (&optional sort)
