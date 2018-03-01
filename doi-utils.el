@@ -385,6 +385,70 @@ REDIRECT-URL is where the pdf url will be in."
     (concat *doi-utils-redirect* ".full.pdf?with-ds=yes")))
 
 
+;;** Copernicus Publications
+(setq copernicus-journal-urls '(
+  "^https://www.advances-in-geosciences.net/"
+  "^https://www.advances-in-radio-science.net/"
+  "^https://www.advances-in-science-and-research.net/"
+  "^https://advances-statistical-climatology-meteorology-oceanography.net/"
+  "^https://www.annales-geophysicae.net/"
+  "^https://www.archives-animal-breeding.net/"
+  "^https://www.astra-proceedings.net/"
+  "^https://www.atmos-chem-phys.net/"
+  "^https://www.atmos-meas-tech.net/"
+  "^https://www.biogeosciences.net/"
+  "^https://www.climate-of-the-past.net/"
+  "^https://www.drinking-water-engineering-and-science.net/"
+  "^https://www.eg-quaternary-science-journal.net/"
+  "^https://www.earth-surface-dynamics.net/"
+  "^https://www.earth-system-dynamics.net/"
+  "^https://www.earth-system-science-data.net/"
+  "^https://www.fossil-record.net/"
+  "^https://www.geographica-helvetica.net/"
+  "^https://www.geosci-model-dev.net/"
+  "^https://www.geoscientific-instrumentation-methods-and-data-systems.net/"
+  "^https://www.history-of-geo-and-space-sciences.net/"
+  "^https://www.hydrology-and-earth-system-sciences.net/"
+  "^https://www.journal-of-micropalaeontology.net/"
+  "^https://www.journal-of-sensors-and-sensor-systems.net/"
+  "^https://www.mechanical-sciences.net/"
+  "^https://www.natural-hazards-and-earth-system-sciences.net/"
+  "^https://www.nonlinear-processes-in-geophysics.net/"
+  "^https://www.ocean-science.net/"
+  "^https://www.primate-biology.net/"
+  "^https://www.proceedings-iahs.net/"
+  "^https://www.scientific-drilling.net/"
+  "^https://www.soil-journal.net/"
+  "^https://www.the-cryosphere.net/"
+  "^https://www.web-ecology.net/"
+  "^https://wind-energy-science.net/"
+  ))
+
+(defun doi-utils-get-copernicus-pdf-url (redirect-url)
+  "Copernicus hides the pdf url in html.  We get it out here.
+REDIRECT-URL is where the pdf url will be in."
+  (setq *doi-utils-waiting* t)
+  (url-retrieve
+   redirect-url
+   (lambda (status)
+     (goto-char (point-min))
+     (re-search-forward "citation_pdf_url\" content=\"\\([^\"]*\\)\"" nil t)
+
+     (setq *doi-utils-pdf-url* (match-string 1)
+	   *doi-utils-waiting* nil)))
+  (while *doi-utils-waiting* (sleep-for 0.1))
+  *doi-utils-pdf-url*)
+
+(defun copernicus-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+
+  (loop for copurl in copernicus-journal-urls
+	when (string-match copurl *doi-utils-redirect*)
+	collect
+	(progn (doi-utils-get-copernicus-pdf-url *doi-utils-redirect*)
+	 *doi-utils-pdf-url*)))
+
+
 ;;** Sage
 (defun sage-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
