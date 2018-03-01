@@ -734,11 +734,14 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
 
   (format "[%s] %s" key (org-ref-get-bibtex-entry-citation key)))
 
+
 (defun org-ref-get-bibtex-entry-md (key)
   "Return a md string for the bibliography entry corresponding to KEY."
-
-  (format "<a id=\"%s\">[%s]</a> %s [↩](#%s)"
-	  key key (org-ref-get-bibtex-entry-citation key)
+  ;; We create an anchor to the key that we can jump to, and provide a jump back
+  ;; link with the md5 of the key.
+  (format "<a id=\"%s\"></a>[%s] %s [↩](#%s)"
+	  key key
+	  (org-ref-get-bibtex-entry-citation key)
 	  (md5 key)))
 
 
