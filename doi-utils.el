@@ -442,11 +442,11 @@ REDIRECT-URL is where the pdf url will be in."
 (defun copernicus-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
 
-  (loop for copurl in copernicus-journal-urls
+  (car (loop for copurl in copernicus-journal-urls
 	when (string-match copurl *doi-utils-redirect*)
 	collect
 	(progn (doi-utils-get-copernicus-pdf-url *doi-utils-redirect*)
-	 *doi-utils-pdf-url*)))
+	 *doi-utils-pdf-url*))))
 
 
 ;;** Sage
