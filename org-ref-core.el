@@ -1401,7 +1401,7 @@ A number greater than one means multiple labels!"
   :export (lambda (keyword desc format)
             (cond
              ((eq format 'html) (format "<div id=\"%s\"></div>" keyword))
-	     ((eq format 'md) (format "<a name=\"%s\">%s</a>" keyword keyword))
+	     ((eq format 'md) (format "<a name=\"%s\"></a>" keyword))
              ((eq format 'latex)
               (format "\\label{%s}" keyword))))
   :store #'org-label-store-link
@@ -1681,7 +1681,9 @@ Optional argument ARG Does nothing."
    ((eq format 'latex) (format "\\eqref{%s}" keyword))
    ;;considering the fact that latex's the standard of math formulas, just use mathjax to render the html
    ;;customize the variable 'org-html-mathjax-template' and 'org-html-mathjax-options' refering to  'autonumber'
-   ((eq format 'html) (format "\\eqref{%s}" keyword))))
+   ((eq format 'html) (format "\\eqref{%s}" keyword))
+   ((eq format 'md)
+    (format "[%s](#%s)" keyword keyword))))
 
 
 (org-ref-link-set-parameters "eqref"
@@ -1992,26 +1994,67 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
        (format "[%s]" keyword))
 
       ((eq format 'md)
-       (mapconcat (lambda (s) (format "[^%s]" s)) (s-split "," keyword) "<sup>,</sup>"))
+       (mapconcat (lambda (key)
+		    (format "<sup id=\"%s\"><a href=\"#%s\" title=\"%s\">%s</a></sup>"
+                            ;; this makes an anchor to return to
+			    (md5 key)
+			    key
+                            ;; awful way to get a simple tooltip...
+			    (let ((org-ref-bibliography-files (org-ref-find-bibliography))
+				  (file) (entry) (bibtex-entry) (entry-type) (format)
+				  (org-ref-bibliography-entry-format
+				   '(("article" . "%a, %t, %j, v(%n), %p (%y).")
+				     ("book" . "%a, %t, %u (%y).")
+				     ("techreport" . "%a, %t, %i, %u (%y).")
+				     ("proceedings" . "%e, %t in %S, %u (%y).")
+				     ("inproceedings" . "%a, %t, %p, in %b, edited by %e, %u (%y)"))))
+			      (setq file (catch 'result
+					   (cl-loop for file in org-ref-bibliography-files do
+						    (if (org-ref-key-in-file-p key (file-truename file))
+							(throw 'result file)
+						      (message "%s not found in %s"
+							       key (file-truename file))))))
 
-      ;; for  pandoc we generate pandoc citations
-      ((eq format 'pandoc)
-       (cond
-	(desc ;; pre and or post text
-	 (let* ((text (split-string desc "::"))
-		(pre (car text))
-		(post (cadr text)))
-	   (concat
-	    (format "[@%s," keyword)
-	    (when pre (format " %s" pre))
-	    (when post (format ", %s" post))
-	    "]")))
-	(t
-	 (format "[%s]"
-		 (mapconcat
-		  (lambda (key) (concat "@" key))
-		  (org-ref-split-and-strip-string keyword)
-		  "; "))))))))
+			      (with-temp-buffer
+				(insert-file-contents file)
+				(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+				(bibtex-search-entry key nil 0)
+				(setq bibtex-entry (bibtex-parse-entry))
+                                ;; downcase field names so they work in the format-citation code
+				(dolist (cons-cell bibtex-entry)
+				  (setf (car cons-cell) (downcase (car cons-cell))))
+				(setq entry-type (downcase (cdr (assoc "=type=" bibtex-entry))))
+
+				(setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
+				(if format
+				    (setq entry  (org-ref-reftex-format-citation bibtex-entry format))
+                                     ;; if no format, we use the bibtex entry itself as a fallback
+				  (save-restriction
+				    (bibtex-narrow-to-entry)
+				    (setq entry (buffer-string)))))
+			      (replace-regexp-in-string "\"" "" (htmlize-escape-or-link entry)))
+
+key))
+(s-split "," keyword) "<sup>,</sup>"))
+
+;; for  pandoc we generate pandoc citations
+((eq format 'pandoc)
+ (cond
+  (desc ;; pre and or post text
+   (let* ((text (split-string desc "::"))
+	  (pre (car text))
+	  (post (cadr text)))
+     (concat
+      (format "[@%s," keyword)
+      (when pre (format " %s" pre))
+      (when post (format ", %s" post))
+      "]")))
+  (t
+   (format "[%s]"
+	   (mapconcat
+	    (lambda (key) (concat "@" key))
+	    (org-ref-split-and-strip-string keyword)
+	    "; "))))))))
 
 
 (defun org-ref-format-citation-description (desc)
