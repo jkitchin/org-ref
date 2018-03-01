@@ -592,6 +592,7 @@ It would be better to parse this, but here I just use a regexp.
        'ecst-pdf-url
        'rsc-pdf-url
        'pnas-pdf-url
+       'copernicus-pdf-url
        'sage-pdf-url
        'jneurosci-pdf-url
        'ieee-pdf-url
