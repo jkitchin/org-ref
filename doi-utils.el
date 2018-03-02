@@ -385,6 +385,87 @@ REDIRECT-URL is where the pdf url will be in."
     (concat *doi-utils-redirect* ".full.pdf?with-ds=yes")))
 
 
+;;** Copernicus Publications
+(setq copernicus-journal-urls '(
+  "^https://www.adv-geosci.net/"
+  "^https://www.adv-radio-sci.net/"
+  "^https://www.adv-sci-res.net/"
+  "^https://www.adv-stat-clim-meteorol-oceanogr.net/"
+  "^https://www.ann-geophys.net/"
+  "^https://www.arch-anim-breed.net/"
+  "^https://www.astra-proc.net/"
+  "^https://www.atmos-chem-phys.net/"
+  "^https://www.atmos-chem-phys-discuss.net/"
+  "^https://www.atmos-meas-tech.net/"
+  "^https://www.atmos-meas-tech-discuss.net/"
+  "^https://www.biogeosciences.net/"
+  "^https://www.biogeosciences-discuss.net/"
+  "^https://www.clim-past.net/recent_papers.html"
+  "^https://www.clim-past-discuss.net/"
+  "^https://www.drink-water-eng-sci.net/"
+  "^https://www.drink-water-eng-sci-discuss.net/"
+  "^https://www.eg-quaternary-sci-j.net/"
+  "^https://www.earth-surf-dynam.net/"
+  "^https://www.earth-surf-dynam-discuss.net/"
+  "^https://www.earth-syst-dynam.net/"
+  "^https://www.earth-syst-dynam-discuss.net/"
+  "^https://www.earth-syst-sci-data.net/"
+  "^https://www.earth-syst-sci-data-discuss.net/"
+  "^https://www.foss-rec.net/"
+  "^https://www.geogr-helv.net/"
+  "^https://www.geosci-instrum-method-data-syst.net/"
+  "^https://www.geosci-instrum-method-data-syst-discuss.net/"
+  "^https://www.geosci-model-dev.net/"
+  "^https://www.geosci-model-dev-discuss.net/"
+  "^https://www.hist-geo-space-sci.net/"
+  "^https://www.hydrol-earth-syst-sci.net/"
+  "^https://www.hydrol-earth-syst-sci-discuss.net/"
+  "^https://www.j-sens-sens-syst.net/"
+  "^https://www.mech-sci.net/"
+  "^https://www.nat-hazards-earth-syst-sci.net/"
+  "^https://www.nonlin-processes-geophys-discuss.net/"
+  "^https://www.ocean-sci.net/"
+  "^https://www.ocean-sci-discuss.net/"
+  "^https://www.primate-biol.net/"
+  "^https://www.proc-iahs.net/"
+  "^https://www.sci-dril.net/"
+  "^https://www.soil-journal.net/"
+  "^https://www.soil-discuss.net/"
+  "^https://www.solid-earth.net/"
+  "^https://www.solid-earth-discuss.net/"
+  "^https://www.stephan-mueller-spec-publ-ser.net/"
+  "^https://www.the-cryosphere.net/"
+  "^https://www.the-cryosphere-discuss.net/"
+  "^https://www.web-ecol.net/"
+  "^https://www.wind-energ-sci.net/"
+  "^https://www.wind-energ-sci-discuss.net/"
+  ))
+
+(defun doi-utils-get-copernicus-pdf-url (redirect-url)
+  "Copernicus hides the pdf url in html.  We get it out here.
+REDIRECT-URL is where the pdf url will be in."
+  (setq *doi-utils-waiting* t)
+  (url-retrieve
+   redirect-url
+   (lambda (status)
+     (goto-char (point-min))
+     (re-search-forward "citation_pdf_url\" content=\"\\([^\"]*\\)\"" nil t)
+
+     (setq *doi-utils-pdf-url* (match-string 1)
+	   *doi-utils-waiting* nil)))
+  (while *doi-utils-waiting* (sleep-for 0.1))
+  *doi-utils-pdf-url*)
+
+(defun copernicus-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+
+  (car (loop for copurl in copernicus-journal-urls
+	when (string-match copurl *doi-utils-redirect*)
+	collect
+	(progn (doi-utils-get-copernicus-pdf-url *doi-utils-redirect*)
+	 *doi-utils-pdf-url*))))
+
+
 ;;** Sage
 (defun sage-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
@@ -528,6 +609,7 @@ It would be better to parse this, but here I just use a regexp.
        'ecst-pdf-url
        'rsc-pdf-url
        'pnas-pdf-url
+       'copernicus-pdf-url
        'sage-pdf-url
        'jneurosci-pdf-url
        'ieee-pdf-url
