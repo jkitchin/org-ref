@@ -704,7 +704,7 @@ If SORT is non-nil the bibliography is alphabetically sorted."
       (setq entry (bibtex-parse-entry))
       (format "** %s - %s
   :PROPERTIES:
-  %s
+%s
   :END:
 " (org-ref-reftex-get-bib-field "author" entry)
 (org-ref-reftex-get-bib-field "title" entry)
@@ -722,8 +722,7 @@ If SORT is non-nil the bibliography is alphabetically sorted."
 If SORT is non-nil the bibliography is sorted alphabetically by key."
   (let ((keys (org-ref-get-bibtex-keys sort)))
     (when keys
-      (concat "* Bibliography
-"
+      (concat "* Bibliography\n"
               (mapconcat (lambda (x)
 			   (org-ref-get-bibtex-entry-org x)) keys "\n")
               "\n"))))
@@ -748,9 +747,7 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
   (let ((keys (org-ref-get-bibtex-keys sort)))
     (when keys
       (concat
-       "Bibliography
-=============
-"
+       "\n\nBibliography\n=============\n\n"
        (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys "\n")
        "\n"))))
 
