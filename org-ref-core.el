@@ -1951,8 +1951,7 @@ If no key is provided, get one under point."
 (defmacro org-ref-make-format-function (type)
   "Macro to make a format function for a link of TYPE."
   `(defun ,(intern (format "org-ref-format-%s" type)) (keyword desc format)
-     ,(format "Formatting function for %s links.
-[[%s:KEYWORD][DESC]]
+     ,(format "Formatting function for %s links.\n[[%s:KEYWORD][DESC]]
 FORMAT is a symbol for the export backend.
 Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
      (cond
@@ -1995,15 +1994,21 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 
       ((eq format 'md)
        (mapconcat (lambda (key)
+                    ;; this is an html link that has an anchor to jump back to,
+                    ;; and links to the entry in the bibliography. Also contains
+                    ;; a tooltip.
 		    (format "<sup id=\"%s\"><a href=\"#%s\" title=\"%s\">%s</a></sup>"
                             ;; this makes an anchor to return to
 			    (md5 key)
 			    key
-                            ;; awful way to get a simple tooltip...
+                            ;; awful way to get a simple tooltip... I just need
+                            ;; a simple formatted string, but the default has
+                            ;; too much html stuff in it, and this needs to be
+                            ;; cleaned of quotes and stuff,
 			    (let ((org-ref-bibliography-files (org-ref-find-bibliography))
 				  (file) (entry) (bibtex-entry) (entry-type) (format)
 				  (org-ref-bibliography-entry-format
-				   '(("article" . "%a, %t, %j, v(%n), %p (%y).")
+				   '(("article" . "%a, %t, %j, v(%n), %p (%y). test")
 				     ("book" . "%a, %t, %u (%y).")
 				     ("techreport" . "%a, %t, %i, %u (%y).")
 				     ("proceedings" . "%e, %t in %S, %u (%y).")
@@ -2028,33 +2033,31 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 				(setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
 				(if format
 				    (setq entry  (org-ref-reftex-format-citation bibtex-entry format))
-                                     ;; if no format, we use the bibtex entry itself as a fallback
+				  ;; if no format, we use the bibtex entry itself as a fallback
 				  (save-restriction
 				    (bibtex-narrow-to-entry)
 				    (setq entry (buffer-string)))))
 			      (replace-regexp-in-string "\"" "" (htmlize-escape-or-link entry)))
-
-key))
-(s-split "," keyword) "<sup>,</sup>"))
-
-;; for  pandoc we generate pandoc citations
-((eq format 'pandoc)
- (cond
-  (desc ;; pre and or post text
-   (let* ((text (split-string desc "::"))
-	  (pre (car text))
-	  (post (cadr text)))
-     (concat
-      (format "[@%s," keyword)
-      (when pre (format " %s" pre))
-      (when post (format ", %s" post))
-      "]")))
-  (t
-   (format "[%s]"
-	   (mapconcat
-	    (lambda (key) (concat "@" key))
-	    (org-ref-split-and-strip-string keyword)
-	    "; "))))))))
+			    key))
+		  (s-split "," keyword) "<sup>,</sup>"))
+      ;; for  pandoc we generate pandoc citations
+      ((eq format 'pandoc)
+       (cond
+	(desc ;; pre and or post text
+	 (let* ((text (split-string desc "::"))
+		(pre (car text))
+		(post (cadr text)))
+	   (concat
+	    (format "[@%s," keyword)
+	    (when pre (format " %s" pre))
+	    (when post (format ", %s" post))
+	    "]")))
+	(t
+	 (format "[%s]"
+		 (mapconcat
+		  (lambda (key) (concat "@" key))
+		  (org-ref-split-and-strip-string keyword)
+		  "; "))))))))
 
 
 (defun org-ref-format-citation-description (desc)
