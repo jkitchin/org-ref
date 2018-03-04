@@ -2317,7 +2317,7 @@ PATH is required for the org-link, but it does nothing here."
   :export (lambda (path desc format)
             (cond
              ((eq format 'latex)
-              (format "printindex")))))
+              (format "\\printindex")))))
 
 
 ;;* Utilities
