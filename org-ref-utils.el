@@ -338,6 +338,29 @@ Format according to the type in `org-ref-bibliography-entry-format'."
     entry))
 
 
+(defun org-ref-get-bibtex-entry (key)
+  "Return the bibtex entry as a string."
+  (let ((org-ref-bibliography-files (org-ref-find-bibliography))
+        (file) (entry) (bibtex-entry) (entry-type) (format))
+
+    (setq file (catch 'result
+                 (cl-loop for file in org-ref-bibliography-files do
+                          (if (org-ref-key-in-file-p key (file-truename file))
+                              (throw 'result file)
+                            (message "%s not found in %s"
+                                     key (file-truename file))))))
+
+    (with-temp-buffer
+      (insert-file-contents file)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (bibtex-search-entry key nil 0)
+      (save-restriction
+	(bibtex-narrow-to-entry)
+	(setq entry (buffer-string)))
+
+      entry)))
+
+
 ;;*** key at point functions
 (defun org-ref-get-pdf-filename (key)
   "Return the pdf filename associated with a bibtex KEY.
@@ -743,7 +766,12 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
 	  key key
 	  (org-ref-get-bibtex-entry-citation key)
 	  (if (plist-get info :md-publish-bibtex)
-	      (format " [bib](%s)" (funcall (plist-get info :md-publish-bibtex) key))
+	      (format
+	       " <a href=\"data:text/plain;charset=US-ASCII;base64,%s\" title=\"%s\">[bib]</a>"
+	       (concat "Right-click to open\n" (format
+						(xml-escape-string
+						 (org-ref-get-bibtex-entry))))
+	       (base64-encode-string (org-ref-get-bibtex-entry key)))
 	    "")
 	  (md5 key)))
 
