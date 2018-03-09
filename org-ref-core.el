@@ -2008,7 +2008,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 			    (let ((org-ref-bibliography-files (org-ref-find-bibliography))
 				  (file) (entry) (bibtex-entry) (entry-type) (format)
 				  (org-ref-bibliography-entry-format
-				   '(("article" . "%a, %t, %j, v(%n), %p (%y). test")
+				   '(("article" . "%a, %t, %j, v(%n), %p (%y).")
 				     ("book" . "%a, %t, %u (%y).")
 				     ("techreport" . "%a, %t, %i, %u (%y).")
 				     ("proceedings" . "%e, %t in %S, %u (%y).")
