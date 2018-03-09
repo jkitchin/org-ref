@@ -767,9 +767,8 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
 	  (if (plist-get info :md-publish-bibtex)
 	      (format
 	       " <a href=\"data:text/plain;charset=US-ASCII;base64,%s\" title=\"%s\">[bib]</a>"
-	       (concat "Right-click to open\n" (format
-						(xml-escape-string
-						 (org-ref-get-bibtex-entry key))))
+	       (concat "Right-click to open\n" (xml-escape-string
+						(org-ref-get-bibtex-entry key)))
 	       (base64-encode-string (org-ref-get-bibtex-entry key)))
 	    "")
 	  (md5 key)))
