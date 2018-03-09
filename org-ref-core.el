@@ -2767,13 +2767,15 @@ file.  Makes a new buffer with clickable links."
 		(when (member field entry-fields)
 		  (format "%s = %s,"
 			  field
-			  (cdr (assoc field entry))))) field-order "\n")
+			  (cdr (assoc field entry)))))
+	      field-order "\n")
+	     ;; now add the other fields
 	     (mapconcat
 	      (lambda (field)
-		(format "%s = %s,"
-			field
-			(cdr (assoc field entry))))
-	      other-fields "\n")
+		(cl-loop for (f . v) in entry concat
+			 (when (string= f field)
+			   (format "%s = %s,\n" f v))))
+	      (-uniq other-fields) "\n")
 	     "\n}\n\n"))
     (bibtex-find-entry key)
     (bibtex-fill-entry)
