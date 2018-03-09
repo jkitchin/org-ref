@@ -357,7 +357,6 @@ Format according to the type in `org-ref-bibliography-entry-format'."
       (save-restriction
 	(bibtex-narrow-to-entry)
 	(setq entry (buffer-string)))
-
       entry)))
 
 
@@ -770,7 +769,7 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
 	       " <a href=\"data:text/plain;charset=US-ASCII;base64,%s\" title=\"%s\">[bib]</a>"
 	       (concat "Right-click to open\n" (format
 						(xml-escape-string
-						 (org-ref-get-bibtex-entry))))
+						 (org-ref-get-bibtex-entry key))))
 	       (base64-encode-string (org-ref-get-bibtex-entry key)))
 	    "")
 	  (md5 key)))
