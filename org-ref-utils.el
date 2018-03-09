@@ -739,9 +739,12 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
   "Return a md string for the bibliography entry corresponding to KEY."
   ;; We create an anchor to the key that we can jump to, and provide a jump back
   ;; link with the md5 of the key.
-  (format "<a id=\"%s\"></a>[%s] %s [↩](#%s)"
+  (format "<a id=\"%s\"></a>[%s] %s%s [↩](#%s)"
 	  key key
 	  (org-ref-get-bibtex-entry-citation key)
+	  (if (plist-get info :md-publish-bibtex)
+	      (format " [bib](%s)" (funcall (plist-get info :md-publish-bibtex) key))
+	    "")
 	  (md5 key)))
 
 
