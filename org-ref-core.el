@@ -2511,7 +2511,8 @@ construct the heading by hand."
 #+BEGIN_SRC bibtex :tangle %s
 %s
 #+END_SRC"
-		    (let ((bibfile (concat (file-name-base (buffer-file-name))
+		    (let ((bibfile (concat (file-name-base
+					    (or (buffer-file-name) "references"))
 					   ".bib")))
 		      (if (file-exists-p bibfile)
 			  (file-name-nondirectory
