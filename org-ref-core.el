@@ -2008,7 +2008,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 			    (let ((org-ref-bibliography-files (org-ref-find-bibliography))
 				  (file) (entry) (bibtex-entry) (entry-type) (format)
 				  (org-ref-bibliography-entry-format
-				   '(("article" . "%a, %t, %j, v(%n), %p (%y). test")
+				   '(("article" . "%a, %t, %j, v(%n), %p (%y).")
 				     ("book" . "%a, %t, %u (%y).")
 				     ("techreport" . "%a, %t, %i, %u (%y).")
 				     ("proceedings" . "%e, %t in %S, %u (%y).")
@@ -2809,13 +2809,15 @@ file.  Makes a new buffer with clickable links."
 		(when (member field entry-fields)
 		  (format "%s = %s,"
 			  field
-			  (cdr (assoc field entry))))) field-order "\n")
+			  (cdr (assoc field entry)))))
+	      field-order "\n")
+	     ;; now add the other fields
 	     (mapconcat
 	      (lambda (field)
-		(format "%s = %s,"
-			field
-			(cdr (assoc field entry))))
-	      other-fields "\n")
+		(cl-loop for (f . v) in entry concat
+			 (when (string= f field)
+			   (format "%s = %s,\n" f v))))
+	      (-uniq other-fields) "\n")
 	     "\n}\n\n"))
     (bibtex-find-entry key)
     (bibtex-fill-entry)
