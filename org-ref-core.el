@@ -32,6 +32,7 @@
   (require 'cl-lib))
 (require 'dash)
 (require 'f)
+(require 'htmlize)
 (require 's)
 (require 'doi-utils)
 
