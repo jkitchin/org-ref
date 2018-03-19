@@ -764,13 +764,17 @@ If SORT is non-nil the bibliography is sorted alphabetically by key."
   (format "<a id=\"%s\"></a>[%s] %s%s [↩](#%s)"
 	  key key
 	  (org-ref-get-bibtex-entry-citation key)
-	  (if (plist-get info :md-publish-bibtex)
-	      (format
-	       " <a href=\"data:text/plain;charset=US-ASCII;base64,%s\" title=\"%s\">[bib]</a>"
-	       (base64-encode-string (org-ref-get-bibtex-entry key))
-	       (concat "Right-click to open\n" (xml-escape-string
-						(org-ref-get-bibtex-entry key))))
-	    "")
+	  ""
+	  ;; Note: This is to temporarily resolve issue #558. This worked fine
+	  ;; for me earlier, so I don't know why it doesn't work in this issue.
+
+	  ;; (if (plist-get info :md-publish-bibtex)
+	  ;;     (format
+	  ;;      " <a href=\"data:text/plain;charset=US-ASCII;base64,%s\" title=\"%s\">[bib]</a>"
+	  ;;      (base64-encode-string (org-ref-get-bibtex-entry key))
+	  ;;      (concat "Right-click to open\n" (xml-escape-string
+	  ;; 					(org-ref-get-bibtex-entry key))))
+	  ;;   "")
 	  (md5 key)))
 
 
