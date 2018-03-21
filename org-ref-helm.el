@@ -152,7 +152,9 @@ This widens the file so that all links go to the right place."
 	cleveref-required
 	cleveref-used
 	biblatex-required
-	biblatex-used)
+	biblatex-used
+	(org-latex-prefer-user-labels (and (boundp 'org-latex-prefer-user-labels)
+					   org-latex-prefer-user-labels)))
 
     ;; See if natbib, biblatex or cleveref are required
     (org-element-map (org-element-parse-buffer) 'link
