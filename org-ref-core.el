@@ -74,7 +74,8 @@
 Used by backends that append all notes as entries in a single file.
 
 See also `org-ref-notes-function'"
-  :type 'file
+  :type '(choice (const nil)
+                 (file))
   :group 'org-ref)
 
 
@@ -164,7 +165,8 @@ the citation link into the buffer."
 (defcustom org-ref-cite-completion-function
   nil
   "Function to prompt for keys with completion."
-  :type 'function
+  :type '(choice (const nil)
+                 (function))
   :group 'org-ref)
 
 
@@ -258,7 +260,7 @@ function in `org-ref-completion-library'."
   "String to format an entry.
 Just the reference, no numbering at the beginning, etc... see the
 `org-ref-reftex-format-citation' docstring for the escape codes."
-  :type 'string
+  :type '(alist :key-type (string) :value-type (string))
   :group 'org-ref)
 
 
@@ -469,7 +471,7 @@ users may be interested in adding themselves."
 \(entry-type . (list of fields). This is used in
 `org-ref-sort-bibtex-entry'. Entry types not listed here will
 have fields sorted alphabetically."
-  :type '(alist :key-type 'string :value-type 'list)
+  :type '(alist :key-type (string) :value-type (repeat string))
   :group 'org-ref)
 
 

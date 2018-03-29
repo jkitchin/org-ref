@@ -107,15 +107,17 @@
   nil
   "Key-chord to run `org-ref-bibtex-hydra'.
 I like \"jj\""
-  :type 'string
+  :type '(choice (const nil :tag "None")
+                 (string))
   :group 'org-ref-bibtex)
 
 
 (defcustom org-ref-bibtex-hydra-key-binding
   nil
   "Key-binding to run `org-ref-bibtex-hydra'.
-I like \C-cj."
-  :type 'string
+I like \"C-c j\"."
+  :type '(choice (const nil :tag "No binding")
+                 (key-sequence))
   :group 'org-ref-bibtex)
 
 
