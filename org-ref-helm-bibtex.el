@@ -82,7 +82,7 @@
   "Cons cells of string and function to set the actions of `helm-bibtex' to.
 The car of cons cell is the string describing the function.
 The cdr of the the cons cell is the function to use."
-  :type 'list
+  :type '(alist :key-type (string) :value-type (function))
   :group 'org-ref)
 
 
