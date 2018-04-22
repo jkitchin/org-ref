@@ -75,7 +75,7 @@
 (declare-function org-ref-open-in-browser "org-ref-core")
 (declare-function org-ref-sort-bibtex-entry "org-ref-core")
 (declare-function org-ref-build-full-bibliography "org-ref-core")
-(declare-function helm-tag-bibtex-entry "org-ref-helm")
+(declare-function org-ref-helm-tag-bibtex-entry "org-ref-helm")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
 (declare-function bibtex-completion-get-value "bibtex-completion")
 (declare-function bibtex-completion-get-entry "bibtex-completion")
@@ -818,7 +818,7 @@ _n_: Open notes                               _T_: Title case
 	 (kill-new
 	  (org-ref-format-entry
 	   (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
-  ("k" helm-tag-bibtex-entry)
+  ("k" org-ref-helm-tag-bibtex-entry)
   ("K" (lambda ()
          (interactive)
          (org-ref-set-bibtex-keywords
@@ -962,26 +962,48 @@ entry having a doi."
 	(mml-attach-file pdf))
       (message-goto-to))))
 
-;;* org-ref bibtex keywords
-;; adapted from bibtex-utils.el
-;; these are candidates for selecting keywords/tags
-(defun org-ref-bibtex-keywords ()
-  "Get keywords defined in current bibtex file.
-These are in the keywords field, and are comma or semicolon separated."
-  (save-excursion
-    (goto-char (point-min))
-    (let (keywords kstring)
-      (while (re-search-forward "^\\s-*keywords.*{\\([^}]+\\)}" nil t)
-        ;; TWS - remove newlines/multiple spaces:
-        (setq kstring (replace-regexp-in-string
-		       "[ \t\n]+" " "
-		       (match-string 1)))
-        (mapc
-         (lambda (v)
-           (add-to-list 'keywords v t))
-         (split-string kstring "\\(,\\|;\\)[ \n]*\\|{\\|}" t)))
-      keywords)))
+(defun org-ref-bibtex-collect-field (field file)
+  "Extract FIELD values in FILE and collect the results.
+Split comma or semicolon separated values in keywords field."
+  (let (list)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (bibtex-map-entries (lambda (_key _beg _end)
+			    (add-to-list 'list (bibtex-text-in-field field)))))
+    (if (equal field "keywords")
+	(-flatten (mapcar (lambda (value)
+			    (when value
+			      ;; Last regexp is for triming whitespace
+			      (split-string value "\\(,\\|;\\)\\([ \t\n]+\\)" t "[ \t\n\r]+")))
+			  list))
+      list)))
 
+;;* org-ref bibtex keywords
+(defun org-ref-bibtex-keywords ()
+  "List keywords defined in bibtex files.
+Files include current bibtex file and default bibliography files.
+Keyword values are in the keywords field, and are comma or semicolon
+separated. See also `org-ref-bibtex-collect-field'."
+  (let ((keywords)
+	(default (mapcar (lambda (file)
+			   (file-truename file))
+			 org-ref-default-bibliography))
+	(current (when buffer-file-name (buffer-file-name))))
+    ;; The :allow-dups parameter is nil by default, so in theory
+    ;; remove-duplicates should not be necessary. I'm not sure why
+    ;; this is though.
+    (remove-duplicates
+     (-flatten (mapcar (lambda (file)
+			 (org-ref-bibtex-collect-field "keywords" file))
+		       ;; Display last keywords first in the helm buffer.
+		       ;; We do this by rearranging the order of files.
+		       (-flatten (list (unless (-contains? default current)
+					 current)
+				       (if (-contains? default current)
+					   ;; Move current file to the front of the list.
+					   (cons current (remove current default))
+					 current default)))))
+     :test #'equal)))
 
 ;;;###autoload
 (defun org-ref-set-bibtex-keywords (keywords &optional arg)
@@ -1110,7 +1132,7 @@ easier to search specifically for them."
     (cond
      ((string= field "author")
       (if org-ref-helm-cite-shorten-authors
-	  ;; copied from `helm-bibtex-shorten-authors'
+	  ;; copied from `bibtex-completion-shorten-authors'
 	  (cl-loop for a in (s-split " and " s)
 		   for p = (s-split "," a t)
 		   for sep = "" then ", "
@@ -1146,7 +1168,7 @@ easier to search specifically for them."
 (defun orhc-update-bibfile-cache (bibfile)
   "Update cache for BIBFILE.
 This generates the candidates for the file. Some of this code is
-adapted from `helm-bibtex-parse-bibliography'. This function runs
+adapted from `bibtex-completion-parse-bibliography'. This function runs
 when called, it resets the cache for the BIBFILE."
   ;; check if the bibfile is already open, and preserve this state. i.e. if it
   ;; is not open close it, and if it is leave it open.
