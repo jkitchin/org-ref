@@ -604,42 +604,13 @@ date_added =	 {Sat Oct 24 10:57:22 2015},
 
 (ert-deftest get-bibtex-keys ()
   (should
-   (equal
-    '("DESC0004031" "early-career" "orgmode" "Data sharing ")
+   (-contains?
     (with-temp-buffer
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (insert "@article{kitchin-2015-examp,
-author =	 {Kitchin, John R.},
-title =	 {Examples of Effective Data Sharing in Scientific Publishing},
-journal =	 {ACS Catalysis},
-volume =	 {5},
-number =	 {6},
-pages =	 {3894-3899},
-year =	 2015,
-doi =		 {10.1021/acscatal.5b00538},
-url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
-keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
-eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
-}
-
-@article{xu-2015-relat,
-author =	 {Zhongnan Xu and John R. Kitchin},
-title =	 {Relationships Between the Surface Electronic and Chemical
-Properties of Doped 4d and 5d Late Transition Metal Dioxides},
-keywords =	 {orgmode},
-journal =	 {The Journal of Chemical Physics},
-volume =	 142,
-number =	 10,
-pages =	 104703,
-year =	 2015,
-doi =		 {10.1063/1.4914093},
-url =		 {http://dx.doi.org/10.1063/1.4914093},
-date_added =	 {Sat Oct 24 10:57:22 2015},
-}
-
-")
-      (org-ref-bibtex-keywords)))))
+      (find-file
+       (expand-file-name "tests/test-1.bib"
+			 (file-name-directory (locate-library "org-ref"))))
+      (org-ref-bibtex-keywords))
+    "orgmode")))
 
 (ert-deftest set-bibtex-keys ()
   (should
