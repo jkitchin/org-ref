@@ -75,7 +75,7 @@
 (declare-function org-ref-open-in-browser "org-ref-core")
 (declare-function org-ref-sort-bibtex-entry "org-ref-core")
 (declare-function org-ref-build-full-bibliography "org-ref-core")
-(declare-function helm-tag-bibtex-entry "org-ref-helm")
+(declare-function org-ref-helm-tag-bibtex-entry "org-ref-helm")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
 (declare-function bibtex-completion-get-value "bibtex-completion")
 (declare-function bibtex-completion-get-entry "bibtex-completion")
@@ -818,7 +818,7 @@ _n_: Open notes                               _T_: Title case
 	 (kill-new
 	  (org-ref-format-entry
 	   (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
-  ("k" helm-tag-bibtex-entry)
+  ("k" org-ref-helm-tag-bibtex-entry)
   ("K" (lambda ()
          (interactive)
          (org-ref-set-bibtex-keywords
@@ -1110,7 +1110,7 @@ easier to search specifically for them."
     (cond
      ((string= field "author")
       (if org-ref-helm-cite-shorten-authors
-	  ;; copied from `helm-bibtex-shorten-authors'
+	  ;; copied from `bibtex-completion-shorten-authors'
 	  (cl-loop for a in (s-split " and " s)
 		   for p = (s-split "," a t)
 		   for sep = "" then ", "
@@ -1146,7 +1146,7 @@ easier to search specifically for them."
 (defun orhc-update-bibfile-cache (bibfile)
   "Update cache for BIBFILE.
 This generates the candidates for the file. Some of this code is
-adapted from `helm-bibtex-parse-bibliography'. This function runs
+adapted from `bibtex-completion-parse-bibliography'. This function runs
 when called, it resets the cache for the BIBFILE."
   ;; check if the bibfile is already open, and preserve this state. i.e. if it
   ;; is not open close it, and if it is leave it open.

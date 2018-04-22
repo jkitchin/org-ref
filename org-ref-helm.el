@@ -452,7 +452,7 @@ at the end of you file.
 
 
 ;;;###autoload
-(defun helm-tag-bibtex-entry ()
+(defun org-ref-helm-tag-bibtex-entry ()
   "Helm interface to add keywords to a bibtex entry.
 Run this with the point in a bibtex entry."
   (interactive)
