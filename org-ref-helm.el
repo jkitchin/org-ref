@@ -456,19 +456,25 @@ at the end of you file.
   "Helm interface to add keywords to a bibtex entry.
 Run this with the point in a bibtex entry."
   (interactive)
-  (let ((keyword-source `((name . "Existing keywords")
-                          (candidates . ,(org-ref-bibtex-keywords))
-                          (action . (lambda (candidate)
-                                      (org-ref-set-bibtex-keywords
-                                       (mapconcat
-                                        'identity
-                                        (helm-marked-candidates)
-                                        ", "))))))
-        (fallback-source `((name . "Add new keywords")
-                           (dummy)
-                           (action . (lambda (candidate)
-                                       (org-ref-set-bibtex-keywords helm-pattern))))))
-    (helm :sources `(,keyword-source ,fallback-source))))
+  (helm :sources `(,(helm-build-in-buffer-source "Existing keywords"
+		      :data 'org-ref-bibtex-keywords
+		      :persistent-help
+		      "Add keywords (\\[universal-argument] \\[helm-maybe-exit-minibuffer] to replace keywords)"
+		      :action (helm-make-actions
+			       "Add keywords"
+			       (lambda (candidate)
+				 (let ((prefix-arg (equal helm-current-prefix-arg '(4))))
+				   (org-ref-set-bibtex-keywords
+				    (mapconcat 'identity (helm-marked-candidates)
+					       ", ")
+				    prefix-arg)))))
+		   ,(helm-build-dummy-source "Add new keywords (comma separated)"
+		      :persistent-help
+		      "Add new keywords (\\[universal-argument] \\[helm-maybe-exit-minibuffer] to replace keywords)"
+		      :action (lambda (candidate)
+				(let ((prefix-arg (equal helm-current-prefix-arg '(4))))
+				  (org-ref-set-bibtex-keywords helm-pattern prefix-arg)))))
+	:buffer "*helm keywords*"))
 
 (provide 'org-ref-helm)
 ;;; org-ref-helm.el ends here
