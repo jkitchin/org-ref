@@ -635,7 +635,8 @@ date_added =	 {Sat Oct 24 10:57:22 2015},
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (goto-char (point-min))
       (org-ref-set-bibtex-keywords '("key1" "key2"))
-      (org-ref-bibtex-keywords)))))
+      (split-string (bibtex-text-in-field "keywords")
+		    "\\(,\\|;\\)\\([ \t\n]+\\)" t "[ \t\n\r]+")))))
 
 (ert-deftest get-year ()
   (should
