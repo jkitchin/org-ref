@@ -1874,7 +1874,7 @@ set in `org-ref-default-bibliography'"
                 ;; I added the + here to avoid matching +bibliography: keywords.
                 "\\(?:^[\[]\\{2\\}\\)?\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
                 nil t)
-          (dolist (bibfile (org-ref-split-and-strip-string (match-string 2)))
+          (dolist (bibfile (org-ref-split-and-strip-string (match-string-no-properties 2)))
 	    (let ((bibf (org-ref-find-bibfile bibfile)))
 	      (when bibf
 		(push bibf org-ref-bibliography-files)))))
