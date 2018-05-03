@@ -522,7 +522,7 @@ title entries in articles and books."
 		      ;; are the first word
 		      ((-contains? org-ref-lower-case-words
 				   (s-downcase word))
-		       word)
+		       (s-downcase word))
 		      ;; Words that are quoted
 		      ((s-starts-with? "\"" word)
 		       (concat "\"" (s-capitalize (substring word 1))))
