@@ -82,7 +82,7 @@
 (declare-function parsebib-find-next-item "parsebib")
 (declare-function parsebib-read-entry "parsebib")
 (declare-function helm-bibtex "helm-bibtex")
-
+(declare-function helm "helm")
 
 ;;; Code:
 

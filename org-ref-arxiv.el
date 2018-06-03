@@ -40,6 +40,8 @@
 
 (declare-function parsebib-find-bibtex-dialect "parsebib")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
+;; this is a C function
+(declare-function libxml-parse-xml-region "xml")
 
 ;;* The org-mode link
 ;; this just makes a clickable link that opens the entry.

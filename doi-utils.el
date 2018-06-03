@@ -46,6 +46,7 @@
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
 (declare-function reftex-get-bib-field "reftex-cite")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
+(declare-function helm "helm")
 
 (eval-when-compile
   (require 'cl-lib))
