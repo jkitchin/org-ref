@@ -47,7 +47,7 @@ org-ref has been added to Melpa. This is the recommended way to install org-ref 
 (add-to-list 'package-archives
 	     '("melpa" . "http://melpa.org/packages/") t)
 (when (< emacs-major-version 24)
-  ;; For compatibility 
+  ;; For compatibility
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 (package-initialize)
 #+END_SRC
@@ -57,7 +57,7 @@ Then, you should be able to do M-x package-list-packages, find org-ref and insta
 
 ** Installation via github
 
-Make sure all the  [[https://github.com/jkitchin/org-ref/blob/master/org-ref.el#L9][dependencies]] are installed. Then clone this repo, add it to your load-path. 
+Make sure all the  [[https://github.com/jkitchin/org-ref/blob/master/org-ref.el#L9][dependencies]] are installed. Then clone this repo, add it to your load-path.
 
 #+BEGIN_SRC sh
 git clone https://github.com/jkitchin/org-ref.git
@@ -105,7 +105,14 @@ There are alternative citation key completion methods.
 - org-ref-ivy-cite :: Uses ivy for key completion
 - org-ref-reftex :: Uses reftex and org-mode for completion (no longer developed)
 
+If you plan to build PDF files via LaTeX you need to make sure that org-latex-pdf-process is set to process the bibliography (using bibtex or biblatex). Here is one example of how to do that (see [[./org-ref.org::*LaTeX export]] for other alternatives).
+
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+#+END_SRC
+
 Finally, add this to your init.el files.
+
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref)
 #+END_SRC
