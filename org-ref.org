@@ -884,6 +884,25 @@ Finally, where you want the bibliography put this command:
 \printbibliography
 #+END_EXAMPLE
 
+** Prelude users
+
+An issue related to using org-ref with prelude was [[https://github.com/jkitchin/org-ref/issues/583][reported]], along with a solution that loads org-ref before loading prelude. The solution was to create a file like ~/.emacs.d/personal/preload/preload.el with these contents.
+
+#+BEGIN_SRC emacs-lisp
+(package-initialize)
+
+(setq reftex-default-bibliography '("~/bibliography/references.bib"))
+(setq org-ref-bibliography-notes "~/bibliography/notes.org"
+      org-ref-default-bibliography '("~/bibliography/references.bib")
+      org-ref-pdf-directory "~/bibliography/bibtex-pdfs/")
+
+(require 'org-ref)
+
+(provide 'preload)
+
+;;; preload.el ends here
+#+END_SRC
+
 ** Other forms of this document
    :PROPERTIES:
    :ID:       5BBB8F29-3C82-4C7B-8FDB-9D146751D187
