@@ -491,14 +491,14 @@ REDIRECT-URL is where the pdf url will be in."
 
 ;;** IEEE
 ;; 10.1109/re.2014.6912247
-;; http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6912247
-;; http://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf
-;; http://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247
-;; <meta name="citation_pdf_url" content="http://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247">
-;; <frame src="http://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf?tp=&arnumber=6912247&isnumber=6912234" frameborder=0 />
+;; http(s)://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6912247
+;; http(s)://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf
+;; http(s)://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247
+;; <meta name="citation_pdf_url" content="http(s)://ieeexplore.ieee.org/iel7/6903646/6912234/06912247.pdf?arnumber=6912247">
+;; <frame src="http(s)://ieeexplore.ieee.org/ielx7/6903646/6912234/06912247.pdf?tp=&arnumber=6912247&isnumber=6912234" frameborder=0 />
 (defun ieee-pdf-url (*doi-utils-redirect*)
   "Get a url to the pdf from *DOI-UTILS-REDIRECT* for IEEE urls."
-  (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
+  (when (string-match "^https?://ieeexplore.ieee.org" *doi-utils-redirect*)
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
       (goto-char (point-min))
       (when (re-search-forward "<meta name=\"citation_pdf_url\" content=\"\\([[:ascii:]]*?\\)\">" nil t)
@@ -512,7 +512,7 @@ REDIRECT-URL is where the pdf url will be in."
 ;; Example: 10.1109/35.667413
 (defun ieee2-pdf-url (*doi-utils-redirect*)
   "Get a url to the pdf from *DOI-UTILS-REDIRECT* for IEEE urls."
-  (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
+  (when (string-match "^https?://ieeexplore.ieee.org" *doi-utils-redirect*)
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
       (goto-char (point-min))
       (when (re-search-forward "\"pdfUrl\":\"\\([[:ascii:]]*?\\)\"" nil t)
@@ -523,10 +523,10 @@ REDIRECT-URL is where the pdf url will be in."
               (match-string 1))))))))
 
 ;; Another try to get the ieee pdf
-;; <iframe src="http://ieeexplore.ieee.org/ielx5/8/4538127/04538164.pdf?tp=&arnumber=4538164&isnumber=4538127" frameborder=0>
+;; <iframe src="http(s)://ieeexplore.ieee.org/ielx5/8/4538127/04538164.pdf?tp=&arnumber=4538164&isnumber=4538127" frameborder=0>
 (defun ieee3-pdf-url (*doi-utils-redirect*)
   "Get a url to the pdf from *DOI-UTILS-REDIRECT* for IEEE urls."
-  (when (string-match "^http://ieeexplore.ieee.org" *doi-utils-redirect*)
+  (when (string-match "^https?://ieeexplore.ieee.org" *doi-utils-redirect*)
     (with-current-buffer (url-retrieve-synchronously *doi-utils-redirect*)
       (goto-char (point-min))
       (when (re-search-forward "\"pdfUrl\":\"\\([[:ascii:]]*?\\)\"" nil t)
