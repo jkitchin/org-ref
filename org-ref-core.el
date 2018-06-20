@@ -3203,7 +3203,8 @@ move to the beginning of the previous cite link after this one."
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
   "Return a string of context around a LABEL."
-  (save-excursion
+  (save-excursion(save-restriction
+    (widen)
     (catch 'result
       (goto-char (point-min))
       (when (re-search-forward
@@ -3287,7 +3288,7 @@ move to the beginning of the previous cite link after this one."
 	(throw 'result (match-string 0)))
 
 
-      (throw 'result "!!! NO CONTEXT FOUND !!!"))))
+      (throw 'result "!!! NO CONTEXT FOUND !!!")))))
 
 
 ;;;###autoload
