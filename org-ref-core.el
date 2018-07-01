@@ -3204,90 +3204,92 @@ move to the beginning of the previous cite link after this one."
 (defun org-ref-get-label-context (label)
   "Return a string of context around a LABEL."
   (save-excursion
-    (catch 'result
-      (goto-char (point-min))
-      (when (re-search-forward
-             (format "label:%s\\b" label) nil t)
-        (throw 'result (buffer-substring
-                        (progn
-                          (forward-line -1)
-                          (beginning-of-line)
-                          (point))
-                        (progn
-                          (forward-line 4)
-                          (point)))))
+    (save-restriction
+      (widen)
+      (catch 'result
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "label:%s\\b" label) nil t)
+	  (throw 'result (buffer-substring
+			  (progn
+			    (forward-line -1)
+			    (beginning-of-line)
+			    (point))
+			  (progn
+			    (forward-line 4)
+			    (point)))))
 
-      (goto-char (point-min))
-      (when (re-search-forward
-             (format "\\label{%s}" label) nil t)
-        (throw 'result (buffer-substring
-                        (progn
-                          (forward-line -1)
-                          (beginning-of-line)
-                          (point))
-                        (progn
-                          (forward-line 4)
-                          (point)))))
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "\\label{%s}" label) nil t)
+	  (throw 'result (buffer-substring
+			  (progn
+			    (forward-line -1)
+			    (beginning-of-line)
+			    (point))
+			  (progn
+			    (forward-line 4)
+			    (point)))))
 
-      (goto-char (point-min))
-      (when (re-search-forward
-             (format "^\\( \\)*#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
-        (throw 'result (buffer-substring
-                        (progn
-                          (forward-line -1)
-                          (beginning-of-line)
-                          (point))
-                        (progn
-                          (forward-line 4)
-                          (point)))))
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "^\\( \\)*#\\+label:\\s-*\\(%s\\)\\b" label) nil t)
+	  (throw 'result (buffer-substring
+			  (progn
+			    (forward-line -1)
+			    (beginning-of-line)
+			    (point))
+			  (progn
+			    (forward-line 4)
+			    (point)))))
 
-      (goto-char (point-min))
-      (when (re-search-forward
-             (format "^\\( \\)*#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
-        (throw 'result (buffer-substring
-                        (progn
-                          (forward-line -1)
-                          (beginning-of-line)
-                          (point))
-                        (progn
-                          (forward-line 4)
-                          (point)))))
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "^\\( \\)*#\\+tblname:\\s-*\\(%s\\)\\b" label) nil t)
+	  (throw 'result (buffer-substring
+			  (progn
+			    (forward-line -1)
+			    (beginning-of-line)
+			    (point))
+			  (progn
+			    (forward-line 4)
+			    (point)))))
 
-      (goto-char (point-min))
-      (when (re-search-forward
-             (format "^\\( \\)*#\\+name:\\s-*\\(%s\\)\\b" label) nil t)
-        (throw 'result (buffer-substring
-                        (progn
-                          (forward-line -1)
-                          (beginning-of-line)
-                          (point))
-                        (progn
-                          (forward-line 4)
-                          (point)))))
-      ;; ;; CUSTOM_ID
-      (goto-char (point-min))
-      ;; do we have a CUSTOM-ID?
-      (let ((heading (org-map-entries
-		      (lambda ()
-			(buffer-substring
-			 (progn
-			   (forward-line -1)
-			   (beginning-of-line)
-			   (point))
-			 (progn
-			   (forward-line 4)
-			   (point))))
-		      (format  "CUSTOM_ID=\"%s\"" label))))
-	;; (message-box heading)
-	(when heading
-	  (throw 'result (car heading))))
-      ;; radio target
-      (goto-char (point-min))
-      (when (re-search-forward (format "<<%s>>" (regexp-quote label)) nil t)
-	(throw 'result (match-string 0)))
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "^\\( \\)*#\\+name:\\s-*\\(%s\\)\\b" label) nil t)
+	  (throw 'result (buffer-substring
+			  (progn
+			    (forward-line -1)
+			    (beginning-of-line)
+			    (point))
+			  (progn
+			    (forward-line 4)
+			    (point)))))
+	;; ;; CUSTOM_ID
+	(goto-char (point-min))
+	;; do we have a CUSTOM-ID?
+	(let ((heading (org-map-entries
+			(lambda ()
+			  (buffer-substring
+			   (progn
+			     (forward-line -1)
+			     (beginning-of-line)
+			     (point))
+			   (progn
+			     (forward-line 4)
+			     (point))))
+			(format  "CUSTOM_ID=\"%s\"" label))))
+	  ;; (message-box heading)
+	  (when heading
+	    (throw 'result (car heading))))
+	;; radio target
+	(goto-char (point-min))
+	(when (re-search-forward (format "<<%s>>" (regexp-quote label)) nil t)
+	  (throw 'result (match-string 0)))
 
 
-      (throw 'result "!!! NO CONTEXT FOUND !!!"))))
+	(throw 'result "!!! NO CONTEXT FOUND !!!")))))
 
 
 ;;;###autoload
