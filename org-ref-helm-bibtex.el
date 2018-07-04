@@ -122,6 +122,7 @@ The cdr of the the cons cell is the function to use."
 Used as a new action in `helm-bibtex'.
 CANDIDATE is ignored."
   (with-temp-buffer
+    (bibtex-mode)
     (mapc #'insert-file-contents
 	  (-flatten (list bibtex-completion-bibliography)))
 
@@ -133,8 +134,11 @@ CANDIDATE is ignored."
 					  "\\)[[:space:]]*[\(\{][[:space:]]*"
 					  (regexp-quote bibtex-key)
 					  "[[:space:]]*,"))
-	       (bibtex-mark-entry)
-	       (cl-pushnew  (buffer-substring (point) (mark)) entries))
+
+	       (cl-pushnew  (buffer-substring
+			     (bibtex-beginning-of-entry)
+			     (bibtex-end-of-entry))
+			    entries))
 
       (with-temp-buffer
 	(dolist (entry entries)
