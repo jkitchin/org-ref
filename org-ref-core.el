@@ -909,7 +909,8 @@ we open it, otherwise prompt for which one to open."
   "Find BIBFILE as local file, or using kpsewhich or bibinputs."
   (or (if (file-exists-p bibfile) bibfile)
       (org-ref-bibfile-kpsewhich bibfile)
-      ;; this should never be reached because kpsewhich is stronger
+      ;; this should never be reached if bibfile exists, because kpsewhich is
+      ;; stronger
       (org-ref-locate-file bibfile (org-ref-bibinputs))))
 
 
@@ -968,8 +969,10 @@ PREDICATE."
 	;; save the key we clicked on.
 	(setq bibfile (org-ref-strip-string
 		       (buffer-substring key-beginning key-end)))
-	;; open file on click
-        (find-file (org-ref-find-bibfile bibfile))))))
+	;; open file on click. I use or because org-ref-find-bibfile returns nil
+	;; if the file doesn't exist, and clicking should open the file in that
+	;; case.
+        (find-file (or (org-ref-find-bibfile bibfile) bibfile))))))
 
 
 (defun org-ref-bibliography-format (keyword desc format)
