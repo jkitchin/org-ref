@@ -628,9 +628,11 @@ If so return the position for `goto-char'."
   (concat "\\(" (mapconcat
                  (lambda (x)
 		   (replace-regexp-in-string "\*" "\\\\*" x))
-                 org-ref-cite-types "\\|") ":\\)"
+                 org-ref-cite-types "\\|") "\\):"
                  "\\([a-zA-Z0-9-_:\\./]+,?\\)+")
-  "Regexp for cite links.")
+  "Regexp for cite links.
+Group 1 contains the cite type.
+Group 2 contains the keys.")
 
 
 (defvar org-ref-label-re
