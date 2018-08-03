@@ -918,7 +918,6 @@ I prefer the hydra interfaces above.")
   "Menu command to run in a bibtex entry.
 Functions from `org-ref-bibtex-menu-funcs'.  They all rely on the
 entry having a doi."
-
   (interactive)
   ;; construct menu string as a message
   (message
@@ -936,8 +935,7 @@ entry having a doi."
        (elt
         choice
         2)
-       (org-ref-bibtex-entry-doi)
-       ))))
+       (org-ref-bibtex-entry-doi)))))
 
 (defalias 'jb 'org-ref-bibtex)
 
