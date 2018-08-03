@@ -767,17 +767,15 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
   (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
-    (let* ((file (read-file-name "Select file associated with entry: "))
-	   (bibtex-expand-strings t)
-           (entry (bibtex-parse-entry t))
+    (let* ((bibtex-expand-strings t)
+	       (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (concat org-ref-pdf-directory (concat key ".pdf")))
-	   (file-move-func (org-ref-bibtex-get-file-move-func prefix)))
+           (pdf (expand-file-name (concat key ".pdf") org-ref-pdf-directory))
+           (file-move-func (org-ref-bibtex-get-file-move-func prefix)))
       (if (file-exists-p pdf)
-	  (message (format "A file named %s already exists" pdf))
-	(progn
-	  (funcall file-move-func file pdf)
-	  (message (format "Created file %s" pdf)))))))
+	      (message "A file named %s already exists" pdf)
+	    (funcall file-move-func (read-file-name (format "Select file associated with entry %s: " key)) pdf)
+	    (message "Created file %s" pdf)))))
 
 
 ;;* Hydra menus
