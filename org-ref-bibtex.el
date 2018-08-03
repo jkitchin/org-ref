@@ -777,6 +777,23 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
 	    (funcall file-move-func (read-file-name (format "Select file associated with entry %s: " key)) pdf)
 	    (message "Created file %s" pdf)))))
 
+;;;###autoload
+(defun org-ref-bibtex-assoc-all (&optional prefix)
+  "Associate PDFs with all the entries that don't already have one.
+If you don't want to associate a specific entry with any PDF, you
+may quit with \\[keyboard-quit] and it will continue to the next
+one.
+See `org-ref-bibtex-assoc-pdf-with-entry' for more information
+about associating with PDFs."
+  (interactive "P")
+  (save-excursion
+    (goto-char (point-min))
+    (bibtex-map-entries (lambda (key begin end)
+                          (let ((inhibit-quit t))
+                            (cl-letf (((symbol-function 'message) (lambda (&rest _))))
+                              (with-local-quit (org-ref-bibtex-assoc-pdf-with-entry prefix))
+                              (setq quit-flag nil)))))))
+
 
 ;;* Hydra menus
 ;;** Hydra menu for bibtex entries
