@@ -2975,26 +2975,48 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
 
 (defun orcb-key ()
   "Replace the key in the entry."
-  (let ((key (funcall org-ref-clean-bibtex-key-function
-		      (bibtex-generate-autokey))))
-    ;; first we delete the existing key
+  (let ((new-key (funcall org-ref-clean-bibtex-key-function (bibtex-generate-autokey)))
+        old-key duplicate-pos)
     (bibtex-beginning-of-entry)
-    (re-search-forward bibtex-entry-maybe-empty-head)
-    (if (match-beginning bibtex-key-in-head)
-	(delete-region (match-beginning bibtex-key-in-head)
-		       (match-end bibtex-key-in-head)))
-    ;; check if the key is in the buffer
-    (when (save-excursion
-	    (bibtex-search-entry key))
-      (save-excursion
-	(bibtex-search-entry key)
-	(bibtex-copy-entry-as-kill)
-	(switch-to-buffer-other-window "*duplicate entry*")
-	(bibtex-yank))
-      (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
 
-    (insert key)
-    (kill-new key)))
+    (re-search-forward bibtex-entry-maybe-empty-head)
+	(setq old-key (match-string bibtex-key-in-head))
+
+    (unless (string= new-key old-key)
+      ;; first we delete the existing key
+      (when old-key
+        (delete-region (match-beginning bibtex-key-in-head)
+                       (match-end       bibtex-key-in-head)))
+
+      ;; check if the key is in the buffer
+      (save-restriction
+        (widen)
+        (while (save-excursion (setq duplicate-pos (bibtex-search-entry new-key)))
+          (save-excursion
+	        (goto-char duplicate-pos)
+	        (bibtex-copy-entry-as-kill)
+	        (switch-to-buffer-other-window "*duplicate entry*")
+	        (bibtex-yank))
+          (setq new-key (bibtex-read-key "Duplicate Key found, edit: " new-key))))
+
+      (insert new-key)
+      (kill-new new-key)
+
+      ;; check if it is needed to move the associated pdf
+      (let* ((old-pdf (and old-key (expand-file-name (concat old-key ".pdf") org-ref-pdf-directory)))
+             (old-exists (and old-pdf (file-exists-p old-pdf)))
+             (new-pdf (expand-file-name (concat new-key ".pdf") org-ref-pdf-directory))
+             (new-exists (file-exists-p new-pdf)))
+        (when new-exists
+          (if old-exists
+              ;; will need to move there, so get it out of the way
+              (rename-file new-pdf (make-temp-file new-pdf) 'replace)
+
+            ;; this will get associated with the entry because of the name change, unless removed
+            (when (y-or-n-p "A PDF exists with that key. Do you want to remove it? ")
+              (move-file-to-trash new-pdf))))
+
+        (when old-exists (rename-file old-pdf new-pdf))))))
 
 
 (defun orcb-check-journal ()
