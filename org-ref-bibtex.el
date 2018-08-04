@@ -757,11 +757,13 @@ opposite function from that which is defined in
 
 ;;;###autoload
 (defun org-ref-bibtex-assoc-pdf-with-entry (&optional prefix)
-  "Prompt for pdf associated with entry at point and rename it.
-Check whether a pdf already exists in `org-ref-pdf-directory' with the
-name '[bibtexkey].pdf'. If the file does not exist, rename it to
-'[bibtexkey].pdf' using
-`org-ref-bibtex-assoc-pdf-with-entry-move-function' and place it in
+  "Prompt for a PDF to associate with entry at point.
+If an associated PDF already exists in `org-ref-pdf-directory':
+- When called interactively, it will ask if you want to replace it.
+- Else, it will return without doing anything (useful for batch functions)
+
+The new file will be renamed/copied with
+`org-ref-bibtex-assoc-pdf-with-entry-move-function' and placed in
 `org-ref-pdf-directory'. Optional PREFIX argument toggles between
 `rename-file' and `copy-file'."
   (interactive "P")
@@ -770,12 +772,23 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
     (let* ((bibtex-expand-strings t)
 	       (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (expand-file-name (concat key ".pdf") org-ref-pdf-directory))
+           (target-pdf (expand-file-name (concat key ".pdf") org-ref-pdf-directory))
+           (target-exists (file-exists-p target-pdf))
            (file-move-func (org-ref-bibtex-get-file-move-func prefix)))
-      (if (file-exists-p pdf)
-	      (message "A file named %s already exists" pdf)
-	    (funcall file-move-func (read-file-name (format "Select file associated with entry %s: " key)) pdf)
-	    (message "Created file %s" pdf)))))
+      (when (or (not target-exists)
+                (and (called-interactively-p 'any)
+                     (y-or-n-p
+                      (format "A file named %s already exists. Do you want to replace it anyway? "
+                              target-pdf))))
+        (when target-exists
+          (message "Moving old %s to trash..." (concat key ".pdf"))
+          (move-file-to-trash target-pdf))
+
+	    (funcall file-move-func
+                 (read-file-name (format "Select file associated with entry %s: " key))
+                 target-pdf)
+
+	    (message "Created file %s" target-pdf)))))
 
 ;;;###autoload
 (defun org-ref-bibtex-assoc-all (&optional prefix)
