@@ -2796,8 +2796,8 @@ file.  Makes a new buffer with clickable links."
          (other-fields)
          (type (cdr (assoc "=type=" entry)))
          (key (cdr (assoc "=key=" entry)))
-	 (field-order (cdr (assoc (if type (downcase type))
-				  org-ref-bibtex-sort-order))))
+	     (field-order (cdr (assoc (if type (downcase type))
+				                  org-ref-bibtex-sort-order))))
 
     ;; these are the fields we want to order that are in this entry
     (setq entry-fields (mapcar (lambda (x) (car x)) entry))
@@ -2807,30 +2807,32 @@ file.  Makes a new buffer with clickable links."
 
     ;;these are the other fields in the entry, and we sort them alphabetically.
     (setq other-fields
-	  (sort (-remove (lambda(x) (member x field-order)) entry-fields)
-		'string<))
+	      (sort (-remove (lambda(x) (member x field-order)) entry-fields)
+		        'string<))
 
-    (bibtex-kill-entry)
-    (insert
-     (concat "@" type "{" key ",\n"
-	     (mapconcat
-	      (lambda (field)
-		(when (member field entry-fields)
-		  (format "%s = %s,"
-			  field
-			  (cdr (assoc field entry)))))
-	      field-order "\n")
-	     ;; now add the other fields
-	     (mapconcat
-	      (lambda (field)
-		(cl-loop for (f . v) in entry concat
-			 (when (string= f field)
-			   (format "%s = %s,\n" f v))))
-	      (-uniq other-fields) "\n")
-	     "\n}\n\n"))
-    (bibtex-find-entry key)
-    (bibtex-fill-entry)
-    (bibtex-clean-entry)))
+    (save-restriction
+      (widen) ;; this is needed in order to kill all the whitespace until the next entry
+      (bibtex-kill-entry)
+      (insert
+       (concat "@" type "{" key ",\n"
+	           (mapconcat
+	            (lambda (field)
+		          (when (member field entry-fields)
+		            (format "%s = %s,"
+			                field
+			                (cdr (assoc field entry)))))
+	            field-order "\n")
+	           ;; now add the other fields
+	           (mapconcat
+	            (lambda (field)
+		          (cl-loop for (f . v) in entry concat
+			               (when (string= f field)
+			                 (format "%s = %s,\n" f v))))
+	            (-uniq other-fields) "\n")
+	           "\n}\n\n"))
+      (bibtex-find-entry key)
+      (bibtex-fill-entry)
+      (bibtex-clean-entry))))
 
 ;; downcase entries
 ;;;###autoload
