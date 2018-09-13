@@ -1882,7 +1882,7 @@ set in `org-ref-default-bibliography'"
                 "\\(bibliography\\|addbibresource\\):"
                 nil t)
 	  (let ((link (org-element-context)))
-	    (when (and (eq (car link) link)
+	    (when (and (eq (car link) 'link)
 		       (or
 			(string= (org-element-property :type link) "bibliography")
 			(string= (org-element-property :type link) "addbibresource")))
