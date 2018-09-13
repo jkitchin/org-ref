@@ -1872,17 +1872,25 @@ set in `org-ref-default-bibliography'"
       (save-restriction
         (widen)
         (goto-char (point-min))
+	(setq org-ref-bibliography-files ())
 
         ;; look for org-ref bibliography or addbibresource links
-        (setq org-ref-bibliography-files ())
         (while (re-search-forward
-                ;; I added the + here to avoid matching +bibliography: keywords.
-                "\\(?:^[\[]\\{2\\}\\)?\\(bibliography\\|addbibresource\\):\\([^\]\|\n]+\\)"
+                ;; This just searches for these strings, and then checks if it
+                ;; is on a link. This is faster than parsing the org-file when
+                ;; it gets large.
+                "\\(bibliography\\|addbibresource\\):"
                 nil t)
-          (dolist (bibfile (org-ref-split-and-strip-string (match-string-no-properties 2)))
-	    (let ((bibf (org-ref-find-bibfile bibfile)))
-	      (when bibf
-		(push bibf org-ref-bibliography-files)))))
+	  (let ((link (org-element-context)))
+	    (when (and (eq (car link) link)
+		       (or
+			(string= (org-element-property :type link) "bibliography")
+			(string= (org-element-property :type link) "addbibresource")))
+	      (dolist (bibfile (org-ref-split-and-strip-string
+				(org-element-property :path link)))
+		(let ((bibf (org-ref-find-bibfile bibfile)))
+		  (when bibf
+		    (push bibf org-ref-bibliography-files)))))))
 
         (when org-ref-bibliography-files
           (throw 'result
