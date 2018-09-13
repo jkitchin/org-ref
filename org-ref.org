@@ -4,6 +4,23 @@
 #+OPTIONS: toc:nil ^:{}
 #+LATEX_HEADER: \usepackage{natbib}
 #+LATEX_HEADER: \usepackage[version=3]{mhchem}
+#+latex_header: \usepackage{makeidx}
+#+latex_header: \makeindex
+# This ridiculousness is to make the index start in the middle of a page.
+# https://tex.stackexchange.com/questions/23870/index-shouldnt-start-new-page
+#+latex_header: \makeatletter
+#+latex_header: \renewenvironment{theindex}
+#+latex_header:                {\section*{\indexname}%
+#+latex_header:                 \@mkboth{\MakeUppercase\indexname}%
+#+latex_header:                         {\MakeUppercase\indexname}%
+#+latex_header:                 \thispagestyle{plain}\parindent\z@
+#+latex_header:                 \parskip\z@ \@plus .3\p@\relax
+#+latex_header:                 \columnseprule \z@
+#+latex_header:                 \columnsep 35\p@
+#+latex_header:                 \let\item\@idxitem}
+#+latex_header:                {}
+#+latex_header: \makeatother
+
 #+latex_header: \usepackage{glossaries}
 #+latex_header: \makeglossaries
 #+latex_header_extra: \newglossaryentry{acronym}{name={acronym},description={An acronym is an abbreviation used as a word which is formed from the initial components in a phrase or a word. Usually these components are individual letters (as in NATO or laser) or parts of words or names (as in Benelux)}}
@@ -845,6 +862,9 @@ A gls:computer is good for computing. Gls:computer is capitalized. We can also u
 
 This is not supported in anything but LaTeX export.
 
+\glsaddall
+\printglossaries
+
 ** biblatex users
    :PROPERTIES:
    :ID:       212B487E-CC38-4BDF-9F0E-6993845AF49B
@@ -927,8 +947,16 @@ Before building this file you need to require the following libraries so the lin
 You may want to build a pdf of this file. Here is an emacs-lisp block that will create and open the PDF.
 
  #+BEGIN_SRC emacs-lisp
-(org-open-file (org-latex-export-to-pdf))
+(let ((org-latex-pdf-process
+       '("pdflatex -interaction nonstopmode -output-directory %o %f"
+	 "bibtex %b"
+	 "makeindex %b"
+	 "pdflatex -interaction nonstopmode -output-directory %o %f"
+	 "pdflatex -interaction nonstopmode -output-directory %o %f")))
+  (org-open-file (org-latex-export-to-pdf)))
  #+END_SRC
+
+ #+RESULTS:
 
 
 *** HTML
@@ -942,6 +970,8 @@ You may want to build an html version of this file. Here is an emacs-lisp block 
 * Index
 
 This is a functional link that will open a buffer of clickable index entries:
+# This eliminates the duplicate Index section name
+\renewcommand{\indexname}{}
 printindex:nil
 
 * References
