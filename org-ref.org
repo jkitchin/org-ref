@@ -81,7 +81,7 @@ There is also a bibliographystyle link that specifies the style. This link does 
     :END:
 index:cite
 
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found.
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the latex exporter.
 
 For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding ~C-c ]~ by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. For any other field (e.g. keywords), you will need to add it to the variable ~bibtex-completion-additional-search-fields~. You can select multiple entries by pressing ~C-SPC~ to mark entries in the helm-bibtex buffer.
 
