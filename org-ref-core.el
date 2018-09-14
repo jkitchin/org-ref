@@ -92,7 +92,8 @@ See also `org-ref-notes-function'."
 (defcustom org-ref-default-bibliography
   nil
   "List of bibtex files to search for.
-You should use full-paths for each file."
+You should use full-paths for each file. Note that you must include a
+bibliography link in your document if you will be exporting it to pdf; org-ref-default-bibliography is not used by the LaTeX exporter."
   :type '(repeat :tag "List of bibtex files" file)
   :group 'org-ref)
 
