@@ -81,7 +81,7 @@ There is also a bibliographystyle link that specifies the style. This link does 
     :END:
 index:cite
 
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the latex exporter.
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]].
 
 For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding ~C-c ]~ by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. For any other field (e.g. keywords), you will need to add it to the variable ~bibtex-completion-additional-search-fields~. You can select multiple entries by pressing ~C-SPC~ to mark entries in the helm-bibtex buffer.
 
@@ -312,6 +312,49 @@ I have also had success with this setup:
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 #+END_SRC
+
+*** BibTeX users
+In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]]. ~org-ref~ has a customization variable for setting the default bibliography, ~org-ref-default-bibliography~, but this is *not used in LaTeX export*; you have to set it explicitly in your file. You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you. 
+
+*** biblatex users
+   :PROPERTIES:
+   :ID:       212B487E-CC38-4BDF-9F0E-6993845AF49B
+   :END:
+
+In the latex header you specify the style and bibliography file using addbibresource. Here is an example:
+
+#+BEGIN_EXAMPLE
+#+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,backref=true,maxcitenames=3,url=true,backend=biber,natbib=true] {biblatex}
+#+latex_header: \addbibresource{tests/test-1.bib}
+#+END_EXAMPLE
+
+Sometimes it is necessary to tell bibtex what dialect you are using to support the different bibtex entries that are possible in biblatex. You can do it like this globally.
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-dialect 'biblatex)
+#+END_SRC
+
+#+RESULTS:
+: biblatex
+
+Or like this in a bibtex file:
+#+BEGIN_EXAMPLE
+% -*- mode:bibtex; eval: (bibtex-set-dialect 'biblatex); -*-
+#+END_EXAMPLE
+
+Make sure you invoke biblatex in the org-latex-pdf-process. Here is one way to do it.
+
+#+BEGIN_SRC emacs-lisp :results silent
+(setq  org-latex-pdf-process
+       '("latexmk -shell-escape -bibtex -pdf %f"))
+#+END_SRC
+
+Finally, where you want the bibliography put this command:
+
+#+BEGIN_EXAMPLE
+\printbibliography
+#+END_EXAMPLE
+
 
 ** Other exports
 index:export!html index:export!ascii
@@ -864,45 +907,6 @@ This is not supported in anything but LaTeX export.
 
 \glsaddall
 \printglossaries
-
-** biblatex users
-   :PROPERTIES:
-   :ID:       212B487E-CC38-4BDF-9F0E-6993845AF49B
-   :END:
-
-In the latex header you specify the style and bibliography file using addbibresource. Here is an example:
-
-#+BEGIN_EXAMPLE
-#+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,backref=true,maxcitenames=3,url=true,backend=biber,natbib=true] {biblatex}
-#+latex_header: \addbibresource{tests/test-1.bib}
-#+END_EXAMPLE
-
-Sometimes it is necessary to tell bibtex what dialect you are using to support the different bibtex entries that are possible in biblatex. You can do it like this globally.
-
-#+BEGIN_SRC emacs-lisp
-(setq bibtex-dialect 'biblatex)
-#+END_SRC
-
-#+RESULTS:
-: biblatex
-
-Or like this in a bibtex file:
-#+BEGIN_EXAMPLE
-% -*- mode:bibtex; eval: (bibtex-set-dialect 'biblatex); -*-
-#+END_EXAMPLE
-
-Make sure you invoke biblatex in the org-latex-pdf-process. Here is one way to do it.
-
-#+BEGIN_SRC emacs-lisp :results silent
-(setq  org-latex-pdf-process
-       '("latexmk -shell-escape -bibtex -pdf %f"))
-#+END_SRC
-
-Finally, where you want the bibliography put this command:
-
-#+BEGIN_EXAMPLE
-\printbibliography
-#+END_EXAMPLE
 
 ** Prelude users
 
