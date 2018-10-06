@@ -1773,7 +1773,7 @@ https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
 ;;** cite link
 
 (defun org-ref-get-bibtex-key-under-cursor ()
-  "Return key under the bibtex cursor.
+  "Return key under the cursor in org-mode.
 We search forward from point to get a comma, or the end of the link,
 and then backwards to get a comma, or the beginning of the link. that
 delimits the keyword we clicked on. We also strip the text
@@ -2341,11 +2341,17 @@ PATH is required for the org-link, but it does nothing here."
 
 ;;* Utilities
 ;;** create text citations from a bibtex entry
+
 (defun org-ref-bib-citation ()
   "From a bibtex entry, create and return a citation string.
 If `bibtex-completion' library is loaded, return reference in APA
 format. Otherwise return a  citation string from `org-ref-get-bibtex-entry-citation'."
-  (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let* ((bibtex-expand-strings t)
+           (entry (bibtex-parse-entry t))
+           (key (reftex-get-bib-field "=key=" entry)))
+      (org-ref-format-entry key))))
 
 
 ;;** Open pdf in bibtex entry
