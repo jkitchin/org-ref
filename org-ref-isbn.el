@@ -45,10 +45,12 @@ entry. These functions are wrapped in `save-restriction' and
   :group 'org-ref-isbn
   :type 'hook)
 
+
 (defcustom org-ref-isbn-exclude-fields nil
   "List of bibtex fields to kill when new entry is inserted."
   :group 'org-ref-isbn
   :type '(repeat :tag "List of bibtex fields to kill" string))
+
 
 (defcustom org-ref-isbn-field-name-replacements nil
   "List of bitex field name/replacement pairs.
@@ -57,6 +59,7 @@ and cdr is the replacement name."
   :group 'org-ref-isbn
   :type '(repeat (cons (string :tag "Field name")
 		       (string :tag "Field name replacement"))))
+
 
 (defun oricb-replace-field-names ()
   "Replace bibtex field names defined in
@@ -73,6 +76,7 @@ and cdr is the replacement name."
 		  (insert f))))
 	    org-ref-isbn-field-name-replacements)))
 
+
 (defun oricb-kill-fields ()
   "Kill all bibtex fields defined in `org-ref-isbn-exclude-fields'."
   (when org-ref-isbn-exclude-fields
@@ -84,12 +88,14 @@ and cdr is the replacement name."
 		  (bibtex-kill-field))))
 	    org-ref-isbn-exclude-fields)))
 
+
 (defun oricb-remove-enclosing-brackets ()
   "Remove enclosing brackets from fields."
   (save-restriction
     (bibtex-narrow-to-entry)
     (while (re-search-forward "\\({\\)\\(\\[\\)\\(.+\\)\\(]\\)\\(}\\)" nil t)
       (replace-match "\\1\\3\\5"))))
+
 
 (defun oricb-clean-author-field ()
   "Remove extra information from author's field."
@@ -98,11 +104,13 @@ and cdr is the replacement name."
     (when (re-search-forward "\\({\\)\\(by \\|ed. by \\|edited by \\)" nil t)
       (replace-match "\\1"))))
 
+
 (defun oricb-remove-period ()
   "Remove period from author's field."
   (goto-char (cadr (bibtex-search-forward-field "author" t)))
   (when (re-search-forward "\\(\\.\\)\\(}\\)" nil t)
     (replace-match "\\2")))
+
 
 ;;;###autoload
 (defun org-ref-isbn-clean-bibtex-entry ()
@@ -116,6 +124,7 @@ See functions in `org-ref-isbn-clean-bibtex-entry-hook'."
 	      (funcall x))))
 	org-ref-isbn-clean-bibtex-entry-hook))
 
+
 ;; I found this on the web. It can be handy, but the bibtex entry has a lot of stuff in it.
 
 ;;;###autoload
@@ -128,6 +137,7 @@ file."
    (format
     "http://lead.to/amazon/en/?key=%s+&si=all&op=bt&bn=&so=sa&ht=us"
     isbn)))
+
 
 ;; Here we get isbn metadata and build a bibtex entry.
 ;; http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
@@ -161,46 +171,26 @@ in the file. Data comes from worldcat."
 	     ;; Convert relative path to absolute path
 	     (list (file-truename (car org-ref-default-bibliography)))))))
 
-  (let* ((results (with-current-buffer
-                      (url-retrieve-synchronously
-                       (format
-                        "http://xisbn.worldcat.org/webservices/xid/isbn/%s?method=getMetadata&format=json&fl=*"
-                        isbn))
-                    (json-read-from-string
-                     (buffer-substring url-http-end-of-headers (point-max)))))
-         (status (cdr (assoc 'stat results)))
-         (metadata)
-         (new-entry))
+  (let* ((url (format "https://www.ottobib.com/isbn/%s/bibtex" isbn))
+	 (entry))
+    (with-current-buffer (url-retrieve-synchronously url t t)
+      (goto-char (point-min))
+      (when (re-search-forward "@[a-zA-Z]+{.+\\(\n\s+[a-z\s={\.,?:;0-9-\n}]+\\)+}$" nil t)
+	(setq entry (match-string 0))))
 
-    ;; check if we got something
-    (unless (string= "ok" status)
-      (error "Status is %s" status))
-
-    (setq metadata (aref  (cdr (assoc 'list results)) 0))
-
-    ;; construct an alphabetically sorted bibtex entry. I assume ISBN numbers go
-    ;; with book entries.
-    (setq new-entry
-          (concat "\n@book{,\n"
-                  (mapconcat
-                   'identity
-                   (cl-loop for field in (-sort 'string-lessp (mapcar 'car metadata))
-                            collect
-                            (format "  %s={%s}," field (cdr (assoc field metadata))))
-                   "\n")
-                  "\n}\n"))
-
-    ;; build entry in temp buffer to get the key so we can check for duplicates
-    (setq new-entry (with-temp-buffer
-		      (insert (decode-coding-string new-entry 'utf-8))
-                      (s-trim  (buffer-string))))
-    (find-file bibfile)
-    (goto-char (point-max))
-    (insert new-entry)
-    (org-ref-isbn-clean-bibtex-entry)
-    (org-ref-clean-bibtex-entry)
-    (bibtex-fill-entry)
-    (save-buffer)))
+    (if (not entry)
+	(message "Nothing found.")
+      (find-file bibfile)
+      (goto-char (point-max))
+      (insert (with-temp-buffer
+		(insert (concat entry "\n}"))
+		(goto-char (point-min))
+		(org-ref-isbn-clean-bibtex-entry)
+		(org-ref-clean-bibtex-entry)
+		(bibtex-fill-entry)
+		(s-trim (buffer-string))
+		(buffer-string)))
+      (save-buffer))))
 
 (provide 'org-ref-isbn)
 ;;; org-ref-isbn.el ends here
