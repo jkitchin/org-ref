@@ -92,7 +92,8 @@
 (defcustom doi-utils-timestamp-format-function
   'current-time-string
   "The function to format the timestamp for a bibtex entry.
-Set to nil to avoid setting timestamps in the entries."
+Set to a function that returns nil to avoid setting timestamps in the entries.
+e.g. (lambda () nil)"
   :type 'function
   :group 'doi-utils)
 
@@ -860,9 +861,10 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
   ;; set date added for the record
-  (when doi-utils-timestamp-format-function
-    (bibtex-set-field doi-utils-timestamp-field
-		      (funcall doi-utils-timestamp-format-function)))
+  (let ((ts (funcall doi-utils-timestamp-format-function)))
+    (when ts
+      (bibtex-set-field doi-utils-timestamp-field
+			ts)))
   (org-ref-clean-bibtex-entry)
   ;; try to get pdf
   (when doi-utils-download-pdf
