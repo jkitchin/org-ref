@@ -953,18 +953,7 @@ Argument BIBFILE the bibliography to use."
             nil)))))
 
   (unless bibfile
-    (setq bibfile (completing-read
-		   "Bibfile: "
-		   (-uniq
-		    (append
-		     ;; see if we should add it to a bib-file defined in the file
-		     (org-ref-find-bibliography)
-		     ;; or any bib-files that exist in the current directory
-		     (f-entries "." (lambda (f)
-				      (and (not (string-match "#" f))
-					   (f-ext? f "bib"))))
-		     ;; and last in the default bibliography
-		     org-ref-default-bibliography)))))
+    (setq bibfile (completing-read "Bibfile: " (org-ref-possible-bibfiles))))
   ;; Wrap in save-window-excursion to restore your window arrangement after this
   ;; is done.
   (save-window-excursion
