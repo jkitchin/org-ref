@@ -165,11 +165,7 @@ in the file. Data comes from worldcat."
       ;; type or paste it in
       (t
        nil)))
-    (completing-read
-     "Bibfile: "
-     (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-	     ;; Convert relative path to absolute path
-	     (list (file-truename (car org-ref-default-bibliography)))))))
+    (completing-read "Bibfile: " (org-ref-possible-bibfiles))))
 
   (let* ((url (format "https://www.ottobib.com/isbn/%s/bibtex" isbn))
 	 (entry))
