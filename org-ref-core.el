@@ -2842,7 +2842,19 @@ file.  Makes a new buffer with clickable links."
 		        'string<))
 
     (save-restriction
-      (widen) ;; this is needed in order to kill all the whitespace until the next entry
+      ;; delete whitespace until the next entry (see issues/611)
+      (let ((beg) (end))
+	(save-restriction
+	  (widen)
+	  (bibtex-beginning-of-entry)
+	  (setq beg (point))
+	  (bibtex-end-of-entry)
+	  (setq end (when (re-search-forward bibtex-any-entry-maybe-empty-head nil t)
+		      (beginning-of-line)
+		      (point)))
+	  (narrow-to-region beg (if end end (point-max)))
+	  (delete-trailing-whitespace (point-min) (point-max))))
+
       (bibtex-kill-entry)
       (insert
        (concat "@" type "{" key ",\n"
@@ -2860,7 +2872,7 @@ file.  Makes a new buffer with clickable links."
 			               (when (string= f field)
 			                 (format "%s = %s,\n" f v))))
 	            (-uniq other-fields) "\n")
-	           "\n}\n\n"))
+	           "\n}"))
       (bibtex-find-entry key)
       (bibtex-fill-entry)
       (bibtex-clean-entry))))
