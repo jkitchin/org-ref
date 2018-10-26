@@ -717,10 +717,9 @@ checked."
     (with-current-buffer
         (url-retrieve-synchronously
          (concat "http://dx.doi.org/" doi))
-      (when (string-match "<title>Error: DOI Not Found</title>" (buffer-string))
-	(error "%s not found." doi))
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
-      (if (or (string-match "Resource not found" json-data)
+      (if (or (string-match "<title>Error: DOI Not Found</title>" json-data)
+	      (string-match "Resource not found" json-data)
               (string-match "Status *406" json-data))
           (progn
             (browse-url (concat doi-utils-dx-doi-org-url doi))
