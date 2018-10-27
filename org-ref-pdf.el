@@ -48,7 +48,7 @@ path, or you want to use another version."
   :group 'org-ref-pdf)
 
 (defcustom org-ref-pdf-doi-regex
-  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\):?\\s-?\\(?1:[^]}\n \"]*\\)"
+  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\)\\(?::\\|\\s-\\)\\(?1:[^]}\n \"]*\\)"
   "Regular expression to match DOIs in a pdf converted to text.
 The DOI should be in group 1 of the regex.
 The default pattern matches:
@@ -134,7 +134,7 @@ using the `pdf-tools' package."
 ;;   (x-focus-frame nil)
 ;;   (let* ((payload (car (last event)))
 ;;          (pdf (cadr payload))
-;; 	 (dois (org-ref-extract-doi-from-pdf pdf))) 
+;; 	 (dois (org-ref-extract-doi-from-pdf pdf)))
 ;;     (cond
 ;;      ((null dois)
 ;;       (message "No doi found in %s" pdf))
@@ -166,11 +166,11 @@ using the `pdf-tools' package."
   "Drag-n-drop protocol.
 PDF will be a string like file:path.
 ACTION is what to do. It is required for `dnd-protocol-alist'.
-This function should only apply when in a bibtex file." 
+This function should only apply when in a bibtex file."
   (if (and (buffer-file-name)
 	   (f-ext? (buffer-file-name) "bib"))
       (let* ((path (substring uri 5))
-	     dois) 
+	     dois)
 	(cond
 	 ((f-ext? path "pdf")
 	  (setq dois (org-ref-extract-doi-from-pdf
@@ -223,7 +223,7 @@ This function should only apply when in a bibtex file."
 
   (cl-loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
 	   do
-	   (goto-char (point-max)) 
+	   (goto-char (point-max))
 	   (let ((dois (org-ref-extract-doi-from-pdf pdf)))
 	     (cond
 	      ((null dois)
@@ -232,10 +232,10 @@ This function should only apply when in a bibtex file."
 	       (doi-utils-add-bibtex-entry-from-doi
 		(car dois)
 		(buffer-file-name))
-	       (bibtex-beginning-of-entry) 
+	       (bibtex-beginning-of-entry)
 	       (insert (format "%% [[file:%s]]\n" pdf)))
 	      ;; Multiple DOIs found
-	      (t 
+	      (t
 	       (insert (format "%% Multiple dois found in %s\n" pdf))
 	       (helm :sources `((name . "Select a DOI")
 				(candidates . ,(org-ref-pdf-doi-candidates dois))
