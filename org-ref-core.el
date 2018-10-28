@@ -3071,7 +3071,7 @@ If not, issue a warning."
 	;; 3. add one line between entries
 	(goto-char end)
 	(forward-line -1)
-	(when (looking-at "^@Comment.+\\|^%.+\\|^}$")
+	(when (looking-at "[}][ \t]*\\|@Comment.+\\|%.+")
 	  (end-of-line)
 	  (newline))))))
 
