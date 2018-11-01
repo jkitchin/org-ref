@@ -451,7 +451,8 @@ http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
     orcb-clean-doi
     orcb-clean-pages
     orcb-check-journal
-    org-ref-sort-bibtex-entry)
+    org-ref-sort-bibtex-entry
+    orcb-fix-spacing)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
 The functions should have no arguments, and
 operate on the bibtex entry at point. You can assume point starts
@@ -2842,7 +2843,6 @@ file.  Makes a new buffer with clickable links."
 		        'string<))
 
     (save-restriction
-      (widen) ;; this is needed in order to kill all the whitespace until the next entry
       (bibtex-kill-entry)
       (insert
        (concat "@" type "{" key ",\n"
@@ -2860,7 +2860,7 @@ file.  Makes a new buffer with clickable links."
 			               (when (string= f field)
 			                 (format "%s = %s,\n" f v))))
 	            (-uniq other-fields) "\n")
-	           "\n}\n\n"))
+	           "\n}"))
       (bibtex-find-entry key)
       (bibtex-fill-entry)
       (bibtex-clean-entry))))
@@ -3046,6 +3046,34 @@ If not, issue a warning."
           (error "Unable to get journal for this entry."))
         (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))
           (message "Journal \"%s\" not found in org-ref-bibtex-journal-abbreviations." journal))))))
+
+
+(defun orcb-fix-spacing ()
+  "Delete whitespace and fix spacing between entries."
+  (let (beg end)
+    (save-excursion
+      (save-restriction
+    	(widen)
+	(bibtex-beginning-of-entry)
+	(setq beg (point))
+	(bibtex-end-of-entry)
+	(setq end (if (re-search-forward bibtex-any-entry-maybe-empty-head nil t)
+		      (progn (beginning-of-line)
+			     (point))
+		    (point-max)))
+	;; 1. delete whitespace
+	(narrow-to-region beg end)
+	(delete-trailing-whitespace)
+	;; 2. delete consecutive empty lines
+	(goto-char end)
+	(while (re-search-backward "\n\n\n+" nil 'move)
+	  (replace-match "\n\n"))
+	;; 3. add one line between entries
+	(goto-char end)
+	(forward-line -1)
+	(when (looking-at "[}][ \t]*\\|@Comment.+\\|%.+")
+	  (end-of-line)
+	  (newline))))))
 
 
 ;;;###autoload
