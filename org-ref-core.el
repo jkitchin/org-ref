@@ -1121,6 +1121,29 @@ font-lock-warning-face if any file does not exist."
              (t
               ""))))
 
+(defun org-bibliographystyle-complete-link (&optional arg)
+  "Completion function for bibliography style links."
+  (when (executable-find "kpsewhich")
+    (concat "bibliographystyle:"
+	    (completing-read "Style: " (mapcar 'file-name-nondirectory
+					       (mapcar 'file-name-sans-extension
+						       (-flatten
+							(mapcar (lambda (path)
+								  (setq path (replace-regexp-in-string "!" "" path))
+								  (when (file-directory-p path)
+								    (f-entries path (lambda (f) (f-ext? f "bst")) t)))
+								(split-string
+								 ;; https://tex.stackexchange.com/questions/431948/get-a-list-of-installed-bibliography-styles-with-kpsewhich?noredirect=1#comment1082436_431948
+								 (shell-command-to-string "kpsewhich -expand-path '$BSTINPUTS'")
+								 ":")))))))))
+
+
+(defun org-ref-insert-bibliographystyle-link ()
+  "Insert a bibliographystyle link with completion."
+  (interactive)
+  (insert (org-bibliographystyle-complete-link)))
+
+
 ;;;###autoload
 (defun org-ref-insert-bibliography-link ()
   "Insert a bibliography with completion."
