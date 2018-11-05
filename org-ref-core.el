@@ -1010,11 +1010,12 @@ prompted for a file.
 
 ARG does nothing. I think it is a required signature."
   (let* ((keys (reverse (org-ref-get-bibtex-keys)))
-	 (possible-files (append org-ref-default-bibliography
-				 (f-entries "." (lambda (f) (f-ext? f "bib")))))
+	 (possible-files (org-ref-possible-bibfiles))
 	 (found '()))
 
-    ;; remove bib links
+    ;; remove bib links, we will be replacing them. It is debatable if this is a
+    ;; good idea. I could easily be persuaded not to do this, but it is also not
+    ;; a great idea to have multiple bibliography links.
     (org-element-map (org-element-parse-buffer)
 	'link (lambda (link)
 		(when (string= "bibliography"
@@ -1023,20 +1024,23 @@ ARG does nothing. I think it is a required signature."
 					  (org-element-property :end link))
 			""))))
 
-    ;; Get bibfiles
-    (setq found (-uniq (cl-loop for key in keys
-			        collect
-			        (catch 'result
-			          (cl-loop for file in possible-files do
-					   (if (org-ref-key-in-file-p
-					        key
-					        (file-truename file))
-					       (throw 'result
-						      (file-relative-name file))))))))
-
-    (format "bibliography:%s"
-	    (or (mapconcat #'identity found ",")
-		(read-file-name "enter file: " nil nil nil)))))
+    ;; Get bibfiles containing keys
+    (setq found
+	  (mapconcat #'identity
+		     (-uniq (cl-loop for key in keys
+				     collect
+				     (catch 'result
+				       (cl-loop for file in possible-files do
+						(if (org-ref-key-in-file-p
+						     key
+						     (file-truename file))
+						    (throw 'result
+							   (file-relative-name file)))))))
+		     ","))
+    (concat "bibliography:"
+	    (if (string= found "")
+		(completing-read "Bibfile: " possible-files)
+	      found))))
 
 
 (defun org-ref-bibliography-face-fn (path)
@@ -1862,8 +1866,7 @@ properties."
 (defun org-ref-find-bibliography ()
   "Find the bibliography in the buffer.
 This function sets and returns cite-bibliography-files, which is
-a list of files either from bibliography:f1.bib,f2.bib
-\\bibliography{f1,f2}, internal bibliographies, from files in the
+a list of files either from }, internal bibliographies, from files in the
 BIBINPUTS env var, and finally falling back to what the user has
 set in `org-ref-default-bibliography'"
   (catch 'result
