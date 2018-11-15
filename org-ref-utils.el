@@ -363,12 +363,18 @@ Format according to the type in `org-ref-bibliography-entry-format'."
 ;;*** key at point functions
 (defun org-ref-get-pdf-filename (key)
   "Return the pdf filename associated with a bibtex KEY.
-If `org-ref-pdf-directory' is non-nil, put filename there."
+This searches for the pattern KEY*.pdf. If one result is found it
+is returned, but if multiple results are found, e.g. there are
+related files to the KEY you are prompted for which one you want.
+If `org-ref-pdf-directory' is non-nil, it is prepended on the pdf
+filename."
   (if org-ref-pdf-directory
-      (let ((pdf (-first 'f-file?
-			 (--map (f-join it (concat key ".pdf"))
-				(-flatten (list org-ref-pdf-directory))))))
-	(format "%s" pdf))
+      (let ((pdfs (-flatten (--map (file-expand-wildcards
+				    (f-join it (format "%s*.pdf" key)))
+				   (-flatten (list org-ref-pdf-directory))))))
+	(if (= 1 (length pdfs))
+	    (car pdfs)
+	  (completing-read "Choose: " pdfs)))
     (format "%s.pdf" key)))
 
 
