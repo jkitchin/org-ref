@@ -372,10 +372,13 @@ filename."
       (let ((pdfs (-flatten (--map (file-expand-wildcards
 				    (f-join it (format "%s*.pdf" key)))
 				   (-flatten (list org-ref-pdf-directory))))))
-	(if (= 1 (length pdfs))
-	    (car pdfs)
-	  (completing-read "Choose: " pdfs)))
-    (format "%s.pdf" key)))
+	(cond
+	 ((= 0 (length pdfs))
+	  (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
+	 ((= 1 (length pdfs))
+	  (car pdfs))
+	 ((> 1 (length pdfs))
+	  (completing-read "Choose: " pdfs))))))
 
 
 (defun org-ref-get-mendeley-filename (key)
