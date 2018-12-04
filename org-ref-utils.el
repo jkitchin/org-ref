@@ -372,11 +372,13 @@ related files to the KEY you are prompted for which one you want."
 				   (-flatten (list org-ref-pdf-directory))))))
 	(cond
 	 ((= 0 (length pdfs))
-	  (format "%s.pdf" key))
+	  (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
 	 ((= 1 (length pdfs))
 	  (car pdfs))
 	 ((> 1 (length pdfs))
-	  (completing-read "Choose: " pdfs))))))
+	  (completing-read "Choose: " pdfs))))
+    ;; No org-ref-pdf-directory defined so return just a file name.
+    (format "%s.pdf" key)))
 
 
 (defun org-ref-get-mendeley-filename (key)
