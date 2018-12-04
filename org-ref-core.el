@@ -209,6 +209,7 @@ function in `org-ref-completion-library'."
 
 (defcustom org-ref-cite-keymap
   (let ((map (copy-keymap org-mouse-map)))
+    (define-key map (kbd "H-o") 'org-ref-cite-hydra/body)
     (define-key map (kbd "H-b") 'org-ref-open-citation-at-point)
     (define-key map (kbd "H-u") 'org-ref-open-url-at-point)
     (define-key map (kbd "H-p") 'org-ref-open-pdf-at-point)
