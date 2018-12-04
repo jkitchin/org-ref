@@ -365,16 +365,14 @@ Format according to the type in `org-ref-bibliography-entry-format'."
   "Return the pdf filename associated with a bibtex KEY.
 This searches for the pattern KEY*.pdf. If one result is found it
 is returned, but if multiple results are found, e.g. there are
-related files to the KEY you are prompted for which one you want.
-If `org-ref-pdf-directory' is non-nil, it is prepended on the pdf
-filename."
+related files to the KEY you are prompted for which one you want."
   (if org-ref-pdf-directory
       (let ((pdfs (-flatten (--map (file-expand-wildcards
 				    (f-join it (format "%s*.pdf" key)))
 				   (-flatten (list org-ref-pdf-directory))))))
 	(cond
 	 ((= 0 (length pdfs))
-	  (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
+	  (format "%s.pdf" key))
 	 ((= 1 (length pdfs))
 	  (car pdfs))
 	 ((> 1 (length pdfs))
