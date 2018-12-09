@@ -475,6 +475,12 @@ have fields sorted alphabetically."
   :group 'org-ref)
 
 
+(defcustom org-ref-printbibliography-cmd "\\printbibliography"
+  "LaTeX command to print bibliography.  Customize this to add options."
+  :type 'string
+  :group 'org-ref)
+
+
 (defvar org-ref-bibliography-files
   nil
   "Variable to hold bibliography files to be searched.")
@@ -1094,7 +1100,7 @@ font-lock-warning-face if any file does not exist."
              ((eq format 'html) (org-ref-get-html-bibliography))
              ((eq format 'latex)
               ;; write out the biblatex bibliography command
-              "\\printbibliography"))))
+              org-ref-printbibliography-cmd))))
 
 
 (org-ref-link-set-parameters "bibliographystyle"
