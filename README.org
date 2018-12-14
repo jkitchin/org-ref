@@ -140,7 +140,7 @@ Note many of these have been renamed with an org-ref prefix.
 
 * Manual
 
-For more information, see the [[https://github.com/jkitchin/org-ref/blob/master/org-ref.org][org-ref manual]].
+For more information, see the [[https://github.com/jkitchin/org-ref/blob/master/org-ref.org][org-ref manual]], or preferably use ~M-x org-ref-help~ in emacs.
 
 * Errors and issues
 
