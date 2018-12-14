@@ -255,5 +255,38 @@ You must clean the entry after insertion."
                ((eq format 'latex)
                 (format "\\href{%s}{%s}" url (or desc (concat "pubmed-search:" query))))))))
 
+;; ** Pubmed clinical
+;; These functions were suggested by Colin Melville <casm40@gmail.com>.
+;;;###autoload
+(defun pubmed-clinical ()
+  "Open http://www.ncbi.nlm.nih.gov/pubmed/clinical in a browser."
+  (interactive)
+  (browse-url "http://www.ncbi.nlm.nih.gov/pubmed/clinical"))
+
+
+;;;###autoload
+(defun pubmed-clinical-search (query)
+  "Open QUERY in pubmed-clinical."
+  (interactive "sQuery: ")
+  (browse-url
+   (format "https://www.ncbi.nlm.nih.gov/pubmed/clinical?term=%s" (url-hexify-string query))))
+
+
+(org-ref-link-set-parameters "pubmed-clinical"
+  :follow (lambda (query)
+            "Open QUERY in a `pubmed-clinical-search'."
+            (pubmed-clinical-search query))
+  :export (lambda (query desc format)
+            (let ((url (format "http://www.ncbi.nlm.nih.gov/pubmed/clinical?term=%s"
+			       (url-hexify-string query))))
+              (cond
+               ((eq format 'html)
+                (format "<a href=\"%s\">%s</a>" url
+			(or desc (concat "pubmed-clinical-search:" query))))
+               ((eq format 'latex)
+                (format "\\href{%s}{%s}" url
+			(or desc (concat "pubmed-clinical-search:" query))))))))
+
+
 (provide 'org-ref-pubmed)
 ;;; org-ref-pubmed.el ends here
