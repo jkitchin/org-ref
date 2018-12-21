@@ -113,10 +113,8 @@ ENTRY is selected from `orhc-bibtex-candidates'."
   "Open the notes associated with ENTRY.
 ENTRY is selected from `orhc-bibtex-candidates'."
   (with-ivy-window
-    (find-file (expand-file-name
-		(format "%s.org"
-			(cdr (assoc "=key=" entry)))
-		org-ref-notes-directory))))
+    (org-ref-open-notes-at-point
+     (cdr (assoc "=key=" entry)))))
 
 
 (defun or-ivy-bibtex-open-entry (entry)
