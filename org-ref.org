@@ -952,11 +952,11 @@ You may want to build a pdf of this file. Here is an emacs-lisp block that will 
  #+BEGIN_SRC emacs-lisp
 (let ((org-export-with-broken-links t)
       (org-latex-pdf-process
-       '("pdflatex -interaction nonstopmode -output-directory %o %f"
+       '("pdflatex -interaction nonstopmode -shell-escape -output-directory %o %f"
 	 "bibtex %b"
 	 "makeindex %b"
-	 "pdflatex -interaction nonstopmode -output-directory %o %f"
-	 "pdflatex -interaction nonstopmode -output-directory %o %f")))
+	 "pdflatex -interaction nonstopmode -shell-escape -output-directory %o %f"
+	 "pdflatex -interaction nonstopmode -shell-escape -output-directory %o %f")))
   (org-open-file (org-latex-export-to-pdf)))
  #+END_SRC
 
