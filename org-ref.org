@@ -965,8 +965,12 @@ You may want to build a pdf of this file. Here is an emacs-lisp block that will 
 You may want to build an html version of this file. Here is an emacs-lisp block that will create and open the html in your browser. You will see the bibliography is not perfect, but it is pretty functional.
 
  #+BEGIN_SRC emacs-lisp
-(browse-url (org-html-export-to-html))
+(let ((org-export-with-broken-links t))
+  (browse-url (org-html-export-to-html)))
  #+END_SRC
+
+ #+RESULTS:
+ : #<process open org-ref.html>
 
 * Index
 
