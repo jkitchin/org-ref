@@ -344,7 +344,7 @@ Or like this in a bibtex file:
 
 Make sure you invoke biblatex in the org-latex-pdf-process. Here is one way to do it.
 
-#+BEGIN_SRC emacs-lisp :results silent
+#+BEGIN_SRC emacs-lisp
 (setq  org-latex-pdf-process
        '("latexmk -shell-escape -bibtex -pdf %f"))
 #+END_SRC
@@ -434,9 +434,6 @@ Occasionally weird things happen with a DOI. The first thing you should check is
 #+BEGIN_SRC sh
 curl -LH "Accept: application/citeproc+json" "http://doi.org/10.1021/jp511426q"
 #+END_SRC
-
-#+RESULTS:
-| indexed":{"date-parts | 12 | 19]] | 2015-12-19T19:18:29Z | timestamp:1450552709286} | reference-count:52 | American Chemical Society (ACS) | 9 | award":["DE-SC0004031 | publisher | Basic Energy Sciences | 10.13039\/100006151 | award":["DMR 0843934 | publisher | Division of Materials Research | 10.13039\/100000078 | date-parts | 3 | 5]]} | 10.1021\/jp511426q | journal-article | date-parts | 2 | 10]] | 2015-02-10T03:10:55Z | timestamp:1423537855000} | 4827-4833 | CrossRef | A Linear Response DFT+ U Study of Trends in the Oxygen Evolution Activity of Transition Metal Rutile Dioxides | [[http:\/\/id.crossref.org\/prefix\/10.1021]] | 119 | affiliation | Xu | Zhongnan | affiliation | Rossmeisl | Jan | affiliation | Kitchin | John R. | [[http:\/\/id.crossref.org\/member\/316]] | J. Phys. Chem. C | intended-application":"unspecified | vor | application\/pdf | [[http:\/\/pubs.acs.org\/doi\/pdf\/10.1021\/jp511426q]] | date-parts | 3 | 5]] | 2015-03-05T10:30:59Z | timestamp:1425551459000} | score:1.0 | subtitle:[] | date-parts | 3 | 5]]} | 10.1021\/jp511426q | [[http:\/\/dx.doi.org\/10.1021\/jp511426q]] | 1932-7447 | 1932-7455] | Energy(all) | Physical and Theoretical Chemistry | Electronic, Optical and Magnetic Materials | Surfaces, Coatings and Films]} |
 
 If you do not get json data, doi-utils will not be able to generate the bibtex entry.
 
@@ -739,7 +736,7 @@ To use one of these, add a line like this before you "require" org-ref.
 
 There are a few different ways in which PDFs can be opened from org-ref. By default, org-ref uses the function ~org-ref-open-pdf-at-point~, which looks for the corresponding file in the directory specified in ~org-ref-library-path~. If the file was found, it opens it externally with ~org-open-file~. To open the PDF from within Emacs, using doc-view or pdf-tools, you will need to modify the function slightly and assign it to the variable ~org-ref-open-pdf-function~, as in the example below.
 
-#+begin_src emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (defun my/org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
@@ -751,7 +748,7 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
       (message "No PDF found for %s" key))))
 
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
-#+end_src
+#+END_SRC
 
 An alternative approach adapted from https://github.com/jkitchin/org-ref/issues/184 to use pdfview is described here. First, unstall org-pdfview (on MELPA).
 
@@ -774,7 +771,7 @@ Add this to your init file:
 
 If ~bibtex-completion-pdf-field~ is defined, the function below should work with JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
 
-#+begin_src emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (defun my/org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
@@ -786,7 +783,7 @@ If ~bibtex-completion-pdf-field~ is defined, the function below should work with
       (message "No PDF found for %s" key))))
 
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
-#+end_src
+#+END_SRC
 
 Mendeley users should set to:
 
