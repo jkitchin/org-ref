@@ -314,7 +314,7 @@ I have also had success with this setup:
 #+END_SRC
 
 *** BibTeX users
-In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]]. ~org-ref~ has a customization variable for setting the default bibliography, ~org-ref-default-bibliography~, but this is *not used in LaTeX export*; you have to set it explicitly in your file. You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you. 
+In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]]. ~org-ref~ has a customization variable for setting the default bibliography, ~org-ref-default-bibliography~, but this is *not used in LaTeX export*; you have to set it explicitly in your file. You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
 
 *** biblatex users
    :PROPERTIES:
@@ -794,7 +794,6 @@ Mendeley users should set to:
 (setq org-ref-open-pdf-function 'org-ref-get-mendeley-filename)
 #+END_SRC
 
-
 ** Setting up notes to work with multiple notes.org files
 
 Adapted from https://github.com/jkitchin/org-ref/issues/443. This setup lets helm-bibtex find the note file for an entry.
@@ -951,7 +950,8 @@ Before building this file you need to require the following libraries so the lin
 You may want to build a pdf of this file. Here is an emacs-lisp block that will create and open the PDF.
 
  #+BEGIN_SRC emacs-lisp
-(let ((org-latex-pdf-process
+(let ((org-export-with-broken-links t)
+      (org-latex-pdf-process
        '("pdflatex -interaction nonstopmode -output-directory %o %f"
 	 "bibtex %b"
 	 "makeindex %b"
