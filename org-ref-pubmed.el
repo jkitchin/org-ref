@@ -139,7 +139,7 @@
  number = {" issue "},
  year = {" (car (split-string year)) "},
  pages = {" pages "},
- doi = {" (replace-regexp-in-string " \\[doi\\]" "" aid) "},
+ doi = {" (replace-regexp-in-string " \\[doi\\]" "" (or aid "")) "},
 }"))
      (t
       (message "No conversion for type: %s" type)))))
