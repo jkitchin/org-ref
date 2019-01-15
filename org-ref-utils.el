@@ -375,7 +375,7 @@ related files to the KEY you are prompted for which one you want."
 	  (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
 	 ((= 1 (length pdfs))
 	  (car pdfs))
-	 ((> 1 (length pdfs))
+	 ((> (length pdfs) 1)
 	  (completing-read "Choose: " pdfs))))
     ;; No org-ref-pdf-directory defined so return just a file name.
     (format "%s.pdf" key)))
