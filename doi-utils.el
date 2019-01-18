@@ -867,6 +867,8 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
       (bibtex-set-field doi-utils-timestamp-field
 			ts)))
   (org-ref-clean-bibtex-entry)
+  (save-buffer)
+
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
