@@ -273,6 +273,12 @@ Argument REDIRECT-URL URL you are redirected to."
   (when (string-match "^http://pubs.acs.org/doi/" *doi-utils-redirect*)
     (replace-regexp-in-string "/doi/" "/doi/pdf/" *doi-utils-redirect*)))
 
+;; 1/18/2019: It looks like they are using https now
+(defun acs-pdf-url-3 (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^https://pubs.acs.org/doi/" *doi-utils-redirect*)
+    (replace-regexp-in-string "/doi/" "/doi/pdf/" *doi-utils-redirect*)))
+
 
 ;;** IOP
 
@@ -604,6 +610,7 @@ It would be better to parse this, but here I just use a regexp.
        'springer-pdf-url
        'acs-pdf-url-1
        'acs-pdf-url-2
+       'acs-pdf-url-3
        'iop-pdf-url
        'jstor-pdf-url
        'aip-pdf-url
@@ -663,16 +670,14 @@ checked."
   (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
-    (let (;; get doi, removing http://dx.doi.org/ if it is there.
+    (let ( ;; get doi, removing http://dx.doi.org/ if it is there.
           (doi (replace-regexp-in-string
                 "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
-          (key)
+          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
           (pdf-url)
           (pdf-file))
-      ;; get the key and build pdf filename.
-      (re-search-forward bibtex-entry-maybe-empty-head)
-      (setq key (match-string bibtex-key-in-head))
+
       (setq pdf-file (concat
 		      (if org-ref-pdf-directory
 			  (file-name-as-directory org-ref-pdf-directory)
@@ -696,7 +701,9 @@ checked."
 		     pdf-file))
 	 ((equal arg '(16))
 	  (with-current-buffer (read-buffer-to-switch "Pdf buffer: ")
-	    (write-file pdf-file))))
+	    (write-file pdf-file)))
+	 (t
+	  (message "We don't have a recipe for this journal.")))
 	(when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
 	  (org-open-file pdf-file))))))
 
