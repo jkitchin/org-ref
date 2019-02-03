@@ -371,38 +371,39 @@ Fields include author, title, url, urldate, and year."
 
 
 ;;;###autoload
-(defun org-ref-url-html-to-bibtex (bibfile)
+(defun org-ref-url-html-to-bibtex (bibfile &optional url)
   "Convert URL to a bibtex or biblatex entry in BIBFILE.
 If URL is the first in the kill ring, use it. Otherwise, prompt for
 one in the minibuffer."
   (interactive (if (-contains? (org-ref-find-bibliography) (buffer-file-name))
 		   (list (buffer-file-name))
 		 (list (completing-read "Bibtex file: " (org-ref-find-bibliography)))))
-  (let* ((url (if (s-match "^http" (current-kill 0 'do-not-move))
-		  (format "%s" (current-kill 0 'do-not-move))
-		(read-from-minibuffer "URL: ")))
-	 ;; Maybe check dialect if set as local variable
-	 (dialect bibtex-dialect)
-	 (alist (org-ref-url-html-read url)))
+  (let ((url (if url url
+	       (if (s-match "^http" (current-kill 0 'do-not-move))
+		   (format "%s" (current-kill 0 'do-not-move))
+		 (read-from-minibuffer "URL: ")))))
     (with-current-buffer
 	(find-file-noselect bibfile)
-      (goto-char (point-max))
-      ;; Place new entry one line after the last entry.
-      (while (not (looking-back "^}\n"))
-	(delete-backward-char 1))
-      (insert "\n")
-      (let ((entry (s-format
-		    ;; Check dialect and format entry accordingly
-		    (if (eq dialect 'biblatex)
-			org-ref-url-biblatex-template
-		      org-ref-url-bibtex-template)
-		    'aget alist)))
+      ;; Maybe check dialect if set as local variable
+      (let* ((dialect bibtex-dialect)
+	     (alist (org-ref-url-html-read url))
+	     (entry (s-format
+		     ;; Check dialect and format entry accordingly
+		     (if (eq dialect 'biblatex)
+			 org-ref-url-biblatex-template
+		       org-ref-url-bibtex-template)
+		     'aget alist)))
+	(goto-char (point-max))
+	;; Place new entry one line after the last entry.
+	(while (not (looking-back "^}\n"))
+	  (delete-backward-char 1))
+	(insert "\n")
 	(insert (if (featurep 'org-cliplink)
 		    ;; Sanitize values by replacing html entities
 		    (org-ref-url-html-replace entry)
-		  entry))))
-    (bibtex-beginning-of-entry)
-    (org-ref-clean-bibtex-entry)))
+		  entry))
+	(bibtex-beginning-of-entry)
+	(org-ref-clean-bibtex-entry)))))
 
 (provide 'org-ref-url-utils)
 ;;; org-ref-url-utils.el ends here
