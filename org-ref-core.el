@@ -2200,10 +2200,28 @@ creates a cite link."
 (add-to-list 'warning-suppress-types '(:warning))
 
 
+(defvar org-ref-buffer-hacked nil
+  "If non-nil this buffer has already been hacked and we don't need to do it again.
+I use this so we only hack the variables once. This was added
+because when you have local file/directory variables, it seems
+like they don't get defined when font-lock is occurring, and it
+results in warnings from `bibtex-completion' because it cannot
+find the keys in the bibliographies. Doing this hack and the one
+in `org-ref-cite-link-face-fn' makes the warnings go away. It
+seems hacky, but the functions that fix it start with hack
+so...")
+
+(make-variable-buffer-local 'org-ref-buffer-hacked)
+
 (defun org-ref-cite-link-face-fn (keys)
   "Return a face for a cite link.
 KEYS may be a comma-separated list of keys.
 This is not smart enough yet to only highlight the bad key. If any key is bad, the whole cite will be red."
+  (unless org-ref-buffer-hacked
+    (hack-dir-local-variables)
+    (hack-local-variables-apply)
+    (setq org-ref-buffer-hacked t))
+
   (save-match-data
     (cond
      ((or (not org-ref-show-broken-links)
