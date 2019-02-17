@@ -1976,13 +1976,13 @@ set in `org-ref-default-bibliography'"
   "Make a unique list of possible bibliography files for completing-read"
   (-uniq
    (append
-	;; see if we should add it to a bib-file defined in the file
-	(org-ref-find-bibliography)
-	;; or any bib-files that exist in the current directory
-	(f-entries "." (lambda (f)
-				     (and (not (string-match "#" f))
-					      (f-ext? f "bib"))))
-	;; and last in the default bibliography
+    ;; see if we should add it to a bib-file defined in the file
+    (org-ref-find-bibliography)
+    ;; or any bib-files that exist in the current directory
+    (f-entries "." (lambda (f)
+		     (and (not (string-match "#" f))
+			  (f-ext? f "bib"))))
+    ;; and last in the default bibliography
     org-ref-default-bibliography)))
 
 
