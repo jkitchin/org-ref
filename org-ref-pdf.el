@@ -48,7 +48,7 @@ path, or you want to use another version."
   :group 'org-ref-pdf)
 
 (defcustom org-ref-pdf-doi-regex
-  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\)\\(?::\\|\\s-\\)\\(?1:[^]}\n \"]*\\)"
+  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\)\\(?::?\\s-?\\)\\(?1:[^]}\n \"]*\\)"
   "Regular expression to match DOIs in a pdf converted to text.
 The DOI should be in group 1 of the regex.
 The default pattern matches:
@@ -110,7 +110,7 @@ Used when multiple dois are found in a pdf file."
 `org-ref-default-bibliography'. The pdf should be open in Emacs
 using the `pdf-tools' package."
   (interactive)
-  (when (not (f-ext? (buffer-file-name) "pdf"))
+  (when (not (f-ext? (downcase (buffer-file-name)) "pdf"))
     (error "Buffer is not a pdf file"))
   ;; Get doi from pdf of current buffer
   (let* ((dois (org-ref-extract-doi-from-pdf (buffer-file-name)))
