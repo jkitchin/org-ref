@@ -2449,14 +2449,13 @@ long file with headlines for each entry."
         (car results))
        (bibfile
         (cdr results)))
-    (save-excursion
-      (with-temp-buffer
-        (insert-file-contents bibfile)
-        (bibtex-set-dialect
-         (parsebib-find-bibtex-dialect)
-         t)
-        (bibtex-search-entry key)
-        (org-ref-open-bibtex-notes)))))
+    (with-temp-buffer
+      (insert-file-contents bibfile)
+      (bibtex-set-dialect
+       (parsebib-find-bibtex-dialect)
+       t)
+      (bibtex-search-entry key)
+      (org-ref-open-bibtex-notes))))
 
 (defun org-ref-notes-function-many-files (thekey)
   "Function to open note belonging to THEKEY.
