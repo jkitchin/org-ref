@@ -356,7 +356,7 @@ at the end of you file.
 			    (org-element-property :path el))))))
 	    (cl-loop for (label . p) in matches
 		     do
-		     (when (not (-contains? refs label))
+		     (when (and label (not (-contains? refs label)))
 		       (cl-pushnew
 		        (cons label (set-marker (make-marker) p))
 		        unreferenced-labels)))))))
