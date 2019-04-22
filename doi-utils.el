@@ -54,7 +54,11 @@
 (require 'dash)
 (require 'json)
 (require 'org)                          ; org-add-link-type
-(require 'org-bibtex)                   ; org-bibtex-yank
+
+(if (featurep 'ol-bibtex)
+    (require 'ol-bibtex)
+  (require 'org-bibtex))                   ; org-bibtex-yank
+
 (require 'url-http)
 (require 'org-ref-utils)
 
