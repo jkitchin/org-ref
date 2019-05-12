@@ -765,7 +765,7 @@ checked."
       (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
                              (plist-get results :author) " and "))
       (title      (plist-get results :title))
-      (subtitle   (plist-get results :subtitle))
+      (subtitle   (mapconcat 'identity (plist-get results :subtitle) " "))
       (journal    (plist-get results :container-title))
       (series     (plist-get results :container-title))
       (publisher  (plist-get results :publisher))
