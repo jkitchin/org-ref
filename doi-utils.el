@@ -821,8 +821,9 @@ MATCHING-TYPES."
                              (let ((field-expr
                                     (assoc field doi-utils-json-metadata-extract)))
                                (if field-expr
-                                   ;; need to convert to string first
-                                   `(,(car field-expr) (format "%s" ,(cadr field-expr)))
+                                   ;; Convert non-nil values to string
+                                   `(,(car field-expr) (if ,(cadr field-expr)
+                                                           (format "%s" ,(cadr field-expr))))
                                  (error "Unknown bibtex field type %s" field))))
                            fields)
                (concat
