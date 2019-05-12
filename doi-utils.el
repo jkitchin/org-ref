@@ -775,10 +775,10 @@ checked."
       (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
       ;; Some dates don't have a month in them.
       (month      (let ((date (elt
-			       (plist-get (plist-get results :issued) :date-parts) 0)))
-		    (if (>= (length date) 2)
-			(elt date 1)
-		      "-")))
+                               (plist-get (plist-get results :issued) :date-parts) 0)))
+                    (if (>= (length date) 2)
+                        (elt date 1)
+                      nil)))
       (pages      (or (plist-get results :page)
 		      (plist-get results :article-number)))
       (doi        (plist-get results :DOI))
