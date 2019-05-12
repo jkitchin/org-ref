@@ -839,16 +839,16 @@ MATCHING-TYPES."
          doi-utils-bibtex-type-generators))
 
 (doi-utils-def-bibtex-type article ("journal-article" "article-journal")
-                           author title journal year volume number pages doi url)
+                           author title subtitle journal year volume number pages doi url)
 
 (doi-utils-def-bibtex-type inproceedings ("proceedings-article" "paper-conference")
-                           author title booktitle year month pages doi url)
+                           author title subtitle booktitle year month pages doi url)
 
 (doi-utils-def-bibtex-type book ("book")
-                           author title series publisher year pages doi url)
+                           author title subtitle series publisher year pages doi url)
 
 (doi-utils-def-bibtex-type inbook ("chapter" "book-chapter" "reference-entry")
-                           author title booktitle series publisher year pages doi url)
+                           author title subtitle booktitle series publisher year pages doi url)
 
 
 
