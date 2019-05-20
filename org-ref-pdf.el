@@ -48,12 +48,8 @@ path, or you want to use another version."
   :group 'org-ref-pdf)
 
 (defcustom org-ref-pdf-doi-regex
-  "dx.doi.org/\\(?1:[^]\n} \"]*\\)\\|\\(?:doi\\|DOI\\)\\(?::?\\s-?\\)\\(?1:[^]}\n \"]*\\)"
-  "Regular expression to match DOIs in a pdf converted to text.
-The DOI should be in group 1 of the regex.
-The default pattern matches:
-1. http://dx.do.org/doi
-2. doi: doi, where the colon is optional"
+  "10\\.[0-9]\\{4,9\\}/[-+._;()/:A-Z0-9]+"
+  "Regular expression to match DOIs in a pdf converted to text."
   :type 'regexp
   :group 'org-ref-pdf)
 
@@ -77,7 +73,7 @@ strings, or nil.
       (while (re-search-forward org-ref-pdf-doi-regex nil t)
 	;; I don't know how to avoid a trailing . on some dois with the
 	;; expression above, so if it is there, I chomp it off here.
-	(let ((doi (match-string 1)))
+	(let ((doi (match-string 0)))
 	  (when (s-ends-with? "." doi)
 	    (setq doi (substring doi 0 (- (length doi) 1))))
 	  (cl-pushnew doi matches :test #'equal)))
