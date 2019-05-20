@@ -48,7 +48,7 @@ path, or you want to use another version."
   :group 'org-ref-pdf)
 
 (defcustom org-ref-pdf-doi-regex
-  "10\\.[0-9]\\{4,9\\}/[-._;()/:A-Z0-9]+"
+  "10\\.[0-9]\\{4,9\\}/[-+._;()/:A-Z0-9]+"
   "Regular expression to match DOIs in a pdf converted to text."
   :type 'regexp
   :group 'org-ref-pdf)
