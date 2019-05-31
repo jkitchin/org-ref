@@ -1023,7 +1023,7 @@ ARG does nothing. I think it is a required signature."
     ;; remove bib links, we will be replacing them. It is debatable if this is a
     ;; good idea. I could easily be persuaded not to do this, but it is also not
     ;; a great idea to have multiple bibliography links.
-    (org-element-map (org-element-parse-buffer)
+    (org-element-map (org-ref-parse-buffer)
 	'link (lambda (link)
 		(when (string= "bibliography"
 			       (org-element-property :type link))
@@ -1247,7 +1247,7 @@ Ignore figures in COMMENTED sections."
     (let* ((c-b (buffer-name))
 	   (counter 0)
 	   (list-of-figures
-	    (org-element-map (org-element-parse-buffer) 'link
+	    (org-element-map (org-ref-parse-buffer) 'link
 	      (lambda (link)
 		"create a link for to the figure"
 		(when
@@ -1312,7 +1312,7 @@ ARG does nothing."
     (let* ((c-b (buffer-name))
            (counter 0)
            (list-of-tables
-            (org-element-map (org-element-parse-buffer 'element) 'table
+            (org-element-map (org-ref-parse-buffer 'element) 'table
               (lambda (table)
                 "create a link for to the table"
 		(save-excursion
@@ -1619,7 +1619,7 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-get-tblnames ()
   "Return list of table names in the buffer."
-  (org-element-map (org-element-parse-buffer 'element) 'table
+  (org-element-map (org-ref-parse-buffer 'element) 'table
     (lambda (table)
       (org-element-property :name table))))
 
@@ -1664,7 +1664,7 @@ This is used to complete ref links."
 		;; names
 		(org-ref-get-names)
 		;; radio targets
-		(org-element-map (org-element-parse-buffer) 'target
+		(org-element-map (org-ref-parse-buffer) 'target
 		  (lambda (tg) (org-element-property :value tg))))))))
 
 
@@ -2347,7 +2347,7 @@ PATH is required for the org-link, but it does nothing here."
 	(*initial-letters* '()))
 
     ;; get links
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
 	(let ((type (nth 0 link))
 	      (plist (nth 1 link)))
@@ -2501,7 +2501,7 @@ construct the heading by hand."
       (widen)
       (goto-char (point-min))
       (let* ((headlines (org-element-map
-			    (org-element-parse-buffer)
+			    (org-ref-parse-buffer)
 			    'headline 'identity))
 	     (keys (mapcar
 		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
@@ -2686,7 +2686,7 @@ file.  Makes a new buffer with clickable links."
 			      (bibtex-global-key-alist)))
          (bad-citations '()))
 
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types
@@ -2735,7 +2735,7 @@ file.  Makes a new buffer with clickable links."
                               (bibtex-global-key-alist)))
          (bad-citations '()))
 
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist :type))
@@ -2759,7 +2759,7 @@ file.  Makes a new buffer with clickable links."
         (bad-refs '()))
     ;; now loop over ref links
     (goto-char (point-min))
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (or  (equal (plist-get plist ':type) "ref")
@@ -2837,7 +2837,7 @@ file.  Makes a new buffer with clickable links."
 (defun org-ref-bad-file-link-candidates ()
   "Return list of conses (link . marker) where the file in the link does not exist."
   (let* ((bad-files '()))
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((type (org-element-property :type link)))
           (when (or  (string= "file" type)
