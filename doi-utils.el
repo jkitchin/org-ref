@@ -1504,6 +1504,16 @@ error."
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")
 
+;; * Convenience
+
+(defun doi-utils-toggle-pdf-download ()
+  "Toggle the setting of `doi-utils-download-pdf'.
+I find this useful when downloading the pdfs slows down adding a
+lot of references; then you just toggle it off."
+  (interactive)
+  (message "Setting doi-utils-download-pdf to %s"
+	   (setq doi-utils-download-pdf (not doi-utils-download-pdf))))
+
 ;;* The end
 (provide 'doi-utils)
 ;;; doi-utils.el ends here
