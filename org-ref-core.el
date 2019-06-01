@@ -1260,7 +1260,7 @@ Ignore figures in COMMENTED sections."
 			   (goto-char (org-element-property :begin link))
 			   (not (or (org-in-commented-heading-p)
 				    (org-at-comment-p)
-				    (-intersection (org-get-tags-at) org-export-exclude-tags)))))
+				    (-intersection (org-get-tags) org-export-exclude-tags)))))
 		  (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
@@ -1320,7 +1320,7 @@ ARG does nothing."
 		      ;; ignore commented sections
 		      (goto-char (org-element-property :begin table))
 		    (not (or (org-in-commented-heading-p)
-			     (-intersection (org-get-tags-at) org-export-exclude-tags)))
+			     (-intersection (org-get-tags) org-export-exclude-tags)))
 		    (cl-incf counter)
 		    (let* ((start (org-element-property :begin table))
 			   (linenum (progn (goto-char start) (line-number-at-pos)))
@@ -1619,7 +1619,7 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-get-tblnames ()
   "Return list of table names in the buffer."
-  (org-element-map (org-ref-parse-buffer 'element) 'table
+  (org-element-map (org-element-parse-buffer 'element) 'table
     (lambda (table)
       (org-element-property :name table))))
 
