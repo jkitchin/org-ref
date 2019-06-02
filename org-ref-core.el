@@ -1619,7 +1619,7 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-get-tblnames ()
   "Return list of table names in the buffer."
-  (org-element-map (org-element-parse-buffer 'element) 'table
+  (org-element-map (org-ref-parse-buffer) 'table
     (lambda (table)
       (org-element-property :name table))))
 
