@@ -877,27 +877,24 @@ The idea is to cache the data, and return it unless we can tell
 the buffer has been modified since the last time we ran it.
 if FORCE is non-nil reparse the buffer no matter what."
   (if force
-      ;; (progn
-      ;; 	(message "Forcing update.")
-      ;; 	(setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
-      ;; 	(setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
-      nil
-    (message "%s %s %s" org-ref-char-change-tick
-	     (buffer-chars-modified-tick)
-	     org-ref-char-change-tick)
+      (progn
+      	(message "Forcing update.")
+      	(setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
+      	(setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
+
     (cond
      ((null org-ref-parse-buffer-cache)
-      (message "First parse.")
+      ;; (message "First parse.")
       (setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
       (setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
 
      ((not (eq org-ref-char-change-tick (buffer-chars-modified-tick)))
-      (message "Updating from a char change in the buffer.")
+      ;; (message "Updating from a char change in the buffer.")
       (setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
       (setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
 
      (t
-      (message "Using cache.")
+      ;; (message "Using cache.")
       org-ref-parse-buffer-cache))))
 
 
