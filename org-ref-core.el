@@ -1759,7 +1759,9 @@ missing."
 
     ;; this is an insertion. start=end
     ;; if the previous position is a label, we need to find it
-    (when (get-text-property (- start 1) 'org-ref-label)
+    (when (and
+	   (> start 1)
+	   (get-text-property (- start 1) 'org-ref-label))
       (let ((label (buffer-substring
 		    start
 		    (previous-single-property-change (- start 1) 'org-ref-label))))
