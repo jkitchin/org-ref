@@ -450,6 +450,24 @@ eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 	     (org-ref-title-case-article)
 	     (bibtex-autokey-get-field "title")))))
 
+(ert-deftest title-case-4 ()
+  (should (string=
+	   "An Example of Effective Data-Sharing"
+	   (with-temp-buffer
+	     (bibtex-mode)
+	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+	     (insert "@thesis{kitchin-2015-examp,
+author =	 {Kitchin, John R.},
+title =	 {An example of effective data-sharing},
+publisher = {Awesome Publishing},
+year =	 2015,
+keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
+}")
+	     (goto-char (point-min))
+	     (let ((org-ref-title-case-types '("article" "book")))
+	       (org-ref-title-case))
+	     (bibtex-autokey-get-field "title")))))
+
 (ert-deftest sentence-case-1 ()
   (should (string=
 	   "Examples of effective data sharing"
@@ -924,15 +942,21 @@ date_added =	 {Mon Jun 1 09:11:23 2015},
   (should
    (= 4
       (length
-       (org-test-with-temp-text
-	   "
+       (with-temp-buffer
+	 (org-mode)
+	 (insert
+	  "
 label:one
 \\label{one}
 #+tblname: one
 | 3|
 
-#+label:one"
-	 (org-ref-bad-label-candidates))))))
+#+label:one")
+	 (jit-lock-fontify-now)
+	 (org-ref-bad-label-candidates)))))
+
+
+  )
 
 (ert-deftest bad-file-link ()
   (should
@@ -1242,10 +1266,10 @@ bibliography:%s
      "\\bibliography{%s,%s}
 " (file-relative-name "test")
 (file-relative-name "titles"))
-(org-test-with-temp-text
-    "bibliography:test.bib,titles.bib"
-  (org-latex-export-as-latex nil nil nil t)
-  (buffer-substring-no-properties (point-min) (point-max))))))
+    (org-test-with-temp-text
+	"bibliography:test.bib,titles.bib"
+      (org-latex-export-as-latex nil nil nil t)
+      (buffer-substring-no-properties (point-min) (point-max))))))
 
 (ert-deftest curly-1 ()
   (should
@@ -1480,11 +1504,11 @@ cite
       "#+LABEL: test
 [[./file.png]]
 "
-(goto-char 1)
-(org-label-store-link)
-(should
- (string=
-  (plist-get org-store-link-plist :type) "ref"))))
+    (goto-char 1)
+    (org-label-store-link)
+    (should
+     (string=
+      (plist-get org-store-link-plist :type) "ref"))))
 
 (ert-deftest store-bibtex-link ()
   (should (string= "cite:kitchin-2015-examp"
