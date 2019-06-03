@@ -1696,9 +1696,8 @@ seems to work fine at recognizing labels by the regexps in
 					(match-end 1)
 					'rear-nonsticky '(org-ref-label))
 		     (when org-ref-label-debug (message "oral: adding %s" label))
-		     (pushnew label
-			      org-ref-labels
-			      :test 'string=)
+		     (push label
+			   org-ref-labels)
 		     ;; now store the last end so we can tell for the next run
 		     ;; if we are adding to a label.
 		     (setq org-ref-last-label-end end))))))))
