@@ -1791,6 +1791,9 @@ the buffer in nonlinear ways, the labels may get out of order. I
 don't know a good way to keep these in order. I tried a version
 where I kept the pos of each one, but they change so it is hard
 to keep them sorted."
+  (when (null org-ref-labels)
+    (save-excursion
+      (org-ref-add-labels (point-min) (point-max))))
   (reverse org-ref-labels))
 
 
