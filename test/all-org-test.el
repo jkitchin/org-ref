@@ -456,7 +456,7 @@ eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 	   (with-temp-buffer
 	     (bibtex-mode)
 	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@thesis{kitchin-2015-examp,
+	     (insert "@book{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {An example of effective data-sharing},
 publisher = {Awesome Publishing},
