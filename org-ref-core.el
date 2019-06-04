@@ -1776,6 +1776,7 @@ missing."
 (defun org-ref-setup-label-finders ()
   "Set up the functions for maintaining labels in a buffer."
   (setq-local org-ref-labels '())
+  (org-ref-add-labels (point-min) (point-max))
   (add-to-list 'jit-lock-functions 'org-ref-add-labels)
   (add-to-list 'before-change-functions 'org-ref-delete-labels))
 
