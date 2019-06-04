@@ -1689,12 +1689,13 @@ seems to work fine at recognizing labels by the regexps in
 		     ;; new one.
 		     (when (eq  org-ref-last-label-end (- end 1))
 		       (pop org-ref-labels))
-		     (put-text-property (match-beginning 1)
-					(match-end 1)
-					'org-ref-label t)
-		     (put-text-property (match-beginning 1)
-					(match-end 1)
-					'rear-nonsticky '(org-ref-label))
+		     (with-silent-modifications
+		       (put-text-property (match-beginning 1)
+					  (match-end 1)
+					  'org-ref-label t)
+		       (put-text-property (match-beginning 1)
+					  (match-end 1)
+					  'rear-nonsticky '(org-ref-label)))
 		     (when org-ref-label-debug (message "oral: adding %s" label))
 		     (push label
 			   org-ref-labels)
@@ -1790,7 +1791,10 @@ font-lock. Initially, the labels start in order, but if you edit
 the buffer in nonlinear ways, the labels may get out of order. I
 don't know a good way to keep these in order. I tried a version
 where I kept the pos of each one, but they change so it is hard
-to keep them sorted."
+to keep them sorted.
+
+If the `org-ref-labels' variable is empty, we try scanning the
+whole buffer for them."
   (when (null org-ref-labels)
     (save-excursion
       (org-ref-add-labels (point-min) (point-max))))
