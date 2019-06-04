@@ -53,6 +53,12 @@ path, or you want to use another version."
   :type 'regexp
   :group 'org-ref-pdf)
 
+(defcustom org-ref-pdf-to-bibtex-function
+  'copy-file
+  "Function for getting  a pdf to the `org-ref-pdf-directory'.
+Defaults to `copy-file', but could also be `rename-file'."
+  :type 'File :group 'org-ref-pdf)
+
 (defun org-ref-extract-doi-from-pdf (pdf)
   "Try to extract a doi from a PDF file.
 There may be more than one doi in the file. This function returns
@@ -118,9 +124,10 @@ using the `pdf-tools' package."
     (doi-utils-add-bibtex-entry-from-doi doi)
     ;; Copy pdf to `org-ref-pdf-directory':
     (let ((key (org-ref-bibtex-key-from-doi doi)))
-      (copy-file (buffer-file-name)
-                 (expand-file-name (format "%s.pdf" key)
-                                   org-ref-pdf-directory)))))
+      (funcall org-ref-pdf-to-bibtex-function
+	       (buffer-file-name)
+               (expand-file-name (format "%s.pdf" key)
+                                 org-ref-pdf-directory)))))
 
 ;;;###autoload
 ;; (defun org-ref-pdf-dnd-func (event)
