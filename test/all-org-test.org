@@ -206,6 +206,7 @@ Is it a test? If this returns non-nil,
 
 
 
+
 #+name: or-split-key-2
 #+BEGIN_SRC emacs-lisp :test
 "Check if keys are split correctly"
@@ -217,6 +218,7 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: or-split-key-2
 : t
+
 
 
 
@@ -250,6 +252,7 @@ Is it a test? If this returns non-nil,
 
 
 
+
 #+name: or-key-file-p-nil
 #+BEGIN_SRC emacs-lisp :test
 "Check `org-ref-key-in-file-p' for non-existent key"
@@ -263,6 +266,7 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: or-key-file-p-nil
 : t
+
 
 
 
@@ -310,6 +314,7 @@ Is it a test? If this returns non-nil,
 
 
 
+
 #+name: swap-2
 #+BEGIN_SRC emacs-lisp :test
 "org swap test"
@@ -321,6 +326,7 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: swap-2
 : t
+
 
 
 
@@ -345,6 +351,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: orlm-ref-1
 : t
+
 
 
 
@@ -380,6 +387,7 @@ count: 1"
 
 
 
+
 #+name: orlm-ref-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -401,6 +409,7 @@ count: 1"
 
 #+RESULTS: orlm-ref-3
 : t
+
 
 
 
@@ -442,6 +451,7 @@ label:one
 
 
 
+
 #+name: orlm-label-1
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
@@ -455,6 +465,7 @@ label:one
 
 #+RESULTS: orlm-label-1
 : t
+
 
 
 
@@ -489,6 +500,7 @@ label:one
 
 
 
+
 * get pdf/key
 #+name: or-get-pdf
 #+BEGIN_SRC emacs-lisp :test
@@ -503,6 +515,7 @@ label:one
 
 #+RESULTS: or-get-pdf
 : t
+
 
 
 
@@ -541,6 +554,7 @@ label:one
 
 
 
+
 #+name: or-get-key
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -553,6 +567,7 @@ label:one
 
 #+RESULTS: or-get-key
 : t
+
 
 
 
@@ -585,6 +600,7 @@ label:one
 
 
 
+
 #+name: or-get-key2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -598,6 +614,7 @@ label:one
 
 #+RESULTS: or-get-key2
 : t
+
 
 
 
@@ -633,6 +650,7 @@ label:one
 
 #+RESULTS: orfb-1
 : t
+
 
 
 
@@ -680,6 +698,7 @@ label:one
 
 
 
+
 #+name: orfb-2
 #+BEGIN_SRC emacs-lisp :test
 "Get bibfile in latex format."
@@ -701,6 +720,7 @@ label:one
 
 #+RESULTS: orfb-2
 : t
+
 
 
 
@@ -748,6 +768,7 @@ label:one
 
 
 
+
 #+name: orfb-3
 #+BEGIN_SRC emacs-lisp :test
 "addbibresource form of bibliography."
@@ -769,6 +790,7 @@ label:one
 
 #+RESULTS: orfb-3
 : t
+
 
 
 
@@ -815,6 +837,7 @@ label:one
 
 
 
+
 #+name: orfb-4
 #+BEGIN_SRC emacs-lisp :test
 "getting default bibfile in file with no bib specification."
@@ -830,6 +853,7 @@ label:one
 
 #+RESULTS: orfb-4
 : t
+
 
 
 
@@ -865,6 +889,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: unique-keys-sort
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -881,6 +906,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: unique-keys-sort
 : t
+
 
 
 
@@ -919,6 +945,7 @@ bibliography:%s
 
 
 
+
 * Bibtex tests
 
 #+name: short-titles
@@ -941,6 +968,7 @@ bibliography:%s
 
 
 
+
 #+name: long-titles
 #+BEGIN_SRC emacs-lisp :test
 (org-ref-bibtex-generate-longtitles)
@@ -953,6 +981,7 @@ bibliography:%s
 
 #+RESULTS: long-titles
 : t
+
 
 
 
@@ -999,6 +1028,7 @@ bibliography:%s
 
 
 
+
 #+name: title-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -1026,6 +1056,7 @@ bibliography:%s
 
 #+RESULTS: title-case-2
 : t
+
 
 
 
@@ -1062,6 +1093,7 @@ bibliography:%s
 #+RESULTS: title-case-3
 : t
 
+
 #+name: title-case-4
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -1069,7 +1101,7 @@ bibliography:%s
 	   (with-temp-buffer
 	     (bibtex-mode)
 	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@thesis{kitchin-2015-examp,
+	     (insert "@book{kitchin-2015-examp,
   author =	 {Kitchin, John R.},
   title =	 {An example of effective data-sharing},
   publisher = {Awesome Publishing},
@@ -1127,6 +1159,7 @@ bibliography:%s
 
 
 
+
 #+name: sentence-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -1154,6 +1187,7 @@ bibliography:%s
 
 #+RESULTS: sentence-case-2
 : t
+
 
 
 
@@ -1191,6 +1225,7 @@ bibliography:%s
 
 #+RESULTS: stringify
 : t
+
 
 
 
@@ -1253,6 +1288,7 @@ bibliography:%s
 
 
 
+
 #+name: prev-entry-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1298,6 +1334,7 @@ bibliography:%s
 
 #+RESULTS: prev-entry-1
 : t
+
 
 
 
@@ -1359,6 +1396,7 @@ bibliography:%s
 
 
 
+
 #+name: set-bibtex-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1397,6 +1435,7 @@ bibliography:%s
 
 
 
+
 #+name: get-year
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1412,6 +1451,7 @@ bibliography:%s
 
 #+RESULTS: get-year
 : t
+
 
 
 
@@ -1448,6 +1488,7 @@ bibliography:%s
 
 #+RESULTS: clean-year-1
 : t
+
 
 
 
@@ -1494,6 +1535,7 @@ bibliography:%s
 
 
 
+
 #+name: clean-&
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1522,6 +1564,7 @@ bibliography:%s
 
 #+RESULTS: clean-&
 : t
+
 
 
 
@@ -1569,6 +1612,7 @@ bibliography:%s
 
 
 
+
 #+name: clean-pages-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1598,6 +1642,7 @@ bibliography:%s
 
 #+RESULTS: clean-pages-1
 : t
+
 
 
 
@@ -1646,6 +1691,7 @@ bibliography:%s
 
 
 
+
 ** bibtex functionality
 We rely a lot on bibtex functionality. These are tests to make sure it works as
 we expect. I don't have clear evidence, but I feel like I have had trouble with
@@ -1683,6 +1729,7 @@ the in the past.
 
 
 
+
 #+name: bib-1a
 #+BEGIN_SRC emacs-lisp :test
 "Test finding an entry from an existing file."
@@ -1699,6 +1746,7 @@ the in the past.
 
 #+RESULTS: bib-1a
 : t
+
 
 
 
@@ -1732,6 +1780,7 @@ the in the past.
 
 
 
+
 * Test labels
 
 #+name: get-labels-1
@@ -1755,6 +1804,7 @@ the in the past.
 
 
 
+
 #+name: get-labels-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1767,6 +1817,7 @@ the in the past.
 
 #+RESULTS: get-labels-2
 : t
+
 
 
 
@@ -1799,6 +1850,7 @@ the in the past.
 
 
 
+
 #+name: get-labels-4
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1815,6 +1867,7 @@ the in the past.
 
 #+RESULTS: get-labels-4
 : t
+
 
 
 
@@ -1900,6 +1953,7 @@ label:four
 
 
 
+
 #+name: bad-ref
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1921,24 +1975,32 @@ label:four
 
 
 
+
 #+name: multiple-labels
 #+BEGIN_SRC emacs-lisp :test
 (should
-   (= 4
-      (length
-       (org-test-with-temp-text
+ (= 4
+    (length
+     (with-temp-buffer
+       (org-mode)
+       (insert
 	"
 label:one
 \\label{one}
-#+tblname: one
+,#+tblname: one
 | 3|
 
-#+label:one"
-	(org-ref-bad-label-candidates)))))
+,#+label:one")
+       (jit-lock-fontify-now)
+       (org-ref-bad-label-candidates)))))
+
+
+
 #+END_SRC
 
 #+RESULTS: multiple-labels
 : t
+
 
 
 
@@ -1978,6 +2040,7 @@ not loaded.
 
 
 
+
 #+name: swap-link-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1991,6 +2054,7 @@ not loaded.
 
 #+RESULTS: swap-link-1
 : t
+
 
 
 
@@ -2022,6 +2086,7 @@ not loaded.
 
 
 
+
 * next/prev links
 #+name: parse-link-1
 #+BEGIN_SRC emacs-lisp :test
@@ -2035,6 +2100,7 @@ not loaded.
 
 #+RESULTS: parse-link-1
 : t
+
 
 
 
@@ -2065,6 +2131,7 @@ not loaded.
 
 
 
+
 #+name: next-link-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2086,6 +2153,7 @@ not loaded.
 
 
 
+
 #+name: prev-link-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2098,6 +2166,7 @@ not loaded.
 
 #+RESULTS: prev-link-1
 : t
+
 
 
 
@@ -2129,6 +2198,7 @@ not loaded.
 
 
 
+
 #+name: del-key-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2142,6 +2212,7 @@ not loaded.
 
 #+RESULTS: del-key-2
 : t
+
 
 
 
@@ -2171,6 +2242,7 @@ not loaded.
 
 
 
+
 #+name: del-key-4
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2184,6 +2256,7 @@ not loaded.
 
 #+RESULTS: del-key-4
 : t
+
 
 
 
@@ -2213,6 +2286,7 @@ not loaded.
 
 
 
+
 #+name: del-cite-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2226,6 +2300,7 @@ not loaded.
 
 #+RESULTS: del-cite-1
 : t
+
 
 
 
@@ -2257,6 +2332,7 @@ not loaded.
 
 
 
+
 #+name: rep-key-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2270,6 +2346,7 @@ not loaded.
 
 #+RESULTS: rep-key-1
 : t
+
 
 
 
@@ -2301,6 +2378,7 @@ not loaded.
 
 
 
+
 #+name: rep-key-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2323,6 +2401,7 @@ not loaded.
 
 
 
+
 #+name: rep-key-4
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2336,6 +2415,7 @@ not loaded.
 
 #+RESULTS: rep-key-4
 : t
+
 
 
 
@@ -2379,6 +2459,7 @@ bibliography:%s
 
 
 
+
 * Inserting keys
 #+name: ins-key-1
 #+BEGIN_SRC emacs-lisp :test
@@ -2401,6 +2482,7 @@ bibliography:%s
 
 
 
+
 #+name: ins-key-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2413,6 +2495,7 @@ bibliography:%s
 
 #+RESULTS: ins-key-2
 : t
+
 
 
 
@@ -2444,6 +2527,7 @@ bibliography:%s
 
 
 
+
 #+name: ins-key-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2457,6 +2541,7 @@ bibliography:%s
 
 #+RESULTS: ins-key-3
 : t
+
 
 
 
@@ -2488,6 +2573,7 @@ bibliography:%s
 
 
 
+
 #+name: ins-key-5
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2501,6 +2587,7 @@ bibliography:%s
 
 #+RESULTS: ins-key-5
 : t
+
 
 
 
@@ -2534,6 +2621,7 @@ bibliography:%s
 
 
 
+
 #+name: cite-export-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2557,6 +2645,7 @@ bibliography:%s
 
 
 
+
 #+name: cite-export-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2571,6 +2660,7 @@ bibliography:%s
 
 #+RESULTS: cite-export-3
 : t
+
 
 
 
@@ -2604,6 +2694,7 @@ bibliography:%s
 
 
 
+
 ** ref
 #+name: ref-export-1
 #+BEGIN_SRC emacs-lisp :test
@@ -2628,6 +2719,7 @@ bibliography:%s
 
 
 
+
 #+name: bib-export-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2643,6 +2735,7 @@ bibliography:%s
 
 #+RESULTS: bib-export-1
 : t
+
 
 
 
@@ -2677,6 +2770,7 @@ bibliography:%s
 
 
 
+
 * org-ref-glossary
 #+name: curly-1
 #+BEGIN_SRC emacs-lisp :test
@@ -2690,6 +2784,7 @@ bibliography:%s
 
 #+RESULTS: curly-1
 : t
+
 
 
 
@@ -2720,6 +2815,7 @@ bibliography:%s
 
 
 
+
 #+name: curly-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2733,6 +2829,7 @@ bibliography:%s
 
 #+RESULTS: curly-3
 : t
+
 
 
 
@@ -2775,6 +2872,7 @@ bibliography:%s
 
 
 
+
 #+name: extract-bibtex
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2792,7 +2890,8 @@ bibliography:%s
 #+END_SRC
 
 #+RESULTS: extract-bibtex
-: 143
+: 166
+
 
 
 
@@ -2819,6 +2918,7 @@ bibliography:%s
 
 #+RESULTS: mendeley-fname
 : t
+
 
 
 
@@ -2855,6 +2955,7 @@ bibliography:tests/test-1.bib
 
 
 
+
  cite:kitchin-2015-examp
 
 
@@ -2882,6 +2983,10 @@ bibliography:tests/test-1.bib
   )
 #+END_SRC
 
+#+RESULTS: cite-face-1
+: 1
+
+
 
 
 
@@ -2903,6 +3008,10 @@ bibliography:tests/test-1.bib
   (should (not (eq 'org-ref-cite-face (get-char-property 5 'face)))))
 #+END_SRC
 
+#+RESULTS: cite-face-2
+: t
+
+
 
 
 
@@ -2919,6 +3028,10 @@ bibliography:tests/test-1.bib
    (font-lock-fontify-region (point-min) (point-max))
    (eq 'font-lock-comment-face (get-char-property 10 'face))))
 #+END_SRC
+
+#+RESULTS: cite-in-comment
+: t
+
 
 
 
@@ -2943,6 +3056,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: fl-next-ref
 : t
+
 
 
 
@@ -3023,6 +3137,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: label-face
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
@@ -3042,6 +3157,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: label-face
 : t
+
 
 
 
@@ -3077,6 +3193,7 @@ stuff
 
 
 
+
 #+name: fl-next-bibstyle
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
@@ -3094,6 +3211,7 @@ cite
 
 #+RESULTS: fl-next-bibstyle
 : t
+
 
 
 
@@ -3126,6 +3244,7 @@ org-store-link-plist
 
 
 
+
 #+name: store-label-link-table
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
@@ -3140,7 +3259,8 @@ org-store-link-plist
 #+END_SRC
 
 #+RESULTS: store-label-link-table
-| :type | ref | :link | ref:test-table | :date-timestamp | <1999-12-31 Fri 17:00> | :date-timestamp-inactive | [1999-12-31 Fri 17:00] |
+| :type | ref | :link | ref:test-table | :date-timestamp | <1999-12-31 Fri 19:00> | :date-timestamp-inactive | [1999-12-31 Fri 19:00] |
+
 
 
 
@@ -3175,6 +3295,7 @@ org-store-link-plist
 
 
 
+
 #+name: store-label-label
 #+BEGIN_SRC emacs-lisp :test
 (org-test-with-temp-text
@@ -3190,6 +3311,7 @@ org-store-link-plist
 
 #+RESULTS: store-label-label
 : t
+
 
 
 

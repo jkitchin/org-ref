@@ -1023,7 +1023,7 @@ ARG does nothing. I think it is a required signature."
     ;; remove bib links, we will be replacing them. It is debatable if this is a
     ;; good idea. I could easily be persuaded not to do this, but it is also not
     ;; a great idea to have multiple bibliography links.
-    (org-element-map (org-element-parse-buffer)
+    (org-element-map (org-ref-parse-buffer)
 	'link (lambda (link)
 		(when (string= "bibliography"
 			       (org-element-property :type link))
@@ -1247,7 +1247,7 @@ Ignore figures in COMMENTED sections."
     (let* ((c-b (buffer-name))
 	   (counter 0)
 	   (list-of-figures
-	    (org-element-map (org-element-parse-buffer) 'link
+	    (org-element-map (org-ref-parse-buffer) 'link
 	      (lambda (link)
 		"create a link for to the figure"
 		(when
@@ -1260,7 +1260,7 @@ Ignore figures in COMMENTED sections."
 			   (goto-char (org-element-property :begin link))
 			   (not (or (org-in-commented-heading-p)
 				    (org-at-comment-p)
-				    (-intersection (org-get-tags-at) org-export-exclude-tags)))))
+				    (-intersection (org-get-tags) org-export-exclude-tags)))))
 		  (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
@@ -1312,7 +1312,7 @@ ARG does nothing."
     (let* ((c-b (buffer-name))
            (counter 0)
            (list-of-tables
-            (org-element-map (org-element-parse-buffer 'element) 'table
+            (org-element-map (org-ref-parse-buffer 'element) 'table
               (lambda (table)
                 "create a link for to the table"
 		(save-excursion
@@ -1320,7 +1320,7 @@ ARG does nothing."
 		      ;; ignore commented sections
 		      (goto-char (org-element-property :begin table))
 		    (not (or (org-in-commented-heading-p)
-			     (-intersection (org-get-tags-at) org-export-exclude-tags)))
+			     (-intersection (org-get-tags) org-export-exclude-tags)))
 		    (cl-incf counter)
 		    (let* ((start (org-element-property :begin table))
 			   (linenum (progn (goto-char start) (line-number-at-pos)))
@@ -1619,7 +1619,7 @@ Optional argument ARG Does nothing."
 
 (defun org-ref-get-tblnames ()
   "Return list of table names in the buffer."
-  (org-element-map (org-element-parse-buffer 'element) 'table
+  (org-element-map (org-ref-parse-buffer) 'table
     (lambda (table)
       (org-element-property :name table))))
 
@@ -1637,35 +1637,200 @@ Optional argument ARG Does nothing."
 	matches))))
 
 
+(defvar-local org-ref-labels '()
+  "Known labels in org-ref
+Stores a list of strings.")
+
+
+(defvar org-ref-label-regexps
+  '(;; #+label:
+    "^#\\+label:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
+    ;; CUSTOM_ID in a heading
+    ":CUSTOM_ID:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
+    ;; #+name
+    "^#\\+name:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
+    ;; radio targets
+    "<<\\(?1:[+a-zA-Z0-9:\\._-]*\\)>>"
+    ;; #+tblname:
+    "^#\\+tblname:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
+    ;; label links
+    "label:\\(?1:[+a-zA-Z0-9:\\._-]*\\)"
+    ;; labels in latex
+    "\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}")
+  "List of regexps that are labels in org-ref.")
+
+
+(defvar org-ref-label-debug nil "If non-nil print debug messages.")
+
+
+(defvar-local org-ref-last-label-end 0
+  "Last end of position added.")
+
+
+(defun org-ref-add-labels (start end)
+  "Add labels in the region from START to END.
+This is run by font-lock. START tends to be the beginning of the
+line, and END tends to be where the point is, so this function
+seems to work fine at recognizing labels by the regexps in
+`org-ref-label-regexps'."
+  (interactive "r")
+  (save-excursion
+    (save-match-data
+      (cl-loop for rx in org-ref-label-regexps
+	       do
+	       (goto-char start)
+	       (while (re-search-forward rx end t)
+		 (let ((label (match-string-no-properties 1)))
+		   ;; I don't know why this gets found, but some labels are
+		   ;; empty strings. we don't store these.
+		   (unless (string= "" label)
+		     ;; if the last end is the new end -1 we are adding to a
+		     ;; label, and should pop the old one off before adding the
+		     ;; new one.
+		     (when (eq  org-ref-last-label-end (- end 1))
+		       (pop org-ref-labels))
+		     (with-silent-modifications
+		       (put-text-property (match-beginning 1)
+					  (match-end 1)
+					  'org-ref-label t)
+		       (put-text-property (match-beginning 1)
+					  (match-end 1)
+					  'rear-nonsticky '(org-ref-label)))
+		     (when org-ref-label-debug (message "oral: adding %s" label))
+		     (push label
+			   org-ref-labels)
+		     ;; now store the last end so we can tell for the next run
+		     ;; if we are adding to a label.
+		     (setq org-ref-last-label-end end))))))))
+
+
+(defun org-ref-delete-labels (start end)
+  "Check for labels between START and END and remove them from the known list.
+This is called as a `before-change-functions' and it means text
+from START to END has been deleted.
+
+This idea was suggested by @vspinu.
+
+This is harder than it seems. The main issue is that START and
+END here may be the same if the change is an insertion, different
+by one for a simple character delete, or bigger if a selection is
+deleted.
+
+Note: this will not necessarily trigger fontification on ref
+links so they might not look broken right away if their label is
+missing."
+  (if (not (eq start end))
+      ;; we are in a deletion. The text from start to end will be deleted
+      (progn
+	;; start is on a label, so remove back.
+	(when (get-text-property start 'org-ref-label)
+	  (let ((label (buffer-substring-no-properties
+			(previous-single-property-change start 'org-ref-label)
+			(next-single-property-change start 'org-ref-label))))
+	    (when org-ref-label-debug
+	      (message "ordl-1: removing %s" label))
+	    (setq org-ref-labels
+  		  (remove* label org-ref-labels
+  			   :test 'string=))))
+	;; end is on a label, get it and remove it
+	(when (get-text-property end 'org-ref-label)
+	  (let* ((start (previous-single-property-change end 'org-ref-label))
+		 (end (next-single-property-change end 'org-ref-label))
+		 (label (buffer-substring-no-properties start end)))
+	    (when org-ref-label-debug (message "ordl-2: removing %s" label))
+	    (setq org-ref-labels
+  		  (remove* label org-ref-labels
+  			   :test 'string=))))
+	;; finally if we delete more than 2 chars, scan the region to remove.
+	(when (>  (- end start) 2)
+	  (save-excursion
+	    (save-match-data
+	      (cl-loop for rx in org-ref-label-regexps
+		       do
+		       (goto-char start)
+		       (while (re-search-forward rx end t)
+			 (let ((label (match-string-no-properties 1)))
+			   ;; I don't know why this gets found, but some labels are
+			   ;; empty strings. we don't store these.
+			   (when org-ref-label-debug (message "ordl-3: removing %s" label))
+			   (setq org-ref-labels
+  				 (remove* label
+					  org-ref-labels
+  					  :test 'string=)))))))))
+
+    ;; this is an insertion. start=end
+    ;; if the previous position is a label, we need to find it
+    (when (and
+	   (> start 1)
+	   (get-text-property (- start 1) 'org-ref-label))
+      (let ((label (buffer-substring
+		    start
+		    (previous-single-property-change (- start 1) 'org-ref-label))))
+	(when org-ref-label-debug (message "ordl-4: removing %s" label))
+	(setq org-ref-labels
+  	      (remove* label
+		       org-ref-labels
+  		       :test 'string=))))))
+
+
+(defun org-ref-setup-label-finders ()
+  "Set up the functions for maintaining labels in a buffer."
+  (setq-local org-ref-labels '())
+  (org-ref-add-labels (point-min) (point-max))
+  (add-to-list 'jit-lock-functions 'org-ref-add-labels)
+  (add-to-list 'before-change-functions 'org-ref-delete-labels))
+
+
+(add-hook 'org-mode-hook 'org-ref-setup-label-finders t)
+
+
 (defun org-ref-get-labels ()
   "Return a list of labels in the buffer that you can make a ref link to.
-This is used to complete ref links."
-  (save-excursion
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (let ((matches '()))
-        ;; these are the org-ref label:stuff  kinds
-        (while (re-search-forward
-                "[^#+]label:\\([a-zA-Z0-9:\\._-]*\\)\\_>" (point-max) t)
-	  (setq matches (append matches
-				(list
-				 (match-string-no-properties 1)))))
-        ;; now add all the other kinds of labels.
-        (append matches
-		;; #+label:
-		(org-ref-get-org-labels)
-		;; \label{}
-		(org-ref-get-latex-labels)
-		;; #+tblname: and actually #+label
-		(org-ref-get-tblnames)
-		;; CUSTOM_IDs
-		(org-ref-get-custom-ids)
-		;; names
-		(org-ref-get-names)
-		;; radio targets
-		(org-element-map (org-element-parse-buffer) 'target
-		  (lambda (tg) (org-element-property :value tg))))))))
+This is used to complete ref links and in `org-ref-ref-face-fn'.
+Note the list is returned in reverse order as it was created by
+font-lock. Initially, the labels start in order, but if you edit
+the buffer in nonlinear ways, the labels may get out of order. I
+don't know a good way to keep these in order. I tried a version
+where I kept the pos of each one, but they change so it is hard
+to keep them sorted.
+
+If the `org-ref-labels' variable is empty, we try scanning the
+whole buffer for them."
+  (when (null org-ref-labels)
+    (save-excursion
+      (org-ref-add-labels (point-min) (point-max))))
+  (reverse org-ref-labels))
+
+
+;; (defun org-ref-get-labels ()
+;;   "Return a list of labels in the buffer that you can make a ref link to.
+;; This is used to complete ref links."
+;;   (save-excursion
+;;     (save-restriction
+;;       (widen)
+;;       (goto-char (point-min))
+;;       (let ((matches '()))
+;;         ;; these are the org-ref label:stuff  kinds
+;;         (while (re-search-forward
+;;                 "[^#+]label:\\([a-zA-Z0-9:\\._-]*\\)\\_>" (point-max) t)
+;; 	  (setq matches (append matches
+;; 				(list
+;; 				 (match-string-no-properties 1)))))
+;;         ;; now add all the other kinds of labels.
+;;         (append matches
+;; 		;; #+label:
+;; 		(org-ref-get-org-labels)
+;; 		;; \label{}
+;; 		(org-ref-get-latex-labels)
+;; 		;; #+tblname: and actually #+label
+;; 		(org-ref-get-tblnames)
+;; 		;; CUSTOM_IDs
+;; 		(org-ref-get-custom-ids)
+;; 		;; names
+;; 		(org-ref-get-names)
+;; 		;; radio targets
+;; 		(org-element-map (org-ref-parse-buffer) 'target
+;; 		  (lambda (tg) (org-element-property :value tg))))))))
 
 
 ;;;###autoload
@@ -2347,7 +2512,7 @@ PATH is required for the org-link, but it does nothing here."
 	(*initial-letters* '()))
 
     ;; get links
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
 	(let ((type (nth 0 link))
 	      (plist (nth 1 link)))
@@ -2501,7 +2666,7 @@ construct the heading by hand."
       (widen)
       (goto-char (point-min))
       (let* ((headlines (org-element-map
-			    (org-element-parse-buffer)
+			    (org-ref-parse-buffer)
 			    'headline 'identity))
 	     (keys (mapcar
 		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
@@ -2686,7 +2851,7 @@ file.  Makes a new buffer with clickable links."
 			      (bibtex-global-key-alist)))
          (bad-citations '()))
 
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types
@@ -2735,7 +2900,7 @@ file.  Makes a new buffer with clickable links."
                               (bibtex-global-key-alist)))
          (bad-citations '()))
 
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist :type))
@@ -2759,7 +2924,7 @@ file.  Makes a new buffer with clickable links."
         (bad-refs '()))
     ;; now loop over ref links
     (goto-char (point-min))
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (or  (equal (plist-get plist ':type) "ref")
@@ -2837,7 +3002,7 @@ file.  Makes a new buffer with clickable links."
 (defun org-ref-bad-file-link-candidates ()
   "Return list of conses (link . marker) where the file in the link does not exist."
   (let* ((bad-files '()))
-    (org-element-map (org-element-parse-buffer) 'link
+    (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((type (org-element-property :type link)))
           (when (or  (string= "file" type)

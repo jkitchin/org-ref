@@ -838,6 +838,7 @@ From the PDF specification 1.7:
                   (buffer-string))))
     (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
 
+
 ;;;###autoload
 (defmacro org-ref-link-set-parameters (type &rest parameters)
   "Set link TYPE properties to PARAMETERS."
@@ -845,6 +846,57 @@ From the PDF specification 1.7:
   (if (fboundp 'org-link-set-parameters)
       `(org-link-set-parameters ,type ,@parameters)
     `(org-add-link-type ,type ,(plist-get parameters :follow) ,(plist-get parameters :export))))
+
+
+
+;; This section creates some code that should speed up org-ref for large files.
+;; I use org-element-parse-buffer a lot for getting information about labels
+;; etc. However, it gets called a lot, and this is slow in large documents. Here
+;; we try to use a cache that helps speed this up at least on loading. Some
+;; notes for the future: on loading, it seems like fontification triggers buffer
+;; changes, so here we only consider char changes. I am not sure this is the
+;; best strategy overall. It is faster to use regexps for finding this
+;; information, but those are substantially more difficult to debug in my
+;; experience. There is an unfortunate number of ways to reference things in
+;; org-mode, and so far this has been most reliable. An alternative might be to
+;; leveralge what happens in font-lock somehow to update local variables
+;; containing org-ref labels, refs, cites, etc. That would miss some #+names
+;; though, and maybe some other things like custom-ids.
+
+(defvar-local org-ref-char-change-tick nil
+  "Local variable to track character changes.")
+
+
+(defvar-local org-ref-parse-buffer-cache nil
+  "Local variable to store parse buffer data.")
+
+
+(defun org-ref-parse-buffer (&optional force)
+  "This is a thin wrapper around `org-element-parse-buffer'.
+The idea is to cache the data, and return it unless we can tell
+the buffer has been modified since the last time we ran it.
+if FORCE is non-nil reparse the buffer no matter what."
+  (if force
+      (progn
+      	(message "Forcing update.")
+      	(setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
+      	(setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
+
+    (cond
+     ((null org-ref-parse-buffer-cache)
+      ;; (message "First parse.")
+      (setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
+      (setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
+
+     ((not (eq org-ref-char-change-tick (buffer-chars-modified-tick)))
+      ;; (message "Updating from a char change in the buffer.")
+      (setq-local org-ref-char-change-tick (buffer-chars-modified-tick))
+      (setq-local org-ref-parse-buffer-cache (org-element-parse-buffer)))
+
+     (t
+      ;; (message "Using cache.")
+      org-ref-parse-buffer-cache))))
+
 
 (provide 'org-ref-utils)
 ;;; org-ref-utils.el ends here
