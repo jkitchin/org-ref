@@ -1730,8 +1730,8 @@ missing."
 	    (when org-ref-label-debug
 	      (message "ordl-1: removing %s" label))
 	    (setq org-ref-labels
-  		  (remove* label org-ref-labels
-  			   :test 'string=))))
+  		  (cl-remove label org-ref-labels
+  			     :test 'string=))))
 	;; end is on a label, get it and remove it
 	(when (get-text-property end 'org-ref-label)
 	  (let* ((start (previous-single-property-change end 'org-ref-label))
@@ -1739,8 +1739,8 @@ missing."
 		 (label (buffer-substring-no-properties start end)))
 	    (when org-ref-label-debug (message "ordl-2: removing %s" label))
 	    (setq org-ref-labels
-  		  (remove* label org-ref-labels
-  			   :test 'string=))))
+  		  (cl-remove label org-ref-labels
+  			     :test 'string=))))
 	;; finally if we delete more than 2 chars, scan the region to remove.
 	(when (>  (- end start) 2)
 	  (save-excursion
@@ -1754,9 +1754,9 @@ missing."
 			   ;; empty strings. we don't store these.
 			   (when org-ref-label-debug (message "ordl-3: removing %s" label))
 			   (setq org-ref-labels
-  				 (remove* label
-					  org-ref-labels
-  					  :test 'string=)))))))))
+  				 (cl-remove label
+					    org-ref-labels
+  					    :test 'string=)))))))))
 
     ;; this is an insertion. start=end
     ;; if the previous position is a label, we need to find it
@@ -1768,9 +1768,9 @@ missing."
 		    (previous-single-property-change (- start 1) 'org-ref-label))))
 	(when org-ref-label-debug (message "ordl-4: removing %s" label))
 	(setq org-ref-labels
-  	      (remove* label
-		       org-ref-labels
-  		       :test 'string=))))))
+  	      (cl-remove label
+		         org-ref-labels
+  		         :test 'string=))))))
 
 
 (defun org-ref-setup-label-finders ()
