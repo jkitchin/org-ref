@@ -803,10 +803,7 @@ _n_: Open notes                               _T_: Title case
   ("R" org-ref-bibtex-crossref)
   ("g" org-ref-bibtex-google-scholar)
   ("N" org-ref-bibtex-new-entry/body)
-  ("n" (progn
-	 (bibtex-beginning-of-entry)
-	 (bibtex-completion-edit-notes
-	  (list (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
+  ("n" org-ref-open-bibtex-notes)
   ("o" (lambda ()
 	 (interactive)
 	 (bibtex-copy-entry-as-kill)
