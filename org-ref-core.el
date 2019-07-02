@@ -1719,58 +1719,59 @@ deleted.
 Note: this will not necessarily trigger fontification on ref
 links so they might not look broken right away if their label is
 missing."
-  (if (not (eq start end))
-      ;; we are in a deletion. The text from start to end will be deleted
-      (progn
-	;; start is on a label, so remove back.
-	(when (get-text-property start 'org-ref-label)
-	  (let ((label (buffer-substring-no-properties
-			(previous-single-property-change start 'org-ref-label)
-			(next-single-property-change start 'org-ref-label))))
-	    (when org-ref-label-debug
-	      (message "ordl-1: removing %s" label))
-	    (setq org-ref-labels
-  		  (remove* label org-ref-labels
-  			   :test 'string=))))
-	;; end is on a label, get it and remove it
-	(when (get-text-property end 'org-ref-label)
-	  (let* ((start (previous-single-property-change end 'org-ref-label))
-		 (end (next-single-property-change end 'org-ref-label))
-		 (label (buffer-substring-no-properties start end)))
-	    (when org-ref-label-debug (message "ordl-2: removing %s" label))
-	    (setq org-ref-labels
-  		  (remove* label org-ref-labels
-  			   :test 'string=))))
-	;; finally if we delete more than 2 chars, scan the region to remove.
-	(when (>  (- end start) 2)
-	  (save-excursion
-	    (save-match-data
-	      (cl-loop for rx in org-ref-label-regexps
-		       do
-		       (goto-char start)
-		       (while (re-search-forward rx end t)
-			 (let ((label (match-string-no-properties 1)))
-			   ;; I don't know why this gets found, but some labels are
-			   ;; empty strings. we don't store these.
-			   (when org-ref-label-debug (message "ordl-3: removing %s" label))
-			   (setq org-ref-labels
-  				 (remove* label
-					  org-ref-labels
-  					  :test 'string=)))))))))
+  (when (and org-ref-labels (not (eobp)))
+    (if (not (eq start end))
+	;; we are in a deletion. The text from start to end will be deleted
+	(progn
+	  ;; start is on a label, so remove back.
+	  (when (get-text-property start 'org-ref-label)
+	    (let ((label (buffer-substring-no-properties
+			  (previous-single-property-change start 'org-ref-label)
+			  (next-single-property-change start 'org-ref-label))))
+	      (when org-ref-label-debug
+		(message "ordl-1: removing %s" label))
+	      (setq org-ref-labels
+  		    (remove* label org-ref-labels
+  			     :test 'string=))))
+	  ;; end is on a label, get it and remove it
+	  (when (get-text-property end 'org-ref-label)
+	    (let* ((start (previous-single-property-change end 'org-ref-label))
+		   (end (next-single-property-change end 'org-ref-label))
+		   (label (buffer-substring-no-properties start end)))
+	      (when org-ref-label-debug (message "ordl-2: removing %s" label))
+	      (setq org-ref-labels
+  		    (remove* label org-ref-labels
+  			     :test 'string=))))
+	  ;; finally if we delete more than 2 chars, scan the region to remove.
+	  (when (>  (- end start) 2)
+	    (save-excursion
+	      (save-match-data
+		(cl-loop for rx in org-ref-label-regexps
+			 do
+			 (goto-char start)
+			 (while (re-search-forward rx end t)
+			   (let ((label (match-string-no-properties 1)))
+			     ;; I don't know why this gets found, but some labels are
+			     ;; empty strings. we don't store these.
+			     (when org-ref-label-debug (message "ordl-3: removing %s" label))
+			     (setq org-ref-labels
+  				   (remove* label
+					    org-ref-labels
+  					    :test 'string=)))))))))
 
-    ;; this is an insertion. start=end
-    ;; if the previous position is a label, we need to find it
-    (when (and
-	   (> start 1)
-	   (get-text-property (- start 1) 'org-ref-label))
-      (let ((label (buffer-substring
-		    start
-		    (previous-single-property-change (- start 1) 'org-ref-label))))
-	(when org-ref-label-debug (message "ordl-4: removing %s" label))
-	(setq org-ref-labels
-  	      (remove* label
-		       org-ref-labels
-  		       :test 'string=))))))
+      ;; this is an insertion. start=end
+      ;; if the previous position is a label, we need to find it
+      (when (and
+	     (> start 1)
+	     (get-text-property (- start 1) 'org-ref-label))
+	(let ((label (buffer-substring
+		      start
+		      (previous-single-property-change (- start 1) 'org-ref-label))))
+	  (when org-ref-label-debug (message "ordl-4: removing %s" label))
+	  (setq org-ref-labels
+  		(remove* label
+			 org-ref-labels
+  			 :test 'string=)))))))
 
 
 (defun org-ref-setup-label-finders ()
