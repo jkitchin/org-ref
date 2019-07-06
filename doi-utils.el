@@ -849,6 +849,9 @@ MATCHING-TYPES."
 (doi-utils-def-bibtex-type inbook ("chapter" "book-chapter" "reference-entry")
                            author title booktitle series publisher year pages doi url)
 
+(doi-utils-def-bibtex-type misc ("posted-content")
+			   author title year doi url)
+
 
 
 ;; With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
