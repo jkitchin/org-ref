@@ -1719,7 +1719,12 @@ deleted.
 Note: this will not necessarily trigger fontification on ref
 links so they might not look broken right away if their label is
 missing."
-  (when (and org-ref-labels (not (eobp)))
+  ;; This conditional is here because I get errors like Args out of range: 176,
+  ;; 176 which seem to be triggered by get-text-property. I also find that this
+  ;; can happen during export. The check on `org-export-current-backend' is not
+  ;; perfect, this can be nil for anonyomous derived backends.
+  (when (and org-ref-labels
+	     (not org-export-current-backend))
     (if (not (eq start end))
 	;; we are in a deletion. The text from start to end will be deleted
 	(progn
@@ -1762,6 +1767,7 @@ missing."
       ;; this is an insertion. start=end
       ;; if the previous position is a label, we need to find it
       (when (and
+	     (not (eobp))
 	     (> start 1)
 	     (get-text-property (- start 1) 'org-ref-label))
 	(let ((label (buffer-substring
