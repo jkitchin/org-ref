@@ -498,6 +498,42 @@ have fields sorted alphabetically."
   :type 'boolean
   :group 'org-ref)
 
+
+(defcustom org-ref-enable-colon-insert nil
+  "If non-nil enable colon to insert cites, labels, and ref links."
+  :type 'booleanp
+  :group 'org-ref)
+
+
+(defun org-ref-colon-insert-link (arg)
+  "Function to run when : has a special meaning.
+See `org-ref-enable-colon-insert'."
+  (interactive "P")
+  (insert ":")
+  (cond
+   ;; cite links
+   ((save-excursion
+      (backward-word 1)
+      (looking-at (regexp-opt org-ref-cite-types)))
+    (funcall org-ref-insert-cite-function))
+   ((save-excursion
+      (backward-word 1)
+      (looking-at "label:"))
+    (funcall org-ref-insert-label-function))
+   ((save-excursion
+      (backward-word 1)
+      (looking-at (regexp-opt org-ref-ref-types)))
+    (funcall org-ref-insert-ref-function))))
+
+
+(when org-ref-enable-colon-insert
+  (define-key org-mode-map ":"
+    '(menu-item "maybe-cite" nil
+		:filter (lambda (&optional _)
+                          (unless (org-in-src-block-p)
+			    #'org-ref-colon-insert-link)))))
+
+
 (defun org-ref-change-cite-type (new-type)
   "Change the cite type to NEW-TYPE."
   (interactive (list (completing-read "Type: " org-ref-cite-types)))
@@ -3880,6 +3916,14 @@ point. Leaves point at end of added keys."
 		 (mapconcat 'identity newkeys ",")
 		 (when bracket-p "]]")
 		 trailing-space)))
+     ;; Looking back at a link beginning that a user has typed in
+     ((save-excursion
+	(backward-word 1)
+	(looking-at (regexp-opt org-ref-cite-types)))
+      (setq begin (point)
+	    end (point)
+	    newkeys keys
+	    new-cite (mapconcat 'identity keys ",")))
      ;; a new cite
      (t
       (setq

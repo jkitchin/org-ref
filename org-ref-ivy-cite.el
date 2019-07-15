@@ -420,7 +420,7 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
   "Insert a label with ivy."
   (interactive)
   (insert
-   (concat "label:"
+   (concat (if (not (looking-back "label:" 6)) "label:" "")
 	   (ivy-read "label: " (org-ref-get-labels)))))
 
 
@@ -429,13 +429,23 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
 Use a prefix arg to select the ref type."
   (interactive)
   (let ((label (ivy-read "label: " (org-ref-get-labels) :require-match t)))
-    (insert
-     (or (when (looking-at "$") " ") "")
-     (concat (if ivy-current-prefix-arg
-		 (ivy-read "type: " org-ref-ref-types)
-	       org-ref-default-ref-type)
-	     ":"
-	     label))))
+    (cond
+     ;; from a colon insert
+     ((looking-back ":" 1)
+      (insert label))
+     ;; non-default
+     (ivy-current-prefix-arg
+      (insert
+       (ivy-read "type: " org-ref-ref-types)
+       ":"
+       label))
+     ;; default
+     (t
+      (insert
+       (or (when (looking-at "$") " ") "")
+       (concat org-ref-default-ref-type
+	       ":"
+	       label))))))
 
 
 (require 'hydra)
