@@ -3893,7 +3893,8 @@ point. Leaves point at end of added keys."
 		 (mapconcat 'identity newkeys ",")
 		 (when bracket-p "]]")
 		 trailing-space))))
-
+    ;; post link processing after all the variables habe been defined for each
+    ;; case
     (delete-region begin end)
     (goto-char begin)
     (insert new-cite)
