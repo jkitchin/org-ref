@@ -248,6 +248,8 @@ function in `org-ref-completion-library'."
     (define-key map (kbd "S-<left>") (lambda () (interactive) (org-ref-swap-citation-link -1)))
     (define-key map (kbd "S-<right>") (lambda () (interactive) (org-ref-swap-citation-link 1)))
     (define-key map (kbd "S-<up>") 'org-ref-sort-citation-link)
+    (define-key map (kbd "<tab>") (lambda () (interactive)
+				    (funcall org-ref-insert-cite-function)))
     map)
   "Keymap for cite links."
   :type 'symbol
