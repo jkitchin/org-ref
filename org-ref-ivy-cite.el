@@ -457,6 +457,7 @@ _p_: Open pdf     _w_: WOS          _g_: Google Scholar _K_: Copy citation to cl
 _u_: Open url     _r_: WOS related  _P_: Pubmed         _k_: Copy key to clipboard
 _n_: Open notes   _c_: WOS citing   _C_: Crossref       _f_: Copy formatted entry
 _o_: Open entry   _e_: Email entry  ^ ^                 _q_: quit
+_i_: Insert cite  _h_: change type
 "
   ("o" org-ref-open-citation-at-point nil)
   ("p" org-ref-open-pdf-at-point nil)
@@ -481,8 +482,9 @@ _o_: Open entry   _e_: Email entry  ^ ^                 _q_: quit
 		   (org-ref-open-citation-at-point)
 		   (org-ref-email-bibtex-entry)))
    nil)
+  ("i" (funcall org-ref-insert-cite-function))
+  ("h" org-ref-change-cite-type)
   ("q" nil))
-
 
 
 (defun org-ref-ivy-onclick-actions ()
