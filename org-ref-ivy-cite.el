@@ -34,6 +34,21 @@
 (require 'org-ref-citeproc)
 (require 'bibtex-completion)
 
+;; This lets you customize how the completion for ivy is displayed. The default
+;; is in the minibuffer. You may like to see something more like a popup though.
+(defcustom org-ref-ivy-display-function nil
+  "ivy function to display completion with.
+Set to `ivy-display-function-overlay' to get popups at point")
+
+(when org-ref-ivy-display-function
+  (add-to-list 'ivy-display-functions-alist
+	       `(org-ref-ivy-insert-cite-link . ,org-ref-ivy-display-function))
+  (add-to-list 'ivy-display-functions-alist
+	       `(org-ref-ivy-insert-label-link . ,org-ref-ivy-display-function))
+  (add-to-list 'ivy-display-functions-alist
+	       `(org-ref-ivy-insert-ref-link . ,org-ref-ivy-display-function)))
+
+
 (defvar org-ref-cite-types)
 (defvar org-ref-show-citation-on-enter)
 
