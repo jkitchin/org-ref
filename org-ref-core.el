@@ -1727,11 +1727,11 @@ Stores a list of strings.")
     ;; CUSTOM_ID in a heading
     ":CUSTOM_ID:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
     ;; #+name
-    "^#\\+name:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
+    "^\\s-*#\\+name:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
     ;; radio targets
     "<<\\(?1:[+a-zA-Z0-9:\\._-]*\\)>>"
     ;; #+tblname:
-    "^#\\+tblname:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
+    "^\\s-*#\\+tblname:\\s-+\\(?1:[+a-zA-Z0-9:\\._-]*\\)\\_>"
     ;; label links
     "label:\\(?1:[+a-zA-Z0-9:\\._-]*\\)"
     ;; labels in latex
