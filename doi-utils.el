@@ -849,6 +849,7 @@ MATCHING-TYPES."
 (doi-utils-def-bibtex-type inbook ("chapter" "book-chapter" "reference-entry")
                            author title booktitle series publisher year pages doi url)
 
+;; this is what preprints in chemrxiv look like for now
 (doi-utils-def-bibtex-type misc ("posted-content")
 			   author title year doi url)
 
