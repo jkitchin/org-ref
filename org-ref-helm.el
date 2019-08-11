@@ -300,7 +300,7 @@ at the end of you file.
 	(let ((matches '()))
 	  ;; these are the org-ref label:stuff  kinds
 	  (while (re-search-forward
-		  "[^#+]label:\\([a-zA-z0-9:-]*\\)" nil t)
+		  "[^#+]label:\\([a-zA-Z0-9:-]*\\)" nil t)
 	    (cl-pushnew (cons
 			 (match-string-no-properties 1)
 			 (point))
@@ -319,7 +319,7 @@ at the end of you file.
 	  ;; \label{}
 	  (save-excursion
 	    (goto-char (point-min))
-	    (while (re-search-forward "\\\\label{\\([a-zA-z0-9:-]*\\)}"
+	    (while (re-search-forward "\\\\label{\\([a-zA-Z0-9:-]*\\)}"
 				      nil t)
 	      (cl-pushnew (cons (match-string-no-properties 1) (point)) matches)))
 
