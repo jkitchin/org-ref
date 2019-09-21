@@ -3311,6 +3311,8 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
   "Replace the key in the entry."
   (let ((key (funcall org-ref-clean-bibtex-key-function
 		      (bibtex-generate-autokey))))
+    ;; remove any \\ in the key
+    (setq key (replace-regexp-in-string "\\\\" "" key))
     ;; first we delete the existing key
     (bibtex-beginning-of-entry)
     (re-search-forward bibtex-entry-maybe-empty-head)
