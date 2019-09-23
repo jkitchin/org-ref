@@ -218,14 +218,14 @@ This uses a citeproc library."
     (format "%s\n\n" (orhc-formatted-citation entry))))
 
 
-(defun or-ivy-bibtex-insert-formatted-citation (_)
+(defun or-ivy-bibtex-insert-formatted-citation (entry)
   "Insert formatted citations at point for selected entries."
   (with-ivy-window
-   (insert (mapconcat
-	    'identity
-	    (cl-loop for entry in org-ref-ivy-cite-marked-candidates
-		     collect (org-ref-format-bibtex-entry entry))
-	    "\n\n"))))
+    (insert (mapconcat
+	     'identity
+	     (cl-loop for entry in (or org-ref-ivy-cite-marked-candidates (list entry))
+		      collect (org-ref-format-bibtex-entry entry))
+	     "\n\n"))))
 
 
 (defun or-ivy-bibtex-copy-formatted-citation (entry)
