@@ -3307,8 +3307,10 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
     (insert ",")))
 
 
-(defun orcb-key ()
-  "Replace the key in the entry."
+(defun orcb-key (&optional allow-duplicate-keys)
+  "Replace the key in the entry.
+Prompts for replacement if the new key duplicates one already in
+the file, unless ALLOW-DUPLICATE-KEYS is non-nil."
   (let ((key (funcall org-ref-clean-bibtex-key-function
 		      (bibtex-generate-autokey))))
     ;; remove any \\ in the key
@@ -3320,8 +3322,9 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
 	(delete-region (match-beginning bibtex-key-in-head)
 		       (match-end bibtex-key-in-head)))
     ;; check if the key is in the buffer
-    (when (save-excursion
-	    (bibtex-search-entry key))
+    (when (and (not allow-duplicate-keys)
+               (save-excursion
+                 (bibtex-search-entry key)))
       (save-excursion
 	(bibtex-search-entry key)
 	(bibtex-copy-entry-as-kill)
