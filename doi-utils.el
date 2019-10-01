@@ -981,9 +981,6 @@ Argument BIBFILE the bibliography to use."
       (if (word-search-forward (concat doi) nil t)
           (message "%s is already in this file" doi)
         (goto-char (point-max))
-	;; make sure we are at the beginning of a line
-	(when (not (= (point) (line-beginning-position)))
-	  (forward-char 1))
 
 	(when (not (looking-back "\n\n" (min 3 (point))))
 	  (insert "\n\n"))
