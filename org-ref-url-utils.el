@@ -33,7 +33,8 @@
 
 ;; You can also insert formatted bibtex entries using the
 ;; `org-ref-url-html-to-bibtex' command, which converts a web page to
-;; bibtex or biblatex entry using URL.
+;; bibtex or biblatex entry using URL. The org-cliplink package can
+;; help cleanup HTML code. Installing it is recommended.
 
 ;;; Code:
 (defvar org-ref-bibliography-entry-format)
@@ -83,7 +84,6 @@ the DOI."
 
 (defvar org-ref-url-author-re
   "<meta name=\"author\" content=\"\\(.+\\)\"\s?/?>"
-  ;; "<[a-z\s]*=\"author\" [^>]*>\\([[:alpha:]\s]*\\)</[a-z].+"
   "Regular expression for matching author.")
 
 (defvar org-ref-url-date-re
