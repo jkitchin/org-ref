@@ -33,7 +33,8 @@
 
 ;; You can also insert formatted bibtex entries using the
 ;; `org-ref-url-html-to-bibtex' command, which converts a web page to
-;; bibtex or biblatex entry using URL.
+;; bibtex or biblatex entry using URL. The org-cliplink package can
+;; help cleanup HTML code. Installing it is recommended.
 
 ;;; Code:
 (defvar org-ref-bibliography-entry-format)
@@ -83,7 +84,6 @@ the DOI."
 
 (defvar org-ref-url-author-re
   "<meta name=\"author\" content=\"\\(.+\\)\"\s?/?>"
-  ;; "<[a-z\s]*=\"author\" [^>]*>\\([[:alpha:]\s]*\\)</[a-z].+"
   "Regular expression for matching author.")
 
 (defvar org-ref-url-date-re
@@ -314,7 +314,6 @@ not perfect, and some hits are not actually DOIs."
 
 (defun org-ref-url-html-replace (string)
   "Replace HTML entities in STRING with their unicode equivalent."
-  (require 'org-cliplink)
   (let (result
 	(case-fold-search nil))
     (with-temp-buffer
@@ -334,7 +333,7 @@ not perfect, and some hits are not actually DOIs."
     (mapcar (lambda (key)
 	      (unless (alist-get key list)
 		(push (cons key "nil") newlist)))
-	    '(:title :author :url :urldate :year))
+	    (list :title :author :url :urldate :year))
     (append list newlist)))
 
 
@@ -398,7 +397,7 @@ one in the minibuffer."
 	(while (not (looking-back "^}\n"))
 	  (delete-backward-char 1))
 	(insert "\n")
-	(insert (if (featurep 'org-cliplink)
+	(insert (if (require 'org-cliplink nil 'noerror)
 		    ;; Sanitize values by replacing html entities
 		    (org-ref-url-html-replace entry)
 		  entry))
