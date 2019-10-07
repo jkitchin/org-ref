@@ -1102,7 +1102,7 @@ easier to search specifically for them."
   (let ((s (replace-regexp-in-string
 	    "^{\\|}$" ""
 	    (replace-regexp-in-string
-	     "[\n\\|\t\\|\s]+" " "
+	     "[\n\t\s]+" " "
 	     (or (cdr (assoc field entry))
 		 (and (string= field "author")
 		      (cdr (assoc "editor" entry)))
