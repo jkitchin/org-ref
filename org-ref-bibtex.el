@@ -71,6 +71,7 @@
 (declare-function key-chord-define-global "key-chord")
 (declare-function org-ref-find-bibliography "org-ref-core")
 (declare-function org-ref-open-bibtex-pdf "org-ref-core")
+(declare-function org-ref-open-bibtex-notes "org-ref-core")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
 (declare-function org-ref-open-in-browser "org-ref-core")
 (declare-function org-ref-sort-bibtex-entry "org-ref-core")
