@@ -47,6 +47,8 @@
 (declare-function reftex-get-bib-field "reftex-cite")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
 (declare-function helm "helm")
+(declare-function org-bibtex-yank "org-bibtex")
+(declare-function org-ref-possible-bibfiles "org-ref-core")
 
 (eval-when-compile
   (require 'cl-lib))
