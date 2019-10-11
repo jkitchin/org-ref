@@ -394,8 +394,8 @@ one in the minibuffer."
 		     'aget alist)))
 	(goto-char (point-max))
 	;; Place new entry one line after the last entry.
-	(while (not (looking-back "^}\n"))
-	  (delete-backward-char 1))
+	(while (not (looking-back "^}\n" 2))
+	  (delete-char -1))
 	(insert "\n")
 	(insert (if (require 'org-cliplink nil 'noerror)
 		    ;; Sanitize values by replacing html entities
