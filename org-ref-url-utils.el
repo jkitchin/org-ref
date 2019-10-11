@@ -330,10 +330,10 @@ not perfect, and some hits are not actually DOIs."
 (defun org-ref-url-add-nil (list)
   "Add nil to all missing keys in LIST."
   (let (newlist)
-    (mapcar (lambda (key)
-	      (unless (alist-get key list)
-		(push (cons key "nil") newlist)))
-	    (list :title :author :url :urldate :year))
+    (mapc (lambda (key)
+	    (unless (alist-get key list)
+	      (push (cons key "nil") newlist)))
+	  (list :title :author :url :urldate :year))
     (append list newlist)))
 
 
