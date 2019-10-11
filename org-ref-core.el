@@ -1890,37 +1890,6 @@ whole buffer for them."
   (reverse org-ref-labels))
 
 
-;; (defun org-ref-get-labels ()
-;;   "Return a list of labels in the buffer that you can make a ref link to.
-;; This is used to complete ref links."
-;;   (save-excursion
-;;     (save-restriction
-;;       (widen)
-;;       (goto-char (point-min))
-;;       (let ((matches '()))
-;;         ;; these are the org-ref label:stuff  kinds
-;;         (while (re-search-forward
-;;                 "[^#+]label:\\([a-zA-Z0-9:\\._-]*\\)\\_>" (point-max) t)
-;; 	  (setq matches (append matches
-;; 				(list
-;; 				 (match-string-no-properties 1)))))
-;;         ;; now add all the other kinds of labels.
-;;         (append matches
-;; 		;; #+label:
-;; 		(org-ref-get-org-labels)
-;; 		;; \label{}
-;; 		(org-ref-get-latex-labels)
-;; 		;; #+tblname: and actually #+label
-;; 		(org-ref-get-tblnames)
-;; 		;; CUSTOM_IDs
-;; 		(org-ref-get-custom-ids)
-;; 		;; names
-;; 		(org-ref-get-names)
-;; 		;; radio targets
-;; 		(org-element-map (org-ref-parse-buffer) 'target
-;; 		  (lambda (tg) (org-element-property :value tg))))))))
-
-
 ;;;###autoload
 (defun org-ref-insert-ref-link ()
   "Completion function for a ref link."
