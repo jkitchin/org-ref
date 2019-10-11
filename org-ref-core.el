@@ -505,6 +505,12 @@ have fields sorted alphabetically."
   :group 'org-ref)
 
 
+(defcustom org-ref-label-use-font-lock t
+  "If non-nil use font-lock to find labels in the buffer.
+If nil, each time you ask for labels the whole buffer will be
+searched, which may be slower.")
+
+
 (defun org-ref-colon-insert-link (arg)
   "Function to run when : has a special meaning.
 See `org-ref-enable-colon-insert'."
@@ -1884,7 +1890,7 @@ to keep them sorted.
 
 If the `org-ref-labels' variable is empty, we try scanning the
 whole buffer for them."
-  (when (null org-ref-labels)
+  (when (or (null org-ref-labels) (null org-ref-label-use-font-lock))
     (save-excursion
       (org-ref-add-labels (point-min) (point-max))))
   (reverse org-ref-labels))
