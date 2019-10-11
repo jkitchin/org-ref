@@ -142,7 +142,8 @@ ${org-latex-pdf-process}
 	     'aget
 	     `(("org-ref-completion-library" . ,(format "%s" org-ref-completion-library))
 	       ("org-ref-bibliography-notes" . ,(format "%s"  org-ref-bibliography-notes))
-	       ("orbn-p" . ,(format "%s" (file-exists-p org-ref-bibliography-notes)))
+	       ("org-ref-bibliography-notes exists" . ,(format "%s" (when org-ref-bibliography-notes
+								      (file-exists-p org-ref-bibliography-notes))))
 	       ("org-ref-version" . ,(org-ref-version))
 	       ("org-latex-pdf-process" . ,(format "%S" org-latex-pdf-process))
 	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
