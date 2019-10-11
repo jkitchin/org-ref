@@ -717,21 +717,21 @@ If so return the position for `goto-char'."
 (defvar org-ref-cite-re
   (concat "\\(" (mapconcat
                  (lambda (x)
-		   (replace-regexp-in-string "\*" "\\\\*" x))
+		   (replace-regexp-in-string "\\*" "\\\\*" x))
                  org-ref-cite-types "\\|") "\\):"
-                 "\\([a-zA-Z0-9-_:\\./]+,?\\)+")
+                 "\\([a-zA-Z0-9_:\\./-]+,?\\)+")
   "Regexp for cite links.
 Group 1 contains the cite type.
 Group 2 contains the keys.")
 
 
 (defvar org-ref-label-re
-  "label:\\([a-zA-Z0-9-_:]+,?\\)+"
+  "label:\\([a-zA-Z0-9_:-]+,?\\)+"
   "Regexp for label links.")
 
 
 (defvar org-ref-ref-re
-  "\\(eq\\)?ref:\\([a-zA-Z0-9-_:]+,?\\)+"
+  "\\(eq\\)?ref:\\([a-zA-Z0-9_:-]+,?\\)+"
   "Regexp for ref links.")
 
 
@@ -1735,7 +1735,7 @@ Stores a list of strings.")
     ;; label links
     "label:\\(?1:[+a-zA-Z0-9:\\._-]*\\)"
     ;; labels in latex
-    "\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}")
+    "\\\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}")
   "List of regexps that are labels in org-ref.")
 
 
@@ -2140,7 +2140,7 @@ properties."
 		    bibtex-key)))
 	    ;; point is on the link description, assume we want the
 	    ;; last key
-	    (let ((last-key (replace-regexp-in-string "[a-zA-Z0-9-_]*," "" link-string)))
+	    (let ((last-key (replace-regexp-in-string "[a-zA-Z0-9_-]*," "" link-string)))
 	      last-key))
 	;; link with description. assume only one key
 	link-string))))
@@ -2192,7 +2192,7 @@ set in `org-ref-default-bibliography'"
         ;; many.
         (goto-char (point-min))
         (while (re-search-forward
-                "\\\\addbibresource{\\(.*\\)?}"
+                "\\\\addbibresource{\\(.*\\)}"
                 nil t)
           (push (match-string 1) org-ref-bibliography-files))
 
@@ -3105,7 +3105,7 @@ file.  Makes a new buffer with clickable links."
     ;; Let us also check \attachfile{fname}
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "\\attachfile{\\([^}]*\\)}" nil t)
+      (while (re-search-forward "\\\\attachfile{\\([^}]*\\)}" nil t)
         (unless (file-exists-p (match-string 1))
           (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
     bad-files))
@@ -3309,8 +3309,10 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
     (insert ",")))
 
 
-(defun orcb-key ()
-  "Replace the key in the entry."
+(defun orcb-key (&optional allow-duplicate-keys)
+  "Replace the key in the entry.
+Prompts for replacement if the new key duplicates one already in
+the file, unless ALLOW-DUPLICATE-KEYS is non-nil."
   (let ((key (funcall org-ref-clean-bibtex-key-function
 		      (bibtex-generate-autokey))))
     ;; remove any \\ in the key
@@ -3322,8 +3324,9 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
 	(delete-region (match-beginning bibtex-key-in-head)
 		       (match-end bibtex-key-in-head)))
     ;; check if the key is in the buffer
-    (when (save-excursion
-	    (bibtex-search-entry key))
+    (when (and (not allow-duplicate-keys)
+               (save-excursion
+                 (bibtex-search-entry key)))
       (save-excursion
 	(bibtex-search-entry key)
 	(bibtex-copy-entry-as-kill)

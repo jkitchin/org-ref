@@ -33,7 +33,7 @@
 (defvar org-ref-latex-cite-re
   (concat "\\\\\\(" (mapconcat
 		     (lambda (x)
-		       (replace-regexp-in-string "\*" "\\\\*" x))
+		       (replace-regexp-in-string "\\*" "\\\\*" x))
 		     org-ref-cite-types
 		     "\\|")
 	  "\\)"

@@ -218,7 +218,7 @@ key."
                        (match-end bibtex-key-in-head)))
             ;; remove potentially troublesome characters from key
             ;; as it will be used as  a filename
-            (setq key (replace-regexp-in-string   "\"\\|\\*\\|/\\|:\\|<\\|>\\|\\?\\|\\\\\\||\\|\\+\\|,\\|\\.\\|;\\|=\\|\\[\\|]\\|:\\|!\\|@"
+            (setq key (replace-regexp-in-string   "\"\\|\\*\\|/\\|:\\|<\\|>\\|\\?\\|\\\\\\||\\|\\+\\|,\\|\\.\\|;\\|=\\|\\[\\|]\\|!\\|@"
                                                   "" key))
             ;; check if the key is in the buffer
             (when (save-excursion

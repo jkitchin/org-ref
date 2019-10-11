@@ -31,11 +31,17 @@
 ;; content with the current DOI patterns highlighted. If you want to get all the
 ;; DOIs at a URL, you can press Meta during the drag-n-drop.
 
+;; You can also insert formatted bibtex entries using the
+;; `org-ref-url-html-to-bibtex' command, which converts a web page to
+;; bibtex or biblatex entry using URL. The org-cliplink package can
+;; help cleanup HTML code. Installing it is recommended.
+
 ;;; Code:
 (defvar org-ref-bibliography-entry-format)
 (defvar org-ref-get-pdf-filename-function)
 (defvar org-ref-notes-function)
 (defvar org-ref-cite-types)
+(defvar org-cliplink-escape-alist)
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
@@ -45,6 +51,7 @@
 
 (require 'doi-utils)
 (require 'f)
+(require 's)
 (eval-when-compile
   (require 'cl-lib))
 
@@ -70,6 +77,38 @@ The doi should be in group 1 so that (match-string 1) contains
 the DOI."
   :type '(repeat regexp)
   :group 'org-ref-url-utils)
+
+(defvar org-ref-url-title-re
+  "<title.?+?>\\([[:ascii:][:nonascii:]]*?\\|.+\\)</title>"
+  "Regular expression for matching title.")
+
+(defvar org-ref-url-author-re
+  "<meta name=\"author\" content=\"\\(.+\\)\"\s?/?>"
+  "Regular expression for matching author.")
+
+(defvar org-ref-url-date-re
+  "<[a-z].+ class=\\(.?+date.[^>]*\\)>\\([[:ascii:][:nonascii:]]*?\\)</[a-z].+>"
+  "Regular expression for matching date.")
+
+(defvar org-ref-url-bibtex-template
+  "@misc{key,
+  title        = {${:title}},
+  author       = {${:author}},
+  howpublished = {${:url}},
+  year         = {${:year}},
+  note         = {Online; accessed ${:urldate}}
+}"
+  "BibTeX entry template for online sources.")
+
+(defvar org-ref-url-biblatex-template
+  "@online{key,
+title   = {${:title}},
+author  = {${:author}},
+url     = {${:url}}
+year    = {${:year}},
+urldate = {Online; accessed ${:urldate}}
+}"
+  "Biblatex entry template for online sources.")
 
 
 ;;* Scrape DOIs from a URL
@@ -270,6 +309,100 @@ not perfect, and some hits are not actually DOIs."
 
 (define-key bibtex-mode-map (kbd "<s-drag-n-drop>") 'org-ref-url-dnd-first)
 
+
+;; HTML to BibTeX functions
+
+(defun org-ref-url-html-replace (string)
+  "Replace HTML entities in STRING with their unicode equivalent."
+  (let (result
+	(case-fold-search nil))
+    (with-temp-buffer
+      (insert string)
+      (mapc (lambda (char)
+	      (goto-char (point-min))
+	      (while (re-search-forward (car char) nil t)
+		(replace-match (cdr char))))
+	    org-cliplink-escape-alist)
+      (setq result (buffer-substring (point-min) (point-max))))
+    result))
+
+
+(defun org-ref-url-add-nil (list)
+  "Add nil to all missing keys in LIST."
+  (let (newlist)
+    (mapcar (lambda (key)
+	      (unless (alist-get key list)
+		(push (cons key "nil") newlist)))
+	    (list :title :author :url :urldate :year))
+    (append list newlist)))
+
+
+(defun org-ref-url-html-read (url)
+  "Read URL content and return fields.
+Fields include author, title, url, urldate, and year."
+  ;; Start with fields we already know
+  (let ((fields `((:url . ,url)
+		  (:urldate . ,(format-time-string "%d %B %Y")))))
+    (with-current-buffer
+	(url-retrieve-synchronously url t t)
+
+      ;; find pubdate
+      (goto-char (point-min))
+      (when (re-search-forward org-ref-url-date-re nil t)
+	(let ((string (match-string 2)))
+	  (when (string-match "\\([0-9]\\{4\\}\\)" string)
+	    (push (cons :year (match-string 1 string)) fields))))
+
+      ;; find author
+      (goto-char (point-min))
+      (when (re-search-forward org-ref-url-author-re nil t)
+	(push (cons :author (match-string 1)) fields))
+
+      ;; find title
+      (goto-char (point-min))
+      (when (re-search-forward org-ref-url-title-re nil t)
+	(push (cons :title
+		    (s-trim (decode-coding-string (match-string 1) 'utf-8)))
+	      fields)))
+
+    ;; Finally add nil value to missing fields
+    (org-ref-url-add-nil fields)))
+
+
+;;;###autoload
+(defun org-ref-url-html-to-bibtex (bibfile &optional url)
+  "Convert URL to a bibtex or biblatex entry in BIBFILE.
+If URL is the first in the kill ring, use it. Otherwise, prompt for
+one in the minibuffer."
+  (interactive (if (-contains? (org-ref-find-bibliography) (buffer-file-name))
+		   (list (buffer-file-name))
+		 (list (completing-read "Bibtex file: " (org-ref-find-bibliography)))))
+  (let ((url (if url url
+	       (if (s-match "^http" (current-kill 0 'do-not-move))
+		   (format "%s" (current-kill 0 'do-not-move))
+		 (read-from-minibuffer "URL: ")))))
+    (with-current-buffer
+	(find-file-noselect bibfile)
+      ;; Maybe check dialect if set as local variable
+      (let* ((dialect bibtex-dialect)
+	     (alist (org-ref-url-html-read url))
+	     (entry (s-format
+		     ;; Check dialect and format entry accordingly
+		     (if (eq dialect 'biblatex)
+			 org-ref-url-biblatex-template
+		       org-ref-url-bibtex-template)
+		     'aget alist)))
+	(goto-char (point-max))
+	;; Place new entry one line after the last entry.
+	(while (not (looking-back "^}\n"))
+	  (delete-backward-char 1))
+	(insert "\n")
+	(insert (if (require 'org-cliplink nil 'noerror)
+		    ;; Sanitize values by replacing html entities
+		    (org-ref-url-html-replace entry)
+		  entry))
+	(bibtex-beginning-of-entry)
+	(org-ref-clean-bibtex-entry)))))
 
 (provide 'org-ref-url-utils)
 ;;; org-ref-url-utils.el ends here
