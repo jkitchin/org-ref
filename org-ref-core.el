@@ -3005,54 +3005,47 @@ file.  Makes a new buffer with clickable links."
   "Return a list of labels where label is multiply defined."
   (let ((labels (org-ref-get-labels))
         (multiple-labels '()))
-    (when (not (= (length labels)
-                  (length (-uniq labels))))
-      (dolist (label labels)
-        (when (> (-count (lambda (a)
-                           (equal a label))
-                         labels)
-		 1)
-          ;; this means there are multiply defined labels. now we find them.
-          (let ((cp (point)))
-            (goto-char (point-min))
-	    ;; regular org label:tag links
-            (while (re-search-forward
-                    (format  "[^#+]label:%s\\s-" label) nil t)
-              (cl-pushnew (cons label (point-marker)) multiple-labels
-			  :test (lambda (a b)
-				  (and (string= (car a) (car b))
-				       (= (marker-position (cdr a))
-					  (marker-position (cdr b)))))))
+    (dolist (label labels)
+      (let ((cp (point)))
+        (goto-char (point-min))
+	;; regular org label:tag links
+        (while (re-search-forward
+                (format  "[^#+]label:%s\\s-" label) nil t)
+          (cl-pushnew (cons label (point-marker)) multiple-labels
+		      :test (lambda (a b)
+			      (and (string= (car a) (car b))
+				   (= (marker-position (cdr a))
+				      (marker-position (cdr b)))))))
 
-            (goto-char (point-min))
-	    ;; latex style
-            (while (re-search-forward
-                    (format  "\\label{%s}\\s-?" label) nil t)
-              (cl-pushnew (cons label (point-marker)) multiple-labels
-			  :test (lambda (a b)
-				  (and (string= (car a) (car b))
-				       (= (marker-position (cdr a))
-					  (marker-position (cdr b)))))))
+        (goto-char (point-min))
+	;; latex style
+        (while (re-search-forward
+                (format  "\\label{%s}\\s-?" label) nil t)
+          (cl-pushnew (cons label (point-marker)) multiple-labels
+		      :test (lambda (a b)
+			      (and (string= (car a) (car b))
+				   (= (marker-position (cdr a))
+				      (marker-position (cdr b)))))))
 
-	    ;; keyword style
-            (goto-char (point-min))
-            (while (re-search-forward
-                    (format  "^\\( \\)*#\\+label:\\s-*%s" label) nil t)
-              (cl-pushnew (cons label (point-marker)) multiple-labels
-			  :test (lambda (a b)
-				  (and (string= (car a) (car b))
-				       (= (marker-position (cdr a))
-					  (marker-position (cdr b)))))))
+	;; keyword style
+        (goto-char (point-min))
+        (while (re-search-forward
+                (format  "^\\( \\)*#\\+label:\\s-*%s" label) nil t)
+          (cl-pushnew (cons label (point-marker)) multiple-labels
+		      :test (lambda (a b)
+			      (and (string= (car a) (car b))
+				   (= (marker-position (cdr a))
+				      (marker-position (cdr b)))))))
 
-            (goto-char (point-min))
-            (while (re-search-forward
-                    (format "^\\( \\)*#\\+tblname:\\s-*%s" label) nil t)
-              (cl-pushnew (cons label (point-marker)) multiple-labels
-			  :test (lambda (a b)
-				  (and (string= (car a) (car b))
-				       (= (marker-position (cdr a))
-					  (marker-position (cdr b)))))))
-            (goto-char cp)))))
+        (goto-char (point-min))
+        (while (re-search-forward
+                (format "^\\( \\)*#\\+tblname:\\s-*%s" label) nil t)
+          (cl-pushnew (cons label (point-marker)) multiple-labels
+		      :test (lambda (a b)
+			      (and (string= (car a) (car b))
+				   (= (marker-position (cdr a))
+				      (marker-position (cdr b)))))))
+        (goto-char cp)))
     multiple-labels))
 
 
