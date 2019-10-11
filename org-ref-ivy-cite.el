@@ -38,7 +38,9 @@
 ;; is in the minibuffer. You may like to see something more like a popup though.
 (defcustom org-ref-ivy-display-function nil
   "ivy function to display completion with.
-Set to `ivy-display-function-overlay' to get popups at point")
+Set to `ivy-display-function-overlay' to get popups at point."
+  :type 'function
+  :group 'org-ref)
 
 (when org-ref-ivy-display-function
   (add-to-list 'ivy-display-functions-alist
