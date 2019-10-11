@@ -3011,47 +3011,49 @@ file.  Makes a new buffer with clickable links."
   "Return a list of labels where label is multiply defined."
   (let ((labels (org-ref-get-labels))
         (multiple-labels '()))
+    ;; labels should be a unique list.
     (dolist (label labels)
-      (let ((cp (point)))
-        (goto-char (point-min))
-	;; regular org label:tag links
-        (while (re-search-forward
-                (format  "[^#+]label:%s\\s-" label) nil t)
-          (cl-pushnew (cons label (point-marker)) multiple-labels
-		      :test (lambda (a b)
-			      (and (string= (car a) (car b))
-				   (= (marker-position (cdr a))
-				      (marker-position (cdr b)))))))
+      (when (> (org-ref-count-labels label) 1)
+	(let ((cp (point)))
+          (goto-char (point-min))
+	  ;; regular org label:tag links
+          (while (re-search-forward
+                  (format  "[^#+]label:%s\\s-" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
 
-        (goto-char (point-min))
-	;; latex style
-        (while (re-search-forward
-                (format  "\\label{%s}\\s-?" label) nil t)
-          (cl-pushnew (cons label (point-marker)) multiple-labels
-		      :test (lambda (a b)
-			      (and (string= (car a) (car b))
-				   (= (marker-position (cdr a))
-				      (marker-position (cdr b)))))))
+          (goto-char (point-min))
+	  ;; latex style
+          (while (re-search-forward
+                  (format  "\\label{%s}\\s-?" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
 
-	;; keyword style
-        (goto-char (point-min))
-        (while (re-search-forward
-                (format  "^\\( \\)*#\\+label:\\s-*%s" label) nil t)
-          (cl-pushnew (cons label (point-marker)) multiple-labels
-		      :test (lambda (a b)
-			      (and (string= (car a) (car b))
-				   (= (marker-position (cdr a))
-				      (marker-position (cdr b)))))))
+	  ;; keyword style
+          (goto-char (point-min))
+          (while (re-search-forward
+                  (format  "^\\( \\)*#\\+label:\\s-*%s" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
 
-        (goto-char (point-min))
-        (while (re-search-forward
-                (format "^\\( \\)*#\\+tblname:\\s-*%s" label) nil t)
-          (cl-pushnew (cons label (point-marker)) multiple-labels
-		      :test (lambda (a b)
-			      (and (string= (car a) (car b))
-				   (= (marker-position (cdr a))
-				      (marker-position (cdr b)))))))
-        (goto-char cp)))
+          (goto-char (point-min))
+          (while (re-search-forward
+                  (format "^\\( \\)*#\\+tblname:\\s-*%s" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
+          (goto-char cp))))
     multiple-labels))
 
 
@@ -3099,8 +3101,8 @@ file.  Makes a new buffer with clickable links."
          (other-fields)
          (type (cdr (assoc "=type=" entry)))
          (key (cdr (assoc "=key=" entry)))
-	     (field-order (cdr (assoc (if type (downcase type))
-				                  org-ref-bibtex-sort-order))))
+	 (field-order (cdr (assoc (if type (downcase type))
+				  org-ref-bibtex-sort-order))))
 
     ;; these are the fields we want to order that are in this entry
     (setq entry-fields (mapcar (lambda (x) (car x)) entry))
@@ -3110,28 +3112,28 @@ file.  Makes a new buffer with clickable links."
 
     ;;these are the other fields in the entry, and we sort them alphabetically.
     (setq other-fields
-	      (sort (-remove (lambda(x) (member x field-order)) entry-fields)
-		        'string<))
+	  (sort (-remove (lambda(x) (member x field-order)) entry-fields)
+		'string<))
 
     (save-restriction
       (bibtex-kill-entry)
       (insert
        (concat "@" type "{" key ",\n"
-	           (mapconcat
-	            (lambda (field)
-		          (when (member field entry-fields)
-		            (format "%s = %s,"
-			                field
-			                (cdr (assoc field entry)))))
-	            field-order "\n")
-	           ;; now add the other fields
-	           (mapconcat
-	            (lambda (field)
-		          (cl-loop for (f . v) in entry concat
-			               (when (string= f field)
-			                 (format "%s = %s,\n" f v))))
-	            (-uniq other-fields) "\n")
-	           "\n}"))
+	       (mapconcat
+	        (lambda (field)
+		  (when (member field entry-fields)
+		    (format "%s = %s,"
+			    field
+			    (cdr (assoc field entry)))))
+	        field-order "\n")
+	       ;; now add the other fields
+	       (mapconcat
+	        (lambda (field)
+		  (cl-loop for (f . v) in entry concat
+			   (when (string= f field)
+			     (format "%s = %s,\n" f v))))
+	        (-uniq other-fields) "\n")
+	       "\n}"))
       (bibtex-find-entry key)
       (bibtex-fill-entry)
       (bibtex-clean-entry))))
