@@ -750,9 +750,10 @@ There are a few different ways in which PDFs can be opened from org-ref. By defa
 (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
 #+END_SRC
 
-An alternative approach adapted from https://github.com/jkitchin/org-ref/issues/184 to use pdfview is described here. First, unstall org-pdfview (on MELPA).
+An alternative approach adapted from https://github.com/jkitchin/org-ref/issues/184 to use pdfview is described here. First, install org-pdfview (on MELPA).
 
 Add this to your init file:
+
 #+BEGIN_SRC emacs-lisp
 ;; PDF links for org-mode
 (with-eval-after-load "pdf-tools"
