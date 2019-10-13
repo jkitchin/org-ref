@@ -29,7 +29,12 @@
 ;;; Code:
 
 (require 'f)
-(require 'pdf-tools)
+
+;; [2019-10-13 Sun] I am commenting this out for now. I added it for some
+;; reason, but I cannot figure out why. It is pretty slow to load, so since I
+;; don't know why it is here, I am commenting it out until it is obvious again.
+;; (require 'pdf-tools)
+
 (eval-when-compile
   (require 'cl-lib))
 
@@ -266,6 +271,7 @@ variable `org-ref-pdf-doi-regex'."
 (defun org-ref-pdf-crossref-lookup ()
   "Lookup highlighted text in PDFView in CrossRef."
   (interactive)
+  (require 'pdf-view)
   (pdf-view-assert-active-region)
   (let* ((txt (pdf-view-active-region-text)))
     (pdf-view-deactivate-region)
