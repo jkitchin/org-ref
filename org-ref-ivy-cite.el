@@ -438,14 +438,16 @@ prefix ARG is used, which uses `org-ref-default-bibliography'."
   (interactive)
   (insert
    (concat (if (not (looking-back "label:" 6)) "label:" "")
-	   (ivy-read "label: " (org-ref-get-labels)))))
+	   (ivy-read "label: " (org-ref-get-labels)
+		     :caller 'org-ref-ivy-insert-label-link))))
 
 
 (defun org-ref-ivy-insert-ref-link ()
   "Insert a ref link with ivy.
 Use a prefix arg to select the ref type."
   (interactive)
-  (let ((label (ivy-read "label: " (org-ref-get-labels) :require-match t)))
+  (let ((label (ivy-read "label: " (org-ref-get-labels) :require-match t
+			 :caller 'org-ref-ivy-insert-ref-link)))
     (cond
      ;; from a colon insert
      ((looking-back ":" 1)
