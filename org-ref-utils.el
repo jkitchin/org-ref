@@ -520,6 +520,13 @@ function, and functions are conditionally added to it.")
 
 
 ;;;###autoload
+(defun org-ref-copy-cite-as-summary ()
+  "Copy a summary for the citation at point to the clipboard."
+  (interactive)
+  (kill-new (org-ref-link-message)))
+
+
+;;;###autoload
 (defun org-ref-copy-entry-at-point-to-file ()
   "Copy the bibtex entry for the citation at point to NEW-FILE.
 Prompt for NEW-FILE includes bib files in
