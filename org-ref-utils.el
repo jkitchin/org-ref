@@ -34,6 +34,10 @@
   :type 'boolean
   :group 'org-ref)
 
+(defcustom org-ref-search-whitespace-regexp "\\s-+"
+  "A whitespace regexp for use in `org-ref-strip-string."
+  :group 'org-ref)
+
 (defvar org-ref-cite-types)
 (defvar org-ref-get-pdf-filename-function)
 (defvar org-ref-notes-function)
@@ -630,9 +634,9 @@ directory.  You can also specify a new file."
 (defun org-ref-strip-string (string)
   "Strip leading and trailing whitespace from the STRING."
   (replace-regexp-in-string
-   (concat search-whitespace-regexp "$" ) ""
+   (concat org-ref-search-whitespace-regexp "$" ) ""
    (replace-regexp-in-string
-    (concat "^" search-whitespace-regexp ) "" string)))
+    (concat "^" org-ref-search-whitespace-regexp ) "" string)))
 
 
 (defun org-ref-split-and-strip-string (string)
