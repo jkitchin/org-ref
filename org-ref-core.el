@@ -2954,7 +2954,7 @@ file.  Makes a new buffer with clickable links."
   (let* ((cp (point))			; save to return to later
          (bibtex-files (cl-loop for f in (org-ref-find-bibliography)
 				if (file-exists-p f)
-				collect f))
+				collect (file-truename f)))
          (bibtex-file-path (mapconcat
                             (lambda (x)
                               (file-name-directory (file-truename x)))
