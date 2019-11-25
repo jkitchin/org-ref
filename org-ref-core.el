@@ -1338,7 +1338,7 @@ Ignore figures in COMMENTED sections."
 		(when
 		    (and (string= (org-element-property :type link) "file")
 			 (string-match-p
-			  "[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\)$"
+			  "[^.]*\\.\\(png\\|jpg\\|eps\\|pdf\\|svg\\)$"
 			  (org-element-property :path link))
 			 ;; ignore commented sections
 			 (save-excursion
