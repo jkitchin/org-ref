@@ -53,30 +53,41 @@
 (defun ris2bib (risfile &optional verbose)
   "Convert RISFILE to bibtex and insert at point.
 Without a prefix arg, stderr is diverted.
-If VERBOSE is non-nil show command output."
+If VERBOSE is non-nil show command output.
+If the region is active, assume it is a ris entry
+and convert it to bib format in place."
   (interactive
-   (list (read-file-name "RIS file:")
+   (list (if (not (region-active-p))
+             (read-file-name "RIS file:"))
          (prefix-numeric-value current-prefix-arg)))
-  (let ((result (shell-command-to-string
-                 (concat
-                  (format
-                   "ris2xml %s | xml2bib -w"
-                   risfile)
-                  (unless verbose " 2> /dev/null")))))
+  (let ((result
+         (if risfile
+             (shell-command-to-string
+              (concat
+               (format
+                "ris2xml %s | xml2bib -w"
+                risfile)
+               (unless verbose " 2> /dev/null")))
+           (progn
+             (shell-command-on-region (region-beginning) (region-end)
+                                      "ris2xml 2> /dev/null | xml2bib -w 2> /dev/null" nil
+                                      t)
+                  nil))))
     ;; make some lines into comments.
-    (setq result (replace-regexp-in-string
-                  "^xml2bib:"
-                  "% xml2bib:"
-                  result))
-    (setq result (replace-regexp-in-string
-                  "^ris2xml:"
-                  "% ris2xml"
-                  result))
-    (setq result (replace-regexp-in-string
-                  "^	Defaulting"
-                  "%	Defaulting"
-                  result))
-    (insert result)))
+    (when result
+      (setq result (replace-regexp-in-string
+                    "^xml2bib:"
+                    "% xml2bib:"
+                    result))
+      (setq result (replace-regexp-in-string
+                    "^ris2xml:"
+                    "% ris2xml"
+                    result))
+      (setq result (replace-regexp-in-string
+                    "^	Defaulting"
+                    "%	Defaulting"
+                    result))
+      (insert result))))
 
 ;;* Pubmed XML to bibtex
 
