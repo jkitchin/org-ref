@@ -31,6 +31,8 @@
 (require 'org)
 (require 's)
 (require 'org-ref-utils)
+(require 'parsebib)
+
 
 ;; This is a local variable defined in `url-http'.  We need it to avoid
 ;; byte-compiler errors.
