@@ -738,7 +738,10 @@ checked."
 	    (string-match "Status *406" json-data)
 	    (string-match "400 Bad Request" json-data))
 	(browse-url (concat doi-utils-dx-doi-org-url doi))
-	(error "Something went wrong.  Opening %s" url))
+	(error "Something went wrong.  We got this response:
+%a
+
+Opening %s" json-data url))
 
        ;; everything seems ok with the data
        (t
