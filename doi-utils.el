@@ -739,7 +739,7 @@ checked."
 	    (string-match "400 Bad Request" json-data))
 	(browse-url (concat doi-utils-dx-doi-org-url doi))
 	(error "Something went wrong.  We got this response:
-%a
+%s
 
 Opening %s" json-data url))
 
