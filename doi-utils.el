@@ -725,18 +725,24 @@ checked."
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/citeproc+json")
         (json-object-type 'plist)
-        (json-data))
+        (json-data)
+	(url (concat doi-utils-dx-doi-org-url doi)))
     (with-current-buffer
         (url-retrieve-synchronously
-         (concat "http://dx.doi.org/" doi))
+         ;; (concat "http://dx.doi.org/" doi)
+	 url)
       (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
-      (if (or (string-match "<title>Error: DOI Not Found</title>" json-data)
-	      (string-match "Resource not found" json-data)
-              (string-match "Status *406" json-data))
-          (progn
-            (browse-url (concat doi-utils-dx-doi-org-url doi))
-            (error "Resource not found.  Opening website"))
-        (json-read-from-string json-data)))))
+      (cond
+       ((or (string-match "<title>Error: DOI Not Found</title>" json-data)
+	    (string-match "Resource not found" json-data)
+	    (string-match "Status *406" json-data)
+	    (string-match "400 Bad Request" json-data))
+	(browse-url (concat doi-utils-dx-doi-org-url doi))
+	(error "Something went wrong.  Opening %s" url))
+
+       ;; everything seems ok with the data
+       (t
+	(json-read-from-string json-data))))))
 
 ;; We can use that data to construct a bibtex entry. We do that by defining a
 ;; template, and filling it in. I wrote this template expansion code which makes
