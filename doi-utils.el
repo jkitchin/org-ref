@@ -181,7 +181,7 @@ must return a pdf-url, or nil.")
 
 (defun aps-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
-  (when (string-match "^http://journals.aps.org" *doi-utils-redirect*)
+  (when (string-match "^http\\(s*\\)://journals.aps.org" *doi-utils-redirect*)
     (replace-regexp-in-string "/abstract/" "/pdf/" *doi-utils-redirect*)))
 
 
