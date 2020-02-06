@@ -243,6 +243,13 @@ Argument REDIRECT-URL URL you are redirected to."
     *doi-utils-pdf-url*))
 
 
+(defun agu-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "https://agupubs.onlinelibrary.wiley.com"
+		      *doi-utils-redirect*)
+    (replace-regexp-in-string "/full/" "/pdfdirect/" *doi-utils-redirect*)))
+
+
 ;;** Springer
 
 (defun springer-chapter-pdf-url (*doi-utils-redirect*)
@@ -634,6 +641,7 @@ It would be better to parse this, but here I just use a regexp.
        'osa-pdf-url
        'asme-biomechanical-pdf-url
        'siam-pdf-url
+       'agu-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
