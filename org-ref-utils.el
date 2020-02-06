@@ -850,11 +850,15 @@ From the PDF specification 1.7:
     The first line of a PDF file shall be a header consisting of
     the 5 characters %PDF- followed by a version number of the
     form 1.N, where N is a digit between 0 and 7."
-  (let ((header (with-temp-buffer
-                  (set-buffer-multibyte nil)
-                  (insert-file-contents-literally filename nil 0 5)
-                  (buffer-string))))
-    (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
+  (let* ((header (with-temp-buffer
+		   (set-buffer-multibyte nil)
+		   (insert-file-contents-literally filename nil 0 5)
+		   (buffer-string)))
+	 (valid (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
+    (if valid
+	valid
+      (message "Invalid pdf. Header = %s" header)
+      nil)))
 
 
 ;;;###autoload
