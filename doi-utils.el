@@ -198,9 +198,7 @@ must return a pdf-url, or nil.")
 (defun nature-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http\\(s?\\)://www.nature.com" *doi-utils-redirect*)
-    (let ((result *doi-utils-redirect*))
-      (setq result (replace-regexp-in-string "/full/" "/pdf/" result))
-      (replace-regexp-in-string "\.html$" "\.pdf" result))))
+    (concat *doi-utils-redirect* ".pdf")))
 
 
 ;;** Elsevier/ScienceDirect
