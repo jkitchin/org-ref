@@ -417,7 +417,6 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
 	("ß" . "{\\\\ss}")
 	("≤" . "$\\\\le$")
 	("≥" . "$\\\\ge$")
-	("<" . "$<$")
 	("θ" . "$\\\\theta$")
 	("μ" . "$\\\\mu$")
 	("→" . "$\\\\rightarrow$")
