@@ -2697,15 +2697,7 @@ for each bib entry."
 ;;** Open notes from bibtex entry
 ;;;###autoload
 (defun org-ref-open-bibtex-notes ()
-  "From a bibtex entry, open the notes if they exist.
-If the notes do not exist, then create a heading.
-
-I never did figure out how to use reftex to make this happen
-non-interactively.  the `reftex-format-citation' function did not
-work perfectly; there were carriage returns in the strings, and
-it did not put the key where it needed to be.  so, below I replace
-the carriage returns and extra spaces with a single space and
-construct the heading by hand."
+  "From a bibtex entry, open the notes if they exist."
   (interactive)
 
   (bibtex-beginning-of-entry)
@@ -2715,40 +2707,7 @@ construct the heading by hand."
                          collect (cons (downcase key) (s-collapse-whitespace value))))
          (key (reftex-get-bib-field "=key=" entry)))
 
-    ;; save key to clipboard to make saving pdf later easier by pasting.
-    (with-temp-buffer
-      (insert key)
-      (kill-ring-save (point-min) (point-max)))
-
-    ;; now look for entry in the notes file
-    (save-restriction
-      (if  org-ref-bibliography-notes
-          (find-file-other-window org-ref-bibliography-notes)
-        (error "org-ref-bibliography-notes is not set to anything"))
-
-      (widen)
-      (goto-char (point-min))
-      (let* ((headlines (org-element-map
-			    (org-ref-parse-buffer)
-			    'headline 'identity))
-	     (keys (mapcar
-		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
-		    headlines)))
-	;; put new entry in notes if we don't find it.
-	(if (-contains? keys key)
-	    (progn
-	      (org-open-link-from-string (format "[[#%s]]" key))
-	      (funcall org-ref-open-notes-function))
-	  ;; no entry found, so add one
-	  (goto-char (point-max))
-	  (insert (org-ref-reftex-format-citation
-		   entry (concat "\n" org-ref-note-title-format)))
-	  (mapc (lambda (x)
-		  (save-restriction
-		    (save-excursion
-		      (funcall x))))
-		org-ref-create-notes-hook)
-	  (save-buffer))))))
+    (funcall org-ref-notes-function key)))
 
 
 ;;** Open bibtex entry in browser
