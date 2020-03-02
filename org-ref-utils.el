@@ -477,17 +477,7 @@ Can also be called with THEKEY in a program."
 (defun org-ref-citation-at-point ()
   "Give message of current citation at point."
   (interactive)
-  (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor))
-  ;; (let* ((results (org-ref-get-bibtex-key-and-file))
-  ;;        (key (car results))
-  ;;        (bibfile (cdr results)))
-  ;;   (message "%s" (progn
-  ;;                   (with-temp-buffer
-  ;;                     (insert-file-contents bibfile)
-  ;;                     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-  ;;                     (bibtex-search-entry key)
-  ;;                     (org-ref-bib-citation)))))
-  )
+  (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
 
 
 ;;;###autoload
