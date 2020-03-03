@@ -2702,6 +2702,7 @@ long file with headlines for each entry."
 	  (goto-char (point-max))
 	  (insert (org-ref-reftex-format-citation
 		   entry (concat "\n" org-ref-note-title-format)))
+    (insert (format "cite:%s\n" (org-entry-get (point) "Custom_ID")))
 	  (save-buffer))))))
 
 
