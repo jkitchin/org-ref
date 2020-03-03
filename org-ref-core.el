@@ -2665,29 +2665,48 @@ the entry of interest in the bibfile.  but does not check that."
           (org-open-link-from-string (format "[[file:%s]]" pdf))
         (ding)))))
 
-(defun org-ref-notes-function-one-file (thekey)
-  "Function to open note belonging to THEKEY.
 
+(defun org-ref-notes-function-one-file (key)
+  "Function to open note belonging to KEY.
  Set `org-ref-notes-function' to this function if you use one
 long file with headlines for each entry."
-  (let*
-      ((results
-        (org-ref-get-bibtex-key-and-file thekey))
-       (key
-        (car results))
-       (bibfile
-        (cdr results)))
-    (with-temp-buffer
-      (insert-file-contents bibfile)
-      (bibtex-set-dialect
-       (parsebib-find-bibtex-dialect)
-       t)
-      (bibtex-search-entry key)
-      (org-ref-open-bibtex-notes))))
+  ;; save key to clipboard to make saving pdf later easier by pasting.
+  (with-temp-buffer
+    (insert key)
+    (kill-ring-save (point-min) (point-max)))
+  (let ((entry (with-temp-buffer
+		 (insert (org-ref-get-bibtex-entry key))
+		 (bibtex-mode)
+		 (bibtex-beginning-of-entry)
+		 (bibtex-parse-entry)) ))
+
+    (save-restriction
+      (if  org-ref-bibliography-notes
+	  (find-file-other-window org-ref-bibliography-notes)
+	(error "org-ref-bibliography-notes is not set to anything"))
+
+      (widen)
+      (goto-char (point-min))
+      (let* ((headlines (org-element-map
+			    (org-ref-parse-buffer)
+			    'headline 'identity))
+	     (keys (mapcar
+		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
+		    headlines)))
+	(if (-contains? keys key)
+	    ;; we have it so we go to it.
+	    (progn
+	      (org-open-link-from-string (format "[[#%s]]" key))
+	      (funcall org-ref-open-notes-function))
+	  ;; no entry found, so add one
+	  (goto-char (point-max))
+	  (insert (org-ref-reftex-format-citation
+		   entry (concat "\n" org-ref-note-title-format)))
+	  (save-buffer))))))
+
 
 (defun org-ref-notes-function-many-files (thekey)
   "Function to open note belonging to THEKEY.
-
 Set `org-ref-notes-function' to this function if you use one file
 for each bib entry."
   (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
@@ -2699,7 +2718,6 @@ for each bib entry."
 (defun org-ref-open-bibtex-notes ()
   "From a bibtex entry, open the notes if they exist."
   (interactive)
-
   (bibtex-beginning-of-entry)
   (let* ((cb (current-buffer))
          (bibtex-expand-strings t)

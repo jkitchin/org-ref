@@ -470,6 +470,8 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
   "Open the notes for bibtex key under point in a cite link in a buffer.
 Can also be called with THEKEY in a program."
   (interactive)
+  (when (null thekey)
+    (setq thekey (org-ref-get-bibtex-key-under-cursor)))
   (funcall org-ref-notes-function thekey))
 
 
