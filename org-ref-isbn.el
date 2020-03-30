@@ -171,7 +171,7 @@ in the file. Data comes from worldcat."
 	 (entry))
     (with-current-buffer (url-retrieve-synchronously url t t)
       (goto-char (point-min))
-      (when (re-search-forward "@[a-zA-Z]+{.+\\(\n\s+[a-z\s={\.,?:;'0-9\n}-]+\\)+}$" nil t)
+      (when (re-search-forward "@[a-zA-Z]+{.+\\(\n\s+[^\n]+\\)+}$" nil t)
 	(setq entry (match-string 0))))
 
     (if (not entry)
