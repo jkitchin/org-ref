@@ -199,7 +199,7 @@ Entry gets added after the last #+latex_header line."
     :help-echo 'or-glossary-tooltip
     :export (lambda (path _ format)
 	      (cond
-	       ((eq format 'latex)
+	       ((memq format '(latex beamer))
 		(format "\\%s{%s}" command path))
 	       (t
 		(format "%s" path))))))
@@ -340,7 +340,7 @@ FULL is the expanded acronym."
     :help-echo 'or-acronym-tooltip
     :export (lambda (path _ format)
 	      (cond
-	       ((eq format 'latex)
+	       ((memq format '(latex beamer))
 		(format "\\%s{%s}" (cdr mapping) path))
 	       (t
 		(format "%s" (upcase path)))))))
