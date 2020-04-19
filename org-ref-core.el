@@ -3236,13 +3236,24 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
       (replace-match " \\\\& "))))
 
 
+(defvar orcb-%-replacement-string " \\\\%"
+  "Replacement for a naked % sign in cleaning a BibTeX entry.
+The replacement string should be escaped for use with
+`replace-match'. Compare to the default value. Common choices
+would be to omit the space or to replace the space with a ~ for a
+non-breaking space.")
+
 (defun orcb-% ()
-  "Replace naked % with % in a bibtex entry."
+  "Replace naked % with % in a bibtex entry.
+Except when it is already escaped or in a URL. The replacement
+for the % is defined by `orcb-%-replacement-string'."
   (save-restriction
     (bibtex-narrow-to-entry)
     (bibtex-beginning-of-entry)
-    (while (re-search-forward "%" nil t)
-      (replace-match " \\\\%"))))
+    (while (re-search-forward "\\([^\\]\\)%\\([^[:xdigit:]]\\)" nil t)
+      (replace-match (concat "\\1"
+                             wt/orcb-%-replacement-string
+                             "\\2")))))
 
 
 (defun orcb-key-comma ()
