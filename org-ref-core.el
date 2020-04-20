@@ -3252,7 +3252,7 @@ for the % is defined by `orcb-%-replacement-string'."
     (bibtex-beginning-of-entry)
     (while (re-search-forward "\\([^\\]\\)%\\([^[:xdigit:]]\\)" nil t)
       (replace-match (concat "\\1"
-                             wt/orcb-%-replacement-string
+                             orcb-%-replacement-string
                              "\\2")))))
 
 
