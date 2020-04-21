@@ -211,7 +211,7 @@ Entry gets added after the last #+latex_header line."
   :help-echo 'or-glossary-tooltip
   :export (lambda (path desc format)
             (cond
-             ((eq format 'latex)
+             ((memq format '(latex beamer))
               (format "\\glslink{%s}{%s}" path desc))
 	     (t
 	      (format "%s" path)))))
