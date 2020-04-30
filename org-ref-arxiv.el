@@ -136,6 +136,7 @@ Returns a formatted BibTeX entry."
                   (insert temp-bibtex)
 		  (bibtex-mode)
 		  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+		  (org-ref-replace-nonascii)
                   (bibtex-generate-autokey))))
       (format arxiv-entry-format-string key title names year arxiv-number category abstract url))))
 
