@@ -59,7 +59,7 @@
 		       (cons
 			(expand-file-name "jump" org-test-dir)
 			load-path))))
-      (require 'cl)
+      (require 'cl-lib)
       (when (= emacs-major-version 22)
 	(defvar special-mode-map
 	  (let ((map (make-sparse-keymap)))
