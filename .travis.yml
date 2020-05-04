@@ -35,5 +35,6 @@ install:
 
 script:
   - emacs --version
-  - EMACS=`evm bin` make test
-  - EMACS=`evm bin` make compile
+  - make test
+  - make compile
+  - echo "Done testing"
