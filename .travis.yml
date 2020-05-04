@@ -17,12 +17,13 @@ before_install:
 
 
 env:
-  - EVM_EMACS=emacs-26.1-travis
-  - EVM_EMACS=emacs-git-snapshot-travis
+  - EVM_EMACS=emacs-26.1-linux-xenial
+  - EVM_EMACS=emacs-26.2-linux-xenial
+  - EVM_EMACS=emacs-26.3-linux-xenial
+  - EVM_EMACS=emacs-git-snapshot-travis-linux-xenial
 
 matrix:
   allow_failures:
-  - env: EVM_EMACS=emacs-26.1-travis
   - env: EVM_EMACS=emacs-git-snapshot-travis
 
 script:
