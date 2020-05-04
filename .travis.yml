@@ -4,6 +4,7 @@ dist: trusty
 group: deprecated-2017Q4
 
 before_install:
+  - sudo apt-get install openssl
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
   - evm install $EVM_EMACS --use --skip
   - evm list
