@@ -1,29 +1,35 @@
-language: generic
+language: emacs-lisp
+# Emacs fails to build in container-based builds on Travis
+# See https://github.com/travis-ci/travis-ci/issues/9061
+# and https://github.com/moby/moby/issues/22801
 sudo: required
 dist: trusty
-
-
-before_install:
-  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
-  - evm install $EVM_EMACS --use --skip
-  - evm list
-  - evm use $EVM_EMACS
-  - evm bin
-  - which emacs
-  - emacs --version
-  - EMACS=`evm bin` cask
-  - EMACS=`evm bin` cask install
-
-
-env:
-  - EVM_EMACS=emacs-26.1-travis-linux-xenial
-  - EVM_EMACS=emacs-26.2-travis-linux-xenial
-  - EVM_EMACS=emacs-26.3-travis-linux-xenial
-  - EVM_EMACS=emacs-git-snapshot-travis-linux-xenial
-
+cache:
+  - directories:
+      # Cache stable Emacs binaries (saves 1min per job)
+      - "$HOME/emacs/"
+# Allow Emacs snapshot builds to fail and don’t wait for these as they can take
+# a looooong time
 matrix:
+  fast_finish: true
   allow_failures:
-  - env: EVM_EMACS=emacs-git-snapshot-travis
+    - env: EMACS_VERSION=snapshot
+env:
+  - EMACS_VERSION=26.0.91 PRETEST=yes
+  - EMACS_VERSION=snapshot
+before_install:
+  # Configure $PATH: Executables are installed to $HOME/bin
+  - export PATH="$HOME/bin:$PATH"
+  # Download the makefile to emacs-travis.mk
+  - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
+  # Install Emacs (according to $EMACS_VERSION) and Cask
+  - make -f emacs-travis.mk install_emacs
+  - make -f emacs-travis.mk install_cask
+  # Install Texinfo, if you need to build info manuals for your project
+  - make -f emacs-travis.mk install_texinfo
+install:
+  # Install your dependencies
+  - cask install
 
 script:
   - emacs --version
