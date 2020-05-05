@@ -2702,6 +2702,11 @@ long file with headlines for each entry."
 	  (goto-char (point-max))
 	  (insert (org-ref-reftex-format-citation
 		   entry (concat "\n" org-ref-note-title-format)))
+	  (mapc (lambda (x)
+		  (save-restriction
+		    (save-excursion
+		      (funcall x))))
+		org-ref-create-notes-hook)
 	  (save-buffer))))))
 
 
