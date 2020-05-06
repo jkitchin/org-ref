@@ -117,7 +117,7 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
                                         ;; insert a new link
                                         (insert
                                          (concat
-                                          org-ref-default-ref-type ":" label))
+                                          (org-ref-infer-ref-type label) ":" label))
                                         )))
                                    ;; one prefix, alternate ref link
                                    ((equal helm-current-prefix-arg '(4))
