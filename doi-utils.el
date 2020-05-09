@@ -779,7 +779,11 @@ Opening %s" json-data url))
 (eval-and-compile
   (defvar doi-utils-json-metadata-extract
     '((type       (plist-get results :type))
-      (author     (mapconcat (lambda (x) (concat (plist-get x :given) " " (plist-get x :family)))
+      (author     (mapconcat (lambda (x)
+			       (message "%s" x)
+			       (if (plist-get x :name)
+				   (plist-get x :name)
+				 (concat (plist-get x :given) " " (plist-get x :family))))
                              (plist-get results :author) " and "))
       (title      (plist-get results :title))
       (subtitle   (plist-get results :subtitle))
@@ -1076,8 +1080,14 @@ Every field will be updated, so previous change will be lost."
   (let* ((results (doi-utils-get-json-metadata doi))
          (type (plist-get results :type))
          (author (mapconcat
-                  (lambda (x) (concat (plist-get x :given)
-                                      " " (plist-get x :family)))
+                  (lambda (x)
+		    ;; There are two possible ways an author is named. The most
+		    ;; common is with :given and :family, but sometimes there is
+		    ;; :name instead.
+		    (if (plist-get x :name)
+			(plist-get x :name)
+		      (concat (plist-get x :given)
+			      " " (plist-get x :family))))
                   (plist-get results :author) " and "))
          (title (plist-get results :title))
          (journal (plist-get results :container-title))
