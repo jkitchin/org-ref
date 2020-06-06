@@ -181,6 +181,9 @@ in the file. Data comes from worldcat."
       (insert (with-temp-buffer
 		(insert (concat entry "\n}"))
 		(goto-char (point-min))
+		;; [2020-06-06 Sat] I got a report that ottobib returns entries
+		;; with ,, in the first line. here if we find one, I eliminate
+		;; one of them.
 		(when (re-search-forward ",," nil t)
 		  (delete-char -1))
 		(org-ref-isbn-clean-bibtex-entry)
