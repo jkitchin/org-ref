@@ -181,6 +181,8 @@ in the file. Data comes from worldcat."
       (insert (with-temp-buffer
 		(insert (concat entry "\n}"))
 		(goto-char (point-min))
+		(when (re-search-forward ",," nil t)
+		  (delete-char -1))
 		(org-ref-isbn-clean-bibtex-entry)
 		(org-ref-clean-bibtex-entry)
 		(bibtex-fill-entry)
