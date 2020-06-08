@@ -756,8 +756,8 @@ Add this to your init file:
 
 #+BEGIN_SRC emacs-lisp
 ;; PDF links for org-mode
-(with-eval-after-load "pdf-tools"
-  (use-package org-pdfview
+(with-eval-after-load 'pdf-tools
+  (use-package org-pdftools
     :config
     ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00169.html
     ;; Before adding, remove it (to avoid clogging)
@@ -765,7 +765,7 @@ Add this to your init file:
     ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00176.html
     (add-to-list 'org-file-apps
 		 '("\\.pdf\\'" . (lambda (file link)
-				   (org-pdfview-open link))))))
+				   (org-pdftools-open link))))))
 #+END_SRC
 
 *** A note for Mendeley, JabRef and Zotero users
