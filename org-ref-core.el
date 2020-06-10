@@ -2677,6 +2677,7 @@ long file with headlines for each entry."
   (let ((entry (with-temp-buffer
 		 (insert (org-ref-get-bibtex-entry key))
 		 (bibtex-mode)
+		 (bibtex-set-dialect nil t)
 		 (bibtex-beginning-of-entry)
 		 (bibtex-parse-entry)) ))
 
