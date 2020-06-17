@@ -399,9 +399,9 @@ If candidate is already in, remove it."
 Uses `org-ref-find-bibliography' for bibtex sources, unless a
 prefix ARG is used, which uses `org-ref-default-bibliography'."
   (interactive "P")
-  (setq org-ref-bibtex-files (if arg
-				 org-ref-default-bibliography
-			       (org-ref-find-bibliography)))
+  (setq org-ref-bibtex-files (list (if arg
+                                       org-ref-default-bibliography
+                                     (org-ref-find-bibliography))))
   (setq org-ref-ivy-cite-marked-candidates '())
 
   (ivy-read "Open: " (orhc-bibtex-candidates)
