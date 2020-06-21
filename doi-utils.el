@@ -606,6 +606,12 @@ It would be better to parse this, but here I just use a regexp.
   (when (string-match "^http\\(s?\\)://epubs.siam.org" *doi-utils-redirect*)
     (replace-regexp-in-string "/doi/" "/doi/pdf/" *doi-utils-redirect* )))
 
+;; PLOS journals
+;; https://plos.org/
+(defun plos-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^http\\(s*\\)://journals.plos.org" *doi-utils-redirect*)
+    (concat (replace-regexp-in-string (regexp-quote "/article?id=") "/article/file?id=" *doi-utils-redirect*) "&type=printable")))
 
 
 ;;** Add all functions
@@ -642,6 +648,7 @@ It would be better to parse this, but here I just use a regexp.
        'asme-biomechanical-pdf-url
        'siam-pdf-url
        'agu-pdf-url
+       'plos-pdf-url
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
