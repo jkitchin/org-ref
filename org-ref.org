@@ -789,7 +789,7 @@ If ~bibtex-completion-pdf-field~ is defined, the function below should work with
 Mendeley users should set to:
 
 #+BEGIN_SRC emacs-lisp
-(setq org-ref-open-pdf-function 'org-ref-get-mendeley-filename)
+(setq org-ref-get-pdf-filename-function 'org-ref-get-mendeley-filename)
 #+END_SRC
 
 ** Setting up notes to work with multiple notes.org files
