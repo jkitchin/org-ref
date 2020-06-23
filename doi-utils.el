@@ -358,23 +358,21 @@ Argument REDIRECT-URL URL you are redirected to."
 (defun doi-utils-get-science-direct-pdf-url (redirect-url)
   "Science direct hides the pdf url in html.  We get it out here.
 REDIRECT-URL is where the pdf url will be in."
-  (setq *doi-utils-waiting* t)
-  (url-retrieve
-   redirect-url
-   (lambda (status)
-     (goto-char (point-min))
-     (re-search-forward "pdf_url\" content=\"\\([^\"]*\\)\"" nil t) ; modified the search string to reflect updated science direct
-     (setq *doi-utils-pdf-url* (match-string 1)
-	   *doi-utils-waiting* nil)))
-  (while *doi-utils-waiting* (sleep-for 0.1))
-  *doi-utils-pdf-url*)
-
+  (let ((first-url
+         (with-current-buffer (url-retrieve-synchronously redirect-url)
+           (goto-char (point-min))
+           (when (re-search-forward "pdf_url\" content=\"\\([^\"]*\\)\"" nil t)
+             (match-string-no-properties 1)))))
+    (and first-url
+         (with-current-buffer (url-retrieve-synchronously first-url)
+           (goto-char (point-min))
+           (when (re-search-forward "or click <a href=\"\\([^\"]*\\)\">" nil t)
+             (match-string-no-properties 1))))))
 
 (defun science-direct-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http\\(s?\\)://www.sciencedirect.com" *doi-utils-redirect*)
-    (doi-utils-get-science-direct-pdf-url *doi-utils-redirect*)
-    *doi-utils-pdf-url*))
+    (doi-utils-get-science-direct-pdf-url *doi-utils-redirect*)))
 
 ;; sometimes I get
 ;; http://linkinghub.elsevier.com/retrieve/pii/S0927025609004558
@@ -389,8 +387,7 @@ REDIRECT-URL is where the pdf url will be in."
       ;; change URL to science direct and use function to get pdf URL
       "https://linkinghub.elsevier.com/retrieve"
       "https://www.sciencedirect.com/science/article"
-      *doi-utils-redirect*))
-    *doi-utils-pdf-url*))
+      *doi-utils-redirect*))))
 
 ;;** PNAS
 ;; http://www.pnas.org/content/early/2014/05/08/1319030111
