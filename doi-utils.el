@@ -208,39 +208,18 @@ must return a pdf-url, or nil.")
   "Stores url to pdf download from a callback function.")
 
 ;;** Wiley
+;; Wiley have changed the url structure from
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/abstract
 ;; http://onlinelibrary.wiley.com/doi/10.1002/anie.201402680/pdf
-
-;; It appears that it is not enough to use the pdf url above. That takes you to
-;; an html page. The actual link to teh pdf is embedded in that page. This is
-;; how ScienceDirect does things too.
-
-;; This is where the link is hidden:
-
-;; <iframe id="pdfDocument" src="http://onlinelibrary.wiley.com/store/10.1002/anie.201402680/asset/6397_ftp.pdf?v=1&amp;t=hwut2142&amp;s=d4bb3cd4ad20eb733836717f42346ffb34017831" width="100%" height="675px"></iframe>
-
-
-(defun doi-utils-get-wiley-pdf-url (redirect-url)
-  "Wileyscience direct hides the pdf url in html.
-We get it out here by parsing the html.
-Argument REDIRECT-URL URL you are redirected to."
-  (setq *doi-utils-waiting* t)
-  (url-retrieve
-   redirect-url
-   (lambda (status)
-     (goto-char (point-min))
-     (re-search-forward "<iframe id=\"pdfDocument\" src=\"\\([^\"]*\\)\"" nil t)
-     (setq *doi-utils-pdf-url* (match-string 1)
-           *doi-utils-waiting* nil)))
-  (while *doi-utils-waiting* (sleep-for 0.1))
-  *doi-utils-pdf-url*)
+;; to
+;; http://onlinelibrary.wiley.com/doi/abs/10.1002/anie.201402680
+;; http://onlinelibrary.wiley.com/doi/pdf/10.1002/anie.201402680
+;; Hence fewer steps are now required.
 
 (defun wiley-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http\\(s?\\)://onlinelibrary.wiley.com" *doi-utils-redirect*)
-    (doi-utils-get-wiley-pdf-url
-     (replace-regexp-in-string "/abstract" "/pdf" *doi-utils-redirect*))
-    *doi-utils-pdf-url*))
+    (replace-regexp-in-string "doi/abs" "doi/pdf" *doi-utils-redirect*)))
 
 
 (defun agu-pdf-url (*doi-utils-redirect*)
