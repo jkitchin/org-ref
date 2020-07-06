@@ -39,6 +39,7 @@
   (require 'cl-lib))
 
 (declare-function org-ref-bibtex-key-from-doi "org-ref-bibtex.el")
+(declare-function pdf-view-assert-active-region "pdf-view.el")
 
 (defgroup org-ref-pdf nil
   "Customization group for org-ref-pdf"
