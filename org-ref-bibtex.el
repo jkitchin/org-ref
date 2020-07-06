@@ -948,7 +948,7 @@ entry having a doi."
 	   pdf)
       ;; when we have org-ref defined we may have pdf to find.
       (when (boundp 'org-ref-pdf-directory)
-	(setq pdf (funcall org-ref-get-pdf-filename-function key))
+	(setq pdf (funcall org-ref-get-pdf-filename-function key)))
       (bibtex-copy-entry-as-kill)
       (compose-mail)
       (message-goto-body)
