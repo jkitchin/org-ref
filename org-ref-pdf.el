@@ -39,7 +39,6 @@
   (require 'cl-lib))
 
 (declare-function org-ref-bibtex-key-from-doi "org-ref-bibtex.el")
-(declare-function pdf-view-assert-active-region "pdf-view.el")
 
 (defgroup org-ref-pdf nil
   "Customization group for org-ref-pdf"
@@ -273,7 +272,8 @@ variable `org-ref-pdf-doi-regex'."
   "Lookup highlighted text in PDFView in CrossRef."
   (interactive)
   (require 'pdf-view)
-  (pdf-view-assert-active-region)
+  (unless (pdf-view-active-region-p)
+    (error "The region is not active"))
   (let* ((txt (pdf-view-active-region-text)))
     (pdf-view-deactivate-region)
     (crossref-lookup (mapconcat 'identity txt "	 \n"))))
