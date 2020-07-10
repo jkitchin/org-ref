@@ -719,6 +719,10 @@ If so return the position for `goto-char'."
   :type 'string
   :group 'org-ref)
 
+(defcustom org-ref-latex-bib-resolve-func #'file-relative-name
+  "used to expand paths to the bibliography file on latex export."
+  :type 'function
+  :group 'org-ref)
 
 (defvar org-ref-cite-re
   (concat "\\(" (mapconcat
@@ -1088,7 +1092,7 @@ PREDICATE."
 	     "\\.bib" ""
 	     (mapconcat
 	      'identity
-	      (mapcar 'file-relative-name
+	      (mapcar org-ref-latex-bib-resolve-func
 		      (split-string keyword ","))
 	      ","))))))
 
@@ -1181,7 +1185,7 @@ font-lock-warning-face if any file does not exist."
 	    (replace-regexp-in-string
 	     "\\.bib" ""
 	     (mapconcat 'identity
-			(mapcar 'file-relative-name
+			(mapcar org-ref-latex-bib-resolve-func
 				(split-string keyword ","))
 			","))))))
 
