@@ -94,6 +94,12 @@
   :type 'string
   :group 'doi-utils)
 
+(defcustom doi-utils-file-field
+  "file"
+  "The bibtex field to store the path when an entry PDF has been saved."
+  :type 'string
+  :group 'doi-utils)
+
 (defcustom doi-utils-timestamp-format-function
   'current-time-string
   "The function to format the timestamp for a bibtex entry.
@@ -686,7 +692,9 @@ checked."
 	  (url-copy-file pdf-url pdf-file)
 	  ;; now check if we got a pdf
           (if (org-ref-pdf-p pdf-file)
-              (message "%s saved" pdf-file)
+	      ;; set file path added for the record
+	      (progn (bibtex-set-field doi-utils-file-field pdf-file)
+	      	     (message "%s saved" pdf-file))
             (delete-file pdf-file)
             (message "No pdf was downloaded.")
             (browse-url pdf-url)))
@@ -879,7 +887,7 @@ MATCHING-TYPES."
 Also cleans entry using ‘org-ref’, and tries to download the corresponding pdf."
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
-  ;; set date added for the record
+  ;; set date and file path added for the record
   (let ((ts (funcall doi-utils-timestamp-format-function)))
     (when ts
       (bibtex-set-field doi-utils-timestamp-field
@@ -890,6 +898,8 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf))
+  (org-ref-clean-bibtex-entry)
+  (save-buffer)
 
   (when (and doi-utils-make-notes org-ref-bibliography-notes)
     (save-excursion
