@@ -393,9 +393,11 @@ one in the minibuffer."
 		       org-ref-url-bibtex-template)
 		     'aget alist)))
 	(goto-char (point-max))
-	;; Place new entry one line after the last entry.
-	(while (not (looking-back "^}\n" 2))
-	  (delete-char -1))
+	;; Place new entry one line after the last entry. Sometimes we are in a
+	;; new file though, in which case we don't want to do this.
+	(unless (bobp)
+	  (while (not (looking-back "^}\n" 2))
+	    (delete-char -1)))
 	(insert "\n")
 	(insert (if (require 'org-cliplink nil 'noerror)
 		    ;; Sanitize values by replacing html entities
