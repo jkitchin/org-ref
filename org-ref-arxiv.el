@@ -150,12 +150,12 @@ Returns a formatted BibTeX entry."
 
 (defun arxiv-maybe-arxiv-id-from-current-kill ()
   "Try to get an arxiv ID from the current kill."
-  (let* ((the-current-kill (current-kill 0 t))
-        (arxiv-url-prefix-regexp "^https?://arxiv\\.org/\\(pdf\\|abs\\|format\\)/")
-        (arxiv-cite-prefix-regexp "^\\(arXiv\\|arxiv\\):")
-        (arxiv-id-old-regexp "[a-z-]+\\(\\.[A-Z]\\{2\\}\\)?/[0-9]\\{5,7\\}$") ; Ex: math.GT/0309136
-        (arxiv-id-new-regexp "[0-9]\\{4\\}[.][0-9]\\{4,5\\}\\(v[0-9]+\\)?$") ; Ex: 1304.4404v2
-        (arxiv-id-regexp (concat "\\(" arxiv-id-old-regexp "\\|" arxiv-id-new-regexp "\\)")))
+  (let* ((the-current-kill (ignore-errors (current-kill 0 t)))  ;; nil if empty kill ring
+         (arxiv-url-prefix-regexp "^https?://arxiv\\.org/\\(pdf\\|abs\\|format\\)/")
+         (arxiv-cite-prefix-regexp "^\\(arXiv\\|arxiv\\):")
+         (arxiv-id-old-regexp "[a-z-]+\\(\\.[A-Z]\\{2\\}\\)?/[0-9]\\{5,7\\}$") ; Ex: math.GT/0309136
+         (arxiv-id-new-regexp "[0-9]\\{4\\}[.][0-9]\\{4,5\\}\\(v[0-9]+\\)?$") ; Ex: 1304.4404v2
+         (arxiv-id-regexp (concat "\\(" arxiv-id-old-regexp "\\|" arxiv-id-new-regexp "\\)")))
   (cond
    (;; make sure current-kill has something in it
     ;; if current-kill is not a string, return nil
