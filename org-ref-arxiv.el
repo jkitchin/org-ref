@@ -148,11 +148,46 @@ Returns a formatted BibTeX entry."
                  (--map (s-split " +" it) authors))))
 
 
+(defun arxiv-maybe-arxiv-id-from-current-kill ()
+  "Try to get an arxiv ID from the current kill."
+  (let* ((the-current-kill (ignore-errors (current-kill 0 t)))  ;; nil if empty kill ring
+         (arxiv-url-prefix-regexp "^https?://arxiv\\.org/\\(pdf\\|abs\\|format\\)/")
+         (arxiv-cite-prefix-regexp "^\\(arXiv\\|arxiv\\):")
+         (arxiv-id-old-regexp "[a-z-]+\\(\\.[A-Z]\\{2\\}\\)?/[0-9]\\{5,7\\}$") ; Ex: math.GT/0309136
+         (arxiv-id-new-regexp "[0-9]\\{4\\}[.][0-9]\\{4,5\\}\\(v[0-9]+\\)?$") ; Ex: 1304.4404v2
+         (arxiv-id-regexp (concat "\\(" arxiv-id-old-regexp "\\|" arxiv-id-new-regexp "\\)")))
+  (cond
+   (;; make sure current-kill has something in it
+    ;; if current-kill is not a string, return nil
+    (not (stringp the-current-kill))
+    nil)
+   (;; check if current-kill looks like an arxiv ID
+    ;; if so, return it
+    ;; Ex: 1304.4404v2
+    (s-match (concat "^" arxiv-id-regexp) the-current-kill)
+    the-current-kill)
+   (;; check if current-kill looks like an arxiv cite
+    ;; if so, remove the prefix and return
+    ;; Ex: arXiv:1304.4404v2 --> 1304.4404v2
+    (s-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp) the-current-kill)
+    (replace-regexp-in-string arxiv-cite-prefix-regexp "" the-current-kill))
+   (;; check if current-kill looks like an arxiv url
+    ;; if so, remove the url prefix and return
+    ;; Ex: https://arxiv.org/pdf/1304.4404 --> 1304.4404
+    (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp) the-current-kill)
+    (replace-regexp-in-string arxiv-url-prefix-regexp "" the-current-kill))
+   ;; otherwise, return nil
+   (t
+    nil))))
+
+
 ;;;###autoload
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
   "Add bibtex entry for ARXIV-NUMBER to BIBFILE."
   (interactive
-   (list (read-string "arxiv: ")
+   (list (read-string
+          "arxiv: "
+          (arxiv-maybe-arxiv-id-from-current-kill))
          ;;  now get the bibfile to add it to
          (completing-read
           "Bibfile: "
@@ -172,7 +207,12 @@ Returns a formatted BibTeX entry."
 ;;;###autoload
 (defun arxiv-get-pdf (arxiv-number pdf)
   "Retrieve a pdf for ARXIV-NUMBER and save it to PDF."
-  (interactive "sarxiv: \nsPDF: ")
+  (interactive
+   (list (read-string
+          "arxiv: "
+          (arxiv-maybe-arxiv-id-from-current-kill))
+         (read-string
+          "PDF: ")))
   (let ((pdf-url (with-current-buffer
                      (url-retrieve-synchronously
                       (concat
@@ -196,7 +236,9 @@ Remove troublesome chars from the bibtex key, retrieve a pdf
 for ARXIV-NUMBER and save it to PDFDIR with the same name of the
 key."
   (interactive
-   (list (read-string "arxiv: ")
+   (list (read-string
+          "arxiv: "
+          (arxiv-maybe-arxiv-id-from-current-kill))
          ;;  now get the bibfile to add it to
          (completing-read
           "Bibfile: "

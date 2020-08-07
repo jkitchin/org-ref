@@ -953,59 +953,7 @@ Argument BIBFILE the bibliography to use."
    (list (read-string
           "DOI: "
           ;; now set initial input
-          (cond
-           ;; If region is active and it starts like a doi we want it.
-           ((and  (region-active-p)
-                  (s-match "^10" (buffer-substring
-                                  (region-beginning)
-                                  (region-end))))
-            (buffer-substring (region-beginning) (region-end)))
-	   ((and  (region-active-p)
-                  (s-match "^http://dx\\.doi\\.org/" (buffer-substring
-						      (region-beginning)
-						      (region-end))))
-            (replace-regexp-in-string "^http://dx\\.doi\\.org/" ""
-				      (buffer-substring (region-beginning) (region-end))))
-	   ((and  (region-active-p)
-		  (s-match "^https://dx\\.doi\\.org/" (buffer-substring
-						       (region-beginning)
-						       (region-end))))
-	    (replace-regexp-in-string "^https://dx\\.doi\\.org/" ""
-				      (buffer-substring (region-beginning) (region-end))))
-	   ((and  (region-active-p)
-                  (s-match (regexp-quote doi-utils-dx-doi-org-url) (buffer-substring
-								    (region-beginning)
-								    (region-end))))
-	    (replace-regexp-in-string  (regexp-quote doi-utils-dx-doi-org-url) ""
-				       (buffer-substring (region-beginning) (region-end)))
-            (buffer-substring (region-beginning) (region-end)))
-           ;; if the first entry in the kill-ring looks
-           ;; like a DOI, let's use it.
-           ((and
-             ;; make sure the kill-ring has something in it
-             (stringp (car kill-ring))
-             (s-match "^10" (car kill-ring)))
-            (car kill-ring))
-	   ;; maybe kill-ring matches http://dx.doi or somthing
-	   ((and
-             ;; make sure the kill-ring has something in it
-             (stringp (car kill-ring))
-             (s-match "^http://dx\\.doi\\.org/" (car kill-ring)))
-            (replace-regexp-in-string "^http://dx\\.doi\\.org/" "" (car kill-ring)))
-	   ((and
-             ;; make sure the kill-ring has something in it
-             (stringp (car kill-ring))
-             (s-match "^https://dx\\.doi\\.org/" (car kill-ring)))
-            (replace-regexp-in-string "^https://dx\\.doi\\.org/" "" (car kill-ring)))
-	   ((and
-             ;; make sure the kill-ring has something in it
-             (stringp (car kill-ring))
-             (s-match (regexp-quote doi-utils-dx-doi-org-url) (car kill-ring)))
-            (replace-regexp-in-string (regexp-quote doi-utils-dx-doi-org-url) "" (car kill-ring)))
-           ;; otherwise, we have no initial input. You
-           ;; will have to type it in.
-           (t
-            nil)))))
+          (doi-utils-maybe-doi-from-region-or-current-kill))))
 
   (unless bibfile
     (setq bibfile (completing-read "Bibfile: " (org-ref-possible-bibfiles))))
@@ -1028,6 +976,53 @@ Argument BIBFILE the bibliography to use."
 
 (defalias 'doi-add-bibtex-entry 'doi-utils-add-bibtex-entry-from-doi
   "Alias function for convenience.")
+
+(defun doi-utils-maybe-doi-from-region-or-current-kill ()
+  "Try to get a DOI from the active region or current kill."
+  (let* ((the-active-region (if (region-active-p) ;; nil if no active region
+                                (buffer-substring (region-beginning) (region-end))
+                              nil))
+         (the-current-kill (ignore-errors (current-kill 0 t)))  ;; nil if empty kill ring
+         ;; DOI urls
+         ;; Ex: https://doi.org/10.1109/MALWARE.2014.6999410
+         ;; Ex: https://dx.doi.org/10.1007/978-3-319-60876-1_10
+         (doi-url-prefix-regexp "^https?://\\(dx\\.\\)?doi\\.org/")
+         ;; https://www.crossref.org/blog/dois-and-matching-regular-expressions/
+         (doi-regexp "10\\.[0-9]\\{4,9\\}/[-._;()/:A-Z0-9]+$"))
+    (cond
+     ;; Check if a DOI can be found in the active region
+     ;; DOI raw
+     ;; Ex: 10.1109/MALWARE.2014.6999410
+     ((and (stringp the-active-region)
+           (s-match (concat "^" doi-regexp) the-active-region))
+      the-active-region)
+     ;; DOI url
+     ;; Ex: https://doi.org/10.1109/MALWARE.2014.6999410
+     ((and (stringp the-active-region)
+           (s-match (concat doi-url-prefix-regexp doi-regexp) the-active-region))
+      (replace-regexp-in-string doi-url-prefix-regexp "" the-active-region))
+     ;; DOI url as customized
+     ((and (stringp the-active-region)
+           (s-match (regexp-quote doi-utils-dx-doi-org-url) the-active-region))
+      (replace-regexp-in-string (regexp-quote doi-utils-dx-doi-org-url) "" the-active-region))
+     ;; Check if DOI can be found in the current kill
+     ;; DOI raw
+     ;; Ex: 10.1109/MALWARE.2014.6999410
+     ((and (stringp the-current-kill)
+           (s-match (concat "^" doi-regexp) the-current-kill))
+      the-current-kill)
+     ;; DOI url
+     ;; Ex: https://doi.org/10.1109/MALWARE.2014.6999410
+     ((and (stringp the-current-kill)
+           (s-match (concat doi-url-prefix-regexp doi-regexp) the-current-kill))
+      (replace-regexp-in-string doi-url-prefix-regexp "" the-current-kill))
+     ;; DOI url as customized
+     ((and (stringp the-current-kill)
+           (s-match (regexp-quote doi-utils-dx-doi-org-url) the-current-kill))
+      (replace-regexp-in-string (regexp-quote doi-utils-dx-doi-org-url) "" the-current-kill))
+     ;; otherwise, return nil
+     (t
+      nil))))
 
 ;;;###autoload
 (defun doi-utils-doi-to-org-bibtex (doi)
