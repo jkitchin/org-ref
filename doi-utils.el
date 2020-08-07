@@ -118,6 +118,13 @@ Set `doi-utils-make-notes' to nil if you want no notes."
   :type 'string
   :group 'doi-utils)
 
+(defcustom doi-utils-metadata-function 'doi-utils-get-json-metadata
+  "Function for retrieving json metadata from `doi-utils-dx-doi-org-url'.
+The default is `doi-utils-get-json-metadata', but it sometimes
+fails with a proxy. An alternative is
+`doi-utils-get-json-metadata-curl' which requires an external
+program to use curl.")
+
 
 ;;* Getting pdf files from a DOI
 
@@ -736,17 +743,44 @@ Opening %s" json-data url))
        (t
 	(json-read-from-string json-data))))))
 
+
+(defun doi-utils-get-json-metadata-curl (doi)
+  "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
+  (let ((json-object-type 'plist)
+        (json-data)
+	(url (concat doi-utils-dx-doi-org-url doi)))
+    (with-temp-buffer
+      (call-process "curl" nil t nil
+                    "--location"
+                    "--silent"
+                    "--header"
+                    "Accept: application/citeproc+json"
+                    url)
+      (setq json-data (buffer-string))
+      (cond
+       ((or (string-match "<title>Error: DOI Not Found</title>" json-data)
+	    (string-match "Resource not found" json-data)
+	    (string-match "Status *406" json-data)
+	    (string-match "400 Bad Request" json-data))
+	(browse-url url)
+	(error "Something went wrong.  We got this response:
+%s
+Opening %s" json-data url))
+       ;; everything seems ok with the data
+       (t
+	(json-read-from-string json-data))))))
+
 ;; We can use that data to construct a bibtex entry. We do that by defining a
-;; template, and filling it in. I wrote this template expansion code which makes
-;; it easy to substitute values like %{} in emacs lisp.
+;; template, and filling it in. I wrote this template expansion code which
+;; makes it easy to substitute values like %{} in emacs lisp.
 
 
 (defun doi-utils-expand-template (s)
   "Expand a string template S containing %{} with the eval of its contents."
   (replace-regexp-in-string "%{\\([^}]+\\)}"
-                            (lambda (arg)
-                              (let ((sexp (substring arg 2 -1)))
-                                (format "%s" (eval (read sexp)))))
+			    (lambda (arg)
+			      (let ((sexp (substring arg 2 -1)))
+				(format "%s" (eval (read sexp)))))
 			    s))
 
 
@@ -863,7 +897,7 @@ MATCHING-TYPES."
 
 (defun doi-utils-doi-to-bibtex-string (doi)
   "Return a bibtex entry as a string for the DOI.  Not all types are supported yet."
-  (let* ((results (doi-utils-get-json-metadata doi))
+  (let* ((results (funcall doi-utils-metadata-function doi))
          (type (plist-get results :type)))
     ;; (format "%s" results) ; json-data
     (or (-some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
@@ -1060,7 +1094,7 @@ Every field will be updated, so previous change will be lost."
                      "https?://\\(dx.\\)?doi.org/" ""
                      (bibtex-autokey-get-field "doi"))
                     (read-string "DOI: "))))
-  (let* ((results (doi-utils-get-json-metadata doi))
+  (let* ((results (funcall doi-utils-metadata-function doi))
          (type (plist-get results :type))
          (author (mapconcat
                   (lambda (x)
@@ -1117,7 +1151,7 @@ Every field will be updated, so previous change will be lost."
 Data is retrieved from the doi in the entry."
   (interactive)
   (let* ((doi (bibtex-autokey-get-field "doi"))
-         (results (doi-utils-get-json-metadata doi))
+         (results (funcall doi-utils-metadata-function doi))
          (field (car (bibtex-find-text-internal nil nil ","))))
     (cond
      ((string= field "volume")
