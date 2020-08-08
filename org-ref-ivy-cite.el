@@ -232,7 +232,7 @@ This uses a citeproc library."
 
 (defun or-ivy-bibtex-copy-formatted-citation (entry)
   "Copy formatted citation to clipboard for ENTRY."
-  (kill-new (org-ref-format-entry entry)))
+  (kill-new (org-ref-format-entry (cdr (assoc "=key=" entry)))))
 
 
 (defun or-ivy-bibtex-add-entry (_)
