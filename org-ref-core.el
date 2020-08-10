@@ -2735,7 +2735,17 @@ for each bib entry."
                          collect (cons (downcase key) (s-collapse-whitespace value))))
          (key (reftex-get-bib-field "=key=" entry)))
 
-    (funcall org-ref-notes-function key)))
+    ;; Issue 746. If the bibtex file is not in `org-ref-default-bibliography'
+    ;; you get an error. I think it is ok to just add this in a let-binding. I
+    ;; don't think duplicates matter, and this will eliminate issue 746 in part.
+    ;; You still need to have a bibliography file listed in the notes buffer,
+    ;; and this does not automatically do that.
+    (let* ((this-bib (buffer-file-name (current-buffer)))
+	   (org-ref-default-bibliography (append
+					  (list
+					   this-bib)
+					  org-ref-default-bibliography)))
+      (funcall org-ref-notes-function key))))
 
 
 ;;** Open bibtex entry in browser
