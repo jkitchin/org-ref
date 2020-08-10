@@ -2046,7 +2046,9 @@ and then backwards to get a comma, or the beginning of the link. that
 delimits the keyword we clicked on. We also strip the text
 properties."
   (let* ((object (org-element-context))
-         (link-string (org-element-property :path object)))
+	 (link-string (progn (org-in-regexp org-link-any-re)
+			     (cadr (split-string
+				    (match-string-no-properties 0) ":")))))
     ;; you may click on the part before the citations. here we make
     ;; sure to move to the beginning so you get the first citation.
     (let ((cp (point)))
@@ -2055,36 +2057,36 @@ properties."
       (goto-char (match-beginning 0))
       ;; check if we clicked before the path and move as needed.
       (unless (< cp (point))
-        (goto-char cp)))
+	(goto-char cp)))
 
     (if (not (org-element-property :contents-begin object))
-        ;; this means no description in the link
-        (progn
-          ;; we need the link path start and end
-          (let (link-string-beginning link-string-end)
-            (save-excursion
-              (goto-char (org-element-property :begin object))
-              (search-forward link-string nil nil 1)
-              (setq link-string-beginning (match-beginning 0))
-              (setq link-string-end (match-end 0)))
+	;; this means no description in the link
+	(progn
+	  ;; we need the link path start and end
+	  (let (link-string-beginning link-string-end)
+	    (save-excursion
+	      (goto-char (org-element-property :begin object))
+	      (search-forward link-string nil nil 1)
+	      (setq link-string-beginning (match-beginning 0))
+	      (setq link-string-end (match-end 0)))
 
-            (let (key-beginning key-end)
-              ;; The key is the text between commas, or the link boundaries
-              (save-excursion
-                (if (search-forward "," link-string-end t 1)
-                    (setq key-end (- (match-end 0) 1)) ; we found a match
-                  (setq key-end link-string-end))) ; no comma found so take the end
-              ;; and backward to previous comma from point which defines the start character
-              (save-excursion
-                (if (search-backward "," link-string-beginning 1 1)
-                    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-                  (setq key-beginning link-string-beginning))) ; no match found
-              ;; save the key we clicked on.
-              (let ((bibtex-key
-                     (org-ref-strip-string
-                      (buffer-substring key-beginning key-end))))
-                (set-text-properties 0 (length bibtex-key) nil bibtex-key)
-                bibtex-key))))
+	    (let (key-beginning key-end)
+	      ;; The key is the text between commas, or the link boundaries
+	      (save-excursion
+		(if (search-forward "," link-string-end t 1)
+		    (setq key-end (- (match-end 0) 1)) ; we found a match
+		  (setq key-end link-string-end))) ; no comma found so take the end
+	      ;; and backward to previous comma from point which defines the start character
+	      (save-excursion
+		(if (search-backward "," link-string-beginning 1 1)
+		    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
+		  (setq key-beginning link-string-beginning))) ; no match found
+	      ;; save the key we clicked on.
+	      (let ((bibtex-key
+		     (org-ref-strip-string
+		      (buffer-substring key-beginning key-end))))
+		(set-text-properties 0 (length bibtex-key) nil bibtex-key)
+		bibtex-key))))
 
       ;; link with description and multiple keys
       (if (and (org-element-property :contents-begin object)
