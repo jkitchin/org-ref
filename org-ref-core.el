@@ -2046,7 +2046,7 @@ and then backwards to get a comma, or the beginning of the link. that
 delimits the keyword we clicked on. We also strip the text
 properties."
   (let* ((object (org-element-context))
-	 (link-string (progn (org-in-regexp org-link-any-re)
+	 (link-string (progn (org-in-regexp org-link-types-re)
 			     (cadr (split-string
 				    (match-string-no-properties 0) ":")))))
     ;; you may click on the part before the citations. here we make
