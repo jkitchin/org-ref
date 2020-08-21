@@ -2046,9 +2046,14 @@ and then backwards to get a comma, or the beginning of the link. that
 delimits the keyword we clicked on. We also strip the text
 properties."
   (let* ((object (org-element-context))
-	 (link-string (progn (org-in-regexp org-link-any-re)
-			     (cadr (split-string
-				    (match-string-no-properties 0) ":")))))
+	 (link-string (if (eq (org-element-type object) 'link)
+                          (org-element-property :path object)
+                        (org-in-regexp org-link-any-re)
+			;; this is clunkier than I prefer, but some keys have
+			;; colons in them, and this gets rid of the link type,
+			;; then rejoins the rest of the keys
+			(s-join ":" (cdr (split-string
+					  (match-string-no-properties 0) ":"))))))
     ;; you may click on the part before the citations. here we make
     ;; sure to move to the beginning so you get the first citation.
     (let ((cp (point)))
