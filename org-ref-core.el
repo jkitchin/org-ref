@@ -2325,24 +2325,25 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 							(throw 'result file)
 						      (message "%s not found in %s"
 							       key (file-truename file))))))
+			      (if file
+				  (with-temp-buffer
+				    (insert-file-contents file)
+				    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+				    (bibtex-search-entry key nil 0)
+				    (setq bibtex-entry (bibtex-parse-entry))
+                                    ;; downcase field names so they work in the format-citation code
+				    (dolist (cons-cell bibtex-entry)
+				      (setf (car cons-cell) (downcase (car cons-cell))))
+				    (setq entry-type (downcase (cdr (assoc "=type=" bibtex-entry))))
 
-			      (with-temp-buffer
-				(insert-file-contents file)
-				(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-				(bibtex-search-entry key nil 0)
-				(setq bibtex-entry (bibtex-parse-entry))
-                                ;; downcase field names so they work in the format-citation code
-				(dolist (cons-cell bibtex-entry)
-				  (setf (car cons-cell) (downcase (car cons-cell))))
-				(setq entry-type (downcase (cdr (assoc "=type=" bibtex-entry))))
-
-				(setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
-				(if format
-				    (setq entry  (org-ref-reftex-format-citation bibtex-entry format))
-				  ;; if no format, we use the bibtex entry itself as a fallback
-				  (save-restriction
-				    (bibtex-narrow-to-entry)
-				    (setq entry (buffer-string)))))
+				    (setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
+				    (if format
+					(setq entry  (org-ref-reftex-format-citation bibtex-entry format))
+				      ;; if no format, we use the bibtex entry itself as a fallback
+				      (save-restriction
+					(bibtex-narrow-to-entry)
+					(setq entry (buffer-string)))))
+				"Key not found")
 			      (replace-regexp-in-string "\"" "" (htmlize-escape-or-link entry)))
 			    key))
 		  (s-split "," keyword) "<sup>,</sup>"))
