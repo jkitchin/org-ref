@@ -1788,7 +1788,7 @@ seems to work fine at recognizing labels by the regexps in
 		     (when org-ref-label-debug
 		       (message "oral: adding %s" label))
 
-		     (pushnew label
+		     (cl-pushnew label
 			      org-ref-labels :test 'string=)
 		     ;; now store the last end so we can tell for the next run
 		     ;; if we are adding to a label.
