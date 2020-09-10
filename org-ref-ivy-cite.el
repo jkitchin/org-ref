@@ -462,10 +462,9 @@ Use a prefix arg to select the ref type."
      (t
       (insert
        (or (when (looking-at "$") " ") "")
-       (concat org-ref-default-ref-type
+       (concat (org-ref-infer-ref-type label)
 	       ":"
 	       label))))))
-
 
 (require 'hydra)
 (setq hydra-is-helpful t)
