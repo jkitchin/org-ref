@@ -1626,8 +1626,7 @@ Navigate back with \`\\[org-mark-ring-goto]'."
 Optional argument ARG Does nothing."
   (let ((label))
     (setq label (completing-read "label: " (org-ref-get-labels)))
-    (format "ref:%s" label)))
-
+    (format "%s:%s" (org-ref-infer-ref-type label) label)))
 
 (defun org-ref-ref-help-echo (window object position)
   "A help-echo function for ref links."
@@ -3559,6 +3558,51 @@ move to the beginning of the previous cite link after this one."
 		   return i))
       (goto-char (nth 1 (nth (- index 1) cps)))))))
 
+(defvar org-ref-equation-environments
+  '("equation"
+    "equation*"
+    "align"
+    "align*"
+    "multline"
+    "multline*")
+  "LaTeX environments that should be treated as equations when referencing.")
+
+(defvar org-ref-ref-type-inference-alist
+  '((org-ref-equation-label-p . "eqref"))
+  "Alist of predicate functions taking a label name and the
+  desired reference type if the predicate returns true.")
+
+(defun org-ref-enclosing-environment (label)
+  "Returns the name of the innermost LaTeX environment containing
+the first instance of the label, or nil of there is none."
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (let ((label-point (search-forward (format "\\label{%s}" label) nil t)))
+       (when label-point
+         (catch 'return
+           (let (last-begin-point last-env)
+             (while (setq
+                     last-begin-point (re-search-backward "\\\\begin{\\([^}]+\\)}" nil t)
+                     last-env (match-string-no-properties 1))
+               (let ((env-end-point
+                      (search-forward (format "\\end{%s}" last-env) nil t)))
+                 (if (and env-end-point
+                          (> env-end-point label-point))
+                     (throw 'return last-env)
+                   (goto-char last-begin-point)))))))))))
+
+(defun org-ref-equation-label-p (label)
+  (let ((maybe-env (org-ref-enclosing-environment label)))
+    (when maybe-env
+      (member maybe-env org-ref-equation-environments))))
+
+(defun org-ref-infer-ref-type (label)
+  (or (dolist (pred-pair org-ref-ref-type-inference-alist)
+        (when (funcall (car pred-pair) label)
+          (return (eval (cdr pred-pair)))))
+      org-ref-default-ref-type))
 
 ;;** context around org-ref links
 (defun org-ref-get-label-context (label)
