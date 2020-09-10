@@ -2924,17 +2924,17 @@ file.  Makes a new buffer with clickable links."
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types
 			    (plist-get plist :type))
-            (dolist (key (org-ref-split-and-strip-string
-			  (plist-get plist :path)))
-              (when (not (org-ref-list-index key bibtex-keys))
-                (setq
-                 bad-citations
-                 (append
-                  bad-citations
-                  `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
-                             key
-                             (buffer-name)
-                             (plist-get plist :begin))))))))))
+            (cl-dolist (key (org-ref-split-and-strip-string
+			     (plist-get plist :path)))
+	      (when (not (org-ref-list-index key bibtex-keys))
+		(setq
+		 bad-citations
+		 (append
+		  bad-citations
+		  `(,(format "%s [[elisp:(progn (switch-to-buffer-other-frame \"%s\")(goto-char %s))][not found here]]\n"
+			     key
+			     (buffer-name)
+			     (plist-get plist :begin))))))))))
       ;; set with-affilates to t to get citations in a caption
       nil nil nil t)
 
