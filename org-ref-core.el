@@ -273,7 +273,7 @@ Just the reference, no numbering at the beginning, etc... see the
 (defcustom org-ref-note-title-format
   "** TODO %y - %t
  :PROPERTIES:
-  :Custom_ID: %k
+  :CUSTOM_ID: %k
   :AUTHOR: %9a
   :JOURNAL: %j
   :YEAR: %y
@@ -331,7 +331,7 @@ moves the headline to the top of the buffer."
 (defcustom org-ref-create-notes-hook
   '((lambda ()
       (org-narrow-to-subtree)
-      (insert (format "cite:%s\n" (org-entry-get (point) "Custom_ID")))))
+      (insert (format "cite:%s\n" (org-entry-get (point) "CUSTOM_ID")))))
   "List of hook functions to run in the note entry after it is created.
 The function takes no arguments. It could be used to insert links
 to the citation, or pdf, etc..."
@@ -2686,12 +2686,13 @@ long file with headlines for each entry."
     (insert key)
     (kill-ring-save (point-min) (point-max)))
   (let ((entry (with-temp-buffer
-		 (insert (org-ref-get-bibtex-entry key))
-                 (setq entry (reftex-parse-bibtex-entry nil (point-min) (point-max)))
-                 ;; add =key= and =type= for code which expects `bibtex-parse-entry` style
-                 (add-to-list 'entry
-                              (cons "=key=" (reftex-get-bib-field "&key" entry))
-                              (cons "=type=" (reftex-get-bib-field "&type" entry))))))
+		             (insert (org-ref-get-bibtex-entry key))
+                 (reftex-parse-bibtex-entry nil (point-min) (point-max)))))
+
+        ;; add =key= and =type= for code which expects `bibtex-parse-entry` style
+        (add-to-list 'entry
+                     (cons "=key=" (reftex-get-bib-field "&key" entry))
+                (cons "=type=" (reftex-get-bib-field "&type" entry)))
 
     (save-restriction
       (if  org-ref-bibliography-notes
