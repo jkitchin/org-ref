@@ -606,6 +606,8 @@ Checks for pdf and doi, and add appropriate functions."
             `(("WOS" . org-ref-wos-at-point)
               ("Related articles in WOS" . org-ref-wos-related-at-point)
               ("Citing articles in WOS" . org-ref-wos-citing-at-point)
+              ("ADS" . org-ref-ads-at-point)
+              ("Related articles in ADS" . org-ref-ads-related-at-point)
               ("Google Scholar" . org-ref-google-scholar-at-point)
               ("Pubmed" . org-ref-pubmed-at-point)
               ("Crossref" . org-ref-crossref-at-point))))

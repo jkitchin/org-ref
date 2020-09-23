@@ -1205,6 +1205,15 @@ May be empty if none are found."
            "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes")))
 
 
+;;* DOI functions for ADS
+
+;;;###autoload
+(defun doi-utils-ads (doi)
+  "Open ADS entry for DOI"
+  (interactive "sDOI: ")
+  (browse-url
+   (concat
+    "https://ui.adsabs.harvard.edu/abs/" "%22" doi "%22")))
 
 
 ;;* A new doi link for org-mode
@@ -1274,6 +1283,7 @@ must take one argument, the doi.")
         ("w" "os" doi-utils-wos)
         ("c" "iting articles" doi-utils-wos-citing)
         ("r" "elated articles" doi-utils-wos-related)
+        ("a" "ds" doi-utils-ads)
         ("s" "Google Scholar" doi-utils-google-scholar)
         ("f" "CrossRef" doi-utils-crossref)
         ("p" "ubmed" doi-utils-pubmed)
