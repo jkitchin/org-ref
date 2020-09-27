@@ -112,10 +112,18 @@ The cdr of the the cons cell is the function to use."
 
 
 ;;* Helm bibtex setup.
-(setq bibtex-completion-additional-search-fields '(keywords))
+(unless (or (member 'keywords bibtex-completion-additional-search-fields)
+            (member "keywords" bibtex-completion-additional-search-fields))
+  ;; Both symbol and string values are accepted, but b-c-a-s-f's
+  ;; Custom :type specifies string.
+  (push "keywords" bibtex-completion-additional-search-fields))
 
-(setq bibtex-completion-display-formats
-      '((t . "${author:36} ${title:*} ${year:4} ${=has-pdf=:1}${=has-note=:1} ${=type=:7} ${keywords:31}")))
+(let ((display-format
+       (alist-get t bibtex-completion-display-formats)))
+  (unless (string-match-p "{keywords:"
+                          display-format)
+    (setf (alist-get t bibtex-completion-display-formats)
+          (concat display-format " ${keywords:31}"))))
 
 (defun bibtex-completion-copy-candidate (_candidate)
   "Copy the selected bibtex entries to the clipboard.
