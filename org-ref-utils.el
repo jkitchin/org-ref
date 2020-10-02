@@ -568,6 +568,14 @@ directory.  You can also specify a new file."
 
 
 ;;**** functions that operate on key at point for click menu
+
+;;;###autoload
+(defun org-ref-ads-at-point ()
+  "Open the doi in ADS for bibtex key under point."
+  (interactive)
+  (doi-utils-ads (org-ref-get-doi-at-point)))
+
+
 ;;;###autoload
 (defun org-ref-wos-at-point ()
   "Open the doi in wos for bibtex key under point."
