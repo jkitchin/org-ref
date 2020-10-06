@@ -267,9 +267,13 @@ This may be slow in large files, so you can turn it off by setting that variable
 :END:
 index:helm-bibtex
 
-org-ref adds a few new features to helm-bibtex. First, we add keywords as a searchable field. Second, org-ref modifies the helm-bibtex search buffer to include the keywords. Since keywords now can have a central role in searching, we add some functionality to add keywords from the helm-bibtex buffer as a new action.
+org-ref adds a few new features to helm-bibtex.
+
+First, we add =keywords= as a searchable field, and modify the helm-bibtex search buffer to include the keywords. Since keywords now can have a central role in searching, we add some functionality to add keywords from the helm-bibtex buffer as a new action.
 
 We change the order of the actions in helm-bibtex to suit our work flow, and add some new actions as well. We define a format function for org-mode that is compatible with the usage defined in section [[#citations]]. Finally, we add some new fallback options for additional scientific search engines.
+
+The =keywords= field is added onto the existing value, such that existing customization wouldn’t be lost; if you still prefer to add the field yourself, set ~org-ref-bibtex-completion-add-keywords-field~ to nil before loading org-ref.
 
 ** Some basic org-ref utilities
 [[index:bibtex!clean entry]]
