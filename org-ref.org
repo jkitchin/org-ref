@@ -874,7 +874,11 @@ org-ref provides some support for glossary and acronym definitions.
 - glssymbol :: The symbol term
 - glsdesc :: The description of the term
 
-- acrshort :: Short version of the acroynm
+- ac :: a reference to an acronym
+- Ac :: capitalized reference to an acronym
+- acp :: a plural reference to an acronym
+- Acp :: capitalized plural reference to an acronym
+- acrshort :: Short version of the acronym
 - acrfull :: The full definition of the acronym
 - acrlong :: The full definition of the acronym with (abbrv).
 
