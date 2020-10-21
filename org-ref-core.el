@@ -2044,19 +2044,27 @@ The return value is a string without text properties."
   (let* ((object (org-element-context))
          (link-string (and (eq (org-element-type object) 'link)
                            (org-element-property :path object)))
-         ;; allow whitespaces after comma
+         ;; allow whitespaces after comma;
+         ;; although just spaces " " would be enough, since in split links
+         ;; newlines are converted into spaces by org-element-property, we
+         ;; account for all the whitespace characters for extra compatibility.
          (delim-rx ",[[:space:]]*")
          (trim-rx "[,[:space:]]+")
          ;; relative position of the point in the link string:
          ;; point-pos = point - link beginning
          ;;     - length of link type identifier - optionally 2 brackets
-         ;; 0 is thus the position of ":"
          (point-pos (- (point) (org-element-property :begin object)
                        (length (org-element-property :type object))
                        (if (string=
                             "bracket" (org-element-property :format object))
                            2 0)))
          (link-length (length link-string)))
+    ;;        -------link-string------
+    ;;        |                      |
+    ;; [[cite:key1,key2,key3,key4,key5][description]]
+    ;;       ^       ^               ^
+    ;;       0       point-pos       link-length
+    ;;
     (cond
      ;; before the first key:
      ;; return the first key
