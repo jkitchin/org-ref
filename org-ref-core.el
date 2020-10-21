@@ -2039,96 +2039,48 @@ https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
 ;;** cite link
 
 (defun org-ref-get-bibtex-key-under-cursor ()
-  "Return key under the cursor in org-mode.
-We search forward from point to get a comma, or the end of the link,
-and then backwards to get a comma, or the beginning of the link. that
-delimits the keyword we clicked on. We also strip the text
-properties."
+  "Return BibTeX key under the cursor in Org Mode.
+The return value is a string without text properties."
   (let* ((object (org-element-context))
-	 (link-string (if (eq (org-element-type object) 'link)
-                          (org-element-property :path object)
-                        (org-in-regexp org-link-any-re)
-			;; this is clunkier than I prefer, but some keys have
-			;; colons in them, and this gets rid of the link type,
-			;; then rejoins the rest of the keys
-			(s-join ":" (cdr (split-string
-					  (match-string-no-properties 0) ":"))))))
-    ;; you may click on the part before the citations. here we make
-    ;; sure to move to the beginning so you get the first citation.
-    (let ((cp (point)))
-      (goto-char (org-element-property :begin object))
-      (search-forward link-string (org-element-property :end object))
-      (goto-char (match-beginning 0))
-      ;; check if we clicked before the path and move as needed.
-      (unless (< cp (point))
-	(goto-char cp)))
-
-    (if (not (org-element-property :contents-begin object))
-	;; this means no description in the link
-	(progn
-	  ;; we need the link path start and end
-	  (let (link-string-beginning link-string-end)
-	    (save-excursion
-	      (goto-char (org-element-property :begin object))
-	      (search-forward link-string nil nil 1)
-	      (setq link-string-beginning (match-beginning 0))
-	      (setq link-string-end (match-end 0)))
-
-	    (let (key-beginning key-end)
-	      ;; The key is the text between commas, or the link boundaries
-	      (save-excursion
-		(if (search-forward "," link-string-end t 1)
-		    (setq key-end (- (match-end 0) 1)) ; we found a match
-		  (setq key-end link-string-end))) ; no comma found so take the end
-	      ;; and backward to previous comma from point which defines the start character
-	      (save-excursion
-		(if (search-backward "," link-string-beginning 1 1)
-		    (setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-		  (setq key-beginning link-string-beginning))) ; no match found
-	      ;; save the key we clicked on.
-	      (let ((bibtex-key
-		     (org-ref-strip-string
-		      (buffer-substring key-beginning key-end))))
-		(set-text-properties 0 (length bibtex-key) nil bibtex-key)
-		bibtex-key))))
-
-      ;; link with description and multiple keys
-      (if (and (org-element-property :contents-begin object)
-	       (string-match "," link-string)
-	       (equal (org-element-type object) 'link))
-	  ;; point is not on the link description
-	  (if (not (>= (point) (org-element-property :contents-begin object)))
-	      (let (link-string-beginning link-string-end)
-		(save-excursion
-		  (goto-char (org-element-property :begin object))
-		  (search-forward link-string nil t 1)
-		  (setq link-string-beginning (match-beginning 0))
-		  (setq link-string-end (match-end 0)))
-
-		(let (key-beginning key-end)
-		  ;; The key is the text between commas, or the link boundaries
-		  (save-excursion
-		    (if (search-forward "," link-string-end t 1)
-			(setq key-end (- (match-end 0) 1)) ; we found a match
-		      (setq key-end link-string-end))) ; no comma found so take the end
-		  ;; and backward to previous comma from point which defines the start character
-
-		  (save-excursion
-		    (if (search-backward "," link-string-beginning 1 1)
-			(setq key-beginning (+ (match-beginning 0) 1)) ; we found a match
-		      (setq key-beginning link-string-beginning))) ; no match found
-		  ;; save the key we clicked on.
-		  (let ((bibtex-key
-			 (org-ref-strip-string
-			  (buffer-substring key-beginning key-end))))
-		    (set-text-properties 0 (length bibtex-key) nil bibtex-key)
-		    bibtex-key)))
-	    ;; point is on the link description, assume we want the
-	    ;; last key
-	    (let ((last-key (replace-regexp-in-string "[a-zA-Z0-9_-]*," "" link-string)))
-	      last-key))
-	;; link with description. assume only one key
-	link-string))))
+         (link-string (and (eq (org-element-type object) 'link)
+                           (org-element-property :path object)))
+         ;; allow whitespaces after comma
+         (delim-rx ",[[:space:]]*")
+         (trim-rx "[,[:space:]]+")
+         ;; relative position of the point in the link string:
+         ;; point-pos = point - link beginning
+         ;;     - length of link type identifier - optionally 2 brackets
+         ;; 0 is thus the position of ":"
+         (point-pos (- (point) (org-element-property :begin object)
+                       (length (org-element-property :type object))
+                       (if (string=
+                            "bracket" (org-element-property :format object))
+                           2 0)))
+         (link-length (length link-string)))
+    (cond
+     ;; before the first key:
+     ;; return the first key
+     ((<= point-pos 0)
+      (car (split-string link-string delim-rx t trim-rx)))
+     ;; in the description:
+     ;; return the last key
+     ((> point-pos link-length)
+      (car (last (split-string link-string delim-rx t trim-rx))))
+     ;; in the link string
+     (t (let ((key-end 0)
+              (key-beg 0))
+          ;; search for comma:
+          ;; 1. if more than one found, save the position of the
+          ;; previous one in key-beg and the current one in key-end;
+          ;; repeat until point-pos is between key-beg and key-end;
+          ;; 2. if none found (last key), key-end = link-length
+          (while (< key-end point-pos)
+            (setq key-beg key-end
+                  key-end (or (and (string-match delim-rx link-string key-end)
+                                   (match-end 0))
+                              link-length)))
+          (string-trim (substring-no-properties link-string key-beg key-end)
+                       trim-rx trim-rx))))))
 
 
 (defun org-ref-find-bibliography ()
