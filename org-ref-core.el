@@ -2041,13 +2041,19 @@ https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
 (defun org-ref-get-bibtex-key-under-cursor ()
   "Return BibTeX key under the cursor in Org Mode.
 The return value is a string without text properties."
-  (let* ((object (org-element-context))
-         (link-string (and (eq (org-element-type object) 'link)
-                           (org-element-property :path object)))
-         ;; allow whitespaces after comma;
-         ;; although just spaces " " would be enough, since in split links
-         ;; newlines are converted into spaces by org-element-property, we
-         ;; account for all the whitespace characters for extra compatibility.
+  (let* ((object (let ((obj (org-element-context)))
+                   (if (eq (org-element-type obj) 'link) obj
+                     ;; if the link hides behind a keyword or in a property
+                     ;; drawer, or perhaps something else, get the link object
+                     ;; by parsing the parent's value property
+                     (car (org-element-parse-secondary-string
+                           (org-element-property :value obj) '(link))))))
+         (link-string (org-element-property :path object))
+         ;; allow whitespaces after comma:
+         ;;
+         ;; although just spaces " " would be enough because org-element
+         ;; converts newlines in split links into spaces, we account for all
+         ;; the whitespace characters for extra compatibility.
          (delim-rx ",[[:space:]]*")
          (trim-rx "[,[:space:]]+")
          ;; relative position of the point in the link string:
