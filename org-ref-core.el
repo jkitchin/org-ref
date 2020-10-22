@@ -2050,7 +2050,6 @@ The return value is a string without text properties."
                            (org-element-property :value obj) '(link))))))
          (link-string (org-element-property :path object))
          ;; allow whitespaces after comma:
-         ;;
          ;; although just spaces " " would be enough because org-element
          ;; converts newlines in split links into spaces, we account for all
          ;; the whitespace characters for extra compatibility.
