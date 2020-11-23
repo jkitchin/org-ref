@@ -153,6 +153,8 @@ ${org-latex-pdf-process}
 	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
 	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
 	       ("ordb-listp" . ,(ords (listp org-ref-default-bibliography)))
+	       ("orbn-p" . ,(when org-ref-bibliography-notes
+			      (file-exists-p org-ref-bibliography-notes)))
 	       ("org-ref-pdf-directory" . ,(format "%s" org-ref-pdf-directory))
 	       ("orpd-p" . ,(format "%s" (file-exists-p org-ref-pdf-directory)))
 	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))
