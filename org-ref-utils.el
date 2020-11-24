@@ -219,8 +219,8 @@ It is also possible to access all other BibTeX database fields:
 %D doi
 %S series        %N note
 
-%f pdf filename
-%F absolute pdf filename
+%f pdf filename (key.pdf)
+%F absolute pdf filename (returned from `org-ref-get-pdf-filename-function')
 
 Usually, only %l is needed.  The other stuff is mainly for the echo area
 display, and for (setq reftex-comment-citations t).
@@ -274,7 +274,10 @@ environment, only %l is available."
                           (or n 2)))
                ((= l ?E) (car (reftex-get-bib-names "editor" entry)))
 	       ((= l ?f) (concat (org-ref-reftex-get-bib-field "=key=" entry) ".pdf"))
-	       ((= l ?F) (concat org-ref-pdf-directory (org-ref-reftex-get-bib-field "=key=" entry) ".pdf"))
+
+	       ((= l ?F) (funcall org-ref-get-pdf-filename-function
+				  (org-ref-reftex-get-bib-field "=key=" entry)))
+
                ((= l ?h) (org-ref-reftex-get-bib-field "howpublished" entry))
                ((= l ?i) (org-ref-reftex-get-bib-field "institution" entry))
                ((= l ?j) (let ((jt (reftex-get-bib-field "journal" entry)))
