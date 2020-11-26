@@ -42,10 +42,10 @@
 
 ;; See https://github.com/jkitchin/org-ref/issues/812
 ;; apparently there is a function name change coming in
-(if (and (not (fboundp 'dnd-unescape-uri))
-	 (fboundp 'dnd--escape-uri))
-    (defalias 'dnd-unescape-uri 'dnd--unescape-uri)
-  (warn "dnd-unescape-uri is undefined. Some things may not work."))
+;; (if (and (not (fboundp 'dnd-unescape-uri))
+;; 	 (fboundp 'dnd--escape-uri))
+;;     (defalias 'dnd-unescape-uri 'dnd--unescape-uri)
+;;   (warn "dnd-unescape-uri is undefined. Some things may not work."))
 
 (defgroup org-ref-pdf nil
   "Customization group for org-ref-pdf"
