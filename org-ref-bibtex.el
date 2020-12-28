@@ -481,8 +481,10 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
     "the" "of" "in")
   "List of words to keep lowercase when changing case in a title.")
 
-(defcustom org-ref-title-case-types '("article" "book")
-  "List of bibtex entry types in which the title will be converted to
+(defcustom org-ref-title-case-types '(("article" . ("title"))
+				      ("book" . ("booktitle")))
+
+  "An a-list of bibtex entry types and fields that will be converted to
 title-case by org-ref-title-case."
   :type '(repeat string)
   :group 'org-ref-bibtex)
@@ -496,64 +498,63 @@ optional, and are only there so you can use this function with
 `bibtex-map-entries' to change all the title entries in articles and
 books."
   (interactive)
-  (dolist (field '("title" "booktitle"))
-    (save-restriction
-      (bibtex-narrow-to-entry)
-      (bibtex-beginning-of-entry)
-      ;; Skip if field is not found in entry
-      (when (bibtex-search-forward-field field)
-	(let* ((title (bibtex-autokey-get-field field))
-	       (words (split-string title))
-	       (start 0))
-	  (when
-	      (member (downcase
-		       (cdr (assoc "=type=" (bibtex-parse-entry))))
-		      org-ref-title-case-types)
-	    (setq words (mapcar
-			 (lambda (word)
-			   (cond
-			    ;; words containing more than one . are probably
-			    ;; abbreviations. We do not change those.
-			    ((with-temp-buffer
-			       (insert word)
-			       (goto-char (point-min))
-			       (> (count-matches "\\.") 1))
-			     word)
-			    ;; match words containing {} or \ which are probably
-			    ;; LaTeX or protected words, ignore
-			    ((string-match "\\$\\|{\\|}\\|(\\|)\\|\\\\" word)
-			     word)
-			    ;; these words should not be capitalized, unless they
-			    ;; are the first word
-			    ((-contains? org-ref-lower-case-words
-					 (s-downcase word))
-			     (s-downcase word))
-			    ;; Words that are quoted
-			    ((s-starts-with? "\"" word)
-			     (concat "\"" (s-capitalize (substring word 1))))
-			    (t
-			     (s-capitalize word))))
-			 words))
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (bibtex-beginning-of-entry)
+    (let* ((entry-type (downcase (cdr (assoc "=type=" (bibtex-parse-entry)))))
+	   (fields (cdr (assoc entry-type org-ref-title-case-types))))
+      (when fields
+	(cl-loop for field in fields
+		 when (bibtex-autokey-get-field field)
+		 do
+		 (setq title (bibtex-autokey-get-field field)
+		       words (split-string title)
+		       start 0)
+		 (setq words (mapcar
+			      (lambda (word)
+				(cond
+				 ;; words containing more than one . are probably
+				 ;; abbreviations. We do not change those.
+				 ((with-temp-buffer
+				    (insert word)
+				    (goto-char (point-min))
+				    (> (count-matches "\\.") 1))
+				  word)
+				 ;; match words containing {} or \ which are probably
+				 ;; LaTeX or protected words, ignore
+				 ((string-match "\\$\\|{\\|}\\|(\\|)\\|\\\\" word)
+				  word)
+				 ;; these words should not be capitalized, unless they
+				 ;; are the first word
+				 ((-contains? org-ref-lower-case-words
+					      (s-downcase word))
+				  (s-downcase word))
+				 ;; Words that are quoted
+				 ((s-starts-with? "\"" word)
+				  (concat "\"" (s-capitalize (substring word 1))))
+				 (t
+				  (s-capitalize word))))
+			      words))
 
-	    ;; Check if first word should be capitalized
-	    (when (-contains? org-ref-lower-case-words (car words))
-	      (setf (car words) (s-capitalize (car words))))
+		 ;; Check if first word should be capitalized
+		 (when (-contains? org-ref-lower-case-words (car words))
+		   (setf (car words) (s-capitalize (car words))))
 
-	    (setq title (mapconcat 'identity words " "))
+		 (setq title (mapconcat 'identity words " "))
 
-	    ;; Capitalize letters after a dash
-	    (while
-		(string-match "[a-zA-Z]-\\([a-z]\\)" title start)
-	      (let ((char (substring title (match-beginning 1) (match-end 1))))
-		(setf (substring title (match-beginning 1) (match-end 1))
-		      (format "%s" (upcase char)))
-		(setq start (match-end 1))))
+		 ;; Capitalize letters after a dash
+		 (while
+		     (string-match "[a-zA-Z]-\\([a-z]\\)" title start)
+		   (let ((char (substring title (match-beginning 1) (match-end 1))))
+		     (setf (substring title (match-beginning 1) (match-end 1))
+			   (format "%s" (upcase char)))
+		     (setq start (match-end 1))))
 
-	    ;; this is defined in doi-utils
-	    (bibtex-set-field
-	     field
-	     title)
-	    (bibtex-fill-entry)))))))
+		 ;; this is defined in doi-utils
+		 (bibtex-set-field
+		  field
+		  title)
+		 (bibtex-fill-entry))))))
 
 ;;;###autoload
 (defun org-ref-title-case-article (&optional key start end)
@@ -562,7 +563,7 @@ The arguments KEY, START and END are optional, and are only there
 so you can use this function with `bibtex-map-entries' to change
 all the title entries in articles and books."
   (interactive)
-  (let ((org-ref-title-case-types '("article")))
+  (let ((org-ref-title-case-types '(("article" . ("title")))))
     (org-ref-title-case)))
 
 
