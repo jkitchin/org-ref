@@ -1265,6 +1265,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	(when (and orel-mod orelc-mod)
 	  (time-less-p orel-mod orelc-mod)
 	  (insert "- org-ref.elc is older than org-ref.el. That is probably not right.\n")
+	  (insert "- load-prefer-newer = %s\n" load-prefer-newer)
 	  (insert "  consider (setq load-prefer-newer t) or using https://github.com/emacscollective/auto-compile."))
 
 	;; Check for byte-compiling compatibility with current emacs
