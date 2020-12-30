@@ -1219,14 +1219,17 @@ if FORCE is non-nil reparse the buffer no matter what."
 			  ,(format "bibtex-dialect = %s" bibtex-dialect)
 			  ,(format "biblatex is%srequired." (if biblatex-required " " " not "))
 			  ,(format "biblatex is%sused." (if biblatex-used " " " not "))
+			  ,(format "emacs-version = %s" (emacs-version))
 			  ,(format "org-version = %s" (org-version))
 			  ,(org-ref-version)
 			  ,(format "completion backend = %s" org-ref-completion-library)
 			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
 			  ,(format "natbib is%srequired." (if natbib-required " " " not "))
-			  ,(format "natbib is%sused." (if natbib-used " " " not "))
+			  ,(format "natbib is%sin org-latex-default-packages-alist or org-latex-packages-alist."
+				   (if natbib-used " " " not "))
 			  ,(format "cleveref is%srequired." (if cleveref-required " " " not "))
-			  ,(format "cleveref is%sused." (if cleveref-used " " " not ")))
+			  ,(format "cleveref is%sin org-latex-default-packages-alist or org-latex-packages-alist."
+				   (if cleveref-used " " " not ")))
 	       do
 	       (insert "- " s "\n"))
       (insert (format "- org-latex-default-packages-alist\n"))
@@ -1253,16 +1256,36 @@ if FORCE is non-nil reparse the buffer no matter what."
 				   (file-name-sans-extension
 				    (locate-library "org-ref"))
 				   ".elc"))
-		     (orelc-mod))
+		     (orelc-mod)
+		     (elc-version))
 		(when (file-exists-p org-ref-el)
 		  (setq orel-mod (file-attribute-modification-time (file-attributes org-ref-el))))
 		(when (file-exists-p org-ref-elc)
-		  (setq orelc-mod (file-attribute-modification-time (file-attributes org-ref-elc))))
+		  (setq orelc-mod (file-attribute-modification-time (file-attributes org-ref-elc)))))
+	(when (and orel-mod orelc-mod)
+	  (time-less-p orel-mod orelc-mod)
+	  (insert "- org-ref.elc is older than org-ref.el. That is probably not right.\n")
+	  (insert "  consider (setq load-prefer-newer t) or using https://github.com/emacscollective/auto-compile."))
 
-		(when (and orel-mod orelc-mod)
-		  (time-less-p orel-mod orelc-mod)))
-	(insert "- org-ref.elc is older than org-ref.el. That is probably not right.\n")
-	(insert "  consider (setq load-prefer-newer t) or using https://github.com/emacscollective/auto-compile."))
+	;; Check for byte-compiling compatibility with current emacs
+	(when (and org-ref-elc
+		   (file-exists-p org-ref-elc))
+	  (setq elc-version (with-temp-buffer
+			      (insert-file-contents org-ref-elc)
+			      (goto-char (point-min))
+			      (re-search-forward ";;; in Emacs version \\([0-9]\\{2\\}\\.[0-9]+\\)"
+						 nil t)
+			      (setq elc-version (match-string 1)))
+
+		(unless (string= elc-version
+				 (format "%s.%s" emacs-major-version emacs-minor-version))
+
+		  (insert "- %s compiled with Emacs %s but you are running %s.%s. That could be a problem.\n"
+			  elc-version emacs-major-version emacs-minor-version)))))
+
+
+
+
 
 
       (insert (format  "\n* Utilities
