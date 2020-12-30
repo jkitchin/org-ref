@@ -1241,6 +1241,29 @@ if FORCE is non-nil reparse the buffer no matter what."
 		 do
 		 (insert (format "  %S\n" el))))
 
+      ;; check if an elc is older than el. I only check this for one file. This
+      ;; doesn't quite solve the issue of a new emacs version where there are
+      ;; old, incompatible elc files though.
+      (unless (let* ((org-ref-el (concat
+				  (file-name-sans-extension
+				   (locate-library "org-ref"))
+				  ".el"))
+		     (orel-mod)
+		     (org-ref-elc (concat
+				   (file-name-sans-extension
+				    (locate-library "org-ref"))
+				   ".elc"))
+		     (orelc-mod))
+		(when (file-exists-p org-ref-el)
+		  (setq orel-mod (file-attribute-modification-time (file-attributes org-ref-el))))
+		(when (file-exists-p org-ref-elc)
+		  (setq orelc-mod (file-attribute-modification-time (file-attributes org-ref-elc))))
+
+		(when (and orel-mod orelc-mod)
+		  (time-less-p orel-mod orelc-mod)))
+	(insert "- org-ref.elc is older than org-ref.el. That is probably not right.\n")
+	(insert "  consider (setq load-prefer-newer t) or using https://github.com/emacscollective/auto-compile."))
+
 
       (insert (format  "\n* Utilities
 
