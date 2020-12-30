@@ -994,15 +994,15 @@ if FORCE is non-nil reparse the buffer no matter what."
 
     ;; setup bib-candidates. This checks a variety of things in the
     ;; bibliography, bibtex files. check for which bibliographies are used
-    (cl-pushnew
-     (concat "Using these bibtex files:\n"
-	     (mapconcat
-	      (lambda (f)
-		(format "  - [[%s]]" f))
-	      (org-ref-find-bibliography)
-	      "\n")
-	     "\n")
-     bib-candidates)
+    (cl-loop for bibfile in (org-ref-find-bibliography)
+	     do
+	     (let ((bibdialect))
+	       (with-current-buffer (find-file-noselect bibfile)
+		 (setq bibdialect bibtex-dialect))
+	       (cl-pushnew
+		(format "  - [[%s]] (dialect = %s)\n" bibfile bibdialect)
+
+		bib-candidates)))
 
     ;; Check bibliography style exists
     (save-excursion
@@ -1075,24 +1075,24 @@ if FORCE is non-nil reparse the buffer no matter what."
 	    bib-candidates)))
        bibfiles)
       ;; check types
-      (let ((valid-types (cdr (assoc bibtex-dialect
-				     (list
-				      (cons 'BibTeX (mapcar (lambda (e) (downcase (car e)))
-							    bibtex-BibTeX-entry-alist))
-				      (cons 'biblatex (mapcar (lambda (e) (downcase (car e)))
-							      bibtex-biblatex-entry-alist)))))))
-	(mapc
-	 (lambda (bibfile)
-	   (with-current-buffer
-               (find-file-noselect bibfile)
-	     (goto-char (point-min))
-	     (while (re-search-forward "^@\\(.*\\){" nil t)
-	       (unless (member (s-trim (downcase (match-string 1))) valid-types)
-		 (cl-pushnew
-		  (format  "Invalid bibtex entry type (%s) found in [[file:%s::%s]]" (match-string 1)
-			   bibfile (line-number-at-pos))
-		  bib-candidates)))))
-	 bibfiles)))
+      (mapc
+       (lambda (bibfile)
+	 (with-current-buffer
+             (find-file-noselect bibfile)
+	   (goto-char (point-min))
+	   (while (re-search-forward "^@\\(.*\\){" nil t)
+	     (unless (member (s-trim (downcase (match-string 1)))
+			     (cdr (assoc bibtex-dialect
+					 (list
+					  (cons 'BibTeX (mapcar (lambda (e) (downcase (car e)))
+								bibtex-BibTeX-entry-alist))
+					  (cons 'biblatex (mapcar (lambda (e) (downcase (car e)))
+								  bibtex-biblatex-entry-alist))))))
+	       (cl-pushnew
+		(format  "Invalid bibtex entry type (%s) found in [[file:%s::%s]]" (match-string 1)
+			 bibfile (line-number-at-pos))
+		bib-candidates)))))
+       bibfiles))
 
     ;; unreferenced labels
     (save-excursion
