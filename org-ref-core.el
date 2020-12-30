@@ -2264,6 +2264,7 @@ set in `org-ref-default-bibliography'"
   "Determine if the KEY is in the FILENAME."
   (with-temp-buffer
     (insert-file-contents filename)
+    (hack-local-variables)
     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
     (bibtex-search-entry key)))
 
