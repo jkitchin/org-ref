@@ -3034,12 +3034,13 @@ file.  Makes a new buffer with clickable links."
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist :type))
-            (dolist (key (org-ref-split-and-strip-string
-			  (plist-get plist :path)))
-              (when (not (org-ref-list-index key bibtex-keys))
-                (goto-char (plist-get plist :begin))
-                (re-search-forward key)
-                (push (cons key (point-marker)) bad-citations))))))
+	    (when (not (string= "*" (plist-get plist :path)))
+              (dolist (key (org-ref-split-and-strip-string
+			    (plist-get plist :path)))
+		(when (not (org-ref-list-index key bibtex-keys))
+                  (goto-char (plist-get plist :begin))
+                  (re-search-forward key)
+                  (push (cons key (point-marker)) bad-citations)))))))
       ;; add with-affiliates to get cites in caption
       nil nil nil t)
     (goto-char cp)
