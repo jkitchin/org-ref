@@ -2528,8 +2528,10 @@ This is not smart enough yet to only highlight the bad key. If any key is bad, t
 	     'identity
 	     (mapcar
 	      (lambda (key)
-		(assoc "=key="
-		       (bibtex-completion-get-entry key)))
+		(if (string= key "*")
+		    t
+		  (assoc "=key="
+			 (bibtex-completion-get-entry key))))
 	      (split-string keys ",")))))
       'org-ref-cite-face)
      (t
@@ -3779,7 +3781,10 @@ the first instance of the label, or nil of there is none."
             (cond
              ;; cite links
              ((-contains? org-ref-cite-types type)
-              (message (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor))))
+	      (let ((key (org-ref-get-bibtex-key-under-cursor)))
+		(if (string= "*" key)
+		    "*"
+		  (message (org-ref-format-entry key)))))
 
              ;; message some context about the label we are referring to
              ((or (string= type "ref")

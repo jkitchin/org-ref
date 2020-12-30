@@ -1284,7 +1284,9 @@ of format strings used."
 (defun org-ref-format-entry (key)
   "Returns a formatted bibtex entry for KEY."
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-    (org-ref-format-bibtex-entry (ignore-errors (bibtex-completion-get-entry key)))))
+    (if (string= "*" key)
+	"*"
+      (org-ref-format-bibtex-entry (ignore-errors (bibtex-completion-get-entry key))))))
 
 
 (defun org-ref-format-bibtex-entry-at-point ()
