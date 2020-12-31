@@ -936,11 +936,62 @@ if FORCE is non-nil reparse the buffer no matter what."
   (let* ((buf (get-buffer-create "*org-ref*"))
 	 (cb (current-buffer))
 	 (fname (buffer-file-name))
-         (bad-citations (org-ref-bad-cite-candidates))
-         (bad-refs (org-ref-bad-ref-candidates))
-         (bad-labels (org-ref-bad-label-candidates))
-         (bad-files (org-ref-bad-file-link-candidates))
-         (bib-candidates '())
+	 ;; Check if elc is ok before anything else because if it is not, it
+	 ;; causes problems in org-ref.
+	 (elc-ok (let* ((org-ref-el (concat
+				     (file-name-sans-extension
+				      (locate-library "org-ref"))
+				     ".el"))
+			(orel-mod)
+			(org-ref-elc (concat
+				      (file-name-sans-extension
+				       (locate-library "org-ref"))
+				      ".elc"))
+			(orelc-mod)
+			(elc-version))
+		   (when (file-exists-p org-ref-el)
+		     (setq orel-mod (file-attribute-modification-time (file-attributes org-ref-el))))
+		   (when (file-exists-p org-ref-elc)
+		     (setq orelc-mod (file-attribute-modification-time (file-attributes org-ref-elc))))
+
+		   (with-current-buffer buf
+		     (read-only-mode -1)
+		     (erase-buffer)
+		     (org-mode)
+		     (insert (format "#+title: org-ref report on [[%s][%s]]\n\n" (buffer-file-name cb) (buffer-name cb)))
+
+
+
+		     (unless (time-less-p orel-mod orelc-mod)
+		       (insert (format "org-ref.elc (%s) is older than org-ref.el (%s). That is probably not right. Please delete %s.\n"
+				       (format-time-string "%Y-%m-%d %H:%M:%S" orelc-mod)
+				       (format-time-string "%Y-%m-%d %H:%M:%S" orel-mod)
+				       org-ref-elc))
+		       (insert (format "- load-prefer-newer = %s\n" load-prefer-newer))
+		       (insert (format  "  consider
+- deleting %s
+- [[elisp:(delete-file \"%s\")]]
+- add (setq load-prefer-newer t) to your init files
+- using https://github.com/emacscollective/auto-compile.\n" org-ref-elc org-ref-elc))
+
+		       ;; Check for byte-compiling compatibility with current emacs
+		       (when (and org-ref-elc
+				  (file-exists-p org-ref-elc))
+			 (setq elc-version (with-temp-buffer
+					     (insert-file-contents org-ref-elc)
+					     (goto-char (point-min))
+					     (when (re-search-forward ";;; in Emacs version \\([0-9]\\{2\\}\\.[0-9]+\\)"
+								      nil t)
+					       (match-string 1))))
+			 (unless (string= elc-version
+					  (format "%s.%s" emacs-major-version emacs-minor-version))
+			   (insert (format "%s compiled with Emacs %s but you are running %s.%s. That could be a problem.\n"
+					   elc-version emacs-major-version emacs-minor-version))))))))
+	 (bad-citations (org-ref-bad-cite-candidates))
+	 (bad-refs (org-ref-bad-ref-candidates))
+	 (bad-labels (org-ref-bad-label-candidates))
+	 (bad-files (org-ref-bad-file-link-candidates))
+	 (bib-candidates '())
 	 (unreferenced-labels '())
 	 natbib-required
 	 natbib-used
@@ -952,6 +1003,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	 mchar
 	 (org-latex-prefer-user-labels (and (boundp 'org-latex-prefer-user-labels)
 					    org-latex-prefer-user-labels)))
+
 
     ;; See if natbib, biblatex or cleveref are required
     (org-element-map (org-element-parse-buffer) 'link
@@ -994,15 +1046,16 @@ if FORCE is non-nil reparse the buffer no matter what."
 
     ;; setup bib-candidates. This checks a variety of things in the
     ;; bibliography, bibtex files. check for which bibliographies are used
+
     (cl-loop for bibfile in (org-ref-find-bibliography)
 	     do
 	     (let ((bibdialect))
 	       (with-current-buffer (find-file-noselect bibfile)
 		 (setq bibdialect bibtex-dialect))
 	       (cl-pushnew
-		(format "  - [[%s]] (dialect = %s)\n" bibfile bibdialect)
-
+		(format "[[%s]] (dialect = %s)\n" bibfile bibdialect)
 		bib-candidates)))
+
 
     ;; Check bibliography style exists
     (save-excursion
@@ -1011,8 +1064,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	(cl-pushnew
 	 "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
     bibliographystyle:unsrt
-    at the end of you file.
-    "
+    at the end of your file.\n"
 	 bib-candidates)))
 
     ;; Check if latex knows of the bibliographystyle. We only check links here.
@@ -1165,12 +1217,6 @@ if FORCE is non-nil reparse the buffer no matter what."
 
 
     (with-current-buffer buf
-      (read-only-mode -1)
-      (erase-buffer)
-      (org-mode)
-
-      (insert (format "#+title: org-ref report on [[%s][%s]]\n\n" (buffer-file-name cb) (buffer-name cb)))
-
       (when bad-citations
 	(insert "* Bad citations\n")
 	(cl-loop for (key . marker) in bad-citations
@@ -1211,7 +1257,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	(insert "\n* Bibliography\n")
 	(cl-loop for candidate in bib-candidates
 		 do
-		 (insert (format "- %s\n" candidate))))
+		 (insert (format "- %s" candidate))))
 
       (insert "\n* Miscellaneous\n")
       (cl-loop for s in `(,(format "org-latex-prefer-user-labels = %s"
@@ -1222,14 +1268,48 @@ if FORCE is non-nil reparse the buffer no matter what."
 			  ,(format "emacs-version = %s" (emacs-version))
 			  ,(format "org-version = %s" (org-version))
 			  ,(org-ref-version)
+			  ,(format "org-ref.el installed at %s" (concat
+								 (file-name-sans-extension
+								  (locate-library "org-ref"))
+								 ".el"))
 			  ,(format "completion backend = %s" org-ref-completion-library)
+			  ,(format "org-ref-default-bibliography = %S" org-ref-default-bibliography)
 			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
 			  ,(format "natbib is%srequired." (if natbib-required " " " not "))
-			  ,(format "natbib is%sin org-latex-default-packages-alist or org-latex-packages-alist."
-				   (if natbib-used " " " not "))
+			  ,(format "natbib is%sin %s or %s."
+				   (if natbib-used " " " not ")
+				   (propertize "org-latex-default-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-default-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3"))
+				   (propertize "org-latex-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3")))
 			  ,(format "cleveref is%srequired." (if cleveref-required " " " not "))
-			  ,(format "cleveref is%sin org-latex-default-packages-alist or org-latex-packages-alist."
-				   (if cleveref-used " " " not ")))
+			  ,(format "cleveref is%sin %s or %s."
+				   (if cleveref-used " " " not ")
+				   (propertize "org-latex-default-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-default-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3"))
+				   (propertize "org-latex-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3"))
+				   ))
 	       do
 	       (insert "- " s "\n"))
       (insert (format "- org-latex-default-packages-alist\n"))
@@ -1243,50 +1323,6 @@ if FORCE is non-nil reparse the buffer no matter what."
 	(cl-loop for el in org-latex-packages-alist
 		 do
 		 (insert (format "  %S\n" el))))
-
-      ;; check if an elc is older than el. I only check this for one file. This
-      ;; doesn't quite solve the issue of a new emacs version where there are
-      ;; old, incompatible elc files though.
-      (unless (let* ((org-ref-el (concat
-				  (file-name-sans-extension
-				   (locate-library "org-ref"))
-				  ".el"))
-		     (orel-mod)
-		     (org-ref-elc (concat
-				   (file-name-sans-extension
-				    (locate-library "org-ref"))
-				   ".elc"))
-		     (orelc-mod)
-		     (elc-version))
-		(when (file-exists-p org-ref-el)
-		  (setq orel-mod (file-attribute-modification-time (file-attributes org-ref-el))))
-		(when (file-exists-p org-ref-elc)
-		  (setq orelc-mod (file-attribute-modification-time (file-attributes org-ref-elc)))))
-	(when (and orel-mod orelc-mod)
-	  (time-less-p orel-mod orelc-mod)
-	  (insert "- org-ref.elc is older than org-ref.el. That is probably not right.\n")
-	  (insert "- load-prefer-newer = %s\n" load-prefer-newer)
-	  (insert "  consider (setq load-prefer-newer t) or using https://github.com/emacscollective/auto-compile."))
-
-	;; Check for byte-compiling compatibility with current emacs
-	(when (and org-ref-elc
-		   (file-exists-p org-ref-elc))
-	  (setq elc-version (with-temp-buffer
-			      (insert-file-contents org-ref-elc)
-			      (goto-char (point-min))
-			      (re-search-forward ";;; in Emacs version \\([0-9]\\{2\\}\\.[0-9]+\\)"
-						 nil t)
-			      (setq elc-version (match-string 1)))
-
-		(unless (string= elc-version
-				 (format "%s.%s" emacs-major-version emacs-minor-version))
-
-		  (insert "- %s compiled with Emacs %s but you are running %s.%s. That could be a problem.\n"
-			  elc-version emacs-major-version emacs-minor-version)))))
-
-
-
-
 
 
       (insert (format  "\n* Utilities
