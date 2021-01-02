@@ -959,8 +959,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 		     (erase-buffer)
 		     (org-mode)
 		     (insert (format "#+title: org-ref report on [[%s][%s]]\n\n" (buffer-file-name cb) (buffer-name cb)))
-
-
+		     (insert (format "org-ref called from %s" (buffer-file-name cb)))
 
 		     (unless (time-less-p orel-mod orelc-mod)
 		       (insert (format "org-ref.elc (%s) is older than org-ref.el (%s). That is probably not right. Please delete %s.\n"
