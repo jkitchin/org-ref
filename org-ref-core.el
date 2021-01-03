@@ -1538,8 +1538,6 @@ only org labels and names."
 	   :type "ref"
 	   :link (concat "ref:" label)))))
 
-
-
      ;; If you are in a table, we need to be at the beginning to make sure we get the name.
      ;; Note when in a caption it appears you are in a table but org-at-table-p is nil there.
      ((or (equal (org-element-type object) 'table) (org-at-table-p))
@@ -3674,7 +3672,7 @@ move to the beginning of the next cite link after this one."
 		     (cl-loop for (k s e) in cps
 			      if (and (>= p s)
 				      (<= p e))
-			      return e))))))
+			      cl-return e))))))
     ;; if we get off a link,jump to the next one.
     (when
 	(not (-contains? org-ref-cite-types
@@ -3717,7 +3715,7 @@ move to the beginning of the previous cite link after this one."
 		   for (k s e) in cps
 		   if (and (>= p s)
 			   (<= p e))
-		   return i))
+		   cl-return i))
       (goto-char (nth 1 (nth (- index 1) cps)))))))
 
 (defvar org-ref-equation-environments
@@ -3756,14 +3754,16 @@ the first instance of the label, or nil of there is none."
                    (goto-char last-begin-point)))))))))))
 
 (defun org-ref-equation-label-p (label)
+  "Return non-nil if LABEL is an equation label."
   (let ((maybe-env (org-ref-enclosing-environment label)))
     (when maybe-env
       (member maybe-env org-ref-equation-environments))))
 
 (defun org-ref-infer-ref-type (label)
+  "Return inferred type for LABEL."
   (or (dolist (pred-pair org-ref-ref-type-inference-alist)
         (when (funcall (car pred-pair) label)
-          (return (eval (cdr pred-pair)))))
+          (cl-return (eval (cdr pred-pair)))))
       org-ref-default-ref-type))
 
 ;;** context around org-ref links
