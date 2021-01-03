@@ -1486,107 +1486,87 @@ only org labels and names."
   (let* ((object (and (eq major-mode 'org-mode) (org-element-context)))
 	 (stored nil)
 	 label)
-
-    ;; here literally on a label link.
-    (when (and
-	   (equal (org-element-type object) 'link)
-	   (equal (org-element-property :type object) "label"))
-
+    (cond
+     ;; here literally on a label link.
+     ((and
+       (equal (org-element-type object) 'link)
+       (equal (org-element-property :type object) "label"))
       (setq label (org-element-property :path object))
       (org-store-link-props
        :type "ref"
-       :link (concat "ref:" label))
-      (push (concat "ref:" label) org-stored-links)
-      (setq stored t))
+       :link (concat "ref:" label))))
 
     ;; here on a file link that probably contains an image, although I don't check that
-    (when (and
-	   (equal (org-element-type object) 'link)
-	   (equal (org-element-property :type object) "file")
-	   (org-file-image-p (org-element-property :path object)))
-      (if (org-element-property :name object)
-	  (progn
-	    (setq label (org-element-property :name object))
-	    (org-store-link-props
-	     :type "ref"
-	     :link (concat "ref:"label))
-	    (push (concat "ref:" label) org-stored-links)
-	    (setq stored t))
-	;; maybe we have a caption to get it from.
-	(let* ((parent (org-element-property :parent object))
-	       (caption))
-	  (when (and parent
-		     (equal (org-element-type parent) 'paragraph))
-	    (if (org-element-property :name parent)
-		;; caption paragraph may have a name which we use if it is there
-		(setq label (org-element-property :name parent))
-	      ;; else search caption
-	      (setq caption (s-join
-			     ""
-			     (mapcar 'org-no-properties
-				     (org-export-get-caption parent))))
-	      (when (string-match org-ref-label-re caption)
-		(setq label (match-string 1 caption))))
+    ((and
+      (equal (org-element-type object) 'link)
+      (equal (org-element-property :type object) "file")
+      (org-file-image-p (org-element-property :path object)))
 
-	    (org-store-link-props
-	     :type "ref"
-	     :link (concat "ref:" label))
-	    (push (concat "ref:" label) org-stored-links)
-	    (setq stored t)))))
+     (if (org-element-property :name object)
+	 (progn
+	   (setq label (org-element-property :name object))
+	   (org-store-link-props
+	    :type "ref"
+	    :link (concat "ref:"label)))
+       ;; maybe we have a caption to get it from.
+       (let* ((parent (org-element-property :parent object))
+	      (caption))
+	 (when (and parent
+		    (equal (org-element-type parent) 'paragraph))
+	   (if (org-element-property :name parent)
+	       ;; caption paragraph may have a name which we use if it is there
+	       (setq label (org-element-property :name parent))
+	     ;; else search caption
+	     (setq caption (s-join
+			    ""
+			    (mapcar 'org-no-properties
+				    (org-export-get-caption parent))))
+	     (when (string-match org-ref-label-re caption)
+	       (setq label (match-string 1 caption))))
+
+	   (org-store-link-props
+	    :type "ref"
+	    :link (concat "ref:" label))))))
 
     ;; here in a caption of an image. it is a paragraph with a caption
     ;; in a caption, with no name, but maybe a label
-    (when (and (equal (org-element-type object) 'paragraph))
-      (let ((caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption object)))))
-	(when (string-match org-ref-label-re caption)
-	  (setq label (match-string 1 caption))
-	  (org-store-link-props
-	   :type "ref"
-	   :link (concat "ref:" label))
-	  (push (concat "ref:" label) org-stored-links)
-	  (setq stored t))))
+    ((equal (org-element-type object) 'paragraph)
+     (let ((caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption object)))))
+       (when (string-match org-ref-label-re caption)
+	 (setq label (match-string 1 caption))
+	 (org-store-link-props
+	  :type "ref"
+	  :link (concat "ref:" label)))))
+
 
 
     ;; If you are in a table, we need to be at the beginning to make sure we get the name.
     ;; Note when in a caption it appears you are in a table but org-at-table-p is nil there.
-    (when (or (equal (org-element-type object) 'table) (org-at-table-p))
-      (save-excursion
-	(goto-char (org-table-begin))
-	(let* ((table (org-element-context))
-	       (label (org-element-property :name table))
-	       (caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption table)))))
-	  (when (null label)
-	    ;; maybe there is a label in the caption?
-	    (when (string-match org-ref-label-re caption)
-	      (setq label (match-string 1 caption))))
+    ((or (equal (org-element-type object) 'table) (org-at-table-p))
+     (save-excursion
+       (goto-char (org-table-begin))
+       (let* ((table (org-element-context))
+	      (label (org-element-property :name table))
+	      (caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption table)))))
+	 (when (null label)
+	   ;; maybe there is a label in the caption?
+	   (when (string-match org-ref-label-re caption)
+	     (setq label (match-string 1 caption))))
 
-	  (org-store-link-props
-	   :type "ref"
-	   :link (concat "ref:" label))
-	  (push (concat "ref:" label) org-stored-links)
-	  (setq stored t))))
-
-    ;; store link on heading with custom_id
-    ;; this is not a ref link, but it is still what you want
-    (when (and (equal (org-element-type object) 'headline)
-               (org-entry-get (point) "CUSTOM_ID"))
-      (org-store-link-props
-       :type "custom_id"
-       :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID")))
-      (push (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID")) org-stored-links)
-      (setq stored t))
+	 (org-store-link-props
+	  :type "ref"
+	  :link (concat "ref:" label)))))
 
     ;; and to #+label: lines
-    (when (and (equal (org-element-type object) 'paragraph)
-               (org-element-property :name object))
-      (setq label (org-element-property :name object))
-      (org-store-link-props
-       :type "ref"
-       :link (concat "ref:" label))
-      (push (concat "ref:" label) org-stored-links)
-      (setq stored t))
-    ;; I think you have to return t if there was a match.
-    stored))
+    ((and (equal (org-element-type object) 'paragraph)
+          (org-element-property :name object)))
+    (setq label (org-element-property :name object))
+    (org-store-link-props
+     :type "ref"
+     :link (concat "ref:" label))
+
+    (t
+     nil)))
 
 
 (defun org-ref-label-face-fn (label)
