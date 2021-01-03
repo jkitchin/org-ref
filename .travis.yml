@@ -1,41 +1,26 @@
-language: emacs-lisp
-# Emacs fails to build in container-based builds on Travis
-# See https://github.com/travis-ci/travis-ci/issues/9061
-# and https://github.com/moby/moby/issues/22801
-sudo: required
-dist: trusty
-cache:
-  - directories:
-      # Cache stable Emacs binaries (saves 1min per job)
-      - "$HOME/emacs/"
-# Allow Emacs snapshot builds to fail and don’t wait for these as they can take
-# a looooong time
+# adapted from https://github.com/purcell/nix-emacs-ci
+language: nix
+
+os:
+  - linux
+
 matrix:
   fast_finish: true
   allow_failures:
     - env: EMACS_VERSION=snapshot
-env:
-  - EMACS_VERSION=26.1
-  - EMACS_VERSION=26.2
-  - EMACS_VERSION=26.3
-  - EMACS_VERSION=27.1
-  - EMACS_VERSION=snapshot
-before_install:
-  # Configure $PATH: Executables are installed to $HOME/bin
-  - export PATH="$HOME/bin:$PATH"
-  # Download the makefile to emacs-travis.mk
-  - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
-  # Install Emacs (according to $EMACS_VERSION) and Cask
-  - make -f emacs-travis.mk install_emacs
-  - make -f emacs-travis.mk install_cask
-  # Install Texinfo, if you need to build info manuals for your project
-  - make -f emacs-travis.mk install_texinfo
-install:
-  # Install your dependencies
-  - cask install
 
+env:
+  - EMACS_CI=emacs-25-3
+  - EMACS_CI=emacs-26-3
+  - EMACS_CI=emacs-27-1
+  - EMACS_CI=emacs-snapshot
+
+install:
+  - curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
+  - export PATH="/home/travis/.cask/bin:$PATH"
+  # The default "emacs" executable on the $PATH will now be the version named by $EMACS_CI
+  - bash <(curl https://raw.githubusercontent.com/purcell/nix-emacs-ci/master/travis-install)
+  - cask install
+  - which cask
 script:
-  - emacs --version
   - make test
-  - make compile
-  - echo "Done testing"
