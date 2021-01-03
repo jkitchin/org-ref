@@ -1483,15 +1483,21 @@ This has several conditional ways to store a link to figures and
 tables also. Note it does not currently work with latex labels,
 only org labels and names."
   ;; First we have to make sure we are on a label link.
-  (let* ((object (and (eq major-mode 'org-mode) (org-element-context))))
+  (let* ((object (and (eq major-mode 'org-mode) (org-element-context)))
+	 (stored nil)
+	 label)
 
     ;; here literally on a label link.
     (when (and
 	   (equal (org-element-type object) 'link)
 	   (equal (org-element-property :type object) "label"))
+
+      (setq label (org-element-property :path object))
       (org-store-link-props
        :type "ref"
-       :link (concat "ref:" (org-element-property :path object))))
+       :link (concat "ref:" label))
+      (push (concat "ref:" label) org-stored-links)
+      (setq stored t))
 
     ;; here on a file link that probably contains an image, although I don't check that
     (when (and
@@ -1499,13 +1505,16 @@ only org labels and names."
 	   (equal (org-element-property :type object) "file")
 	   (org-file-image-p (org-element-property :path object)))
       (if (org-element-property :name object)
-	  (org-store-link-props
-	   :type "ref"
-	   :link (concat "ref:" name))
+	  (progn
+	    (setq label (org-element-property :name object))
+	    (org-store-link-props
+	     :type "ref"
+	     :link (concat "ref:"label))
+	    (push (concat "ref:" label) org-stored-links)
+	    (setq stored t))
 	;; maybe we have a caption to get it from.
 	(let* ((parent (org-element-property :parent object))
-	       (caption)
-	       label)
+	       (caption))
 	  (when (and parent
 		     (equal (org-element-type parent) 'paragraph))
 	    (if (org-element-property :name parent)
@@ -1521,16 +1530,21 @@ only org labels and names."
 
 	    (org-store-link-props
 	     :type "ref"
-	     :link (concat "ref:" label))))))
+	     :link (concat "ref:" label))
+	    (push (concat "ref:" label) org-stored-links)
+	    (setq stored t)))))
 
     ;; here in a caption of an image. it is a paragraph with a caption
     ;; in a caption, with no name, but maybe a label
     (when (and (equal (org-element-type object) 'paragraph))
       (let ((caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption object)))))
 	(when (string-match org-ref-label-re caption)
+	  (setq label (match-string 1 caption))
 	  (org-store-link-props
 	   :type "ref"
-	   :link (concat "ref:" (match-string 1 caption))))))
+	   :link (concat "ref:" label))
+	  (push (concat "ref:" label) org-stored-links)
+	  (setq stored t))))
 
 
     ;; If you are in a table, we need to be at the beginning to make sure we get the name.
@@ -1548,7 +1562,9 @@ only org labels and names."
 
 	  (org-store-link-props
 	   :type "ref"
-	   :link (concat "ref:" label)))))
+	   :link (concat "ref:" label))
+	  (push (concat "ref:" label) org-stored-links)
+	  (setq stored t))))
 
     ;; store link on heading with custom_id
     ;; this is not a ref link, but it is still what you want
@@ -1556,14 +1572,21 @@ only org labels and names."
                (org-entry-get (point) "CUSTOM_ID"))
       (org-store-link-props
        :type "custom_id"
-       :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID"))))
+       :link (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID")))
+      (push (format "[[#%s]]" (org-entry-get (point) "CUSTOM_ID")) org-stored-links)
+      (setq stored t))
 
     ;; and to #+label: lines
     (when (and (equal (org-element-type object) 'paragraph)
                (org-element-property :name object))
+      (setq label (org-element-property :name object))
       (org-store-link-props
        :type "ref"
-       :link (concat "ref:" (org-element-property :name object))))))
+       :link (concat "ref:" label))
+      (push (concat "ref:" label) org-stored-links)
+      (setq stored t))
+    ;; I think you have to return t if there was a match.
+    stored))
 
 
 (defun org-ref-label-face-fn (label)
