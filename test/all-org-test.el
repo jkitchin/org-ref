@@ -1468,47 +1468,44 @@ cite
 
 (ert-deftest store-label-link ()
   (org-test-with-temp-text
-      "label:test"
-    (goto-char 1)
-    (org-label-store-link)
-    (should
-     (string=
-      (plist-get org-store-link-plist :type) "ref"))))
+   "label:test"
+   (goto-char 1)
+   (org-ref-label-store-link)
+   (should
+    (string=
+     (plist-get org-store-link-plist :type) "ref"))))
 
 (ert-deftest store-label-link-table ()
   (org-test-with-temp-text
-      "#+tblname: test-table
+   "#+tblname: test-table
 |1 | 2|"
-    (goto-char 1)
-    (org-label-store-link)
-    (should
-     (string=
-      (plist-get org-store-link-plist :type) "ref"))
-    org-store-link-plist))
+   (goto-char 1)
+   (org-labeorg-ref-label-store-linkhould
+    (string=
+     (plist-get org-store-link-plist :type) "ref"))
+   org-store-link-plist))
 
 (ert-deftest store-label-headline ()
   (org-test-with-temp-text
-      "* headline
+   "* headline
 :PROPERTIES:
 :CUSTOM_ID: test
 :END:
 "
-    (goto-char 1)
-    (org-label-store-link)
-    (should
-     (string=
-      (plist-get org-store-link-plist :type) "custom_id"))))
+   (goto-char 1)
+   (org-labeorg-ref-label-store-linkhould
+    (string=
+     (plist-get org-store-link-plist :type) "custom_id"))))
 
 (ert-deftest store-label-label ()
   (org-test-with-temp-text
-      "#+LABEL: test
+   "#+LABEL: test
 [[./file.png]]
 "
-    (goto-char 1)
-    (org-label-store-link)
-    (should
-     (string=
-      (plist-get org-store-link-plist :type) "ref"))))
+   (goto-char 1)
+   (org-laborg-ref-label-store-linkshould
+    (string=
+     (plist-get org-store-link-plist :type) "ref"))))
 
 (ert-deftest store-bibtex-link ()
   (should (string= "cite:kitchin-2015-examp"

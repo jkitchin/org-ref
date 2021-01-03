@@ -1477,13 +1477,11 @@ ARG does nothing."
        custom-id-count)))
 
 
-(defun org-label-store-link ()
+(defun org-ref-label-store-link ()
   "Store a link to a label.  The output will be a ref to that label.
 This has several conditional ways to store a link to figures and
 tables also. Note it does not currently work with latex labels,
-only org labels and names.
-
-"
+only org labels and names."
   ;; First we have to make sure we are on a label link.
   (let* ((object (and (eq major-mode 'org-mode) (org-element-context))))
 
@@ -1597,7 +1595,7 @@ A number greater than one means multiple labels!"
 	     ((eq format 'md) (format "<a name=\"%s\"></a>" keyword))
              ((eq format 'latex)
               (format "\\label{%s}" keyword))))
-  :store #'org-label-store-link
+  :store #'org-ref-label-store-link
   :face 'org-ref-label-face-fn
   :help-echo (lambda (window object position)
                (save-excursion

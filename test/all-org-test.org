@@ -3228,7 +3228,7 @@ org-store-link-plist
 (org-test-with-temp-text
     "label:test"
   (goto-char 1)
-  (org-label-store-link)
+  (org-ref-label-store-link)
   (should
    (string=
     (plist-get org-store-link-plist :type) "ref")))
@@ -3251,7 +3251,7 @@ org-store-link-plist
     "#+tblname: test-table
 |1 | 2|"
   (goto-char 1)
-  (org-label-store-link)
+  (org-ref-label-store-link)
   (should
    (string=
     (plist-get org-store-link-plist :type) "ref"))
@@ -3278,7 +3278,7 @@ org-store-link-plist
  :END:
 "
   (goto-char 1)
-  (org-label-store-link)
+  (org-ref-label-store-link)
   (should
    (string=
     (plist-get org-store-link-plist :type) "custom_id")))
@@ -3303,7 +3303,7 @@ org-store-link-plist
 [[./file.png]]
 "
   (goto-char 1)
-  (org-label-store-link)
+  (org-ref-label-store-link)
   (should
    (string=
     (plist-get org-store-link-plist :type) "ref")))
