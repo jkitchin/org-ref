@@ -1976,10 +1976,13 @@ START=END for an insertion."
 	(message "  ordl-6: removing %s" label)
 	(message "  %S\n" org-ref-labels))))
    (t
-    (message "*********** ordl fell through:%s\n%s\n%s"
-	     (get-text-property (- start 1) 'org-ref-label)
-	     (get-text-property start 'org-ref-label)
-	     (get-text-property (+ start 1) 'org-ref-label)))))
+    (when org-ref-label-debug
+      (message "*********** ordl fell through:%s\n%s\n%s"
+	       (unless (bobp)
+		 (get-text-property (- start 1) 'org-ref-label))
+	       (get-text-property start 'org-ref-label)
+	       (unless (eobp)
+		 (get-text-property (+ start 1) 'org-ref-label)))))))
 
 
 (defun org-ref-delete-labels (start end)
