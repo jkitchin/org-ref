@@ -1858,8 +1858,9 @@ region."
     (org-ref-reset-labels))
 
    ;; start is at beginning of a label
-   ((and (null (get-text-property (- start 1) 'org-ref-label))
-	 (get-text-property start 'org-ref-label))
+   ((and
+     (null (if (bobp) nil (get-text-property (- start 1) 'org-ref-label)))
+     (get-text-property start 'org-ref-label))
     (let ((label (buffer-substring-no-properties
 		  start
 		  (next-single-property-change start 'org-ref-label))))
@@ -1874,9 +1875,10 @@ region."
 	(message "  %S\n" org-ref-labels))))
 
    ;; in a label
-   ((and (get-text-property (- start 1) 'org-ref-label)
-	 (get-text-property start 'org-ref-label)
-	 (get-text-property (+ start 1) 'org-ref-label))
+   ((and
+     (if (bobp) nil (get-text-property (- start 1) 'org-ref-label))
+     (get-text-property start 'org-ref-label)
+     (if (eobp) nil (get-text-property (+ start 1) 'org-ref-label)))
     (let ((label (buffer-substring-no-properties
 		  (previous-single-property-change start 'org-ref-label)
 		  (next-single-property-change start 'org-ref-label))))
@@ -1891,8 +1893,9 @@ region."
 	(message "  %S\n" org-ref-labels))))
 
    ;; at end of label
-   ((and (get-text-property start 'org-ref-label)
-	 (null (get-text-property (+ start 1) 'org-ref-label)))
+   ((and
+     (get-text-property start 'org-ref-label)
+     (null (if (eobp) nil (get-text-property (+ start 1) 'org-ref-label))))
     (let* ((start (previous-single-property-change end 'org-ref-label))
 	   (label (buffer-substring-no-properties start end)))
       (when org-ref-label-debug
@@ -1904,6 +1907,7 @@ region."
       (when org-ref-label-debug
 	(message "  ordl-2: removed %s" label)
 	(message "  %S\n" org-ref-labels))))))
+
 
 (defun org-ref-delete-labels-insertion (start end)
   "Function to run before inserting text.
@@ -1918,11 +1922,11 @@ START=END for an insertion."
   (cond
    ;; at the beginning of a label
    ((and
-     (not (eobp))
-     (> start 1)
      (get-text-property start 'org-ref-label)
-     (not (get-text-property (- start 1) 'org-ref-label)))
-    (let ((label (buffer-substring start (next-single-property-change start 'org-ref-label))))
+     (not (if (bobp) nil (get-text-property (- start 1) 'org-ref-label))))
+    (let ((label (buffer-substring-no-properties
+		  start
+		  (next-single-property-change start 'org-ref-label))))
       (when org-ref-label-debug
 	(message "ordl-5: removing %s" label)
 	(message "%S\n" org-ref-labels))
@@ -1937,13 +1941,10 @@ START=END for an insertion."
 
    ;; in a label
    ((and
-     (not (eobp))
-     (> start 1)
      ;; this means in a label
-     (get-text-property (- start 1) 'org-ref-label)
-     (get-text-property start 'org-ref-label)
-     (get-text-property (+ start 1) 'org-ref-label))
-    (let ((label (buffer-substring
+     (if (bobp) nil (get-text-property (- start 1) 'org-ref-label))
+     (get-text-property start 'org-ref-label))
+    (let ((label (buffer-substring-no-properties
 		  (previous-single-property-change start 'org-ref-label)
 		  (next-single-property-change start 'org-ref-label))))
       (when org-ref-label-debug
@@ -1957,13 +1958,13 @@ START=END for an insertion."
 	(message "  ordl-4: removed %s" label)
 	(message "  %S\n" org-ref-labels))))
 
-   ;; at the end of a label
+   ;; at the end of a label but not on it.
    ((and
-     (not (eobp))
-     (> start 1)
      (not (get-text-property start 'org-ref-label))
-     (get-text-property (- start 1) 'org-ref-label))
-    (let ((label (buffer-substring start (previous-single-property-change start 'org-ref-label))))
+     (if (bobp) nil (get-text-property (- start 1) 'org-ref-label)))
+    (let ((label (buffer-substring-no-properties
+		  start
+		  (previous-single-property-change start 'org-ref-label))))
       (when org-ref-label-debug
 	(message "ordl-6: removing %s" label)
 	(message "%S\n" org-ref-labels))
@@ -1978,11 +1979,9 @@ START=END for an insertion."
    (t
     (when org-ref-label-debug
       (message "*********** ordl fell through:%s\n%s\n%s"
-	       (unless (bobp)
-		 (get-text-property (- start 1) 'org-ref-label))
+	       (if (bobp) nil (get-text-property (- start 1) 'org-ref-label))
 	       (get-text-property start 'org-ref-label)
-	       (unless (eobp)
-		 (get-text-property (+ start 1) 'org-ref-label)))))))
+	       (if (eobp) nil (get-text-property (+ start 1) 'org-ref-label)))))))
 
 
 (defun org-ref-delete-labels (start end)
