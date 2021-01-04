@@ -3672,7 +3672,7 @@ move to the beginning of the next cite link after this one."
 		     (cl-loop for (k s e) in cps
 			      if (and (>= p s)
 				      (<= p e))
-			      cl-return e))))))
+			      return e))))))
     ;; if we get off a link,jump to the next one.
     (when
 	(not (-contains? org-ref-cite-types
@@ -3715,7 +3715,7 @@ move to the beginning of the previous cite link after this one."
 		   for (k s e) in cps
 		   if (and (>= p s)
 			   (<= p e))
-		   cl-return i))
+		   return i))
       (goto-char (nth 1 (nth (- index 1) cps)))))))
 
 (defvar org-ref-equation-environments
