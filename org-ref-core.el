@@ -1912,7 +1912,7 @@ region."
   "Function to run before inserting text.
 START=END for an insertion."
   ;; this is an insertion. start=end
-  (assert (= start end))
+  (cl-assert (= start end))
   ;; if the previous position is a label, we need to find it
   (when org-ref-label-debug
     (message "ordl: inserting %s %s" start end)
