@@ -1273,6 +1273,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 								 ".el"))
 			  ,(format "completion backend = %s" org-ref-completion-library)
 			  ,(format "org-ref-default-bibliography = %S" org-ref-default-bibliography)
+			  ,(format "org-ref-default-bibliography is a list = %S" (listp org-ref-default-bibliography))
 			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
 			  ,(format "natbib is%srequired." (if natbib-required " " " not "))
 			  ,(format "natbib is%sin %s or %s."
