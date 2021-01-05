@@ -1563,6 +1563,16 @@ only org labels and names."
        :type "ref"
        :link (concat "ref:" label)))
 
+     ;; in a latex environment
+     ((equal (org-element-type object) 'latex-environment)
+      (let ((value (org-element-property :value object))
+	    label)
+	(when (string-match "\\\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}" value)
+	  (setq label (match-string-no-properties 1 value))
+	  (org-store-link-props
+	   :type "ref"
+	   :link (concat "ref:" label)))))
+
      (t
       nil))))
 
