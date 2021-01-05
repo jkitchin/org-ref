@@ -1528,15 +1528,21 @@ only org labels and names."
 	     :type "ref"
 	     :link (concat "ref:" label))))))
 
-     ;; here in a caption of an image. it is a paragraph with a caption
+     ;; here on a paragraph (eg in a caption of an image). it is a paragraph with a caption
      ;; in a caption, with no name, but maybe a label
      ((equal (org-element-type object) 'paragraph)
-      (let ((caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption object)))))
-	(when (string-match org-ref-label-re caption)
-	  (setq label (match-string 1 caption))
+      (if (org-element-property :name object)
 	  (org-store-link-props
 	   :type "ref"
-	   :link (concat "ref:" label)))))
+	   :link (concat "ref:" (org-element-property :name object)))
+	;; See if it is in the caption name
+	(let ((caption (s-join "" (mapcar 'org-no-properties
+					  (org-export-get-caption object)))))
+	  (when (string-match org-ref-label-re caption)
+	    (setq label (match-string 1 caption))
+	    (org-store-link-props
+	     :type "ref"
+	     :link (concat "ref:" label))))))
 
      ;; If you are in a table, we need to be at the beginning to make sure we get the name.
      ;; Note when in a caption it appears you are in a table but org-at-table-p is nil there.
