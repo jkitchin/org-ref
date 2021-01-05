@@ -1320,8 +1320,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 									  (format "%s" s))
 									org-latex-packages-alist
 									"\n"))
-					       'font-lock-face '(:foreground "red3"))
-				   ))
+					       'font-lock-face '(:foreground "red3"))))
 	       do
 	       (insert "- " s "\n"))
       (insert (format "- org-latex-default-packages-alist\n"))
@@ -1336,6 +1335,13 @@ if FORCE is non-nil reparse the buffer no matter what."
 		 do
 		 (insert (format "  %S\n" el))))
 
+
+      (insert (format "- ox-bibtex loaded = %s" (featurep 'ox-bibtex)))
+      (insert (format "- ox-bibtex loaded after org-ref = %s"
+		      (let ((org-ref-i (seq-position load-history (assoc (locate-library "org-ref") load-history)) )
+			    (ox-bibtex-i (seq-position load-history (assoc (locate-library "ox-bibtex") load-history))))
+			(and org-ref-i ox-bibtex-i
+			     (> org-ref-i ox-bibtex-i)))))
 
       (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
 
