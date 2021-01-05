@@ -1353,11 +1353,11 @@ if FORCE is non-nil reparse the buffer no matter what."
 " fname fname))
       (goto-char (point-min))
 
-      (setq header-line-format "Press q to quit.")
-      (local-set-key "q"
-		     #'(lambda ()
-			 (interactive)
-			 (delete-window)))
+      ;; (setq header-line-format "Press q to quit.")
+      ;; (local-set-key "q"
+      ;; 		     #'(lambda ()
+      ;; 			 (interactive)
+      ;; 			 (delete-window)))
       (read-only-mode))
 
     (display-buffer-in-side-window buf '((side . right)))))
