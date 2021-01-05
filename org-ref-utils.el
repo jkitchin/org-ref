@@ -1280,6 +1280,10 @@ if FORCE is non-nil reparse the buffer no matter what."
 								  (locate-library "org-ref"))
 								 ".el"))
 			  ,(format "completion backend = %s" org-ref-completion-library)
+			  ,(format "org-ref-insert-cite-function = %s" org-ref-insert-cite-function)
+			  ,(format "org-ref-insert-label-function = %s" org-ref-insert-label-function)
+			  ,(format "org-ref-insert-ref-function = %s" org-ref-insert-ref-function)
+			  ,(format "org-ref-cite-onclick-function = %s" org-ref-cite-onclick-function)
 			  ,(format "org-ref-default-bibliography = %S" org-ref-default-bibliography)
 			  ,(format "org-ref-default-bibliography is a list = %S" (listp org-ref-default-bibliography))
 			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
@@ -1331,6 +1335,9 @@ if FORCE is non-nil reparse the buffer no matter what."
 	(cl-loop for el in org-latex-packages-alist
 		 do
 		 (insert (format "  %S\n" el))))
+
+
+      (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
 
 
       (insert (format  "\n* Utilities
