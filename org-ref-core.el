@@ -3777,9 +3777,9 @@ the first instance of the label, or nil of there is none."
 
 (defun org-ref-infer-ref-type (label)
   "Return inferred type for LABEL."
-  (or (dolist (pred-pair org-ref-ref-type-inference-alist)
-        (when (funcall (car pred-pair) label)
-          (cl-return (eval (cdr pred-pair)))))
+  (or (cl-dolist (pred-pair org-ref-ref-type-inference-alist)
+	(when (funcall (car pred-pair) label)
+	  (cl-return (eval (cdr pred-pair)))))
       org-ref-default-ref-type))
 
 ;;** context around org-ref links
