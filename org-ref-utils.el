@@ -84,9 +84,12 @@ Copies the string to the clipboard."
 		   ;; this is tricky, as a submodule, .git is a file
 		   (or (file-directory-p ".git") (file-exists-p ".git"))
 		   (= 0 (shell-command "git rev-parse --git-dir")))
-	      (s-trim (shell-command-to-string "git rev-parse HEAD")))))
+	      (format "%s in %s"
+		      (s-trim (shell-command-to-string "git rev-parse HEAD"))
+		      (s-trim (shell-command-to-string "git rev-parse --show-toplevel"))))))
 
-    (setq version-string (format "org-ref: Version %s%s" org-version
+    (setq version-string (format "org-ref: Version %s%s"
+				 org-version
 				 (if git-commit
 				     (format " (git-commit %s)" git-commit)
 				   "")))
