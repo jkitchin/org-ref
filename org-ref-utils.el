@@ -1336,8 +1336,8 @@ if FORCE is non-nil reparse the buffer no matter what."
 		 (insert (format "  %S\n" el))))
 
 
-      (insert (format "- ox-bibtex loaded = %s" (featurep 'ox-bibtex)))
-      (insert (format "- ox-bibtex loaded after org-ref = %s"
+      (insert (format "- ox-bibtex loaded = %s\n" (featurep 'ox-bibtex)))
+      (insert (format "- ox-bibtex loaded after org-ref = %s\n"
 		      (let ((org-ref-i (seq-position load-history (assoc (locate-library "org-ref") load-history)) )
 			    (ox-bibtex-i (seq-position load-history (assoc (locate-library "ox-bibtex") load-history))))
 			(and org-ref-i ox-bibtex-i
