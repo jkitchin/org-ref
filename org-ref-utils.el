@@ -1345,6 +1345,15 @@ if FORCE is non-nil reparse the buffer no matter what."
 
       (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
 
+      (insert "\n* Warnings\n")
+      (if (get-buffer "*Warnings*")
+	  (cl-loop for line in (s-split "\n" (with-current-buffer "*Warnings*"
+					       (buffer-string)))
+		   if (s-starts-with?  "Warning (org-ref):" line)
+		   do
+		   (insert " - " line "\n"))
+	(insert "- No (org-ref) Warnings found."))
+
 
       (insert (format  "\n* Utilities
 
