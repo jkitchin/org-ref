@@ -398,20 +398,23 @@ This will run in `org-export-before-parsing-hook'."
 			  (org-element-parse-buffer)
 			  'table
 			(lambda (el)
-			  (when (string= "glossary" (org-element-property :name el))
+			  (when (and (org-element-property :name el)
+				     (stringp (org-element-property :name el))
+				     (string= "glossary" (org-element-property :name el)))
 			    (setq begin (org-element-property :begin el)
 				  end (org-element-property :end el))
 			    (goto-char (org-element-property :contents-begin el))
 			    (throw 'found
 				   (nthcdr 2 (org-babel-read-table))))))))))
     ;; Delete the table
-    (setf (buffer-substring begin end) "")
+    (when entries
+      (setf (buffer-substring begin end) "")
 
-    (goto-char (point-min))
-    (cl-loop for (label name description) in entries
-	     do
-	     (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name=%s,description={{%s}}}\n"
-			     label name description)))))
+      (goto-char (point-min))
+      (cl-loop for (label name description) in entries
+	       do
+	       (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name=%s,description={{%s}}}\n"
+			       label name description))))))
 
 (add-to-list 'org-export-before-parsing-hook 'org-ref-glossary-before-parsing)
 
@@ -625,20 +628,23 @@ This will run in `org-export-before-parsing-hook'."
 			  (org-element-parse-buffer)
 			  'table
 			(lambda (el)
-			  (when (string= "acronyms" (org-element-property :name el))
+			  (when (and (org-element-property :name el)
+				     (strinp (org-element-property :name el))
+				     (string= "acronyms" (org-element-property :name el)))
 			    (setq begin (org-element-property :begin el)
 				  end (org-element-property :end el))
 			    (goto-char (org-element-property :contents-begin el))
 			    (throw 'found
 				   (nthcdr 2 (org-babel-read-table))))))))))
-    ;; Delete the table
-    (setf (buffer-substring begin end) "")
+    (when entries
+      ;; Delete the table
+      (setf (buffer-substring begin end) "")
 
-    (goto-char (point-min))
-    (cl-loop for (label name description) in entries
-	     do
-	     (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
-			     label name description)))))
+      (goto-char (point-min))
+      (cl-loop for (label name description) in entries
+	       do
+	       (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
+			       label name description))))))
 
 (add-to-list 'org-export-before-parsing-hook 'org-ref-acronyms-before-parsing)
 
