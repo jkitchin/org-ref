@@ -1345,6 +1345,12 @@ if FORCE is non-nil reparse the buffer no matter what."
 
       (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
 
+      (insert "* LaTeX setup\n\n")
+      (cl-loop for executable in '("latex" "pdflatex" "bibtex" "biblatex"
+				   "makeindex" "makeglossaries")
+	       do
+	       (insert (format "%s is installed at %s" executable (executable-find executable))))
+
       (insert "\n* Warnings\n")
       (if (get-buffer "*Warnings*")
 	  (cl-loop for line in (s-split "\n" (with-current-buffer "*Warnings*"

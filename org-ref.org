@@ -869,7 +869,7 @@ You will have to incorporate running makeindex into your PDF build command.
 
 This is not supported in anything but LaTeX export.
 
-*** Glossaries
+*** Glossaries and acronyms
 index:glossary
 
 org-ref provides some support for glossary and acronym definitions.
@@ -904,9 +904,9 @@ Here is a minimal working example of an org file that makes a glossary.
 #+latex_header: \makeglossaries
 
 #+latex_header_extra: \newglossaryentry{computer}{name=computer,description={A machine}}
+#+latex_header_extra: \newacronym{tla}{TLA}{Three letter acronym}
 
-
-A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future.
+A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future. Don't forget what a ac:TLA is.
 
 \printglossaries
 #+END_EXAMPLE
@@ -919,6 +919,37 @@ If you have a lot of glossary entries and you want to have them in an external f
 #+latex_header: \loadglsentries[main]{glossary}
 #+END_EXAMPLE
 
+Finally, you can define the glossary entries in org tables like this. They will be deleted before a LaTeX export.
+
+#+BEGIN_EXAMPLE
+,#+title: Test
+,#+latex_header: \usepackage{glossaries}
+,#+latex_header: \makeglossaries
+
+
+# This will not show in your export. It must be named glossary
+,#+name: glossary
+| label | name  | description   |
+|-------+-------+---------------|
+| tree  | Tree  | A woody plant |
+| shrub | Shrub | A woody bush  |
+
+Checkout how a gls:tree differs from a gls:shrub.
+
+
+,#+name: acronyms
+| Key  | Short | Long                           |
+|------+-------+--------------------------------|
+| mimo |       | multiple-input multiple output |
+| qos  | QoS   | quality-of-service             |
+| bb   | BB    | branch and bound               |
+
+
+First ac:bb. Second ac:bb. First ac:qos. Second ac:qos.
+
+# This is where your glossary and acronym entries will be put.
+,#+latex: \printglossaries
+#+END_EXAMPLE
 
 \glsaddall
 \printglossaries
