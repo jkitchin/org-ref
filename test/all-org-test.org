@@ -2778,7 +2778,7 @@ bibliography:%s
 
 
 
-(setq org-export-before-parsing-hook '())
+
 
 
 

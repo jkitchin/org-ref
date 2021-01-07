@@ -72,6 +72,7 @@
 
 (require 'org-element)
 (require 'org-ref-utils)
+(require 'ox)
 
 (declare-function helm "helm")
 (declare-function helm-build-sync-source "helm-source")
