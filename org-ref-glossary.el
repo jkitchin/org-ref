@@ -404,9 +404,11 @@ This will run in `org-export-before-parsing-hook'."
   \(:abbrv abbrv :full full)
 \newacronym{<label>}{<abbrv>}{<full>}"
   (save-excursion
-    (let (abbrv full p1
-		(external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
-			    (match-string 1))))
+    (goto-char (point-min))
+    (let (abbrv
+	  full p1
+	  (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+		      (match-string 1))))
       (catch 'data
 	(goto-char (point-min))
 	;; check in the definitions of newacronym
