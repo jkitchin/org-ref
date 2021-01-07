@@ -913,6 +913,13 @@ A gls:computer is good for computing. Gls:computer is capitalized. We can also u
 
 This is not supported in anything but LaTeX export.
 
+If you have a lot of glossary entries and you want to have them in an external file, you can put them in a tex file, and then include them in the org file like this. Here the glossary entries are saved in a file in the same directory as glossary.tex. This should still work with the tooltips.
+
+#+BEGIN_EXAMPLE
+#+latex_header: \loadglsentries[main]{glossary}
+#+END_EXAMPLE
+
+
 \glsaddall
 \printglossaries
 

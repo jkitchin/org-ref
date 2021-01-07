@@ -123,42 +123,78 @@ Typically:
   (:name name :description description)
 but there could be other :key value pairs."
   (save-excursion
+    (goto-char (point-min))
     (let (end-of-entry
 	  data
+	  (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+		      (match-string 1)))
 	  key value p1 p2)
-      (goto-char (point-min))
-      ;; We may not find an entry if it is defined as an acronym
-      (when  (re-search-forward
-	      (format "\\newglossaryentry{%s}" entry) nil t)
-	(re-search-forward "{")
-	(save-excursion
-	  (backward-char)
-	  (or-find-closing-curly-bracket)
-	  (setq end-of-entry (point)))
+      (catch 'data
+	;; look inside first
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "\\newglossaryentry{%s}" entry) nil t)
+	  (re-search-forward "{")
+	  (save-excursion
+	    (backward-char)
+	    (or-find-closing-curly-bracket)
+	    (setq end-of-entry (point)))
 
-	(while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
-	  (setq key (match-string 1))
-	  ;; get value
-	  (goto-char (+ 1 (match-end 1)))
-	  (setq p1 (point))
-	  (if (looking-at "{")
-	      ;; value is wrapped in {}
-	      (progn
+	  (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+	    (setq key (match-string 1))
+	    ;; get value
+	    (goto-char (+ 1 (match-end 1)))
+	    (setq p1 (point))
+	    (if (looking-at "{")
+		;; value is wrapped in {}
+		(progn
+		  (or-find-closing-curly-bracket)
+		  (setq p2 (point)
+			value (buffer-substring (+ 1 p1) p2)))
+	      ;; value is up to the next comma
+	      (re-search-forward "," end-of-entry 'mv)
+	      (setq value (buffer-substring p1 (- (point) 1))))
+	    ;; remove #+latex_header_extra:
+	    (setq value (replace-regexp-in-string
+			 "#\\+latex_header_extra: " "" value))
+	    (setq value (replace-regexp-in-string
+			 "\n +" " " value))
+	    (setq data (append data
+			       (list (intern (format ":%s" key)))
+			       (list value))))
+	  (throw 'data data))
+
+	;; then external
+	(when (and external
+		   (file-exists-p (concat external ".tex")))
+	  (with-current-buffer (find-file-noselect (concat external ".tex"))
+	    (goto-char (point-min))
+	    (when (re-search-forward
+		   (format "\\newglossaryentry{%s}" entry) nil t)
+	      (re-search-forward "{")
+	      (save-excursion
+		(backward-char)
 		(or-find-closing-curly-bracket)
-		(setq p2 (point)
-		      value (buffer-substring (+ 1 p1) p2)))
-	    ;; value is up to the next comma
-	    (re-search-forward "," end-of-entry 'mv)
-	    (setq value (buffer-substring p1 (- (point) 1))))
-	  ;; remove #+latex_header_extra:
-	  (setq value (replace-regexp-in-string
-		       "#\\+latex_header_extra: " "" value))
-	  (setq value (replace-regexp-in-string
-		       "\n +" " " value))
-	  (setq data (append data
-			     (list (intern (format ":%s" key)))
-			     (list value))))
-	data))))
+		(setq end-of-entry (point)))
+
+	      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+		(setq key (match-string 1))
+		;; get value
+		(goto-char (+ 1 (match-end 1)))
+		(setq p1 (point))
+		(if (looking-at "{")
+		    ;; value is wrapped in {}
+		    (progn
+		      (or-find-closing-curly-bracket)
+		      (setq p2 (point)
+			    value (buffer-substring (+ 1 p1) p2)))
+		  ;; value is up to the next comma
+		  (re-search-forward "," end-of-entry 'mv)
+		  (setq value (buffer-substring p1 (- (point) 1))))
+		(setq data (append data
+				   (list (intern (format ":%s" key)))
+				   (list value))))
+	      (throw 'data data))))))))
 
 
 ;;;###autoload
@@ -179,6 +215,18 @@ Entry gets added after the last #+latex_header line."
     (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name={%s},description={%s}}\n"
 		    label name description))))
 
+
+(defun org-ref-glossary-face-fn (label)
+  "Return a face for a ref link."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (or-parse-glossary-entry label))
+      'org-ref-glossary-face)
+     (t
+      'font-lock-warning-face))))
+
+
 ;;** Glossary links
 (defun or-follow-glossary (entry)
   "Goto beginning of the glossary ENTRY."
@@ -195,7 +243,7 @@ Entry gets added after the last #+latex_header line."
 (dolist (command org-ref-glossary-gls-commands)
   (org-ref-link-set-parameters command
     :follow #'or-follow-glossary
-    :face 'org-ref-glossary-face
+    :face 'org-ref-glossary-face-fn
     :help-echo 'or-glossary-tooltip
     :export (lambda (path _ format)
 	      (cond
@@ -207,7 +255,7 @@ Entry gets added after the last #+latex_header line."
 
 (org-ref-link-set-parameters "glslink"
   :follow #'or-follow-glossary
-  :face 'org-ref-glossary-face
+  :face 'org-ref-glossary-face-fn
   :help-echo 'or-glossary-tooltip
   :export (lambda (path desc format)
             (cond
