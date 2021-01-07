@@ -209,6 +209,41 @@ but there could be other :key value pairs."
 		(setq data (append data
 				   (list (intern (format ":%s" key)))
 				   (list value))))
+	      (throw 'data data))))
+
+	;; and finally with an export in case there are includes
+	(let ((org-export-show-temporary-export-buffer nil))
+	  (with-current-buffer (org-org-export-as-org)
+	    (when (re-search-forward
+		   (format "\\newglossaryentry{%s}" entry) nil t)
+	      (re-search-forward "{")
+	      (save-excursion
+		(backward-char)
+		(or-find-closing-curly-bracket)
+		(setq end-of-entry (point)))
+
+	      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+		(setq key (match-string 1))
+		;; get value
+		(goto-char (+ 1 (match-end 1)))
+		(setq p1 (point))
+		(if (looking-at "{")
+		    ;; value is wrapped in {}
+		    (progn
+		      (or-find-closing-curly-bracket)
+		      (setq p2 (point)
+			    value (buffer-substring (+ 1 p1) p2)))
+		  ;; value is up to the next comma
+		  (re-search-forward "," end-of-entry 'mv)
+		  (setq value (buffer-substring p1 (- (point) 1))))
+		;; remove #+latex_header_extra:
+		(setq value (replace-regexp-in-string
+			     "#\\+latex_header_extra: " "" value))
+		(setq value (replace-regexp-in-string
+			     "\n +" " " value))
+		(setq data (append data
+				   (list (intern (format ":%s" key)))
+				   (list value))))
 	      (throw 'data data))))))))
 
 
@@ -439,11 +474,26 @@ This will run in `org-export-before-parsing-hook'."
 	  (when result
 	    (throw 'data (list :abbrv (cl-second result) :full (cl-third result)))))
 
-	;;
+	;; look external
 	(when (and external
 		   (file-exists-p (concat external ".tex")))
 	  (with-current-buffer (find-file-noselect (concat external ".tex"))
 	    (goto-char (point-min))
+	    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+	      (setq p1 (+ 1 (point)))
+	      (forward-list)
+	      (setq abbrv (buffer-substring p1 (- (point) 1)))
+	      (setq p1 (+ 1 (point)))
+	      (forward-list)
+	      (setq full (buffer-substring p1 (- (point) 1)))
+	      (throw 'data
+		     (list :abbrv abbrv :full full)))))
+
+	;; This should be a last resort, as it involves an export
+	;; but, it supports #+include
+	;; I think these will only show as the latex header because of the export
+	(let ((org-export-show-temporary-export-buffer nil))
+	  (with-current-buffer (org-org-export-as-org)
 	    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
 	      (setq p1 (+ 1 (point)))
 	      (forward-list)
