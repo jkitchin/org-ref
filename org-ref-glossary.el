@@ -630,7 +630,7 @@ This will run in `org-export-before-parsing-hook'."
 			  'table
 			(lambda (el)
 			  (when (and (org-element-property :name el)
-				     (strinp (org-element-property :name el))
+				     (stringp (org-element-property :name el))
 				     (string= "acronyms" (org-element-property :name el)))
 			    (setq begin (org-element-property :begin el)
 				  end (org-element-property :end el))
