@@ -35,6 +35,7 @@
 (require 'htmlize)
 (require 's)
 (require 'doi-utils)
+(require 'seq)
 
 (add-to-list 'load-path
 	     (expand-file-name
@@ -3055,16 +3056,18 @@ which will CLOBBER the file."
 ;;** Find bad citations
 (defun org-ref-list-index (substring list)
   "Return the index of SUBSTRING in a LIST of strings."
-  (let ((i 0)
-        (found nil))
-    (dolist (arg list i)
-      (if (string-match (concat "^" substring "$") arg)
-          (progn
-            (setq found t)
-            (cl-return i)))
-      (setq i (+ i 1)))
-    ;; return counter if found, otherwise return nil
-    (if found i nil)))
+  (seq-position list substring)
+  ;; (let ((i 0)
+  ;;       (found nil))
+  ;;   (dolist (arg list i)
+  ;;     (if (string-match (concat "^" substring "$") arg)
+  ;;         (progn
+  ;;           (setq found t)
+  ;;           (cl-return i)))
+  ;;     (setq i (+ i 1)))
+  ;;   ;; return counter if found, otherwise return nil
+  ;;   (if found i nil))
+  )
 
 
 ;;;###autoload
