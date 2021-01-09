@@ -1483,32 +1483,32 @@ t
 (org-ref-label-store-link)
 (should
 (string=
-(plist-get org-store-link-plist :type) "ref"))
+ (plist-get org-store-link-plist :type) "ref"))
 org-store-link-plist))
 
-(ert-deftest store-label-headline ()
-(org-test-with-temp-text
-"* headline
-:PROPERTIES:
-:CUSTOM_ID: test
-:END:
-"
-(goto-char 1)
-(org-ref-label-store-link)
-(should
-(string=
-(plist-get org-store-link-plist :type) "ref"))))
+;; (ert-deftest store-label-headline ()
+;; (org-test-with-temp-text
+;; "* headline
+;; :PROPERTIES:
+;; :CUSTOM_ID: test
+;; :END:
+;; "
+;; (goto-char 1)
+;; (org-ref-label-store-link)
+;; (should
+;; (string=
+;; (plist-get org-store-link-plist :type) "ref"))))
 
 (ert-deftest store-label-label ()
-(org-test-with-temp-text
-"#+LABEL: test
+  (org-test-with-temp-text
+      "#+LABEL: test
 [[./file.png]]
 "
-(goto-char 1)
-(org-ref-label-store-link)
-(should
-(string=
-(plist-get org-store-link-plist :type) "ref"))))
+    (goto-char 1)
+    (org-ref-label-store-link)
+    (should
+     (string=
+      (plist-get org-store-link-plist :type) "ref"))))
 
 (ert-deftest store-bibtex-link ()
 (should (string= "cite:kitchin-2015-examp"
@@ -1529,4 +1529,3 @@ keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
 (car (org-ref-store-bibtex-entry-link))))))
-

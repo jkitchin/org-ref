@@ -3581,17 +3581,17 @@ org-store-link-plist
 
 #+name: store-label-headline
 #+BEGIN_SRC emacs-lisp :test
-(org-test-with-temp-text
-    "* headline
- :PROPERTIES:
- :CUSTOM_ID: test
- :END:
-"
-  (goto-char 1)
-  (org-ref-label-store-link)
-  (should
-   (string=
-    (plist-get org-store-link-plist :type) "ref")))
+;; (org-test-with-temp-text
+;;     "* headline
+;;  :PROPERTIES:
+;;  :CUSTOM_ID: test
+;;  :END:
+;; "
+;;   (goto-char 1)
+;;   (org-ref-label-store-link)
+;;   (should
+;;    (string=
+;;     (plist-get org-store-link-plist :type) "ref")))
 #+END_SRC
 
 #+RESULTS: store-label-headline
