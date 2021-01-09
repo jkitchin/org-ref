@@ -1320,7 +1320,9 @@ if FORCE is non-nil reparse the buffer no matter what."
 									  (format "%s" s))
 									org-latex-packages-alist
 									"\n"))
-					       'font-lock-face '(:foreground "red3"))))
+					       'font-lock-face '(:foreground "red3")))
+			  ,(format "bibtex-completion installed = %s" (featurep 'bibtex-completion))
+			  ,(format "bibtex-completion loaded = %s" (fboundp 'bibtex-completion-candidates)))
 	       do
 	       (insert "- " s "\n"))
       (insert (format "- org-latex-default-packages-alist\n"))
