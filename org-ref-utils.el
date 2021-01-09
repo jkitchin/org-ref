@@ -1225,7 +1225,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 
     (with-current-buffer buf
       (when bad-citations
-	(insert "* Bad citations\n")
+	(insert "\n* Bad citations\n")
 	(cl-loop for (key . marker) in bad-citations
 		 do
 		 (setq mbuffer (buffer-name (marker-buffer marker))
