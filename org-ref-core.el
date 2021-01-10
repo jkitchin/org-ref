@@ -2709,13 +2709,6 @@ citez link, with reftex key of z, and the completion function."
   "Create all the link types and their completion functions."
   (interactive)
   (dolist (type org-ref-cite-types)
-    (when (fboundp 'org-link-set-parameters)
-      (when (assoc type org-link-parameters)
-	(display-warning 'org-ref
-			 (format
-			  "%s type is already defined, and will get redefined."
-			  type)
-			 :warning)))
     (org-ref-define-citation-link type))
   (when (fboundp 'org-link-set-parameters)
     (org-link-set-parameters "cite" :store #'org-ref-bibtex-store-link)))
