@@ -1351,7 +1351,7 @@ if FORCE is non-nil reparse the buffer no matter what."
       (cl-loop for executable in '("latex" "pdflatex" "bibtex" "biblatex"
 				   "makeindex" "makeglossaries")
 	       do
-	       (insert (format "%s is installed at %s" executable (executable-find executable))))
+	       (insert (format "%s is installed at %s\n" executable (executable-find executable))))
 
       (insert "\n* Warnings\n")
       (if (get-buffer "*Warnings*")
