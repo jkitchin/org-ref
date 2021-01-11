@@ -293,7 +293,11 @@ codes."
 
 
 (defcustom org-ref-ref-html "<a class='org-ref-reference' href=\"#%s\">%s</a>"
-  "HTML code to represent a reference."
+  "HTML code to represent a reference.
+Note: you can't really change this, it is used in a format later
+with two arguments that are both the key. I don't know a way to
+make this more flexible at the moment. It is only used in the
+export of cite links right now."
   :type 'string
   :group 'org-ref)
 
