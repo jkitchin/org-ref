@@ -1356,7 +1356,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 
       (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
 
-      (insert "* LaTeX setup\n\n")
+      (insert "\n* LaTeX setup\n\n")
       (cl-loop for executable in '("latex" "pdflatex" "bibtex" "biblatex"
 				   "makeindex" "makeglossaries")
 	       do
