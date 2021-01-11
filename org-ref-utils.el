@@ -1345,6 +1345,15 @@ if FORCE is non-nil reparse the buffer no matter what."
 			(and org-ref-i ox-bibtex-i
 			     (> org-ref-i ox-bibtex-i)))))
 
+      (insert (format "- ebib loaded = %s\n" (featurep 'ebib)))
+      (insert (format "- ebib loaded after org-ref = %s\n"
+		      (let ((org-ref-i (seq-position load-history (assoc (locate-library "org-ref") load-history)) )
+			    (ebib-i (seq-position load-history (assoc (locate-library "ebib") load-history))))
+			(and org-ref-i ebib-i
+			     (> org-ref-i ebib-i)))))
+
+
+
       (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
 
       (insert "* LaTeX setup\n\n")
