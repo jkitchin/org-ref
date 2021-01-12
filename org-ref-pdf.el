@@ -128,7 +128,7 @@ using the `pdf-tools' package."
     (error "Buffer is not a pdf file"))
   ;; Get doi from pdf of current buffer
   (let* ((dois (org-ref-extract-doi-from-pdf (buffer-file-name)))
-         (doi-utils-download-pdf nil)
+         (pdf-utils-download nil)
          (doi (if (= 1 (length dois))
                   (car dois)
                 (completing-read "Select DOI: " dois))))
@@ -196,7 +196,7 @@ This function should only apply when in a bibtex file."
 	    nil)
 	   ((= 1 (length dois))
 	    ;; we do not need to get the pdf, since we have one.
-	    (let ((doi-utils-download-pdf nil))
+	    (let ((pdf-utils-download nil))
 	      (doi-utils-add-bibtex-entry-from-doi
 	       (car dois)
 	       (buffer-file-name))

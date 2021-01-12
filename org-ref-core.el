@@ -35,6 +35,7 @@
 (require 'htmlize)
 (require 's)
 (require 'doi-utils)
+(require 'pdf-utils)
 
 (add-to-list 'load-path
 	     (expand-file-name
