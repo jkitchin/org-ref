@@ -469,8 +469,6 @@ This will run in `org-export-before-parsing-hook'."
 				'table
 			      (lambda (el)
 				(when (string= "acronyms" (org-element-property :name el))
-				  (setq begin (org-element-property :begin el)
-					end (org-element-property :end el))
 				  (goto-char (org-element-property :contents-begin el))
 				  (throw 'found
 					 (nthcdr 2 (org-babel-read-table)))))))))
