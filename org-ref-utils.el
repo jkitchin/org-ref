@@ -992,7 +992,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 					       (match-string 1))))
 			 (unless (string= elc-version
 					  (format "%s.%s" emacs-major-version emacs-minor-version))
-			   (insert (format "%s compiled with Emacs %s but you are running %s.%s. That could be a problem.\n"
+			   (insert (format "%s compiled with Emacs %s but you are running %s. That could be a problem.\n"
 					   elc-version emacs-major-version emacs-minor-version))))))))
 	 (bad-citations (org-ref-bad-cite-candidates))
 	 (bad-refs (org-ref-bad-ref-candidates))
