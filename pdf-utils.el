@@ -546,6 +546,7 @@ checked."
           (doi (replace-regexp-in-string
                 "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
+          (url (bibtex-autokey-get-field "url"))
           (key (cdr (assoc "=key=" (bibtex-parse-entry))))
           (pdf-url)
           (pdf-file))
@@ -559,8 +560,8 @@ checked."
       (unless (file-exists-p pdf-file)
 	(cond
 	 ((and (not arg)
-	       doi
-	       (setq pdf-url (doi-utils-get-pdf-url doi)))
+	       (or (and url (setq pdf-url (pdf-utils-get-pdf-url url)))
+                   (and doi (setq pdf-url (doi-utils-get-pdf-url doi)))))
 	  (url-copy-file pdf-url pdf-file)
 	  ;; now check if we got a pdf
           (if (org-ref-pdf-p pdf-file)
