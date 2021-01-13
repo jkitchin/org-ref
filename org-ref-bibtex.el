@@ -935,8 +935,6 @@ entry having a doi."
         2)
        (org-ref-bibtex-entry-doi)))))
 
-(defalias 'jb 'org-ref-bibtex)
-
 
 ;;;###autoload
 (defun org-ref-email-bibtex-entry ()
