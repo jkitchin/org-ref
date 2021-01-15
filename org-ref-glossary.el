@@ -125,11 +125,13 @@ Typically:
 but there could be other :key value pairs."
   (save-excursion
     (goto-char (point-min))
-    (let (end-of-entry
-	  data
-	  (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
-		      (match-string 1)))
-	  key value p1 p2)
+    (let* (end-of-entry
+	   data
+	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+		       (match-string 1)))
+	   (glsentries (and external (s-trim (shell-command-to-string
+					      (format "kpsewhich tex %s" external)))))
+	   key value p1 p2)
       (catch 'data
 	;; look inside first for latex-headers
 	(goto-char (point-min))
@@ -181,9 +183,10 @@ but there could be other :key value pairs."
 	    (throw 'data (list :name (cl-second result) :description (cl-third result)))))
 
 	;; then external
-	(when (and external
-		   (file-exists-p (concat external ".tex")))
-	  (with-current-buffer (find-file-noselect (concat external ".tex"))
+	(when (and glsentries
+		   (file-exists-p glsentries))
+
+	  (with-current-buffer (find-file-noselect glsentries)
 	    (goto-char (point-min))
 	    (when (re-search-forward
 		   (format "\\newglossaryentry{%s}" entry) nil t)
@@ -444,10 +447,12 @@ This will run in `org-export-before-parsing-hook'."
 \newacronym{<label>}{<abbrv>}{<full>}"
   (save-excursion
     (goto-char (point-min))
-    (let (abbrv
-	  full p1
-	  (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
-		      (match-string 1))))
+    (let* (abbrv
+	   full p1
+	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+		       (match-string 1)))
+	   (glsentries (and external (s-trim (shell-command-to-string
+					      (format "kpsewhich tex %s" external))))))
       (catch 'data
 	(goto-char (point-min))
 	;; check in the definitions of newacronym
@@ -477,9 +482,9 @@ This will run in `org-export-before-parsing-hook'."
 	    (throw 'data (list :abbrv (cl-second result) :full (cl-third result)))))
 
 	;; look external
-	(when (and external
-		   (file-exists-p (concat external ".tex")))
-	  (with-current-buffer (find-file-noselect (concat external ".tex"))
+	(when (and glsentries
+		   (file-exists-p glsentries))
+	  (with-current-buffer (find-file-noselect glsentries)
 	    (goto-char (point-min))
 	    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
 	      (setq p1 (+ 1 (point)))
