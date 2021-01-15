@@ -899,17 +899,17 @@ You will need to incorporate running the command makeglossaries into your PDF bu
 
 Here is a minimal working example of an org file that makes a glossary.
 
-#+BEGIN_EXAMPLE
-#+latex_header: \usepackage{glossaries}
-#+latex_header: \makeglossaries
+#+BEGIN_SRC org
+,#+latex_header: \usepackage{glossaries}
+,#+latex_header: \makeglossaries
 
-#+latex_header_extra: \newglossaryentry{computer}{name=computer,description={A machine}}
-#+latex_header_extra: \newacronym{tla}{TLA}{Three letter acronym}
+,#+latex_header_extra: \newglossaryentry{computer}{name=computer,description={A machine}}
+,#+latex_header_extra: \newacronym{tla}{TLA}{Three letter acronym}
 
-A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future. Don't forget what a ac:TLA is.
+A gls:computer is good for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer are the wave of the future. Don't forget what a ac:tla is.
 
 \printglossaries
-#+END_EXAMPLE
+#+END_SRC
 
 This is not supported in anything but LaTeX export.
 
