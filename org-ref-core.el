@@ -4224,7 +4224,7 @@ keys. if it is not specified, find keys interactively."
 	       (when bracketp "]]")
 	       trailing-space))))))
 
-
+;;;###autoload
 (defun org-ref-insert-link (arg)
   "Insert an org-ref link.
 If no prefix ARG insert a cite.
