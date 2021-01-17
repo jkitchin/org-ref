@@ -96,6 +96,10 @@
   :group 'org-ref)
 
 
+(defvar org-ref-glsentries '()
+  "Variable to hold locations of glsentries load files.")
+
+
 (defun or-find-closing-curly-bracket (&optional limit)
   "Find closing bracket for the bracket at point and move point to it.
 Go up to LIMIT or `point-max'. This is a parsing function. I
@@ -129,8 +133,13 @@ but there could be other :key value pairs."
 	   data
 	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
 		       (match-string 1)))
-	   (glsentries (and external (s-trim (shell-command-to-string
-					      (format "kpsewhich tex %s" external)))))
+	   (glsentries (and external
+			    (or (cdr (assoc external org-ref-glsentries))
+				(progn
+				  (pushnew (cons external (s-trim (shell-command-to-string
+								   (format "kpsewhich tex %s" external))))
+					   org-ref-glsentries)
+				  (cdr (assoc external org-ref-glsentries))))))
 	   key value p1 p2)
       (catch 'data
 	;; look inside first for latex-headers
@@ -216,39 +225,42 @@ but there could be other :key value pairs."
 	      (throw 'data data))))
 
 	;; and finally with an export in case there are includes
-	(let ((org-export-show-temporary-export-buffer nil))
-	  (with-current-buffer (org-org-export-as-org)
-	    (when (re-search-forward
-		   (format "\\newglossaryentry{%s}" entry) nil t)
-	      (re-search-forward "{")
-	      (save-excursion
-		(backward-char)
-		(or-find-closing-curly-bracket)
-		(setq end-of-entry (point)))
+	;; (let ((org-export-show-temporary-export-buffer nil)
+	;;       ;; we do not need to run babel cells for this.
+	;;       (org-export-use-babel nil))
+	;;   (with-current-buffer (org-org-export-as-org)
+	;;     (when (re-search-forward
+	;; 	   (format "\\newglossaryentry{%s}" entry) nil t)
+	;;       (re-search-forward "{")
+	;;       (save-excursion
+	;; 	(backward-char)
+	;; 	(or-find-closing-curly-bracket)
+	;; 	(setq end-of-entry (point)))
 
-	      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
-		(setq key (match-string 1))
-		;; get value
-		(goto-char (+ 1 (match-end 1)))
-		(setq p1 (point))
-		(if (looking-at "{")
-		    ;; value is wrapped in {}
-		    (progn
-		      (or-find-closing-curly-bracket)
-		      (setq p2 (point)
-			    value (buffer-substring (+ 1 p1) p2)))
-		  ;; value is up to the next comma
-		  (re-search-forward "," end-of-entry 'mv)
-		  (setq value (buffer-substring p1 (- (point) 1))))
-		;; remove #+latex_header_extra:
-		(setq value (replace-regexp-in-string
-			     "#\\+latex_header_extra: " "" value))
-		(setq value (replace-regexp-in-string
-			     "\n +" " " value))
-		(setq data (append data
-				   (list (intern (format ":%s" key)))
-				   (list value))))
-	      (throw 'data data))))))))
+	;;       (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+	;; 	(setq key (match-string 1))
+	;; 	;; get value
+	;; 	(goto-char (+ 1 (match-end 1)))
+	;; 	(setq p1 (point))
+	;; 	(if (looking-at "{")
+	;; 	    ;; value is wrapped in {}
+	;; 	    (progn
+	;; 	      (or-find-closing-curly-bracket)
+	;; 	      (setq p2 (point)
+	;; 		    value (buffer-substring (+ 1 p1) p2)))
+	;; 	  ;; value is up to the next comma
+	;; 	  (re-search-forward "," end-of-entry 'mv)
+	;; 	  (setq value (buffer-substring p1 (- (point) 1))))
+	;; 	;; remove #+latex_header_extra:
+	;; 	(setq value (replace-regexp-in-string
+	;; 		     "#\\+latex_header_extra: " "" value))
+	;; 	(setq value (replace-regexp-in-string
+	;; 		     "\n +" " " value))
+	;; 	(setq data (append data
+	;; 			   (list (intern (format ":%s" key)))
+	;; 			   (list value))))
+	;;       (throw 'data data))))
+	))))
 
 
 ;;;###autoload
@@ -451,8 +463,13 @@ This will run in `org-export-before-parsing-hook'."
 	   full p1
 	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
 		       (match-string 1)))
-	   (glsentries (and external (s-trim (shell-command-to-string
-					      (format "kpsewhich tex %s" external))))))
+	   (glsentries (and external
+			    (or (cdr (assoc external org-ref-glsentries))
+				(progn
+				  (pushnew (cons external (s-trim (shell-command-to-string
+								   (format "kpsewhich tex %s" external))))
+					   org-ref-glsentries)
+				  (cdr (assoc external org-ref-glsentries)))))))
       (catch 'data
 	(goto-char (point-min))
 	;; check in the definitions of newacronym
@@ -499,17 +516,19 @@ This will run in `org-export-before-parsing-hook'."
 	;; This should be a last resort, as it involves an export
 	;; but, it supports #+include
 	;; I think these will only show as the latex header because of the export
-	(let ((org-export-show-temporary-export-buffer nil))
-	  (with-current-buffer (org-org-export-as-org)
-	    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
-	      (setq p1 (+ 1 (point)))
-	      (forward-list)
-	      (setq abbrv (buffer-substring p1 (- (point) 1)))
-	      (setq p1 (+ 1 (point)))
-	      (forward-list)
-	      (setq full (buffer-substring p1 (- (point) 1)))
-	      (throw 'data
-		     (list :abbrv abbrv :full full)))))))))
+	;; (let ((org-export-show-temporary-export-buffer nil)
+	;;       (org-export-use-babel nil))
+	;;   (with-current-buffer (org-org-export-as-org)
+	;;     (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+	;;       (setq p1 (+ 1 (point)))
+	;;       (forward-list)
+	;;       (setq abbrv (buffer-substring p1 (- (point) 1)))
+	;;       (setq p1 (+ 1 (point)))
+	;;       (forward-list)
+	;;       (setq full (buffer-substring p1 (- (point) 1)))
+	;;       (throw 'data
+	;; 	     (list :abbrv abbrv :full full)))))
+	))))
 
 ;;** Acronym links
 (defun or-follow-acronym (label)
