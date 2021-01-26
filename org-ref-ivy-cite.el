@@ -469,7 +469,7 @@ Use a prefix arg to select the ref type."
 (require 'hydra)
 (setq hydra-is-helpful t)
 
-(defhydra org-ref-cite-hydra (:color blue)
+(defhydra org-ref-cite-hydra (:color blue :hint nil)
   "
 _p_: Open pdf     _w_: WOS          _g_: Google Scholar _K_: Copy citation to clipboard
 _u_: Open url     _r_: WOS related  _P_: Pubmed         _k_: Copy key to clipboard

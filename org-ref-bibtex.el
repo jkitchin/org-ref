@@ -784,7 +784,7 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
 ;;* Hydra menus
 ;;** Hydra menu for bibtex entries
 ;; hydra menu for actions on bibtex entries
-(defhydra org-ref-bibtex-hydra (:color blue)
+(defhydra org-ref-bibtex-hydra (:color blue :hint nil)
   "
 _p_: Open pdf     _y_: Copy key               _N_: New entry            _w_: WOS
 _b_: Open url     _f_: Copy formatted entry   _o_: Copy entry           _c_: WOS citing
@@ -793,8 +793,8 @@ _e_: Email entry  _K_: Edit keywords          _L_: clean entry          _P_: Pub
 _U_: Update entry _N_: New entry              _R_: Crossref             _g_: Google Scholar
 _s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex          _q_: quit
 _u_: Update field _F_: file funcs             _A_: Assoc pdf with entry
-_n_: Open notes                               _T_: Title case
-                                              _S_: Sentence case
+_n_: Open notes   ^ ^                         _T_: Title case
+^ ^               ^ ^                         _S_: Sentence case
 "
   ("p" org-ref-open-bibtex-pdf)
   ("P" org-ref-bibtex-pubmed)
