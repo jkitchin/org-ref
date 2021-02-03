@@ -1181,11 +1181,13 @@ when called, it resets the cache for the BIBFILE."
 		 ;; this is the display string for helm. We try to use the formats
 		 ;; in `orhc-candidate-formats', but if there isn't one we just put
 		 ;; all the fields in.
-		 (s-format
-		  (or (cdr (assoc (downcase entry-type) orhc-candidate-formats))
-		      (format "%s: %s" (cdr (assoc "=key=" entry)) entry))
-		  'orhc-bibtex-field-formatter
-		  entry)
+		 (if (assoc (downcase entry-type) orhc-candidate-formats)
+		     (s-format
+		      (cdr (assoc (downcase entry-type) orhc-candidate-formats))
+		      'orhc-bibtex-field-formatter
+		      entry)
+		   (format "%s: %s" (cdr (assoc "=key=" entry)) entry))
+
 		 ;; this is the candidate that is returned, the entry a-list +
 		 ;; file and position.
 		 (append entry (list (cons "bibfile" (buffer-file-name))
