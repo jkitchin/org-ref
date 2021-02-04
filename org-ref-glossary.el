@@ -72,6 +72,7 @@
 
 (require 'org-element)
 (require 'org-ref-utils)
+(require 'ox)
 
 (declare-function helm "helm")
 (declare-function helm-build-sync-source "helm-source")
@@ -93,6 +94,10 @@
   "Color for acronym links."
   :type 'string
   :group 'org-ref)
+
+
+(defvar org-ref-glsentries '()
+  "Variable to hold locations of glsentries load files.")
 
 
 (defun or-find-closing-curly-bracket (&optional limit)
@@ -123,42 +128,139 @@ Typically:
   (:name name :description description)
 but there could be other :key value pairs."
   (save-excursion
-    (let (end-of-entry
-	  data
-	  key value p1 p2)
-      (goto-char (point-min))
-      ;; We may not find an entry if it is defined as an acronym
-      (when  (re-search-forward
-	      (format "\\newglossaryentry{%s}" entry) nil t)
-	(re-search-forward "{")
-	(save-excursion
-	  (backward-char)
-	  (or-find-closing-curly-bracket)
-	  (setq end-of-entry (point)))
+    (goto-char (point-min))
+    (let* (end-of-entry
+	   data
+	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+		       (match-string 1)))
+	   (glsentries (and external
+			    (or (cdr (assoc external org-ref-glsentries))
+				(progn
+				  (pushnew (cons external (s-trim (shell-command-to-string
+								   (format "kpsewhich tex %s" external))))
+					   org-ref-glsentries)
+				  (cdr (assoc external org-ref-glsentries))))))
+	   key value p1 p2)
+      (catch 'data
+	;; look inside first for latex-headers
+	(goto-char (point-min))
+	(when (re-search-forward
+	       (format "\\newglossaryentry{%s}" entry) nil t)
+	  (re-search-forward "{")
+	  (save-excursion
+	    (backward-char)
+	    (or-find-closing-curly-bracket)
+	    (setq end-of-entry (point)))
 
-	(while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
-	  (setq key (match-string 1))
-	  ;; get value
-	  (goto-char (+ 1 (match-end 1)))
-	  (setq p1 (point))
-	  (if (looking-at "{")
-	      ;; value is wrapped in {}
-	      (progn
+	  (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+	    (setq key (match-string 1))
+	    ;; get value
+	    (goto-char (+ 1 (match-end 1)))
+	    (setq p1 (point))
+	    (if (looking-at "{")
+		;; value is wrapped in {}
+		(progn
+		  (or-find-closing-curly-bracket)
+		  (setq p2 (point)
+			value (buffer-substring (+ 1 p1) p2)))
+	      ;; value is up to the next comma
+	      (re-search-forward "," end-of-entry 'mv)
+	      (setq value (buffer-substring p1 (- (point) 1))))
+	    ;; remove #+latex_header_extra:
+	    (setq value (replace-regexp-in-string
+			 "#\\+latex_header_extra: " "" value))
+	    (setq value (replace-regexp-in-string
+			 "\n +" " " value))
+	    (setq data (append data
+			       (list (intern (format ":%s" key)))
+			       (list value))))
+	  (throw 'data data))
+
+	;; check for a glossary table
+	(let* ((entries (save-excursion
+			  (catch 'found
+			    (org-element-map
+				(org-element-parse-buffer)
+				'table
+			      (lambda (el)
+				(when (string= "glossary" (org-element-property :name el))
+				  (goto-char (org-element-property :contents-begin el))
+				  (throw 'found
+					 (nthcdr 2 (org-babel-read-table)))))))))
+	       (result (assoc entry entries)))
+	  (when result
+	    (throw 'data (list :name (cl-second result) :description (cl-third result)))))
+
+	;; then external
+	(when (and glsentries
+		   (file-exists-p glsentries))
+
+	  (with-current-buffer (find-file-noselect glsentries)
+	    (goto-char (point-min))
+	    (when (re-search-forward
+		   (format "\\newglossaryentry{%s}" entry) nil t)
+	      (re-search-forward "{")
+	      (save-excursion
+		(backward-char)
 		(or-find-closing-curly-bracket)
-		(setq p2 (point)
-		      value (buffer-substring (+ 1 p1) p2)))
-	    ;; value is up to the next comma
-	    (re-search-forward "," end-of-entry 'mv)
-	    (setq value (buffer-substring p1 (- (point) 1))))
-	  ;; remove #+latex_header_extra:
-	  (setq value (replace-regexp-in-string
-		       "#\\+latex_header_extra: " "" value))
-	  (setq value (replace-regexp-in-string
-		       "\n +" " " value))
-	  (setq data (append data
-			     (list (intern (format ":%s" key)))
-			     (list value))))
-	data))))
+		(setq end-of-entry (point)))
+
+	      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+		(setq key (match-string 1))
+		;; get value
+		(goto-char (+ 1 (match-end 1)))
+		(setq p1 (point))
+		(if (looking-at "{")
+		    ;; value is wrapped in {}
+		    (progn
+		      (or-find-closing-curly-bracket)
+		      (setq p2 (point)
+			    value (buffer-substring (+ 1 p1) p2)))
+		  ;; value is up to the next comma
+		  (re-search-forward "," end-of-entry 'mv)
+		  (setq value (buffer-substring p1 (- (point) 1))))
+		(setq data (append data
+				   (list (intern (format ":%s" key)))
+				   (list value))))
+	      (throw 'data data))))
+
+	;; and finally with an export in case there are includes
+	;; (let ((org-export-show-temporary-export-buffer nil)
+	;;       ;; we do not need to run babel cells for this.
+	;;       (org-export-use-babel nil))
+	;;   (with-current-buffer (org-org-export-as-org)
+	;;     (when (re-search-forward
+	;; 	   (format "\\newglossaryentry{%s}" entry) nil t)
+	;;       (re-search-forward "{")
+	;;       (save-excursion
+	;; 	(backward-char)
+	;; 	(or-find-closing-curly-bracket)
+	;; 	(setq end-of-entry (point)))
+
+	;;       (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+	;; 	(setq key (match-string 1))
+	;; 	;; get value
+	;; 	(goto-char (+ 1 (match-end 1)))
+	;; 	(setq p1 (point))
+	;; 	(if (looking-at "{")
+	;; 	    ;; value is wrapped in {}
+	;; 	    (progn
+	;; 	      (or-find-closing-curly-bracket)
+	;; 	      (setq p2 (point)
+	;; 		    value (buffer-substring (+ 1 p1) p2)))
+	;; 	  ;; value is up to the next comma
+	;; 	  (re-search-forward "," end-of-entry 'mv)
+	;; 	  (setq value (buffer-substring p1 (- (point) 1))))
+	;; 	;; remove #+latex_header_extra:
+	;; 	(setq value (replace-regexp-in-string
+	;; 		     "#\\+latex_header_extra: " "" value))
+	;; 	(setq value (replace-regexp-in-string
+	;; 		     "\n +" " " value))
+	;; 	(setq data (append data
+	;; 			   (list (intern (format ":%s" key)))
+	;; 			   (list value))))
+	;;       (throw 'data data))))
+	))))
 
 
 ;;;###autoload
@@ -179,6 +281,18 @@ Entry gets added after the last #+latex_header line."
     (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name={%s},description={%s}}\n"
 		    label name description))))
 
+
+(defun org-ref-glossary-face-fn (label)
+  "Return a face for a glossary link."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (or-parse-glossary-entry label))
+      'org-ref-glossary-face)
+     (t
+      'font-lock-warning-face))))
+
+
 ;;** Glossary links
 (defun or-follow-glossary (entry)
   "Goto beginning of the glossary ENTRY."
@@ -195,7 +309,7 @@ Entry gets added after the last #+latex_header line."
 (dolist (command org-ref-glossary-gls-commands)
   (org-ref-link-set-parameters command
     :follow #'or-follow-glossary
-    :face 'org-ref-glossary-face
+    :face 'org-ref-glossary-face-fn
     :help-echo 'or-glossary-tooltip
     :export (lambda (path _ format)
 	      (cond
@@ -207,7 +321,7 @@ Entry gets added after the last #+latex_header line."
 
 (org-ref-link-set-parameters "glslink"
   :follow #'or-follow-glossary
-  :face 'org-ref-glossary-face
+  :face 'org-ref-glossary-face-fn
   :help-echo 'or-glossary-tooltip
   :export (lambda (path desc format)
             (cond
@@ -278,12 +392,54 @@ Adds a tooltip to the link that is found."
 	  nil)))))
 
 
+;; ** exporting with a glossary table
+(defun org-ref-glossary-before-parsing (backend)
+  "Function to preprocess a glossary table on export.
+This assumes a table like
+
+#+name: glossary
+| label | name  | description   |
+|-------+-------+---------------|
+| tree  | Tree  | A woody plant |
+| shrub | Shrub | A woody bush  |
+
+is in the org-buffer, and will add the relevant latex_header items if there is. The table is deleted in a copy of the buffer before the export.
+
+This will run in `org-export-before-parsing-hook'."
+  (let* (begin
+	 end
+	 (entries (save-excursion
+		    (catch 'found
+		      (org-element-map
+			  (org-element-parse-buffer)
+			  'table
+			(lambda (el)
+			  (when (and (org-element-property :name el)
+				     (stringp (org-element-property :name el))
+				     (string= "glossary" (org-element-property :name el)))
+			    (setq begin (org-element-property :begin el)
+				  end (org-element-property :end el))
+			    (goto-char (org-element-property :contents-begin el))
+			    (throw 'found
+				   (nthcdr 2 (org-babel-read-table))))))))))
+    ;; Delete the table
+    (when entries
+      (setf (buffer-substring begin end) "")
+
+      (goto-char (point-min))
+      (cl-loop for (label name description) in entries
+	       do
+	       (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name=%s,description={{%s}}}\n"
+			       label name description))))))
+
+(add-to-list 'org-export-before-parsing-hook 'org-ref-glossary-before-parsing)
+
 ;;* Acronyms
 ;;;###autoload
 (defun org-ref-add-acronym-entry (label abbrv full)
   "Add an acronym entry with LABEL.
-ABBRV is the abbreviated form.
-FULL is the expanded acronym."
+  ABBRV is the abbreviated form.
+  FULL is the expanded acronym."
   (interactive "sLabel: \nsAcronym: \nsFull name: ")
   (save-excursion
     (re-search-backward "#\\+latex_header" nil t)
@@ -299,20 +455,80 @@ FULL is the expanded acronym."
 
 (defun or-parse-acronym-entry (label)
   "Parse an acronym entry LABEL to a plist.
-\(:abbrv abbrv :full full)
+  \(:abbrv abbrv :full full)
 \newacronym{<label>}{<abbrv>}{<full>}"
   (save-excursion
-    (let (abbrv full p1)
-      (goto-char (point-min))
-      (when
-	  (re-search-forward (format "\\newacronym{%s}" label) nil t)
-	(setq p1 (+ 1 (point)))
-	(forward-list)
-	(setq abbrv (buffer-substring p1 (- (point) 1)))
-	(setq p1 (+ 1 (point)))
-	(forward-list)
-	(setq full (buffer-substring p1 (- (point) 1)))
-	(list :abbrv abbrv :full full)))))
+    (goto-char (point-min))
+    (let* (abbrv
+	   full p1
+	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+		       (match-string 1)))
+	   (glsentries (and external
+			    (or (cdr (assoc external org-ref-glsentries))
+				(progn
+				  (pushnew (cons external (s-trim (shell-command-to-string
+								   (format "kpsewhich tex %s" external))))
+					   org-ref-glsentries)
+				  (cdr (assoc external org-ref-glsentries)))))))
+      (catch 'data
+	(goto-char (point-min))
+	;; check in the definitions of newacronym
+	(when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+	  (setq p1 (+ 1 (point)))
+	  (forward-list)
+	  (setq abbrv (buffer-substring p1 (- (point) 1)))
+	  (setq p1 (+ 1 (point)))
+	  (forward-list)
+	  (setq full (buffer-substring p1 (- (point) 1)))
+	  (throw 'data
+		 (list :abbrv abbrv :full full)))
+
+	;; look for acronyms table
+	(let* ((entries (save-excursion
+			  (catch 'found
+			    (org-element-map
+				(org-element-parse-buffer)
+				'table
+			      (lambda (el)
+				(when (string= "acronyms" (org-element-property :name el))
+				  (goto-char (org-element-property :contents-begin el))
+				  (throw 'found
+					 (nthcdr 2 (org-babel-read-table)))))))))
+	       (result (assoc label entries)))
+	  (when result
+	    (throw 'data (list :abbrv (cl-second result) :full (cl-third result)))))
+
+	;; look external
+	(when (and glsentries
+		   (file-exists-p glsentries))
+	  (with-current-buffer (find-file-noselect glsentries)
+	    (goto-char (point-min))
+	    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+	      (setq p1 (+ 1 (point)))
+	      (forward-list)
+	      (setq abbrv (buffer-substring p1 (- (point) 1)))
+	      (setq p1 (+ 1 (point)))
+	      (forward-list)
+	      (setq full (buffer-substring p1 (- (point) 1)))
+	      (throw 'data
+		     (list :abbrv abbrv :full full)))))
+
+	;; This should be a last resort, as it involves an export
+	;; but, it supports #+include
+	;; I think these will only show as the latex header because of the export
+	;; (let ((org-export-show-temporary-export-buffer nil)
+	;;       (org-export-use-babel nil))
+	;;   (with-current-buffer (org-org-export-as-org)
+	;;     (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+	;;       (setq p1 (+ 1 (point)))
+	;;       (forward-list)
+	;;       (setq abbrv (buffer-substring p1 (- (point) 1)))
+	;;       (setq p1 (+ 1 (point)))
+	;;       (forward-list)
+	;;       (setq full (buffer-substring p1 (- (point) 1)))
+	;;       (throw 'data
+	;; 	     (list :abbrv abbrv :full full)))))
+	))))
 
 ;;** Acronym links
 (defun or-follow-acronym (label)
@@ -336,7 +552,7 @@ FULL is the expanded acronym."
 (dolist (mapping org-ref-glossary-acr-commands-mapping)
   (org-ref-link-set-parameters (car mapping)
     :follow #'or-follow-acronym
-    :face 'org-ref-acronym-face
+    :face 'org-ref-acronym-face-fn
     :help-echo 'or-acronym-tooltip
     :export (lambda (path _ format)
 	      (cond
@@ -350,6 +566,17 @@ FULL is the expanded acronym."
 (defface org-ref-acronym-face
   `((t (:inherit org-link :foreground ,org-ref-acronym-color)))
   "Face for acronym links.")
+
+
+(defun org-ref-acronym-face-fn (label)
+  "Return a face for an acronym link."
+  (save-match-data
+    (cond
+     ((or (not org-ref-show-broken-links)
+	  (or-parse-acronym-entry label))
+      'org-ref-acronym-face)
+     (t
+      'font-lock-warning-face))))
 
 
 (defun or-acronym-tooltip (_window _object position)
@@ -401,6 +628,48 @@ WINDOW and OBJECT are ignored."
 	    (goto-char limit)
 	    nil))))))
 
+;; ** Exporting with an acronym table
+(defun org-ref-acronyms-before-parsing (backend)
+  "Function to preprocess a glossary table on export.
+This assumes a table like
+
+#+name: acronyms
+| Key  | Short | Long                           |
+|------+-------+--------------------------------|
+| mimo |       | multiple-input multiple output |
+| qos  | QoS   | quality-of-service             |
+| bb   | BB    | branch and bound               |
+
+is in the org-buffer, and will add the relevant latex_header items if there is. The table is deleted in a copy of the buffer before the export.
+
+This will run in `org-export-before-parsing-hook'."
+  (let* (begin
+	 end
+	 (entries (save-excursion
+		    (catch 'found
+		      (org-element-map
+			  (org-element-parse-buffer)
+			  'table
+			(lambda (el)
+			  (when (and (org-element-property :name el)
+				     (stringp (org-element-property :name el))
+				     (string= "acronyms" (org-element-property :name el)))
+			    (setq begin (org-element-property :begin el)
+				  end (org-element-property :end el))
+			    (goto-char (org-element-property :contents-begin el))
+			    (throw 'found
+				   (nthcdr 2 (org-babel-read-table))))))))))
+    (when entries
+      ;; Delete the table
+      (setf (buffer-substring begin end) "")
+
+      (goto-char (point-min))
+      (cl-loop for (label name description) in entries
+	       do
+	       (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
+			       label name description))))))
+
+(add-to-list 'org-export-before-parsing-hook 'org-ref-acronyms-before-parsing)
 
 ;; * Helm command to insert entries
 ;;;###autoload

@@ -21,8 +21,13 @@
 ;;; Commentary:
 
 ;;
+
+(eval-when-compile
+  (require 'cl-lib))
+
 (require 'org)
 (require 'org-ref-pdf)  		; for pdftotext-executable
+
 
 (defcustom org-ref-bib-html "<h1 class='org-ref-bib-h1'>Bibliography</h1>\n"
   "HTML header to use for bibliography in HTML export."
@@ -75,10 +80,16 @@ Copies the string to the clipboard."
     (setq git-commit
 	  ;; If in git, get current commit
 	  (let ((default-directory org-ref-dir))
-	    (when (= 0 (shell-command "git rev-parse --git-dir"))
-	      (s-trim (shell-command-to-string "git rev-parse HEAD")))))
+	    (when (and
+		   ;; this is tricky, as a submodule, .git is a file
+		   (or (file-directory-p ".git") (file-exists-p ".git"))
+		   (= 0 (shell-command "git rev-parse --git-dir")))
+	      (format "%s in %s"
+		      (s-trim (shell-command-to-string "git rev-parse HEAD"))
+		      (s-trim (shell-command-to-string "git rev-parse --show-toplevel"))))))
 
-    (setq version-string (format "org-ref: Version %s%s" org-version
+    (setq version-string (format "org-ref: Version %s%s"
+				 org-version
 				 (if git-commit
 				     (format " (git-commit %s)" git-commit)
 				   "")))
@@ -923,6 +934,459 @@ if FORCE is non-nil reparse the buffer no matter what."
      (t
       ;; (message "Using cache.")
       org-ref-parse-buffer-cache))))
+
+
+
+;; * org-ref command
+(defun org-ref ()
+  "Check the current org-buffer for potential issues."
+  (interactive)
+  (let* ((buf (get-buffer-create "*org-ref*"))
+	 (cb (current-buffer))
+	 (fname (buffer-file-name))
+	 ;; Check if elc is ok before anything else because if it is not, it
+	 ;; causes problems in org-ref.
+	 (elc-ok (let* ((org-ref-el (concat
+				     (file-name-sans-extension
+				      (locate-library "org-ref"))
+				     ".el"))
+			(orel-mod)
+			(org-ref-elc (concat
+				      (file-name-sans-extension
+				       (locate-library "org-ref"))
+				      ".elc"))
+			(orelc-mod)
+			(elc-version))
+		   (when (file-exists-p org-ref-el)
+		     (setq orel-mod (file-attribute-modification-time (file-attributes org-ref-el))))
+		   (when (file-exists-p org-ref-elc)
+		     (setq orelc-mod (file-attribute-modification-time (file-attributes org-ref-elc))))
+
+		   (with-current-buffer buf
+		     (read-only-mode -1)
+		     (erase-buffer)
+		     (org-mode)
+		     (insert (format "#+title: org-ref report on [[%s][%s]]\n\n" (buffer-file-name cb) (buffer-name cb)))
+		     (insert (format "org-ref called from %s" (buffer-file-name cb)))
+
+		     (unless (time-less-p orel-mod orelc-mod)
+		       (insert (format "org-ref.elc (%s) is older than org-ref.el (%s). That is probably not right. Please delete %s.\n"
+				       (format-time-string "%Y-%m-%d %H:%M:%S" orelc-mod)
+				       (format-time-string "%Y-%m-%d %H:%M:%S" orel-mod)
+				       org-ref-elc))
+		       (insert (format "- load-prefer-newer = %s\n" load-prefer-newer))
+		       (insert (format  "  consider
+- deleting %s
+- [[elisp:(delete-file \"%s\")]]
+- add (setq load-prefer-newer t) to your init files
+- using https://github.com/emacscollective/auto-compile.\n" org-ref-elc org-ref-elc))
+
+		       ;; Check for byte-compiling compatibility with current emacs
+		       (when (and org-ref-elc
+				  (file-exists-p org-ref-elc))
+			 (setq elc-version (with-temp-buffer
+					     (insert-file-contents org-ref-elc)
+					     (goto-char (point-min))
+					     (when (re-search-forward ";;; in Emacs version \\([0-9]\\{2\\}\\.[0-9]+\\)"
+								      nil t)
+					       (match-string 1))))
+			 (unless (string= elc-version
+					  (format "%s.%s" emacs-major-version emacs-minor-version))
+			   (insert (format "%s compiled with Emacs %s but you are running %s. That could be a problem.\n"
+					   elc-version emacs-major-version emacs-minor-version))))))))
+	 (bad-citations (org-ref-bad-cite-candidates))
+	 (bad-refs (org-ref-bad-ref-candidates))
+	 (bad-labels (org-ref-bad-label-candidates))
+	 (bad-files (org-ref-bad-file-link-candidates))
+	 (bib-candidates '())
+	 (unreferenced-labels '())
+	 natbib-required
+	 natbib-used
+	 cleveref-required
+	 cleveref-used
+	 biblatex-required
+	 biblatex-used
+	 mbuffer
+	 mchar
+	 (org-latex-prefer-user-labels (and (boundp 'org-latex-prefer-user-labels)
+					    org-latex-prefer-user-labels)))
+
+
+    ;; See if natbib, biblatex or cleveref are required
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (link)
+	(when (member (org-element-property :type link) org-ref-natbib-types)
+	  (setq natbib-required t))
+	(when (member (org-element-property :type link) org-ref-biblatex-types)
+	  (setq biblatex-required t))
+	(when (member (org-element-property :type link) '("cref" "Cref"))
+	  (setq cleveref-required t)))
+      nil t)
+
+    ;; See if natbib is probably used. This will miss a case where natbib is included somehow.
+    (setq natbib-used
+	  (or
+	   (member "natbib" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-default-packages-alist))
+	   (member "natbib" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-packages-alist))
+	   ;; see of something like \usepackage{natbib} exists.
+	   (save-excursion
+	     (goto-char (point-min))
+	     (re-search-forward "{natbib}" nil t))))
+
+    (setq biblatex-used
+	  (or
+	   (member "biblatex" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-default-packages-alist))
+	   (member "biblatex" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-packages-alist))
+	   ;; see of something like \usepackage{biblatex} exists.
+	   (save-excursion
+	     (goto-char (point-min))
+	     (re-search-forward "{biblatex}" nil t))))
+
+    (setq cleveref-used
+	  (or
+	   (member "cleveref" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-default-packages-alist))
+	   (member "cleveref" (mapcar (lambda (x) (when (listp x) (nth 1 x))) org-latex-packages-alist))
+	   ;; see of something like \usepackage{cleveref} exists.
+	   (save-excursion
+	     (goto-char (point-min))
+	     (re-search-forward  "{cleveref}" nil t))))
+
+    ;; setup bib-candidates. This checks a variety of things in the
+    ;; bibliography, bibtex files. check for which bibliographies are used
+
+    (cl-loop for bibfile in (org-ref-find-bibliography)
+	     do
+	     (let ((bibdialect))
+	       (with-current-buffer (find-file-noselect bibfile)
+		 (setq bibdialect bibtex-dialect))
+	       (cl-pushnew
+		(format "[[%s]] (dialect = %s)\n" bibfile bibdialect)
+		bib-candidates)))
+
+
+    ;; Check bibliography style exists
+    (save-excursion
+      (goto-char 0)
+      (unless (re-search-forward "bibliographystyle:\\|\\\\bibliographystyle{" nil t)
+	(cl-pushnew
+	 "No bibliography style found. This may be ok, if your latex class style sets that up, but if not this is an error. Try adding something like:
+    bibliographystyle:unsrt
+    at the end of your file.\n"
+	 bib-candidates)))
+
+    ;; Check if latex knows of the bibliographystyle. We only check links here.
+    ;;  I also assume this style exists as a bst file that kpsewhich can find.
+    (save-excursion
+      (goto-char 0)
+      (when (re-search-forward "bibliographystyle:" nil t)
+	;; on a link. get style
+	(let ((path (org-element-property :path (org-element-context))))
+          (unless (= 0 (shell-command (format "kpsewhich %s.bst" path)))
+            (cl-pushnew
+	     (format "bibliographystyle \"%s\" may be unknown" path)
+	     bib-candidates)))))
+
+    ;; check for multiple bibliography links
+    (let* ((bib-links (-filter
+                       (lambda (el)
+			 (string= (org-element-property :type el) "bibliography"))
+                       (org-element-map (org-element-parse-buffer) 'link 'identity)))
+           (n-bib-links (length bib-links)))
+
+      (when (> n-bib-links 1)
+	(mapc (lambda (link)
+		(setq
+		 bib-candidates
+		 (append
+                  bib-candidates
+                  (list (format  "Multiple bibliography link: %s"
+				 (org-element-property :raw-link link))))))
+              bib-links)))
+
+    ;; Check for bibliography files existence.
+    (mapc (lambda (bibfile)
+            (unless (file-exists-p bibfile)
+              (cl-pushnew
+	       (format "%s does not exist." bibfile)
+	       bib-candidates)))
+          (org-ref-find-bibliography))
+
+    ;; check for spaces in bibliography
+    (let ((bibfiles (mapcar 'expand-file-name
+                            (org-ref-find-bibliography))))
+      (mapc (lambda (bibfile)
+              (when (string-match " " bibfile)
+		(cl-pushnew
+		 (format "One or more spaces found in path to %s. No spaces are allowed in bibtex file paths. We recommend replacing them with -. Underscores usually cause other problems." bibfile)
+		 bib-candidates)))
+            bibfiles))
+
+    ;; validate bibtex files
+    (let ((bibfiles (mapcar 'expand-file-name
+                            (org-ref-find-bibliography))))
+      (mapc
+       (lambda (bibfile)
+	 (unless (with-current-buffer
+                     (find-file-noselect bibfile)
+                   (bibtex-validate))
+           (cl-pushnew
+	    (format  "Invalid bibtex file found. [[file:%s]]" bibfile)
+	    bib-candidates)))
+       bibfiles)
+      ;; check types
+      (mapc
+       (lambda (bibfile)
+	 (with-current-buffer
+             (find-file-noselect bibfile)
+	   (goto-char (point-min))
+	   (while (re-search-forward "^@\\(.*\\){" nil t)
+	     (unless (member (s-trim (downcase (match-string 1)))
+			     (cdr (assoc bibtex-dialect
+					 (list
+					  (cons 'BibTeX (mapcar (lambda (e) (downcase (car e)))
+								bibtex-BibTeX-entry-alist))
+					  (cons 'biblatex (mapcar (lambda (e) (downcase (car e)))
+								  bibtex-biblatex-entry-alist))))))
+	       (cl-pushnew
+		(format  "Invalid bibtex entry type (%s) found in [[file:%s::%s]]" (match-string 1)
+			 bibfile (line-number-at-pos))
+		bib-candidates)))))
+       bibfiles))
+
+    ;; unreferenced labels
+    (save-excursion
+      (save-restriction
+	(widen)
+	(goto-char (point-min))
+	(let ((matches '()))
+	  ;; these are the org-ref label:stuff  kinds
+	  (while (re-search-forward
+		  "[^#+]label:\\([a-zA-Z0-9:-]*\\)" nil t)
+	    (cl-pushnew (cons
+			 (match-string-no-properties 1)
+			 (point))
+			matches))
+	  ;; now add all the other kinds of labels.
+	  ;; #+label:
+	  (save-excursion
+	    (goto-char (point-min))
+	    (while (re-search-forward "^#\\+label:\\s-+\\(.*\\)\\b" nil t)
+	      ;; do not do this for tables. We get those in `org-ref-get-tblnames'.
+	      ;; who would have thought you have save match data here? Trust me. When
+	      ;; I wrote this, you did.
+	      (unless (save-match-data  (equal (car (org-element-at-point)) 'table))
+		(cl-pushnew (cons (match-string-no-properties 1) (point)) matches))))
+
+	  ;; \label{}
+	  (save-excursion
+	    (goto-char (point-min))
+	    (while (re-search-forward "\\\\label{\\([a-zA-Z0-9:-]*\\)}"
+				      nil t)
+	      (cl-pushnew (cons (match-string-no-properties 1) (point)) matches)))
+
+	  ;; #+tblname: and actually #+label
+	  (cl-loop for cell in (org-element-map (org-element-parse-buffer 'element) 'table
+				 (lambda (table)
+				   (cons (org-element-property :name table)
+					 (org-element-property :begin table))))
+		   do
+		   (cl-pushnew cell matches))
+
+	  ;; CUSTOM_IDs
+	  (org-map-entries
+	   (lambda ()
+	     (let ((custom_id (org-entry-get (point) "CUSTOM_ID")))
+	       (when (not (null custom_id))
+		 (cl-pushnew (cons custom_id (point)) matches)))))
+
+	  (goto-char (point-min))
+	  (while (re-search-forward "^#\\+name:\\s-+\\(.*\\)" nil t)
+	    (cl-pushnew (cons (match-string 1) (point)) matches))
+
+
+	  ;; unreference labels
+	  (let ((refs (org-element-map (org-element-parse-buffer) 'link
+			(lambda (el)
+			  (when (or (string= "ref" (org-element-property :type el))
+				    (string= "eqref" (org-element-property :type el))
+				    (string= "pageref" (org-element-property :type el))
+				    (string= "nameref" (org-element-property :type el))
+				    (string= "autoref" (org-element-property :type el))
+				    (string= "cref" (org-element-property :type el))
+				    (string= "Cref" (org-element-property :type el)))
+			    (org-element-property :path el))))))
+	    (cl-loop for (label . p) in matches
+		     do
+		     (when (and label (not (-contains? refs label)))
+		       (cl-pushnew
+			(cons label (set-marker (make-marker) p))
+			unreferenced-labels)))))))
+
+
+    (with-current-buffer buf
+      (when bad-citations
+	(insert "\n* Bad citations\n")
+	(cl-loop for (key . marker) in bad-citations
+		 do
+		 (setq mbuffer (buffer-name (marker-buffer marker))
+		       mchar (marker-position marker))
+		 (insert (format "- [[elisp:(progn (switch-to-buffer %S) (goto-char %S)(org-show-entry))][%s]]\n"
+				 mbuffer mchar key))))
+      (when bad-refs
+	(insert "\n* Bad ref links\n")
+	(cl-loop for (key . marker) in bad-refs
+		 do
+		 (setq mbuffer (buffer-name (marker-buffer marker))
+		       mchar (marker-position marker))
+		 (insert (format "- [[elisp:(progn (switch-to-buffer %S) (goto-char %S)(org-show-entry))][%s]]\n"
+				 mbuffer mchar key))))
+
+      (when bad-labels
+	(insert "\n* Multiply defined label links\n")
+	(cl-loop for (key . marker) in bad-labels
+		 do
+		 (setq mbuffer (buffer-name (marker-buffer marker))
+		       mchar (marker-position marker))
+		 (insert (format "- [[elisp:(progn (switch-to-buffer %S) (goto-char %S)(org-show-entry))][%s]]\n"
+				 mbuffer mchar key))))
+
+      (when unreferenced-labels
+	(insert "\n* Unreferenced label links\n")
+	(cl-loop for (key . marker) in unreferenced-labels
+		 when (not (string= key ""))
+		 do
+		 (setq mbuffer (buffer-name (marker-buffer marker))
+		       mchar (marker-position marker))
+		 (insert (format "- [[elisp:(progn (switch-to-buffer %S) (goto-char %S)(org-show-entry))][%s]]\n"
+				 mbuffer mchar key))))
+
+      (when bib-candidates
+	(insert "\n* Bibliography\n")
+	(cl-loop for candidate in bib-candidates
+		 do
+		 (insert (format "- %s" candidate))))
+
+      (insert "\n* Miscellaneous\n")
+      (cl-loop for s in `(,(format "org-latex-prefer-user-labels = %s"
+				   org-latex-prefer-user-labels)
+			  ,(format "bibtex-dialect = %s" bibtex-dialect)
+			  ,(format "biblatex is%srequired." (if biblatex-required " " " not "))
+			  ,(format "biblatex is%sused." (if biblatex-used " " " not "))
+			  ,(format "emacs-version = %s" (emacs-version))
+			  ,(format "org-version = %s" (org-version))
+			  ,(org-ref-version)
+			  ,(format "org-ref.el installed at %s" (concat
+								 (file-name-sans-extension
+								  (locate-library "org-ref"))
+								 ".el"))
+			  ,(format "completion backend = %s" org-ref-completion-library)
+			  ,(format "org-ref-insert-cite-function = %s" org-ref-insert-cite-function)
+			  ,(format "org-ref-insert-label-function = %s" org-ref-insert-label-function)
+			  ,(format "org-ref-insert-ref-function = %s" org-ref-insert-ref-function)
+			  ,(format "org-ref-cite-onclick-function = %s" org-ref-cite-onclick-function)
+			  ,(format "org-ref-default-bibliography = %S" org-ref-default-bibliography)
+			  ,(format "org-ref-default-bibliography is a list = %S" (listp org-ref-default-bibliography))
+			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
+			  ,(format "natbib is%srequired." (if natbib-required " " " not "))
+			  ,(format "natbib is%sin %s or %s."
+				   (if natbib-used " " " not ")
+				   (propertize "org-latex-default-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-default-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3"))
+				   (propertize "org-latex-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3")))
+			  ,(format "cleveref is%srequired." (if cleveref-required " " " not "))
+			  ,(format "cleveref is%sin %s or %s."
+				   (if cleveref-used " " " not ")
+				   (propertize "org-latex-default-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-default-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3"))
+				   (propertize "org-latex-packages-alist"
+					       'help-echo (format "%S" (mapconcat
+									(lambda (s)
+									  (format "%s" s))
+									org-latex-packages-alist
+									"\n"))
+					       'font-lock-face '(:foreground "red3")))
+			  ,(format "bibtex-completion installed = %s" (featurep 'bibtex-completion))
+			  ,(format "bibtex-completion loaded = %s" (fboundp 'bibtex-completion-candidates)))
+	       do
+	       (insert "- " s "\n"))
+      (insert (format "- org-latex-default-packages-alist\n"))
+      (cl-loop for el in org-latex-default-packages-alist
+	       do
+	       (insert (format "  %S\n" el)))
+
+      (if (null org-latex-packages-alist)
+	  (insert "-  org-latex-packages-alist is nil\n")
+	(insert "-  org-latex-packages-alist\n")
+	(cl-loop for el in org-latex-packages-alist
+		 do
+		 (insert (format "  %S\n" el))))
+
+
+      (insert (format "- ox-bibtex loaded = %s\n" (featurep 'ox-bibtex)))
+      (insert (format "- ox-bibtex loaded after org-ref = %s\n"
+		      (let ((org-ref-i (seq-position load-history (assoc (locate-library "org-ref") load-history)) )
+			    (ox-bibtex-i (seq-position load-history (assoc (locate-library "ox-bibtex") load-history))))
+			(and org-ref-i ox-bibtex-i
+			     (> org-ref-i ox-bibtex-i)))))
+
+      (insert (format "- ebib loaded = %s\n" (featurep 'ebib)))
+      (insert (format "- ebib loaded after org-ref = %s\n"
+		      (let ((org-ref-i (seq-position load-history (assoc (locate-library "org-ref") load-history)) )
+			    (ebib-i (seq-position load-history (assoc (locate-library "ebib") load-history))))
+			(and org-ref-i ebib-i
+			     (> org-ref-i ebib-i)))))
+
+
+
+      (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
+
+      (insert "\n* LaTeX setup\n\n")
+      (cl-loop for executable in '("latex" "pdflatex" "bibtex" "biblatex"
+				   "makeindex" "makeglossaries")
+	       do
+	       (insert (format "%s is installed at %s\n" executable (executable-find executable))))
+
+      (insert "\n* Warnings\n")
+      (if (get-buffer "*Warnings*")
+	  (cl-loop for line in (s-split "\n" (with-current-buffer "*Warnings*"
+					       (buffer-string)))
+		   if (s-starts-with?  "Warning (org-ref):" line)
+		   do
+		   (insert " - " line "\n"))
+	(insert "- No (org-ref) Warnings found."))
+
+
+      (insert (format  "\n* Utilities
+
+- [[elisp:(progn (find-file %S) (ispell))][Spell check document]]
+- [[elisp:(progn (find-file %S) (org-ref))][recheck document with org-ref]]
+" fname fname))
+      (goto-char (point-min))
+
+      ;; (setq header-line-format "Press q to quit.")
+      ;; (local-set-key "q"
+      ;; 		     #'(lambda ()
+      ;; 			 (interactive)
+      ;; 			 (delete-window)))
+      (read-only-mode))
+
+    (display-buffer-in-side-window buf '((side . right)))))
 
 
 (provide 'org-ref-utils)

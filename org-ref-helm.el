@@ -50,7 +50,7 @@ instead of a label."
 				    (org-open-link-from-string
 				     (format "ref:%s" label)))))
 		     ,(helm-build-dummy-source "Create new label"
-			:action (lambda (label) 
+			:action (lambda (label)
 				  (with-helm-current-buffer
 				    (if helm-current-prefix-arg
 					(insert (concat "<<" label ">>"))
@@ -133,7 +133,7 @@ Use a double \\[universal-argument] \\[universal-argument] to insert a
                                      (format "[[#%s]]" label)))))))))))
 
 ;;;###autoload
-(defun org-ref ()
+(defun org-ref-helm ()
   "Opens a helm interface to actions for `org-ref'.
 Shows bad citations, ref links and labels.
 This widens the file so that all links go to the right place."
@@ -345,7 +345,7 @@ at the end of you file.
 
 	  ;; unreference labels
 	  (let ((refs (org-element-map (org-element-parse-buffer) 'link
-			(lambda (el) 
+			(lambda (el)
 			  (when (or (string= "ref" (org-element-property :type el))
 				    (string= "eqref" (org-element-property :type el))
 				    (string= "pageref" (org-element-property :type el))

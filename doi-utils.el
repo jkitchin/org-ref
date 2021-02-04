@@ -275,7 +275,9 @@ Opening %s" json-data url))
       (volume     (plist-get results :volume))
       (issue      (plist-get results :issue))
       (number     (plist-get results :issue))
-      (year       (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0))
+      (year       (or (elt (elt (plist-get (plist-get results :issued) :date-parts) 0) 0)
+                      (elt (elt (plist-get (plist-get results :approved) :date-parts) 0) 0)
+                      ))
       ;; Some dates don't have a month in them.
       (month      (let ((date (elt
 			       (plist-get (plist-get results :issued) :date-parts) 0)))
@@ -286,7 +288,9 @@ Opening %s" json-data url))
 		      (plist-get results :article-number)))
       (doi        (plist-get results :DOI))
       (url        (plist-get results :URL))
-      (booktitle  (plist-get results :container-title))))
+      (booktitle  (plist-get results :container-title))
+      (school     (or (plist-get results :school)
+                      (plist-get (plist-get results :institution) :name)))))
 
   ;; Next, we need to define the different bibtex types. Each type has a bibtex
   ;; type (for output) and the type as provided in the doi record. Finally, we
@@ -351,6 +355,8 @@ MATCHING-TYPES."
 
 (doi-utils-def-bibtex-type inbook ("chapter" "book-chapter" "reference-entry")
                            author title booktitle series publisher year pages doi url)
+(doi-utils-def-bibtex-type phdthesis ("phdthesis" "thesis" "dissertation")
+                  author title school publisher year)
 
 ;; this is what preprints in chemrxiv look like for now
 (doi-utils-def-bibtex-type misc ("posted-content")
