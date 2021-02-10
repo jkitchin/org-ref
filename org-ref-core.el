@@ -2906,9 +2906,10 @@ long file with headlines for each entry."
   "Function to open note belonging to THEKEY.
 Set `org-ref-notes-function' to this function if you use one file
 for each bib entry."
-  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-    (bibtex-completion-edit-notes
-     (list (car (org-ref-get-bibtex-key-and-file thekey))))))
+  (let* ((bibtex-completion-bibliography
+          (cdr (org-ref-get-bibtex-key-and-file thekey)))
+         (bibtex-completion-notes-path org-ref-notes-directory))
+    (bibtex-completion-edit-notes thekey)))
 
 ;;** Open notes from bibtex entry
 ;;;###autoload
