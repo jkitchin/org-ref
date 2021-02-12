@@ -192,14 +192,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 	  action)
 	 ;; No DOIs found, add a misc entry.
 	 (t
-	  (goto-char (point-max))
-	  (insert (format "\n@misc{,
-    url = {%s},
-    note = {Last accessed %s}
-  }"
-			  url
-			  (current-time-string)))
-	  (bibtex-clean-entry)
+          (org-ref-url-html-to-bibtex (buffer-file-name) url)
 	  action)))
     ;; pass back to dnd. Copied from `org-download-dnd'. Apparently
     ;; returning nil does not do this.
@@ -300,15 +293,7 @@ not perfect, and some hits are not actually DOIs."
 	  (bibtex-beginning-of-entry)
 	  (delete-char -2))
       ;; no doi, add misc
-      (goto-char (point-max))
-	  (insert (format "\n@misc{,
-    url = {%s},
-    note = {Last accessed %s}
-  }"
-			  url
-			  (current-time-string)))
-	  (bibtex-clean-entry))))
-
+      (org-ref-url-html-to-bibtex (buffer-file-name) url))))
 
 ;;;###autoload
 (defun org-ref-url-dnd-first (event)
@@ -364,8 +349,10 @@ Fields include author, title, url, urldate, and year."
 
       ;; find author
       (goto-char (point-min))
-      (when (re-search-forward org-ref-url-author-re nil t)
-	(push (cons :author (match-string 1)) fields))
+      (let ((author (if (re-search-forward org-ref-url-author-re nil t)
+                        (match-string 1)
+                      "Unknown")))
+        (push (cons :author author) fields))
 
       ;; find title
       (goto-char (point-min))
