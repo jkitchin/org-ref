@@ -618,18 +618,19 @@ directory.  You can also specify a new file."
   "Search google scholar for bibtex key under point using the title."
   (interactive)
   (browse-url
-   (format
-    "http://scholar.google.com/scholar?q=%s"
-    (let* ((key-file (org-ref-get-bibtex-key-and-file))
-	   (key (car key-file))
-	   (file (cdr key-file))
-	   entry)
-      (with-temp-buffer
-	(insert-file-contents file)
-	(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	(bibtex-search-entry key nil 0)
-	(setq entry (bibtex-parse-entry))
-	(org-ref-reftex-get-bib-field "title" entry))))))
+   (url-encode-url
+    (format
+     "http://scholar.google.com/scholar?q=%s"
+     (let* ((key-file (org-ref-get-bibtex-key-and-file))
+            (key (car key-file))
+            (file (cdr key-file))
+            entry)
+       (with-temp-buffer
+         (insert-file-contents file)
+         (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+         (bibtex-search-entry key nil 0)
+         (setq entry (bibtex-parse-entry))
+         (org-ref-reftex-get-bib-field "title" entry)))))))
 
 
 ;;;###autoload
