@@ -123,15 +123,17 @@ Finally, add this to your init.el files.
 
 If you are using a Bibtex file exported from some citation manager then
 additionally set the variable =org-ref-get-pdf-filename-function= to the
-appropriate value (see docstring for possible values)
+appropriate value (see docstring for possible values).
 
 The following table shows correct settings for various citation managers:
-| *Citation manager* | value                                     |
+| *Citation manager* | *value*                                   |
 | Mendeley           | org-ref-get-mendeley-filename             |
 | Zotero             | org-ref-get-zotero-filename (or see #441) |
 | BibDesk            | see  #273                                 |
 
-Please update/open issue to add values for other citation managers.
+Please update the table or open an issue to add values for other citation
+managers. For more info about org-ref and citation managers consult the [[https://github.com/jkitchin/org-ref/blob/master/org-ref.org][org-ref
+manual]].
 
 Go forth and citate.
 

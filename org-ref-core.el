@@ -2852,7 +2852,8 @@ the entry of interest in the bibfile.  but does not check that."
            (pdf (funcall org-ref-get-pdf-filename-function key)))
       (if (file-exists-p pdf)
           (org-open-link-from-string (format "[[file:%s]]" pdf))
-        (ding)))))
+        (ding)
+        (message "filename %s not exist. Check value of `org-ref-get-pdf-filename-function' variable.")))))
 
 
 (defun org-ref-notes-function-one-file (key)

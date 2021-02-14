@@ -407,7 +407,7 @@ related files to the KEY you are prompted for which one you want."
     (format "%s.pdf" key)))
 
 
-(defun org-ref-get-mendeley-filename (key)
+(defun org-ref-get-mendeley-filename (key &optional zotero)
   "Return the pdf filename indicated by mendeley file field.
 Falls back to `org-ref-get-pdf-filename' if file field does not exist.
 Contributed by https://github.com/autosquid.
@@ -424,12 +424,21 @@ Argument KEY is the bibtex key."
         (if (> (length e) 4)
             (let ((clean-field (replace-regexp-in-string "{\\|}\\|\\\\" "" e)))
               (let ((first-file (car (split-string clean-field ";" t))))
+                (if zotero
+                    first-file
                 (format "/%s" (substring first-file 1
-					 (- (length first-file) 4)))))
+					                               (- (length first-file) 4))))))
           (format (concat
                    (file-name-as-directory org-ref-pdf-directory)
                    "%s.pdf")
                   key))))))
+
+(defun org-ref-get-zotero-filename (key)
+  "Pdf-filename-function for Bibtex files exported from Zotero.
+Uses `org-ref-get-mendeley-filename' to obtain filename from
+Bibtex 'file' attribute. Unlike `org-ref-get-mendeley-filename'
+return filename including its extension."
+  (org-ref-get-mendeley-filename key t))
 
 (defun org-ref-get-pdf-filename-helm-bibtex (key)
   "Use helm-bibtex to retrieve a PDF filename for KEY.
