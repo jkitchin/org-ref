@@ -8,15 +8,17 @@
 <a href="http://stable.melpa.org/#/org-ref"><img alt="MELPA Stable" src="http://stable.melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
-
-
-Introduction to org-ref on [[https://www.youtube.com/watch?v=2t925KRBbFc][YouTube]].
-#+BEGIN_HTML
-<a href="https://www.youtube.com/watch?v=2t925KRBbFc">
-<img src="http://img.youtube.com/vi/2t925KRBbFc/0.jpg">
-</a>
-#+END_HTML
-
+* Table of Contents                                                     :TOC:
+- [[#screenshots][Screenshots]]
+- [[#installation][Installation]]
+  - [[#package-installation-via-melpa][Package installation via Melpa]]
+  - [[#installation-via-github][Installation via github]]
+  - [[#configuration][Configuration]]
+    - [[#org-ref-and-citation-managers][Org-ref and citation managers]]
+- [[#some-other-useful-libraries-in-org-ref][Some other useful libraries in org-ref]]
+- [[#manual][Manual]]
+- [[#errors-and-issues][Errors and issues]]
+- [[#contributors][Contributors]]
 
 * Screenshots
 
@@ -116,6 +118,20 @@ Finally, add this to your init.el files.
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref)
 #+END_SRC
+
+*** Org-ref and citation managers
+
+If you are using a Bibtex file exported from some citation manager then
+additionally set the variable =org-ref-get-pdf-filename-function= to the
+appropriate value (see docstring for possible values)
+
+The following table shows correct settings for various citation managers:
+| *Citation manager* | value                                     |
+| Mendeley           | org-ref-get-mendeley-filename             |
+| Zotero             | org-ref-get-zotero-filename (or see #441) |
+| BibDesk            | see  #273                                 |
+
+Please update/open issue to add values for other citation managers.
 
 Go forth and citate.
 
