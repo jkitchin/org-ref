@@ -1131,7 +1131,7 @@ if FORCE is non-nil reparse the buffer no matter what."
                      (find-file-noselect bibfile)
                    (bibtex-validate))
            (cl-pushnew
-	    (format  "Invalid bibtex file found. [[file:%s]]" bibfile)
+	    (format  "Invalid bibtex file found. [[file:%s]]\n" bibfile)
 	    bib-candidates)))
        bibfiles)
       ;; check types
@@ -1140,16 +1140,17 @@ if FORCE is non-nil reparse the buffer no matter what."
 	 (with-current-buffer
              (find-file-noselect bibfile)
 	   (goto-char (point-min))
-	   (while (re-search-forward "^@\\(.*\\){" nil t)
-	     (unless (member (s-trim (downcase (match-string 1)))
-			     (cdr (assoc bibtex-dialect
-					 (list
-					  (cons 'BibTeX (mapcar (lambda (e) (downcase (car e)))
-								bibtex-BibTeX-entry-alist))
-					  (cons 'biblatex (mapcar (lambda (e) (downcase (car e)))
-								  bibtex-biblatex-entry-alist))))))
+	   (while (re-search-forward "^@\\(.*?\\)[({]" nil t)
+	     (when (and (not (string= "string" (downcase (match-string-no-properties 1))))
+			(not (member (s-trim (downcase (match-string-no-properties 1)))
+				     (cdr (assoc bibtex-dialect
+						 (list
+						  (cons 'BibTeX (mapcar (lambda (e) (downcase (car e)))
+									bibtex-BibTeX-entry-alist))
+						  (cons 'biblatex (mapcar (lambda (e) (downcase (car e)))
+									  bibtex-biblatex-entry-alist))))))))
 	       (cl-pushnew
-		(format  "Invalid bibtex entry type (%s) found in [[file:%s::%s]]" (match-string 1)
+		(format  "Invalid bibtex entry type (%s) found in [[file:%s::%s]]\n" (match-string-no-properties 1)
 			 bibfile (line-number-at-pos))
 		bib-candidates)))))
        bibfiles))
@@ -1355,7 +1356,10 @@ if FORCE is non-nil reparse the buffer no matter what."
 
 
 
-      (insert "- cite link definition:\n" (pp (assoc "cite" org-link-parameters)))
+      (insert "- cite link definition:\n" (with-temp-buffer
+					    (insert (format "%S" (assoc "cite" org-link-parameters)))
+					    (pp-buffer)
+					    (buffer-string)))
 
       (insert "\n* LaTeX setup\n\n")
       (cl-loop for executable in '("latex" "pdflatex" "bibtex" "biblatex"
