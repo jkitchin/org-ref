@@ -1699,12 +1699,15 @@ Navigate back with \`\\[org-mark-ring-goto]'."
      "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'.")))
 
 
-(defun org-ref-complete-link (&optional arg)
-  "Completion function for ref links.
-Optional argument ARG Does nothing."
+(defun org-ref-complete-link (&optional arg type)
+  "Generic completion function for ref links.
+Optional argument ARG does nothing.
+With argument TYPE, this link type will be used. TYPE must be a string.
+Otherwise, the link type will be infered."
   (let ((label))
     (setq label (completing-read "label: " (org-ref-get-labels)))
-    (format "%s:%s" (org-ref-infer-ref-type label) label)))
+    (unless type (setq type (org-ref-infer-ref-type label)))
+    (format "%s:%s" type label)))
 
 (defun org-ref-ref-help-echo (window object position)
   "A help-echo function for ref links."
@@ -1742,7 +1745,7 @@ Optional argument ARG Does nothing."
 (org-ref-link-set-parameters "ref"
   :follow #'org-ref-ref-follow
   :export #'org-ref-ref-export
-  :complete #'org-ref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "ref"))
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
@@ -2091,16 +2094,14 @@ whole buffer for them."
              ((eq format 'latex)
               (format "\\pageref{%s}" path))))
   :face 'org-ref-ref-face-fn
-  :complete #'org-pageref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "pageref"))
   :help-echo #'org-ref-ref-help-echo)
 
 
 (defun org-pageref-complete-link (&optional arg)
   "Completion function for ref links.
 Optional argument ARG Does nothing."
-  (let ((label))
-    (setq label (completing-read "label: " (org-ref-get-labels)))
-    (format "ref:%s" label)))
+  (org-ref-complete-link arg "pageref"))
 
 
 ;;;###autoload
@@ -2122,7 +2123,7 @@ Optional argument ARG Does nothing."
 (org-ref-link-set-parameters "nameref"
   :follow #'org-ref-ref-follow
   :export #'org-ref-export-nameref
-  :complete #'org-ref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "nameref"))
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
@@ -2142,7 +2143,7 @@ Optional argument ARG Does nothing."
   :follow #'org-ref-ref-follow
   :export #'org-ref-eqref-export
   ;; This isn't equation specific, one day we might try to make it that way.
-  :complete #'org-ref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "eqref"))
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
@@ -2162,7 +2163,7 @@ Optional argument ARG Does nothing."
 (org-ref-link-set-parameters "autoref"
   :follow #'org-ref-ref-follow
   :export #'org-ref-autoref-export
-  :complete #'org-ref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "autoref"))
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
@@ -2198,7 +2199,7 @@ https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
 (org-ref-link-set-parameters "cref"
   :follow #'org-ref-ref-follow
   :export #'org-ref-cref-export
-  :complete #'org-ref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "cref"))
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
@@ -2206,7 +2207,7 @@ https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
 (org-ref-link-set-parameters "Cref"
   :follow #'org-ref-ref-follow
   :export #'org-ref-Cref-export
-  :complete #'org-ref-complete-link
+  :complete (lambda (&optional arg) (org-ref-complete-link arg "Cref"))
   :face 'org-ref-ref-face-fn
   :help-echo #'org-ref-ref-help-echo)
 
