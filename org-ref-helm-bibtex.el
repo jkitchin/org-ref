@@ -444,7 +444,9 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results))
-	 (bibtex-completion-bibliography (list bibfile))
+         ;; bibfile could be nil for non-pdf entry
+         ;; in that case we would just preserve the current value for bibtex-completion-bibliography
+         (bibtex-completion-bibliography (or (and bibfile (list bibfile)) bibtex-completion-bibliography))
 	 (entry (bibtex-completion-get-entry key))
 	 (pdf-file (funcall org-ref-get-pdf-filename-function key))
 	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
