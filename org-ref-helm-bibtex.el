@@ -443,13 +443,13 @@ With two prefix ARGs, insert a label link."
 Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
-         (bibfile (cdr results))
-         ;; bibfile could be nil for non-pdf entry
-         ;; in that case we would just preserve the current value for bibtex-completion-bibliography
-         (bibtex-completion-bibliography (or (and bibfile (list bibfile)) bibtex-completion-bibliography))
-	 (entry (bibtex-completion-get-entry key))
-	 (pdf-file (funcall org-ref-get-pdf-filename-function key))
-	 (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
+         ;; bibfile could be nil for certain type of entry
+         ;; in that case we would just use current value of bibtex-completion-bibliography
+         (bibfile (or (cdr results) (car bibtex-completion-bibliography)))
+         (bibtex-completion-bibliography (list bibfile))
+         (entry (bibtex-completion-get-entry key))
+         (pdf-file (funcall org-ref-get-pdf-filename-function key))
+         (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
          (notes-p (cdr (assoc "=has-note=" entry)))
          (url (save-excursion
                 (with-temp-buffer
