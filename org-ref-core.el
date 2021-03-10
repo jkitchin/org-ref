@@ -2912,7 +2912,7 @@ for each bib entry."
   (let* ((bibtex-completion-bibliography
           (cdr (org-ref-get-bibtex-key-and-file thekey)))
          (bibtex-completion-notes-path org-ref-notes-directory))
-    (bibtex-completion-edit-notes thekey)))
+    (bibtex-completion-edit-notes (list thekey))))
 
 ;;** Open notes from bibtex entry
 ;;;###autoload
