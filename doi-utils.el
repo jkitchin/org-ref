@@ -675,11 +675,7 @@ checked."
           (pdf-url)
           (pdf-file))
 
-      (setq pdf-file (concat
-		      (if org-ref-pdf-directory
-			  (file-name-as-directory org-ref-pdf-directory)
-			(read-directory-name "PDF directory: " "."))
-		      key ".pdf"))
+      (setq pdf-file (funcall org-ref-get-pdf-filename key))
       ;; now get file if needed.
       (unless (file-exists-p pdf-file)
 	(cond
