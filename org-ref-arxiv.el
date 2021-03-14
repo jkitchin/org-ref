@@ -76,23 +76,18 @@
        (concat
         "http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:"
         arxiv-number))
-    (search-forward-regexp "name=\\\"bibcode\\\" value=\\\"\\(.*\\)\\\"")
+    (search-forward-regexp "<link rel=\"canonical\" href=\"http://ui.adsabs.harvard.edu/abs/\\(.*\\)/abstract\"/>")
     (match-string 1)))
 
 
 (defun arxiv-get-bibtex-entry (arxiv-bibliographic-code)
   "Get bibtex entry for ARXIV-BIBLIOGRAPHIC-CODE."
   (with-current-buffer
-      (url-retrieve-synchronously
-       (format
-        "http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=%s&data_type=BIBTEX&db_key=PRE&nocookieset=1"
-        arxiv-bibliographic-code))
-    (goto-char url-http-end-of-headers)
-    (if (search-forward  "Retrieved 1 abstracts" (point-max) t)
-        (progn
-          (forward-line)
-          (buffer-substring (point) (point-max)))
-      (error "Did not get one entry: %s" (buffer-substring (point) (point-max))))))
+      (url-retrieve-synchronously (format "https://ui.adsabs.harvard.edu/abs/%s/exportcitation" arxiv-bibliographic-code))
+    (when (re-search-forward
+	   "<textarea.*>\\(.*\\(?:\n.*\\)*?\\(?:\n\\s-*\n\\|\\'\\)\\)</textarea>"
+	   nil t)
+      (xml-substitute-special (match-string 1)))))
 
 ;;* Getting a bibtex entry for an arXiv article using arXiv API:
 ;; Retrieves the meta data of an article view arXiv's http API,
