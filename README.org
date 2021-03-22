@@ -84,12 +84,12 @@ You should set these variables. Here is an example of how mine are set in an ini
 
 You may want to set some convenient keys for working in your bibtex file. These commands operate on the citation key at point.
 
-If you use helm-bibtex as the citation key completion method you should set these variables too.
+If you use bibtex-completion frontends such as `helm-bibtex` or `ivy-bibtex` as the citation key completion method you should set these variables too, to the same path as the equivalent `bibtex-completion` variables.
 
 #+BEGIN_SRC emacs-lisp
 (setq bibtex-completion-bibliography "~/Dropbox/bibliography/references.bib"
       bibtex-completion-library-path "~/Dropbox/bibliography/bibtex-pdfs"
-      bibtex-completion-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
+      bibtex-completion-notes-path "~/Dropbox/bibliography/bibtex-notes")
 
 ;; open pdf with system pdf viewer (works on mac)
 (setq bibtex-completion-pdf-open-function
