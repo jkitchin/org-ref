@@ -675,7 +675,7 @@ checked."
           (pdf-url)
           (pdf-file))
 
-      (setq pdf-file (funcall org-ref-get-pdf-filename key))
+      (setq pdf-file (funcall org-ref-get-pdf-filename-function key))
       ;; now get file if needed.
       (unless (file-exists-p pdf-file)
 	(cond
