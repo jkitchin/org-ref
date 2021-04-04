@@ -81,7 +81,7 @@ There is also a bibliographystyle link that specifies the style. This link does 
     :END:
 index:cite
 
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]].
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]]. In order to do this, you need to put the link definitions <<bibliography link>> and <<bibliographystyle link>> (this is meta that explains to emacs that these are links, otherwise you won't be able to open them),  and you then need to write the links (e.g., [[bibliography:refs.bib]] (your bibliography file) and [[bibliographystyle:apa]] (the style you want to choose. See "References" at the end of this document for an example.
 
 For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding ~C-c ]~ by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. If you want to match any other field, you need to add it to the variable ~bibtex-completion-additional-search-fields~; org-ref [[id:5d7a19d3-0411-4964-9154-99af4f281015][does this automatically]] for the ~keywords~ field. You can select multiple entries by pressing ~C-SPC~ to mark entries in the helm-bibtex buffer.
 
@@ -1030,9 +1030,10 @@ This is a functional link that will open a buffer of clickable index entries:
 printindex:nil
 
 * References
+You need to define the link style using <<>> tags. So, write the following in your document:
 
-<<bibliographystyle link>>
-bibliographystyle:unsrt
+<<bibliographystyle link>> (you need to define the link style here)
+bibliographystyle:unsrt (your bibliography style here. Some examples include unsrt, APA, etc).
 
 <<bibliography link>>
-bibliography:org-ref.bib
+bibliography:org-ref.bib (your bibliography file here)
