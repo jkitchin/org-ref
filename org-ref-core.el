@@ -4036,8 +4036,9 @@ A blank string deletes pre/post text."
 	    (when (looking-at "[[:punct:]]")
 	      (delete-char 1)))
 	(insert (format "[[%s:%s][%s]] " type key text))
-	(when (looking-at "[[:punct:]]")
-	  (delete-char 1))))))
+	;; (when (looking-at "[[:punct:]]")
+	;;   (delete-char 1))
+	))))
 
 
 (defun org-ref-delete-key-at-point ()
