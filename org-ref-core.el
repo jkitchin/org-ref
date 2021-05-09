@@ -2033,9 +2033,11 @@ missing."
   ;; not perfect, this can be nil for anonyomous derived backends.
   (when (and org-ref-labels
 	     (not org-export-current-backend))
-    (if (eq start end)
-	(org-ref-delete-labels-insertion start end)
-      (org-ref-delete-labels-deletion start end)))
+    (save-restriction
+      (widen)
+      (if (eq start end)
+	  (org-ref-delete-labels-insertion start end)
+        (org-ref-delete-labels-deletion start end))))
   (when org-ref-label-debug
     (message "end: %S" org-ref-labels)
     (message "ordl end-----------------------------------------------------------------")))
