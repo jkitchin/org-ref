@@ -837,9 +837,12 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
   (let ((keys (org-ref-get-bibtex-keys sort)))
     (when keys
       (concat
-       "\n\nBibliography\n=============\n\n"
-       (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys "\n")
-       "\n"))))
+       hard-newline hard-newline
+       "Bibliography" hard-newline
+       "=============" hard-newline hard-newline
+       (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys
+                  (concat hard-newline hard-newline))
+       hard-newline))))
 
 (defun org-ref-get-md-bibliography (&optional sort)
   "Create an md bibliography when there are keys.
