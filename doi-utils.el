@@ -919,17 +919,16 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   (org-ref-clean-bibtex-entry)
   (save-buffer)
 
-  ;; try to get pdf
-  (when doi-utils-download-pdf
-    (doi-utils-get-bibtex-entry-pdf))
-
   (when (and doi-utils-make-notes org-ref-bibliography-notes)
     (save-excursion
       (when (f-file? org-ref-bibliography-notes)
 	(find-file-noselect org-ref-bibliography-notes)
 	(save-buffer))
       (let ((bibtex-completion-bibliography (list (buffer-file-name))))
-	(funcall doi-utils-make-notes-function)))))
+	(funcall doi-utils-make-notes-function))))
+  ;; try to get pdf
+  (when doi-utils-download-pdf
+    (doi-utils-get-bibtex-entry-pdf)))
 
 
 ;; It may be you are in some other place when you want to add a bibtex entry.
