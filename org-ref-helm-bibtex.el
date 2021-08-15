@@ -445,26 +445,28 @@ Checks for pdf and doi, and add appropriate functions."
          (key (car results))
          ;; bibfile could be nil for certain type of entry
          ;; in that case we would just use current value of bibtex-completion-bibliography
-         (bibfile (or (cdr results) (car bibtex-completion-bibliography)))
-         (bibtex-completion-bibliography (list bibfile))
+         (bibfile (cdr results))
+         (bibtex-completion-bibliography (if bibfile (list bibfile) bibtex-completion-bibliography))
          (entry (bibtex-completion-get-entry key))
          (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (pdf-bibtex-completion (car (bibtex-completion-find-pdf key)))
          (notes-p (cdr (assoc "=has-note=" entry)))
-         (url (save-excursion
-                (with-temp-buffer
-                  (insert-file-contents bibfile)
-                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-                  (bibtex-search-entry key)
-                  (bibtex-autokey-get-field "url"))))
-         (doi (save-excursion
-                (with-temp-buffer
-                  (insert-file-contents bibfile)
-                  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-                  (bibtex-search-entry key)
-                  ;; I like this better than bibtex-url which does not always find
-                  ;; the urls
-                  (bibtex-autokey-get-field "doi"))))
+         (url (if bibfile (save-excursion
+			    (with-temp-buffer
+			      (insert-file-contents bibfile)
+			      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+			      (bibtex-search-entry key)
+			      (bibtex-autokey-get-field "url")))
+		""))
+         (doi (if bibfile (save-excursion
+			    (with-temp-buffer
+			      (insert-file-contents bibfile)
+			      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+			      (bibtex-search-entry key)
+			      ;; I like this better than bibtex-url which does not always find
+			      ;; the urls
+			      (bibtex-autokey-get-field "doi")))
+		""))
          (candidates `(("Quit" . org-ref-citation-at-point)
                        ("Open bibtex entry" . org-ref-open-citation-at-point))))
     ;; for some reason, when there is no doi or url, they are returned as "". I
