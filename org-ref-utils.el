@@ -392,16 +392,19 @@ This searches for the pattern KEY*.pdf. If one result is found it
 is returned, but if multiple results are found, e.g. there are
 related files to the KEY you are prompted for which one you want."
   (if org-ref-pdf-directory
-      (let ((pdfs (-flatten (--map (file-expand-wildcards
-				    (f-join it (format "%s*.pdf" key)))
-				   (-flatten (list org-ref-pdf-directory))))))
-	(cond
-	 ((= 0 (length pdfs))
-	  (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
-	 ((= 1 (length pdfs))
-	  (car pdfs))
-	 ((> (length pdfs) 1)
-	  (completing-read "Choose: " pdfs))))
+      (let* ((pdf-dirs (if (listp org-ref-pdf-directory)
+                           org-ref-pdf-directory
+                         (list org-ref-pdf-directory)))
+             (pdfs (-flatten (--map (file-expand-wildcards
+                     (f-join it (format "%s*.pdf" key)))
+                    (-flatten pdf-dirs)))))
+	    (cond
+	     ((= 0 (length pdfs))
+	      (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
+	     ((= 1 (length pdfs))
+	      (car pdfs))
+	     ((> (length pdfs) 1)
+	      (completing-read "Choose: " pdfs))))
     ;; No org-ref-pdf-directory defined so return just a file name.
     (format "%s.pdf" key)))
 
@@ -833,9 +836,12 @@ if SORT is non-nil the bibliography is sorted alphabetically by key."
   (let ((keys (org-ref-get-bibtex-keys sort)))
     (when keys
       (concat
-       "\n\nBibliography\n=============\n\n"
-       (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys "\n")
-       "\n"))))
+       hard-newline hard-newline
+       "Bibliography" hard-newline
+       "=============" hard-newline hard-newline
+       (mapconcat (lambda (x) (org-ref-get-bibtex-entry-ascii x)) keys
+                  (concat hard-newline hard-newline))
+       hard-newline))))
 
 (defun org-ref-get-md-bibliography (&optional sort)
   "Create an md bibliography when there are keys.

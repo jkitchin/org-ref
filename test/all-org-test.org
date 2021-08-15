@@ -595,6 +595,36 @@ label:one
 
 
 
+#+name: or-get-pdf-3
+#+BEGIN_SRC emacs-lisp :test
+(should
+ (string=
+  (expand-file-name
+   "tests/bibtex-pdfs/kitchin-2015.pdf"
+   (file-name-directory
+    (locate-library "org-ref")))
+  (org-test-with-temp-text
+      "cite:kitchin-2015"
+    (let ((org-ref-pdf-directory (list (expand-file-name
+				                        "tests/bibtex-pdfs/"
+				                        (file-name-directory
+				                         (locate-library "org-ref"))))))
+      (org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor))))))
+
+#+END_SRC
+
+#+RESULTS: or-get-pdf-3
+: t
+
+
+
+
+
+
+
+
+
+
 
 
 
