@@ -346,10 +346,12 @@ change the key at point to the selected keys."
 	  ;; goto next comma or end
 	  (re-search-forward
 	   ","
-	   (org-element-property :end object) t)
+	   (org-element-property :end object) 'mv)
 	  (skip-chars-backward " ")
+	  (unless (looking-back "," 1) (insert ","))
 	  (insert (mapconcat 'identity keys ","))
-	  (unless (looking-at ",") (insert ",")))))
+	  ;; (unless (looking-at " ") (insert ","))
+	  )))
        ;; double prefix, replace key at point
        ((equal helm-current-prefix-arg '(16))
         (setf (buffer-substring
@@ -579,7 +581,7 @@ Checks for pdf and doi, and add appropriate functions."
     	    '("Open pdf" . (lambda ()
     			     (funcall org-ref-open-pdf-function)))
     	    candidates))
-	  
+
 	  ;; try with doi
     	  (t
     	   (cl-pushnew
