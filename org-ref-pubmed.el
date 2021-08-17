@@ -72,16 +72,15 @@
   "Get MEDLINE text for PMID as a string."
   (with-current-buffer
       (url-retrieve-synchronously
-       (format "http://www.ncbi.nlm.nih.gov/pubmed/%s/?report=medline&format=text" pmid))
+       (format "https://pubmed.ncbi.nlm.nih.gov/%s/?format=pubmed" pmid))
     (goto-char (point-min))
-    (let ((p1 (search-forward "<pre>"))
+    (let ((p1 (search-forward "<pre class=\"article-details\" id=\"article-details\">"))
           (p2 (search-forward "</pre>")))
-      (buffer-substring (+ 1 p1) (- p2 6)))))
+      (replace-regexp-in-string "" "" (buffer-substring (+ 1 p1) (- p2 6))))))
 
 ;;** Parse the PMID MEDLINE data
 
 ;; We can parse this into a data structure.
-
 (defun pubmed-parse-medline (pmid)
   "Parse the medline text for PMID and return a list of cons cells."
   (let ((data '())
@@ -153,31 +152,6 @@ You must clean the entry after insertion."
   (interactive "sPMID: ")
   (insert (pubmed-pmid-to-bibtex pmid)))
 
-;;** PMID to xml
-
-;; We can also get xml of the MEDLINE data. The web page here also wraps the xml
-;; in a <pre> block and escapes the <> with &lt; and &gt;, which we have to
-;; undo. I have not used this code for anything, so I am not sure how good the
-;; xml code is.
-
-;;;###autoload
-(defun pubmed-get-medline-xml (pmid)
-  "Get MEDLINE xml for PMID as a string."
-  (interactive)
-  (with-current-buffer
-      (url-retrieve-synchronously
-       (format "http://www.ncbi.nlm.nih.gov/pubmed/%s/?report=xml&format=text" pmid))
-    (goto-char (point-min))
-    (while (search-forward "&lt;" nil t)
-      (replace-match "<"))
-    (goto-char (point-min))
-    (while (search-forward "&gt;" nil t)
-      (replace-match ">"))
-    (goto-char (point-min))
-
-    (let ((p1 (search-forward "<pre>"))
-          (p2 (search-forward "</pre>")))
-      (buffer-substring (+ 1 p1) (- p2 6)))))
 
 ;;* Pubmed Central (PMC) link
 
