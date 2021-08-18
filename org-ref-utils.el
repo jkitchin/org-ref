@@ -924,6 +924,141 @@ if FORCE is non-nil reparse the buffer no matter what."
 
 
 
+;;** bad citations, labels, refs and files in orgfile
+;;  These are used i
+(defun org-ref-bad-cite-candidates ()
+  "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
+  (let* ((cp (point))			; save to return to later
+         (bibtex-files (cl-loop for f in (org-ref-find-bibliography)
+				if (file-exists-p f)
+				collect (file-truename f)))
+         (bibtex-file-path (mapconcat
+                            (lambda (x)
+                              (file-name-directory (file-truename x)))
+                            bibtex-files ":"))
+         (bibtex-keys (mapcar (lambda (x) (car x))
+                              (bibtex-global-key-alist)))
+         (bad-citations '()))
+
+    (org-element-map (org-ref-parse-buffer) 'link
+      (lambda (link)
+        (let ((plist (nth 1 link)))
+          (when (-contains? org-ref-cite-types (plist-get plist :type))
+	    (when (not (string= "*" (plist-get plist :path)))
+              (dolist (key (org-ref-split-and-strip-string
+			    (plist-get plist :path)))
+		(when (not (org-ref-list-index key bibtex-keys))
+                  (goto-char (plist-get plist :begin))
+                  (re-search-forward key)
+                  (push (cons key (point-marker)) bad-citations)))))))
+      ;; add with-affiliates to get cites in caption
+      nil nil nil t)
+    (goto-char cp)
+    bad-citations))
+
+
+(defun org-ref-bad-ref-candidates ()
+  "Return a list of conses (ref . marker) where ref is a ref link that does not point to anything (i.e. a label)."
+  ;; first get a list of legitimate labels
+  (let ((cp (point))
+        (labels (org-ref-get-labels))
+        (bad-refs '()))
+    ;; now loop over ref links
+    (goto-char (point-min))
+    (org-element-map (org-ref-parse-buffer) 'link
+      (lambda (link)
+        (let ((plist (nth 1 link)))
+          (when (or  (equal (plist-get plist ':type) "ref")
+                     (equal (plist-get plist ':type) "eqref")
+                     (equal (plist-get plist ':type) "pageref")
+                     (equal (plist-get plist ':type) "nameref")
+		     (equal (plist-get plist ':type) "autoref")
+		     (equal (plist-get plist ':type) "cref")
+		     (equal (plist-get plist ':type) "Cref"))
+            (unless (-contains? labels (plist-get plist :path))
+              (goto-char (plist-get plist :begin))
+              (add-to-list
+               'bad-refs
+               (cons (plist-get plist :path)
+                     (point-marker))))))))
+    (goto-char cp)
+    bad-refs))
+
+
+(defun org-ref-bad-label-candidates ()
+  "Return a list of labels where label is multiply defined."
+  (let ((labels (org-ref-get-labels))
+        (multiple-labels '()))
+    ;; labels should be a unique list.
+    (dolist (label labels)
+      (when (> (org-ref-count-labels label) 1)
+	(let ((cp (point)))
+          (goto-char (point-min))
+	  ;; regular org label:tag links
+          (while (re-search-forward
+                  (format  "[^#+]label:%s\\s-" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
+
+          (goto-char (point-min))
+	  ;; latex style
+          (while (re-search-forward
+                  (format  "\\label{%s}\\s-?" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
+
+	  ;; keyword style
+          (goto-char (point-min))
+          (while (re-search-forward
+                  (format  "^\\( \\)*#\\+label:\\s-*%s" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
+
+          (goto-char (point-min))
+          (while (re-search-forward
+                  (format "^\\( \\)*#\\+tblname:\\s-*%s" label) nil t)
+            (cl-pushnew (cons label (point-marker)) multiple-labels
+			:test (lambda (a b)
+				(and (string= (car a) (car b))
+				     (= (marker-position (cdr a))
+					(marker-position (cdr b)))))))
+          (goto-char cp))))
+    multiple-labels))
+
+
+(defun org-ref-bad-file-link-candidates ()
+  "Return list of conses (link . marker) where the file in the link does not exist."
+  (let* ((bad-files '()))
+    (org-element-map (org-ref-parse-buffer) 'link
+      (lambda (link)
+        (let ((type (org-element-property :type link)))
+          (when (or  (string= "file" type)
+                     (string= "attachfile" type))
+            (unless (file-exists-p (org-element-property :path link))
+              (add-to-list 'bad-files
+                           (cons (org-element-property :path link)
+                                 (save-excursion
+                                   (goto-char
+                                    (org-element-property :begin link))
+                                   (point-marker)))))))))
+    ;; Let us also check \attachfile{fname}
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\\\attachfile{\\([^}]*\\)}" nil t)
+        (unless (file-exists-p (match-string 1))
+          (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
+    bad-files))
+
+
 ;; * org-ref command
 (defun org-ref ()
   "Check the current org-buffer for potential issues."
