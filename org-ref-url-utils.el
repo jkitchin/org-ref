@@ -24,7 +24,7 @@
 
 ;; This works by scraping DOIs from the content at the URL using patterns in
 ;; `org-ref-doi-regexps'. If one DOI is found, it is added as an entry. If
-;; multiple DOIs are found, you will get a helm selection buffer to choose what
+;; multiple DOIs are found, you will get a selection buffer to choose what
 ;; you want to add. You can add new patterns to `org-ref-doi-regexps'.
 
 ;; You can press Control to "debug" a URL, which will open a buffer of the
@@ -135,19 +135,6 @@ Returns a list of collected DOIs in the order found."
       (reverse dois))))
 
 
-(defun org-ref-url-add-doi-entries (_)
-  "Add all entries for CANDIDATE in `helm-marked-candidates'.
-This is used in a helm selection command in `org-ref-url-dnd-protocol'."
-  (cl-loop for doi in (helm-marked-candidates)
-	   do
-	   (doi-utils-add-bibtex-entry-from-doi
-	    doi
-	    (buffer-file-name))
-	   ;; this removes two blank lines before each entry.
-	   (bibtex-beginning-of-entry)
-	   (delete-char -2)))
-
-
 (defun org-ref-url-dnd-protocol (url action)
   "Protocol function for use in `dnd-protocol-alist'.
 We scrape DOIs from the url first. If there is one, we add it. If
@@ -166,30 +153,8 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 	  action)
 	 ;; Multiple DOIs found
 	 ((> (length dois) 1)
-	  (helm :sources
-		`((name . "Select a DOI")
-		  (candidates . ,(let ((dois '()))
-				   (with-current-buffer (url-retrieve-synchronously url)
-				     (cl-loop for doi-pattern in org-ref-doi-regexps
-					      do
-					      (goto-char (point-min))
-					      (while (re-search-forward doi-pattern nil t)
-						(cl-pushnew
-						 ;; Cut off the doi, sometimes
-						 ;; false matches are long.
-						 (cons (format "%40s | %s"
-							       (substring
-								(match-string 1)
-								0 (min
-								   (length (match-string 1))
-								   40))
-							       doi-pattern)
-						       (match-string 1))
-						 dois
-						 :test #'equal)))
-				     (reverse dois))))
-		  (action . org-ref-url-add-doi-entries)))
-	  action)
+	  (let ((doi (completing-read "Select a DOI: " dois)))
+	    (doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))))
 	 ;; No DOIs found, add a misc entry.
 	 (t
           (org-ref-url-html-to-bibtex (buffer-file-name) url)
