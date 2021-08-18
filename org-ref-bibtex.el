@@ -76,14 +76,12 @@
 (declare-function org-ref-open-in-browser "org-ref-core")
 (declare-function org-ref-sort-bibtex-entry "org-ref-core")
 (declare-function org-ref-build-full-bibliography "org-ref-core")
-(declare-function helm-tag-bibtex-entry "org-ref-helm")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
 (declare-function bibtex-completion-get-value "bibtex-completion")
 (declare-function bibtex-completion-get-entry "bibtex-completion")
 (declare-function parsebib-find-next-item "parsebib")
 (declare-function parsebib-read-entry "parsebib")
-(declare-function helm-bibtex "helm-bibtex")
-(declare-function helm "helm")
+
 
 ;;; Code:
 
@@ -104,15 +102,6 @@
   :group 'org-ref-bibtex)
 
 
-(defcustom org-ref-bibtex-hydra-key-chord
-  nil
-  "Key-chord to run `org-ref-bibtex-hydra'.
-I like \"jj\""
-  :type '(choice (const nil :tag "None")
-                 (string))
-  :group 'org-ref-bibtex)
-
-
 (defcustom org-ref-bibtex-hydra-key-binding
   nil
   "Key-binding to run `org-ref-bibtex-hydra'.
@@ -122,7 +111,7 @@ I like \"C-c j\"."
   :group 'org-ref-bibtex)
 
 
-(defcustom org-ref-helm-cite-shorten-authors nil
+(defcustom org-ref-shorten-authors nil
   "If non-nil show only last names in the helm selection buffer."
   :type 'boolean
   :group 'org-ref-bibtex)
@@ -332,27 +321,6 @@ START and END allow you to use this with `bibtex-map-entries'"
       (when bstring
         (bibtex-set-field "journal" bstring t)
         (bibtex-fill-entry)))))
-
-
-;;;###autoload
-(defun org-ref-helm-set-journal-string ()
-  "Helm interface to set a journal string in a bibtex entry.
-Entries come from `org-ref-bibtex-journal-abbreviations'."
-  (interactive)
-  (bibtex-set-field
-   "journal"
-   (helm :sources
-	 `((name . "journal")
-	   (candidates . ,(mapcar
-			   (lambda (x)
-			     (cons (format "%s | %s"  (nth 1 x) (nth 2 x))
-				   (car x)))
-			   org-ref-bibtex-journal-abbreviations))
-	   (action . (lambda (x) (identity x))))
-         :input (s-trim (bibtex-autokey-get-field "journal")))
-   t)
-  (bibtex-fill-entry)
-  (bibtex-clean-entry))
 
 
 ;;;###autoload
@@ -788,10 +756,10 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
   "
 _p_: Open pdf     _y_: Copy key               _N_: New entry            _w_: WOS
 _b_: Open url     _f_: Copy formatted entry   _o_: Copy entry           _c_: WOS citing
-_r_: Refile entry _k_: Add keywords           _d_: delete entry         _a_: WOS related
+_r_: Refile entry ^ ^:                        _d_: delete entry         _a_: WOS related
 _e_: Email entry  _K_: Edit keywords          _L_: clean entry          _P_: Pubmed
 _U_: Update entry _N_: New entry              _R_: Crossref             _g_: Google Scholar
-_s_: Sort entry   _a_: Remove nonascii        _h_: helm-bibtex          _q_: quit
+_s_: Sort entry   _a_: Remove nonascii        ^ ^:                      _q_: quit
 _u_: Update field _F_: file funcs             _A_: Assoc pdf with entry
 _n_: Open notes   ^ ^                         _T_: Title case
 ^ ^               ^ ^                         _S_: Sentence case
@@ -821,7 +789,7 @@ _n_: Open notes   ^ ^                         _T_: Title case
 	 (kill-new
 	  (org-ref-format-entry
 	   (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
-  ("k" helm-tag-bibtex-entry)
+
   ("K" (lambda ()
          (interactive)
          (org-ref-set-bibtex-keywords
@@ -844,20 +812,12 @@ _n_: Open notes   ^ ^                         _T_: Title case
   ("U" (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi)))
   ("u" doi-utils-update-field)
   ("F" org-ref-bibtex-file/body)
-  ("h" helm-bibtex)
   ("A" org-ref-bibtex-assoc-pdf-with-entry)
   ("a" org-ref-replace-nonascii)
   ("s" org-ref-sort-bibtex-entry)
   ("T" org-ref-title-case-article)
   ("S" org-ref-sentence-case-article)
   ("q" nil))
-
-;; create key-chord and key binding for hydra
-(when (and (featurep 'key-chord) org-ref-bibtex-hydra-key-chord)
-  (key-chord-define-global
-   org-ref-bibtex-hydra-key-chord
-   'org-ref-bibtex-hydra/body))
-
 
 (when org-ref-bibtex-hydra-key-binding
   (define-key bibtex-mode-map org-ref-bibtex-hydra-key-binding 'org-ref-bibtex-hydra/body))
@@ -892,49 +852,7 @@ _n_: Open notes   ^ ^                         _T_: Title case
   ("p" org-ref-build-full-bibliography "PDF bibliography"))
 
 
-;;* DEPRECATED bibtex menu
-(defvar org-ref-bibtex-menu-funcs '()
-  "Functions to run in doi menu.
-Each entry is a list of (key menu-name function).  The function
-must take one argument, the doi.  This is somewhat deprecated, as
-I prefer the hydra interfaces above.")
-
-(setq org-ref-bibtex-menu-funcs
-      '(("p" "df" org-ref-bibtex-pdf)
-        ("C" "opy" (lambda (doi)
-                     (kill-new (org-ref-bib-citation))
-                     (bury-buffer)))
-        ("w" "os" doi-utils-wos)
-        ("c" "iting articles" doi-utils-wos-citing)
-        ("r" "elated articles" doi-utils-wos-related)
-        ("s" "Google Scholar" doi-utils-google-scholar)
-        ("P" "Pubmed" doi-utils-pubmed)
-        ("f" "CrossRef" doi-utils-crossref)))
-
-;;;###autoload
-(defun org-ref-bibtex ()
-  "Menu command to run in a bibtex entry.
-Functions from `org-ref-bibtex-menu-funcs'.  They all rely on the
-entry having a doi."
-  (interactive)
-  ;; construct menu string as a message
-  (message
-   (concat
-    (mapconcat
-     (lambda (tup)
-       (concat "[" (elt tup 0) "]"
-               (elt tup 1) " "))
-     org-ref-bibtex-menu-funcs "") ": "))
-  (let* ((input (read-char-exclusive))
-         (choice (assoc
-                  (char-to-string input) org-ref-bibtex-menu-funcs)))
-    (when choice
-      (funcall
-       (elt
-        choice
-        2)
-       (org-ref-bibtex-entry-doi)))))
-
+;;* Email a bibtex entry
 
 ;;;###autoload
 (defun org-ref-email-bibtex-entry ()
@@ -1073,7 +991,7 @@ It is an alist of (=type= . s-format-string).")
     (kill-buffer (find-buffer-visiting orhc-bibtex-cache-file)))
   (when (file-exists-p orhc-bibtex-cache-file)
     (delete-file orhc-bibtex-cache-file))
-  (message "org-ref-helm-cite cache cleared."))
+  (message "orhc cache cleared."))
 
 
 (defun orhc-bibtex-cache-up-to-date ()
@@ -1106,7 +1024,7 @@ easier to search specifically for them."
 		 "")))))
     (cond
      ((string= field "author")
-      (if org-ref-helm-cite-shorten-authors
+      (if org-ref-shorten-authors
 	  ;; copied from `helm-bibtex-shorten-authors'
 	  (cl-loop for a in (s-split " and " s)
 		   for p = (s-split "," a t)
@@ -1229,7 +1147,7 @@ Files that have the same hash as in the cache are not updated."
 	   (orhc-update-bibfile-cache bibfile)))
 
 
-(defun orhc-helm-cite-describe-cache ()
+(defun orhc-describe-cache ()
   "Show what is in the cache."
   (interactive)
   (let ((hash-cache (cdr (assoc 'hashes orhc-bibtex-cache-data)))
@@ -1296,41 +1214,6 @@ of format strings used."
     (org-ref-format-bibtex-entry (bibtex-parse-entry t))))
 
 
-;; ** using citeproc
-(defun orhc-formatted-citation (entry)
-  "Get a formatted string for ENTRY."
-  (require 'unsrt)
-  (let* ((adaptive-fill-function '(lambda () "    "))
-	 (indent-tabs-mode nil)
-	 (entry-type (downcase
-		      (cdr (assoc "=type=" entry))))
-	 (entry-styles (cdr (assoc 'entries bibliography-style)))
-	 (entry-fields
-	  (progn
-	    (if (cdr (assoc (intern entry-type) entry-styles))
-		(cdr (assoc (intern entry-type) entry-styles))
-	      (warn "%s not found. Using default." entry-type)
-	      (cdr (assoc 't entry-styles)))))
-	 (funcs (mapcar
-		 (lambda (field)
-		   (if (fboundp (intern
-				 (format "orcp-%s" field)))
-		       (intern
-			(format "orcp-%s" field))
-		     ;; No formatter found. just get the data
-		     `(lambda (entry)
-			(orcp-get-entry-field
-			 ,(symbol-name field) entry))))
-		 entry-fields)))
-
-    ;; this is the entry. We do this in a buffer to make it
-    ;; easy to indent, fill, etc...
-    (with-temp-buffer
-      (insert (mapconcat (lambda (field-func)
-			   (funcall field-func entry))
-			 funcs
-			 ""))
-      (buffer-string))))
 
 ;; * Extract bibtex blocks from an org-file
 ;;;###autoload
