@@ -99,24 +99,16 @@ strings, or nil.
 
 
 (defun org-ref-pdf-doi-candidates (dois)
-  "Generate candidate list for helm source.
+  "Generate candidate list for a completion source.
 Used when multiple dois are found in a pdf file."
   (cl-loop for doi in dois
-	collect
-	(condition-case nil
-	    (cons
-	     (plist-get (doi-utils-get-json-metadata doi) :title)
-	     doi)
-	  (error (cons (format "%s read error" doi) doi)))))
+	   collect
+	   (condition-case nil
+	       (cons
+		(plist-get (doi-utils-get-json-metadata doi) :title)
+		doi)
+	     (error (cons (format "%s read error" doi) doi)))))
 
-
-(defun org-ref-pdf-add-dois (_)
-  "Add all entries for CANDIDATE in `helm-marked-candidates'."
-  (cl-loop for doi in (helm-marked-candidates)
-	   do
-	   (doi-utils-add-bibtex-entry-from-doi
-	    doi
-	    (buffer-file-name))))
 
 ;;;###autoload
 (defun org-ref-pdf-to-bibtex ()
@@ -141,120 +133,6 @@ using the `pdf-tools' package."
                (expand-file-name (format "%s.pdf" key)
                                  org-ref-pdf-directory)))))
 
-;;;###autoload
-;; (defun org-ref-pdf-dnd-func (event)
-;;   "Drag-n-drop support to add a bibtex entry from a pdf file."
-;;   (interactive "e")
-;;   (goto-char (nth 1 (event-start event)))
-;;   (x-focus-frame nil)
-;;   (let* ((payload (car (last event)))
-;;          (pdf (cadr payload))
-;; 	 (dois (org-ref-extract-doi-from-pdf pdf)))
-;;     (cond
-;;      ((null dois)
-;;       (message "No doi found in %s" pdf))
-;;      ((= 1 (length dois))
-;;       (doi-utils-add-bibtex-entry-from-doi
-;;        (car dois)
-;;        (buffer-file-name)))
-;;      ;; Multiple DOIs found
-;;      (t
-;;       (helm :sources `((name . "Select a DOI")
-;; 		       (candidates . ,(org-ref-pdf-doi-candidates dois))
-;; 		       (action . org-ref-pdf-add-dois)))))))
-
-;; This isn't very flexible, as it hijacks all drag-n-drop events. I switched to
-;; using `dnd-protocol-alist'.
-;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'org-ref-pdf-dnd-func)
-
-;; This is what the original dnd function was.
-;; (define-key bibtex-mode-map (kbd "<drag-n-drop>") 'ns-drag-n-drop)
-
-
-;; I replaced the functionality above with this new approach that leverages
-;; ns-drag-n-drop. An alternative approach would be to adapt the function above
-;; so that if the item dragged on wasn't a pdf, it would use another function.
-;; that is essentially what ns-drag-n-drop enables, multiple handlers for
-;; different uris that get dropped on the windwo.
-
-(defun org-ref-pdf-dnd-protocol (uri action)
-  "Drag-n-drop protocol.
-PDF will be a string like file:path.
-ACTION is what to do. It is required for `dnd-protocol-alist'.
-This function should only apply when in a bibtex file."
-  (if (and (buffer-file-name)
-	   (f-ext? (buffer-file-name) "bib"))
-      (let* ((path (substring uri 5))
-	     dois)
-	(cond
-	 ((f-ext? path "pdf")
-	  (setq dois (org-ref-extract-doi-from-pdf
-		      path))
-	  (cond
-	   ((null dois)
-	    (message "No doi found in %s" path)
-	    nil)
-	   ((= 1 (length dois))
-	    ;; we do not need to get the pdf, since we have one.
-	    (let ((doi-utils-download-pdf nil))
-	      (doi-utils-add-bibtex-entry-from-doi
-	       (car dois)
-	       (buffer-file-name))
-	      ;; we should copy the pdf to the pdf directory though
-	      (let ((key (cdr (assoc "=key=" (bibtex-parse-entry)))))
-	      	(copy-file (dnd-unescape-uri path) (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))))
-	    action)
-	   ;; Multiple DOIs found
-	   (t
-	    (helm :sources `((name . "Select a DOI")
-			     (candidates . ,(org-ref-pdf-doi-candidates dois))
-			     (action . org-ref-pdf-add-dois)))
-	    action)))
-	 ;; drag a bib file on and add contents to the end of the file.
-	 ((f-ext? path "bib")
-	  (goto-char (point-max))
-	  (insert "\n")
-	  (insert-file-contents path))))
-    ;; ignoring. pass back to dnd. Copied from `org-download-dnd'. Apparently
-    ;; returning nil does not do this.
-    (let ((dnd-protocol-alist
-           (rassq-delete-all
-            'org-ref-pdf-dnd-protocol
-            (copy-alist dnd-protocol-alist))))
-      (dnd-handle-one-url nil action uri))))
-
-
-(add-to-list 'dnd-protocol-alist '("^file:" . org-ref-pdf-dnd-protocol))
-
-
-;;;###autoload
-(defun org-ref-pdf-dir-to-bibtex (bibfile directory)
-  "Create BIBFILE from pdf files in DIRECTORY."
-  (interactive (list
-		(read-file-name "Bibtex file: ")
-		(read-directory-name "Directory: ")))
-  (find-file bibfile)
-  (goto-char (point-max))
-
-  (cl-loop for pdf in (f-entries directory (lambda (f) (f-ext? f "pdf")))
-	   do
-	   (goto-char (point-max))
-	   (let ((dois (org-ref-extract-doi-from-pdf pdf)))
-	     (cond
-	      ((null dois)
-	       (insert (format "%% No doi found to create entry in %s.\n" pdf)))
-	      ((= 1 (length dois))
-	       (doi-utils-add-bibtex-entry-from-doi
-		(car dois)
-		(buffer-file-name))
-	       (bibtex-beginning-of-entry)
-	       (insert (format "%% [[file:%s]]\n" pdf)))
-	      ;; Multiple DOIs found
-	      (t
-	       (insert (format "%% Multiple dois found in %s\n" pdf))
-	       (helm :sources `((name . "Select a DOI")
-				(candidates . ,(org-ref-pdf-doi-candidates dois))
-				(action . org-ref-pdf-add-dois))))))))
 
 
 ;;;###autoload
