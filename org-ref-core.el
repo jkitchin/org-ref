@@ -215,30 +215,6 @@ function in `org-ref-completion-library'."
   :group 'org-ref)
 
 
-(defcustom org-ref-bibliography-entry-format
-  '(("article" . "%a, %t, <i>%j</i>, <b>%v(%n)</b>, %p (%y). <a href=\"%U\">link</a>. <a href=\"http://dx.doi.org/%D\">doi</a>.")
-
-    ("book" . "%a, %t, %u (%y).")
-    ("techreport" . "%a, %t, %i, %u (%y).")
-    ("proceedings" . "%e, %t in %S, %u (%y).")
-    ("inproceedings" . "%a, %t, %p, in %b, edited by %e, %u (%y)"))
-  "String to format an entry.
-Just the reference, no numbering at the beginning, etc... see the
-`org-ref-reftex-format-citation' docstring for the escape codes."
-  :type '(alist :key-type (string) :value-type (string))
-  :group 'org-ref)
-
-
-
-(defcustom org-ref-ref-html "<a class='org-ref-reference' href=\"#%s\">%s</a>"
-  "HTML code to represent a reference.
-Note: you can't really change this, it is used in a format later
-with two arguments that are both the key. I don't know a way to
-make this more flexible at the moment. It is only used in the
-export of cite links right now."
-  :type 'string
-  :group 'org-ref)
-
 
 (defcustom org-ref-clean-bibtex-key-function
   (lambda (key)
@@ -632,78 +608,7 @@ Supported backends: 'html, 'latex, 'ascii, 'org, 'md, 'pandoc" type type)
 		 (mapconcat
 		  (lambda (key) key)
 		  (org-ref-split-and-strip-string keyword) ",")
-		 "}")))
-      ;; simple format for odt.
-      ((eq format 'odt)
-       (format "[%s]" keyword))
-
-      ((eq format 'md)
-       (mapconcat (lambda (key)
-                    ;; this is an html link that has an anchor to jump back to,
-                    ;; and links to the entry in the bibliography. Also contains
-                    ;; a tooltip.
-		    (format "<sup id=\"%s\"><a href=\"#%s\" title=\"%s\">%s</a></sup>"
-                            ;; this makes an anchor to return to
-			    (md5 key)
-			    key
-                            ;; awful way to get a simple tooltip... I just need
-                            ;; a simple formatted string, but the default has
-                            ;; too much html stuff in it, and this needs to be
-                            ;; cleaned of quotes and stuff,
-			    (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-				  (file) (entry) (bibtex-entry) (entry-type) (format)
-				  (org-ref-bibliography-entry-format
-				   '(("article" . "%a, %t, %j, v(%n), %p (%y).")
-				     ("book" . "%a, %t, %u (%y).")
-				     ("techreport" . "%a, %t, %i, %u (%y).")
-				     ("proceedings" . "%e, %t in %S, %u (%y).")
-				     ("inproceedings" . "%a, %t, %p, in %b, edited by %e, %u (%y)"))))
-			      (setq file (catch 'result
-					   (cl-loop for file in org-ref-bibliography-files do
-						    (if (org-ref-key-in-file-p key (file-truename file))
-							(throw 'result file)
-						      (message "%s not found in %s"
-							       key (file-truename file))))))
-			      (if file
-				  (with-temp-buffer
-				    (insert-file-contents file)
-				    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-				    (bibtex-search-entry key nil 0)
-				    (setq bibtex-entry (bibtex-parse-entry))
-                                    ;; downcase field names so they work in the format-citation code
-				    (dolist (cons-cell bibtex-entry)
-				      (setf (car cons-cell) (downcase (car cons-cell))))
-				    (setq entry-type (downcase (cdr (assoc "=type=" bibtex-entry))))
-
-				    (setq format (cdr (assoc entry-type org-ref-bibliography-entry-format)))
-				    (if format
-					(setq entry  (org-ref-reftex-format-citation bibtex-entry format))
-				      ;; if no format, we use the bibtex entry itself as a fallback
-				      (save-restriction
-					(bibtex-narrow-to-entry)
-					(setq entry (buffer-string)))))
-				"Key not found")
-			      (replace-regexp-in-string "\"" "" (htmlize-escape-or-link entry)))
-			    key))
-		  (s-split "," keyword) "<sup>,</sup>"))
-      ;; for  pandoc we generate pandoc citations
-      ((eq format 'pandoc)
-       (cond
-	(desc ;; pre and or post text
-	 (let* ((text (split-string desc "::"))
-		(pre (car text))
-		(post (cadr text)))
-	   (concat
-	    (format "[@%s," keyword)
-	    (when pre (format " %s" pre))
-	    (when post (format ", %s" post))
-	    "]")))
-	(t
-	 (format "[%s]"
-		 (mapconcat
-		  (lambda (key) (concat "@" key))
-		  (org-ref-split-and-strip-string keyword)
-		  "; "))))))))
+		 "}"))))))
 
 
 (defun org-ref-format-citation-description (desc)
@@ -718,56 +623,6 @@ text]]."
       (format "[%s][%s]" (nth 0 results) (nth 1 results))))
    (t (format "[%s]" desc))))
 
-
-(defun org-ref-bibtex-store-link ()
-  "Store a link from a bibtex file. Only supports the cite link.
-This essentially the same as the store link in org-bibtex, but it
-creates a cite link."
-  (when (eq major-mode 'bibtex-mode)
-    (let* ((entry (mapcar
-		   ;; repair strings enclosed in "..." or {...}
-		   (lambda(c)
-		     (if (string-match
-			  "^\\(?:{\\|\"\\)\\(.*\\)\\(?:}\\|\"\\)$" (cdr c))
-			 (cons (car c) (match-string 1 (cdr c))) c))
-		   (save-excursion
-		     (bibtex-beginning-of-entry)
-		     (bibtex-parse-entry))))
-	   (link (concat "cite:" (cdr (assoc "=key=" entry)))))
-      (org-store-link-props
-       :key (cdr (assoc "=key=" entry))
-       :author (or (cdr (assoc "author" entry)) "[no author]")
-       :editor (or (cdr (assoc "editor" entry)) "[no editor]")
-       :title (or (cdr (assoc "title" entry)) "[no title]")
-       :booktitle (or (cdr (assoc "booktitle" entry)) "[no booktitle]")
-       :journal (or (cdr (assoc "journal" entry)) "[no journal]")
-       :publisher (or (cdr (assoc "publisher" entry)) "[no publisher]")
-       :pages (or (cdr (assoc "pages" entry)) "[no pages]")
-       :url (or (cdr (assoc "url" entry)) "[no url]")
-       :year (or (cdr (assoc "year" entry)) "[no year]")
-       :month (or (cdr (assoc "month" entry)) "[no month]")
-       :address (or (cdr (assoc "address" entry)) "[no address]")
-       :volume (or (cdr (assoc "volume" entry)) "[no volume]")
-       :number (or (cdr (assoc "number" entry)) "[no number]")
-       :annote (or (cdr (assoc "annote" entry)) "[no annotation]")
-       :series (or (cdr (assoc "series" entry)) "[no series]")
-       :abstract (or (cdr (assoc "abstract" entry)) "[no abstract]")
-       :btype (or (cdr (assoc "=type=" entry)) "[no type]")
-       :type "bibtex"
-       :link link
-       :description (let ((bibtex-autokey-names 1)
-			  (bibtex-autokey-names-stretch 1)
-			  (bibtex-autokey-name-case-convert-function 'identity)
-			  (bibtex-autokey-name-separator " & ")
-			  (bibtex-autokey-additional-names " et al.")
-			  (bibtex-autokey-year-length 4)
-			  (bibtex-autokey-name-year-separator " ")
-			  (bibtex-autokey-titlewords 3)
-			  (bibtex-autokey-titleword-separator " ")
-			  (bibtex-autokey-titleword-case-convert-function 'identity)
-			  (bibtex-autokey-titleword-length 'infty)
-			  (bibtex-autokey-year-title-separator ": "))
-		      (setq org-bibtex-description (bibtex-generate-autokey)))))))
 
 
 ;; This suppresses showing the warning buffer. bibtex-completion seems to make this
