@@ -14,19 +14,9 @@ format. Otherwise return a  citation string from `org-ref-get-bibtex-entry-citat
 ;;** Open pdf in bibtex entry
 ;;;###autoload
 (defun org-ref-open-bibtex-pdf ()
-  "Open pdf for a bibtex entry, if it exists.
-assumes point is in
-the entry of interest in the bibfile.  but does not check that."
+  "Open pdf for a bibtex entry, if it exists."
   (interactive)
-  (save-excursion
-    (bibtex-beginning-of-entry)
-    (let* ((bibtex-expand-strings t)
-           (entry (bibtex-parse-entry t))
-           (key (reftex-get-bib-field "=key=" entry))
-           (pdf (funcall org-ref-get-pdf-filename-function key)))
-      (if (file-exists-p pdf)
-          (org-open-link-from-string (format "[[file:%s]]" pdf))
-        (ding)))))
+  (bibtex-completion-open-pdf (list (bibtex-completion-get-key-bibtex))))
 
 
 ;;** Open notes from bibtex entry
@@ -34,24 +24,7 @@ the entry of interest in the bibfile.  but does not check that."
 (defun org-ref-open-bibtex-notes ()
   "From a bibtex entry, open the notes if they exist."
   (interactive)
-  (bibtex-beginning-of-entry)
-  (let* ((cb (current-buffer))
-         (bibtex-expand-strings t)
-         (entry (cl-loop for (key . value) in (bibtex-parse-entry t)
-                         collect (cons (downcase key) (s-collapse-whitespace value))))
-         (key (reftex-get-bib-field "=key=" entry)))
-
-    ;; Issue 746. If the bibtex file is not in `org-ref-default-bibliography'
-    ;; you get an error. I think it is ok to just add this in a let-binding. I
-    ;; don't think duplicates matter, and this will eliminate issue 746 in part.
-    ;; You still need to have a bibliography file listed in the notes buffer,
-    ;; and this does not automatically do that.
-    (let* ((this-bib (buffer-file-name (current-buffer)))
-	   (org-ref-default-bibliography (append
-					  (list
-					   this-bib)
-					  org-ref-default-bibliography)))
-      (funcall org-ref-notes-function key))))
+  (bibtex-completion-edit-notes (list (bibtex-completion-get-key-bibtex))))
 
 
 ;;** Open bibtex entry in browser
@@ -59,21 +32,7 @@ the entry of interest in the bibfile.  but does not check that."
 (defun org-ref-open-in-browser ()
   "Open the bibtex entry at point in a browser using the url field or doi field."
   (interactive)
-  (save-excursion
-    (bibtex-beginning-of-entry)
-    (catch 'done
-      (let ((url (bibtex-autokey-get-field "url")))
-        (when  url
-          (browse-url url)
-          (throw 'done nil)))
-
-      (let ((doi (bibtex-autokey-get-field "doi")))
-        (when doi
-          (if (string-match "^http" doi)
-              (browse-url doi)
-            (browse-url (format "http://dx.doi.org/%s" doi)))
-          (throw 'done nil)))
-      (message "No url or doi found"))))
+  (bibtex-completion-open-url-or-doi (list (bibtex-completion-get-key-bibtex))))
 
 
 ;;** Build a pdf of the bibtex file
