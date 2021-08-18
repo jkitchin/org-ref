@@ -30,26 +30,14 @@
 "tests/test-1.bib"
 (file-name-directory (locate-library "org-ref")))))))
 
-(ert-deftest or-key-file ()
-"Check we find a key in a file"
-(should
-(equal
-(cons "kitchin-2015-examp" (expand-file-name
-"tests/test-1.bib"
-(file-name-directory
-(locate-library "org-ref"))))
-(let ((org-ref-default-bibliography (list (expand-file-name
-"tests/test-1.bib"
-(file-name-directory
-(locate-library "org-ref"))))))
-(org-ref-get-bibtex-key-and-file "kitchin-2015-examp")))))
+
 
 (ert-deftest swap-1 ()
-"org swap test"
-(should
-(equal
-'(b a)
-(org-ref-swap-keys 0 1 '(a b)))))
+  "org swap test"
+  (should
+   (equal
+    '(b a)
+    (org-ref-swap-keys 0 1 '(a b)))))
 
 (ert-deftest swap-2 ()
 "org swap test"
@@ -293,28 +281,18 @@ label:one
 (locate-library "org-ref"))))
 (org-ref-find-bibliography)))))
 
-(ert-deftest orfb-4 ()
-"getting default bibfile in file with no bib specification."
-(should
-(equal
-(list (file-truename "test.bib"))
-(mapcar 'file-truename
-(org-test-with-temp-text
-""
-(let ((org-ref-default-bibliography '("test.bib")))
-(org-ref-find-bibliography)))))))
 
 (ert-deftest unique-keys ()
-(should
-(equal '("kitchin-2008-alloy" "kitchin-2004-role")
-(org-test-with-temp-text
-"cite:kitchin-2008-alloy,kitchin-2004-role
+  (should
+   (equal '("kitchin-2008-alloy" "kitchin-2004-role")
+	  (org-test-with-temp-text
+	   "cite:kitchin-2008-alloy,kitchin-2004-role
 
 cite:kitchin-2004-role
 
 bibliography:tests/test-1.bib
 "
-(org-ref-get-bibtex-keys)))))
+	   (org-ref-get-bibtex-keys)))))
 
 (ert-deftest unique-keys-sort ()
 (should

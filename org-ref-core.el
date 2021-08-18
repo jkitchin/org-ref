@@ -470,12 +470,12 @@ properties."
 	link-string))))
 
 
+;; TODO : this could be a lot cleaner I think
 (defun org-ref-find-bibliography ()
   "Find the bibliography in the buffer.
-This function sets and returns cite-bibliography-files, which is
-a list of files either from }, internal bibliographies, from files in the
+This function sets and returns a list of files either from internal bibliographies, from files in the
 BIBINPUTS env var, and finally falling back to what the user has
-set in `org-ref-default-bibliography'"
+set in `bibtex-completion-bibliography'"
   (catch 'result
     ;; If you call this in a bibtex file, assume we want this file
     (when (and buffer-file-name (f-ext? buffer-file-name "bib"))
@@ -779,27 +779,11 @@ creates a cite link."
 (add-to-list 'warning-suppress-types '(:warning))
 
 
-(defvar org-ref-buffer-hacked nil
-  "If non-nil this buffer has already been hacked and we don't need to do it again.
-I use this so we only hack the variables once. This was added
-because when you have local file/directory variables, it seems
-like they don't get defined when font-lock is occurring, and it
-results in warnings from `bibtex-completion' because it cannot
-find the keys in the bibliographies. Doing this hack and the one
-in `org-ref-cite-link-face-fn' makes the warnings go away. It
-seems hacky, but the functions that fix it start with hack
-so...")
-
-(make-variable-buffer-local 'org-ref-buffer-hacked)
 
 (defun org-ref-cite-link-face-fn (keys)
   "Return a face for a cite link.
 KEYS may be a comma-separated list of keys.
 This is not smart enough yet to only highlight the bad key. If any key is bad, the whole cite will be red."
-  (unless org-ref-buffer-hacked
-    (hack-dir-local-variables)
-    (hack-local-variables-apply)
-    (setq org-ref-buffer-hacked t))
 
   (save-match-data
     (cond

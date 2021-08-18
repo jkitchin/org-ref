@@ -11,11 +11,6 @@
 
 (package-install 'org-ref)
 
-(setq org-ref-default-bibliography '("./references.bib")
-      org-ref-pdf-directory "./bibtex-pdfs/")
-
-(unless (file-exists-p org-ref-pdf-directory)
-  (make-directory org-ref-pdf-directory t))
 
 (setq org-src-fontify-natively t
       org-confirm-babel-evaluate nil
