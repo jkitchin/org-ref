@@ -1,3 +1,42 @@
+(defcustom org-ref-clean-bibtex-entry-hook
+  '(org-ref-bibtex-format-url-if-doi
+    orcb-key-comma
+    org-ref-replace-nonascii
+    orcb-&
+    orcb-%
+    org-ref-title-case-article
+    orcb-clean-year
+    orcb-key
+    orcb-clean-doi
+    orcb-clean-pages
+    orcb-check-journal
+    org-ref-sort-bibtex-entry
+    orcb-fix-spacing)
+  "Hook that is run in `org-ref-clean-bibtex-entry'.
+The functions should have no arguments, and
+operate on the bibtex entry at point. You can assume point starts
+at the beginning of the entry. These functions are wrapped in
+`save-restriction' and `save-excursion' so you do not need to
+save the point position.
+
+Org ref contains some functions that are not included by default
+such as `orcb-clean-nil' or `orcb-clean-nil-opinionated' that
+users may be interested in adding themselves."
+  :group 'org-ref
+  :type 'hook)
+
+
+(defcustom org-ref-bibtex-sort-order
+  '(("article"  . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
+    ("inproceedings" . ("author" "title" "booktitle" "year" "volume" "number" "pages" "doi" "url"))
+    ("book" . ("author" "title" "year" "publisher" "url")))
+  "A-list of bibtex entry fields and the order to sort an entry with.
+\(entry-type . (list of fields). This is used in
+`org-ref-sort-bibtex-entry'. Entry types not listed here will
+have fields sorted alphabetically."
+  :type '(alist :key-type (string) :value-type (repeat string))
+  :group 'org-ref)
+
 ;;** create text citations from a bibtex entry
 
 (defun org-ref-bib-citation ()
