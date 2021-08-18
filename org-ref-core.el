@@ -70,14 +70,6 @@ used by the LaTeX exporter."
   :group 'org-ref)
 
 
-(defcustom org-ref-pdf-directory
-  nil
-  "Directory where pdfs are stored by key.
-Put a trailing / in the name."
-  :type '(choice directory (repeat directory))
-  :group 'org-ref)
-
-
 (defcustom org-ref-default-citation-link
   "cite"
   "The default type of citation link to use."
