@@ -340,18 +340,6 @@ http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   :group 'org-ref)
 
 
-(defcustom org-ref-ref-types
-  '("ref" "eqref" "pageref" "nameref" "autoref" "cref" "Cref")
-  "List of ref link types."
-  :type '(repeat :tag "List of ref types" string)
-  :group 'org-ref)
-
-
-(defcustom org-ref-default-ref-type "ref"
-  "Default ref link type to use when inserting ref links"
-  :type 'string
-  :group 'org-ref)
-
 
 (defcustom org-ref-clean-bibtex-entry-hook
   '(org-ref-bibtex-format-url-if-doi
