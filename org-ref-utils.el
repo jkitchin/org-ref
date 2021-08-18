@@ -37,7 +37,6 @@
 (defvar org-ref-cite-types)
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
-(declare-function 'org-ref-key-in-file-p "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 (declare-function 'org-ref-bib-citation "org-ref-core.el")
 (declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
@@ -95,7 +94,7 @@ Opens https://github.com/jkitchin/org-ref/issues/new."
   (browse-url "https://github.com/jkitchin/org-ref/issues/new"))
 
 
-;;* Debug(require 'org-ref-pdf)
+;;* Debug
 (defmacro ords (&rest body)
   "Evaluate BODY and return a string."
   `(format "%s" (progn ,@body)))
@@ -483,6 +482,7 @@ Assumes the key-string is comma delimited."
   (mapcar 'org-ref-strip-string (split-string string ",")))
 
 
+;; TODO this will be wrong
 (defun org-ref-get-bibtex-keys (&optional sort)
   "Return a list of unique keys in the buffer.
 Use SORT to specify alphabetical order by key."

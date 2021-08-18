@@ -1,3 +1,12 @@
+(defcustom org-ref-clean-bibtex-key-function
+  (lambda (key)
+    (replace-regexp-in-string ":" "" key))
+  "Function to modify a bibtex key.
+The default behavior is to remove : from the key."
+  :type 'function
+  :group 'org-ref)
+
+
 (defcustom org-ref-clean-bibtex-entry-hook
   '(org-ref-bibtex-format-url-if-doi
     orcb-key-comma
