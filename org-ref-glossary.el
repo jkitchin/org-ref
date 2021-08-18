@@ -356,39 +356,6 @@ Used in fontification."
 	 (buffer-string))))))
 
 
-(unless (fboundp 'org-link-set-parameters)
-  (defun or-next-glossary-link (limit)
-    "Search to next glossary link up to LIMIT.
-Adds a tooltip to the link that is found."
-    (when (and (re-search-forward
-		(concat
-		 (regexp-opt '("gls" "glspl"
-			       "Gls" "Glspl"
-			       "glslink"
-			       "glssymbol"
-			       "glsdesc"))
-		 ":[a-zA-Z]\\{2,\\}")
-		limit t)
-	       (not (org-in-src-block-p))
-	       (not (org-at-comment-p)))
-      (forward-char -2)
-      (let ((next-link (org-element-context)))
-	(if next-link
-	    (progn
-	      (set-match-data (list (org-element-property :begin next-link)
-				    (- (org-element-property :end next-link)
-				       (org-element-property :post-blank next-link))))
-	      (add-text-properties
-	       (org-element-property :begin next-link)
-	       (- (org-element-property :end next-link)
-		  (org-element-property :post-blank next-link))
-	       (list
-		'help-echo 'or-glossary-tooltip))
-	      (goto-char (org-element-property :end next-link)))
-	  (goto-char limit)
-	  nil)))))
-
-
 ;; ** exporting with a glossary table
 (defun org-ref-glossary-before-parsing (backend)
   "Function to preprocess a glossary table on export.
@@ -593,37 +560,6 @@ WINDOW and OBJECT are ignored."
 	   abbrv full)
 	(format "%s is not defined in this file." label)))))
 
-
-;; We use search instead of a regexp to match links with descriptions. These are
-;; hard to do with regexps.
-(unless (fboundp 'org-link-set-parameters)
-  (defun or-next-acronym-link (limit)
-    "Search to next acronym link up to LIMIT and add a tooltip."
-    (when (and (re-search-forward
-		(concat
-		 (regexp-opt '("acrshort" "acrfull" "acrlong" "ac" "Ac" "acp" "Acp"))
-		 ":[a-zA-Z]\\{2,\\}")
-		limit t)
-	       (not (org-in-src-block-p))
-	       (not (org-at-comment-p)))
-      (save-excursion
-	(forward-char -2)
-	(let ((next-link (org-element-context)))
-	  (if next-link
-	      (progn
-		(set-match-data
-		 (list (org-element-property :begin next-link)
-		       (- (org-element-property :end next-link)
-			  (org-element-property :post-blank next-link))))
-		(add-text-properties
-		 (org-element-property :begin next-link)
-		 (- (org-element-property :end next-link)
-		    (org-element-property :post-blank next-link))
-		 (list
-		  'help-echo 'or-acronym-tooltip))
-		(goto-char (org-element-property :end next-link)))
-	    (goto-char limit)
-	    nil))))))
 
 ;; ** Exporting with an acronym table
 (defun org-ref-acronyms-before-parsing (backend)
