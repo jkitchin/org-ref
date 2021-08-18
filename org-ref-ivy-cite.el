@@ -52,7 +52,6 @@ Set to `ivy-display-function-overlay' to get popups at point."
 
 
 (defvar org-ref-cite-types)
-(defvar org-ref-show-citation-on-enter)
 
 (defvar org-ref-ivy-cite-marked-candidates '()
   "Holds entries marked in `org-ref-ivy-insert-cite-link'.")

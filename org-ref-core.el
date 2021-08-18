@@ -322,24 +322,6 @@ http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   "Variable to hold bibliography files to be searched.")
 
 
-(defcustom org-ref-show-broken-links t
-  "If non-nil show bad org-ref links in a warning face."
-  :type 'boolean
-  :group 'org-ref)
-
-
-(defcustom org-ref-enable-colon-insert nil
-  "If non-nil enable colon to insert cites, labels, and ref links."
-  :type 'booleanp
-  :group 'org-ref)
-
-
-
-
-
-
-
-
 (defun org-ref-change-cite-type (new-type)
   "Change the cite type to NEW-TYPE."
   (interactive (list (completing-read "Type: " org-ref-cite-types)))
@@ -358,102 +340,6 @@ http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf"
 	   (if bracketp "]]" "")))
     ;; try to preserve the character the point is on.
     (goto-char (+ begin deltap (- (length new-type) (length old-type))))))
-
-
-
-
-
-
-;;* Messages for link at cursor
-
-(defvar org-ref-message-timer nil
-  "Variable to store the link message timer in.")
-
-
-;;;###autoload
-(defun org-ref-show-link-messages ()
-  "Turn on link messages.
-You will see a message in the minibuffer when on a cite, ref or
-label link."
-  (interactive)
-  (or org-ref-message-timer
-      (setq org-ref-message-timer
-            (run-with-idle-timer 0.5 t 'org-ref-link-message)
-	    org-ref-show-citation-on-enter t)))
-
-
-;;;###autoload
-(defun org-ref-cancel-link-messages ()
-  "Stop showing messages in minibuffer when on a link."
-  (interactive)
-  (cancel-timer org-ref-message-timer)
-  (setq org-ref-message-timer nil
-	org-ref-show-citation-on-enter nil))
-
-
-(when org-ref-show-citation-on-enter
-  (org-ref-show-link-messages))
-
-
-;;** Messages for context under mouse pointer
-
-(defvar org-ref-last-mouse-pos nil
-  "Stores last mouse position for use in `org-ref-mouse-message'.")
-
-
-(defun org-ref-can-move-p ()
-  "See if a character is under the mouse.
-If so return the position for `goto-char'."
-  (let* ((line (cddr org-ref-last-mouse-pos))
-         (col  (cadr org-ref-last-mouse-pos)))
-    (save-excursion
-      (goto-char (window-start))
-      (forward-line line)
-      (if
-          (> (- (line-end-position) (line-beginning-position)) col)
-          (progn  (forward-char col) (point))
-        nil))))
-
-
-;;;###autoload
-(defun org-ref-mouse-message ()
-  "Display message for link under mouse cursor."
-  (interactive)
-  (when (not (equal (mouse-position) org-ref-last-mouse-pos))
-    (setq org-ref-last-mouse-pos (mouse-position))
-    (let ((p (org-ref-can-move-p)))
-      (when p
-        (save-excursion
-          (goto-char p)
-          (org-ref-link-message))))))
-
-
-(defvar org-ref-message-timer-mouse nil
-  "Store mouse timer.")
-
-
-(defvar org-ref-mouse-message-interval 0.5
-  "How often to run the mouse message timer in seconds.")
-
-
-;;;###autoload
-(defun org-ref-mouse-messages-on ()
-  "Turn on mouse messages."
-  (interactive)
-  (or org-ref-message-timer-mouse
-      (setq org-ref-message-timer-mouse
-            (run-at-time "0.5 sec"
-                         org-ref-mouse-message-interval
-                         'org-ref-mouse-message))))
-
-
-;;;###autoload
-(defun org-ref-mouse-messages-off ()
-  "Turn off mouse messages."
-  (interactive)
-  (cancel-timer org-ref-message-timer-mouse)
-  (setq org-ref-message-timer-mouse nil)
-  (message "Mouse messages are off"))
 
 
 

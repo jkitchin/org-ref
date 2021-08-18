@@ -237,43 +237,6 @@ You can specify the default ref link type in `org-ref-default-ref-type'.
 
 org-ref provides clickable links for a list-of-tables:nil and list-of-figures:nil. We have to put some text in the link, anything will do. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
 
-*** Controlling link messages and tooltips
-
-Org-ref is setup to provide messages in the minibuffer when your cursor is on a link, and tooltips when your mouse hovers over a link. If this is distracting you can turn it off by putting this in your init file:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-show-citation-on-enter nil)
-#+END_SRC
-
-Alternatively, you can turn this on and off interactively with the commands:
-
-- org-ref-mouse-messages-on
-- org-ref-mouse-messages-off
-
-Org-ref can also be configured to show bad label,ref and cite links by setting this in your init files:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-show-broken-links t)
-#+END_SRC
-
-#+RESULTS:
-: t
-
-This may be slow in large files, so you can turn it off by setting that variable to nil.
-
-** org-ref customization of helm-bibtex
-:PROPERTIES:
-:ID:       5d7a19d3-0411-4964-9154-99af4f281015
-:END:
-index:helm-bibtex
-
-org-ref adds a few new features to helm-bibtex.
-
-First, we add =keywords= as a searchable field, and modify the helm-bibtex search buffer to include the keywords. Since keywords now can have a central role in searching, we add some functionality to add keywords from the helm-bibtex buffer as a new action.
-
-We change the order of the actions in helm-bibtex to suit our work flow, and add some new actions as well. We define a format function for org-mode that is compatible with the usage defined in section [[#citations]]. Finally, we add some new fallback options for additional scientific search engines.
-
-The =keywords= field is added onto the existing value, such that existing customization wouldn’t be lost; if you still prefer to add the field yourself, set ~org-ref-bibtex-completion-add-keywords-field~ to nil before loading org-ref.
 
 ** Some basic org-ref utilities
 [[index:bibtex!clean entry]]
