@@ -21,9 +21,8 @@
 
 ;;; Commentary:
 ;;
-;; Lisp code to setup bibliography, cite, ref and label org-mode links.
-;; Also sets up reftex and helm for org-mode citations.  The links are
-;; clickable and do things that are useful.  You should really read
+;; Lisp code to setup bibliography, cite, ref and label org-mode links. The
+;; links are clickable and do things that are useful. You should really read
 ;; org-ref.org in this package for details.
 ;;
 
@@ -124,7 +123,7 @@ Put a trailing / in the name."
 
 
 (defcustom org-ref-completion-library
-  'org-ref-helm-bibtex
+  'org-ref-ivy-cite
   "Symbol for library to define completion functions.
 The completion library should provide functions for
 `org-ref-insert-link-function', `org-ref-insert-cite-function',
@@ -132,10 +131,7 @@ The completion library should provide functions for
 and `org-ref-cite-onclick-function', and set those variables to
 the values of those functions."
   :type 'symbol
-  :options '(org-ref-helm-bibtex	; completion with helm + helm-bibtex
-	     org-ref-helm-cite		; completion with helm in org-ref
-	     org-ref-ivy-cite		; completion with ivy
-	     org-ref-reftex		; org-completion
+  :options '(org-ref-ivy-cite		; completion with ivy
 	     )
   :group 'org-ref)
 
@@ -618,22 +614,6 @@ label link."
 (when org-ref-show-citation-on-enter
   (org-ref-show-link-messages))
 
-
-;;;###autoload
-(defun org-ref-change-completion ()
-  "Change the completion backend.
-Options are \"org-ref-helm-bibtex\", \"org-ref-helm-cite\",
-\"org-ref-ivy-cite\" and \"org-ref-reftex\"."
-  (interactive)
-  (require
-   (intern
-    (completing-read "Backend: " '("org-ref-helm-bibtex"
-				   "org-ref-helm-cite"
-				   "org-ref-ivy-cite"
-				   "org-ref-reftex")
-		     nil
-		     t
-		     "org-ref-helm-cite"))))
 
 ;;** Messages for context under mouse pointer
 
@@ -1635,15 +1615,7 @@ A number greater than one means multiple labels!"
 (defun org-ref-ref-follow (label)
   "On clicking goto the LABEL.
 Navigate back with \`\\[org-mark-ring-goto]'."
-  ;; Suppress minibuffer message in helm. See `org-ref-browser'.
-  (if (and (boundp 'helm-alive-p) helm-alive-p)
-      (lambda (&optional pos buffer)
-	(setq pos (or pos (point)))
-	(setq org-mark-ring (nthcdr (1- org-mark-ring-length) org-mark-ring))
-	(move-marker (car org-mark-ring)
-		     (or pos (point))
-		     (or buffer (current-buffer))))
-    (org-mark-ring-push))
+  (org-mark-ring-push)
   ;; next search from beginning of the buffer it is possible you would not find
   ;; the label if narrowing is in effect
   (widen)
@@ -1696,9 +1668,8 @@ Navigate back with \`\\[org-mark-ring-goto]'."
     (org-mark-ring-goto)
     (error "%s not found" label))
   (org-show-entry)
-  (unless (and (boundp 'helm-alive-p) helm-alive-p)
-    (substitute-command-keys
-     "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'.")))
+  (substitute-command-keys
+   "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'."))
 
 
 (defun org-ref-complete-link (&optional arg type)
@@ -2611,7 +2582,7 @@ creates a cite link."
 		      (setq org-bibtex-description (bibtex-generate-autokey)))))))
 
 
-;; This suppresses showing the warning buffer. helm-bibtex seems to make this
+;; This suppresses showing the warning buffer. bibtex-completion seems to make this
 ;; pop up in an irritating way.
 (unless (boundp 'warning-suppress-types)
   (require 'warnings))
