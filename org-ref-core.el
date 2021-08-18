@@ -59,15 +59,15 @@
   :group 'org)
 
 
-(defcustom org-ref-default-bibliography
-  nil
-  "List of bibtex files to search for.
-You should use full-paths for each file. Note that you must
-include a bibliography link in your document if you will be
-exporting it to pdf; org-ref-default-bibliography is not
-used by the LaTeX exporter."
-  :type '(repeat :tag "List of bibtex files" file)
-  :group 'org-ref)
+;; (defcustom org-ref-default-bibliography
+;;   nil
+;;   "List of bibtex files to search for.
+;; You should use full-paths for each file. Note that you must
+;; include a bibliography link in your document if you will be
+;; exporting it to pdf; org-ref-default-bibliography is not
+;; used by the LaTeX exporter."
+;;   :type '(repeat :tag "List of bibtex files" file)
+;;   :group 'org-ref)
 
 
 (defcustom org-ref-default-citation-link
@@ -512,8 +512,6 @@ set in `bibtex-completion-bibliography'"
       (setq org-ref-bibliography-files org-ref-default-bibliography)))
 
 
-  ;; set reftex-default-bibliography so we can search
-  (set (make-local-variable 'reftex-default-bibliography) org-ref-bibliography-files)
   org-ref-bibliography-files)
 
 
@@ -537,7 +535,7 @@ set in `bibtex-completion-bibliography'"
 		     (and (not (string-match "#" f))
 			  (f-ext? f "bib"))))
     ;; and last in the default bibliography
-    org-ref-default-bibliography)))
+    bibtex-completion-bibliography)))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
@@ -688,7 +686,7 @@ citez link, with reftex key of z, and the completion function."
    :face 'org-ref-cite-link-face-fn
    :display 'full
    :keymap org-ref-cite-keymap)
-
+  g
 
 
   ;; create the completion function

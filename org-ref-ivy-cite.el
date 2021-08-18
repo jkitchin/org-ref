@@ -396,19 +396,19 @@ If candidate is already in, remove it."
 (defun org-ref-ivy-insert-cite-link (&optional arg)
   "ivy function for interacting with bibtex.
 Uses `org-ref-find-bibliography' for bibtex sources, unless a
-prefix ARG is used, which uses `org-ref-default-bibliography'."
+prefix ARG is used, which uses `bibtex-completion-bibliography'."
   (interactive "P")
-  (setq org-ref-bibtex-files (if arg
-				 org-ref-default-bibliography
-			       (org-ref-find-bibliography)))
-  (setq org-ref-ivy-cite-marked-candidates '())
+  (let ((org-ref-bibtex-files (if arg
+				  bibtex-completion-bibliography
+				(org-ref-find-bibliography)))
+	(org-ref-ivy-cite-marked-candidates '()))
 
-  (ivy-read "Open: " (orhc-bibtex-candidates)
-	    :require-match t
-	    :keymap org-ref-ivy-cite-keymap
-	    :re-builder org-ref-ivy-cite-re-builder
-	    :action 'or-ivy-bibtex-insert-cite
-	    :caller 'org-ref-ivy-insert-cite-link))
+    (ivy-read "Open: " (orhc-bibtex-candidates)
+	      :require-match t
+	      :keymap org-ref-ivy-cite-keymap
+	      :re-builder org-ref-ivy-cite-re-builder
+	      :action 'or-ivy-bibtex-insert-cite
+	      :caller 'org-ref-ivy-insert-cite-link)))
 
 
 (defun org-ref-ivy-cite-transformer (s)

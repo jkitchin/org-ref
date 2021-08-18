@@ -36,9 +36,6 @@
 
 ;;; Code:
 
-(defvar org-ref-pdf-directory)
-(defvar org-ref-default-bibliography)
-(defvar reftex-default-bibliography)
 (defvar url-http-end-of-headers)
 (declare-function org-ref-bib-citation "org-ref-core")
 (declare-function org-ref-find-bibliography "org-ref-core")
@@ -924,8 +921,7 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
 ;;;###autoload
 (defun doi-utils-add-bibtex-entry-from-doi (doi &optional bibfile)
   "Add DOI entry to end of a file in the current directory.
-Pick the file ending with .bib or in
-`org-ref-default-bibliography'.  If you have an active region that
+Pick the file ending with .bib or in .  If you have an active region that
 starts like a DOI, that will be the initial prompt.  If no region
 is selected and the first entry of the ‘kill-ring’ starts like a
 DOI, then that is the intial prompt.  Otherwise, you have to type
