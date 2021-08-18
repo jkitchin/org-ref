@@ -48,17 +48,17 @@
 ;;* The org-mode link
 ;; this just makes a clickable link that opens the entry.
 ;; example: arxiv:cond-mat/0410285
-(org-ref-link-set-parameters "arxiv"
-  :follow (lambda (link-string)
-            (browse-url (format "http://arxiv.org/abs/%s" link-string)))
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'html)
-              (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>"
-                       keyword  (or desc keyword)))
-             ((eq format 'latex)
-              ;; write out the latex command
-              (format "\\url{http://arxiv.org/abs/%s}{%s}" keyword (or desc keyword))))))
+(org-link-set-parameters "arxiv"
+			 :follow (lambda (link-string)
+				   (browse-url (format "http://arxiv.org/abs/%s" link-string)))
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'html)
+				     (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>"
+					      keyword  (or desc keyword)))
+				    ((eq format 'latex)
+				     ;; write out the latex command
+				     (format "\\url{http://arxiv.org/abs/%s}{%s}" keyword (or desc keyword))))))
 
 ;;* Getting a bibtex entry for an arXiv article using remote service:
 ;; For an arxiv article, there is a link to a NASA ADS page like this:

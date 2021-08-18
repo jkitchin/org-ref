@@ -304,28 +304,28 @@ Entry gets added after the last #+latex_header line."
 
 
 (dolist (command org-ref-glossary-gls-commands)
-  (org-ref-link-set-parameters command
-    :follow #'or-follow-glossary
-    :face 'org-ref-glossary-face-fn
-    :help-echo 'or-glossary-tooltip
-    :export (lambda (path _ format)
-	      (cond
-	       ((memq format '(latex beamer))
-		(format "\\%s{%s}" command path))
-	       (t
-		(format "%s" path))))))
+  (org-link-set-parameters command
+			   :follow #'or-follow-glossary
+			   :face 'org-ref-glossary-face-fn
+			   :help-echo 'or-glossary-tooltip
+			   :export (lambda (path _ format)
+				     (cond
+				      ((memq format '(latex beamer))
+				       (format "\\%s{%s}" command path))
+				      (t
+				       (format "%s" path))))))
 
 
-(org-ref-link-set-parameters "glslink"
-  :follow #'or-follow-glossary
-  :face 'org-ref-glossary-face-fn
-  :help-echo 'or-glossary-tooltip
-  :export (lambda (path desc format)
-            (cond
-             ((memq format '(latex beamer))
-              (format "\\glslink{%s}{%s}" path desc))
-	     (t
-	      (format "%s" path)))))
+(org-link-set-parameters "glslink"
+			 :follow #'or-follow-glossary
+			 :face 'org-ref-glossary-face-fn
+			 :help-echo 'or-glossary-tooltip
+			 :export (lambda (path desc format)
+				   (cond
+				    ((memq format '(latex beamer))
+				     (format "\\glslink{%s}{%s}" path desc))
+				    (t
+				     (format "%s" path)))))
 
 
 ;;** Tooltips on glossary entries
@@ -514,16 +514,16 @@ This will run in `org-export-before-parsing-hook'."
 
 
 (dolist (mapping org-ref-glossary-acr-commands-mapping)
-  (org-ref-link-set-parameters (car mapping)
-    :follow #'or-follow-acronym
-    :face 'org-ref-acronym-face-fn
-    :help-echo 'or-acronym-tooltip
-    :export (lambda (path _ format)
-	      (cond
-	       ((memq format '(latex beamer))
-		(format "\\%s{%s}" (cdr mapping) path))
-	       (t
-		(format "%s" (upcase path)))))))
+  (org-link-set-parameters (car mapping)
+			   :follow #'or-follow-acronym
+			   :face 'org-ref-acronym-face-fn
+			   :help-echo 'or-acronym-tooltip
+			   :export (lambda (path _ format)
+				     (cond
+				      ((memq format '(latex beamer))
+				       (format "\\%s{%s}" (cdr mapping) path))
+				      (t
+				       (format "%s" (upcase path)))))))
 
 
 ;;** Tooltips on acronyms

@@ -878,14 +878,6 @@ From the PDF specification 1.7:
       nil)))
 
 
-;;;###autoload
-(defmacro org-ref-link-set-parameters (type &rest parameters)
-  "Set link TYPE properties to PARAMETERS."
-  (declare (indent 1))
-  (if (fboundp 'org-link-set-parameters)
-      `(org-link-set-parameters ,type ,@parameters)
-    `(org-add-link-type ,type ,(plist-get parameters :follow) ,(plist-get parameters :export))))
-
 
 
 ;; This section creates some code that should speed up org-ref for large files.

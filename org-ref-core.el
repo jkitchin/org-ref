@@ -926,19 +926,19 @@ font-lock-warning-face if any file does not exist."
       'font-lock-warning-face))))
 
 
-(org-ref-link-set-parameters "bibliography"
-  :follow #'org-ref-open-bibliography
-  :export #'org-ref-bibliography-format
-  :complete #'org-bibliography-complete-link
-  :help-echo (lambda (window object position)
-	       (save-excursion
-		 (goto-char position)
-		 (let ((s (org-ref-link-message)))
-		   (with-temp-buffer
-		     (insert s)
-		     (fill-paragraph)
-		     (buffer-string)))))
-  :face #'org-ref-bibliography-face-fn)
+(org-link-set-parameters "bibliography"
+			 :follow #'org-ref-open-bibliography
+			 :export #'org-ref-bibliography-format
+			 :complete #'org-bibliography-complete-link
+			 :help-echo (lambda (window object position)
+				      (save-excursion
+					(goto-char position)
+					(let ((s (org-ref-link-message)))
+					  (with-temp-buffer
+					    (insert s)
+					    (fill-paragraph)
+					    (buffer-string)))))
+			 :face #'org-ref-bibliography-face-fn)
 
 
 (defun org-ref-nobibliography-format (keyword desc format)
@@ -959,32 +959,32 @@ font-lock-warning-face if any file does not exist."
 			","))))))
 
 
-(org-ref-link-set-parameters "nobibliography"
-  :follow #'org-ref-open-bibliography
-  :export #'org-ref-nobibliography-format)
+(org-link-set-parameters "nobibliography"
+			 :follow #'org-ref-open-bibliography
+			 :export #'org-ref-nobibliography-format)
 
 
-(org-ref-link-set-parameters "printbibliography"
-  :follow #'org-ref-open-bibliography
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'org) (org-ref-get-org-bibliography))
-             ((eq format 'html) (org-ref-get-html-bibliography))
-             ((eq format 'latex)
-              ;; write out the biblatex bibliography command
-              org-ref-printbibliography-cmd))))
+(org-link-set-parameters "printbibliography"
+			 :follow #'org-ref-open-bibliography
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'org) (org-ref-get-org-bibliography))
+				    ((eq format 'html) (org-ref-get-html-bibliography))
+				    ((eq format 'latex)
+				     ;; write out the biblatex bibliography command
+				     org-ref-printbibliography-cmd))))
 
 
-(org-ref-link-set-parameters "bibliographystyle"
-  :export (lambda (keyword desc format)
-            (cond
-             ((or (eq format 'latex)
-                  (eq format 'beamer))
-              ;; write out the latex bibliography command
-              (format "\\bibliographystyle{%s}" keyword))
-             ;; Other styles should not have an output for this
-             (t
-              ""))))
+(org-link-set-parameters "bibliographystyle"
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((or (eq format 'latex)
+					 (eq format 'beamer))
+				     ;; write out the latex bibliography command
+				     (format "\\bibliographystyle{%s}" keyword))
+				    ;; Other styles should not have an output for this
+				    (t
+				     ""))))
 
 (defun org-bibliographystyle-complete-link (&optional arg)
   "Completion function for bibliography style links."
@@ -1060,14 +1060,14 @@ font-lock-warning-face if any file does not exist."
       (find-file bibfile))))
 
 
-(org-ref-link-set-parameters "addbibresource"
-  :follow #'org-ref-follow-addbibresource
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'html) (format "")) ; no output for html
-             ((eq format 'latex)
-              ;; write out the latex addbibresource command
-              (format "\\addbibresource{%s}" keyword)))))
+(org-link-set-parameters "addbibresource"
+			 :follow #'org-ref-follow-addbibresource
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'html) (format "")) ; no output for html
+				    ((eq format 'latex)
+				     ;; write out the latex addbibresource command
+				     (format "\\addbibresource{%s}" keyword)))))
 
 ;;** List of figures
 
@@ -1152,12 +1152,12 @@ Ignore figures in COMMENTED sections."
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
 
-(org-ref-link-set-parameters "list-of-figures"
-  :follow #'org-ref-list-of-figures
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'latex)
-              (format "\\listoffigures")))))
+(org-link-set-parameters "list-of-figures"
+			 :follow #'org-ref-list-of-figures
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'latex)
+				     (format "\\listoffigures")))))
 
 ;;** List of tables
 ;;;###autoload
@@ -1208,12 +1208,12 @@ ARG does nothing."
       (local-set-key "q" #'(lambda () (interactive) (kill-buffer))))))
 
 
-(org-ref-link-set-parameters "list-of-tables"
-  :follow #'org-ref-list-of-tables
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'latex)
-              (format "\\listoftables")))))
+(org-link-set-parameters "list-of-tables"
+			 :follow #'org-ref-list-of-tables
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'latex)
+				     (format "\\listoftables")))))
 
 ;;** label link
 
@@ -1363,34 +1363,34 @@ only org labels and names."
       'font-lock-warning-face))))
 
 
-(org-ref-link-set-parameters "label"
-  :follow (lambda (label)
-            "On clicking count the number of label tags used in the buffer.
+(org-link-set-parameters "label"
+			 :follow (lambda (label)
+				   "On clicking count the number of label tags used in the buffer.
 A number greater than one means multiple labels!"
-            (let ((count (org-ref-count-labels label)))
-              (message (format "%s occurence%s"
-                               count
-                               (if (or (= count 0)
-                                       (> count 1))
-                                   "s"
-                                 ""))
-                       (org-ref-count-labels label))))
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'html) (format "<div id=\"%s\"></div>" keyword))
-	     ((eq format 'md) (format "<a name=\"%s\"></a>" keyword))
-             ((eq format 'latex)
-              (format "\\label{%s}" keyword))))
-  :store #'org-ref-label-store-link
-  :face 'org-ref-label-face-fn
-  :help-echo (lambda (window object position)
-               (save-excursion
-                 (goto-char position)
-                 (let ((s (org-ref-link-message)))
-                   (with-temp-buffer
-                     (insert s)
-                     (fill-paragraph)
-                     (buffer-string))))))
+				   (let ((count (org-ref-count-labels label)))
+				     (message (format "%s occurence%s"
+						      count
+						      (if (or (= count 0)
+							      (> count 1))
+							  "s"
+							""))
+					      (org-ref-count-labels label))))
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'html) (format "<div id=\"%s\"></div>" keyword))
+				    ((eq format 'md) (format "<a name=\"%s\"></a>" keyword))
+				    ((eq format 'latex)
+				     (format "\\label{%s}" keyword))))
+			 :store #'org-ref-label-store-link
+			 :face 'org-ref-label-face-fn
+			 :help-echo (lambda (window object position)
+				      (save-excursion
+					(goto-char position)
+					(let ((s (org-ref-link-message)))
+					  (with-temp-buffer
+					    (insert s)
+					    (fill-paragraph)
+					    (buffer-string))))))
 
 ;;** ref link
 
@@ -1497,12 +1497,12 @@ Otherwise, the link type will be infered."
       'font-lock-warning-face))))
 
 
-(org-ref-link-set-parameters "ref"
-  :follow #'org-ref-ref-follow
-  :export #'org-ref-ref-export
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "ref"))
-  :face 'org-ref-ref-face-fn
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "ref"
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-ref-export
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "ref"))
+			 :face 'org-ref-ref-face-fn
+			 :help-echo #'org-ref-ref-help-echo)
 
 
 (defun org-ref-get-org-labels ()
@@ -1843,16 +1843,16 @@ whole buffer for them."
 
 ;;** pageref link
 
-(org-ref-link-set-parameters "pageref"
-  :follow #'org-ref-ref-follow
-  :export (lambda (path desc format)
-            (cond
-             ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
-             ((eq format 'latex)
-              (format "\\pageref{%s}" path))))
-  :face 'org-ref-ref-face-fn
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "pageref"))
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "pageref"
+			 :follow #'org-ref-ref-follow
+			 :export (lambda (path desc format)
+				   (cond
+				    ((eq format 'html) (format "(<pageref>%s</pageref>)" path))
+				    ((eq format 'latex)
+				     (format "\\pageref{%s}" path))))
+			 :face 'org-ref-ref-face-fn
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "pageref"))
+			 :help-echo #'org-ref-ref-help-echo)
 
 
 (defun org-pageref-complete-link (&optional arg)
@@ -1877,12 +1877,12 @@ Optional argument ARG Does nothing."
     (format "\\nameref{%s}" path))))
 
 
-(org-ref-link-set-parameters "nameref"
-  :follow #'org-ref-ref-follow
-  :export #'org-ref-export-nameref
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "nameref"))
-  :face 'org-ref-ref-face-fn
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "nameref"
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-export-nameref
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "nameref"))
+			 :face 'org-ref-ref-face-fn
+			 :help-echo #'org-ref-ref-help-echo)
 
 ;;** eqref link
 
@@ -1896,13 +1896,13 @@ Optional argument ARG Does nothing."
     (format "[%s](#%s)" keyword keyword))))
 
 
-(org-ref-link-set-parameters "eqref"
-  :follow #'org-ref-ref-follow
-  :export #'org-ref-eqref-export
-  ;; This isn't equation specific, one day we might try to make it that way.
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "eqref"))
-  :face 'org-ref-ref-face-fn
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "eqref"
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-eqref-export
+			 ;; This isn't equation specific, one day we might try to make it that way.
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "eqref"))
+			 :face 'org-ref-ref-face-fn
+			 :help-echo #'org-ref-ref-help-echo)
 
 ;;** autoref link
 
@@ -1917,12 +1917,12 @@ Optional argument ARG Does nothing."
    ((eq format 'html) (format "\\autoref{%s}" keyword))))
 
 
-(org-ref-link-set-parameters "autoref"
-  :follow #'org-ref-ref-follow
-  :export #'org-ref-autoref-export
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "autoref"))
-  :face 'org-ref-ref-face-fn
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "autoref"
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-autoref-export
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "autoref"))
+			 :face 'org-ref-ref-face-fn
+			 :help-echo #'org-ref-ref-help-echo)
 
 ;;** cref link
 ;; for LaTeX cleveref package:
@@ -1953,20 +1953,20 @@ https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref"
    ((eq format 'html) (format "\\Cref{%s}" keyword))))
 
 
-(org-ref-link-set-parameters "cref"
-  :follow #'org-ref-ref-follow
-  :export #'org-ref-cref-export
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "cref"))
-  :face 'org-ref-ref-face-fn
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "cref"
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-cref-export
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "cref"))
+			 :face 'org-ref-ref-face-fn
+			 :help-echo #'org-ref-ref-help-echo)
 
 
-(org-ref-link-set-parameters "Cref"
-  :follow #'org-ref-ref-follow
-  :export #'org-ref-Cref-export
-  :complete (lambda (&optional arg) (org-ref-complete-link arg "Cref"))
-  :face 'org-ref-ref-face-fn
-  :help-echo #'org-ref-ref-help-echo)
+(org-link-set-parameters "Cref"
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-Cref-export
+			 :complete (lambda (&optional arg) (org-ref-complete-link arg "Cref"))
+			 :face 'org-ref-ref-face-fn
+			 :help-echo #'org-ref-ref-help-echo)
 
 
 ;;** cite link
@@ -2499,13 +2499,13 @@ Save in the default link type."
     (car org-stored-links)))
 
 ;;* Index link
-(org-ref-link-set-parameters "index"
-  :follow (lambda (path)
-            (occur path))
-  :export (lambda (path desc format)
-            (cond
-             ((eq format 'latex)
-              (format "\\index{%s}" path)))))
+(org-link-set-parameters "index"
+			 :follow (lambda (path)
+				   (occur path))
+			 :export (lambda (path desc format)
+				   (cond
+				    ((eq format 'latex)
+				     (format "\\index{%s}" path)))))
 
 
 ;; this will generate a temporary index of entries in the file when clicked on.
@@ -2568,12 +2568,12 @@ PATH is required for the org-link, but it does nothing here."
     (switch-to-buffer "*index*")))
 
 
-(org-ref-link-set-parameters "printindex"
-  :follow #'org-ref-index
-  :export (lambda (path desc format)
-            (cond
-             ((eq format 'latex)
-              (format "\\printindex")))))
+(org-link-set-parameters "printindex"
+			 :follow #'org-ref-index
+			 :export (lambda (path desc format)
+				   (cond
+				    ((eq format 'latex)
+				     (format "\\printindex")))))
 
 
 ;;* Utilities

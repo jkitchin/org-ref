@@ -28,31 +28,31 @@
 (require 'org-ref-utils)
 
 ;;; Code:
-(org-ref-link-set-parameters "wos"
-  :follow (lambda (accession-number)
-            (browse-url
-             (concat
-              "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:ut/"
-              accession-number)))
-  :export (lambda (accession-number desc format)
-            (cond
-             ((eq format 'html)
-              (format "<a href=\"http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:ut/%s\">%s</a>"
-                      accession-number
-                      (or desc (concat "wos:" accession-number)))))))
+(org-link-set-parameters "wos"
+			 :follow (lambda (accession-number)
+				   (browse-url
+				    (concat
+				     "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:ut/"
+				     accession-number)))
+			 :export (lambda (accession-number desc format)
+				   (cond
+				    ((eq format 'html)
+				     (format "<a href=\"http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info:ut/%s\">%s</a>"
+					     accession-number
+					     (or desc (concat "wos:" accession-number)))))))
 
-(org-ref-link-set-parameters "wos-search"
-  :follow (lambda (path)
-            (browse-url
-             (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-                      (s-join "+" (split-string path)))))
-  :export (lambda (link desc format)
-            (cond
-             ((eq format 'html)
-              (format "<a href=\"%s\">%s</a>"
-                      (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-                               (s-join "+" (split-string link)))
-                      (or desc link))))))
+(org-link-set-parameters "wos-search"
+			 :follow (lambda (path)
+				   (browse-url
+				    (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
+					     (s-join "+" (split-string path)))))
+			 :export (lambda (link desc format)
+				   (cond
+				    ((eq format 'html)
+				     (format "<a href=\"%s\">%s</a>"
+					     (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
+						      (s-join "+" (split-string link)))
+					     (or desc link))))))
 
 ;;;###autoload
 (defun wos-search ()
