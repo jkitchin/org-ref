@@ -363,7 +363,7 @@ The function must take a key as an argument, and return the path
 to the corresponding filename. The default is
 `org-ref-get-pdf-filename'. Alternative values are
 `org-ref-get-mendeley-filename' or
-`org-ref-get-pdf-filename-helm-bibtex'."
+`org-ref-get-pdf-filename-bibtex-completion'."
   :type 'function
   :group 'org-ref)
 

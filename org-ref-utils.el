@@ -141,9 +141,6 @@ org-version: ${org-version}
 * about org-ref
 org-ref installed in ${org-ref-location}.
 
-** Dependencies
-helm-bibtex ${helm-bibtex-path}
-
 * org-ref-pdf (loaded: ${org-ref-pdf-p})
 system pdftotext: ${pdftotext}
 You set pdftotext-executable to ${pdftotext-executable} (exists: ${pdftotext-executable-p})
@@ -175,8 +172,6 @@ ${org-latex-pdf-process}
 	       ("window-system" . ,(format "Window system: %s" window-system))
 	       ("emacs-version" . ,(ords (emacs-version)))
 	       ("org-version" . ,(org-version))
-
-	       ("helm-bibtex-path" . ,(ords (locate-library "helm-bibtex")))
 
 	       ("org-ref-pdf-p" . ,(ords (featurep 'org-ref-pdf)))
 	       ("pdftotext" . ,(ords (if (featurep 'org-ref-pdf)
@@ -433,9 +428,9 @@ Argument KEY is the bibtex key."
                    "%s.pdf")
                   key))))))
 
-(defun org-ref-get-pdf-filename-helm-bibtex (key)
-  "Use helm-bibtex to retrieve a PDF filename for KEY.
-helm-bibtex looks in both the configured directory
+(defun org-ref-get-pdf-filename-bibtex-completion (key)
+  "Use bibtex-completion to retrieve a PDF filename for KEY.
+bibtex-completion looks in both the configured directory
 `bibtex-completion-library-path' and in the fields of the bibtex
 item for a filename. It understands file fields exported by
 Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
