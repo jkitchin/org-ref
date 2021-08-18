@@ -2123,24 +2123,6 @@ label:four
 
 
 ** bad cites/labels/refs
-#+name: bad-cites
-#+BEGIN_SRC emacs-lisp :test
-(should
-   (= 2
-      (length
-       (org-test-with-temp-text
-	"cite:bad1  cite:bad2"
-	(org-ref-bad-cite-candidates)))))
-#+END_SRC
-
-#+RESULTS: bad-cites
-: t
-
-
-
-
-
-
 
 
 
@@ -3137,31 +3119,7 @@ bibliography:%s
 
 
 
-#+name: bad-citations-1
-#+BEGIN_SRC emacs-lisp :test
-(should
-   (org-test-with-temp-text
-       (format "
-cite:bad
 
-bibliography:%s
-"
-	       (expand-file-name
-		  "tests/test-1.bib"
-		  (file-name-directory (locate-library "org-ref"))))
-     (message "-------------------\n%S" (mapconcat
-					 (lambda (x)
-					   (file-name-directory (file-truename x)))
-					 (org-ref-find-bibliography)		    ":"))
-     (org-ref-find-bad-citations)
-     (with-current-buffer "*Missing citations*"
-       (string-match "^bad \\[\\["
-		     (buffer-substring-no-properties (point-min)
-						     (point-max))))))
-#+END_SRC
-
-#+RESULTS: bad-citations-1
-: 25
 
 
 

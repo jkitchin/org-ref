@@ -922,21 +922,15 @@ date_added =	 {Mon Jun 1 09:11:23 2015},
 "
 (org-ref-get-custom-ids)))))
 
-(ert-deftest bad-cites ()
-(should
-(= 2
-(length
-(org-test-with-temp-text
-"cite:bad1  cite:bad2"
-(org-ref-bad-cite-candidates))))))
+
 
 (ert-deftest bad-ref ()
-(should
-(= 5
-(length
-(org-test-with-temp-text
-"ref:bad1  ref:bad2 eqref:bad3 pageref:bad4 nameref:bad5"
-(org-ref-bad-ref-candidates))))))
+  (should
+   (= 5
+      (length
+       (org-test-with-temp-text
+	"ref:bad1  ref:bad2 eqref:bad3 pageref:bad4 nameref:bad5"
+	(org-ref-bad-ref-candidates))))))
 
 (ert-deftest multiple-labels ()
 (should
@@ -1296,40 +1290,21 @@ bibliography:%s
 (goto-char 2)
 (or-find-closing-curly-bracket)))))
 
-(ert-deftest bad-citations-1 ()
-(should
-(org-test-with-temp-text
-(format "
-cite:bad
 
-bibliography:%s
-"
-(expand-file-name
-"tests/test-1.bib"
-(file-name-directory (locate-library "org-ref"))))
-(message "-------------------\n%S" (mapconcat
-(lambda (x)
-(file-name-directory (file-truename x)))
-(org-ref-find-bibliography)		    ":"))
-(org-ref-find-bad-citations)
-(with-current-buffer "*Missing citations*"
-(string-match "^bad \\[\\["
-(buffer-substring-no-properties (point-min)
-(point-max)))))))
 
 (ert-deftest extract-bibtex ()
-(should
-(string-match "@article{kitchin-2015-examp,"
-(org-test-with-temp-text
-(format
-"cite:kitchin-2015-examp
+  (should
+   (string-match "@article{kitchin-2015-examp,"
+		 (org-test-with-temp-text
+		  (format
+		   "cite:kitchin-2015-examp
 
 bibliography:%s
 " (expand-file-name
-"tests/test-1.bib"
-(file-name-directory (locate-library "org-ref"))))
-(org-ref-extract-bibtex-entries)
-(buffer-substring-no-properties (point-min) (point-max))))))
+   "tests/test-1.bib"
+   (file-name-directory (locate-library "org-ref"))))
+		  (org-ref-extract-bibtex-entries)
+		  (buffer-substring-no-properties (point-min) (point-max))))))
 
 (ert-deftest mendeley-fname ()
 (should
