@@ -2424,31 +2424,27 @@ citez link, with reftex key of z, and the completion function."
   ;; create the formatting function
   (eval `(org-ref-make-format-function ,type))
 
-  (eval
-   `(if (fboundp 'org-link-set-parameters)
-	(org-link-set-parameters
-	 ,type
-	 :follow (lambda (_) (funcall org-ref-cite-onclick-function nil))
-	 :export (quote ,(intern (format "org-ref-format-%s" type)))
-	 :complete (quote ,(intern (format "org-%s-complete-link" type)))
-	 :help-echo (lambda (window object position)
-		      (when org-ref-show-citation-on-enter
-			(save-excursion
-			  (goto-char position)
-			  ;; Here we wrap the citation string to a reasonable size.
-			  (let ((s (org-ref-format-entry
-				    (org-ref-get-bibtex-key-under-cursor))))
-			    (with-temp-buffer
-			      (insert s)
-			      (fill-paragraph)
-			      (buffer-string))))))
-	 :face 'org-ref-cite-link-face-fn
-	 :display 'full
-	 :keymap org-ref-cite-keymap)
-      (org-add-link-type
-       ,type
-       (lambda (_path) (funcall org-ref-cite-onclick-function nil))
-       (quote ,(intern (format "org-ref-format-%s" type))))))
+  (org-link-set-parameters
+   type
+   :follow (lambda (_) (funcall org-ref-cite-onclick-function nil))
+   :export (quote (intern (format "org-ref-format-%s" type)))
+   :complete (quote (intern (format "org-%s-complete-link" type)))
+   :help-echo (lambda (window object position)
+		(when org-ref-show-citation-on-enter
+		  (save-excursion
+		    (goto-char position)
+		    ;; Here we wrap the citation string to a reasonable size.
+		    (let ((s (org-ref-format-entry
+			      (org-ref-get-bibtex-key-under-cursor))))
+		      (with-temp-buffer
+			(insert s)
+			(fill-paragraph)
+			(buffer-string))))))
+   :face 'org-ref-cite-link-face-fn
+   :display 'full
+   :keymap org-ref-cite-keymap)
+
+
 
   ;; create the completion function
   (eval `(org-ref-make-completion-function ,type))
