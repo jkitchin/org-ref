@@ -112,7 +112,7 @@ I like \"C-c j\"."
 
 
 (defcustom org-ref-shorten-authors nil
-  "If non-nil show only last names in the helm selection buffer."
+  "If non-nil show only last names in the completion selection buffer."
   :type 'boolean
   :group 'org-ref-bibtex)
 
@@ -1096,7 +1096,7 @@ when called, it resets the cache for the BIBFILE."
 		     ;; (key (cdr (assoc "=key=" entry)))
 		     )
 		(cons
-		 ;; this is the display string for helm. We try to use the formats
+		 ;; this is the display string for completion. We try to use the formats
 		 ;; in `orhc-candidate-formats', but if there isn't one we just put
 		 ;; all the fields in.
 		 (if (assoc (downcase entry-type) orhc-candidate-formats)
