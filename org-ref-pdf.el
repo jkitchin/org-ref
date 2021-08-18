@@ -38,14 +38,6 @@
 (eval-when-compile
   (require 'cl-lib))
 
-(declare-function org-ref-bibtex-key-from-doi "org-ref-bibtex.el")
-
-;; See https://github.com/jkitchin/org-ref/issues/812
-;; apparently there is a function name change coming in
-;; (if (and (not (fboundp 'dnd-unescape-uri))
-;; 	 (fboundp 'dnd--escape-uri))
-;;     (defalias 'dnd-unescape-uri 'dnd--unescape-uri)
-;;   (warn "dnd-unescape-uri is undefined. Some things may not work."))
 
 (defgroup org-ref-pdf nil
   "Customization group for org-ref-pdf"
@@ -108,6 +100,21 @@ Used when multiple dois are found in a pdf file."
 		(plist-get (doi-utils-get-json-metadata doi) :title)
 		doi)
 	     (error (cons (format "%s read error" doi) doi)))))
+
+
+(defun org-ref-bibtex-key-from-doi (doi)
+  "Return a bibtex entry's key from a DOI.
+BIB is an optional filename to get the entry from."
+  (catch 'key
+    (cl-loop for bibfile in (if (stringp bibtex-completion-bibliography)
+				(list bibtex-completion-bibliography)
+			      bibtex-completion-bibliography)
+	     do
+	     (with-temp-buffer
+	       (insert-file-contents (expand-file-name bibfile))
+	       (when (search-forward doi)
+		 (bibtex-beginning-of-entry)
+		 (throw 'key (cdr (assoc "=key=" (bibtex-parse-entry)))))))))
 
 
 ;;;###autoload

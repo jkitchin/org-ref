@@ -37,8 +37,7 @@
 ;; This is a local variable defined in `url-http'.  We need it to avoid
 ;; byte-compiler errors.
 (defvar url-http-end-of-headers)
-(defvar org-ref-default-bibliography)
-(defvar org-ref-pdf-directory)
+
 
 (declare-function parsebib-find-bibtex-dialect "parsebib")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
@@ -191,7 +190,7 @@ Returns a formatted BibTeX entry."
          (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                  org-ref-default-bibliography))))
+                  bibtex-completion-bibliography))))
   (save-window-excursion
     (find-file bibfile)
     (goto-char (point-max))
@@ -242,7 +241,7 @@ key."
          (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                  org-ref-default-bibliography))
+                  bibtex-completion-bibliography))
          (read-directory-name
           "PDF directory: "
           org-ref-pdf-directory)))

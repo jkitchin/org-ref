@@ -63,7 +63,6 @@
 (require 'org-ref-citeproc)
 (require 'doi-utils)
 
-(defvar org-ref-default-bibliography)
 
 (declare-function reftex-get-bib-field "reftex-cite")
 (declare-function key-chord-define-global "key-chord")
@@ -1240,16 +1239,6 @@ will clobber the file."
     (with-temp-file bibfile
       (insert contents))))
 
-(defun org-ref-bibtex-key-from-doi (doi &optional bib)
-  "Return a bibtex entry's key from a DOI.
-BIB is an optional filename to get the entry from. Defaults to
-the first entry of `org-ref-default-bibliography'."
-  (let ((bibfile (if bib bib (car org-ref-default-bibliography))))
-    (with-temp-buffer
-      (insert-file-contents (expand-file-name bibfile))
-      (search-forward doi)
-      (bibtex-beginning-of-entry)
-      (cdr (assoc "=key=" (bibtex-parse-entry))))))
 
 ;;* The end
 (provide 'org-ref-bibtex)
