@@ -401,39 +401,10 @@ have fields sorted alphabetically."
   :group 'org-ref)
 
 
-(defcustom org-ref-label-use-font-lock t
-  "If non-nil use font-lock to find labels in the buffer.
-If nil, each time you ask for labels the whole buffer will be
-searched, which may be slower.")
 
 
-(defun org-ref-colon-insert-link (arg)
-  "Function to run when : has a special meaning.
-See `org-ref-enable-colon-insert'."
-  (interactive "P")
-  (insert ":")
-  (cond
-   ;; cite links
-   ((save-excursion
-      (backward-word 1)
-      (looking-at (regexp-opt org-ref-cite-types)))
-    (funcall org-ref-insert-cite-function))
-   ((save-excursion
-      (backward-word 1)
-      (looking-at "label:"))
-    (funcall org-ref-insert-label-function))
-   ((save-excursion
-      (backward-word 1)
-      (looking-at (regexp-opt org-ref-ref-types)))
-    (funcall org-ref-insert-ref-function))))
 
 
-(when org-ref-enable-colon-insert
-  (define-key org-mode-map ":"
-    '(menu-item "maybe-cite" nil
-		:filter (lambda (&optional _)
-                          (unless (org-in-src-block-p)
-			    #'org-ref-colon-insert-link)))))
 
 
 (defun org-ref-change-cite-type (new-type)
