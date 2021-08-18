@@ -46,7 +46,6 @@
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
 (declare-function reftex-get-bib-field "reftex-cite")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
-(declare-function helm "helm")
 (declare-function org-bibtex-yank "org-bibtex")
 (declare-function org-ref-possible-bibfiles "org-ref-core")
 
@@ -1361,17 +1360,13 @@ Argument LINK-STRING Passed in on link click."
 
 ;; According to http://search.crossref.org/help/api we can send a query with a
 ;; free form citation that may give us something back. We do this to get a list
-;; of candidates, and run a helm command to get the doi.
+;; of candidates, which could be used to get the doi.
 
 
 ;;;###autoload
 (defun doi-utils-crossref-citation-query ()
   "Query Crossref with the title of the bibtex entry at point.
-Get a list of possible matches.  This opens a helm buffer to
-select an entry.  The default action inserts a doi and url field
-in the bibtex entry at point.  The second action opens the doi
-url.  If there is already a doi field, the function raises an
-error."
+Get a list of possible matches. Choose one with completion."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
@@ -1403,29 +1398,22 @@ error."
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s" (org-ref-bib-citation)))
-           (helm-candidates (mapcar (lambda (x)
-                                      (cons
-                                       (concat
-                                        (cdr (assoc 'fullCitation x)))
-                                       (cdr (assoc 'doi x))))
-                                    json-data))
+           (candidates (mapcar (lambda (x)
+                                 (cons
+                                  (concat
+                                   (cdr (assoc 'fullCitation x)))
+                                  (cdr (assoc 'doi x))))
+                               json-data))
 
-           (source `((name . ,name)
-                     (candidates . ,helm-candidates)
-                     ;; just return the candidate
-                     (action . (("Insert doi and url field" . (lambda (doi)
-                                                                (bibtex-make-field "doi" t)
-                                                                (backward-char)
-                                                                ;; crossref returns doi url, but I prefer only a doi for the doi field
-                                                                (insert (replace-regexp-in-string "^https?://\\(dx.\\)?doi.org/" "" doi))
-                                                                (when (string= ""(reftex-get-bib-field "url" entry))
-                                                                  (bibtex-make-field "url" t)
-                                                                  (backward-char)
-                                                                  (insert doi))))
-                                ("Open url" . (lambda (doi)
-                                                (browse-url doi))))))))
-      (helm :sources source
-	    :buffer "*doi utils*"))))
+	   (doi (cdr (assoc (completing-read "DOI: " candidates) candidates))))
+      (bibtex-make-field "doi" t)
+      (backward-char)
+      ;; crossref returns doi url, but I prefer only a doi for the doi field
+      (insert (replace-regexp-in-string "^https?://\\(dx.\\)?doi.org/" "" doi))
+      (when (string= "" (reftex-get-bib-field "url" entry))
+        (bibtex-make-field "url" t)
+        (backward-char)
+        (insert doi)))))
 
 
 
@@ -1526,27 +1514,18 @@ error."
     (let* ((name (format "Crossref hits for %s"
 			 ;; remove carriage returns. they cause problems in helm.
 			 (replace-regexp-in-string "\n" " " query)))
-	   (helm-candidates (mapcar (lambda (x)
-				      (cons
-				       (concat
-					(cdr (assoc 'fullCitation x)))
-				       (cdr (assoc 'doi x))))
-				    json-data))
-	   (source `((name . ,name)
-		     (candidates . ,helm-candidates)
-		     ;; just return the candidate
-		     (action . (("Insert bibtex entry" .  (lambda (doi)
-							    (with-current-buffer (find-file-noselect bibtex-file)
-							      (cl-loop for doi in (helm-marked-candidates)
-								       do
-								       (doi-utils-add-bibtex-entry-from-doi
-									(replace-regexp-in-string
-									 "^https?://\\(dx.\\)?doi.org/" "" doi)
-									,bibtex-file)))))
-				("Open url" . (lambda (doi)
-						(browse-url doi))))))))
-      (helm :sources source
-	    :buffer "*doi utils*"))))
+	   (candidates (mapcar (lambda (x)
+				 (cons
+				  (concat
+				   (cdr (assoc 'fullCitation x)))
+				  (cdr (assoc 'doi x))))
+			       json-data))
+	   (doi (cdr (assoc (completing-read "Choice: " candidates) candidates))))
+      (with-current-buffer (find-file-noselect bibtex-file)
+	(doi-utils-add-bibtex-entry-from-doi
+	 (replace-regexp-in-string
+	  "^https?://\\(dx.\\)?doi.org/" "" doi)
+	 bibtex-file)))))
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")
