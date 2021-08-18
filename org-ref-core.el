@@ -428,24 +428,7 @@ have fields sorted alphabetically."
 
 
 
-(defun org-ref-change-ref-type (new-type)
-  "Change the ref type to NEW-TYPE."
-  (interactive (list (completing-read "Type: " org-ref-ref-types)))
-  (let* ((cite-link (org-element-context))
-	 (old-type (org-element-property :type cite-link))
-	 (begin (org-element-property :begin cite-link))
-	 (end (org-element-property :end cite-link))
-	 (bracketp (eq 'bracket (org-element-property :format cite-link)))
-	 (path (org-element-property :path cite-link))
-	 (deltap (- (point) begin)))
-    ;; note this does not respect brackets
-    (setf (buffer-substring begin end)
-	  (concat
-	   (if bracketp "[[" "")
-	   new-type ":" path
-	   (if bracketp "]]" "")))
-    ;; try to preserve the character the point is on.
-    (goto-char (+ begin deltap (- (length new-type) (length old-type))))))
+
 
 
 ;;* Messages for link at cursor
