@@ -737,68 +737,6 @@ To use one of these, add a line like this before you "require" org-ref.
 (setq org-ref-completion-library 'org-ref-ivy-cite)
 #+END_SRC
 
-** Customizing how PDFs are opened
-*** Using doc-view or pdf-tools
-
-There are a few different ways in which PDFs can be opened from org-ref. By default, org-ref uses the function ~org-ref-open-pdf-at-point~, which looks for the corresponding file in the directory specified in ~org-ref-library-path~. If the file was found, it opens it externally with ~org-open-file~. To open the PDF from within Emacs, using doc-view or pdf-tools, you will need to modify the function slightly and assign it to the variable ~org-ref-open-pdf-function~, as in the example below.
-
-#+BEGIN_SRC emacs-lisp
-(defun my/org-ref-open-pdf-at-point ()
-  "Open the pdf for bibtex key under point if it exists."
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-    (if (file-exists-p pdf-file)
-        (find-file pdf-file)
-      (message "No PDF found for %s" key))))
-
-(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
-#+END_SRC
-
-An alternative approach adapted from https://github.com/jkitchin/org-ref/issues/184 to use pdfview is described here. First, install org-pdfview (on MELPA).
-
-Add this to your init file:
-
-#+BEGIN_SRC emacs-lisp
-;; PDF links for org-mode
-(with-eval-after-load 'pdf-tools
-  (use-package org-pdftools
-    :config
-    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00169.html
-    ;; Before adding, remove it (to avoid clogging)
-    (delete '("\\.pdf\\'" . default) org-file-apps)
-    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00176.html
-    (add-to-list 'org-file-apps
-		 '("\\.pdf\\'" . (lambda (file link)
-				   (org-pdftools-open link))))))
-#+END_SRC
-
-*** A note for Mendeley, JabRef and Zotero users
-
-If ~bibtex-completion-pdf-field~ is defined, the function below should work with JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
-
-#+BEGIN_SRC emacs-lisp
-(defun my/org-ref-open-pdf-at-point ()
-  "Open the pdf for bibtex key under point if it exists."
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-	 (pdf-file (car (bibtex-completion-find-pdf key))))
-    (if (file-exists-p pdf-file)
-	(org-open-file pdf-file)
-      (message "No PDF found for %s" key))))
-
-(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
-#+END_SRC
-
-Mendeley users should set to:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-get-pdf-filename-function 'org-ref-get-mendeley-filename)
-#+END_SRC
-
-
 
 ** Other things org-ref supports
 *** org-completion

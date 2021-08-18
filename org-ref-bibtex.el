@@ -63,7 +63,6 @@
 (require 'org-ref-citeproc)
 (require 'doi-utils)
 
-(defvar org-ref-pdf-directory)
 (defvar org-ref-default-bibliography)
 
 (declare-function reftex-get-bib-field "reftex-cite")
@@ -861,19 +860,15 @@ _n_: Open notes   ^ ^                         _T_: Title case
   (save-excursion
     (bibtex-beginning-of-entry)
     (let* ((key (reftex-get-bib-field "=key=" (bibtex-parse-entry t)))
-	   pdf)
-      ;; when we have org-ref defined we may have pdf to find.
-      (when (boundp 'org-ref-pdf-directory)
-	(setq pdf (funcall org-ref-get-pdf-filename-function key)))
+	   (pdfs (bibtex-completion-find-pdf key)))
+
       (bibtex-copy-entry-as-kill)
       (compose-mail)
       (message-goto-body)
       (insert (pop bibtex-entry-kill-ring))
       (message-goto-subject)
       (insert key)
-      (message "%s exists %s" pdf (file-exists-p pdf))
-      (when (file-exists-p pdf)
-	(mml-attach-file pdf))
+      (cl-loop for pdf in pdfs do (mml-attach-file pdf))
       (message-goto-to))))
 
 ;;* org-ref bibtex keywords

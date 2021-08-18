@@ -77,8 +77,7 @@ You should set these variables. Here is an example of how mine are set in an ini
 (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
 
 ;; see org-ref for use of these variables
-(setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
-      org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+(setq org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
 
@@ -100,10 +99,6 @@ If you use bibtex-completion frontends such as `helm-bibtex` or `ivy-bibtex` as 
 ;; (setq bibtex-completion-pdf-open-function 'org-open-file)
 #+END_SRC
 
-There are alternative citation key completion methods.
-- org-ref-helm-cite :: An alternative to helm-bibtex
-- org-ref-ivy-cite :: Uses ivy for key completion
-- org-ref-reftex :: Uses reftex and org-mode for completion (no longer developed)
 
 If you plan to build PDF files via LaTeX you need to make sure that org-latex-pdf-process is set to process the bibliography (using bibtex or biblatex). Here is one example of how to do that (see [[./org-ref.org::*LaTeX export]] for other alternatives).
 
@@ -127,7 +122,6 @@ Note many of these have been renamed with an org-ref prefix.
 - [[./org-ref-pdf.el][org-ref-pdf]] :: Add drag-n-drop PDF to create bibtex entries
 - [[./org-ref-url-utils.el][org-ref-url-utils]] :: Add drag-n-drop urls to create bibtex entries
 - [[./org-ref-bibtex.el][org-ref-bibtex]] :: Utility functions for bibtex
-- [[./org-ref-latex.el][org-ref-latex]] :: org-ref-like features in LaTeX.
 - [[./org-ref-arxiv.el][org-ref-arxiv]] :: arxiv links, add bibtex entries from arxiv.org.
 - [[./org-ref-pubmed.el][org-ref-pubmed]] :: pubmed links, add bibtex entries from PMID.
 - [[./org-ref-isbn.el][org-ref-isbn]] :: Add bibtex entries from a book ISBN

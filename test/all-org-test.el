@@ -135,41 +135,20 @@ label:one
 
 "
 (should
-(string= "2 occurrences"
-(org-ref-link-message)))))
+ (string= "2 occurrences"
+	  (org-ref-link-message)))))
 
-(ert-deftest or-get-pdf ()
-(should
-(string=
-"kitchin-2015.pdf"
-(org-test-with-temp-text
-"cite:kitchin-2015"
-(let ((org-ref-pdf-directory nil))
-(org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor)))))))
 
-(ert-deftest or-get-pdf-2 ()
-(should
-(string=
-(expand-file-name
-"tests/bibtex-pdfs/kitchin-2015.pdf"
-(file-name-directory
-(locate-library "org-ref")))
-(org-test-with-temp-text
-"cite:kitchin-2015"
-(let ((org-ref-pdf-directory (expand-file-name
-"tests/bibtex-pdfs/"
-(file-name-directory
-(locate-library "org-ref")))))
-(org-ref-get-pdf-filename (org-ref-get-bibtex-key-under-cursor))))))
-)
+
+
 
 (ert-deftest or-get-key ()
-(should
-(string=
-"kitchin-2015"
-(org-test-with-temp-text
-"cite:kitchin-2015"
-(org-ref-get-bibtex-key-under-cursor)))))
+  (should
+   (string=
+    "kitchin-2015"
+    (org-test-with-temp-text
+     "cite:kitchin-2015"
+     (org-ref-get-bibtex-key-under-cursor)))))
 
 (ert-deftest or-get-key1 ()
 (should

@@ -660,7 +660,15 @@ checked."
           (pdf-url)
           (pdf-file))
 
-      (setq pdf-file (funcall org-ref-get-pdf-filename-function key))
+      (setq pdf-file
+	    (concat (cond
+		     ((stringp bibtex-completion-library-path)
+		      bibtex-completion-library-path)
+		     ((= 1 (length bibtex-completion-library-path))
+		      (car bibtex-completion-library-path))
+		     (t
+		      (completing-read "Dir: " bibtex-completion-library-path)))
+		    key ".pdf"))
       ;; now get file if needed.
       (unless (file-exists-p pdf-file)
 	(cond

@@ -44,8 +44,6 @@
   :group 'org-ref)
 
 (defvar org-ref-cite-types)
-(defvar org-ref-get-pdf-filename-function)
-
 (defvar org-ref-bibliography-entry-format)
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
@@ -438,7 +436,14 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
-         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+         (pdf-file (concat (cond
+			    ((stringp bibtex-completion-library-path)
+			     bibtex-completion-library-path)
+			    ((= 1 (length bibtex-completion-library-path))
+			     (car bibtex-completion-library-path))
+			    (t
+			     (completing-read "Dir: " bibtex-completion-library-path)))
+			   key ".pdf")))
     (if (file-exists-p pdf-file)
         (org-open-file pdf-file)
       (message "no pdf found for %s" key))))

@@ -478,7 +478,7 @@ _o_: Open entry   _e_: Email entry  ^ ^                 _q_: quit
 _i_: Insert cite  _h_: change type
 "
   ("o" org-ref-open-citation-at-point nil)
-  ("p" (funcall org-ref-open-pdf-function) nil)
+  ("p" (funcall org-ref-open-pdf-at-point) nil)
   ("n" org-ref-open-notes-at-point nil)
   ("u" org-ref-open-url-at-point nil)
   ("w" org-ref-wos-at-point nil)

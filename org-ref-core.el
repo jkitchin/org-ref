@@ -179,9 +179,7 @@ function in `org-ref-completion-library'."
     (define-key map (kbd "H-o") 'org-ref-cite-hydra/body)
     (define-key map (kbd "H-b") 'org-ref-open-citation-at-point)
     (define-key map (kbd "H-u") 'org-ref-open-url-at-point)
-    (define-key map (kbd "H-p") (lambda ()
-				  (interactive)
-				  (funcall org-ref-open-pdf-function)))
+    (define-key map (kbd "H-p") 'org-ref-open-pdf-at-point)
     (define-key map (kbd "H-n") 'org-ref-open-notes-at-point)
     (define-key map (kbd "H-r") 'org-ref-wos-related-at-point)
     (define-key map (kbd "H-c") 'org-ref-wos-citing-at-point)
@@ -247,28 +245,6 @@ with two arguments that are both the key. I don't know a way to
 make this more flexible at the moment. It is only used in the
 export of cite links right now."
   :type 'string
-  :group 'org-ref)
-
-
-(defcustom org-ref-open-pdf-function
-  'org-ref-open-pdf-at-point
-  "User-defined function to open a pdf from a link.
-The function must get the key at point, and derive a path to the pdf
-file, then open it.  The default function is
-`org-ref-open-pdf-at-point'."
-  :type 'function
-  :group 'org-ref)
-
-
-(defcustom org-ref-get-pdf-filename-function
-  'org-ref-get-pdf-filename
-  "User-defined function to get a filename from a bibtex key.
-The function must take a key as an argument, and return the path
-to the corresponding filename. The default is
-`org-ref-get-pdf-filename'. Alternative values are
-`org-ref-get-mendeley-filename' or
-`org-ref-get-pdf-filename-bibtex-completion'."
-  :type 'function
   :group 'org-ref)
 
 
