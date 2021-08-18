@@ -11,8 +11,7 @@
 
 (package-install 'org-ref)
 
-(setq org-ref-bibliography-notes "./notes.org"
-      org-ref-default-bibliography '("./references.bib")
+(setq org-ref-default-bibliography '("./references.bib")
       org-ref-pdf-directory "./bibtex-pdfs/")
 
 (unless (file-exists-p org-ref-pdf-directory)
@@ -26,9 +25,9 @@
  'org-babel-load-languages '((python . t)))
 
 (setq org-latex-pdf-process
-      '("pdflatex -interaction nonstopmode -output-directory %o %f" 
+      '("pdflatex -interaction nonstopmode -output-directory %o %f"
 	"bibtex %b"
-	"pdflatex -interaction nonstopmode -output-directory %o %f" 
+	"pdflatex -interaction nonstopmode -output-directory %o %f"
 	"pdflatex -interaction nonstopmode -output-directory %o %f"))
 
 (require 'org-ref)

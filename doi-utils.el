@@ -37,7 +37,6 @@
 ;;; Code:
 
 (defvar org-ref-pdf-directory)
-(defvar org-ref-bibliography-notes)
 (defvar org-ref-default-bibliography)
 (defvar reftex-default-bibliography)
 (defvar url-http-end-of-headers)
@@ -81,11 +80,6 @@
   :type 'boolean
   :group 'doi-utils)
 
-(defcustom doi-utils-make-notes
-  t
-  "Whether to create notes when adding bibtex entries."
-  :type 'boolean
-  :group 'doi-utils)
 
 (defcustom doi-utils-timestamp-field
   "DATE_ADDED"
@@ -101,21 +95,13 @@ e.g. (lambda () nil)"
   :type 'function
   :group 'doi-utils)
 
-(defcustom doi-utils-make-notes-function
-  (lambda ()
-    (bibtex-beginning-of-entry)
-    (bibtex-completion-edit-notes (list (cdr (assoc "=key=" (bibtex-parse-entry))))))
-  "Function to create notes for a bibtex entry.
-
-Set `doi-utils-make-notes' to nil if you want no notes."
-  :type 'function
-  :group 'doi-utils)
 
 (defcustom doi-utils-dx-doi-org-url
   "https://doi.org/"
   "Base url to retrieve doi metadata from. A trailing / is required."
   :type 'string
   :group 'doi-utils)
+
 
 (defcustom doi-utils-metadata-function 'doi-utils-get-json-metadata
   "Function for retrieving json metadata from `doi-utils-dx-doi-org-url'.
@@ -902,8 +888,7 @@ MATCHING-TYPES."
 
 ;; That is just the string for the entry. To be useful, we need a function that
 ;; inserts the string into a buffer. This function will insert the string at the
-;; cursor, clean the entry, try to get the pdf, and create a notes entry for
-;; you.
+;; cursor, clean the entry, try to get the pdf.
 
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
   "Insert bibtex entry from a DOI.
@@ -918,13 +903,6 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   (org-ref-clean-bibtex-entry)
   (save-buffer)
 
-  (when (and doi-utils-make-notes org-ref-bibliography-notes)
-    (save-excursion
-      (when (f-file? org-ref-bibliography-notes)
-	(find-file-noselect org-ref-bibliography-notes)
-	(save-buffer))
-      (let ((bibtex-completion-bibliography (list (buffer-file-name))))
-	(funcall doi-utils-make-notes-function))))
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf)))

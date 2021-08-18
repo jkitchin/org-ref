@@ -720,8 +720,7 @@ Here is my minimal setup:
 #+BEGIN_SRC emacs-lisp
 (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
 
-(setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
-      org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+(setq org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
       org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
 #+END_SRC
 
@@ -799,32 +798,7 @@ Mendeley users should set to:
 (setq org-ref-get-pdf-filename-function 'org-ref-get-mendeley-filename)
 #+END_SRC
 
-** Setting up notes to work with multiple notes.org files
 
-Adapted from https://github.com/jkitchin/org-ref/issues/443. This setup lets helm-bibtex find the note file for an entry.
-
-#+BEGIN_SRC emacs-lisp
-;; Tell org-ref to let helm-bibtex find notes for it
-(setq org-ref-notes-function
-      (lambda (thekey)
-	(let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-	  (bibtex-completion-edit-notes
-	   (list (car (org-ref-get-bibtex-key-and-file thekey)))))))
-#+END_SRC
-
-** Customizing the notes format
-
-A user asked about customizing note formats in https://github.com/jkitchin/org-ref/issues/225. The issue is that helm-bibtex command creates notes as defined in `bibtex-completion-notes-template-one-file' and org-ref creates the notes as defined in `org-ref-open-bibtex-notes'. They wanted some consistency so they got the same results either way they open the notes. @jagrg suggested this approach:
-
-#+BEGIN_SRC emacs-lisp
-(defun my/org-ref-notes-function (candidates)
-  (let ((key (helm-marked-candidates)))
-    (funcall org-ref-notes-function (car key))))
-
-(helm-delete-action-from-source "Edit notes" helm-source-bibtex)
-;; Note that 7 is a magic number of the index where you want to insert the command. You may need to change yours.
-(helm-add-action-to-source "Edit notes" 'my/org-ref-notes-function helm-source-bibtex 7)
-#+END_SRC
 
 ** Other things org-ref supports
 *** org-completion
@@ -962,8 +936,7 @@ An issue related to using org-ref with prelude was [[https://github.com/jkitchin
 (package-initialize)
 
 (setq reftex-default-bibliography '("~/bibliography/references.bib"))
-(setq org-ref-bibliography-notes "~/bibliography/notes.org"
-      org-ref-default-bibliography '("~/bibliography/references.bib")
+(setq org-ref-default-bibliography '("~/bibliography/references.bib")
       org-ref-pdf-directory "~/bibliography/bibtex-pdfs/")
 
 (require 'org-ref)

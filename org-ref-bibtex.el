@@ -64,7 +64,6 @@
 (require 'doi-utils)
 
 (defvar org-ref-pdf-directory)
-(defvar org-ref-notes-directory)
 (defvar org-ref-default-bibliography)
 
 (declare-function reftex-get-bib-field "reftex-cite")

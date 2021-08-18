@@ -45,7 +45,7 @@
 
 (defvar org-ref-cite-types)
 (defvar org-ref-get-pdf-filename-function)
-(defvar org-ref-notes-function)
+
 (defvar org-ref-bibliography-entry-format)
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
@@ -127,9 +127,8 @@ ${org-ref-version}
 
 * Variables
 1. org-ref-completion-library: ${org-ref-completion-library}
-2. org-ref-bibliography-notes: ${org-ref-bibliography-notes} (exists ${orbn-p})
-3. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p}) (listp ${ordb-listp})
-4. org-ref-pdf-directory: ${org-ref-pdf-directory} (exists ${orpd-p})
+2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p}) (listp ${ordb-listp})
+3. org-ref-pdf-directory: ${org-ref-pdf-directory} (exists ${orpd-p})
 
 * System
 system-type: ${system}
@@ -153,16 +152,11 @@ ${org-latex-pdf-process}
 "
 	     'aget
 	     `(("org-ref-completion-library" . ,(format "%s" org-ref-completion-library))
-	       ("org-ref-bibliography-notes" . ,(format "%s"  org-ref-bibliography-notes))
-	       ("org-ref-bibliography-notes exists" . ,(format "%s" (when org-ref-bibliography-notes
-								      (file-exists-p org-ref-bibliography-notes))))
 	       ("org-ref-version" . ,(org-ref-version))
 	       ("org-latex-pdf-process" . ,(format "%S" org-latex-pdf-process))
 	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
 	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
 	       ("ordb-listp" . ,(ords (listp org-ref-default-bibliography)))
-	       ("orbn-p" . ,(when org-ref-bibliography-notes
-			      (file-exists-p org-ref-bibliography-notes)))
 	       ("org-ref-pdf-directory" . ,(format "%s" org-ref-pdf-directory))
 	       ("orpd-p" . ,(format "%s" (file-exists-p org-ref-pdf-directory)))
 	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))

@@ -39,7 +39,6 @@
 ;;; Code:
 (defvar org-ref-bibliography-entry-format)
 (defvar org-ref-get-pdf-filename-function)
-(defvar org-ref-notes-function)
 (defvar org-ref-cite-types)
 (defvar org-cliplink-escape-alist)
 

@@ -59,27 +59,6 @@
   :group 'org)
 
 
-(defcustom org-ref-bibliography-notes
-  nil
-  "Filename where you will put all your notes about an entry in the default bibliography.
-Used by backends that append all notes as entries in a single file.
-
-See also `org-ref-notes-function'"
-  :type '(choice (const nil)
-                 (file))
-  :group 'org-ref)
-
-
-(defcustom org-ref-notes-directory
-  nil
-  "Directory where you will put all your notes about an entry in the default bibliography.
-Used for backends that create a single file of notes per entry.
-
-See also `org-ref-notes-function'."
-  :type 'directory
-  :group 'org-ref)
-
-
 (defcustom org-ref-default-bibliography
   nil
   "List of bibtex files to search for.
@@ -260,26 +239,6 @@ Just the reference, no numbering at the beginning, etc... see the
   :group 'org-ref)
 
 
-(defcustom org-ref-note-title-format
-  "** TODO %y - %t
- :PROPERTIES:
-  :CUSTOM_ID: %k
-  :AUTHOR: %9a
-  :JOURNAL: %j
-  :YEAR: %y
-  :VOLUME: %v
-  :PAGES: %p
-  :DOI: %D
-  :URL: %U
- :END:
-
-"
-  "String to format the title and properties drawer of a note.
-See the `org-ref-reftex-format-citation' docstring for the escape
-codes."
-  :type 'string
-  :group 'org-ref)
-
 
 (defcustom org-ref-ref-html "<a class='org-ref-reference' href=\"#%s\">%s</a>"
   "HTML code to represent a reference.
@@ -288,48 +247,6 @@ with two arguments that are both the key. I don't know a way to
 make this more flexible at the moment. It is only used in the
 export of cite links right now."
   :type 'string
-  :group 'org-ref)
-
-
-(defcustom org-ref-notes-function #'org-ref-notes-function-one-file
-  "Function to open the notes for the bibtex key in a cite link at point.
-
-The default behavior adds entries to a long file with headlines
-for each entry.  It also tries to be compatible with `org-bibtex'.
-
-An alternative is `org-ref-notes-function-many-files'.  Use that
-if you prefer the `bibtex-completion' approach, which also
-supports an additional method for storing notes.  See
-`bibtex-completion-notes-path' for more information.  You may also
-want to set `org-ref-notes-directory'."
-  :type 'function
-  :group 'org-ref)
-
-
-(defcustom org-ref-open-notes-function
-  (lambda ()
-    (org-show-entry)
-    (outline-show-branches)
-    (outline-show-children)
-    (org-cycle '(64))
-    (recenter-top-bottom 0))
-  "User-defined way to open a notes entry.
-This is executed after the entry is found in
-`org-ref-open-bibtex-notes', with the cursor at the beginning of
-the headline. The default setting fully expands the notes, and
-moves the headline to the top of the buffer."
-  :type 'function
-  :group 'org-ref)
-
-
-(defcustom org-ref-create-notes-hook
-  '((lambda ()
-      (org-narrow-to-subtree)
-      (insert (format "cite:%s\n" (org-entry-get (point) "CUSTOM_ID")))))
-  "List of hook functions to run in the note entry after it is created.
-The function takes no arguments. It could be used to insert links
-to the citation, or pdf, etc..."
-  :type 'hook
   :group 'org-ref)
 
 
@@ -1236,68 +1153,6 @@ Save in the default link type."
 
 
 ;;* Utilities
-
-
-(defun org-ref-notes-function-one-file (key)
-  "Function to open note belonging to KEY.
- Set `org-ref-notes-function' to this function if you use one
-long file with headlines for each entry."
-  ;; save key to clipboard to make saving pdf later easier by pasting.
-  (with-temp-buffer
-    (insert key)
-    (kill-ring-save (point-min) (point-max)))
-  (let ((entry (with-temp-buffer
-		 (insert (org-ref-get-bibtex-entry key))
-                 (reftex-parse-bibtex-entry nil (point-min) (point-max)))))
-
-    ;; add =key= and =type= for code which expects `bibtex-parse-entry` style
-    (add-to-list 'entry
-                 (cons "=key=" (reftex-get-bib-field "&key" entry))
-                 (cons "=type=" (reftex-get-bib-field "&type" entry)))
-
-    (save-restriction
-      (if  org-ref-bibliography-notes
-	  (find-file-other-window org-ref-bibliography-notes)
-	(error "org-ref-bibliography-notes is not set to anything"))
-
-      (widen)
-      (goto-char (point-min))
-      (let* ((headlines (org-element-map
-			    (org-ref-parse-buffer)
-			    'headline 'identity))
-	     (keys (mapcar
-		    (lambda (hl) (org-element-property :CUSTOM_ID hl))
-		    headlines)))
-	(if (-contains? keys key)
-	    ;; we have it so we go to it.
-	    (progn
-	      (org-open-link-from-string (format "[[#%s]]" key))
-	      (funcall org-ref-open-notes-function))
-	  ;; no entry found, so add one
-	  (goto-char (point-max))
-	  (insert (org-ref-reftex-format-citation
-		   entry (concat "\n" org-ref-note-title-format)))
-	  (mapc (lambda (x)
-		  (save-restriction
-		    (save-excursion
-		      (funcall x))))
-		org-ref-create-notes-hook)
-	  (save-buffer))))))
-
-
-(defun org-ref-notes-function-many-files (thekey)
-  "Function to open note belonging to THEKEY.
-Set `org-ref-notes-function' to this function if you use one file
-for each bib entry."
-  (let* ((bibtex-completion-bibliography
-          (cdr (org-ref-get-bibtex-key-and-file thekey)))
-         (bibtex-completion-notes-path org-ref-notes-directory))
-    (bibtex-completion-edit-notes (list thekey))))
-
-
-
-
-
 
 ;;** Extract bibtex entries in org-file
 
