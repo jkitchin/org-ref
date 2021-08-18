@@ -1460,14 +1460,14 @@ Get a list of possible matches. Choose one with completion."
 
 ;;* Adding a bibtex entry from a crossref query
 
-;; The idea here is to perform a query on Crossref, get a helm buffer of
+;; The idea here is to perform a query on Crossref, get a completion buffer of
 ;; candidates, and select the entry(ies) you want to add to your bibtex file.
 ;; You can select a region, e.g. a free form citation, or set of words, or you
 ;; can type the query in by hand.
 
 ;;;###autoload
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
-  "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
+  "Search Crossref with QUERY and use completion to select an entry to add to BIBTEX-FILE."
   (interactive (list
                 (read-string
                  "Query: "
@@ -1512,7 +1512,7 @@ Get a list of possible matches. Choose one with completion."
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s"
-			 ;; remove carriage returns. they cause problems in helm.
+			 ;; remove carriage returns. They can make completion confusing.
 			 (replace-regexp-in-string "\n" " " query)))
 	   (candidates (mapcar (lambda (x)
 				 (cons
