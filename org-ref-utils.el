@@ -28,7 +28,7 @@
 (require 'org)
 (require 'org-ref-pdf)  		; for pdftotext-executable
 
-
+(require 'reftex-cite)
 
 (defcustom org-ref-search-whitespace-regexp "\\s-+"
   "A whitespace regexp for use in `org-ref-strip-string."
@@ -1165,6 +1165,94 @@ if FORCE is non-nil reparse the buffer no matter what."
       (read-only-mode))
 
     (display-buffer-in-side-window buf '((side . right)))))
+
+
+
+;;** Find non-ascii charaters
+;;;###autoload
+(defun org-ref-find-non-ascii-characters ()
+  "Find non-ascii characters in the buffer.  Useful for cleaning up bibtex files."
+  (interactive)
+  (occur "[^[:ascii:]]"))
+
+;;;###autoload
+(defun org-ref-extract-bibtex-to-file (bibfile &optional clobber)
+  "Extract all bibtex entries for citations buffer to BIBFILE.
+If BIBFILE exists, append, unless you use a prefix arg (C-u),
+which will CLOBBER the file."
+  (interactive
+   (list (read-file-name "Bibfile: " nil nil nil
+			 (file-name-nondirectory
+			  (concat (file-name-sans-extension
+				   (buffer-file-name))
+				  ".bib")))
+	 current-prefix-arg))
+
+  (let* ((bibtex-files (org-ref-find-bibliography))
+	 (keys (reverse (org-ref-get-bibtex-keys)))
+	 (bibtex-entry-kill-ring-max (length keys))
+	 (bibtex-entry-kill-ring '())
+	 (kill-cb (not (find-buffer-visiting bibfile)))
+	 (cb (find-file-noselect bibfile))
+	 (current-bib-entries (with-current-buffer cb
+				(prog1
+				    (buffer-string)
+				  (when kill-cb (kill-buffer cb))))))
+
+    (save-window-excursion
+      (cl-loop for key in keys
+	       do
+	       (bibtex-search-entry key t)
+	       (bibtex-kill-entry t)))
+
+    (with-temp-file bibfile
+      (unless clobber (insert current-bib-entries))
+      (insert (mapconcat
+	       'identity
+	       bibtex-entry-kill-ring
+	       "\n\n")))))
+
+
+;;* Utilities
+
+;;** Extract bibtex entries in org-file
+
+;;;###autoload
+(defun org-ref-extract-bibtex-entries ()
+  "Extract the bibtex entries in the current buffer into a bibtex src block."
+  (interactive)
+  (let* ((bibtex-files (org-ref-find-bibliography))
+	 (keys (reverse (org-ref-get-bibtex-keys)))
+	 (bibtex-entry-kill-ring-max (length keys))
+	 (bibtex-entry-kill-ring '()))
+
+    (save-window-excursion
+      (cl-loop for key in keys
+	       do
+	       (bibtex-search-entry key t)
+	       (bibtex-kill-entry t)))
+
+    (goto-char (point-max))
+    (insert "\n\n")
+    (org-insert-heading)
+    (insert (format " Bibtex entries
+
+#+BEGIN_SRC bibtex :tangle %s
+%s
+#+END_SRC"
+		    (let ((bibfile (concat (file-name-base
+					    (or (buffer-file-name) "references"))
+					   ".bib")))
+		      (if (file-exists-p bibfile)
+			  (file-name-nondirectory
+			   (read-file-name "Bibfile: " nil nil nil bibfile))
+			bibfile))
+		    (mapconcat
+		     'identity
+		     bibtex-entry-kill-ring
+		     "\n\n")))))
+
+
 
 
 (provide 'org-ref-utils)
