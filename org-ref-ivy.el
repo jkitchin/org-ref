@@ -26,20 +26,19 @@
 ;; (setq org-ref-completion-library 'org-ref-ivy-cite)
 
 (require 'org-ref-core)
+(require 'org-ref-bibliography-links)
 (require 'org-ref-citation-links)
 (require 'org-ref-ref-links)
 (require 'org-ref-utils)
 (require 'org-ref-bibtex)
 
 (setq org-ref-insert-link-function 'org-ref-insert-link
-      org-ref-insert-cite-function 'org-ref-cite-insert 
+      org-ref-insert-cite-function 'org-ref-cite-insert
       org-ref-insert-label-function nil
-      org-ref-insert-ref-function 'org-ref-insert-ref-link 
+      org-ref-insert-ref-function 'org-ref-insert-ref-link
       org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
 
 (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
-
-(org-ref-ivy-cite-completion)
 
 (provide 'org-ref-ivy)
 
