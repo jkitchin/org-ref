@@ -6,7 +6,6 @@
 ;; URL: https://github.com/jkitchin/org-ref
 ;; Version: 0.8.1
 ;; Keywords: org-mode, cite, ref, label
-;; Package-Requires: ((dash "2.11.0") (ivy "0.8.0") (hydra "0.13.2") (key-chord "0") (s "1.10.0") (f "0.18.0") (parsebib "0")  (emacs "24.4"))
 
 ;; This file is not currently part of GNU Emacs.
 
@@ -24,9 +23,21 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-(setq org-ref-completion-library 'org-ref-ivy-cite)
+;; (setq org-ref-completion-library 'org-ref-ivy-cite)
 
-(require 'org-ref-ivy-cite)
+(require 'org-ref-core)
+(require 'org-ref-citation-links)
+(require 'org-ref-ref-links)
+(require 'org-ref-utils)
+(require 'org-ref-bibtex)
+
+(setq org-ref-insert-link-function 'org-ref-insert-link
+      org-ref-insert-cite-function 'org-ref-cite-insert 
+      org-ref-insert-label-function nil
+      org-ref-insert-ref-function 'org-ref-insert-ref-link 
+      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
+
+(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
 
 (org-ref-ivy-cite-completion)
 

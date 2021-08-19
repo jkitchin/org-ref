@@ -34,8 +34,9 @@
 ;;
 
 ;;; Code:
-(require 'org-ref-core)
-(require org-ref-completion-library)
+;; TODO What should go here?
+;; (require 'org-ref-core)
+;; (require org-ref-completion-library)
 
 ;;* The end
 (provide 'org-ref)
