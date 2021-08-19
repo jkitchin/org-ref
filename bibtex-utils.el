@@ -1,3 +1,10 @@
+;;; bibtex-utils.el --- bibtex utils
+
+;;; Commentary:
+;;
+
+;;; Code:
+
 (defcustom org-ref-clean-bibtex-key-function
   (lambda (key)
     (replace-regexp-in-string ":" "" key))
@@ -202,8 +209,7 @@ The removal is conditional. Sometimes it is useful to have nil
 around, e.g. for ASAP articles where the fields are not defined
 yet but will be in the future.
 
-With \\[univeral-argument], run `bibtex-clean-entry' after.
-"
+With \\[univeral-argument], run `bibtex-clean-entry' after."
   (interactive "P")
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
@@ -416,3 +422,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
       (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))))))
+
+(provide 'bibtex-utils)
+
+;;; bibtex-utils.el ends here
