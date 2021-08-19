@@ -1,4 +1,4 @@
-;;; org-ref-bibliography-link.el --- Bibliography and bibliographystyle links
+;;; org-ref-bibliography-links.el --- Bibliography and bibliographystyle links
 
 ;;; Commentary:
 ;;
@@ -111,8 +111,7 @@ Optional argument BACKEND is the export backend."
   (cond
    ((eq backend 'latex)
     ;; write out the biblatex bibliography command
-    (format "%s%s"
-	    org-ref-printbibliography-cmd
+    (format "\\printbibliography%s"
 	    (if (not (string= "" options))
 		(format "[%s]" options)
 	      "")))))
@@ -194,6 +193,6 @@ Optional argument BACKEND is the export backend."
 			 :activate-func #'org-ref-bibliographystyle-activate
 			 :export #'org-ref-bibliographystyle-export)
 
-(provide 'org-ref-bibliography-link)
+(provide 'org-ref-bibliography-links)
 
-;;; org-ref-bibliography-link.el ends here
+;;; org-ref-bibliography-links.el ends here
