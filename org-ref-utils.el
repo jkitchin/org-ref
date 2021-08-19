@@ -308,14 +308,7 @@ Can also be called with THEKEY in a program."
   (interactive)
   (when (null thekey)
     (setq thekey (org-ref-get-bibtex-key-under-cursor)))
-  (funcall org-ref-notes-function thekey))
-
-
-;;;###autoload
-(defun org-ref-citation-at-point ()
-  "Give message of current citation at point."
-  (interactive)
-  (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
+  (bibtex-completion-edit-notes (list thekey)))
 
 
 ;;;###autoload
@@ -328,34 +321,14 @@ Can also be called with THEKEY in a program."
     (find-file bibfile)
     (bibtex-search-entry key)))
 
+
 ;;*** cite menu
-(defvar org-ref-cite-menu-funcs '()
-  "Functions to run on cite click menu.
-Each entry is a list of (key menu-name function).  The function
-must take no arguments and work on the key at point.  Do not
-modify this variable, it is set to empty in the menu click
-function, and functions are conditionally added to it.")
-
-
-(defvar org-ref-user-cite-menu-funcs
-  '(("C" "rossref" org-ref-crossref-at-point)
-    ("y" "Copy entry to file" org-ref-copy-entry-at-point-to-file)
-    ("s" "Copy summary" org-ref-copy-entry-as-summary))
-  "User-defined functions to run on bibtex key at point.")
-
 
 ;;;###autoload
 (defun org-ref-copy-entry-as-summary ()
   "Copy the bibtex entry for the citation at point as a summary."
   (interactive)
   (kill-new (org-ref-bib-citation)))
-
-
-;;;###autoload
-(defun org-ref-copy-cite-as-summary ()
-  "Copy a summary for the citation at point to the clipboard."
-  (interactive)
-  (kill-new (org-ref-link-message)))
 
 
 ;;;###autoload
