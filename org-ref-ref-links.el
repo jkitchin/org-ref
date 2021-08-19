@@ -109,7 +109,6 @@ font-lock."
     ;; reverse so they are in the order we find them.
     (reverse labels)))
 
-
 (defun org-ref-ref-follow (_path)
   "Follow the ref link.
 _PATH is ignored. We get the label from a text property so we
@@ -244,6 +243,69 @@ This is meant to be used with `apply-partially'."
 			 :export (apply-partially #'org-ref-ref-export "\\Cref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
+
+
+;; * Insert link
+(defvar org-ref-equation-environments
+  '("equation"
+    "equation*"
+    "align"
+    "align*"
+    "multline"
+    "multline*")
+  "LaTeX environments that should be treated as equations when referencing.")
+
+
+(defvar org-ref-ref-type-inference-alist
+  '((org-ref-equation-label-p . "eqref"))
+  "Alist of predicate functions taking a label name and the
+  desired reference type if the predicate returns true.")
+
+
+(defun org-ref-enclosing-environment (label)
+  "Returns the name of the innermost LaTeX environment containing
+the first instance of the label, or nil of there is none."
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (let ((label-point (search-forward (format "\\label{%s}" label) nil t)))
+	(when label-point
+          (catch 'return
+            (let (last-begin-point last-env)
+              (while (setq
+                      last-begin-point (re-search-backward "\\\\begin{\\([^}]+\\)}" nil t)
+                      last-env (match-string-no-properties 1))
+		(let ((env-end-point
+                       (search-forward (format "\\end{%s}" last-env) nil t)))
+                  (if (and env-end-point
+                           (> env-end-point label-point))
+                      (throw 'return last-env)
+                    (goto-char last-begin-point)))))))))))
+
+
+(defun org-ref-equation-label-p (label)
+  "Return non-nil if LABEL is an equation label."
+  (let ((maybe-env (org-ref-enclosing-environment label)))
+    (when maybe-env
+      (member maybe-env org-ref-equation-environments))))
+
+
+(defun org-ref-infer-ref-type (label)
+  "Return inferred type for LABEL."
+  (or (cl-dolist (pred-pair org-ref-ref-type-inference-alist)
+	(when (funcall (car pred-pair) label)
+	  (cl-return (eval (cdr pred-pair)))))
+      org-ref-default-ref-type))
+
+
+(defun org-ref-insert-ref-link (&optional set-type)
+  "Insert a ref link."
+  (interactive)
+  (let* ((label (ivy-read "Label: " (org-ref-get-labels)))
+	 (type (if set-type (ivy-read "Type: " org-ref-ref-types)
+		 (org-ref-infer-ref-type label))))
+    (insert (format  "%s:%s" type label))))
 
 (provide 'org-ref-ref-links)
 
