@@ -59,8 +59,6 @@
 (require 'key-chord nil 'no-error)
 (require 'message)
 (require 's)
-
-(require 'org-ref-citeproc)
 (require 'doi-utils)
 
 
@@ -855,20 +853,21 @@ _n_: Open notes   ^ ^                         _T_: Title case
 (defun org-ref-email-bibtex-entry ()
   "Email current bibtex entry at point and pdf if it exists."
   (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((key (reftex-get-bib-field "=key=" (bibtex-parse-entry t)))
+	 (pdfs (bibtex-completion-find-pdf key)))
 
-  (save-excursion
-    (bibtex-beginning-of-entry)
-    (let* ((key (reftex-get-bib-field "=key=" (bibtex-parse-entry t)))
-	   (pdfs (bibtex-completion-find-pdf key)))
-
-      (bibtex-copy-entry-as-kill)
-      (compose-mail)
-      (message-goto-body)
-      (insert (pop bibtex-entry-kill-ring))
-      (message-goto-subject)
-      (insert key)
-      (cl-loop for pdf in pdfs do (mml-attach-file pdf))
-      (message-goto-to))))
+    (bibtex-copy-entry-as-kill)
+    (compose-mail)
+    (message-goto-body)
+    (insert (pop bibtex-entry-kill-ring))
+    (message-goto-subject)
+    (insert key)
+    (cl-loop for pdf in pdfs do (mml-attach-file pdf))
+    (message-goto-to)
+    ;; I am not sure why I have to put an empty string here, but it prevents a
+    ;; bell error.
+    ""))
 
 ;;* org-ref bibtex keywords
 ;; adapted from bibtex-utils.el
