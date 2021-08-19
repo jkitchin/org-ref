@@ -1,0 +1,22 @@
+* Introduction <<sec-intro>>
+
+This is a basic example.
+
+** Citations
+
+- cite :: [[cite:@kitchin-2015-examp-effec]]
+- citeauthor ::  [[citeauthor:@kitchin-2015-examp-effec]]
+- citeauthor ::  [[citenum:@kitchin-2015-examp-effec]]
+
+#+name: tab-data
+#+caption: some tabular data.
+| x | y |
+| 0 | 1 |
+
+
+** cross-references
+
+See section ref:sec-intro. The data is shown in Table ref:tab-data.
+
+[[bibliographystyle:authordate1]]
+bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
