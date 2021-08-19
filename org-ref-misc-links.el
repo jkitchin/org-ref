@@ -1,5 +1,12 @@
+;;; org-ref-misc-links.el --- Miscellaneous links
 
 ;; * Miscellaneous links
+
+
+;;; Commentary:
+;;
+
+;;; Code:
 
 ;;** List of figures
 
@@ -201,3 +208,7 @@ PATH is required for the org-link, but it does nothing here."
 				   (cond
 				    ((eq format 'latex)
 				     (format "\\printindex")))))
+
+(provide 'org-ref-misc-links)
+
+;;; org-ref-misc-links.el ends here

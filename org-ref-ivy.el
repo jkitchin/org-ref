@@ -1,10 +1,10 @@
 ;;; org-ref-ivy.el --- org-ref with ivy completion -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016  John Kitchin
+;; Copyright (C) 2016-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
-;; Version: 0.8.1
+;; Version: 1.0
 ;; Keywords: org-mode, cite, ref, label
 
 ;; This file is not currently part of GNU Emacs.
@@ -23,12 +23,12 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; (setq org-ref-completion-library 'org-ref-ivy-cite)
 
 (require 'org-ref-core)
 (require 'org-ref-bibliography-links)
 (require 'org-ref-citation-links)
 (require 'org-ref-ref-links)
+(require 'org-ref-misc-links)
 (require 'org-ref-utils)
 (require 'org-ref-bibtex)
 
