@@ -28,9 +28,11 @@
 (require 'org-ref-bibliography-links)
 (require 'org-ref-citation-links)
 (require 'org-ref-ref-links)
+(require 'org-ref-label-link)
 (require 'org-ref-misc-links)
 (require 'org-ref-utils)
 (require 'org-ref-bibtex)
+(require 'bibtex-utils)
 
 (setq org-ref-insert-link-function 'org-ref-insert-link
       org-ref-insert-cite-function 'org-ref-cite-insert
