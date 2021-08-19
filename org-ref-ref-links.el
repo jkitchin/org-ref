@@ -30,6 +30,9 @@
   `((t (:inherit org-link :foreground ,org-ref-ref-color)))
   "Face for ref links in org-ref.")
 
+(defvar org-ref-label-re
+  (rx (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%&~"))))
+  "Regexp for labels.")
 
 (defvar org-ref-ref-label-regexps
   (list
@@ -133,7 +136,7 @@ don't have to figure out which label you clicked on."
 (defun org-ref-ref-help-echo (_win _obj position)
   "Tooltip for context on a ref label.
 POSITION is the point under the mouse I think."
-  (cdr (assoc (get-text-property position 'org-ref-ref-label) (org-ref-ref-get-labels))))
+  (cdr (assoc (get-text-property position 'org-ref-ref-label) (org-ref-get-labels))))
 
 
 (defun org-ref-ref-activate (start end path bracketp)
