@@ -71,7 +71,7 @@
 
 
 (defcustom org-ref-completion-library
-  'org-ref-ivy-cite
+  'org-ref-ivy
   "Symbol for library to define completion functions.
 The completion library should provide functions for
 `org-ref-insert-link-function', `org-ref-insert-cite-function',
@@ -79,7 +79,7 @@ The completion library should provide functions for
 and `org-ref-cite-onclick-function', and set those variables to
 the values of those functions."
   :type 'symbol
-  :options '(org-ref-ivy-cite)
+  :options '(org-ref-ivy)
   :group 'org-ref)
 
 
@@ -149,11 +149,6 @@ function in `org-ref-completion-library'."
 ;;* font lock for org-ref
 
 
-(defvar org-ref-label-re
-  "label:\\([a-zA-Z0-9_:-]+,?\\)+"
-  "Regexp for label links.")
-
-
 ;; TODO : this could be a lot cleaner I think
 (defun org-ref-find-bibliography ()
   "Find the bibliography in the buffer.
@@ -216,7 +211,7 @@ set in `bibtex-completion-bibliography'"
 
       ;; we did not find anything. use defaults
       (setq org-ref-bibliography-files bibtex-completion-bibliography)))
-  
+
   org-ref-bibliography-files)
 
 
