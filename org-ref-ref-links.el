@@ -45,7 +45,9 @@
    ;; A target, code copied from org-target-regexp and group 1 numbered.
    (let ((border "[^<>\n\r \t]"))
      (format "<<\\(?1:%s\\|%s[^<>\n\r]*%s\\)>>"
-	     border border border)))
+	     border border border))
+   ;; A label link
+   (concat "label:" org-ref-label-re "\\_>"))
   "List of regular expressions to labels.
 The label should always be in group 1.")
 
@@ -78,6 +80,7 @@ A NAME keyword
 A CUSTOM_ID property on a heading
 A LaTeX label
 A target.
+A label link.
 
 See `org-ref-ref-label-regexps' for the patterns that find these.
 
@@ -110,7 +113,7 @@ font-lock."
 			    "\n"))
 		     labels))))
     ;; reverse so they are in the order we find them.
-    (reverse labels)))
+    (delete-dups (reverse labels))))
 
 (defun org-ref-ref-follow (_path)
   "Follow the ref link.
