@@ -59,7 +59,7 @@ path, or you want to use another version."
 
 (defcustom org-ref-pdf-to-bibtex-function
   'copy-file
-  "Function for getting  a pdf to the `org-ref-pdf-directory'.
+  "Function for getting  a pdf to a directory.
 Defaults to `copy-file', but could also be `rename-file'."
   :type 'File :group 'org-ref-pdf)
 
@@ -77,7 +77,7 @@ strings, or nil.
   (with-temp-buffer
     (insert (shell-command-to-string (format "%s %s -"
 					     pdftotext-executable
-					     (shell-quote-argument (dnd-unescape-uri pdf)))))
+					     (shell-quote-argument (dnd--unescape-uri pdf)))))
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward org-ref-pdf-doi-regex nil t)
@@ -119,9 +119,8 @@ BIB is an optional filename to get the entry from."
 
 ;;;###autoload
 (defun org-ref-pdf-to-bibtex ()
-  "Add pdf of current buffer to bib file and save pdf to
-`org-ref-default-bibliography'. The pdf should be open in Emacs
-using the `pdf-tools' package."
+  "Add pdf of current buffer to bib file and save pdf. The pdf
+should be open in Emacs using the `pdf-tools' package."
   (interactive)
   (when (not (f-ext? (downcase (buffer-file-name)) "pdf"))
     (error "Buffer is not a pdf file"))
@@ -133,14 +132,19 @@ using the `pdf-tools' package."
                 (completing-read "Select DOI: " dois))))
     ;; Add bib entry from doi:
     (doi-utils-add-bibtex-entry-from-doi doi)
-    ;; Copy pdf to `org-ref-pdf-directory':
+    ;; Copy pdf to a directory
     (let ((key (org-ref-bibtex-key-from-doi doi)))
       (funcall org-ref-pdf-to-bibtex-function
 	       (buffer-file-name)
                (expand-file-name (format "%s.pdf" key)
-                                 org-ref-pdf-directory)))))
-
-
+				 (cond
+				  ((stringp bibtex-completion-library-path)
+				   bibtex-completion-library-path)
+				  ((and (listp bibtex-completion-library-path)
+					(= 1 (length bibtex-completion-library-path)))
+				   (car bibtex-completion-library-path))
+				  (t
+				   (completing-read "Dir: " bibtex-completion-library-path))))))))
 
 ;;;###autoload
 (defun org-ref-pdf-debug-pdf (pdf-file)

@@ -633,12 +633,12 @@ until one is found."
 ;;;###autoload
 (defun doi-utils-get-bibtex-entry-pdf (&optional arg)
   "Download pdf for entry at point if the pdf does not already exist locally.
-The entry must have a doi. The pdf will be saved
-to `org-ref-pdf-directory', by the name %s.pdf where %s is the
-bibtex label.  Files will not be overwritten.  The pdf will be
-checked to make sure it is a pdf, and not some html failure
-page. You must have permission to access the pdf. We open the pdf
-at the end if `doi-utils-open-pdf-after-download' is non-nil.
+The entry must have a doi. The pdf will be saved, by the name
+%s.pdf where %s is the bibtex label. Files will not be
+overwritten. The pdf will be checked to make sure it is a pdf,
+and not some html failure page. You must have permission to
+access the pdf. We open the pdf at the end if
+`doi-utils-open-pdf-after-download' is non-nil.
 
 With one prefix ARG, directly get the pdf from a file (through
 `read-file-name') instead of looking up a DOI. With a double
@@ -911,11 +911,6 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
   ;; try to get pdf
   (when doi-utils-download-pdf
     (doi-utils-get-bibtex-entry-pdf)))
-
-
-;; It may be you are in some other place when you want to add a bibtex entry.
-;; This next function will open the first entry in org-ref-default-bibliography
-;; go to the end, and add the entry. You can sort it later.
 
 
 ;;;###autoload
@@ -1466,7 +1461,7 @@ Get a list of possible matches. Choose one with completion."
                 (completing-read
                  "Bibfile: "
                  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                         org-ref-default-bibliography))))
+                         bibtex-completion-bibliography))))
   (let* ((raw-json-string)
 	 (json-string)
 	 (json-data)

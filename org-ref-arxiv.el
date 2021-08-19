@@ -242,9 +242,13 @@ key."
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                   bibtex-completion-bibliography))
-         (read-directory-name
-          "PDF directory: "
-          org-ref-pdf-directory)))
+	 (cond
+	  ((stringp bibtex-completion-library-path)
+	   bibtex-completion-library-path)
+	  ((= 1 (length bibtex-completion-library-path))
+	   (car bibtex-completion-library-path))
+	  (t
+	   (completing-read "PDF dir: " bibtex-completion-library-path)))))
 
   (arxiv-add-bibtex-entry arxiv-number bibfile)
 

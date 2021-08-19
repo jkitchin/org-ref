@@ -152,8 +152,7 @@ Should be one of the cars of `org-ref-formatted-citation-formats'."
   "Function to use when associating pdf files with bibtex entries.
 The value should be either `rename-file' or `copy-file'. The former
 will move and rename the original file. The latter will leave the
-original file in place while creating a renamed copy in
-`org-ref-pdf-directory'."
+original file in place while creating a renamed copy in some directory."
   :type 'function
   :group 'org-ref-bibtex)
 
@@ -722,11 +721,11 @@ opposite function from that which is defined in
 ;;;###autoload
 (defun org-ref-bibtex-assoc-pdf-with-entry (&optional prefix)
   "Prompt for pdf associated with entry at point and rename it.
-Check whether a pdf already exists in `org-ref-pdf-directory' with the
+Check whether a pdf already exists in `bibtex-completion-library' with the
 name '[bibtexkey].pdf'. If the file does not exist, rename it to
 '[bibtexkey].pdf' using
 `org-ref-bibtex-assoc-pdf-with-entry-move-function' and place it in
-`org-ref-pdf-directory'. Optional PREFIX argument toggles between
+a directory. Optional PREFIX argument toggles between
 `rename-file' and `copy-file'."
   (interactive "P")
   (save-excursion
@@ -735,13 +734,20 @@ name '[bibtexkey].pdf'. If the file does not exist, rename it to
 	   (bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (reftex-get-bib-field "=key=" entry))
-           (pdf (concat org-ref-pdf-directory (concat key ".pdf")))
-	   (file-move-func (org-ref-bibtex-get-file-move-func prefix)))
-      (if (file-exists-p pdf)
-	  (message (format "A file named %s already exists" pdf))
-	(progn
-	  (funcall file-move-func file pdf)
-	  (message (format "Created file %s" pdf)))))))
+	   (file-move-func (org-ref-bibtex-get-file-move-func prefix))
+	   pdf)
+      (if (bibtex-completion-find-pdf-in-library key)
+	  (message (format "A file named %s already exists" (bibtex-completion-find-pdf-in-library key)))
+	(setq pdf (expand-file-name (concat key ".pdf") (cond
+							 ((stringp bibtex-completion-library-path)
+							  bibtex-completion-library-path)
+							 ((and (listp bibtex-completion-library-path)
+							       (= 1 (length bibtex-completion-library-path)))
+							  (car bibtex-completion-library-path))
+							 (t
+							  (completing-read "Dir: " bibtex-completion-library-path)))))
+	(funcall file-move-func file pdf)
+	(message (format "Created file %s" pdf))))))
 
 
 ;;* Hydra menus

@@ -112,11 +112,6 @@ Opens https://github.com/jkitchin/org-ref/issues/new."
 
 ${org-ref-version}
 
-* Variables
-1. org-ref-completion-library: ${org-ref-completion-library}
-2. org-ref-default-bibliography: ${org-ref-default-bibliography} (exists ${ordb-p}) (listp ${ordb-listp})
-3. org-ref-pdf-directory: ${org-ref-pdf-directory} (exists ${orpd-p})
-
 * System
 system-type: ${system}
 system-configuration: ${system-configuration}
@@ -138,14 +133,8 @@ org-latex-pdf-process:
 ${org-latex-pdf-process}
 "
 	     'aget
-	     `(("org-ref-completion-library" . ,(format "%s" org-ref-completion-library))
-	       ("org-ref-version" . ,(org-ref-version))
+	     `(("org-ref-version" . ,(org-ref-version))
 	       ("org-latex-pdf-process" . ,(format "%S" org-latex-pdf-process))
-	       ("org-ref-default-bibliography" . ,(format "%s" org-ref-default-bibliography))
-	       ("ordb-p" . ,(format "%s" (mapcar 'file-exists-p org-ref-default-bibliography)))
-	       ("ordb-listp" . ,(ords (listp org-ref-default-bibliography)))
-	       ("org-ref-pdf-directory" . ,(format "%s" org-ref-pdf-directory))
-	       ("orpd-p" . ,(format "%s" (file-exists-p org-ref-pdf-directory)))
 	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))
 
 	       ("system" . ,(format "System: %s" system-type))
@@ -202,22 +191,14 @@ and quotes in FIELD in the bibtex ENTRY."
 This searches for the pattern KEY*.pdf. If one result is found it
 is returned, but if multiple results are found, e.g. there are
 related files to the KEY you are prompted for which one you want."
-  (if org-ref-pdf-directory
-      (let* ((pdf-dirs (if (listp org-ref-pdf-directory)
-                           org-ref-pdf-directory
-                         (list org-ref-pdf-directory)))
-             (pdfs (-flatten (--map (file-expand-wildcards
-                     (f-join it (format "%s*.pdf" key)))
-                    (-flatten pdf-dirs)))))
-	    (cond
-	     ((= 0 (length pdfs))
-	      (expand-file-name (format "%s.pdf" key) org-ref-pdf-directory))
-	     ((= 1 (length pdfs))
-	      (car pdfs))
-	     ((> (length pdfs) 1)
-	      (completing-read "Choose: " pdfs))))
-    ;; No org-ref-pdf-directory defined so return just a file name.
-    (format "%s.pdf" key)))
+  (let ((results (bibtex-completion-find-pdf-in-library key)))
+    (cond
+     ((null results)
+      nil)
+     ((= 1 (length results))
+      (car results))
+     (t
+      (completing-read "PDF: " results)))))
 
 
 (defun org-ref-get-mendeley-filename (key)
@@ -239,10 +220,13 @@ Argument KEY is the bibtex key."
               (let ((first-file (car (split-string clean-field ";" t))))
                 (format "/%s" (substring first-file 1
 					 (- (length first-file) 4)))))
-          (format (concat
-                   (file-name-as-directory org-ref-pdf-directory)
-                   "%s.pdf")
-                  key))))))
+          (expand-file-name (format "%s.pdf" key) (cond
+						   ((stringp bibtex-completion-library-path)
+						    bibtex-completion-library-path)
+						   ((= 1 (length bibtex-completion-library-path))
+						    (car bibtex-completion-library-path))
+						   (t
+						    (completing-read "PDF dir: " bibtex-completion-library-path)))))))))
 
 (defun org-ref-get-pdf-filename-bibtex-completion (key)
   "Use bibtex-completion to retrieve a PDF filename for KEY.
@@ -329,35 +313,6 @@ Can also be called with THEKEY in a program."
   "Copy the bibtex entry for the citation at point as a summary."
   (interactive)
   (kill-new (org-ref-bib-citation)))
-
-
-;;;###autoload
-(defun org-ref-copy-entry-at-point-to-file ()
-  "Copy the bibtex entry for the citation at point to NEW-FILE.
-Prompt for NEW-FILE includes bib files in
-`org-ref-default-bibliography', and bib files in current working
-directory.  You can also specify a new file."
-  (interactive)
-  (let ((new-file (completing-read
-                   "Copy to bibfile: "
-                   (append org-ref-default-bibliography
-                           (f-entries "." (lambda (f) (f-ext? f "bib"))))))
-        (key (org-ref-get-bibtex-key-under-cursor)))
-    (save-window-excursion
-      (org-ref-open-citation-at-point)
-      (bibtex-copy-entry-as-kill))
-
-    (let ((bibtex-files (list (file-truename new-file))))
-      (if (assoc key (bibtex-global-key-alist))
-          (message "That key already exists in %s" new-file)
-        ;; add to file
-        (save-window-excursion
-          (find-file new-file)
-          (goto-char (point-max))
-          ;; make sure we are at the beginning of a line.
-          (unless (looking-at "^") (insert "\n\n"))
-          (bibtex-yank)
-          (save-buffer))))))
 
 
 (defun org-ref-get-doi-at-point ()
@@ -570,12 +525,12 @@ if FORCE is non-nil reparse the buffer no matter what."
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist :type))
 	    (when (not (string= "*" (plist-get plist :path)))
-              (dolist (key (org-ref-split-and-strip-string
-			    (plist-get plist :path)))
-		(when (not (org-ref-list-index key bibtex-keys))
-                  (goto-char (plist-get plist :begin))
-                  (re-search-forward key)
-                  (push (cons key (point-marker)) bad-citations)))))))
+	      (cl-loop for ref in (plist-get (org-ref-parse-cite-path (plist-get plist :path)) :references)
+		       do
+		       (when (not (member (plist-get ref :key) bibtex-keys))
+			 (goto-char (plist-get plist :begin))
+			 (re-search-forward key)
+			 (push (cons key (point-marker)) bad-citations)))))))
       ;; add with-affiliates to get cites in caption
       nil nil nil t)
     (goto-char cp)
@@ -586,33 +541,28 @@ if FORCE is non-nil reparse the buffer no matter what."
   "Return a list of conses (ref . marker) where ref is a ref link that does not point to anything (i.e. a label)."
   ;; first get a list of legitimate labels
   (let ((cp (point))
-        (labels (org-ref-get-labels))
+        (labels (mapcar 'car (org-ref-get-labels)))
         (bad-refs '()))
     ;; now loop over ref links
     (goto-char (point-min))
     (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
-          (when (or  (equal (plist-get plist ':type) "ref")
-                     (equal (plist-get plist ':type) "eqref")
-                     (equal (plist-get plist ':type) "pageref")
-                     (equal (plist-get plist ':type) "nameref")
-		     (equal (plist-get plist ':type) "autoref")
-		     (equal (plist-get plist ':type) "cref")
-		     (equal (plist-get plist ':type) "Cref"))
-            (unless (-contains? labels (plist-get plist :path))
-              (goto-char (plist-get plist :begin))
-              (add-to-list
-               'bad-refs
-               (cons (plist-get plist :path)
-                     (point-marker))))))))
+	  (when (member (plist-get plist ':type)  org-ref-ref-types)
+	    (cl-loop for label in (split-string (plist-get plist :path) ",")
+		     do
+		     (unless (-contains? labels label)
+		       (goto-char (plist-get plist :begin))
+		       (add-to-list
+			'bad-refs
+			(cons label (point-marker)))))))))
     (goto-char cp)
     bad-refs))
 
 
 (defun org-ref-bad-label-candidates ()
   "Return a list of labels where label is multiply defined."
-  (let ((labels (org-ref-get-labels))
+  (let ((labels (mapcar 'car (org-ref-get-labels)))
         (multiple-labels '()))
     ;; labels should be a unique list.
     (dolist (label labels)
@@ -714,7 +664,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 		     (erase-buffer)
 		     (org-mode)
 		     (insert (format "#+title: org-ref report on [[%s][%s]]\n\n" (buffer-file-name cb) (buffer-name cb)))
-		     (insert (format "org-ref called from %s" (buffer-file-name cb)))
+		     (insert (format "org-ref called from %s\n\n" (buffer-file-name cb)))
 
 		     (unless (time-less-p orel-mod orelc-mod)
 		       (insert (format "org-ref.elc (%s) is older than org-ref.el (%s). That is probably not right. Please delete %s.\n"
@@ -1009,12 +959,12 @@ if FORCE is non-nil reparse the buffer no matter what."
 				 mbuffer mchar key))))
 
       (when bib-candidates
-	(insert "\n* Bibliography\n")
+	(insert "\n* Bibliography\n\n")
 	(cl-loop for candidate in bib-candidates
 		 do
 		 (insert (format "- %s" candidate))))
 
-      (insert "\n* Miscellaneous\n")
+      (insert "\n* Miscellaneous\n\n")
       (cl-loop for s in `(,(format "org-latex-prefer-user-labels = %s"
 				   org-latex-prefer-user-labels)
 			  ,(format "bibtex-dialect = %s" bibtex-dialect)
@@ -1032,8 +982,6 @@ if FORCE is non-nil reparse the buffer no matter what."
 			  ,(format "org-ref-insert-label-function = %s" org-ref-insert-label-function)
 			  ,(format "org-ref-insert-ref-function = %s" org-ref-insert-ref-function)
 			  ,(format "org-ref-cite-onclick-function = %s" org-ref-cite-onclick-function)
-			  ,(format "org-ref-default-bibliography = %S" org-ref-default-bibliography)
-			  ,(format "org-ref-default-bibliography is a list = %S" (listp org-ref-default-bibliography))
 			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
 			  ,(format "natbib is%srequired." (if natbib-required " " " not "))
 			  ,(format "natbib is%sin %s or %s."

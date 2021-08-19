@@ -15,8 +15,6 @@
     (message "installing %s" package)
     (package-install package)))
 
-(setq org-ref-default-bibliography '("./references.bib"))
-
 
 (setq org-src-fontify-natively t
       org-confirm-babel-evaluate nil

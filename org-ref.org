@@ -81,7 +81,7 @@ There is also a bibliographystyle link that specifies the style. This link does 
     :END:
 index:cite
 
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]].
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~bibtex-completion-bibliography~  if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~bibtex-completion-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]].
 
 For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding ~C-c ]~ by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. If you want to match any other field, you need to add it to the variable ~bibtex-completion-additional-search-fields~; org-ref [[id:5d7a19d3-0411-4964-9154-99af4f281015][does this automatically]] for the ~keywords~ field. You can select multiple entries by pressing ~C-SPC~ to mark entries in the helm-bibtex buffer.
 
@@ -284,7 +284,7 @@ I have also had success with this setup:
 #+END_SRC
 
 *** BibTeX users
-In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]]. ~org-ref~ has a customization variable for setting the default bibliography, ~org-ref-default-bibliography~, but this is *not used in LaTeX export*; you have to set it explicitly in your file. You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
+In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]].  You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
 
 *** biblatex users
    :PROPERTIES:
@@ -661,44 +661,17 @@ This provides some org-ref like capabilities in LaTeX files, e.g. the links are 
 
 =org-ref-pdf= allows Emacs to get bibliography information from pdf files that contain a DOI. You must have =pdftotext= installed where Emacs can find it. This library is known to not work on Windows very well.
 
-- Drag and drop a PDF onto a bibtex file to add a bibtex entry
-- If you have a pdf file open in Emacs (from, for example, an email attachment), use ~org-ref-pdf-to-bibtex~ to try to extract and write the bibliography information to a bib file, (defaulting to ~org-ref-default-bibliography~) and save the pdf to ~org-ref-pdf-directory~.
-
 ** org-ref-url-utils
 
 Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about). This library does not work well on Windows.
 
 * Appendix
-** Customizing org-ref
+** TODO Customizing org-ref
    :PROPERTIES:
    :ID:       32B558A3-7B48-4581-982B-082017B0AEE8
    :END:
 index:customization
 
-You will probably want to customize a few variables before using org-ref. One way to do this is through the Emacs customization interface: [[elisp:(customize-group "org-ref")]].
-
-Also see:  [[elisp:(customize-group "org-ref-bibtex")]].
-
-Here is my minimal setup:
-#+BEGIN_SRC emacs-lisp
-(setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
-
-(setq org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
-      org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
-#+END_SRC
-
-You can also specify different completion backends. The default is `org-ref-helm-bibtex'.
-
-- org-ref-helm-bibtex :: The default backend that uses helm-bibtex
-- org-ref-reftex :: A backend that uses reftex
-- org-ref-helm-cite :: An alternative helm completion backend (does not use helm-bibtex)
-- org-ref-ivy-cite :: uses ivy for the backend
-
-To use one of these, add a line like this before you "require" org-ref.
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-completion-library 'org-ref-ivy-cite)
-#+END_SRC
 
 
 ** Other things org-ref supports
@@ -829,23 +802,6 @@ First ac:bb. Second ac:bb. First ac:qos. Second ac:qos.
 \glsaddall
 \printglossaries
 
-** Prelude users
-
-An issue related to using org-ref with prelude was [[https://github.com/jkitchin/org-ref/issues/583][reported]], along with a solution that loads org-ref before loading prelude. The solution was to create a file like ~/.emacs.d/personal/preload/preload.el with these contents.
-
-#+BEGIN_SRC emacs-lisp
-(package-initialize)
-
-(setq reftex-default-bibliography '("~/bibliography/references.bib"))
-(setq org-ref-default-bibliography '("~/bibliography/references.bib")
-      org-ref-pdf-directory "~/bibliography/bibtex-pdfs/")
-
-(require 'org-ref)
-
-(provide 'preload)
-
-;;; preload.el ends here
-#+END_SRC
 
 ** Other forms of this document
    :PROPERTIES:
