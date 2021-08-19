@@ -10,7 +10,7 @@
   "Color for cite-like links in org-ref.")
 
 
-(defface org-ref-bad-cite-face
+(defface org-ref-bad-cite-key-face
   `((t (:inherit org-ref-cite-face
 		 :foreground "red")))
   "Color for bad cite keys in org-ref.")
@@ -72,7 +72,7 @@ http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf"
     "fnotecite")
   "biblatex commands.
 Biblatex commands
-http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
+https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
 
@@ -119,7 +119,7 @@ http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
 
 (defvar org-ref-citation-key-re
   (rx "@" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%&~"))))
-  "Numbered regular expression for a cite key.
+  "Numbered regular expression for a version 3 cite key.
 Key is in group 1.
 Adapted from the expression in org-cite.")
 
@@ -139,30 +139,40 @@ I think that if there is a @ in path, it must be version 3."
   "Return a data structure representing the PATH."
   (pcase (org-ref-cite-version path)
     (2
+     ;; This will not have any prefix or suffix, since that was previously done in the desc.
      (list :version 2 :references (cl-loop for key in (split-string path ",") collect
 					   (list :key (string-trim key)))))
     (3 (let ((citation-references (split-string path ";"))
-	     (results '(:version 3)))
+	     (these-results '(:version 3)))
+	 ;; if the first ref doesn't match a key, it must be a global prefix
+	 ;; this pops the referenc off.
 	 (when (null (string-match org-ref-citation-key-re (cl-first citation-references)))
-	   (setq results (plist-put results :prefix (pop citation-references))))
+	   (setq these-results (append these-results (list :prefix (cl-first citation-references)))
+		 citation-references (cdr citation-references)))
+
+	 ;; if the last ref doesn't match a key, then it is a global suffix
+	 ;; we remove the last one if this is true after getting the suffix.
 	 (when (null (string-match org-ref-citation-key-re (car (last citation-references))))
-	   (setq results (plist-put results :suffix (car (last citation-references)))
+	   (setq these-results (append these-results (list :suffix (car (last citation-references))))
 		 citation-references (butlast citation-references)))
 
-	 (setq results (plist-put results
-				  :references (cl-loop for s in citation-references collect
-						       (if (null (string-match org-ref-citation-key-re s))
-							   (error "No label found")
-							 (let* ((key (match-string-no-properties 1 s))
-								(key-start (match-beginning 0))
-								(key-end (match-end 0))
-								(prefix (substring s 0 key-start))
-								(suffix (substring s key-end)))
-							   (list :key key :prefix prefix :suffix suffix))))))))))
+	 (setq these-results (append these-results
+				     (list
+				      :references
+				      (cl-loop for s in citation-references collect
+					       (if (null (string-match org-ref-citation-key-re s))
+						   (error "No label found")
+						 (let* ((key (match-string-no-properties 1 s))
+							(key-start (match-beginning 0))
+							(key-end (match-end 0))
+							(prefix (substring s 0 key-start))
+							(suffix (substring s key-end)))
+						   (list :key key :prefix prefix :suffix suffix)))))))))))
 
 
 (defun org-ref-interpret-cite-data (data)
-  "Interpret the DATA structure back to a path string."
+  "Interpret the DATA structure from `org-ref-parse-cite-path' back
+to a path string."
   (pcase (plist-get data :version)
     (2
      (string-join (cl-loop for ref in (plist-get data :references) collect (plist-get ref :key)) ","))
@@ -188,12 +198,11 @@ PATH has the citations in it."
     (goto-char start)
     (pcase (org-ref-cite-version path)
       (2
-       (message "activating version 2")
        (setq substrings (split-string path ","))
        (cl-loop for key in substrings
 		do
 		;; get to the substring
-		(search-forward key end) 
+		(search-forward key end)
 		(put-text-property (match-beginning 0)
 				   (match-end 0)
 				   'keymap
@@ -205,12 +214,11 @@ PATH has the citations in it."
 		(unless (member (string-trim key) valid-keys)
 		  (put-text-property (match-beginning 0)
 				     (match-end 0)
-				     'face 'font-lock-warning-face)
+				     'face 'org-ref-bad-cite-key-face)
 		  (put-text-property (match-beginning 0)
 				     (match-end 0)
 				     'help-echo "Key not found"))))
       (3
-       (message "activating version 3")
        (setq substrings (split-string path ";"))
        (cl-loop for i from 0 for s in substrings
 		do
@@ -266,11 +274,9 @@ PATH has the citations in it."
 					 'help-echo "Key not found")))))))))
 
 
-;; TODO: replace with hydra menu
 (defun org-ref-cite-follow (_path)
   "Follow a cite link."
-  (let ((key (get-text-property (point) 'cite-key)))
-    (bibtex-completion-show-entry (list key))))
+  (org-ref-citation-hydra/body))
 
 
 (defun org-ref-cite-tooltip (_win _obj position)
@@ -280,11 +286,13 @@ PATH has the citations in it."
       (bibtex-completion-apa-format-reference key))))
 
 
-(defun org-ref-natbib-export (cmd path _desc backend)
-  "Export a natbib link.
+(defun org-ref-cite-export (cmd path _desc backend)
+  "Export a cite link.
+This supports the syntax:  \\cmd[optional prefix][optional suffix]{keys}
+The prefix and suffix must be the global version. Local prefix/suffixes are ignored.
 PATH contains the link path.
 BACKEND is the export backend.
-Use with apply-partially"
+Use with apply-partially."
   (pcase backend
     (latex
      (let ((cite (org-ref-parse-cite-path path)))
@@ -306,18 +314,75 @@ Use with apply-partially"
 					   ","))))))))
 
 
+(defun org-ref-multicite-export (cmd path _desc backend)
+  "Export a multicite link.
+This supports the syntax:  \\cmd(multiprenote)(multipostnote)[prenote][postnote]{key1}...[prenote][postnote]{key}
+PATH contains the link path.
+BACKEND is the export backend.
+Use with apply-partially."
+  (pcase backend
+    (latex
+     (let ((cite (org-ref-parse-cite-path path)))
+       (s-format "\\${cmd}${global-prefix}${global-suffix}${keys}" 'aget
+		 `(("cmd" . ,cmd)
+		   ("global-prefix" . ,(cond
+					((plist-get cite :prefix)
+					 (concat "(" (plist-get cite :prefix) ")"))
+					;; if you have a suffix, you need an empty prefix
+					((plist-get cite :suffix)
+					 "()")
+					(t
+					 "")))
+		   ("global-suffix" . ,(if (not (string= "" (or (plist-get cite :suffix) "")))
+					   (format "(%s)" (plist-get cite :suffix))
+					 ""))
+		   ("keys" . ,(string-join (cl-loop for ref in (plist-get cite :references) collect
+						    (format "%s%s{%s}"
+							    (cond
+							     ;; we have a prefix, stick it in
+							     ((not (string= "" (or (plist-get ref :prefix) "")))
+							      (concat "[" (plist-get ref :prefix) "]"))
+							     ;; no prefix, but a suffix, so empty prefix for placeholder
+							     ((not (string= "" (or (plist-get ref :suffix) "")))
+							      "[]")
+							     (t
+							      ""))
+							    (cond
+							     ((not (string= "" (or (plist-get ref :suffix) "")))
+							      (concat "[" (plist-get ref :suffix) "]"))
+							     (t
+							      ""))
+							    (plist-get ref :key)))))))))))
 
 
-(cl-loop for natbib-cmd in org-ref-natbib-types do
+(cl-loop for cmd in org-ref-natbib-types do
 	 (org-link-set-parameters
-	  natbib-cmd
+	  cmd
 	  :follow #'org-ref-cite-follow
 	  :face 'org-ref-cite-face
 	  :help-echo #'org-ref-cite-tooltip
-	  :export (apply-partially 'org-ref-natbib-export natbib-cmd)
+	  :export (apply-partially 'org-ref-cite-export  cmd)
 	  :activate-func #'org-ref-cite-activate))
 
 
+(cl-loop for cmd in org-ref-biblatex-types do
+	 (org-link-set-parameters
+	  cmd
+	  :follow #'org-ref-cite-follow
+	  :face 'org-ref-cite-face
+	  :help-echo #'org-ref-cite-tooltip
+	  :export (apply-partially 'org-ref-cite-export  cmd)
+	  :activate-func #'org-ref-cite-activate))
+
+
+(cl-loop for cmd in org-ref-biblatex-multitypes do
+	 (org-link-set-parameters
+	  cmd
+	  :follow #'org-ref-cite-follow
+	  :face 'org-ref-cite-face
+	  :help-echo #'org-ref-cite-tooltip
+	  :export (apply-partially 'org-ref-multicite-export cmd)
+	  :activate-func #'org-ref-cite-activate))
 
 
 ;; * Cite link utilities
@@ -334,7 +399,6 @@ Use with apply-partially"
     (setf (nth i lst) (nth j lst))
     (setf (nth j lst) tempi))
   lst)
-
 
 
 ;;;###autoload
@@ -395,7 +459,12 @@ Use with apply-partially"
       (re-search-forward link-string)
       (replace-match (org-ref-interpret-cite-data data)))))
 
+
 ;;** C-arrow navigation of cite keys
+;;
+;; These are a little tricky to understand to me. There are two calls because
+;; when you are on a cite, and move, the first change is the boundary of the
+;; current cite, and the second is the boundary of next cite.
 
 ;;;###autoload
 (defun org-ref-next-key ()
@@ -442,51 +511,57 @@ move to the beginning of the previous cite link after this one."
   "Alternate actions to do instead of inserting.")
 
 
-;; TODO; this is still not robust
 (defun org-ref-insert-cite-key (key)
   "Rules:
 1. at beginning of key, insert before it.
-2. at middle or end of key, insert after it.
-"
+2. at middle or end of key, insert after it."
   (let* ((object (org-element-context))
 	 (type (org-element-property :type object))
 	 (cp (point))
-	 link-string data references key-at-point index)
+	 link-string version data references key-at-point index)
 
     (if (null (member type org-ref-cite-types))
-	;; Not on a link
+	;; Not on a link, so we just insert a cite
 	(insert (format "[[%s:@%s]]" org-ref-default-citation-link key))
 
-      ;; On a link somewhere
+      ;; On a link somewhere, and we need to figure out what to do.
       (setq link-string (org-element-property :path object)
+	    version (org-ref-cite-version link-string)
 	    data (org-ref-parse-cite-path link-string)
 	    references (plist-get data :references)
 	    key-at-point (org-ref-get-bibtex-key-under-cursor))
 
+      ;; There are two scenarios where key-at-point is null
+      ;; 1. on the link-type before the :
+      ;; 2. at the end of the link
       (when (null key-at-point)
 	;; see if we are before the colon, and move to the first ref if so.
 	(if (search-forward ":" (org-element-property :end object) t)
 	    (progn
 	      (search-forward (plist-get (cl-first references) :key))
 	      (goto-char (match-beginning 0))
+	      (when (= 3 version)
+		(backward-char 1))
 	      (setq key-at-point (plist-get (cl-first references) :key)))
 
 	  ;; that failed, so move to the last one
 	  (search-backward (plist-get (car (last references)) :key))
+	  (when (= 3 version)
+	    (backward-char 1))
 	  (setq key-at-point (plist-get (car (last references)) :key))))
 
       ;; this is index of selected key
       (setq index (seq-position references key-at-point
 				(lambda (el1 key-at-point)
 				  (string= key-at-point (plist-get el1 :key)))))
-      
+
 
       (save-excursion
 	(goto-char (org-element-property :begin object))
 	(search-forward key-at-point)
 	(setq data (plist-put data :references
 			      (-insert-at
-			       (+ index (if (= cp (match-beginning 0))
+			       (+ index (if (= cp (- (match-beginning 0) (if (= 3 version) 1 0)))
 					    -1
 					  +1))
 			       (list :key key) references)))
@@ -495,7 +570,10 @@ move to the beginning of the previous cite link after this one."
 	(replace-match (org-ref-interpret-cite-data data)))
       (goto-char (org-element-property :begin object))
       (search-forward key)
-      (goto-char (match-beginning 0)))))
+      (goto-char (match-end 0))
+      ;; for version 3 go back one to get on @
+      (when (= 3 version)
+	(backward-char 1)))))
 
 
 (defun org-ref-cite-insert ()
@@ -533,9 +611,11 @@ move to the beginning of the previous cite link after this one."
   ("g" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
   ("P" org-ref-pubmed-at-point "Pubmed" :column "WWW")
   ("C" org-ref-crossref-at-point "Crossref" :column "WWW")
-  ("e" (kill-new (save-excursion
-		   (org-ref-open-citation-at-point)
-		   (org-ref-email-bibtex-entry)))
+
+  ;; TODO this is a little clunky, leaves the bib file open, and isn't smooth.
+  ("e" (save-excursion
+	 (org-ref-open-citation-at-point)
+	 (org-ref-email-bibtex-entry))
    "Email" :column "WWW")
 
   ("K" org-ref-copy-entry-as-summary "Copy bibtex" :column "Copy")
@@ -558,10 +638,3 @@ move to the beginning of the previous cite link after this one."
 (provide 'org-ref-citation-links)
 
 ;;; org-ref-citation-links.el ends here
-
-
-
-
-
-
-
