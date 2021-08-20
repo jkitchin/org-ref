@@ -387,6 +387,25 @@ Use with apply-partially."
 
 ;; * Cite link utilities
 
+;;;###autoload
+(defun org-ref-change-cite-type ()
+  "Change the cite type of citation link at point."
+  (interactive)
+  (let* ((new-type (completing-read "Type: " org-ref-cite-types))
+	 (cite-link (org-element-context))
+	 (cp (point)))
+    (cl--set-buffer-substring
+     (org-element-property :begin cite-link)
+     (org-element-property :end cite-link)
+     (org-element-interpret-data
+      (org-element-create 'link
+			  `(:type ,new-type
+				  :path ,(org-element-property :path cite-link)
+				  :contents-begin ,(org-element-property :contents-begin cite-link)
+				  :contents-end ,(org-element-property :contents-end  cite-link)))))
+    (goto-char cp)))
+
+
 (defun org-ref-get-bibtex-key-under-cursor ()
   "Return key under the cursor in org-mode."
   (get-text-property (point) 'cite-key))
@@ -631,7 +650,7 @@ move to the beginning of the previous cite link after this one."
   ("<right>" org-ref-cite-shift-right "Shift right" :color red :column "Edit")
   ("<up>" org-ref-sort-citation-link "Sort by year" :column "Edit")
   ("i" (funcall org-ref-insert-cite-function) "Insert cite" :column "Edit")
-  ("h" org-ref-change-cite-type "Change cite type" :column "Edit")
+  ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
   ("q" nil "Quit"))
 
 
