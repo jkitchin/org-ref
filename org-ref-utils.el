@@ -394,6 +394,31 @@ Can also be called with THEKEY in a program."
   (interactive)
   (doi-utils-crossref (org-ref-get-doi-at-point)))
 
+;;;###autoload
+(defun org-ref-email-at-point ()
+  "Email the citation(s) at point."
+  (interactive)
+  (let* ((cite (org-element-context))
+	 (keys ()))
+    (compose-mail)
+    (message-goto-body)
+    (cl-loop for ref in (plist-get
+			 (org-ref-parse-cite-path (org-element-property :path cite))
+			 :references)
+	     do
+	     (let* ((key (plist-get ref :key))
+		    (entry (save-window-excursion
+			     (bibtex-completion-show-entry (list key))
+			     (bibtex-copy-entry-as-kill)
+			     (pop bibtex-entry-kill-ring)))
+		    (pdfs (bibtex-completion-find-pdf key)))
+	       (setq keys (append keys (list key)))
+	       (insert entry)
+	       (cl-loop for pdf in pdfs do (mml-attach-file pdf))))
+
+    (message-goto-subject)
+    (insert "References: " (string-join keys ","))))
+
 
 ;;* General org-ref utilities
 (defun org-ref-strip-string (string)

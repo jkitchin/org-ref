@@ -616,6 +616,7 @@ move to the beginning of the previous cite link after this one."
 			(org-ref-insert-cite-key (cdr (assoc "=key=" (cdr candidate))))))))
 
 
+
 (defhydra org-ref-citation-hydra (:color blue :hint nil)
   "Citation actions
 "
@@ -630,20 +631,12 @@ move to the beginning of the previous cite link after this one."
   ("g" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
   ("P" org-ref-pubmed-at-point "Pubmed" :column "WWW")
   ("C" org-ref-crossref-at-point "Crossref" :column "WWW")
-
-  ;; TODO this is a little clunky, leaves the bib file open, and isn't smooth.
-  ("e" (save-excursion
-	 (org-ref-open-citation-at-point)
-	 (org-ref-email-bibtex-entry))
-   "Email" :column "WWW")
+  ("e" org-ref-email-at-point "Email" :column "WWW")
 
   ("K" org-ref-copy-entry-as-summary "Copy bibtex" :column "Copy")
-  ("k" (progn
-	 (kill-new
-	  (car (org-ref-get-bibtex-key-and-file))))
-   "Copy key" :column "Copy")
-  ("f" (kill-new
-	(org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
+  ("k" (kill-new (car (org-ref-get-bibtex-key-and-file))) "Copy key" :column "Copy")
+  ("f" (kill-new (bibtex-completion-apa-format-reference
+		  (org-ref-get-bibtex-key-under-cursor)))
    "Copy formatted" :column "Copy")
 
   ("<left>" org-ref-cite-shift-left "Shift left" :color red :column "Edit")
