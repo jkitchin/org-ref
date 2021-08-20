@@ -117,6 +117,25 @@ Optional argument BACKEND is the export backend."
 	      "")))))
 
 
+(defun org-ref-insert-bibliography-link ()
+  "Insert a bibliography link for the files used in this buffer."
+  (interactive)
+  (let* ((cite-links (org-element-map (org-element-parse-buffer) 'link
+		       (lambda (lnk)
+			 (when (member (org-element-property :type lnk) org-ref-cite-types)
+			   lnk))))
+	 (keys (delete-dups (cl-loop for cl in cite-links append
+				     (cl-loop for ref in (plist-get (org-ref-parse-cite-path
+								     (org-element-property :path cl))
+								    :references)
+					      collect (plist-get ref :key)))))
+	 (files (delete-dups (cl-loop for key in keys collect
+				      (save-window-excursion
+					(bibtex-completion-show-entry (list key))
+					(buffer-file-name))))))
+    (insert (format "bibliography:%s" (string-join files ",")))))
+
+
 ;; ** bibliography* links
 
 (org-link-set-parameters "bibliography"
