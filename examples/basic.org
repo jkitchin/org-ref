@@ -1,22 +1,49 @@
+#+title: A basic example of org-ref
+#+options: toc:nil
+#+latex_header: \usepackage{makeidx}
+#+latex_header: \makeindex
+
+\maketitle
+\tableofcontents
+
 * Introduction <<sec-intro>>
 
 This is a basic example.
 
 ** Citations
+index:citations
 
 - cite :: [[cite:@kitchin-2015-examp-effec]]
 - citeauthor ::  [[citeauthor:@kitchin-2015-examp-effec]]
-- citeauthor ::  [[citenum:@kitchin-2015-examp-effec]]
+- citenum ::  [[citenum:@kitchin-2015-examp-effec]]
 
+index:label!table
 #+name: tab-data
 #+caption: some tabular data.
 | x | y |
 | 0 | 1 |
 
 
+index:label!figure
+#+name: fig-cos
+#+caption: You need a caption.
+[[./fig.png]]
+
 ** cross-references
+index:cross-references
 
 See section ref:sec-intro. The data is shown in Table ref:tab-data.
 
 [[bibliographystyle:authordate1]]
 bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
+
+** miscellaneous links
+
+[[list-of-tables:]]
+
+[[list-of-figures:]]
+
+[[printindex:]]
+
+bibliographystyle:unsrtnat
+bibliography:../org-ref.bib
