@@ -199,16 +199,15 @@ VISIBLE-ONLY BODY-ONLY and INFO."
     (org-export-with-buffer-copy
      (org-ref-process-buffer (cdr (assoc backend csl-formats)))
      (pcase backend
-       ;; odt is a little bit special
-       (odt
-	(org-open-file (org-odt-export-to-odt async subtreep visible-only
-					      info)
-		       'system))
-       (_)
-       (org-open-file (org-export-to-file backend export-name
-			async subtreep visible-only
-			body-only info)
-		      'system)))))
+       ;; odt is a little bit special, and is missing one argument
+       ('odt (org-open-file (org-odt-export-to-odt async subtreep visible-only
+						   info)
+			    'system))
+       (_
+	(org-open-file (org-export-to-file backend export-name
+			 async subtreep visible-only
+			 body-only info)
+		       'system))))))
 
 
 (defun org-ref-export-to-html (&optional async subtreep visible-only

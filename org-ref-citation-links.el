@@ -315,24 +315,61 @@ PATH contains the link path.
 BACKEND is the export backend.
 Use with apply-partially."
   (pcase backend
-    (latex
-     (let ((cite (org-ref-parse-cite-path path)))
-       (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
-		 `(("cmd" . ,cmd)
-		   ("prefix" . ,(cond
-				 ((plist-get cite :prefix)
-				  (concat "[" (plist-get cite :prefix) "]"))
-				 ;; if you have a suffix, you need an empty prefix
-				 ((plist-get cite :suffix)
-				  "[]")
-				 (t
-				  "")))
-		   ("suffix" . ,(if (plist-get cite :suffix)
-				    (format "[%s]" (plist-get cite :suffix))
-				  ""))
-		   ("keys" . ,(string-join (cl-loop for ref in (plist-get cite :references) collect
-						    (plist-get ref :key))
-					   ","))))))))
+    ('latex
+     (let* ((cite (org-ref-parse-cite-path path))
+	    (references (plist-get cite :references))
+	    (keys (cl-loop for ref in references collect
+			   (plist-get ref :key))))
+       (pcase (org-ref-cite-version path)
+	 (2
+	  (let* ((prefix-suffix (split-string desc "::"))
+		 (prefix (cond
+			  ((cl-first prefix-suffix)
+			   (format "[%s]" (cl-first prefix-suffix)))
+			  ((cl-second prefix-suffix)
+			   "[]")
+			  (t
+			   "")))
+		 (suffix (cond
+			  ((cl-second prefix-suffix)
+			   (format "[%s]" (cl-second prefix-suffix)))
+			  (t
+			   ""))))
+	    (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
+		      `(("cmd" . ,cmd)
+			("prefix" . ,prefix)
+			("suffix" . ,suffix)
+			("keys" . ,(string-join keys ","))))))
+	 (3
+	  (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
+		    `(("cmd" . ,cmd)
+		      ;; if there is more than one key, we only do global prefix/suffix
+		      ;; But for one key, we should allow local prefix and suffix.
+		      ("prefix" . ,(if (= 1 (length references))
+				       (cond
+					((plist-get (car references) :prefix)
+					 (concat "[" (plist-get (car references) :prefix) "]"))
+					;; if you have a suffix, you need an empty prefix
+					((plist-get cite :suffix)
+					 "[]")
+					(t
+					 ""))
+				     (cond
+				      ((plist-get cite :prefix)
+				       (concat "[" (plist-get cite :prefix) "]"))
+				      ;; if you have a suffix, you need an empty prefix
+				      ((plist-get cite :suffix)
+				       "[]")
+				      (t
+				       ""))))
+		      ("suffix" . ,(if (= 1 (length references))
+				       (if (plist-get (car references) :suffix)
+					   (format "[%s]" (plist-get (car references) :suffix))
+					 "")
+				     (if (plist-get cite :suffix)
+					 (format "[%s]" (plist-get cite :suffix))
+				       "")))
+		      ("keys" . ,(string-join keys ","))))))))))
 
 
 (defun org-ref-multicite-export (cmd path _desc backend)
@@ -342,7 +379,7 @@ PATH contains the link path.
 BACKEND is the export backend.
 Use with apply-partially."
   (pcase backend
-    (latex
+    ('latex
      (let ((cite (org-ref-parse-cite-path path)))
        (s-format "\\${cmd}${global-prefix}${global-suffix}${keys}" 'aget
 		 `(("cmd" . ,cmd)
