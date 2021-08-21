@@ -149,7 +149,6 @@ Argument START is the start of the link.
 Argument END is the end of the link."
   (let ((labels (mapcar 'car (org-ref-get-labels))))
     (goto-char start)
-    (message "%s" labels)
     (cl-loop for label in (split-string path ",") do
 	     (search-forward label)
 	     ;; store property so we can follow it later.
@@ -217,6 +216,7 @@ This is meant to be used with `apply-partially'."
 ;;** eqref link
 
 (org-link-set-parameters "eqref"
+			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\eqref")
 			 :face 'org-ref-ref-face
