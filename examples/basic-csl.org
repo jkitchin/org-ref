@@ -1,0 +1,63 @@
+#+title: A basic example of org-ref for csl export
+#+options: toc:nil
+
+# this file must exist be a path or exist in `org-cite-csl-styles-dir'.
+#+csl-style: apa-5th-edition.csl
+
+# this must be a locales file in `org-cite-csl-locales-dir'. Defaults to en-US
+#+csl-locale: en-US
+
+#+BEGIN_SRC emacs-lisp
+(setq org-cite-csl-styles-dir "/Users/jkitchin/Dropbox/emacs/journal/2021/08/20"
+      org-cite-csl-locales-dir "/Users/jkitchin/Dropbox/emacs/journal/2021/08/20/")
+#+END_SRC
+
+[[elisp:(org-ref-export-to-html)]]
+
+[[elisp:(org-ref-export-to-latex)]]
+
+[[elisp:(org-ref-export-to-md)]]
+
+[[elisp:(org-ref-export-to-ascii)]]
+
+
+This does not currently work.
+These seem to be required. I am not sure what hfy-user-sheet-assoc  is for. nil is probably wrong, but the var is not defined and causes the export to fail.
+
+(require 'htmlfontify) (setq hfy-user-sheet-assoc nil)
+[[elisp:(org-ref-export-to-odt)]]
+
+
+* Introduction
+
+** Default
+
+- cite :: [[cite:@kitchin-2015-examp]]
+
+** Textual
+
+- citet :: [[citet:@kitchin-2015-examp]]
+
+
+** Parenthetical
+
+- citep :: [[citep:@kitchin-2015-examp]]
+
+** Suppress author
+
+- citenum ::  [[citenum:@kitchin-2015-examp]]
+
+** year only
+
+- citeyear ::  [[citeyear:@kitchin-2015-examp]]
+
+** full examples
+
+- single with notes :: [[citet:See @kitchin-2015-examp pg. 15]]
+- many with notes ::  [[citet:See @kitchin-2015-examp pg. 15;and @boes-2016-neural-networ pg. 3]]
+- many with notes and common notes ::  [[citet:See; this reference @kitchin-2015-examp pg. 15;and @boes-2016-neural-networ pg. 3; for example]]
+
+
+* Bibliography
+
+bibliography:../org-ref.bib
