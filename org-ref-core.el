@@ -179,11 +179,8 @@ set in `bibtex-completion-bibliography'"
 		       (or
 			(string= (org-element-property :type link) "bibliography")
 			(string= (org-element-property :type link) "addbibresource")))
-	      (dolist (bibfile (org-ref-split-and-strip-string
-				(org-element-property :path link)))
-		(let ((bibf (org-ref-find-bibfile bibfile)))
-		  (when bibf
-		    (push bibf org-ref-bibliography-files)))))))
+	      (setq org-ref-bibliography-files (org-ref-split-and-strip-string
+						(org-element-property :path link))))))
 
         (when org-ref-bibliography-files
           (throw 'result
