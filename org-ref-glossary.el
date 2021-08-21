@@ -283,8 +283,7 @@ Entry gets added after the last #+latex_header line."
   "Return a face for a glossary link."
   (save-match-data
     (cond
-     ((or (not org-ref-show-broken-links)
-	  (or-parse-glossary-entry label))
+     ((or-parse-glossary-entry label)
       'org-ref-glossary-face)
      (t
       'font-lock-warning-face))))
@@ -536,8 +535,7 @@ This will run in `org-export-before-parsing-hook'."
   "Return a face for an acronym link."
   (save-match-data
     (cond
-     ((or (not org-ref-show-broken-links)
-	  (or-parse-acronym-entry label))
+     ((or-parse-acronym-entry label)
       'org-ref-acronym-face)
      (t
       'font-lock-warning-face))))
