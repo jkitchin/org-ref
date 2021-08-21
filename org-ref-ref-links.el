@@ -251,6 +251,7 @@ This is meant to be used with `apply-partially'."
 ;; for LaTeX cleveref package:
 ;; https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref
 
+
 (org-link-set-parameters "cref"
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
@@ -266,6 +267,35 @@ This is meant to be used with `apply-partially'."
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
+
+(defun org-ref-crefrange-export (path _desc backend)
+  (pcase backend
+    ('latex
+     (let ((labels (split-string path ",")))
+       (format "\\crefrange{%s}{%s}" (cl-first labels) (cl-second labels))))))
+
+
+(defun org-ref-Crefrange-export (path _desc backend)
+  (pcase backend
+    ('latex
+     (let ((labels (split-string path ",")))
+       (format "\\crefrange{%s}{%s}" (cl-first labels) (cl-second labels))))))
+
+
+(org-link-set-parameters "crefrange"
+			 :activate-func #'org-ref-ref-activate
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-crefrange-export
+			 :face 'org-ref-ref-face
+			 :help-echo #'org-ref-ref-help-echo)
+
+
+(org-link-set-parameters "Crefrange"
+			 :activate-func #'org-ref-ref-activate
+			 :follow #'org-ref-ref-follow
+			 :export #'org-ref-Crefrange-export
+			 :face 'org-ref-ref-face
+			 :help-echo #'org-ref-ref-help-echo)
 
 ;; * Insert link
 (defvar org-ref-equation-environments
