@@ -206,13 +206,35 @@ to a path string."
       (when-let (suffix (plist-get data :suffix)) (concat ";" suffix))))))
 
 
+(defvar-local org-ref-buffer-local-bib nil
+  "Buffer-local variable for current bibliography files")
+
+
+(defvar-local org-ref-buffer-local-valid-keys nil
+  "Buffer-local variable for current valid keys")
+
+
+(defun org-ref-valid-keys ()
+  "Return a list of valid bibtex keys for this buffer.
+This is used a lot in `org-ref-cite-activate' so we try to cache
+it as a local variable, but also detect when the cache is
+invalid, e.g. if you change the bibliographies."
+  (let ((current-bib (org-ref-find-bibliography)))
+    (if (equal current-bib org-ref-buffer-local-bib)
+	org-ref-buffer-local-valid-keys
+      (setq-local
+       org-ref-buffer-local-bib current-bib
+       org-ref-buffer-local-valid-keys
+       (let ((bibtex-completion-bibliography current-bib))
+	 (cl-loop for entry in (bibtex-completion-candidates)
+		  collect (cdr (assoc "=key=" (cdr entry)))))))))
+
+
 (defun org-ref-cite-activate (start end path _bracketp)
   "Activation function for a cite link.
 START and END are the bounds of the link.
 PATH has the citations in it."
-  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (valid-keys (cl-loop for entry in (bibtex-completion-candidates)
-			      collect (cdr (assoc "=key=" (cdr entry)))))
+  (let* ((valid-keys org-ref-valid-keys) ;; this is cached in a buffer local var.
 	 substrings)
     (goto-char start)
     (pcase (org-ref-cite-version path)
@@ -307,7 +329,7 @@ PATH has the citations in it."
 	(bibtex-completion-apa-format-reference key)))))
 
 
-(defun org-ref-cite-export (cmd path _desc backend)
+(defun org-ref-cite-export (cmd path desc backend)
   "Export a cite link.
 This supports the syntax:  \\cmd[optional prefix][optional suffix]{keys}
 The prefix and suffix must be the global version. Local prefix/suffixes are ignored.
