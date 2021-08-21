@@ -192,9 +192,10 @@ to a path string."
   "Activation function for a cite link.
 START and END are the bounds of the link.
 PATH has the citations in it."
-  (let ((valid-keys (cl-loop for entry in (bibtex-completion-candidates)
-			     collect (cdr (assoc "=key=" (cdr entry)))))
-	substrings)
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (valid-keys (cl-loop for entry in (bibtex-completion-candidates)
+			      collect (cdr (assoc "=key=" (cdr entry)))))
+	 substrings)
     (goto-char start)
     (pcase (org-ref-cite-version path)
       (2
@@ -268,6 +269,7 @@ PATH has the citations in it."
 
 		    ;; bad key activation
 		    (unless valid-key
+		      (message "%s is not in %s" key valid-keys)
 		      (put-text-property key-begin key-end
 					 'face 'font-lock-warning-face)
 		      (put-text-property key-begin key-end
@@ -283,7 +285,8 @@ PATH has the citations in it."
   "Get a tooltip for the cite at POSITION."
   (let ((key (get-text-property position 'cite-key)))
     (when key
-      (bibtex-completion-apa-format-reference key))))
+      (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+	(bibtex-completion-apa-format-reference key)))))
 
 
 (defun org-ref-cite-export (cmd path _desc backend)
@@ -645,6 +648,8 @@ move to the beginning of the previous cite link after this one."
   ("i" (funcall org-ref-insert-cite-function) "Insert cite" :column "Edit")
   ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
   ("q" nil "Quit"))
+
+
 
 
 (provide 'org-ref-citation-links)
