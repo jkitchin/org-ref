@@ -1,6 +1,6 @@
 ;;; org-ref-pdf.el --- Drag-n-drop PDF onto bibtex files  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:

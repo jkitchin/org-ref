@@ -1,6 +1,6 @@
 ;;; doi-utils.el --- DOI utilities for making bibtex entries
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords: convenience

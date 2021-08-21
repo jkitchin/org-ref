@@ -1,12 +1,11 @@
 ;;; org-ref-bibtex.el -- org-ref-bibtex utilities
 
-;; Copyright(C) 2014 John Kitchin
+;; Copyright(C) 2014-2021 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
 ;; Version: 0.1
 ;; Keywords: org-mode, bibtex
-;; Package-Requires: ((org-ref) (s) (dash) (doi-utils) (key-chord))
 
 ;; This file is not currently part of GNU Emacs.
 
