@@ -44,7 +44,6 @@
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 (declare-function 'org-ref-key-in-file-p "org-ref-core.el")
-(declare-function 'org-ref-bib-citation "org-ref-core.el")
 (declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
 
 (require 'doi-utils)
@@ -52,14 +51,6 @@
 (require 's)
 (eval-when-compile
   (require 'cl-lib))
-
-
-;; See https://github.com/jkitchin/org-ref/issues/812
-;; apparently there is a function name change coming in
-;; (if (and (not (fboundp 'dnd-unescape-uri))
-;; 	 (fboundp 'dnd--escape-uri))
-;;     (defalias 'dnd-unescape-uri 'dnd--unescape-uri)
-;;   (warn "dnd-unescape-uri is undefined. Some things may not work."))
 
 
 (defgroup org-ref-url nil
