@@ -26,6 +26,15 @@
 
 ;;; Commentary:
 
+
+;; Functions to act on a bibtex entry or file
+;;
+;; ** Modifying bibtex entries
+;; - `org-ref-sort-bibtex-entry' :: sort the fields in an entry
+;; - `org-ref-downcase-bibtex-entry' :: downcase the fields in an entry
+;; - `org-ref-clean-bibtex-entry' :: run hooks in `org-ref-clean-bibtex-entry-hook' on an entry
+;; - `org-ref-title-case-article' :: title case the title in an article or book
+;; - `org-ref-sentence-case-article' :: sentence case the title in an article.
 ;; org-ref-bibtex-generate-longtitles
 ;; org-ref-bibtex-generate-shorttitles
 ;; org-ref-stringify-journal-name :: replace a journal name with a string in
@@ -33,29 +42,27 @@
 ;; org-ref-set-journal-string :: in a bibtex entry run this to replace the
 ;; journal with a string
 ;;
-;; org-ref-title-case-article :: title case the title in an article or book
-;; org-ref-sentence-case-article :: sentence case the title in an article.
 
+;; * Navigating bibtex entries
+;; `org-ref-bibtex-next-entry' :: bound to M-n
+;; `org-ref-bibtex-previous-entry' :: bound to M-p
+
+;;
+;; ** Operate on whole bibtex file
+;; - `org-ref-build-full-bibliography'
 ;; org-ref-replace-nonascii :: replace nonascii characters in a bibtex
 ;; entry.  Replacements are in `org-ref-nonascii-latex-replacements'.
 ;;
-;; org-ref-title-case-article
-;; org-ref-sentence-case-article
+;; ** hydra menu for bibtex files
+;; `org-ref-bibtex-hydra/body' gives a hydra menu to a lot of useful functions.
+;; `org-ref-bibtex-new-entry/body' gives a hydra menu to add new bibtex entries.
+;; `org-ref-bibtex-file/body' gives a hydra menu of actions for the bibtex file
 ;;
-;; org-ref-bibtex-next-entry :: bound to M-n
-;; org-ref-bibtex-previous-entry :: bound to M-p
-;;
-;; Functions to act on a bibtex entry or file
-;; org-ref-bibtex-hydra/body gives a hydra menu to a lot of useful functions.
-;; org-ref-bibtex-new-entry/body gives a hydra menu to add new bibtex entries.
-;; org-ref-bibtex-file/body gives a hydra menu of actions for the bibtex file
-;;
-;; org-ref-bibtex :: a deprecated menu of actions
+;;; Code
 
 (require 'bibtex)
 (require 'dash)
 (require 'hydra)
-(require 'key-chord nil 'no-error)
 (require 'message)
 (require 's)
 (require 'doi-utils)
@@ -77,31 +84,9 @@
 (declare-function parsebib-read-entry "parsebib")
 
 
-;;; Code:
-
-;; This is duplicated from org-ref-core to try to avoid a byte-compile error.
-(add-to-list 'load-path
-	     (expand-file-name
-	      "citeproc"
-	      (file-name-directory (or load-file-name (buffer-file-name)))))
-
-(add-to-list 'load-path
-	     (expand-file-name
-	      "citeproc/csl"
-	      (file-name-directory (or load-file-name (buffer-file-name)))))
-
 ;;* Custom variables
 (defgroup org-ref-bibtex nil
   "Customization group for org-ref-bibtex."
-  :group 'org-ref-bibtex)
-
-
-(defcustom org-ref-bibtex-hydra-key-binding
-  nil
-  "Key-binding to run `org-ref-bibtex-hydra'.
-I like \"C-c j\"."
-  :type '(choice (const nil :tag "No binding")
-                 (key-sequence))
   :group 'org-ref-bibtex)
 
 
@@ -111,41 +96,145 @@ I like \"C-c j\"."
   :group 'org-ref-bibtex)
 
 
-(defcustom org-ref-formatted-citation-formats
-  '(("text"  . (("article"  . "${author}, ${title}, ${journal}, ${volume}(${number}), ${pages} (${year}). ${doi}")
-		("inproceedings" . "${author}, ${title}, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-		("book" . "${author}, ${title} (${year}), ${address}: ${publisher}.")
-		("phdthesis" . "${author}, ${title} (Doctoral dissertation) (${year}). ${school}, ${address}.")
-		("inbook" . "${author}, ${title}, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-		("incollection" . "${author}, ${title}, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-		("proceedings" . "${editor} (Eds.), ${booktitle} (${year}). ${address}: ${publisher}.")
-		("unpublished" . "${author}, ${title} (${year}). Unpublished manuscript.")
-		(nil . "${author}, ${title} (${year}).")))
-    ("org"  . (("article"  . "${author}, /${title}/, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
-	       ("inproceedings" . "${author}, /${title}/, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-	       ("book" . "${author}, /${title}/ (${year}), ${address}: ${publisher}.")
-	       ("phdthesis" . "${author}, /${title}/ (Doctoral dissertation) (${year}). ${school}, ${address}.")
-	       ("inbook" . "${author}, /${title}/, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-	       ("incollection" . "${author}, /${title}/, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-	       ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
-	       ("unpublished" . "${author}, /${title}/ (${year}). Unpublished manuscript.")
-	       (nil . "${author}, /${title}/ (${year})."))))
-  "Format strings for formatted bibtex entries for different citation backends.
-Used in `org-ref-format-entry'."
-  :type '(alist)
-  :group 'org-ref-bibtex)
+(defcustom org-ref-bibtex-sort-order
+  '(("article"  . ("author" "title" "journal" "volume" "number" "pages" "year" "doi" "url"))
+    ("inproceedings" . ("author" "title" "booktitle" "year" "volume" "number" "pages" "doi" "url"))
+    ("book" . ("author" "title" "year" "publisher" "url")))
+  "A-list of bibtex entry fields and the order to sort an entry with.
+\(entry-type . (list of fields). This is used in
+`org-ref-sort-bibtex-entry'. Entry types not listed here will
+have fields sorted alphabetically."
+  :type '(alist :key-type (string) :value-type (repeat string))
+  :group 'org-ref)
 
-(defcustom org-ref-formatted-citation-backend "text"
-  "The backend format for formatted citations.
-Should be one of the cars of `org-ref-formatted-citation-formats'."
-  :type 'string
-  :group 'org-ref-bibtex)
 
-;;* Journal abbreviations
-(defvar org-ref-bibtex-journal-abbreviations
-  '()
-  "List of (string journal-full-name journal-abbreviation). Find
-  new abbreviations at http://cassi.cas.org/search.jsp.")
+(defcustom orcb-%-replacement-string " \\\\%"
+  "Replacement for a naked % sign in cleaning a BibTeX entry.
+The replacement string should be escaped for use with
+`replace-match'. Compare to the default value. Common choices
+would be to omit the space or to replace the space with a ~ for a
+non-breaking space."
+  :group 'org-ref)
+
+
+(defcustom org-ref-clean-bibtex-key-function
+  (lambda (key)
+    (replace-regexp-in-string ":" "" key))
+  "Function to modify a bibtex key.
+The default behavior is to remove : from the key."
+  :type 'function
+  :group 'org-ref)
+
+
+(defcustom org-ref-clean-bibtex-entry-hook
+  '(org-ref-bibtex-format-url-if-doi
+    orcb-key-comma
+    org-ref-replace-nonascii
+    orcb-&
+    orcb-%
+    org-ref-title-case-article
+    orcb-clean-year
+    orcb-key
+    orcb-clean-doi
+    orcb-clean-pages
+    orcb-check-journal
+    org-ref-sort-bibtex-entry
+    orcb-fix-spacing)
+  "Hook that is run in `org-ref-clean-bibtex-entry'.
+The functions should have no arguments, and
+operate on the bibtex entry at point. You can assume point starts
+at the beginning of the entry. These functions are wrapped in
+`save-restriction' and `save-excursion' so you do not need to
+save the point position.
+
+Org ref contains some functions that are not included by default
+such as `orcb-clean-nil' or `orcb-clean-nil-opinionated' that
+users may be interested in adding themselves."
+  :group 'org-ref
+  :type 'hook)
+
+;; see https://github.com/fxcoudert/tools/blob/master/doi2bib for more replacements
+(defcustom org-ref-nonascii-latex-replacements
+  '(("í" . "{\\\\'i}")
+    ("æ" . "{\\\\ae}")
+    ("ć" . "{\\\\'c}")
+    ("é" . "{\\\\'e}")
+    ("ä" . "{\\\\\"a}")
+    ("è" . "{\\\\`e}")
+    ("à" . "{\\\\`a}")
+    ("á" . "{\\\\'a}")
+    ("ø" . "{\\\\o}")
+    ("ë" . "{\\\\\"e}")
+    ("ü" . "{\\\\\"u}")
+    ("ñ" . "{\\\\~n}")
+    ("ņ" . "{\\\\c{n}}")
+    ("ñ" . "{\\\\~n}")
+    ("å" . "{\\\\aa}")
+    ("ö" . "{\\\\\"o}")
+    ("Á" . "{\\\\'A}")
+    ("í" . "{\\\\'i}")
+    ("ó" . "{\\\\'o}")
+    ("ó" . "{\\\\'o}")
+    ("ú" . "{\\\\'u}")
+    ("ú" . "{\\\\'u}")
+    ("ý" . "{\\\\'y}")
+    ("š" . "{\\\\v{s}}")
+    ("č" . "{\\\\v{c}}")
+    ("ř" . "{\\\\v{r}}")
+    ("š" . "{\\\\v{s}}")
+    ("İ" . "{\\\\.I}")
+    ("ğ" . "{\\\\u{g}}")
+    ("δ" . "$\\\\delta$")
+    ("ç" . "{\\\\c{c}}")
+    ("ß" . "{\\\\ss}")
+    ("≤" . "$\\\\le$")
+    ("≥" . "$\\\\ge$")
+    ("θ" . "$\\\\theta$")
+    ("μ" . "$\\\\mu$")
+    ("→" . "$\\\\rightarrow$")
+    ("⇌" . "$\\\\leftrightharpoons$")
+    ("×" . "$\\\\times$")
+    ("°" . "$\\\\deg$")
+    ("ş" . "{\\\\c{s}}")
+    ("γ" . "$\\\\gamma$")
+    ("ɣ" . "$\\\\gamma$")
+    ("º" . "degC")
+    ("η" . "$\\\\eta$")
+    ("µ" . "$\\\\mu$")
+    ("α" . "$\\\\alpha$")
+    ("β" . "$\\\\beta$")
+    ("ɛ" . "$\\\\epsilon$")
+    ("Ⅵ" . "\\textrm{VI}")
+    ("Ⅲ" . "\\textrm{III}")
+    ("Ⅴ" . "\\textrm{V}")
+    ("λ" . "$\\\\lambda$")
+    ("π" . "$\\\\pi$")
+    ("∞" . "$\\\\infty$")
+    ("χ" . "$\\\\chi$")
+    ("∼" . "\\\\textasciitilde{}")
+    ("‑" . "\\\\textemdash{}")
+    (" " . " ")
+    ("…" . "...")
+    ("•" . "\\\\textbullet ")
+    ;; I think these are non-ascii spaces. there seems to be more than one.
+    (" " . " ")
+    (" " . " ")
+    (" " . " ")
+    ("–" . "-")
+    ("−" . "-")
+    ("–" . "-")
+    ("—" . "-")
+    ("‒" . "\\\\textemdash{}")
+    ("‘" . "'")
+    ("’" . "'")
+    ("’" . "'")
+    ("“" . "\"")
+    ("’" . "'")
+    ("”" . "\""))
+  "Cons list of non-ascii characters and their LaTeX representations.
+This may be deprecated. When `org-ref' started, non-ascii
+characters were often problematic with bibtex, but in 2021, it is
+not obvious that is still try.")
 
 (defcustom org-ref-bibtex-assoc-pdf-with-entry-move-function 'rename-file
   "Function to use when associating pdf files with bibtex entries.
@@ -155,114 +244,128 @@ original file in place while creating a renamed copy in some directory."
   :type 'function
   :group 'org-ref-bibtex)
 
-(setq org-ref-bibtex-journal-abbreviations
-      '(("ACR" "Accounts of Chemical Research" "Acc. Chem. Res.")
-        ("ACAT" "ACS Catalysis" "ACS Catal.")
-        ("AM" "Acta Materialia" "Acta Mater.")
-        ("AMM" "Acta Metallurgica et Materialia" "Acta Metall. Mater.")
-        ("AEM" "Advanced Energy Materials" "Adv. Energy Mater.")
-        ("AAMI" "ACS Applied Materials \\& Interfaces"
-         "ACS Appl. Mater. Interfaces")
-        ("AMiner" "American Mineralogist" "Am. Mineral.")
-        ("AngC" "Angewandte Chemie-International Edition"
-         "Angew. Chem. Int. Edit.")
-        ("APLM" "APL Materials" "APL Mat.")
-        ("ACBE" "Applied Catalysis B: Environmental" "Appl. Catal. B-Environ.")
-        ("APL" "Applied Physics Letters" "Appl. Phys. Lett.")
-        ("ASS" "Applied Surface Science" "Appl. Surf. Sci.")
-        ("CL" "Catalysis Letters" "Catal. Lett.")
-        ("CC" "Catalysis Communications" "Catal. Commun.")
-        ("CST" "Catalysis Science & Technology" "Catal. Sci. Technol.")
-        ("CT" "Catalysis Today" "Catal. Today")
-        ("ChC" "Chemical Communications" "Chem. Commun.")
-        ("CPL" "Chemical Physics Letters" "Chem. Phys. Lett")
-        ("CR" "Chemical Reviews" "Chem. Rev.")
-        ("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
-        ("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
-        ("CM" "Chemistry of Materials" "Chem. Mater.")
-        ("CSA" "Colloids and Surfaces, A: Physicochemical and Engineering Aspects"
-         "Colloids Surf., A")
-        ("CF" "Combustion and Flame" "Combust. Flame")
-        ("CPMS" "Computational Materials Science" "Comp. Mater. Sci.")
-        ("CPC" "Computer Physics Communications" "Comput. Phys. Commun.")
-        ("CSE" "Computing in Science \\& Engineering" "Comput. Sci. Eng.")
-        ("CGD" "Crystal Growth \\& Design" "Cryst. Growth Des.")
-        ("CEC" "CrystEngComm" "CrystEngComm")
-        ("EA" "Electrochimica Acta" "Electrochim. Acta")
-        ("ECST" "ECS Transactions" "ECS Trans.")
-        ("EES" "Energy \\& Environmental Science" "Energy Environ. Sci.")
-        ("HPR" "High Pressure Research" "High Pressure Res.")
-        ("IC" "Inorganic Chemistry" "Inorg. Chem.")
-        ("IECR" "Industrial \\& Engineering Chemistry Research"
-         "Ind. Eng. Chem. Res.")
-        ("JJAP" "Japanese Journal of Applied Physics" "Jpn. J. Appl. Phys.")
-        ("JMatR" "Journal of  Materials Research" "J. Mater. Res.")
-        ("JALC" "Journal of Alloys and Compounds" "J. Alloy Compd.")
-        ("JAC" "Journal of Applied Crystallography" "J. Appl. Crystallogr.")
-        ("JAE" "Journal of Applied Electrochemistry" "J. Appl. Electrochem.")
-        ("JAP" "Journal of Applied Physics" "J. Appl. Phys.")
-        ("JC" "Journal of Catalysis" "J. Catal.")
-        ("JCP" "Journal of Chemical Physics" "J. Chem. Phys.")
-        ("JCC" "Journal of Computational Chemistry" "J. Comput. Chem.")
-        ("JCG" "Journal of Crystal Growth" "J. Crys. Growth")
-        ("JMC" "Journal of Materials Chemistry" "J. Mater. Chem.")
-        ("JMC" "Journal of Materials Chemistry" "J. Mater. Chem.")
-        ("JMSL" "Journal of Materials Science Letters" "J. Mater. Sci. Lett.")
-        ("JMS" "Journal of Membrane Science" "J. Memb. Sci.")
-        ("JPE" "Journal of Phase Equilibria" "J. Phase Equilib.")
-        ("JPCS" "Journal of Physics and Chemistry of Solids"
-         "J. Phys. Chem. Solids")
-        ("JPCM" "Journal of Physics: Condensed Matter"
-         "J. Phys.: Condens. Matter")
-        ("JPS" "Journal of Power Sources" "J. Power Sources")
-        ("JSSC" "Journal of Solid State Chemistry" "J. Solid State Chem.")
-        ("JACerS" "Journal of the American Ceramic Society" "J. Am. Ceram. Soc.")
-        ("JACS" "Journal of the American Chemical Society" "J. Am. Chem. Soc.")
-        ("JASIST" "Journal of the American Society for Information Science and Technology"
-         "J. Am. Soc. Inf. Sci. Technol.")
-        ("JES" "Journal of The Electrochemical Society" "J. Electrochem. Soc.")
-        ("JEaC" "Journal of Electroanalytical Chemistry" "J. Electroanal. Chem.")
-        ("JMS" "Journal of Membrane Science" "J. Memb. Sci.")
-        ("JRS" "Journal of Raman Spectroscopy" "J. Raman Spectrosc.")
-        ("JVST" "Journal of Vacuum Science \\& Technology A"
-         "J. Vac. Sci. Technol. A")
-        ("ML" "Materials Letters" "Mater. Lett.")
-        ("MSE-BS" "Materials Science and Engineering B" "Mat. Sci. Eng. B-Solid")
-        ("MOLSIM" "Molecular Simulation" "Mol. Sim.")
-        ("Nature" "Nature" "Nature")
-        ("NM" "Nature Materials" "Nat. Mater.")
-        ("NC" "Nature Chemistry" "Nat. Chem.")
-        ("PML" "Philosophical Magazine Letters" "Phil. Mag. Lett.")
-        ("PMA" "Philosophical Magazine A" "Phil. Mag. A")
-        ("PA" "Physica A: Statistical Mechanics and its Applications" "Physica A")
-        ("PB" "Physica B-Condensed Matter" "Physica B")
-        ("PCCP" "Physical Chemistry Chemical Physics" "Phys. Chem. Chem. Phys.")
-        ("PSSB" "physica status solidi (b)" "Phys. Status Solidi B")
-        ("PRA" "Physical Review A" "Phys. Rev. A")
-        ("PRB" "Physical Review B" "Phys. Rev. B")
-        ("PRL" "Physical Review Letters" "Phys. Rev. Lett.")
-        ("PCM" "Physics and Chemistry of Minerals" "Phys. Chem. Miner.")
-        ("PNAS" "Proceedings of the National Academy of Sciences of the United States of America"
-         "Proc. Natl. Acad. Sci. U. S. A.")
-        ("PSurfSci" "Progress in Surface Science" "Prog. Surf. Sci.")
-        ("Science" "Science" "Science")
-        ("SM" "Scripta Materialia" "Scr. Mater.")
-        ("SABC" "Sensors and Actuators B: Chemical" "Sensor. Actuat. B-Chem.")
-        ("SS" "Surface Science" "Surf. Sci.")
-        ("EPJB" "The European Physical Journal B" "Eur. Phys. J. B")
-        ("JPC" "The Journal of Physical Chemistry" "J. Phys. Chem.")
-        ("JPCB" "The Journal of Physical Chemistry B" "J. Phys. Chem. B")
-        ("JPCC" "The Journal of Physical Chemistry C" "J. Phys. Chem. C")
-        ("JPCL" "The Journal of Physical Chemistry Letters"
-         "J. Phys. Chem. Lett.")
-        ("JCP" "The Journal of Chemical Physics" "J. Chem. Phys.")
-        ("MSMSE" "Modelling and Simulation in Materials Science and Engineering"
-         "Modell. Simul. Mater. Sci. Eng.")
-        ("TSF" "Thin Solid Films" "Thin Solid Films")
-        ("TC" "Topics in Catalysis" "Top. Catal.")
-        ("WR" "Water Research" "Water Res.")))
+;;* Journal abbreviations
+(defcustom org-ref-bibtex-journal-abbreviations
+  '(("ACR" "Accounts of Chemical Research" "Acc. Chem. Res.")
+    ("ACAT" "ACS Catalysis" "ACS Catal.")
+    ("AM" "Acta Materialia" "Acta Mater.")
+    ("AMM" "Acta Metallurgica et Materialia" "Acta Metall. Mater.")
+    ("AEM" "Advanced Energy Materials" "Adv. Energy Mater.")
+    ("AAMI" "ACS Applied Materials \\& Interfaces"
+     "ACS Appl. Mater. Interfaces")
+    ("AMiner" "American Mineralogist" "Am. Mineral.")
+    ("AngC" "Angewandte Chemie-International Edition"
+     "Angew. Chem. Int. Edit.")
+    ("APLM" "APL Materials" "APL Mat.")
+    ("ACBE" "Applied Catalysis B: Environmental" "Appl. Catal. B-Environ.")
+    ("APL" "Applied Physics Letters" "Appl. Phys. Lett.")
+    ("ASS" "Applied Surface Science" "Appl. Surf. Sci.")
+    ("CL" "Catalysis Letters" "Catal. Lett.")
+    ("CC" "Catalysis Communications" "Catal. Commun.")
+    ("CST" "Catalysis Science & Technology" "Catal. Sci. Technol.")
+    ("CT" "Catalysis Today" "Catal. Today")
+    ("ChC" "Chemical Communications" "Chem. Commun.")
+    ("CPL" "Chemical Physics Letters" "Chem. Phys. Lett")
+    ("CR" "Chemical Reviews" "Chem. Rev.")
+    ("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
+    ("CSR" "Chemical Society Reviews" "Chem. Soc. Rev.")
+    ("CM" "Chemistry of Materials" "Chem. Mater.")
+    ("CSA" "Colloids and Surfaces, A: Physicochemical and Engineering Aspects"
+     "Colloids Surf., A")
+    ("CF" "Combustion and Flame" "Combust. Flame")
+    ("CPMS" "Computational Materials Science" "Comp. Mater. Sci.")
+    ("CPC" "Computer Physics Communications" "Comput. Phys. Commun.")
+    ("CSE" "Computing in Science \\& Engineering" "Comput. Sci. Eng.")
+    ("CGD" "Crystal Growth \\& Design" "Cryst. Growth Des.")
+    ("CEC" "CrystEngComm" "CrystEngComm")
+    ("EA" "Electrochimica Acta" "Electrochim. Acta")
+    ("ECST" "ECS Transactions" "ECS Trans.")
+    ("EES" "Energy \\& Environmental Science" "Energy Environ. Sci.")
+    ("HPR" "High Pressure Research" "High Pressure Res.")
+    ("IC" "Inorganic Chemistry" "Inorg. Chem.")
+    ("IECR" "Industrial \\& Engineering Chemistry Research"
+     "Ind. Eng. Chem. Res.")
+    ("JJAP" "Japanese Journal of Applied Physics" "Jpn. J. Appl. Phys.")
+    ("JMatR" "Journal of  Materials Research" "J. Mater. Res.")
+    ("JALC" "Journal of Alloys and Compounds" "J. Alloy Compd.")
+    ("JAC" "Journal of Applied Crystallography" "J. Appl. Crystallogr.")
+    ("JAE" "Journal of Applied Electrochemistry" "J. Appl. Electrochem.")
+    ("JAP" "Journal of Applied Physics" "J. Appl. Phys.")
+    ("JC" "Journal of Catalysis" "J. Catal.")
+    ("JCP" "Journal of Chemical Physics" "J. Chem. Phys.")
+    ("JCC" "Journal of Computational Chemistry" "J. Comput. Chem.")
+    ("JCG" "Journal of Crystal Growth" "J. Crys. Growth")
+    ("JMC" "Journal of Materials Chemistry" "J. Mater. Chem.")
+    ("JMC" "Journal of Materials Chemistry" "J. Mater. Chem.")
+    ("JMSL" "Journal of Materials Science Letters" "J. Mater. Sci. Lett.")
+    ("JMS" "Journal of Membrane Science" "J. Memb. Sci.")
+    ("JPE" "Journal of Phase Equilibria" "J. Phase Equilib.")
+    ("JPCS" "Journal of Physics and Chemistry of Solids"
+     "J. Phys. Chem. Solids")
+    ("JPCM" "Journal of Physics: Condensed Matter"
+     "J. Phys.: Condens. Matter")
+    ("JPS" "Journal of Power Sources" "J. Power Sources")
+    ("JSSC" "Journal of Solid State Chemistry" "J. Solid State Chem.")
+    ("JACerS" "Journal of the American Ceramic Society" "J. Am. Ceram. Soc.")
+    ("JACS" "Journal of the American Chemical Society" "J. Am. Chem. Soc.")
+    ("JASIST" "Journal of the American Society for Information Science and Technology"
+     "J. Am. Soc. Inf. Sci. Technol.")
+    ("JES" "Journal of The Electrochemical Society" "J. Electrochem. Soc.")
+    ("JEaC" "Journal of Electroanalytical Chemistry" "J. Electroanal. Chem.")
+    ("JMS" "Journal of Membrane Science" "J. Memb. Sci.")
+    ("JRS" "Journal of Raman Spectroscopy" "J. Raman Spectrosc.")
+    ("JVST" "Journal of Vacuum Science \\& Technology A"
+     "J. Vac. Sci. Technol. A")
+    ("ML" "Materials Letters" "Mater. Lett.")
+    ("MSE-BS" "Materials Science and Engineering B" "Mat. Sci. Eng. B-Solid")
+    ("MOLSIM" "Molecular Simulation" "Mol. Sim.")
+    ("Nature" "Nature" "Nature")
+    ("NM" "Nature Materials" "Nat. Mater.")
+    ("NC" "Nature Chemistry" "Nat. Chem.")
+    ("PML" "Philosophical Magazine Letters" "Phil. Mag. Lett.")
+    ("PMA" "Philosophical Magazine A" "Phil. Mag. A")
+    ("PA" "Physica A: Statistical Mechanics and its Applications" "Physica A")
+    ("PB" "Physica B-Condensed Matter" "Physica B")
+    ("PCCP" "Physical Chemistry Chemical Physics" "Phys. Chem. Chem. Phys.")
+    ("PSSB" "physica status solidi (b)" "Phys. Status Solidi B")
+    ("PRA" "Physical Review A" "Phys. Rev. A")
+    ("PRB" "Physical Review B" "Phys. Rev. B")
+    ("PRL" "Physical Review Letters" "Phys. Rev. Lett.")
+    ("PCM" "Physics and Chemistry of Minerals" "Phys. Chem. Miner.")
+    ("PNAS" "Proceedings of the National Academy of Sciences of the United States of America"
+     "Proc. Natl. Acad. Sci. U. S. A.")
+    ("PSurfSci" "Progress in Surface Science" "Prog. Surf. Sci.")
+    ("Science" "Science" "Science")
+    ("SM" "Scripta Materialia" "Scr. Mater.")
+    ("SABC" "Sensors and Actuators B: Chemical" "Sensor. Actuat. B-Chem.")
+    ("SS" "Surface Science" "Surf. Sci.")
+    ("EPJB" "The European Physical Journal B" "Eur. Phys. J. B")
+    ("JPC" "The Journal of Physical Chemistry" "J. Phys. Chem.")
+    ("JPCB" "The Journal of Physical Chemistry B" "J. Phys. Chem. B")
+    ("JPCC" "The Journal of Physical Chemistry C" "J. Phys. Chem. C")
+    ("JPCL" "The Journal of Physical Chemistry Letters"
+     "J. Phys. Chem. Lett.")
+    ("JCP" "The Journal of Chemical Physics" "J. Chem. Phys.")
+    ("MSMSE" "Modelling and Simulation in Materials Science and Engineering"
+     "Modell. Simul. Mater. Sci. Eng.")
+    ("TSF" "Thin Solid Films" "Thin Solid Films")
+    ("TC" "Topics in Catalysis" "Top. Catal.")
+    ("WR" "Water Research" "Water Res."))
+  "List of (string journal-full-name journal-abbreviation). Find
+  new abbreviations at http://cassi.cas.org/search.jsp."
+  :group 'org-ref-bibtex)
 
 
+(defcustom org-ref-title-case-types '(("article" . ("title"))
+				      ("book" . ("booktitle")))
+
+  "An a-list of bibtex entry types and fields that will be converted to
+title-case by org-ref-title-case."
+  :type '(repeat string)
+  :group 'org-ref-bibtex)
+
+
+;; * Modifying journal titles
 ;;;###autoload
 (defun org-ref-bibtex-generate-longtitles ()
   "Generate longtitles.bib which are @string definitions.
@@ -337,94 +440,11 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
     (bibtex-clean-entry)))
 
 ;;* Non-ascii character replacement
-;; see https://github.com/fxcoudert/tools/blob/master/doi2bib for more replacements
-(defvar org-ref-nonascii-latex-replacements
-  '()
-  "Cons list of non-ascii characters and their LaTeX representations.")
-
-
-(setq org-ref-nonascii-latex-replacements
-      '(("í" . "{\\\\'i}")
-	("æ" . "{\\\\ae}")
-	("ć" . "{\\\\'c}")
-	("é" . "{\\\\'e}")
-	("ä" . "{\\\\\"a}")
-	("è" . "{\\\\`e}")
-	("à" . "{\\\\`a}")
-	("á" . "{\\\\'a}")
-	("ø" . "{\\\\o}")
-	("ë" . "{\\\\\"e}")
-	("ü" . "{\\\\\"u}")
-	("ñ" . "{\\\\~n}")
-	("ņ" . "{\\\\c{n}}")
-	("ñ" . "{\\\\~n}")
-	("å" . "{\\\\aa}")
-	("ö" . "{\\\\\"o}")
-	("Á" . "{\\\\'A}")
-	("í" . "{\\\\'i}")
-	("ó" . "{\\\\'o}")
-	("ó" . "{\\\\'o}")
-	("ú" . "{\\\\'u}")
-	("ú" . "{\\\\'u}")
-	("ý" . "{\\\\'y}")
-	("š" . "{\\\\v{s}}")
-	("č" . "{\\\\v{c}}")
-	("ř" . "{\\\\v{r}}")
-	("š" . "{\\\\v{s}}")
-	("İ" . "{\\\\.I}")
-	("ğ" . "{\\\\u{g}}")
-	("δ" . "$\\\\delta$")
-	("ç" . "{\\\\c{c}}")
-	("ß" . "{\\\\ss}")
-	("≤" . "$\\\\le$")
-	("≥" . "$\\\\ge$")
-	("θ" . "$\\\\theta$")
-	("μ" . "$\\\\mu$")
-	("→" . "$\\\\rightarrow$")
-	("⇌" . "$\\\\leftrightharpoons$")
-	("×" . "$\\\\times$")
-	("°" . "$\\\\deg$")
-	("ş" . "{\\\\c{s}}")
-	("γ" . "$\\\\gamma$")
-	("ɣ" . "$\\\\gamma$")
-	("º" . "degC")
-	("η" . "$\\\\eta$")
-	("µ" . "$\\\\mu$")
-	("α" . "$\\\\alpha$")
-	("β" . "$\\\\beta$")
-	("ɛ" . "$\\\\epsilon$")
-	("Ⅵ" . "\\textrm{VI}")
-	("Ⅲ" . "\\textrm{III}")
-	("Ⅴ" . "\\textrm{V}")
-	("λ" . "$\\\\lambda$")
-	("π" . "$\\\\pi$")
-	("∞" . "$\\\\infty$")
-	("χ" . "$\\\\chi$")
-	("∼" . "\\\\textasciitilde{}")
-	("‑" . "\\\\textemdash{}")
-	(" " . " ")
-	("…" . "...")
-	("•" . "\\\\textbullet ")
-	;; I think these are non-ascii spaces. there seems to be more than one.
-	(" " . " ")
-	(" " . " ")
-	(" " . " ")
-	("–" . "-")
-	("−" . "-")
-	("–" . "-")
-	("—" . "-")
-	("‒" . "\\\\textemdash{}")
-	("‘" . "'")
-	("’" . "'")
-	("’" . "'")
-	("“" . "\"")
-	("’" . "'")
-	("”" . "\"")))
-
 
 ;;;###autoload
 (defun org-ref-replace-nonascii ()
-  "Hook function to replace non-ascii characters in a bibtex entry."
+  "Replace non-ascii characters with LaTeX representations in a
+bibtex entry."
   (interactive)
   (save-restriction
     (bibtex-narrow-to-entry)
@@ -436,19 +456,13 @@ This is defined in `org-ref-bibtex-journal-abbreviations'."
         (replace-match (cdr (assoc char org-ref-nonascii-latex-replacements))))
       (goto-char (point-min)))))
 
+
 ;;* Title case transformations
 (defvar org-ref-lower-case-words
   '("a" "an" "on" "and" "for"
     "the" "of" "in")
   "List of words to keep lowercase when changing case in a title.")
 
-(defcustom org-ref-title-case-types '(("article" . ("title"))
-				      ("book" . ("booktitle")))
-
-  "An a-list of bibtex entry types and fields that will be converted to
-title-case by org-ref-title-case."
-  :type '(repeat string)
-  :group 'org-ref-bibtex)
 
 ;;;###autoload
 (defun org-ref-title-case (&optional key start end)
@@ -517,6 +531,7 @@ books."
 		  title)
 		 (bibtex-fill-entry))))))
 
+
 ;;;###autoload
 (defun org-ref-title-case-article (&optional key start end)
   "Convert a bibtex entry article or book title to title-case.
@@ -577,6 +592,7 @@ all the title entries in articles."
       (bibtex-clean-entry)
       (bibtex-fill-entry))))
 
+
 ;;* Navigation in bibtex file
 ;;;###autoload
 (defun org-ref-bibtex-next-entry (&optional n)
@@ -618,10 +634,9 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 (add-hook 'bibtex-mode-hook 'org-ref-bibtex-mode-keys)
 
 ;;* Functions to act on an entry with a doi
-;;;###autoload
+
 (defun org-ref-bibtex-entry-doi ()
   "Get doi from entry at point."
-  (interactive)
   (save-excursion
     (bibtex-beginning-of-entry)
     (when (not (looking-at bibtex-any-valid-entry-type))
@@ -753,92 +768,101 @@ a directory. Optional PREFIX argument toggles between
 ;;** Hydra menu for bibtex entries
 ;; hydra menu for actions on bibtex entries
 (defhydra org-ref-bibtex-hydra (:color blue :hint nil)
-  "
-_p_: Open pdf     _y_: Copy key               _N_: New entry            _w_: WOS
-_b_: Open url     _f_: Copy formatted entry   _o_: Copy entry           _c_: WOS citing
-_r_: Refile entry ^ ^:                        _d_: delete entry         _a_: WOS related
-_e_: Email entry  _K_: Edit keywords          _L_: clean entry          _P_: Pubmed
-_U_: Update entry _N_: New entry              _R_: Crossref             _g_: Google Scholar
-_s_: Sort entry   _a_: Remove nonascii        ^ ^:                      _q_: quit
-_u_: Update field _F_: file funcs             _A_: Assoc pdf with entry
-_n_: Open notes   ^ ^                         _T_: Title case
-^ ^               ^ ^                         _S_: Sentence case
+  "Bibtex actions:
 "
-  ("p" org-ref-open-bibtex-pdf)
-  ("P" org-ref-bibtex-pubmed)
-  ("w" org-ref-bibtex-wos)
-  ("c" org-ref-bibtex-wos-citing)
-  ("a" org-ref-bibtex-wos-related)
-  ("R" org-ref-bibtex-crossref)
-  ("g" org-ref-bibtex-google-scholar)
-  ("N" org-ref-bibtex-new-entry/body)
-  ("n" org-ref-open-bibtex-notes)
-  ("o" (lambda ()
-	 (interactive)
-	 (bibtex-copy-entry-as-kill)
-	 (message "Use %s to paste the entry"
-		  (substitute-command-keys (format "\\[bibtex-yank]")))))
-  ("d" bibtex-kill-entry)
-  ("L" org-ref-clean-bibtex-entry)
-  ("y" (save-excursion
-	 (bibtex-beginning-of-entry)
-	 (when (looking-at bibtex-entry-maybe-empty-head)
-	   (kill-new (bibtex-key-in-head)))))
-  ("f" (progn
-	 (bibtex-beginning-of-entry)
-	 (kill-new
-	  (org-ref-format-entry
-	   (cdr (assoc "=key=" (bibtex-parse-entry t)))))))
+  ;; Open-like actions
+  ("p" org-ref-open-bibtex-pdf "PDF" :column "Open")
+  ("n" org-ref-open-bibtex-notes "Notes" :column "Open")
+  ("b" org-ref-open-in-browser "URL" :column "Open")
 
+  ;; edit/modify
   ("K" (lambda ()
          (interactive)
          (org-ref-set-bibtex-keywords
           (read-string "Keywords: "
                        (bibtex-autokey-get-field "keywords"))
-          t)))
-  ("b" org-ref-open-in-browser)
+          t))
+   "Keywords" :column "Edit")
+  ("a" org-ref-replace-nonascii "Replace nonascii" :column "Edit")
+  ("s" org-ref-sort-bibtex-entry "Sort fields" :column "Edit")
+  ("T" org-ref-title-case-article "Title case" :column "Edit")
+  ("S" org-ref-sentence-case-article "Sentence case" :column "Edit")
+  ("U" (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi)) "Update entry" :column "Edit")
+  ("u" doi-utils-update-field "Update field" :column "Edit")
+  ("d" bibtex-kill-entry "Kill entry" :column "Edit")
+  ("L" org-ref-clean-bibtex-entry "Clean entry" :column "Edit")
+  ("A" org-ref-bibtex-assoc-pdf-with-entry "Add pdf" :column "Edit")
   ("r" (lambda ()
 	 (interactive)
          (bibtex-beginning-of-entry)
          (bibtex-kill-entry)
          (find-file (completing-read
                      "Bibtex file: "
-                     (f-entries "." (lambda (f) (f-ext? f "bib")))))
+		     (append bibtex-completion-bibliography
+			     (f-entries "." (lambda (f) (f-ext? f "bib"))))))
          (goto-char (point-max))
          (bibtex-yank)
          (save-buffer)
-         (kill-buffer)))
-  ("e" org-ref-email-bibtex-entry)
-  ("U" (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi)))
-  ("u" doi-utils-update-field)
-  ("F" org-ref-bibtex-file/body)
-  ("A" org-ref-bibtex-assoc-pdf-with-entry)
-  ("a" org-ref-replace-nonascii)
-  ("s" org-ref-sort-bibtex-entry)
-  ("T" org-ref-title-case-article)
-  ("S" org-ref-sentence-case-article)
+         (kill-buffer))
+   "Refile entry" :column "Edit")
+
+  ;; www
+  ("P" org-ref-bibtex-pubmed "Pubmed" :column "WWW")
+  ("w" org-ref-bibtex-wos "WOS" :column "WWW")
+  ("c" org-ref-bibtex-wos-citing "WOS citing" :column "WWW")
+  ("a" org-ref-bibtex-wos-related "WOS related" :column "WWW")
+  ("R" org-ref-bibtex-crossref "Crossref" :column "WWW")
+  ("g" org-ref-bibtex-google-scholar "Google Scholar" :column "WWW")
+  ("e" org-ref-email-bibtex-entry "Email" :column "WWW")
+
+
+  ;; Copy
+  ("o" (lambda ()
+	 (interactive)
+	 (bibtex-copy-entry-as-kill)
+	 (message "Use %s to paste the entry"
+		  (substitute-command-keys (format "\\[bibtex-yank]"))))
+   "Copy entry" :column "Copy")
+
+  ("y" (save-excursion
+	 (bibtex-beginning-of-entry)
+	 (when (looking-at bibtex-entry-maybe-empty-head)
+	   (kill-new (bibtex-key-in-head))))
+   "Copy key" :column "Copy")
+
+  ("f" (kill-new (bibtex-completion-apa-format-reference (cdr (assoc "=key=" (bibtex-parse-entry t)))))
+   "Formatted entry" :column "Copy")
+
+
+  ;; Miscellaneous
+  ("F" org-ref-bibtex-file/body "File hydra" :column "Misc")
+  ("N" org-ref-bibtex-new-entry/body "New entry" :column "Misc")
   ("q" nil))
 
-(when org-ref-bibtex-hydra-key-binding
-  (define-key bibtex-mode-map org-ref-bibtex-hydra-key-binding 'org-ref-bibtex-hydra/body))
+
 
 ;;** Hydra menu for new bibtex entries
 ;; A hydra for adding new bibtex entries.
 (defhydra org-ref-bibtex-new-entry (:color blue)
   "New Bibtex entry:"
-  ("a" bibtex-Article "Article")
-  ("b" bibtex-Book "Book")
-  ("i" bibtex-InBook "In book")
-  ("l" bibtex-Booklet "Booklet")
-  ("P" bibtex-Proceedings "Proceedings")
-  ("p" bibtex-InProceedings "In proceedings")
-  ("m" bibtex-Misc "Misc.")
-  ("M" bibtex-Manual "Manual")
-  ("T" bibtex-PhdThesis "PhD Thesis")
-  ("t" bibtex-MastersThesis "MS Thesis")
-  ("R" bibtex-TechReport "Report")
-  ("u" bibtex-Unpublished "unpublished")
-  ("c" bibtex-InCollection "Article in collection")
+  ("d" doi-insert-bibtex "from DOI" :column "Automatic")
+  ("c" crossref-add-bibtex-entry "from Crossref" :column "Automatic")
+  ("a" arxiv-add-bibtex-entry "From Arxiv" :column "Automatic")
+  ("b" biblio-lookup "From biblio" :column "Automatic")
+  ;; Bibtex types
+  ("ma" bibtex-Article "Article" :column "Manual")
+  ("mb" bibtex-Book "Book" :column "Manual")
+  ("mi" bibtex-InBook "In book" :column "Manual")
+  ("ml" bibtex-Booklet "Booklet" :column "Manual")
+  ("mP" bibtex-Proceedings "Proceedings" :column "Manual")
+  ("mp" bibtex-InProceedings "In proceedings" :column "Manual")
+  ("mm" bibtex-Misc "Misc." :column "Manual")
+  ("mM" bibtex-Manual "Manual" :column "Manual")
+  ("mT" bibtex-PhdThesis "PhD Thesis" :column "Manual")
+  ("mt" bibtex-MastersThesis "MS Thesis" :column "Manual")
+  ("mR" bibtex-TechReport "Report" :column "Manual")
+  ("mu" bibtex-Unpublished "unpublished" :column "Manual")
+  ("mc" bibtex-InCollection "Article in collection" :column "Manual")
   ("q" nil "quit"))
 
 
@@ -963,6 +987,365 @@ will clobber the file."
 
     (with-temp-file bibfile
       (insert contents))))
+
+
+;;** create text citations from a bibtex entry
+
+(defun org-ref-bib-citation ()
+  "From a bibtex entry, create and return a lightly formatted citation string."
+  (bibtex-completion-apa-format-reference (list (bibtex-completion-get-key-bibtex))))
+
+
+;;** Open pdf in bibtex entry
+;;;###autoload
+(defun org-ref-open-bibtex-pdf ()
+  "Open pdf for a bibtex entry, if it exists."
+  (interactive)
+  (bibtex-completion-open-pdf (list (bibtex-completion-get-key-bibtex))))
+
+
+;;** Open notes from bibtex entry
+;;;###autoload
+(defun org-ref-open-bibtex-notes ()
+  "From a bibtex entry, open the notes if they exist."
+  (interactive)
+  (bibtex-completion-edit-notes (list (bibtex-completion-get-key-bibtex))))
+
+
+;;** Open bibtex entry in browser
+;;;###autoload
+(defun org-ref-open-in-browser ()
+  "Open the bibtex entry at point in a browser using the url field or doi field."
+  (interactive)
+  (bibtex-completion-open-url-or-doi (list (bibtex-completion-get-key-bibtex))))
+
+
+;;** Build a pdf of the bibtex file
+;;;###autoload
+(defun org-ref-build-full-bibliography ()
+  "Build pdf of all bibtex entries, and open it."
+  (interactive)
+  (let* ((bibfile (file-name-nondirectory (buffer-file-name)))
+         (bib-base (file-name-sans-extension bibfile))
+         (texfile (concat bib-base ".tex"))
+         (pdffile (concat bib-base ".pdf")))
+    (find-file texfile)
+    (erase-buffer)
+    (insert (format "\\documentclass[12pt]{article}
+\\usepackage[version=3]{mhchem}
+\\usepackage{url}
+\\usepackage[numbers]{natbib}
+\\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, pdfstartview=FitH]{hyperref}
+\\usepackage{doi}
+\\begin{document}
+\\nocite{*}
+\\bibliographystyle{unsrtnat}
+\\bibliography{%s}
+\\end{document}" bib-base))
+    (save-buffer)
+    (shell-command (concat "pdflatex " bib-base))
+    (shell-command (concat "bibtex " bib-base))
+    (shell-command (concat "pdflatex " bib-base))
+    (shell-command (concat "pdflatex " bib-base))
+    (kill-buffer texfile)
+    (org-open-file pdffile)))
+
+
+;;** Sort fields in a bibtex entry
+;;;###autoload
+(defun org-ref-sort-bibtex-entry ()
+  "Sort fields of entry in standard order."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (entry-fields)
+         (other-fields)
+         (type (cdr (assoc "=type=" entry)))
+         (key (cdr (assoc "=key=" entry)))
+	 (field-order (cdr (assoc (if type (downcase type))
+				  org-ref-bibtex-sort-order))))
+
+    ;; these are the fields we want to order that are in this entry
+    (setq entry-fields (mapcar (lambda (x) (car x)) entry))
+    ;; we do not want to reenter these fields
+    (setq entry-fields (remove "=key=" entry-fields))
+    (setq entry-fields (remove "=type=" entry-fields))
+
+    ;;these are the other fields in the entry, and we sort them alphabetically.
+    (setq other-fields
+	  (sort (-remove (lambda(x) (member x field-order)) entry-fields)
+		'string<))
+
+    (save-restriction
+      (bibtex-kill-entry)
+      (insert
+       (concat "@" type "{" key ",\n"
+	       (mapconcat
+	        (lambda (field)
+		  (when (member field entry-fields)
+		    (format "%s = %s,"
+			    field
+			    (cdr (assoc field entry)))))
+	        field-order "\n")
+	       ;; now add the other fields
+	       (mapconcat
+	        (lambda (field)
+		  (cl-loop for (f . v) in entry concat
+			   (when (string= f field)
+			     (format "%s = %s,\n" f v))))
+	        (-uniq other-fields) "\n")
+	       "\n}"))
+      (bibtex-find-entry key)
+      (bibtex-fill-entry)
+      (bibtex-clean-entry))))
+
+;; downcase entries
+;;;###autoload
+(defun org-ref-downcase-bibtex-entry ()
+  "Downcase the entry type and fields."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (entry-fields)
+         (type (downcase (cdr (assoc "=type=" entry))))
+         (key (cdr (assoc "=key=" entry))))
+
+    (setq entry-fields (mapcar (lambda (x) (car x)) entry))
+    ;; we do not want to reenter these fields
+    (setq entry-fields (remove "=key=" entry-fields))
+    (setq entry-fields (remove "=type=" entry-fields))
+
+    (bibtex-kill-entry)
+    (insert
+     (concat "@" (downcase type) "{" key ",\n"
+	     (mapconcat
+	      (lambda (field)
+		(format "%s = %s,"
+			(downcase field)
+			(cdr (assoc field entry))))
+	      entry-fields "\n")
+	     "\n}\n\n"))
+    (bibtex-find-entry key)
+    (bibtex-fill-entry)
+    (bibtex-clean-entry)))
+
+
+;;** Clean a bibtex entry
+;; These functions operate on a bibtex entry and "clean" it in some way.
+
+(defun orcb-clean-nil (arg)
+  "Remove nil from some article fields.
+The removal is conditional. Sometimes it is useful to have nil
+around, e.g. for ASAP articles where the fields are not defined
+yet but will be in the future.
+
+With \\[univeral-argument], run `bibtex-clean-entry' after."
+  (interactive "P")
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (type (downcase (cdr (assoc "=type=" entry)))))
+    (when (string= type "article")
+      (cond
+       ;; we have volume and pages but number is nil.
+       ;; remove the number field.
+       ((and (string= type "article")
+	     (not (string= (cdr (assoc "volume" entry)) "{nil}"))
+	     (not (string= (cdr (assoc "pages" entry)) "{nil}"))
+	     (string= (cdr (assoc "number" entry)) "{nil}"))
+	(bibtex-set-field "number" "")
+	(if arg
+            (bibtex-clean-entry)))))))
+
+
+(defun orcb-clean-nil-opinionated ()
+  "Remove nil from all article fields.
+
+Note that by default, this will leave the entry empty, which may
+then get deleted by `bibtex-clean-entry.' To disable this
+behavior, remove opts-or-alts from `bibtex-entry-format'. This
+will leave the empty entries so that you may fill them in later."
+  (interactive)
+  (bibtex-beginning-of-entry)
+  (let* ((entry (bibtex-parse-entry))
+         (type (downcase (cdr (assoc "=type=" entry)))))
+    (when (string= type "article")
+      (cl-loop for (field . text) in entry do
+               (if (string= text "{nil}")
+                   (bibtex-set-field field ""))))))
+
+
+(defun orcb-clean-doi ()
+  "Remove http://dx.doi.org/ in the doi field."
+  (let ((doi (bibtex-autokey-get-field "doi")))
+    (when (string-match "^http://dx.doi.org/" doi)
+      (bibtex-beginning-of-entry)
+      (goto-char (car (cdr (bibtex-search-forward-field "doi" t))))
+      (bibtex-kill-field)
+      (bibtex-make-field "doi")
+      (backward-char)
+      (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
+
+
+(defun orcb-clean-year (&optional new-year)
+  "Fix years set to 0.
+If optional NEW-YEAR set it to that, otherwise prompt for it."
+  ;; asap articles often set year to 0, which messes up key
+  ;; generation. fix that.
+  (let ((year (bibtex-autokey-get-field "year")))
+    (when (string= "0" year)
+      (bibtex-beginning-of-entry)
+      (goto-char (car (cdr (bibtex-search-forward-field "year" t))))
+      (bibtex-kill-field)
+      (bibtex-make-field "year")
+      (backward-char)
+      (insert (or new-year (read-string "Enter year: "))))))
+
+
+(defun orcb-clean-pages ()
+  "Check for empty pages, and put eid in its place if it exists."
+  (let ((pages (bibtex-autokey-get-field "pages"))
+	(eid (bibtex-autokey-get-field "eid")))
+    (when (and (not (string= "" eid))
+	       (or (string= "" pages)))
+      (bibtex-set-field "pages" eid))))
+
+
+(defun orcb-& ()
+  "Replace naked & with \& in a bibtex entry."
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (bibtex-beginning-of-entry)
+    (while (re-search-forward " & " nil t)
+      (replace-match " \\\\& "))))
+
+
+(defun orcb-% ()
+  "Replace naked % with % in a bibtex entry.
+Except when it is already escaped or in a URL. The replacement
+for the % is defined by `orcb-%-replacement-string'."
+  (save-restriction
+    (bibtex-narrow-to-entry)
+    (bibtex-beginning-of-entry)
+    (while (re-search-forward "\\([^\\]\\)%\\([^[:xdigit:]]\\)" nil t)
+      (replace-match (concat "\\1"
+                             orcb-%-replacement-string
+                             "\\2")))))
+
+
+(defun orcb-key-comma ()
+  "Make sure there is a comma at the end of the first line."
+  (bibtex-beginning-of-entry)
+  (end-of-line)
+  ;; some entries do not have a key or comma in first line. We check and add it,
+  ;; if needed.
+  (unless (string-match ", *$" (thing-at-point 'line))
+    (end-of-line)
+    (insert ",")))
+
+
+(defun orcb-key (&optional allow-duplicate-keys)
+  "Replace the key in the entry.
+Prompts for replacement if the new key duplicates one already in
+the file, unless ALLOW-DUPLICATE-KEYS is non-nil."
+  (let ((key (funcall org-ref-clean-bibtex-key-function
+		      (bibtex-generate-autokey))))
+    ;; remove any \\ in the key
+    (setq key (replace-regexp-in-string "\\\\" "" key))
+    ;; first we delete the existing key
+    (bibtex-beginning-of-entry)
+    (re-search-forward bibtex-entry-maybe-empty-head)
+    (if (match-beginning bibtex-key-in-head)
+	(delete-region (match-beginning bibtex-key-in-head)
+		       (match-end bibtex-key-in-head)))
+    ;; check if the key is in the buffer
+    (when (and (not allow-duplicate-keys)
+               (save-excursion
+                 (bibtex-search-entry key)))
+      (save-excursion
+	(bibtex-search-entry key)
+	(bibtex-copy-entry-as-kill)
+	(switch-to-buffer-other-window "*duplicate entry*")
+	(bibtex-yank))
+      (setq key (bibtex-read-key "Duplicate Key found, edit: " key)))
+
+    (insert key)
+    (kill-new key)))
+
+
+(defun orcb-check-journal ()
+  "Check entry at point to see if journal exists in `org-ref-bibtex-journal-abbreviations'.
+If not, issue a warning."
+  (interactive)
+  (when
+      (string= "article"
+               (downcase
+                (cdr (assoc "=type=" (bibtex-parse-entry)))))
+    (save-excursion
+      (bibtex-beginning-of-entry)
+      (let* ((entry (bibtex-parse-entry t))
+             (journal (reftex-get-bib-field "journal" entry)))
+        (when (null journal)
+          (error "Unable to get journal for this entry."))
+        (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))
+          (message "Journal \"%s\" not found in org-ref-bibtex-journal-abbreviations." journal))))))
+
+
+(defun orcb-fix-spacing ()
+  "Delete whitespace and fix spacing between entries."
+  (let (beg end)
+    (save-excursion
+      (save-restriction
+    	(widen)
+	(bibtex-beginning-of-entry)
+	(setq beg (point))
+	(bibtex-end-of-entry)
+	(setq end (if (re-search-forward bibtex-any-entry-maybe-empty-head nil t)
+		      (progn (beginning-of-line)
+			     (point))
+		    (point-max)))
+	;; 1. delete whitespace
+	(narrow-to-region beg end)
+	(delete-trailing-whitespace)
+	;; 2. delete consecutive empty lines
+	(goto-char end)
+	(while (re-search-backward "\n\n\n+" nil 'move)
+	  (replace-match "\n\n"))
+	;; 3. add one line between entries
+	(goto-char end)
+	(forward-line -1)
+	(when (looking-at "[}][ \t]*\\|@Comment.+\\|%.+")
+	  (end-of-line)
+	  (newline))))))
+
+
+;;;###autoload
+(defun org-ref-clean-bibtex-entry ()
+  "Clean and replace the key in a bibtex entry.
+See functions in `org-ref-clean-bibtex-entry-hook'."
+  (interactive)
+  (save-excursion
+    (save-restriction
+      (bibtex-narrow-to-entry)
+      (bibtex-beginning-of-entry)
+      ;; run hooks. each of these operates on the entry with no arguments.
+      ;; this did not work like  i thought, it gives a symbolp error.
+      ;; (run-hooks org-ref-clean-bibtex-entry-hook)
+      (mapc (lambda (x)
+	      (save-restriction
+		(save-excursion
+		  (funcall x))))
+	    org-ref-clean-bibtex-entry-hook))))
+
+
+(defun org-ref-get-citation-year (key)
+  "Get the year of an entry with KEY.  Return year as a string."
+  (let* ((results (org-ref-get-bibtex-key-and-file key))
+         (bibfile (cdr results)))
+    (with-temp-buffer
+      (insert-file-contents bibfile)
+      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+      (bibtex-search-entry key nil 0)
+      (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))))))
 
 
 ;;* The end
