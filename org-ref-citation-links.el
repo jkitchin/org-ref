@@ -445,9 +445,16 @@ Use with apply-partially."
 							    (plist-get ref :key)))))))))))
 
 
+(defun org-ref-cite-link-complete (cmd &optional arg)
+  "Cite link completion for CMD."
+  (concat
+   cmd ":"
+   "@" (org-ref-read-key)))
+
 (cl-loop for cmd in org-ref-natbib-types do
 	 (org-link-set-parameters
 	  cmd
+	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
 	  :follow #'org-ref-cite-follow
 	  :face 'org-ref-cite-face
 	  :help-echo #'org-ref-cite-tooltip
@@ -458,6 +465,7 @@ Use with apply-partially."
 (cl-loop for cmd in org-ref-biblatex-types do
 	 (org-link-set-parameters
 	  cmd
+	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
 	  :follow #'org-ref-cite-follow
 	  :face 'org-ref-cite-face
 	  :help-echo #'org-ref-cite-tooltip
@@ -468,6 +476,7 @@ Use with apply-partially."
 (cl-loop for cmd in org-ref-biblatex-multitypes do
 	 (org-link-set-parameters
 	  cmd
+	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
 	  :follow #'org-ref-cite-follow
 	  :face 'org-ref-cite-face
 	  :help-echo #'org-ref-cite-tooltip
@@ -476,6 +485,64 @@ Use with apply-partially."
 
 
 ;; * Cite link utilities
+;;;###autoload
+(defun org-ref-delete-citation-at-point ()
+  "Delete the citation or reference at point."
+  (interactive)
+  (let* ((object (org-element-context))
+         (type (org-element-property :type object))
+         (begin (org-element-property :begin object))
+         (end (org-element-property :end object))
+         (link-string (org-element-property :path object))
+	 (data (org-ref-parse-cite-path link-string))
+	 (references (plist-get data :references))
+	 (cp (point))
+         key keys i)
+    ;;   We only want this to work on citation links
+    (when (-contains? org-ref-cite-types type)
+      (setq key (org-ref-get-bibtex-key-under-cursor))
+      (if (null key)
+	  ;; delete the whole cite
+	  (cl--set-buffer-substring begin end "")
+	(setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
+	;; delete i'th reference
+	(setq references (-remove-at i references))
+	(setq data (plist-put data :references references))
+	(save-excursion
+	  (goto-char begin)
+	  (re-search-forward link-string)
+	  (replace-match (org-ref-interpret-cite-data data)))
+	(goto-char cp)))))
+
+(defun org-ref-replace-citation-at-point ()
+  "Replace the citation at point."
+  (interactive)
+  (let* ((object (org-element-context))
+         (type (org-element-property :type object))
+         (begin (org-element-property :begin object))
+         (end (org-element-property :end object))
+         (link-string (org-element-property :path object))
+	 (data (org-ref-parse-cite-path link-string))
+	 (references (plist-get data :references))
+	 (cp (point))
+         key keys i)
+    ;;   We only want this to work on citation links
+    (when (-contains? org-ref-cite-types type)
+      (setq key (org-ref-get-bibtex-key-under-cursor))
+
+      (if (null key)
+	  ;; delete the whole cite
+	  (cl--set-buffer-substring begin end "")
+	(setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
+	(setf (plist-get (nth i references) :key)  (org-ref-read-key))
+
+	(setq data (plist-put data :references references))
+	(save-excursion
+	  (goto-char begin)
+	  (re-search-forward link-string)
+	  (replace-match (org-ref-interpret-cite-data data)))
+	(goto-char cp)))))
+
 
 ;;;###autoload
 (defun org-ref-change-cite-type ()
@@ -609,7 +676,7 @@ move to the beginning of the previous cite link after this one."
     ("u" ivy-bibtex-open-url-or-doi "Open URL or DOI in browser")
     ;; this insert-citation only inserts an org-ref cite.
     ;; ("c" ivy-bibtex-insert-citation "Insert citation")
-    ("r" ivy-bibtex-insert-reference "Insert reference")
+    ("R" ivy-bibtex-insert-reference "Insert formatted reference")
     ("k" ivy-bibtex-insert-key "Insert BibTeX key")
     ("b" ivy-bibtex-insert-bibtex "Insert BibTeX entry")
     ("a" ivy-bibtex-add-PDF-attachment "Attach PDF to email")
@@ -685,10 +752,9 @@ move to the beginning of the previous cite link after this one."
 	(backward-char 1)))))
 
 
-(defun org-ref-cite-insert ()
-  "Function for inserting a citation."
+(defun org-ref-read-key ()
+  "Read a key."
   (interactive)
-
   ;; I do this here in case you change the actions after loading this, so that
   ;; it should be up to date.
   (ivy-set-actions
@@ -699,12 +765,56 @@ move to the beginning of the previous cite link after this one."
 
   (bibtex-completion-init)
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (candidates (bibtex-completion-candidates)))
-    (ivy-read "BibTeX entries: " candidates
-	      :caller 'org-ref-cite-insert
-	      :action (lambda (candidate)
-			(org-ref-insert-cite-key (cdr (assoc "=key=" (cdr candidate))))))))
+	 (candidates (bibtex-completion-candidates))
+	 (choice (ivy-read "BibTeX entries: " candidates
+			   :caller 'org-ref-cite-insert))
+	 (key  (cdr (assoc "=key=" (cdr (assoc choice candidates))))))
+    key))
 
+(defun org-ref-cite-insert ()
+  "Function for inserting a citation."
+  (interactive)
+  (ivy-set-actions
+   'org-ref-cite-insert
+   org-ref-citation-alternate-insert-actions)
+
+  (ivy-set-display-transformer 'org-ref-cite-insert 'ivy-bibtex-display-transformer)
+
+  (bibtex-completion-init)
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (candidates (bibtex-completion-candidates))
+	 (choice (ivy-read "BibTeX entries: " candidates
+			   :caller 'org-ref-cite-insert
+			   :action '(1
+				     ("o" (lambda (candidate)
+					    (org-ref-insert-cite-key (cdr (assoc "=key=" (cdr candidate)))))
+				      "insert")
+				     ("r" (lambda (candidate)
+
+					    (let* ((object (org-element-context))
+						   (type (org-element-property :type object))
+						   (begin (org-element-property :begin object))
+						   (end (org-element-property :end object))
+						   (link-string (org-element-property :path object))
+						   (data (org-ref-parse-cite-path link-string))
+						   (references (plist-get data :references))
+						   (cp (point))
+						   (key)
+						   keys i)
+					      ;;   We only want this to work on citation links
+					      (when (-contains? org-ref-cite-types type)
+						(setq key (org-ref-get-bibtex-key-under-cursor))
+						(if (null key)
+						    ;; delete the whole cite
+						    (cl--set-buffer-substring begin end "")
+						  (setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
+						  (setf (plist-get (nth i references) :key) (cdr (assoc "=key=" (cdr candidate))))
+						  (setq data (plist-put data :references references))
+						  (save-excursion
+						    (goto-char begin)
+						    (re-search-forward link-string)
+						    (replace-match (org-ref-interpret-cite-data data)))
+						  (goto-char cp))))))))))))
 
 
 (defhydra org-ref-citation-hydra (:color blue :hint nil)
@@ -715,27 +825,32 @@ move to the beginning of the previous cite link after this one."
   ("n" org-ref-open-notes-at-point "Notes" :column "Open")
   ("u" org-ref-open-url-at-point "URL" :column "Open")
 
-  ("w" org-ref-wos-at-point "WOS" :column "WWW")
-  ("r" org-ref-wos-related-at-point "WOS related" :column "WWW")
-  ("c" org-ref-wos-citing-at-point "WOS citing" :column "WWW")
-  ("g" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
-  ("P" org-ref-pubmed-at-point "Pubmed" :column "WWW")
-  ("C" org-ref-crossref-at-point "Crossref" :column "WWW")
+  ;; WWW actions
+  ("ww" org-ref-wos-at-point "WOS" :column "WWW")
+  ("wr" org-ref-wos-related-at-point "WOS related" :column "WWW")
+  ("wc" org-ref-wos-citing-at-point "WOS citing" :column "WWW")
+  ("wg" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
+  ("wp" org-ref-pubmed-at-point "Pubmed" :column "WWW")
+  ("wc" org-ref-crossref-at-point "Crossref" :column "WWW")
+  ("wb" org-ref-biblio-at-point "Biblio" :column "WWW")
   ("e" org-ref-email-at-point "Email" :column "WWW")
 
+  ;; Copyish actions
   ("K" org-ref-copy-entry-as-summary "Copy bibtex" :column "Copy")
   ("k" (kill-new (car (org-ref-get-bibtex-key-and-file))) "Copy key" :column "Copy")
   ("f" (kill-new (bibtex-completion-apa-format-reference
 		  (org-ref-get-bibtex-key-under-cursor)))
    "Copy formatted" :column "Copy")
 
+  ;; Editing actions
   ("<left>" org-ref-cite-shift-left "Shift left" :color red :column "Edit")
   ("<right>" org-ref-cite-shift-right "Shift right" :color red :column "Edit")
   ("<up>" org-ref-sort-citation-link "Sort by year" :column "Edit")
   ("i" (funcall org-ref-insert-cite-function) "Insert cite" :column "Edit")
   ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
+  ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
+  ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
   ("q" nil "Quit"))
-
 
 
 

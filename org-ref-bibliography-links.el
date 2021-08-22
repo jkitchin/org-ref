@@ -76,7 +76,9 @@ PATH is a comma-separated list of bibfiles."
   (cl-loop for p in (split-string path ",") do
 	   (setq p (string-trim p))
 	   (search-forward p)
+	   (setq p (org-ref-get-bibfile-path p))
 	   (put-text-property (match-beginning 0) (match-end 0) 'org-ref-bibfile p)
+	   (put-text-property (match-beginning 0) (match-end 0) 'help-echo (format "File exists at %s" p))
 
 	   ;; activate files that don't exist
 	   (when (not (file-exists-p p))
@@ -154,10 +156,22 @@ Optional argument BACKEND is the export backend."
     (insert (format "bibliography:%s" (string-join files ",")))))
 
 
+(defun org-ref-bibliography-complete (&optional arg)
+  "Completion function for bibliography links."
+  (concat "bibliography:"
+	  (completing-read "Bibliography file: " (org-ref-possible-bibfiles))))
+
+(defun org-ref-nobibliography-complete (&optional arg)
+  "Completion function for bibliography links."
+  (concat "nobibliography:"
+	  (completing-read "Bibliography file: " (org-ref-possible-bibfiles))))
+
+
 ;; ** bibliography* links
 
 (org-link-set-parameters "bibliography"
 			 :follow #'org-ref-bibliography*-follow
+			 :complete #'org-ref-bibliography-complete
 			 :help-echo "Bibliography link"
 			 :export (apply-partially 'org-ref-bibliography*-export "\\bibliography")
 			 :activate-func #'org-ref-bibliography-activate
@@ -165,6 +179,7 @@ Optional argument BACKEND is the export backend."
 
 
 (org-link-set-parameters "nobibliography"
+			 :complete #'org-ref-nobibliography-complete
 			 :help-echo "No bibliography link"
 			 :activate-func #'org-ref-bibliography-activate
 			 :follow #'org-ref-bibliography*-follow
@@ -176,7 +191,6 @@ Optional argument BACKEND is the export backend."
 			 :export #'org-ref-printbibliography-export)
 
 ;; Note I removed the addbibresource link, it goes in the header, not the document.
-
 
 ;; *** bibliographystyle
 

@@ -42,13 +42,16 @@
   :type 'string
   :group 'org-ref)
 
+
 (defface org-ref-ref-face
   `((t (:inherit org-link :foreground ,org-ref-ref-color)))
   "Face for ref links in org-ref.")
 
+
 (defvar org-ref-label-re
   (rx (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%&~"))))
   "Regexp for labels.")
+
 
 (defvar org-ref-ref-label-regexps
   (list
@@ -131,6 +134,7 @@ font-lock."
     ;; reverse so they are in the order we find them.
     (delete-dups (reverse labels))))
 
+
 (defun org-ref-ref-follow (_path)
   "Follow the ref link.
 _PATH is ignored. We get the label from a text property so we
@@ -197,9 +201,14 @@ This is meant to be used with `apply-partially'."
     (format "%s{%s}" cmd keyword))))
 
 
+(defun org-ref-complete-link (refstyle &optional arg)
+  "Complete a ref link to an existing label."
+  (concat refstyle ":" (completing-read "Label: " (org-ref-get-labels))))
+
 ;; ** ref link
 
 (org-link-set-parameters "ref"
+			 :complete (apply-partially #'org-ref-complete-link "ref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\ref")
@@ -207,11 +216,10 @@ This is meant to be used with `apply-partially'."
 			 :help-echo #'org-ref-ref-help-echo)
 
 
-
-
 ;;** pageref link
 
 (org-link-set-parameters "pageref"
+			 :complete (apply-partially #'org-ref-complete-link "pageref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\pageref")
@@ -223,6 +231,7 @@ This is meant to be used with `apply-partially'."
 ;;** nameref link
 
 (org-link-set-parameters "nameref"
+			 :complete (apply-partially #'org-ref-complete-link "nameref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\nameref")
@@ -232,6 +241,7 @@ This is meant to be used with `apply-partially'."
 ;;** eqref link
 
 (org-link-set-parameters "eqref"
+			 :complete (apply-partially #'org-ref-complete-link "eqref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\eqref")
@@ -241,6 +251,7 @@ This is meant to be used with `apply-partially'."
 ;;** autoref link
 
 (org-link-set-parameters "autoref"
+			 :complete (apply-partially #'org-ref-complete-link "autoref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\autoref")
@@ -253,6 +264,7 @@ This is meant to be used with `apply-partially'."
 
 
 (org-link-set-parameters "cref"
+			 :complete (apply-partially #'org-ref-complete-link "cref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\cref")
@@ -261,6 +273,7 @@ This is meant to be used with `apply-partially'."
 
 
 (org-link-set-parameters "Cref"
+			 :complete (apply-partially #'org-ref-complete-link "Cref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export (apply-partially #'org-ref-ref-export "\\Cref")
@@ -282,7 +295,16 @@ This is meant to be used with `apply-partially'."
        (format "\\crefrange{%s}{%s}" (cl-first labels) (cl-second labels))))))
 
 
+(defun org-ref-crefrange-complete (cmd &optional arg)
+  "Completing function for the c/Crefrange links."
+  (concat cmd ":"
+	  (completing-read "Label 1: " (org-ref-get-labels))
+	  ","
+	  (completing-read "Label 2: " (org-ref-get-labels))))
+
+
 (org-link-set-parameters "crefrange"
+			 :complete (apply-partially #'org-ref-crefrange-complete "crefrange")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export #'org-ref-crefrange-export
@@ -291,6 +313,7 @@ This is meant to be used with `apply-partially'."
 
 
 (org-link-set-parameters "Crefrange"
+			 :complete (apply-partially #'org-ref-crefrange-complete "Crefrange")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
 			 :export #'org-ref-Crefrange-export
