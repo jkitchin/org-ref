@@ -29,32 +29,63 @@
 ;; and rely exclusively on org-syntax for that, e.g. radio targets and fuzzy
 ;; links.
 ;;
-;; TODO: write refproc to take care of cross-references.
+;; TODO: write refproc to take care of cross-references? Should it just revert
+;; to org-markup, maybe adding parentheses around equation refs?
 
 ;;; Code:
 
 (require 'citeproc)
 
+(defcustom org-ref-backend-csl-formats
+  '((html . html)
+    (latex . latex)
+    (md . plain)
+    (ascii . plain)
+    (odt . org-odt))
+  "Mapping of export backend to csl-backends.")
 
-(defun org-ref-process-buffer (csl-backend)
+
+(defcustom org-ref-cite-internal-links 'auto
+  "Should be on of
+- 'bib-links :: link cites to bibliography entries
+- 'no-links :: do not link cites to bibliography entries
+- nil or 'auto :: add links based on the style.")
+
+
+(defun org-ref-process-buffer (backend)
   "Process the citations and bibliography in the org-buffer.
 Usually run on a copy of the buffer during export.
-CSL-BACKEND is the backend that citeproc uses."
+BACKEND is the org export backend."
 
-  (let* ((style (or (cadr (assoc "CSL-STYLE"
+  (let* ((csl-backend (or (cdr (assoc backend org-ref-backend-csl-formats)) 'plain))
+
+	 (style (or (cadr (assoc "CSL-STYLE"
 				 (org-collect-keywords
 				  '("CSL-STYLE"))))
-		    "apa-numeric-superscript-brackets.csl"))
+		    "chicago-author-date-16th-edition.csl"))
 	 (locale (or (cadr (assoc "CSL-LOCALE"
 				  (org-collect-keywords
 				   '("CSL-LOCALE"))))
 		     "en-US"))
 
-	 (proc (citeproc-create (if (file-exists-p style)
-				    style
+	 (proc (citeproc-create (cond
+				 ((file-exists-p style)
+				  style)
+				 ;; In a user-dir
+				 ((file-exists-p (f-join org-cite-csl-styles-dir style))
 				  (f-join org-cite-csl-styles-dir style))
+				 ;; provided by org-ref
+				 ((file-exists-p
+				   (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
+				  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
+				 (t
+				  (error "%s not found" style)))
 				(citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
-				(citeproc-locale-getter-from-dir org-cite-csl-locales-dir)
+				(citeproc-locale-getter-from-dir (cond
+								  ((boundp 'org-cite-csl-locales-dir)
+								   org-cite-csl-locales-dir)
+								  (t
+								   (f-join (file-name-directory (locate-library "org-ref")) "csl-locales"))))
 				locale))
 
 	 ;; list of links in the buffer
@@ -65,45 +96,51 @@ CSL-BACKEND is the backend that citeproc uses."
 
 	 (cites (cl-loop for cl in cite-links collect
 			 (let* ((cite-data (org-ref-parse-cite-path (org-element-property :path cl)))
-				;; TODO where does this go?
-				;; concat to first and last?
 				(common-prefix (or (plist-get cite-data :prefix) ""))
 				(common-suffix (or (plist-get cite-data :suffix) ""))
 				(refs (plist-get cite-data :references))
-				(cites (cl-loop for ref in refs collect
-						`((id . ,(plist-get ref :key))
-						  (prefix . ,(or (plist-get ref :prefix) ""))
 
-						  ;; I think the locator, label, location
-						  ;; are part of
-						  ;; the suffix,
-						  ;; but I need to
-						  ;; study how to
-						  ;; split it out.
-						  ;; for now I
-						  ;; leave it in
-						  ;; the suffix.
-						  (suffix . ,(or (plist-get ref :suffix) ""))
-						  (locator . nil)
-						  (label . nil)
-						  (location . nil)
-						  ;; TODO: proof of concept and not complete
-						  (suppress-author . ,(member
-								       (org-element-property :type cl)
-								       '("citenum"
-									 "citeyear"
-									 "citeyear*"
-									 "citedate"
-									 "citedate*"
-									 "citetitle"
-									 "citetitle*"
-									 "citeurl")))))))
+				(cites (cl-loop for ref in refs collect
+						;; I believe the suffix contains "label locator suffix"
+						;; where locator is a number
+						;; label is something like page or chapter
+						;; and the rest is the suffix text.
+						;; For example: ch. 5, for example
+						;; would be label = ch., locator=5, ",for example" as suffix.
+						(let* ((full-suffix (or (plist-get ref :suffix) ""))
+						       location label locator suffix)
+						  (string-match "\\(?1:[^[:digit:]]*\\)?\\(?2:[[:digit:]]*\\)?\\(?3:.*\\)"
+								full-suffix)
+						  (setq label (match-string 1 full-suffix)
+							locator (match-string 2 full-suffix)
+							suffix (match-string 3 full-suffix))
+						  ;; Let's assume if you have a locator but not a label, you mean page.
+						  (when (and locator (string= "" (string-trim label)))
+						    (setq label "page"))
+						  `((id . ,(plist-get ref :key))
+						    (prefix . ,(or (plist-get ref :prefix) ""))
+						    (suffix . ,suffix)
+						    (locator . ,locator)
+						    (label . ,(string-trim label))
+
+						    ;; TODO: proof of concept and not complete
+						    (suppress-author . ,(not (null (member
+										    (org-element-property :type cl)
+										    '("citenum"
+										      "citeyear"
+										      "citeyear*"
+										      "citedate"
+										      "citedate*"
+										      "citetitle"
+										      "citetitle*"
+										      "citeurl")))) ))))))
+			   ;; TODO: confirm this is right.
 			   ;; To handle common prefixes, suffixes, I just concat them with the first/last entries.
+			   ;; I am not sure this is the right thing to do though.
 			   (setf (cdr (assoc 'prefix (cl-first cites)))
 				 (concat common-prefix (cdr (assoc 'prefix (cl-first cites)))))
 			   (setf (cdr (assoc 'suffix (car (last cites))))
 				 (concat (cdr (assoc 'suffix (car (last cites)))) common-suffix))
-
 
 			   ;; https://github.com/andras-simonyi/citeproc-el#creating-citation-structures
 			   (citeproc-citation-create :cites
@@ -127,15 +164,16 @@ CSL-BACKEND is the backend that citeproc uses."
 						     ;; suppress-author,
 						     ;; textual, author-only,
 						     ;; year-only, or nil for
-						     ;; default
+						     ;; default. These are not
+						     ;; all clear to me.
 						     :mode (let ((type (org-element-property :type cl)))
 							     (cond
 							      ((member type '("citet" "citet*"))
 							       'textual)
-							      ((member type '("citeyear" "citeyear*"))
-							       'year-only)
 							      ((member type '("citeauthor" "citeauthor*"))
 							       'author-only)
+							      ((member type '("citeyear" "citeyear*"))
+							       'year-only)
 							      ((member type '("citedate" "citedate*"))
 							       'suppress-author)
 							      (t
@@ -145,12 +183,12 @@ CSL-BACKEND is the backend that citeproc uses."
 						     :capitalize-first (string-match
 									"[A-Z]"
 									(substring (org-element-property :type cl) 0 1))
-						     ;; I don't know where this information would come from
+						     ;; I don't know where this information would come from.
 						     :note-index nil
 						     :ignore-et-al nil))))
 
 	 (rendered-citations (progn (citeproc-append-citations cites proc)
-				    (citeproc-render-citations proc csl-backend)))
+				    (citeproc-render-citations proc csl-backend org-ref-cite-internal-links)))
 	 (rendered-bib (car (citeproc-render-bib proc csl-backend)))
 	 ;; The idea is we will wrap each citation and the bibliography in
 	 ;; org-code so it exports appropriately.
@@ -176,7 +214,6 @@ CSL-BACKEND is the backend that citeproc uses."
 				    (format (or (cdr (assoc backend bib-formatters)) "%s") rendered-bib)))))))
 
 
-
 (defun org-ref-export-to (backend &optional async subtreep visible-only
 				  body-only info)
   "Export buffer to BACKEND.
@@ -188,16 +225,12 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 		       (md . ".md")
 		       (ascii . ".txt")
 		       (odt . ".odf")))
-	 (csl-formats '((html . html)
-			(latex . latex)
-			(md . plain)
-			(ascii . plain)
-			(odt . org-odt)))
+
 	 (export-name (concat (file-name-sans-extension fname)
 			      (or (cdr (assoc backend extensions)) ""))))
 
     (org-export-with-buffer-copy
-     (org-ref-process-buffer (cdr (assoc backend csl-formats)))
+     (org-ref-process-buffer backend)
      (pcase backend
        ;; odt is a little bit special, and is missing one argument
        ('odt (org-open-file (org-odt-export-to-odt async subtreep visible-only
@@ -276,7 +309,17 @@ VISIBLE-ONLY BODY-ONLY and INFO."
     (pop-to-buffer export-buf)))
 
 
-
+(defun org-ref-export-to-message (&optional async subtreep visible-only
+					    body-only info)
+  "Export to ascii and insert"
+  (let* ((backend 'md)
+	 (content (org-export-with-buffer-copy
+		   (org-ref-process-buffer backend)
+		   (org-export-as backend))))
+    (compose-mail)
+    (message-goto-body)
+    (insert content)
+    (message-goto-to)))
 
 
 (org-export-define-derived-backend 'org-ref 'org
@@ -287,7 +330,15 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 	(?l "to LaTeX" org-ref-export-as-latex)
 	(?m "to Markdown" org-ref-export-as-md)
 	(?o "to ODT" org-ref-export-as-odt)
-	(?O "to Org buffer" org-ref-export-as-org))))
+	(?O "to Org buffer" org-ref-export-as-org)
+	(?e "to email" org-ref-export-to-message))))
+
+;; An alternative to this exporter is to use an  `org-export-before-parsing-hook'
+;; (add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
+
+(defun org-ref-csl-preprocess-buffer (backend)
+  "Preprocess the buffer in BACKEND export"
+  (org-ref-process-buffer backend))
 
 (provide 'org-ref-export)
 
