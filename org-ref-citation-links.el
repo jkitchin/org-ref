@@ -234,7 +234,7 @@ invalid, e.g. if you change the bibliographies."
   "Activation function for a cite link.
 START and END are the bounds of the link.
 PATH has the citations in it."
-  (let* ((valid-keys org-ref-valid-keys) ;; this is cached in a buffer local var.
+  (let* ((valid-keys (org-ref-valid-keys)) ;; this is cached in a buffer local var.
 	 substrings)
     (goto-char start)
     (pcase (org-ref-cite-version path)
@@ -366,11 +366,15 @@ Use with apply-partially."
 	  (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
 		    `(("cmd" . ,cmd)
 		      ;; if there is more than one key, we only do global prefix/suffix
-		      ;; But for one key, we should allow local prefix and suffix.
+		      ;; But for one key, we should allow local prefix and suffix or the global one.
 		      ("prefix" . ,(if (= 1 (length references))
 				       (cond
-					((plist-get (car references) :prefix)
+					;; local prefix is not empty, we use it.
+					((not (string= "" (plist-get (car references) :prefix)))
 					 (concat "[" (plist-get (car references) :prefix) "]"))
+					;; local prefix is empty, but global one is not, so we use it
+					((not (string= "" (plist-get cite :prefix)))
+					 (concat "[" (plist-get cite :prefix) "]"))
 					;; if you have a suffix, you need an empty prefix
 					((plist-get cite :suffix)
 					 "[]")
@@ -385,9 +389,15 @@ Use with apply-partially."
 				      (t
 				       ""))))
 		      ("suffix" . ,(if (= 1 (length references))
-				       (if (plist-get (car references) :suffix)
-					   (format "[%s]" (plist-get (car references) :suffix))
-					 "")
+				       (cond
+					;; local prefix is not empty, so use it
+					((not (string= "" (plist-get (car references) :suffix)))
+					 (format "[%s]" (plist-get (car references) :suffix)))
+					;; global prefix is not empty
+					((not (string= "" (plist-get cite :suffix)))
+					 (format "[%s]" (plist-get cite :suffix)))
+					(t
+					 ""))
 				     (if (plist-get cite :suffix)
 					 (format "[%s]" (plist-get cite :suffix))
 				       "")))
