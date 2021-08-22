@@ -30,3 +30,8 @@ auto/
 *.bcf
 *.fls
 elpa-for-orgref
+*.html
+*.md
+*.odf
+*.odt
+*.txt
