@@ -144,10 +144,10 @@ function in `org-ref-completion-library'."
   :group 'org-ref)
 
 
-;; TODO remove this, and a lot of related code I think
-(defvar org-ref-bibliography-files
-  nil
-  "Variable to hold bibliography files to be searched.")
+;; ;; TODO remove this, and a lot of related code I think
+;; (defvar org-ref-bibliography-files
+;;   nil
+;;   "Variable to hold bibliography files to be searched.")
 
 
 
@@ -160,61 +160,34 @@ function in `org-ref-completion-library'."
 This function sets and returns a list of files either from internal bibliographies, from files in the
 BIBINPUTS env var, and finally falling back to what the user has
 set in `bibtex-completion-bibliography'"
-  (catch 'result
-    ;; If you call this in a bibtex file, assume we want this file
-    (when (and buffer-file-name (f-ext? buffer-file-name "bib"))
-      (throw 'result (setq org-ref-bibliography-files (list buffer-file-name))))
+  (let ((org-ref-bibliography-files ()))
+    (catch 'result
+      (save-excursion
+	(org-with-wide-buffer
+         (goto-char (point-min))
+	 ;; This just searches for these strings, and then checks if it
+	 ;; is on a link. This is faster than parsing the org-file when
+	 ;; it gets large.
+         ;; look for org-ref bibliography
+         (while (re-search-forward "bibliography:" nil t)
+	   (let ((link (org-element-context)))
+	     (when (and (eq (car link) 'link)
+			(string= (org-element-property :type link) "bibliography"))
+	       (setq org-ref-bibliography-files
+		     (mapcar 'org-ref-get-bibfile-path
+			     (org-ref-split-and-strip-string
+			      (org-element-property :path link))))
+	       (throw 'result (nreverse (delete-dups org-ref-bibliography-files))))))
 
-    ;; otherwise, check current file for a bibliography source
-    (save-excursion
-      (save-restriction
-        (widen)
-        (goto-char (point-min))
-	(setq org-ref-bibliography-files ())
+         (goto-char (point-min))
+         (while (re-search-forward "\\\\addbibresource{\\(.*\\)}" nil t)
+           (push (match-string 1) org-ref-bibliography-files))
 
-        ;; look for org-ref bibliography or addbibresource links
-        (while (re-search-forward
-                ;; This just searches for these strings, and then checks if it
-                ;; is on a link. This is faster than parsing the org-file when
-                ;; it gets large.
-                "\\(bibliography\\|addbibresource\\):"
-                nil t)
-	  (let ((link (org-element-context)))
-	    (when (and (eq (car link) 'link)
-		       (or
-			(string= (org-element-property :type link) "bibliography")
-			(string= (org-element-property :type link) "addbibresource")))
-	      (setq org-ref-bibliography-files (org-ref-split-and-strip-string
-						(org-element-property :path link))))))
+         (when org-ref-bibliography-files
+           (throw 'result (nreverse (delete-dups (mapcar 'org-ref-get-bibfile-path org-ref-bibliography-files)))))
 
-        (when org-ref-bibliography-files
-          (throw 'result
-                 (setq org-ref-bibliography-files
-                       (nreverse (delete-dups org-ref-bibliography-files)))))
-
-        ;; Try addbibresource as a latex command. It appears that reftex does
-        ;; not do this correctly, it only finds the first one but there could be
-        ;; many.
-        (goto-char (point-min))
-        (while (re-search-forward
-                "\\\\addbibresource{\\(.*\\)}"
-                nil t)
-          (push (match-string 1) org-ref-bibliography-files))
-
-        (when org-ref-bibliography-files
-          (throw 'result (setq org-ref-bibliography-files
-                               (nreverse org-ref-bibliography-files))))
-
-        ;; we did not find org-ref links. now look for latex links
-        (goto-char (point-min))
-        (when org-ref-bibliography-files
-          (throw 'result org-ref-bibliography-files)))
-
-
-      ;; we did not find anything. use defaults
-      (setq org-ref-bibliography-files bibtex-completion-bibliography)))
-
-  org-ref-bibliography-files)
+         ;; we did not find anything. use defaults
+	 (throw 'result bibtex-completion-bibliography))))))
 
 
 (defun org-ref-key-in-file-p (key filename)
