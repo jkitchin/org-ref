@@ -22,7 +22,6 @@ auto/
 *.toc
 *.bbl
 *.blg
-*.xml
 *.fdb_latexmk
 *.pdf
 *.ilg
@@ -35,3 +34,6 @@ elpa-for-orgref
 *.odf
 *.odt
 *.txt
+meta.xml
+styles.xml
+*.run.xml
