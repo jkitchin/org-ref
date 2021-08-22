@@ -382,6 +382,17 @@ Can also be called with THEKEY in a program."
 
 
 ;;;###autoload
+(defun org-ref-biblio-at-point ()
+  "Do a biblio search for bibtex key under point using the title."
+  (interactive)
+  (biblio-lookup nil
+		 (save-window-excursion
+		   (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))
+		   (setq entry (bibtex-parse-entry))
+		   (org-ref-reftex-get-bib-field "title" entry))))
+
+
+;;;###autoload
 (defun org-ref-pubmed-at-point ()
   "Open the doi in pubmed for bibtex key under point."
   (interactive)
@@ -393,6 +404,7 @@ Can also be called with THEKEY in a program."
   "Open the doi in crossref for bibtex key under point."
   (interactive)
   (doi-utils-crossref (org-ref-get-doi-at-point)))
+
 
 ;;;###autoload
 (defun org-ref-email-at-point ()
