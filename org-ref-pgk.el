@@ -1,4 +1,4 @@
-(define-package "org-ref" "1.1.1" "citations, cross-references and bibliographies in org-mode"
+(define-package "org-ref" "1.2.0" "citations, cross-references and bibliographies in org-mode"
   '((dash "2.11.0")
     (htmlize "1.51")
     (helm "1.5.5")
