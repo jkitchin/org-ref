@@ -624,6 +624,35 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
       (re-search-backward bibtex-entry-head nil t (and (numberp n) n))
     (bibtex-beginning-of-entry)))
 
+;;;###autoload
+(defun org-ref-bibtex-visible-entry ()
+  "Jump to visible entry."
+  (interactive)
+  (avy-with avy-goto-typo
+    (avy-process
+     (save-excursion
+       (goto-char (window-start))
+       (let ((positions ()))
+	 (while (re-search-forward "^@.*{" (window-end) t)
+	   (push (match-beginning 0) positions))
+	 (reverse positions))))
+    (avy--style-fn avy-style)))
+
+
+;;;###autoload
+(defun org-ref-bibtex-visible-field ()
+  "Jump to visible field."
+  (interactive)
+  (avy-with avy-goto-typo
+    (avy-process
+     (save-excursion
+       (goto-char (window-start))
+       (let ((positions ()))
+	 (while (re-search-forward ".*=\\s-*." (window-end) t)
+	   (push (match-end 0) positions))
+	 (reverse positions))))
+    (avy--style-fn avy-style)))
+
 
 (defun org-ref-bibtex-mode-keys ()
   "Modify keymaps used by `bibtex-mode'."
@@ -788,7 +817,9 @@ a directory. Optional PREFIX argument toggles between
   ("T" org-ref-title-case-article "Title case" :column "Edit")
   ("S" org-ref-sentence-case-article "Sentence case" :column "Edit")
   ("U" (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi)) "Update entry" :column "Edit")
-  ("u" doi-utils-update-field "Update field" :column "Edit")
+  ("u" doi-utils-update-field "Update field" :column "Edit" :color red)
+  ("<backspace>" (cl--set-buffer-substring (line-beginning-position) (+ 1 (line-end-position)) "")
+   "Delete line" :column "Edit" :color red)
   ("d" bibtex-kill-entry "Kill entry" :column "Edit")
   ("L" org-ref-clean-bibtex-entry "Clean entry" :column "Edit")
   ("A" org-ref-bibtex-assoc-pdf-with-entry "Add pdf" :column "Edit")
@@ -832,6 +863,16 @@ a directory. Optional PREFIX argument toggles between
 
   ("f" (kill-new (bibtex-completion-apa-format-reference (cdr (assoc "=key=" (bibtex-parse-entry t)))))
    "Formatted entry" :column "Copy")
+
+  ;; Navigation
+  ("[" org-ref-bibtex-next-entry "Next entry" :column "Navigation" :color red)
+  ("]" org-ref-bibtex-previous-entry "Previous entry" :column "Navigation" :color red)
+  ("<down>" next-line "Next line" :column "Navigation" :color red)
+  ("<up>" previous-line "Previous line" :column "Navigation" :color red)
+  ("<next>" scroll-up-command "Scroll up" :column "Navigation" :color red)
+  ("<prior>" scroll-down-command "Scroll down" :column "Navigation" :color red)
+  ("v" org-ref-bibtex-visible-entry "Visible entry" :column "Navigation" :color red)
+  ("V" org-ref-bibtex-visible-field "Visible field" :column "Navigation" :color red)
 
 
   ;; Miscellaneous
