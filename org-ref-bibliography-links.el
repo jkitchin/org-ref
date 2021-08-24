@@ -167,10 +167,26 @@ Optional argument BACKEND is the export backend."
 	  (completing-read "Bibliography file: " (org-ref-possible-bibfiles))))
 
 
+(defun org-ref-bibtex-store-link ()
+  "Store a link from a bibtex file. Only supports the cite link.
+This essentially the same as the store link in org-bibtex, but it
+creates a cite link."
+  (when (eq major-mode 'bibtex-mode)
+    (let ((link (concat org-ref-default-citation-link
+			":@"
+			(save-excursion
+                          (bibtex-beginning-of-entry)
+                          (reftex-get-bib-field
+			   "=key=" (bibtex-parse-entry))))))
+      (push (list link) org-stored-links)
+      (car org-stored-links))))
+
+
 ;; ** bibliography* links
 
 (org-link-set-parameters "bibliography"
 			 :follow #'org-ref-bibliography*-follow
+			 :store #'org-ref-bibtex-store-link
 			 :complete #'org-ref-bibliography-complete
 			 :help-echo "Bibliography link"
 			 :export (apply-partially 'org-ref-bibliography*-export "\\bibliography")
@@ -180,6 +196,7 @@ Optional argument BACKEND is the export backend."
 
 (org-link-set-parameters "nobibliography"
 			 :complete #'org-ref-nobibliography-complete
+			 :store #'org-ref-bibtex-store-link
 			 :help-echo "No bibliography link"
 			 :activate-func #'org-ref-bibliography-activate
 			 :follow #'org-ref-bibliography*-follow
