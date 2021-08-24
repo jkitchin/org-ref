@@ -515,8 +515,8 @@ the first instance of the label, or nil of there is none."
 (defun org-ref-insert-ref-link (&optional set-type)
   "Insert a ref link."
   (interactive)
-  (let* ((label (ivy-read "Label: " (org-ref-get-labels)))
-	 (type (if set-type (ivy-read "Type: " org-ref-ref-types)
+  (let* ((label (completing-read "Label: " (org-ref-get-labels)))
+	 (type (if set-type (completing-read "Type: " org-ref-ref-types)
 		 (org-ref-infer-ref-type label))))
     (insert (format  "%s:%s" type label))))
 
