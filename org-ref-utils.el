@@ -597,6 +597,22 @@ if FORCE is non-nil reparse the buffer no matter what."
     bad-refs))
 
 
+(defun org-ref-count-labels (label)
+  "Return the number of times LABEL appears in the buffer."
+  (let ((rx (string-join org-ref-ref-label-regexps "\\|"))
+	(labels '())
+	context)
+    (save-excursion
+      (org-with-wide-buffer
+       (goto-char (point-min))
+       (while (re-search-forward rx nil t)
+	 (setq context (buffer-substring
+			(save-excursion (forward-line -1) (point))
+			(save-excursion (forward-line +2) (point))))
+	 (cl-pushnew (match-string-no-properties 1) labels))))
+    (-count (lambda (x) (and (stringp x) (string= x label))) labels)))
+
+
 (defun org-ref-bad-label-candidates ()
   "Return a list of labels where label is multiply defined."
   (let ((labels (mapcar 'car (org-ref-get-labels)))
