@@ -159,3 +159,26 @@ github-issue:433
 [[id:57D3E663-E37A-4372-9832-A82DC9A1BC01][org-ref invalid org-store-link in org babel #433]]
 
 It looks like I fixed it in [[orgit-rev:~/vc/jkitchin-github/scimax/org-ref/::ad6fb5c][~/vc/jkitchin-github/scimax/org-ref/ (magit-rev ad6fb5c)]].
+
+
+
+* ISSUE #533
+
+
+
+#+BEGIN_SRC emacs-lisp
+(let ((process-environment '("BIBINPUTS=.:/Users/jkitchin/Dropbox/emacs/bibliography//:")))
+  (parse-colon-path (getenv "BIBINPUTS")))
+#+END_SRC
+
+#+RESULTS:
+| /Users/jkitchin/Dropbox/emacs/scimax/org-ref/ | /Users/jkitchin/Dropbox/emacs/bibliography/ | nil |
+
+We can get the bibliography like this:
+
+#+BEGIN_SRC sh
+BIBINPUTS=.:/Users/jkitchin/Dropbox/emacs/bibliography//: kpsewhich -format=bib references.bib
+#+END_SRC
+
+#+RESULTS:
+: /Users/jkitchin/Dropbox/emacs/bibliography/references.bib
