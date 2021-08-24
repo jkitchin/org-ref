@@ -676,8 +676,8 @@ This will run in `org-export-before-parsing-hook'."
 
     (setq candidates (append glossary-candidates acronym-candidates new-candidates))
 
-    (ivy-read "Choose: " candidates :action (lambda (x)
-					      (call-interactively (cdr x))))))
+    (funcall-interactively
+     (cdr (assoc (completing-read "Choose: " candidates) candidates)))))
 
 
 (provide 'org-ref-glossary)
