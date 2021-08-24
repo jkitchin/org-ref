@@ -109,6 +109,7 @@ https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   (append
    org-ref-natbib-types
    org-ref-biblatex-types
+   org-ref-biblatex-multitypes
    ;; for the bibentry package
    '("bibentry"))
   "List of citation types known in `org-ref'."
@@ -309,7 +310,6 @@ PATH has the citations in it."
 
 		    ;; bad key activation
 		    (unless valid-key
-		      (message "%s is not in %s" key valid-keys)
 		      (put-text-property key-begin key-end
 					 'face 'font-lock-warning-face)
 		      (put-text-property key-begin key-end
@@ -752,6 +752,32 @@ move to the beginning of the previous cite link after this one."
 	(backward-char 1)))))
 
 
+(defun org-ref-jump-to-visible-key ()
+  "Jump to a visible key with avy."
+  (interactive)
+  (avy-with avy-goto-typo
+    (avy-process
+     (apply #'append
+	    (save-excursion
+	      (org-element-map (org-element-parse-buffer) 'link
+		(lambda (c)
+		  (when (member (org-element-property :type c) org-ref-cite-types)
+		    (goto-char (org-element-property :begin c))
+		    (let* ((path (org-element-property :path c))
+			   (data (org-ref-parse-cite-path path))
+			   (references (plist-get data :references)))
+		      (append (list (org-element-property :begin c))
+			      (cl-loop for ref in references collect
+				       (progn
+					 (search-forward (plist-get ref :key))
+					 (match-beginning 0)))))))))))
+    (avy--style-fn avy-style)))
+
+
+;; This is a wacky repetition of code. I needed a function to just read a key,
+;; with no action. I don't just use completing read, because I also want the ivy
+;; transformation here. Maybe there is a way to run `org-ref-cite-insert' that
+;; just selects the key, e.g. by specifying an action?
 (defun org-ref-read-key ()
   "Read a key."
   (interactive)
@@ -770,6 +796,7 @@ move to the beginning of the previous cite link after this one."
 			   :caller 'org-ref-cite-insert))
 	 (key  (cdr (assoc "=key=" (cdr (assoc choice candidates))))))
     key))
+
 
 (defun org-ref-cite-insert ()
   "Function for inserting a citation."
@@ -850,8 +877,12 @@ move to the beginning of the previous cite link after this one."
   ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
   ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
   ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
-  ("q" nil "Quit"))
 
+  ;; Navigation
+  ("[" org-ref-previous-key "Previous key" :column "Navigation")
+  ("]"  org-ref-next-key "Next key" :column "Navigation")
+  ("v" org-ref-jump-to-visible-key "Visible key" :column "Navigation")
+  ("q" nil "Quit"))
 
 
 (provide 'org-ref-citation-links)
