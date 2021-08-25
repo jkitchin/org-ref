@@ -43,8 +43,7 @@
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
-(declare-function 'org-ref-key-in-file-p "org-ref-core.el")
-(declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
+
 
 (require 'doi-utils)
 (require 'f)
@@ -76,17 +75,21 @@ the DOI."
   :type '(repeat regexp)
   :group 'org-ref-url-utils)
 
+
 (defvar org-ref-url-title-re
   "<title.?+?>\\([[:ascii:][:nonascii:]]*?\\|.+\\)</title>"
   "Regular expression for matching title.")
+
 
 (defvar org-ref-url-author-re
   "<meta name=\"author\" content=\"\\(.+\\)\"\s?/?>"
   "Regular expression for matching author.")
 
+
 (defvar org-ref-url-date-re
   "<[a-z].+ class=\\(.?+date.[^>]*\\)>\\([[:ascii:][:nonascii:]]*?\\)</[a-z].+>"
   "Regular expression for matching date.")
+
 
 (defvar org-ref-url-bibtex-template
   "@misc{key,
