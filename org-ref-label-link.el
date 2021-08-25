@@ -41,6 +41,19 @@
  :face 'org-ref-label-face
  :help-echo "A label")
 
+
+;;;###autoload
+(defun org-ref-insert-label-link ()
+  "Insert a new label with completion.
+The completion helps ensure you use a unique label."
+  (interactive)
+  (let* ((known-labels (mapcar 'car (org-ref-get-labels)))
+	 (new-label (completing-read "Label: " known-labels nil)))
+    (when (member new-label known-labels)
+      (warn "Inserting duplicate label"))
+    (insert (format "label:%s" new-label))))
+
+
 (provide 'org-ref-label-link)
 
 ;;; org-ref-label-link.el ends here

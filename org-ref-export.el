@@ -24,6 +24,16 @@
 ;; It is intended for non-LaTeX exports, but you can also use it with LaTeX if
 ;; you want to avoid using bibtex/biblatex for some reason.
 ;;
+;; The default style is set by a CSL-STYLE keyword or
+;; `org-ref-csl-default-style'. If this is an absolute or relative path that
+;; exists, it is used. Otherwise, it looks in `org-cite-csl-styles-dir' if it is
+;; defined, and in the csl-styles directory in `org-ref' otherwise.
+;;
+;; The default locale is set by a CSL-LOCALE keyword or
+;; `org-ref-csl-default-locale'. This is looked for in
+;; `org-cite-csl-locales-dir' if it is defined, and otherwise in the csl-locales
+;; directory of `org-ref'.
+;;
 ;; Note that citeproc does not do anything for cross-references, so if non-latex
 ;; export is your goal, you should be careful in how you do cross-references,
 ;; and rely exclusively on org-syntax for that, e.g. radio targets and fuzzy
@@ -54,9 +64,11 @@
 - nil or 'auto :: add links based on the style.")
 
 
-(unless (boundp 'org-cite-csl-styles-dir)
-  (setq org-cite-csl-styles-dir (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
+(defcustom org-ref-csl-default-style "chicago-author-date-16th-edition.csl"
+  "Default csl style to use.")
 
+(defcustom org-ref-csl-default-locale "en-US"
+  "Default csl locale to use.")
 
 
 (defun org-ref-process-buffer (backend)
@@ -69,21 +81,25 @@ BACKEND is the org export backend."
 	 (style (or (cadr (assoc "CSL-STYLE"
 				 (org-collect-keywords
 				  '("CSL-STYLE"))))
-		    "chicago-author-date-16th-edition.csl"))
+		    org-ref-csl-default-style))
 	 (locale (or (cadr (assoc "CSL-LOCALE"
 				  (org-collect-keywords
 				   '("CSL-LOCALE"))))
-		     "en-US"))
+		     org-ref-csl-default-locale))
 
 	 (proc (citeproc-create (cond
 				 ((file-exists-p style)
 				  style)
 				 ;; In a user-dir
-				 ((and (boundp 'org-cite-csl-styles-dir) (file-exists-p (f-join org-cite-csl-styles-dir style)))
+				 ((and (boundp 'org-cite-csl-styles-dir)
+				       (file-exists-p (f-join org-cite-csl-styles-dir style)))
 				  (f-join org-cite-csl-styles-dir style))
 				 ;; provided by org-ref
-				 ((file-exists-p (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
-				  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
+				 ((file-exists-p (expand-file-name style (f-join (file-name-directory
+										  (locate-library "org-ref"))
+										 "csl-styles")))
+				  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref"))
+								  "csl-styles")))
 				 (t
 				  (error "%s not found" style)))
 				(citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
@@ -91,7 +107,9 @@ BACKEND is the org export backend."
 								  ((boundp 'org-cite-csl-locales-dir)
 								   org-cite-csl-locales-dir)
 								  (t
-								   (f-join (file-name-directory (locate-library "org-ref")) "csl-locales"))))
+								   (f-join (file-name-directory
+									    (locate-library "org-ref"))
+									   "csl-locales"))))
 				locale))
 
 	 ;; list of links in the buffer
@@ -248,6 +266,9 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 			 body-only info)
 		       'system))))))
 
+
+;; I guess I tried to use apply-partially here, and it did not work, so these
+;; are each defined manually
 
 (defun org-ref-export-to-html (&optional async subtreep visible-only
 					 body-only info)
