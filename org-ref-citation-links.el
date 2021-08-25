@@ -20,8 +20,27 @@
 ;;
 ;;; Commentary:
 ;;
-
+;; This library provides hyper-functional citation links. These links can
+;; contain common pre/post notes, and multiple citation keys that each have
+;; their own pre/postnotes.
+;;
+;; These links are fontified to indicate if the citation keys are valid, and to
+;; indicate the pre/post-note structure.
+;;
+;; Each link is functional, and clicking on one will open a hydra menu of
+;; actions that range from opening the bibtex entry, notes, pdf or associated
+;; URL, to searching the internet for related articles.
+;;
+;; Each citation link also has a local keymap on it, which provides keyboard
+;; shortcuts for some actions like sorting, rearranging and navigating citation
+;; links.
+;;
+;; Each link exports to a corresponding LaTeX citation command, or can be
+;; rendered with CSL for other kinds of exports like HTML, markdown, or ODT.
+;;
+;;
 ;;; Code:
+
 (defface org-ref-cite-face
   `((t (:inherit org-link
                  :foreground "forest green")))
@@ -42,6 +61,7 @@
 (defface org-ref-cite-local-prefix/suffix-face
   `((t (:inherit org-ref-cite-face :slant italic)))
   "Face for local prefix/suffix in a cite link.")
+
 
 (defface org-ref-cite-invalid-local-prefix/suffix-face
   `((t (:inherit org-ref-cite-face :foreground "red")))
@@ -154,8 +174,12 @@ I think that if there is a @ in path, it must be version 3."
     2))
 
 
+;; * Parsing/interpreting a citation path
+
 (defun org-ref-parse-cite-path (path)
-  "Return a data structure representing the PATH."
+  "Return a data structure representing the PATH.
+the data structure is a plist with (:version :prefix :suffix :references).
+Each reference is a plist with (:key :prefix :suffix)."
   (pcase (org-ref-cite-version path)
     (2
      ;; This will not have any prefix or suffix, since that was previously done in the desc.
@@ -175,18 +199,25 @@ I think that if there is a @ in path, it must be version 3."
 	   (setq these-results (append these-results (list :suffix (car (last citation-references))))
 		 citation-references (butlast citation-references)))
 
-	 (setq these-results (append these-results
-				     (list
-				      :references
-				      (cl-loop for s in citation-references collect
-					       (if (null (string-match org-ref-citation-key-re s))
-						   (error "No label found")
-						 (let* ((key (match-string-no-properties 1 s))
-							(key-start (match-beginning 0))
-							(key-end (match-end 0))
-							(prefix (substring s 0 key-start))
-							(suffix (substring s key-end)))
-						   (list :key key :prefix prefix :suffix suffix)))))))))))
+	 (setq these-results
+	       (append these-results
+		       (list
+			:references
+			(cl-loop for s in citation-references collect
+				 (if (null (string-match org-ref-citation-key-re s))
+				     (error "No label found")
+				   (let* ((key (match-string-no-properties 1 s))
+					  (key-start (match-beginning 0))
+					  (key-end (match-end 0))
+					  (prefix (let ((p (substring s 0 key-start)))
+						    (if (string= "" (string-trim p))
+							nil
+						      p)))
+					  (suffix (let ((s (substring s key-end)))
+						    (if (string= "" (string-trim s))
+							nil
+						      s))))
+				     (list :key key :prefix prefix :suffix suffix)))))))))))
 
 
 (defun org-ref-interpret-cite-data (data)
@@ -207,12 +238,20 @@ to a path string."
       (when-let (suffix (plist-get data :suffix)) (concat ";" suffix))))))
 
 
+;; * Activating citation links
+;;
+;; We use the activate-func for sophisticated fontification of pieces of each
+;; link.
+
 (defvar-local org-ref-buffer-local-bib nil
-  "Buffer-local variable for current bibliography files")
+  "Buffer-local variable for current bibliography files.
+This is used to tell when the local bibliography has changed,
+which means we need to re-compute the valid-keys.")
 
 
 (defvar-local org-ref-buffer-local-valid-keys nil
-  "Buffer-local variable for current valid keys")
+  "Buffer-local variable for current valid keys.
+This is used to cache the valid keys.")
 
 
 (defun org-ref-valid-keys ()
@@ -316,10 +355,54 @@ PATH has the citations in it."
 					 'help-echo "Key not found")))))))))
 
 
+;; * Following citation links
+
+(defhydra org-ref-citation-hydra (:color blue :hint nil)
+  "Citation actions
+"
+  ("o" org-ref-open-citation-at-point  "Bibtex" :column "Open")
+  ("p" org-ref-open-pdf-at-point "PDF" :column "Open")
+  ("n" org-ref-open-notes-at-point "Notes" :column "Open")
+  ("u" org-ref-open-url-at-point "URL" :column "Open")
+
+  ;; WWW actions
+  ("ww" org-ref-wos-at-point "WOS" :column "WWW")
+  ("wr" org-ref-wos-related-at-point "WOS related" :column "WWW")
+  ("wc" org-ref-wos-citing-at-point "WOS citing" :column "WWW")
+  ("wg" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
+  ("wp" org-ref-pubmed-at-point "Pubmed" :column "WWW")
+  ("wc" org-ref-crossref-at-point "Crossref" :column "WWW")
+  ("wb" org-ref-biblio-at-point "Biblio" :column "WWW")
+  ("e" org-ref-email-at-point "Email" :column "WWW")
+
+  ;; Copyish actions
+  ("K" org-ref-copy-entry-as-summary "Copy bibtex" :column "Copy")
+  ("k" (kill-new (car (org-ref-get-bibtex-key-and-file))) "Copy key" :column "Copy")
+  ("f" (kill-new (bibtex-completion-apa-format-reference
+		  (org-ref-get-bibtex-key-under-cursor)))
+   "Copy formatted" :column "Copy")
+
+  ;; Editing actions
+  ("<left>" org-ref-cite-shift-left "Shift left" :color red :column "Edit")
+  ("<right>" org-ref-cite-shift-right "Shift right" :color red :column "Edit")
+  ("<up>" org-ref-sort-citation-link "Sort by year" :column "Edit")
+  ("i" (funcall org-ref-insert-cite-function) "Insert cite" :column "Edit")
+  ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
+  ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
+  ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
+
+  ;; Navigation
+  ("[" org-ref-previous-key "Previous key" :column "Navigation")
+  ("]"  org-ref-next-key "Next key" :column "Navigation")
+  ("v" org-ref-jump-to-visible-key "Visible key" :column "Navigation")
+  ("q" nil "Quit"))
+
+
 (defun org-ref-cite-follow (_path)
   "Follow a cite link."
   (org-ref-citation-hydra/body))
 
+;; * Citation links tooltips
 
 (defun org-ref-cite-tooltip (_win _obj position)
   "Get a tooltip for the cite at POSITION."
@@ -328,6 +411,8 @@ PATH has the citations in it."
       (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
 	(bibtex-completion-apa-format-reference key)))))
 
+
+;; * Exporting citation links
 
 (defun org-ref-cite-export (cmd path desc backend)
   "Export a cite link.
@@ -344,7 +429,7 @@ Use with apply-partially."
 			   (plist-get ref :key))))
        (pcase (org-ref-cite-version path)
 	 (2
-	  (let* ((prefix-suffix (split-string desc "::"))
+	  (let* ((prefix-suffix (split-string (or desc "") "::"))
 		 (prefix (cond
 			  ((cl-first prefix-suffix)
 			   (format "[%s]" (cl-first prefix-suffix)))
@@ -365,15 +450,17 @@ Use with apply-partially."
 	 (3
 	  (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
 		    `(("cmd" . ,cmd)
-		      ;; if there is more than one key, we only do global prefix/suffix
-		      ;; But for one key, we should allow local prefix and suffix or the global one.
+		      ;; if there is more than one key, we only do global
+		      ;; prefix/suffix But for one key, we should allow local
+		      ;; prefix and suffix or the global one.
 		      ("prefix" . ,(if (= 1 (length references))
 				       (cond
 					;; local prefix is not empty, we use it.
-					((not (string= "" (plist-get (car references) :prefix)))
+					((plist-get (car references) :prefix)
 					 (concat "[" (plist-get (car references) :prefix) "]"))
-					;; local prefix is empty, but global one is not, so we use it
-					((not (string= "" (plist-get cite :prefix)))
+					;; local prefix is empty, but global one
+					;; is not, so we use it
+					((plist-get cite :prefix)
 					 (concat "[" (plist-get cite :prefix) "]"))
 					;; if you have a suffix, you need an empty prefix
 					((plist-get cite :suffix)
@@ -391,10 +478,10 @@ Use with apply-partially."
 		      ("suffix" . ,(if (= 1 (length references))
 				       (cond
 					;; local prefix is not empty, so use it
-					((not (string= "" (plist-get (car references) :suffix)))
+					((plist-get (car references) :suffix)
 					 (format "[%s]" (plist-get (car references) :suffix)))
 					;; global prefix is not empty
-					((not (string= "" (plist-get cite :suffix)))
+					((plist-get cite :suffix)
 					 (format "[%s]" (plist-get cite :suffix)))
 					(t
 					 ""))
@@ -426,24 +513,33 @@ Use with apply-partially."
 		   ("global-suffix" . ,(if (not (string= "" (or (plist-get cite :suffix) "")))
 					   (format "(%s)" (plist-get cite :suffix))
 					 ""))
-		   ("keys" . ,(string-join (cl-loop for ref in (plist-get cite :references) collect
-						    (format "%s%s{%s}"
-							    (cond
-							     ;; we have a prefix, stick it in
-							     ((not (string= "" (or (plist-get ref :prefix) "")))
-							      (concat "[" (plist-get ref :prefix) "]"))
-							     ;; no prefix, but a suffix, so empty prefix for placeholder
-							     ((not (string= "" (or (plist-get ref :suffix) "")))
-							      "[]")
-							     (t
-							      ""))
-							    (cond
-							     ((not (string= "" (or (plist-get ref :suffix) "")))
-							      (concat "[" (plist-get ref :suffix) "]"))
-							     (t
-							      ""))
-							    (plist-get ref :key)))))))))))
+		   ("keys" . ,(string-join
+			       (cl-loop for ref in (plist-get cite :references)
+					collect
+					(format "%s%s{%s}"
+						(cond
+						 ;; we have a prefix, stick it in
+						 ((not (string= ""
+								(or (plist-get ref :prefix) "")))
+						  (concat "[" (plist-get ref :prefix) "]"))
+						 ;; no prefix, but a suffix, so
+						 ;; empty prefix for placeholder
+						 ((not (string= ""
+								(or (plist-get ref :suffix) "")))
+						  "[]")
+						 (t
+						  ""))
+						(cond
+						 ((not (string= ""
+								(or (plist-get ref :suffix) "")))
+						  (concat "[" (plist-get ref :suffix) "]"))
+						 (t
+						  ""))
+						(plist-get ref :key)))))))))))
 
+;; * Completion for citation links
+;;
+;; This allows you to type C-c l, choose a cite link type, and then insert a key.
 
 (defun org-ref-cite-link-complete (cmd &optional arg)
   "Cite link completion for CMD."
@@ -451,18 +547,14 @@ Use with apply-partially."
    cmd ":"
    "@" (org-ref-read-key)))
 
-(cl-loop for cmd in org-ref-natbib-types do
-	 (org-link-set-parameters
-	  cmd
-	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
-	  :follow #'org-ref-cite-follow
-	  :face 'org-ref-cite-face
-	  :help-echo #'org-ref-cite-tooltip
-	  :export (apply-partially 'org-ref-cite-export  cmd)
-	  :activate-func #'org-ref-cite-activate))
+;; * Generate all the links
+;;
+;; We loop on the three categories because there are some differences between
+;; them, mostly in the multitypes.
 
-
-(cl-loop for cmd in org-ref-biblatex-types do
+(cl-loop for cmd in (append org-ref-natbib-types
+			    org-ref-biblatex-types)
+	 do
 	 (org-link-set-parameters
 	  cmd
 	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
@@ -485,6 +577,7 @@ Use with apply-partially."
 
 
 ;; * Cite link utilities
+
 ;;;###autoload
 (defun org-ref-delete-citation-at-point ()
   "Delete the citation or reference at point."
@@ -504,7 +597,8 @@ Use with apply-partially."
       (if (null key)
 	  ;; delete the whole cite
 	  (cl--set-buffer-substring begin end "")
-	(setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
+	(setq i (seq-position references key (lambda (el key)
+					       (string= key (plist-get el :key)))))
 	;; delete i'th reference
 	(setq references (-remove-at i references))
 	(setq data (plist-put data :references references))
@@ -514,6 +608,8 @@ Use with apply-partially."
 	  (replace-match (org-ref-interpret-cite-data data)))
 	(goto-char cp)))))
 
+
+;;;###autoload
 (defun org-ref-replace-citation-at-point ()
   "Replace the citation at point."
   (interactive)
@@ -568,7 +664,8 @@ Use with apply-partially."
   (get-text-property (point) 'cite-key))
 
 
-;;** Shift-arrow sorting of keys in a cite link
+;; ** Shift-arrow sorting of keys in a cite link
+
 (defun org-ref-swap-list-elements (i j lst)
   "Swap index I and J in the list LST."
   (let ((tempi (nth i lst)))
@@ -610,6 +707,7 @@ Use with apply-partially."
 
 ;;** Sort cite in cite link
 
+;;;###autoload
 (defun org-ref-sort-citation-link ()
   "Replace link at point with sorted link by year."
   (interactive)
@@ -668,27 +766,51 @@ move to the beginning of the previous cite link after this one."
       (goto-char prev))))
 
 
+;;;###autoload
+(defun org-ref-jump-to-visible-key ()
+  "Jump to a visible key with avy."
+  (interactive)
+  (avy-with avy-goto-typo
+    (avy-process
+     (apply #'append
+	    (save-excursion
+	      (org-element-map (org-element-parse-buffer) 'link
+		(lambda (c)
+		  (when (member (org-element-property :type c) org-ref-cite-types)
+		    (goto-char (org-element-property :begin c))
+		    (let* ((path (org-element-property :path c))
+			   (data (org-ref-parse-cite-path path))
+			   (references (plist-get data :references)))
+		      (append (list (org-element-property :begin c))
+			      (cl-loop for ref in references collect
+				       (progn
+					 (search-forward (plist-get ref :key))
+					 (match-beginning 0)))))))))))
+    (avy--style-fn avy-style)))
+
+
 ;; * Insert links
 
-;; all these functions are defined in ivy-bibtex
-(defcustom org-ref-citation-alternate-insert-actions
-  '(("p" ivy-bibtex-open-pdf "Open PDF file (if present)")
-    ("u" ivy-bibtex-open-url-or-doi "Open URL or DOI in browser")
-    ;; this insert-citation only inserts an org-ref cite.
-    ;; ("c" ivy-bibtex-insert-citation "Insert citation")
-    ("R" ivy-bibtex-insert-reference "Insert formatted reference")
-    ("k" ivy-bibtex-insert-key "Insert BibTeX key")
-    ("b" ivy-bibtex-insert-bibtex "Insert BibTeX entry")
-    ("a" ivy-bibtex-add-PDF-attachment "Attach PDF to email")
-    ("e" ivy-bibtex-edit-notes "Edit notes")
-    ("s" ivy-bibtex-show-entry "Show entry")
-    ("l" ivy-bibtex-add-pdf-to-library "Add PDF to library")
-    ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options"))
-  "Alternate actions to do instead of inserting.")
+;; The formatting is adapted from ivy-bibtex-transformer. I feel like it is
+;; slower than ivy-bibtex though. It is completion agnostic though...
+(defun org-ref-read-key ()
+  "Read a key with completion."
+  (unless bibtex-completion-display-formats-internal
+    (bibtex-completion-init))
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (candidates (mapcar (lambda (entry)
+			       (cons (bibtex-completion-format-entry entry (1- (frame-width)))
+				     (cdr entry)))
+			     (bibtex-completion-candidates)))
+	 (choice (minibuffer-with-setup-hook
+		     #'minibuffer-completion-help
+		   (completing-read "BibTeX entries: " candidates))))
+    (cdr (assoc "=key=" (assoc choice candidates)))))
 
 
 (defun org-ref-insert-cite-key (key)
-  "Rules:
+  "Insert KEY at point as a cite link.
+Rules:
 1. at beginning of key, insert before it.
 2. at middle or end of key, insert after it."
   (let* ((object (org-element-context))
@@ -752,137 +874,16 @@ move to the beginning of the previous cite link after this one."
 	(backward-char 1)))))
 
 
-(defun org-ref-jump-to-visible-key ()
-  "Jump to a visible key with avy."
+(defun org-ref-insert-cite-keys (keys)
+  "Insert KEYS as citation links."
+  (mapcar 'org-ref-insert-cite-key keys))
+
+
+;;;###autoload
+(defun org-ref-insert-cite-link ()
+  "Insert a cite link with completion."
   (interactive)
-  (avy-with avy-goto-typo
-    (avy-process
-     (apply #'append
-	    (save-excursion
-	      (org-element-map (org-element-parse-buffer) 'link
-		(lambda (c)
-		  (when (member (org-element-property :type c) org-ref-cite-types)
-		    (goto-char (org-element-property :begin c))
-		    (let* ((path (org-element-property :path c))
-			   (data (org-ref-parse-cite-path path))
-			   (references (plist-get data :references)))
-		      (append (list (org-element-property :begin c))
-			      (cl-loop for ref in references collect
-				       (progn
-					 (search-forward (plist-get ref :key))
-					 (match-beginning 0)))))))))))
-    (avy--style-fn avy-style)))
-
-
-;; This is a wacky repetition of code. I needed a function to just read a key,
-;; with no action. I don't just use completing read, because I also want the ivy
-;; transformation here. Maybe there is a way to run `org-ref-cite-insert' that
-;; just selects the key, e.g. by specifying an action?
-(defun org-ref-read-key ()
-  "Read a key."
-  (interactive)
-  ;; I do this here in case you change the actions after loading this, so that
-  ;; it should be up to date.
-  (ivy-set-actions
-   'org-ref-cite-insert
-   org-ref-citation-alternate-insert-actions)
-
-  (ivy-set-display-transformer 'org-ref-cite-insert 'ivy-bibtex-display-transformer)
-
-  (bibtex-completion-init)
-  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (candidates (bibtex-completion-candidates))
-	 (choice (ivy-read "BibTeX entries: " candidates
-			   :caller 'org-ref-cite-insert))
-	 (key  (cdr (assoc "=key=" (cdr (assoc choice candidates))))))
-    key))
-
-
-(defun org-ref-cite-insert ()
-  "Function for inserting a citation."
-  (interactive)
-  (ivy-set-actions
-   'org-ref-cite-insert
-   org-ref-citation-alternate-insert-actions)
-
-  (ivy-set-display-transformer 'org-ref-cite-insert 'ivy-bibtex-display-transformer)
-
-  (bibtex-completion-init)
-  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (candidates (bibtex-completion-candidates))
-	 (choice (ivy-read "BibTeX entries: " candidates
-			   :caller 'org-ref-cite-insert
-			   :action '(1
-				     ("o" (lambda (candidate)
-					    (org-ref-insert-cite-key (cdr (assoc "=key=" (cdr candidate)))))
-				      "insert")
-				     ("r" (lambda (candidate)
-
-					    (let* ((object (org-element-context))
-						   (type (org-element-property :type object))
-						   (begin (org-element-property :begin object))
-						   (end (org-element-property :end object))
-						   (link-string (org-element-property :path object))
-						   (data (org-ref-parse-cite-path link-string))
-						   (references (plist-get data :references))
-						   (cp (point))
-						   (key)
-						   keys i)
-					      ;;   We only want this to work on citation links
-					      (when (-contains? org-ref-cite-types type)
-						(setq key (org-ref-get-bibtex-key-under-cursor))
-						(if (null key)
-						    ;; delete the whole cite
-						    (cl--set-buffer-substring begin end "")
-						  (setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
-						  (setf (plist-get (nth i references) :key) (cdr (assoc "=key=" (cdr candidate))))
-						  (setq data (plist-put data :references references))
-						  (save-excursion
-						    (goto-char begin)
-						    (re-search-forward link-string)
-						    (replace-match (org-ref-interpret-cite-data data)))
-						  (goto-char cp))))))))))))
-
-
-(defhydra org-ref-citation-hydra (:color blue :hint nil)
-  "Citation actions
-"
-  ("o" org-ref-open-citation-at-point  "Bibtex" :column "Open")
-  ("p" org-ref-open-pdf-at-point "PDF" :column "Open")
-  ("n" org-ref-open-notes-at-point "Notes" :column "Open")
-  ("u" org-ref-open-url-at-point "URL" :column "Open")
-
-  ;; WWW actions
-  ("ww" org-ref-wos-at-point "WOS" :column "WWW")
-  ("wr" org-ref-wos-related-at-point "WOS related" :column "WWW")
-  ("wc" org-ref-wos-citing-at-point "WOS citing" :column "WWW")
-  ("wg" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
-  ("wp" org-ref-pubmed-at-point "Pubmed" :column "WWW")
-  ("wc" org-ref-crossref-at-point "Crossref" :column "WWW")
-  ("wb" org-ref-biblio-at-point "Biblio" :column "WWW")
-  ("e" org-ref-email-at-point "Email" :column "WWW")
-
-  ;; Copyish actions
-  ("K" org-ref-copy-entry-as-summary "Copy bibtex" :column "Copy")
-  ("k" (kill-new (car (org-ref-get-bibtex-key-and-file))) "Copy key" :column "Copy")
-  ("f" (kill-new (bibtex-completion-apa-format-reference
-		  (org-ref-get-bibtex-key-under-cursor)))
-   "Copy formatted" :column "Copy")
-
-  ;; Editing actions
-  ("<left>" org-ref-cite-shift-left "Shift left" :color red :column "Edit")
-  ("<right>" org-ref-cite-shift-right "Shift right" :color red :column "Edit")
-  ("<up>" org-ref-sort-citation-link "Sort by year" :column "Edit")
-  ("i" (funcall org-ref-insert-cite-function) "Insert cite" :column "Edit")
-  ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
-  ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
-  ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
-
-  ;; Navigation
-  ("[" org-ref-previous-key "Previous key" :column "Navigation")
-  ("]"  org-ref-next-key "Next key" :column "Navigation")
-  ("v" org-ref-jump-to-visible-key "Visible key" :column "Navigation")
-  ("q" nil "Quit"))
+  (org-ref-insert-cite-key (org-ref-read-key)))
 
 
 (provide 'org-ref-citation-links)
