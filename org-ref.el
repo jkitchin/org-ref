@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jkitchin/org-ref
 ;; Version: 3.0
 ;; Keywords: org-mode, cite, ref, label
-;; Package-Requires: ((dash "2.11.0") (htmlize "1.51") (ivy-bibtex "0") (hydra "0.13.2") (s "1.10.0") (f "0.18.0"))
+;; Package-Requires: ((dash "0") (s "0") (f "0") (htmlize "0") (hydra "0") (bibtex-completion "0"))
 ;; This file is not currently part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or
@@ -29,14 +29,22 @@
 ;; Lisp code to setup bibliography, cite, ref and label org-mode links. The
 ;; links are clickable and do things that are useful.
 ;;
+;; This uses vanilla completing-read in Emacs.
 
 ;; You should really read org-ref.org in this package for details.
 ;;
 
 ;;; Code:
-;; TODO What should go here?
-;; (require 'org-ref-core)
-;; (require org-ref-completion-library)
+
+(require 'org-ref-core)
+
+
+(setq org-ref-insert-link-function 'org-ref-insert-link
+      org-ref-insert-cite-function 'org-ref-insert-cite-link
+      org-ref-insert-label-function 'org-ref-insert-label-link
+      org-ref-insert-ref-function 'org-ref-insert-ref-link
+      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
+
 
 ;;* The end
 (provide 'org-ref)
