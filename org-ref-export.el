@@ -135,10 +135,15 @@ BACKEND is the org export backend."
 						       location label locator suffix)
 						  (string-match "\\(?1:[^[:digit:]]*\\)?\\(?2:[[:digit:]]*\\)?\\(?3:.*\\)"
 								full-suffix)
-						  (setq label (match-string 1 full-suffix)
-							locator (match-string 2 full-suffix)
-							suffix (match-string 3 full-suffix))
-						  ;; Let's assume if you have a locator but not a label, you mean page.
+						  (if (not (string= "" (match-string 2 full-suffix)))
+						      ;; We found a locator
+						      (setq label (match-string 1 full-suffix)
+							    locator (match-string 2 full-suffix)
+							    suffix (match-string 3 full-suffix))
+						    (setq label ""
+							  locator ""
+							  suffix full-suffix))
+						  ;; Let's assume if you have a locator but not a label that you mean page.
 						  (when (and locator (string= "" (string-trim label)))
 						    (setq label "page"))
 						  `((id . ,(plist-get ref :key))
@@ -157,7 +162,7 @@ BACKEND is the org export backend."
 										      "citedate*"
 										      "citetitle"
 										      "citetitle*"
-										      "citeurl")))) ))))))
+										      "citeurl"))))))))))
 			   ;; TODO: confirm this is right.
 			   ;; To handle common prefixes, suffixes, I just concat them with the first/last entries.
 			   ;; I am not sure this is the right thing to do though.
@@ -168,12 +173,14 @@ BACKEND is the org export backend."
 
 			   ;; https://github.com/andras-simonyi/citeproc-el#creating-citation-structures
 			   (citeproc-citation-create :cites
-						     ;; I am not sure why this
-						     ;; should be reversed. The
-						     ;; order is backwards
-						     ;; without it though.
-						     (reverse cites)
-
+						     ;; Weird, I used to have to
+						     ;; reverse this to get the
+						     ;; right order, but now it
+						     ;; seems I don't. I wonder
+						     ;; if it is another
+						     ;; generalized variable
+						     ;; leakage?
+						     cites
 						     ;; TODO: proof of concept, incomplete
 						     ;; if this is true, the citation is not parenthetical
 						     :suppress-affixes (let ((type (org-element-property :type cl)))
@@ -232,10 +239,15 @@ BACKEND is the org export backend."
     ;; replace the bibliography
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (lnk)
-	(when (string= (org-element-property :type lnk) "bibliography")
+	(cond
+	 ((string= (org-element-property :type lnk) "bibliography")
 	  (cl--set-buffer-substring (org-element-property :begin lnk)
 				    (org-element-property :end lnk)
-				    (format (or (cdr (assoc backend bib-formatters)) "%s") rendered-bib)))))))
+				    (format (or (cdr (assoc backend bib-formatters)) "%s") rendered-bib)))
+	 ((string= (org-element-property :type lnk) "nobibliography")
+	  (cl--set-buffer-substring (org-element-property :begin lnk)
+				    (org-element-property :end lnk)
+				    "")))))))
 
 
 (defun org-ref-export-to (backend &optional async subtreep visible-only
