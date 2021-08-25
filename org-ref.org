@@ -28,7 +28,7 @@
 
 @@latex:\maketitle@@
 @@latex:\tableofcontents@@
-1
+
 * Introduction to org-ref
 
 Org-ref is a library for org-mode [[cite:@Dominik201408]] that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
@@ -221,9 +221,14 @@ You can also sort a cite link with multiple keys by year.
 
 *** Pre/post text support
 
-org-ref has two versions of syntax. In version 2 there is very limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. I do not recommend you use this anymore.
+org-ref has two versions of syntax. In version 2 there is very limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[citep:Dominik201408][See page 20::, for example]]. I do not recommend you use this anymore.
 
-version 3 is much more capable, similar to the new org-cite syntax. The tradeoff is you have to prefix the keys with @, and separate them by semicolons. The previous citation in version 3 looks like  [[cite:See page 20 @Dominik201408, for example]]. You can do this with multiple keys too: [[cite:See @Dominik201408 pg. 2;and @kitchin-2015-examp page. 2.]]
+version 3 is much more capable, similar to the new org-cite syntax. The general syntax is:
+
+=Common prefix; prenote 1 @key1 postnote1; prenote n @keyn postnote n; Common suffix=
+
+The tradeoff is you have to prefix the keys with @, separate them by semicolons, and the links have to be bracketed if you put spaces in the notes. The previous citation in version 3 looks like  [[citep:See page 20 @Dominik201408, for example]] as "local" pre/postnotes, or  [[citep:See page 20 ;@Dominik201408;, for example]], as "common" or "global" pre/post notes. You can do this with multiple keys too: [[citep:See @Dominik201408 pg. 2;and @kitchin-2015-examp for examples]]. Note in this example, the internal prefix on the second reference is ignored, because the cite command does not support it; use biblatex with a multicite if you need that in your citations. There are still a few caveats. Natbib only supports a single set of pre/post notes; some citation styles with biblatex support the full syntax. Not all cite types in LaTeX support pre/post text (e.g. cite, citenum do not support them), so be careful when you use them.
+
 
 *** label links
     :PROPERTIES:
@@ -320,7 +325,7 @@ These links do not have much meaning outside of LaTeX.
 *** Some other links
 [[index:list of tables]] [[index:list of figures]]
 
-org-ref provides clickable links for a [[list-of-tables:]] and [[list-of-figures:]]. These links don't need a path, so you have to put them in brackets. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
+org-ref provides clickable links for a =[[list-of-tables:]]= and =[[list-of-figures:]]=. These links don't need a path, so you have to put them in brackets. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
 
 
 ** Some basic org-ref utilities
@@ -382,7 +387,43 @@ I have also had success with this setup:
 #+END_SRC
 
 *** BibTeX users
-In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]].  You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
+
+To have your citations compiled by BibTex, you *must* include a [[bibliography link]].  You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
+
+Note that some citation types may require additional LaTeX packages to be included in your export settings.
+
+Here are the natbib types (these will export in LaTeX with the unsrtnat style). These will export differently in author-year styles.
+
+Here are some examples of the pre/post note syntax for each natbib type. Not all of these make sense. For example the plain cite command does not take pre/post notes, even with natbib. If you use these a lot, you should use citet/citep. Not all of the commands take pre/post notes, e.g. citenum.
+
+
+- =[[citet:See @kitchin-2015-examp page 2]]= :: [[citet:See @kitchin-2015-examp page 2]]
+- =[[citet*:See @kitchin-2015-examp page 2]]= :: [[citet*:See @kitchin-2015-examp page 2]]
+- =[[citep:See @kitchin-2015-examp page 2]]= :: [[citep:See @kitchin-2015-examp page 2]]
+- =[[citep*:See @kitchin-2015-examp page 2]]= :: [[citep*:See @kitchin-2015-examp page 2]]
+- =[[citealt:See @kitchin-2015-examp page 2]]= :: [[citealt:See @kitchin-2015-examp page 2]]
+- =[[citealt*:See @kitchin-2015-examp page 2]]= :: [[citealt*:See @kitchin-2015-examp page 2]]
+- =[[citealp:See @kitchin-2015-examp page 2]]= :: [[citealp:See @kitchin-2015-examp page 2]]
+- =[[citealp*:See @kitchin-2015-examp page 2]]= :: [[citealp*:See @kitchin-2015-examp page 2]]
+- =[[citenum:@kitchin-2015-examp]]= :: [[citenum:@kitchin-2015-examp]]
+- =[[citetext:See @kitchin-2015-examp page 2]]= :: [[citetext:See @kitchin-2015-examp page 2]]
+- =[[citeauthor:See @kitchin-2015-examp page 2]]= :: [[citeauthor:See @kitchin-2015-examp page 2]]
+- =[[citeauthor*:See @kitchin-2015-examp page 2]]= :: [[citeauthor*:See @kitchin-2015-examp page 2]]
+- =[[citeyear:See @kitchin-2015-examp page 2]]= :: [[citeyear:See @kitchin-2015-examp page 2]]
+- =[[citeyearpar:See @kitchin-2015-examp page 2]]= :: [[citeyearpar:See @kitchin-2015-examp page 2]]
+- =[[Citet:See @kitchin-2015-examp page 2]]= :: [[Citet:See @kitchin-2015-examp page 2]]
+- =[[Citet*:See @kitchin-2015-examp page 2]]= :: [[Citet*:See @kitchin-2015-examp page 2]]
+- =[[Citep:See @kitchin-2015-examp page 2]]= :: [[Citep:See @kitchin-2015-examp page 2]]
+- =[[Citep*:See @kitchin-2015-examp page 2]]= :: [[Citep*:See @kitchin-2015-examp page 2]]
+- =[[Citealt:See @kitchin-2015-examp page 2]]= :: [[Citealt:See @kitchin-2015-examp page 2]]
+- =[[Citealt*:See @kitchin-2015-examp page 2]]= :: [[Citealt*:See @kitchin-2015-examp page 2]]
+- =[[Citealp:See @kitchin-2015-examp page 2]]= :: [[Citealp:See @kitchin-2015-examp page 2]]
+- =[[Citealp*:See @kitchin-2015-examp page 2]]= :: [[Citealp*:See @kitchin-2015-examp page 2]]
+- =[[Citeauthor:See @kitchin-2015-examp page 2]]= :: [[Citeauthor:See @kitchin-2015-examp page 2]]
+- =[[Citeauthor*:See @kitchin-2015-examp page 2]]= :: [[Citeauthor*:See @kitchin-2015-examp page 2]]
+
+
+
 
 *** biblatex users  <<sec-biblatex-users>>
 
@@ -417,6 +458,31 @@ Finally, where you want the bibliography put this empty link:
 
 #+BEGIN_EXAMPLE
 [[printbibliography:]]
+#+END_EXAMPLE
+
+The regular biblatex cite links support common pre/post notes, and multiple keys. These are:
+
+#+BEGIN_SRC emacs-lisp
+org-ref-biblatex-types
+#+END_SRC
+
+#+RESULTS:
+| Cite | parencite | Parencite | footcite | footcitetext | textcite | Textcite | smartcite | Smartcite | cite* | parencite* | supercite | autocite | Autocite | autocite* | Autocite* | Citeauthor* | citetitle | citetitle* | citedate | citedate* | citeurl | fullcite | footfullcite | notecite | Notecite | pnotecite | Pnotecite | fnotecite |
+
+The multitype links support common pre/postnotes, and individual pre/post notes.  These are the multicite commands:
+
+#+BEGIN_SRC emacs-lisp
+org-ref-biblatex-multitypes
+#+END_SRC
+
+#+RESULTS:
+| cites | Cites | parencites | Parencites | footcites | footcitetexts | smartcites | Smartcites | textcites | Textcites | supercites | autocites | Autocites |
+
+
+Here is a full example. This only exports correctly in biblatex or with CSL, so I include it as an example here.
+
+#+BEGIN_EXAMPLE
+ [[cites:See; in @kitchin-2015-examp page 1;in @kitchin-2015-data-surfac-scien page 2;and in @kitchin-2016-autom-data page 3; for examples]]
 #+END_EXAMPLE
 
 
@@ -901,7 +967,7 @@ This is a functional link that will open a buffer of clickable index entries:
 * References
 
 <<bibliographystyle link>>
-bibliographystyle:unsrt
+bibliographystyle:unsrtnat
 
 <<bibliography link>>
 bibliography:org-ref.bib
