@@ -54,20 +54,23 @@
    'org-ref-cite-insert
    org-ref-citation-alternate-insert-actions)
 
-  (ivy-set-display-transformer 'org-ref-cite-insert 'ivy-bibtex-display-transformer)
+  (ivy-set-display-transformer
+   'org-ref-cite-insert 'ivy-bibtex-display-transformer)
 
   (bibtex-completion-init)
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
 	 (candidates (bibtex-completion-candidates))
 	 (choice (ivy-read "BibTeX entries: " candidates
 			   :caller 'org-ref-cite-insert
+			   ;; Marking candidates seems to make things freeze up
 			   :multi-action (lambda (candidates)
 					   (org-ref-insert-cite-keys
 					    (cl-loop for candidate in candidates collect
 						     (cdr (assoc "=key=" (cdr candidate))))))
 			   :action '(1
 				     ("o" (lambda (candidate)
-					    (org-ref-insert-cite-key (cdr (assoc "=key=" (cdr candidate)))))
+					    (org-ref-insert-cite-key (cdr (assoc "=key="
+										 (cdr candidate)))))
 				      "insert")
 				     ("r" (lambda (candidate)
 
@@ -87,9 +90,11 @@
 						(if (null key)
 						    ;; delete the whole cite
 						    (cl--set-buffer-substring begin end "")
-						  (setq i (seq-position references key
-									(lambda (el key)
-									  (string= key (plist-get el :key)))))
+						  (setq i (seq-position
+							   references key
+							   (lambda (el key)
+							     (string= key
+								      (plist-get el :key)))))
 						  (setf (plist-get (nth i references) :key)
 							(cdr (assoc "=key=" (cdr candidate))))
 						  (setq data (plist-put data :references references))
