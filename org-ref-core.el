@@ -21,45 +21,44 @@
 
 ;;; Commentary:
 ;;
-;; Lisp code to setup bibliography, cite, ref and label org-mode links. The
-;; links are clickable and do things that are useful. You should really read
-;; org-ref.org in this package for details.
+;; This is the core library.
 ;;
 
 ;;; Code:
 
 ;; This suppresses showing the warning buffer. bibtex-completion seems to make this
-;; pop up in an irritating way.
+;; pop up in an irritating way when keys are missing
 (unless (boundp 'warning-suppress-types)
   (require 'warnings))
 
-
+(defvar warning-suppress-types)
 (add-to-list 'warning-suppress-types '(:warning))
 
 
 (eval-when-compile
   (require 'cl-lib))
-(require 'dash)
-(require 'f)
-(require 'htmlize)
-(require 's)
-(require 'doi-utils)
-(require 'seq)
 
-
-(require 'org-ref-bibtex)
-(require 'org-ref-utils)
-(require 'org-ref-glossary)
 (require 'org)
 (require 'org-element)
-(require 'ox)
+
+(require 'dash)
+(require 'f)
+(require 's)
+
 (require 'parsebib)
 (require 'bibtex-completion)
 
-(defvar org-export-exclude-tags)
-(defvar warning-suppress-types)
-(declare-function bibtex-completion-get-entry "bibtex-completion")
-(declare-function bibtex-completion-edit-notes "bibtex-completion")
+(require 'org-ref-bibliography-links)
+(require 'org-ref-citation-links)
+(require 'org-ref-ref-links)
+(require 'org-ref-label-link)
+(require 'org-ref-misc-links)
+(require 'org-ref-export)
+
+(require 'org-ref-utils)
+(require 'org-ref-bibtex)
+(require 'org-ref-glossary)
+
 
 ;; org-element-citation-prefix-re is too aggressive, and end up fontifying [[cite:]] links.
 ;; Here I add to the beginning so it does not match a bracketed link.
@@ -144,17 +143,9 @@ function in `org-ref-completion-library'."
   :group 'org-ref)
 
 
-;; ;; TODO remove this, and a lot of related code I think
-;; (defvar org-ref-bibliography-files
-;;   nil
-;;   "Variable to hold bibliography files to be searched.")
 
+;; * Bibliography related functions
 
-
-;;* font lock for org-ref
-
-
-;; TODO : this could be a lot cleaner I think
 (defun org-ref-find-bibliography ()
   "Find the bibliography in the buffer.
 This function sets and returns a list of files either from internal bibliographies, from files in the
@@ -240,6 +231,8 @@ If no key is provided, get one under point."
     (cons key (when (stringp file) (substring-no-properties file)))))
 
 
+;; * Insert link functions
+
 ;;;###autoload
 (defun org-ref-insert-link (arg)
   "Insert an org-ref link.
@@ -247,7 +240,7 @@ If no prefix ARG insert a cite.
 If one prefix ARG insert a ref.
 If two prefix ARGs insert a label.
 
-This is a generic function. Specific completion engines might
+This is a generic function. Specific backends might
 provide their own version."
   (interactive "P")
   (cond
@@ -257,6 +250,15 @@ provide their own version."
     (funcall org-ref-insert-ref-function))
    ((equal arg '(16))
     (funcall org-ref-insert-label-function))))
+
+
+;; This is an alternative that doesn't rely on prefix args.
+(defhydra org-ref-insert-link-hydra (:color red :hint nil)
+  "Insert an org-ref link
+"
+  ("c" (funcall org-ref-insert-cite-function) "Citation")
+  ("r" (funcall org-ref-insert-ref-function) "Cross-reference")
+  ("l" (funcall org-ref-insert-label-function "Label")))
 
 
 ;;* org-ref-help
