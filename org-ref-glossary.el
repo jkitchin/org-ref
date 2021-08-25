@@ -81,18 +81,6 @@
   :group 'org)
 
 
-(defcustom org-ref-glossary-color "Mediumpurple3"
-  "Color for glossary links."
-  :type 'string
-  :group 'org-ref)
-
-
-(defcustom org-ref-acronym-color "Darkorange2"
-  "Color for acronym links."
-  :type 'string
-  :group 'org-ref)
-
-
 (defvar org-ref-glsentries '()
   "Variable to hold locations of glsentries load files.")
 
@@ -329,7 +317,7 @@ Entry gets added after the last #+latex_header line."
 
 ;;** Tooltips on glossary entries
 (defface org-ref-glossary-face
-  `((t (:inherit org-link :foreground ,org-ref-glossary-color)))
+  `((t (:inherit org-link :foreground "Mediumpurple3")))
   "Face for glossary links.")
 
 
@@ -528,7 +516,7 @@ This will run in `org-export-before-parsing-hook'."
 
 ;;** Tooltips on acronyms
 (defface org-ref-acronym-face
-  `((t (:inherit org-link :foreground ,org-ref-acronym-color)))
+  `((t (:inherit org-link :foreground "Darkorange2")))
   "Face for acronym links.")
 
 
