@@ -93,7 +93,7 @@ Should you use org-ref? If your main export target is LaTeX, and you want cross-
 
 If you have no need for cross-references (either you don't use them, or vanilla org syntax is adequate), or if you don't like using ivy, and don't want to roll your own citation inserter, then you may not need org-ref.
 
-At this time, I have not integrated the org-cite capability I wrote in https://github.com/jkitchin/org-ref-cite into org-ref. It is not clear to me that I will use that code
+At this time, I have not integrated the org-cite capability I wrote in https://github.com/jkitchin/org-ref-cite into org-ref. I have not decided if that is a good or bad idea to do.
 
 
 ** known issues with org-ref and org-citations
