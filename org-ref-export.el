@@ -34,6 +34,8 @@
 
 ;;; Code:
 
+(require 'ox-org)
+
 (require 'citeproc)
 
 (defcustom org-ref-backend-csl-formats
@@ -50,6 +52,11 @@
 - 'bib-links :: link cites to bibliography entries
 - 'no-links :: do not link cites to bibliography entries
 - nil or 'auto :: add links based on the style.")
+
+
+(unless (boundp 'org-cite-csl-styles-dir)
+  (setq org-cite-csl-styles-dir (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
+
 
 
 (defun org-ref-process-buffer (backend)
@@ -72,11 +79,10 @@ BACKEND is the org export backend."
 				 ((file-exists-p style)
 				  style)
 				 ;; In a user-dir
-				 ((file-exists-p (f-join org-cite-csl-styles-dir style))
+				 ((and (boundp 'org-cite-csl-styles-dir) (file-exists-p (f-join org-cite-csl-styles-dir style)))
 				  (f-join org-cite-csl-styles-dir style))
 				 ;; provided by org-ref
-				 ((file-exists-p
-				   (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
+				 ((file-exists-p (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
 				  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref")) "csl-styles")))
 				 (t
 				  (error "%s not found" style)))
