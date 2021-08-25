@@ -160,10 +160,10 @@ set in `bibtex-completion-bibliography'"
 	 ;; is on a link. This is faster than parsing the org-file when
 	 ;; it gets large.
          ;; look for org-ref bibliography
-         (while (re-search-forward "bibliography:" nil t)
+         (while (re-search-forward "\\(no\\)?bibliography:" nil t)
 	   (let ((link (org-element-context)))
 	     (when (and (eq (car link) 'link)
-			(string= (org-element-property :type link) "bibliography"))
+			(member (org-element-property :type link) '("bibliography" "nobibliography")))
 	       (setq org-ref-bibliography-files
 		     (mapcar 'org-ref-get-bibfile-path
 			     (org-ref-split-and-strip-string
