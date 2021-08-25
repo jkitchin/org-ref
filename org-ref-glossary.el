@@ -133,9 +133,9 @@ but there could be other :key value pairs."
 	   (glsentries (and external
 			    (or (cdr (assoc external org-ref-glsentries))
 				(progn
-				  (pushnew (cons external (s-trim (shell-command-to-string
-								   (format "kpsewhich tex %s" external))))
-					   org-ref-glsentries)
+				  (cl-pushnew (cons external (s-trim (shell-command-to-string
+								      (format "kpsewhich tex %s" external))))
+					      org-ref-glsentries)
 				  (cdr (assoc external org-ref-glsentries))))))
 	   key value p1 p2)
       (catch 'data
@@ -429,9 +429,10 @@ This will run in `org-export-before-parsing-hook'."
 	   (glsentries (and external
 			    (or (cdr (assoc external org-ref-glsentries))
 				(progn
-				  (pushnew (cons external (s-trim (shell-command-to-string
-								   (format "kpsewhich tex %s" external))))
-					   org-ref-glsentries)
+				  (cl-pushnew (cons external
+						    (s-trim (shell-command-to-string
+							     (format "kpsewhich tex %s" external))))
+					      org-ref-glsentries)
 				  (cdr (assoc external org-ref-glsentries)))))))
       (catch 'data
 	(goto-char (point-min))
