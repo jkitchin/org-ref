@@ -108,11 +108,12 @@ ARG does nothing."
               (lambda (table)
                 "create a link for to the table"
 		(save-excursion
+		  (goto-char (org-element-property :begin table))
 		  (when
 		      ;; ignore commented sections
-		      (goto-char (org-element-property :begin table))
-		    (not (or (org-in-commented-heading-p)
-			     (-intersection (org-get-tags) org-export-exclude-tags)))
+		      (not (or (org-in-commented-heading-p)
+			       (-intersection (org-get-tags) org-export-exclude-tags)
+			       (looking-at "#\\+RESULTS:") ))
 		    (cl-incf counter)
 		    (let* ((start (org-element-property :begin table))
 			   (linenum (progn (goto-char start) (line-number-at-pos)))
