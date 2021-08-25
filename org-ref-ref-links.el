@@ -23,28 +23,14 @@
 
 ;;; Code:
 
-(defcustom org-ref-ref-types
-  '("ref" "eqref" "pageref" "nameref" "autoref" "cref" "Cref")
-  "List of ref link types."
-  :type '(repeat :tag "List of ref types" string)
-  :group 'org-ref)
-
-
 (defcustom org-ref-default-ref-type "ref"
   "Default ref link type to use when inserting ref links"
   :type 'string
   :group 'org-ref)
 
 
-(defcustom org-ref-ref-color
-  "dark red"
-  "Color of ref like links."
-  :type 'string
-  :group 'org-ref)
-
-
 (defface org-ref-ref-face
-  `((t (:inherit org-link :foreground ,org-ref-ref-color)))
+  `((t (:inherit org-link :foreground "dark red")))
   "Face for ref links in org-ref.")
 
 
@@ -138,11 +124,23 @@ font-lock."
     (delete-dups (reverse labels))))
 
 
-;; TODO: Maybe this needs a hydra, e.g. to follow, replace? replace in buffer?, not sure what else.
+(defhydra org-ref-ref-follow ()
+  "Org-ref ref
+"
+  ("o" org-ref-ref-jump-to "Jump to")
+  ("r"  org-ref-change-ref-type "Change type"))
+
+
 (defun org-ref-ref-follow (_path)
-  "Follow the ref link.
-_PATH is ignored. We get the label from a text property so we
-don't have to figure out which label you clicked on."
+  "Follow a ref link. _PATH is ignored.
+Opens a hydra menu."
+  (interactive)
+  (org-ref-ref-follow/body))
+
+
+(defun org-ref-ref-jump-to ()
+  "Jump to the target for the ref link at point."
+  (interactive)
   (let ((label (get-text-property (point) 'org-ref-ref-label))
 	(rx (string-join org-ref-ref-label-regexps "\\|")))
     (when label
@@ -199,10 +197,10 @@ Argument END is the end of the link."
 Argument CMD is the LaTeX command to export to.
 Argument KEYWORD is the path of the ref link.
 Argument BACKEND is the export backend.
-This is meant to be used with `apply-partially'."
+This is meant to be used with `apply-partially' in the link definitions."
   (cond
    ((eq backend 'latex)
-    (format "%s{%s}" cmd keyword))))
+    (format "\\%s{%s}" cmd keyword))))
 
 
 (defun org-ref-complete-link (refstyle &optional arg)
@@ -210,26 +208,20 @@ This is meant to be used with `apply-partially'."
   (concat refstyle ":" (completing-read "Label: " (org-ref-get-labels))))
 
 
-(defun org-ref-label-store-link (reftype)
-  "Store a link to a label.  The output will be a ref to that label.
-This has several conditional ways to store a link to figures and
-tables also. Note it does not currently work with latex labels,
-only org labels and names."
+(defun org-ref-store-ref ()
+  "Store a ref link to a label.  The output will be a ref to that label."
   ;; First we have to make sure we are on a label link.
   (let* ((object (and (eq major-mode 'org-mode) (org-element-context)))
-	 (stored nil)
 	 label)
     (cond
      ;; here literally on a label link.
      ((and
        (equal (org-element-type object) 'link)
        (equal (org-element-property :type object) "label"))
-      (setq label (org-element-property :path object))
-      (org-store-link-props
-       :type reftype
-       :link (concat reftype ":" label)))
+      (setq label (org-element-property :path object)))
 
-     ;; here on a file link that probably contains an image, although I don't check that
+     ;; here on a file link. if it has a caption with a label in it, we store
+     ;; it.
      ((and
        (equal (org-element-type object) 'link)
        (equal (org-element-property :type object) "file")
@@ -237,10 +229,7 @@ only org labels and names."
 
       (if (org-element-property :name object)
 	  (progn
-	    (setq label (org-element-property :name object))
-	    (org-store-link-props
-	     :type reftype
-	     :link (concat reftype ":"label)))
+	    (setq label (org-element-property :name object)))
 	;; maybe we have a caption to get it from.
 	(let* ((parent (org-element-property :parent object))
 	       (caption))
@@ -255,27 +244,19 @@ only org labels and names."
 			     (mapcar 'org-no-properties
 				     (org-export-get-caption parent))))
 	      (when (string-match org-ref-label-re caption)
-		(setq label (match-string 1 caption))))
-
-	    (org-store-link-props
-	     :type reftype
-	     :link (concat reftype ":" label))))))
+		(setq label (match-string 1 caption))))))))
 
      ;; here on a paragraph (eg in a caption of an image). it is a paragraph with a caption
      ;; in a caption, with no name, but maybe a label
      ((equal (org-element-type object) 'paragraph)
       (if (org-element-property :name object)
-	  (org-store-link-props
-	   :type reftype
-	   :link (concat reftype ":" (org-element-property :name object)))
+	  (setq label (org-element-property :name object))
+
 	;; See if it is in the caption name
 	(let ((caption (s-join "" (mapcar 'org-no-properties
 					  (org-export-get-caption object)))))
 	  (when (string-match org-ref-label-re caption)
-	    (setq label (match-string 1 caption))
-	    (org-store-link-props
-	     :type reftype
-	     :link (concat reftype ":" label))))))
+	    (setq label (match-string 1 caption))))))
 
      ;; If you are in a table, we need to be at the beginning to make sure we get the name.
      ;; Note when in a caption it appears you are in a table but org-at-table-p is nil there.
@@ -288,53 +269,39 @@ only org labels and names."
 	  (when (null label)
 	    ;; maybe there is a label in the caption?
 	    (when (string-match org-ref-label-link-re caption)
-	      (setq label (match-string 1 caption))))
+	      (setq label (match-string 1 caption)))))))
 
-	  (org-store-link-props
-	   :type reftype
-	   :link (concat reftype ":" label)))))
-
-     ;; and to #+label: lines
+     ;; and to #+namel: lines
      ((and (equal (org-element-type object) 'paragraph)
            (org-element-property :name object))
-      (setq label (org-element-property :name object))
-      (org-store-link-props
-       :type reftype
-       :link (concat reftype ":" label)))
+      (setq label (org-element-property :name object)))
 
      ;; in a latex environment
      ((equal (org-element-type object) 'latex-environment)
       (let ((value (org-element-property :value object))
 	    label)
 	(when (string-match "\\\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}" value)
-	  (setq label (match-string-no-properties 1 value))
-	  (org-store-link-props
-	   :type reftype
-	   :link (concat reftype ":" label)))))
+	  (setq label (match-string-no-properties 1 value)))))
 
+     ;; Match targets, like <<label>>
      ((equal (org-element-type object) 'target)
-      (org-store-link-props
-       :type reftype
-       :link (concat reftype ":" (org-element-property :value object))))
+      (setq label (org-element-property :value object)))
 
      (t
-      nil))))
+      nil))
+
+    (when label
+      (cl-loop for reftype in org-ref-ref-types do
+	       (org-store-link-props
+		:type reftype
+		:link (concat reftype ":" label)))
+      (format (concat  org-ref-default-ref-type ":" label)))))
 
 
-;; TODO Should there be just one? and make ref the default choice?
-(defun org-ref-store-ref () (org-ref-label-store-link "ref"))
+(defvar org-ref-ref-types
+  '("ref" "eqref" "pageref" "nameref" "autoref" "cref" "Cref" "crefrange" "Crefrange")
+  "List of ref link types.")
 
-(defun org-ref-store-pageref () (org-ref-label-store-link "pageref"))
-
-(defun org-ref-store-nameref () (org-ref-label-store-link "nameref"))
-
-(defun org-ref-store-eqref () (org-ref-label-store-link "eqref"))
-
-(defun org-ref-store-autoref () (org-ref-label-store-link "autoref"))
-
-(defun org-ref-store-cref () (org-ref-label-store-link "cref"))
-
-(defun org-ref-store-Cref () (org-ref-label-store-link "Cref"))
 
 ;; ** ref link
 
@@ -343,7 +310,7 @@ only org labels and names."
 			 :complete (apply-partially #'org-ref-complete-link "ref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\ref")
+			 :export (apply-partially #'org-ref-ref-export "ref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
@@ -351,11 +318,11 @@ only org labels and names."
 ;;** pageref link
 
 (org-link-set-parameters "pageref"
-			 :store #'org-ref-store-pageref
+			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "pageref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\pageref")
+			 :export (apply-partially #'org-ref-ref-export "pageref")
 			 :face 'org-ref-ref-face
 			 :complete (lambda (&optional arg) (org-ref-complete-link arg "pageref"))
 			 :help-echo #'org-ref-ref-help-echo)
@@ -364,33 +331,33 @@ only org labels and names."
 ;;** nameref link
 
 (org-link-set-parameters "nameref"
-			 :store #'org-ref-store-nameref
+			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "nameref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\nameref")
+			 :export (apply-partially #'org-ref-ref-export "nameref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
 ;;** eqref link
 
 (org-link-set-parameters "eqref"
-			 :store #'org-ref-store-eqref
+			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "eqref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\eqref")
+			 :export (apply-partially #'org-ref-ref-export "eqref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
 ;;** autoref link
 
 (org-link-set-parameters "autoref"
-			 :store #'org-ref-store-autoref
+			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "autoref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\autoref")
+			 :export (apply-partially #'org-ref-ref-export "autoref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
@@ -400,21 +367,21 @@ only org labels and names."
 
 
 (org-link-set-parameters "cref"
-			 :store #'org-ref-store-cref
+			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "cref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\cref")
+			 :export (apply-partially #'org-ref-ref-export "cref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
 
 (org-link-set-parameters "Cref"
-			 :store #'org-ref-store-Cref
+			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "Cref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-follow
-			 :export (apply-partially #'org-ref-ref-export "\\Cref")
+			 :export (apply-partially #'org-ref-ref-export "Cref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
@@ -457,6 +424,7 @@ only org labels and names."
 			 :export #'org-ref-Crefrange-export
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
+
 
 ;; * Insert link
 (defvar org-ref-equation-environments
@@ -512,13 +480,31 @@ the first instance of the label, or nil of there is none."
       org-ref-default-ref-type))
 
 
+(defun org-ref-ref-link-p ()
+  "Return the link at point if point is on a ref link."
+  (let ((el (org-element-context)))
+    (and (eq (org-element-type el) 'link)
+	 (member (org-element-property :type el) org-ref-ref-types)
+	 el)))
+
+
 (defun org-ref-insert-ref-link (&optional set-type)
-  "Insert a ref link."
-  (interactive)
+  "Insert a ref link.
+If on a link, append a label to the end."
+  (interactive "P")
   (let* ((label (completing-read "Label: " (org-ref-get-labels)))
 	 (type (if set-type (completing-read "Type: " org-ref-ref-types)
 		 (org-ref-infer-ref-type label))))
-    (insert (format  "%s:%s" type label))))
+    (if-let* ((lnk (org-ref-ref-link-p))
+	      (path (org-element-property :path lnk))
+	      (beg (org-element-property :begin lnk))
+	      (end (org-element-property :end lnk)))
+	(progn
+	  (setf (plist-get (cadr lnk) :path) (concat path "," label))
+	  (cl--set-buffer-substring beg end (org-element-interpret-data lnk)))
+
+      (insert (format  "%s:%s" type label)))
+    (goto-char (org-element-property :end (org-element-context)))))
 
 (provide 'org-ref-ref-links)
 
