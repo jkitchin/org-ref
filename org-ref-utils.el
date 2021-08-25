@@ -447,7 +447,6 @@ Assumes the key-string is comma delimited."
   (mapcar 'org-ref-strip-string (split-string string ",")))
 
 
-;; TODO this will be wrong
 (defun org-ref-get-bibtex-keys (&optional sort)
   "Return a list of unique keys in the buffer.
 Use SORT to specify alphabetical order by key."
@@ -456,18 +455,17 @@ Use SORT to specify alphabetical order by key."
       (lambda (link)
         (let ((plist (nth 1 link)))
           (when (-contains? org-ref-cite-types (plist-get plist ':type))
-            (dolist
-                (key
-                 (org-ref-split-and-strip-string (plist-get plist ':path)))
-              (when (not (-contains? keys key))
-                (setq keys (append keys (list key))))))))
+	    (setq keys (append keys (cl-loop for ref in
+					     (plist-get (org-ref-parse-cite-path
+							 (org-element-property :path link))
+							:references)
+					     collect (plist-get ref :key)))))))
       ;; set with-affiliated to get keys in captions
       nil nil nil t)
     (when sort
       ;; Sort keys alphabetically
       (setq keys (cl-sort keys 'string-lessp :key 'downcase)))
     keys))
-
 
 
 (defun org-ref-pdf-p (filename)
