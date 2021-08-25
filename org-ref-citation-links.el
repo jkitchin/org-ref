@@ -82,8 +82,9 @@ This is mostly for multicites and natbib.")
     "citealt" "citealt*" "citealp" "citealp*"
     "citenum" "citetext"
     "citeauthor" "citeauthor*"
-    "citeyear" "citeyear*" "citeyearpar"
-    "Citet" "Citep" "Citealt" "Citealp" "Citeauthor")
+    "citeyear"  "citeyearpar"
+    "Citet" "Citep" "Citealt" "Citealp" "Citeauthor"
+    "Citet*" "Citep*" "Citealt*" "Citealp*" "Citeauthor*")
   "Natbib commands can have many references, and global prefix/suffix text.
 For natbib cite commands see
 http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf"
@@ -431,7 +432,7 @@ Use with apply-partially."
 	 (2
 	  (let* ((prefix-suffix (split-string (or desc "") "::"))
 		 (prefix (cond
-			  ((cl-first prefix-suffix)
+			  ((and (cl-first prefix-suffix) (not (string= "" (cl-first prefix-suffix))))
 			   (format "[%s]" (cl-first prefix-suffix)))
 			  ((cl-second prefix-suffix)
 			   "[]")
@@ -444,8 +445,8 @@ Use with apply-partially."
 			   ""))))
 	    (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
 		      `(("cmd" . ,cmd)
-			("prefix" . ,prefix)
-			("suffix" . ,suffix)
+			("prefix" . ,(string-trim prefix))
+			("suffix" . ,(string-trim suffix))
 			("keys" . ,(string-join keys ","))))))
 	 (3
 	  (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
@@ -454,40 +455,62 @@ Use with apply-partially."
 		      ;; prefix/suffix But for one key, we should allow local
 		      ;; prefix and suffix or the global one.
 		      ("prefix" . ,(if (= 1 (length references))
+				       ;; single reference
 				       (cond
 					;; local prefix is not empty, we use it.
 					((plist-get (car references) :prefix)
-					 (concat "[" (plist-get (car references) :prefix) "]"))
+					 (concat "["
+						 (string-trim (plist-get (car references) :prefix))
+						 "]"))
 					;; local prefix is empty, but global one
 					;; is not, so we use it
 					((plist-get cite :prefix)
-					 (concat "[" (plist-get cite :prefix) "]"))
+					 (concat "["
+						 (string-trim (plist-get cite :prefix))
+						 "]"))
 					;; if you have a suffix, you need an empty prefix
 					((plist-get cite :suffix)
 					 "[]")
 					(t
 					 ""))
+				     ;; Multiple references
 				     (cond
+				      ;; Check the common prefix
 				      ((plist-get cite :prefix)
-				       (concat "[" (plist-get cite :prefix) "]"))
+				       (concat "["
+					       (string-trim (plist-get cite :prefix))
+					       "]"))
+				      ;; Check the prefix in the first cite
+				      ((plist-get (car references) :prefix)
+				       (concat "["
+					       (string-trim (plist-get (car references) :prefix))
+					       "]"))
 				      ;; if you have a suffix, you need an empty prefix
 				      ((plist-get cite :suffix)
 				       "[]")
 				      (t
 				       ""))))
 		      ("suffix" . ,(if (= 1 (length references))
+				       ;; Single reference
 				       (cond
 					;; local prefix is not empty, so use it
 					((plist-get (car references) :suffix)
-					 (format "[%s]" (plist-get (car references) :suffix)))
+					 (format "[%s]"
+						 (string-trim (plist-get (car references) :suffix))))
 					;; global prefix is not empty
 					((plist-get cite :suffix)
-					 (format "[%s]" (plist-get cite :suffix)))
+					 (format "[%s]" (string-trim (plist-get cite :suffix))))
 					(t
 					 ""))
-				     (if (plist-get cite :suffix)
-					 (format "[%s]" (plist-get cite :suffix))
-				       "")))
+				     ;; Multiple references
+				     (cond
+				      ((plist-get cite :suffix)
+				       (format "[%s]" (string-trim (plist-get cite :suffix))))
+				      ;; last reference has a suffix
+				      ((plist-get (car (last references)) :suffix)
+				       (format "[%s]" (string-trim (plist-get (car (last references)) :suffix))))
+				      (t
+				       ""))))
 		      ("keys" . ,(string-join keys ","))))))))))
 
 
