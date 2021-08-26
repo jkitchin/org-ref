@@ -67,15 +67,101 @@
 (defcustom org-ref-csl-default-style "chicago-author-date-16th-edition.csl"
   "Default csl style to use.")
 
+
 (defcustom org-ref-csl-default-locale "en-US"
   "Default csl locale to use.")
+
+
+(defcustom org-ref-csl-label-aliases
+  '((("bk" "bks") . "book")
+    (("ch" "chap" "chaps" "chapt") . "chapter")
+    (("col" "cols") . "column")
+    (("fig" "figs") . "figure")
+    (("fol" "fols") . "folio")
+    (("no" "nos" "#") . "number")
+    (("l" "ll") . "line")
+    (("n" "nn") . "note")
+    (("op" "opp") . "opus")
+    (("p" "pp" "pg" "pgs") . "page")
+    (("para" "paras" "¶" "¶¶" "§" "§§") . "paragraph")
+    (("pt" "pts") . "part")
+    (("sec" "secs") . "section")
+    (("s.v" "s.vv") . "sub verbo")
+    (("v" "vv") . "verse")
+    (("vol" "vols") . "volume"))
+  "A-list of aliases for a csl label.
+The car is a list of possible aliases (including if they end in a .
+This list was adapted from `org-cite-csl--label-alist'.")
+
+
+(defun org-ref-dealias-label (alias)
+  "Return the full, de-aliased label for ALIAS.
+Looked up from `org-ref-csl-label-aliases'.
+
+I added this because I think it is reasonable to expect if you
+write pg. 2 that it will show that way when rendered. At the
+moment that is not the case, and only page is accepted. This is
+actually done in oc-csl too, although it uses a flat a-list."
+  (or (cdr (assoc "page" org-ref-csl-label-aliases
+		  (lambda (x1 _x2)
+		    (or (member alias x1)
+			(member (concat (downcase alias) ".") x1)))))
+      alias))
+
+
+(defun org-ref-get-cite-links ()
+  "Return list of cite links in the order they appear in the buffer."
+  (reverse (org-element-map (org-element-parse-buffer) 'link
+	     (lambda (lnk)
+	       (when (member (org-element-property :type lnk) org-ref-cite-types)
+		 lnk)))))
+
+
+(defun org-ref-ref-csl-data (ref type)
+  "Return the CSL alist for a REF of TYPE.
+REF is a plist data structure returned from `org-ref-parse-cite-path'."
+  ;; I believe the suffix contains "label locator suffix"
+  ;; where locator is a number
+  ;; label is something like page or chapter
+  ;; and the rest is the suffix text.
+  ;; For example: ch. 5, for example
+  ;; would be label = ch., locator=5, ",for example" as suffix.
+  (let* ((full-suffix (or (plist-get ref :suffix) ""))
+	 location label locator suffix)
+    (string-match "\\(?1:[^[:digit:]]*\\)?\\(?2:[[:digit:]]*\\)?\\(?3:.*\\)"
+		  full-suffix)
+    (if (not (string= "" (match-string 2 full-suffix)))
+	;; We found a locator
+	(setq label (match-string 1 full-suffix)
+	      locator (match-string 2 full-suffix)
+	      suffix (match-string 3 full-suffix))
+      (setq label ""
+	    locator ""
+	    suffix full-suffix))
+    ;; Let's assume if you have a locator but not a label that you mean page.
+    (when (and locator (string= "" (string-trim label)))
+      (setq label "page"))
+    `((id . ,(plist-get ref :key))
+      (prefix . ,(or (plist-get ref :prefix) ""))
+      (suffix . ,suffix)
+      (locator . ,locator)
+      (label . ,(org-ref-dealias-label (string-trim label)))
+      ;; TODO: proof of concept and not complete
+      (suppress-author . ,(not (null (member type
+					     '("citenum"
+					       "citeyear"
+					       "citeyear*"
+					       "citedate"
+					       "citedate*"
+					       "citetitle"
+					       "citetitle*"
+					       "citeurl"))))))))
 
 
 (defun org-ref-process-buffer (backend)
   "Process the citations and bibliography in the org-buffer.
 Usually run on a copy of the buffer during export.
 BACKEND is the org export backend."
-
   (let* ((csl-backend (or (cdr (assoc backend org-ref-backend-csl-formats)) 'plain))
 
 	 (style (or (cadr (assoc "CSL-STYLE"
@@ -87,30 +173,35 @@ BACKEND is the org export backend."
 				   '("CSL-LOCALE"))))
 		     org-ref-csl-default-locale))
 
-	 (proc (citeproc-create (cond
-				 ((file-exists-p style)
-				  style)
-				 ;; In a user-dir
-				 ((and (boundp 'org-cite-csl-styles-dir)
-				       (file-exists-p (f-join org-cite-csl-styles-dir style)))
-				  (f-join org-cite-csl-styles-dir style))
-				 ;; provided by org-ref
-				 ((file-exists-p (expand-file-name style (f-join (file-name-directory
-										  (locate-library "org-ref"))
-										 "csl-styles")))
-				  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref"))
-								  "csl-styles")))
-				 (t
-				  (error "%s not found" style)))
-				(citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
-				(citeproc-locale-getter-from-dir (cond
-								  ((boundp 'org-cite-csl-locales-dir)
-								   org-cite-csl-locales-dir)
-								  (t
-								   (f-join (file-name-directory
-									    (locate-library "org-ref"))
-									   "csl-locales"))))
-				locale))
+	 (proc (citeproc-create
+		;; The style
+		(cond
+		 ((file-exists-p style)
+		  style)
+		 ;; In a user-dir
+		 ((and (boundp 'org-cite-csl-styles-dir)
+		       (file-exists-p (f-join org-cite-csl-styles-dir style)))
+		  (f-join org-cite-csl-styles-dir style))
+		 ;; provided by org-ref
+		 ((file-exists-p (expand-file-name style (f-join (file-name-directory
+								  (locate-library "org-ref"))
+								 "csl-styles")))
+		  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref"))
+						  "csl-styles")))
+		 (t
+		  (error "%s not found" style)))
+		;; item-getter
+		(citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
+		;; locale getter
+		(citeproc-locale-getter-from-dir (cond
+						  ((boundp 'org-cite-csl-locales-dir)
+						   org-cite-csl-locales-dir)
+						  (t
+						   (f-join (file-name-directory
+							    (locate-library "org-ref"))
+							   "csl-locales"))))
+		;; the actual locale
+		locale))
 
 	 ;; list of links in the buffer
 	 (cite-links (org-element-map (org-element-parse-buffer) 'link
@@ -123,51 +214,18 @@ BACKEND is the org export backend."
 				(common-prefix (or (plist-get cite-data :prefix) ""))
 				(common-suffix (or (plist-get cite-data :suffix) ""))
 				(refs (plist-get cite-data :references))
+				(type (org-element-property :type cl))
 
 				(cites (cl-loop for ref in refs collect
-						;; I believe the suffix contains "label locator suffix"
-						;; where locator is a number
-						;; label is something like page or chapter
-						;; and the rest is the suffix text.
-						;; For example: ch. 5, for example
-						;; would be label = ch., locator=5, ",for example" as suffix.
-						(let* ((full-suffix (or (plist-get ref :suffix) ""))
-						       location label locator suffix)
-						  (string-match "\\(?1:[^[:digit:]]*\\)?\\(?2:[[:digit:]]*\\)?\\(?3:.*\\)"
-								full-suffix)
-						  (if (not (string= "" (match-string 2 full-suffix)))
-						      ;; We found a locator
-						      (setq label (match-string 1 full-suffix)
-							    locator (match-string 2 full-suffix)
-							    suffix (match-string 3 full-suffix))
-						    (setq label ""
-							  locator ""
-							  suffix full-suffix))
-						  ;; Let's assume if you have a locator but not a label that you mean page.
-						  (when (and locator (string= "" (string-trim label)))
-						    (setq label "page"))
-						  `((id . ,(plist-get ref :key))
-						    (prefix . ,(or (plist-get ref :prefix) ""))
-						    (suffix . ,suffix)
-						    (locator . ,locator)
-						    (label . ,(string-trim label))
-
-						    ;; TODO: proof of concept and not complete
-						    (suppress-author . ,(not (null (member
-										    (org-element-property :type cl)
-										    '("citenum"
-										      "citeyear"
-										      "citeyear*"
-										      "citedate"
-										      "citedate*"
-										      "citetitle"
-										      "citetitle*"
-										      "citeurl"))))))))))
-			   ;; TODO: confirm this is right.
+						(org-ref-ref-csl-data ref type))))
+			   ;; TODO: update eventually
+			   ;; https://github.com/andras-simonyi/citeproc-el/issues/46
 			   ;; To handle common prefixes, suffixes, I just concat them with the first/last entries.
-			   ;; I am not sure this is the right thing to do though.
+			   ;; That is all that is supported for now.
+			   ;; Combine common/local prefix
 			   (setf (cdr (assoc 'prefix (cl-first cites)))
 				 (concat common-prefix (cdr (assoc 'prefix (cl-first cites)))))
+			   ;; Combine local/common suffix
 			   (setf (cdr (assoc 'suffix (car (last cites))))
 				 (concat (cdr (assoc 'suffix (car (last cites)))) common-suffix))
 
@@ -231,10 +289,14 @@ BACKEND is the org export backend."
 			   (org-odt . "\n#+BEGIN_EXPORT ODT\n%s\n#+END_EXPORT\n"))))
 
     ;; replace the cite links
-    (cl-loop for cl in (reverse  cite-links) for rc in (reverse rendered-citations) do
+    (cl-loop for cl in (reverse cite-links) for rc in (reverse rendered-citations) do
 	     (cl--set-buffer-substring (org-element-property :begin cl)
 				       (org-element-property :end cl)
-				       (format (or (cdr (assoc backend cite-formatters)) "%s") rc)))
+				       (format (or (cdr (assoc backend cite-formatters)) "%s")
+					       (concat
+						rc
+						;; Add on extra spaces that were following it.
+						(make-string (or (org-element-property :post-blank cl) 0) ? )))))
 
     ;; replace the bibliography
     (org-element-map (org-element-parse-buffer) 'link
