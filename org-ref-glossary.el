@@ -157,6 +157,7 @@ but there could be other :key value pairs."
 	    (setq value (replace-regexp-in-string
 			 "\n +" " " value))
 	    (setq data (append data
+			       (list :label entry)
 			       (list (intern (format ":%s" key)))
 			       (list value))))
 	  (throw 'data data))
@@ -174,7 +175,7 @@ but there could be other :key value pairs."
 					 (nthcdr 2 (org-babel-read-table)))))))))
 	       (result (assoc entry entries)))
 	  (when result
-	    (throw 'data (list :name (cl-second result) :description (cl-third result)))))
+	    (throw 'data (list :label entry :name (cl-second result) :description (cl-third result)))))
 
 	;; then external
 	(when (and glsentries
@@ -205,6 +206,7 @@ but there could be other :key value pairs."
 		  (re-search-forward "," end-of-entry 'mv)
 		  (setq value (buffer-substring p1 (- (point) 1))))
 		(setq data (append data
+				   (list :label entry)
 				   (list (intern (format ":%s" key)))
 				   (list value))))
 	      (throw 'data data))))
@@ -406,7 +408,7 @@ This will run in `org-export-before-parsing-hook'."
 
 (defun or-parse-acronym-entry (label)
   "Parse an acronym entry LABEL to a plist.
-  \(:abbrv abbrv :full full)
+  \(:abbrv abbrv :full full :label label)
 \newacronym{<label>}{<abbrv>}{<full>}"
   (save-excursion
     (goto-char (point-min))
@@ -433,7 +435,7 @@ This will run in `org-export-before-parsing-hook'."
 	  (forward-list)
 	  (setq full (buffer-substring p1 (- (point) 1)))
 	  (throw 'data
-		 (list :abbrv abbrv :full full)))
+		 (list :label label :abbrv abbrv :full full)))
 
 	;; look for acronyms table
 	(let* ((entries (save-excursion
@@ -448,7 +450,8 @@ This will run in `org-export-before-parsing-hook'."
 					 (nthcdr 2 (org-babel-read-table)))))))))
 	       (result (assoc label entries)))
 	  (when result
-	    (throw 'data (list :abbrv (cl-second result) :full (cl-third result)))))
+	    (throw 'data (list :label label
+			       :abbrv (cl-second result) :full (cl-third result)))))
 
 	;; look external
 	(when (and glsentries
@@ -463,24 +466,7 @@ This will run in `org-export-before-parsing-hook'."
 	      (forward-list)
 	      (setq full (buffer-substring p1 (- (point) 1)))
 	      (throw 'data
-		     (list :abbrv abbrv :full full)))))
-
-	;; This should be a last resort, as it involves an export
-	;; but, it supports #+include
-	;; I think these will only show as the latex header because of the export
-	;; (let ((org-export-show-temporary-export-buffer nil)
-	;;       (org-export-use-babel nil))
-	;;   (with-current-buffer (org-org-export-as-org)
-	;;     (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
-	;;       (setq p1 (+ 1 (point)))
-	;;       (forward-list)
-	;;       (setq abbrv (buffer-substring p1 (- (point) 1)))
-	;;       (setq p1 (+ 1 (point)))
-	;;       (forward-list)
-	;;       (setq full (buffer-substring p1 (- (point) 1)))
-	;;       (throw 'data
-	;; 	     (list :abbrv abbrv :full full)))))
-	))))
+		     (list :label label :abbrv abbrv :full full )))))))))
 
 ;;** Acronym links
 (defun or-follow-acronym (label)
@@ -501,17 +487,18 @@ This will run in `org-export-before-parsing-hook'."
     ("Acp"      . "Glspl")))
 
 
-(dolist (mapping org-ref-glossary-acr-commands-mapping)
-  (org-link-set-parameters (car mapping)
-			   :follow #'or-follow-acronym
-			   :face 'org-ref-acronym-face-fn
-			   :help-echo 'or-acronym-tooltip
-			   :export (lambda (path _ format)
-				     (cond
-				      ((memq format '(latex beamer))
-				       (format "\\%s{%s}" (cdr mapping) path))
-				      (t
-				       (format "%s" (upcase path)))))))
+(cl-loop for mapping in org-ref-glossary-acr-commands-mapping
+	 do
+	 (org-link-set-parameters (car mapping)
+				  :follow #'or-follow-acronym
+				  :face 'org-ref-acronym-face-fn
+				  :help-echo 'or-acronym-tooltip
+				  :export (lambda (path _ format)
+					    (cond
+					     ((memq format '(latex beamer))
+					      (format "\\%s{%s}" (cdr mapping) path))
+					     (t
+					      (format "%s" (upcase path)))))))
 
 
 ;;** Tooltips on acronyms
@@ -592,16 +579,95 @@ This will run in `org-export-before-parsing-hook'."
 (add-to-list 'org-export-before-parsing-hook 'org-ref-acronyms-before-parsing)
 
 ;; * Interactive command to insert entries
+
+(defhydra+ org-ref-insert-link-hydra ()
+  ("g" org-ref-insert-glossary-link "Glossary link" :column "Glossary" :color blue)
+  ("a" org-ref-insert-acronym-link "Acronym link" :column "Glossary" :color blue)
+  ("ng" org-ref-add-glossary-entry "New glossary term" :column "Glossary")
+  ("na" org-ref-add-acronym-entry "New acronym term" :column "Glossary"))
+
 ;;;###autoload
+;; (defun org-ref-insert-glossary-link ()
+;;   "Insert glossary and acronym entries as links."
+;;   (interactive)
+;;   ;; gather entries
+;;   (let* ((glossary-candidates '())
+;; 	 (acronym-candidates '())
+;; 	 (new-candidates '(("Add new glossary term" . org-ref-add-glossary-entry)
+;; 			   ("Add new acronym term" . org-ref-add-acronym-entry)))
+;; 	 key entry
+;; 	 candidates)
+
+;;     ;; glossary terms
+;;     (save-excursion
+;;       (goto-char (point-min))
+;;       (while (re-search-forward
+;; 	      "\\\\newglossaryentry{\\([[:ascii:]]+?\\)}" nil t)
+
+;; 	(setq key (match-string 1)
+;; 	      entry (or-parse-glossary-entry key))
+
+;; 	(cl-pushnew (cons
+;; 		     (propertize (format "%s: %s - glossary."
+;; 					 (plist-get entry :name)
+;; 					 (plist-get entry :description))
+;; 				 'face 'org-ref-glossary-face)
+;; 		     `(lambda () (interactive)
+;; 			(insert (format
+;; 				 "[[%s:%s][%s]]"
+;; 				 (completing-read "Type: "
+;; 						  '("gls"
+;; 						    "glspl"
+;; 						    "Gls"
+;; 						    "Glspl"
+;; 						    "glssymbol"
+;; 						    "glsdesc")
+;; 						  nil t
+;; 						  "gls")
+;; 				 ,key
+;; 				 ,(plist-get entry :name)))))
+;; 		    glossary-candidates)))
+
+;;     (save-excursion
+;;       (goto-char (point-min))
+;;       (while (re-search-forward
+;; 	      "\\\\newacronym{\\([[:ascii:]]+?\\)}" nil t)
+;; 	(setq key (match-string 1)
+;; 	      entry (or-parse-acronym-entry key))
+;; 	(cl-pushnew (cons
+;; 		     (propertize
+;; 		      (format "%s (%s) - acronym."
+;; 			      (plist-get entry :full)
+;; 			      (plist-get entry :abbrv))
+;; 		      'face 'org-ref-acronym-face)
+;; 		     `(lambda () (interactive)
+;; 			(insert (format
+;; 				 "[[%s:%s][%s]]"
+;; 				 (completing-read "Type: "
+;; 						  '("acrshort"
+;; 						    "acrlong"
+;; 						    "acrfull"
+;; 						    "ac"
+;; 						    "Ac"
+;; 						    "acp"
+;; 						    "Acp")
+;; 						  nil t
+;; 						  "ac")
+;; 				 ,key
+;; 				 ,(plist-get entry :abbrv)))))
+;; 		    acronym-candidates)))
+
+;;     (setq candidates (append glossary-candidates acronym-candidates new-candidates))
+
+;;     (funcall-interactively
+;;      (cdr (assoc (completing-read "Choose: " candidates) candidates)))))
+
 (defun org-ref-insert-glossary-link ()
-  "Insert glossary and acronym entries as links."
+  "Insert glossary entry as links."
   (interactive)
   ;; gather entries
   (let* ((glossary-candidates '())
-	 (acronym-candidates '())
-	 (new-candidates '(("Add new glossary term" . org-ref-add-glossary-entry)
-			   ("Add new acronym term" . org-ref-add-acronym-entry)))
-	 key entry
+	 key entry type
 	 candidates)
 
     ;; glossary terms
@@ -618,21 +684,37 @@ This will run in `org-export-before-parsing-hook'."
 					 (plist-get entry :name)
 					 (plist-get entry :description))
 				 'face 'org-ref-glossary-face)
-		     `(lambda () (interactive)
-			(insert (format
-				 "[[%s:%s][%s]]"
-				 (completing-read "Type: "
-						  '("gls"
-						    "glspl"
-						    "Gls"
-						    "Glspl"
-						    "glssymbol"
-						    "glsdesc")
-						  nil t
-						  "gls")
-				 ,key
-				 ,(plist-get entry :name)))))
+		     entry)
 		    glossary-candidates)))
+
+
+    (setq choice (completing-read "Choose: " glossary-candidates)
+	  entry (cdr (assoc choice glossary-candidates))
+	  type (completing-read "Type: "
+				'("gls"
+				  "glspl"
+				  "Gls"
+				  "Glspl"
+				  "glssymbol"
+				  "glsdesc")
+				nil t))
+
+    (insert (format
+	     "[[%s:%s][%s]]"
+	     type
+	     (plist-get entry :label)
+	     (plist-get entry :name)))))
+
+
+(defun org-ref-insert-acronym-link ()
+  "Insert acronym entry as links."
+  (interactive)
+  ;; gather entries
+  (let* ((acronym-candidates '())
+	 key entry
+	 candidates
+	 type
+	 choice)
 
     (save-excursion
       (goto-char (point-min))
@@ -640,33 +722,31 @@ This will run in `org-export-before-parsing-hook'."
 	      "\\\\newacronym{\\([[:ascii:]]+?\\)}" nil t)
 	(setq key (match-string 1)
 	      entry (or-parse-acronym-entry key))
-	(cl-pushnew (cons
-		     (propertize
-		      (format "%s (%s) - acronym."
-			      (plist-get entry :full)
-			      (plist-get entry :abbrv))
-		      'face 'org-ref-acronym-face)
-		     `(lambda () (interactive)
-			(insert (format
-				 "[[%s:%s][%s]]"
-				 (completing-read "Type: "
-						  '("acrshort"
-						    "acrlong"
-						    "acrfull"
-						    "ac"
-						    "Ac"
-						    "acp"
-						    "Acp")
-						  nil t
-						  "ac")
-				 ,key
-				 ,(plist-get entry :abbrv)))))
+	(cl-pushnew (cons (propertize
+			   (format "%s (%s) - acronym."
+				   (plist-get entry :full)
+				   (plist-get entry :abbrv))
+			   'face 'org-ref-acronym-face)
+			  entry)
 		    acronym-candidates)))
 
-    (setq candidates (append glossary-candidates acronym-candidates new-candidates))
+    (setq choice (completing-read "Choose: " acronym-candidates)
+	  entry (cdr (assoc choice acronym-candidates))
+	  type (completing-read "Type: "
+				'("acrshort"
+				  "acrlong"
+				  "acrfull"
+				  "ac"
+				  "Ac"
+				  "acp"
+				  "Acp")
+				nil t))
 
-    (funcall-interactively
-     (cdr (assoc (completing-read "Choose: " candidates) candidates)))))
+    (insert (format
+	     "[[%s:%s][%s]]"
+	     type
+	     (plist-get entry :label)
+	     (plist-get entry :abbrv)))))
 
 
 (provide 'org-ref-glossary)
