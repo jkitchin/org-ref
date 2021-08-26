@@ -47,6 +47,7 @@
 
 (require 'parsebib)
 (require 'bibtex-completion)
+(require 'hydra)
 
 (require 'org-ref-bibliography-links)
 (require 'org-ref-citation-links)

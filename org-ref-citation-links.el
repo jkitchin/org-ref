@@ -40,6 +40,7 @@
 ;;
 ;;
 ;;; Code:
+(require 'hydra)
 
 (defface org-ref-cite-face
   `((t (:inherit org-link
