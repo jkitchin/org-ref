@@ -26,15 +26,6 @@
 
 ;;; Code:
 
-;; This suppresses showing the warning buffer. bibtex-completion seems to make this
-;; pop up in an irritating way when keys are missing
-(unless (boundp 'warning-suppress-types)
-  (require 'warnings))
-
-(defvar warning-suppress-types)
-(add-to-list 'warning-suppress-types '(:warning))
-
-
 (eval-when-compile
   (require 'cl-lib))
 
