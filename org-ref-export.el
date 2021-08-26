@@ -73,25 +73,37 @@
 
 
 (defcustom org-ref-csl-label-aliases
-  '((("bk" "bks") . "book")
+  '((("app" "apps") . "appendix")
+    (("art" "arts") . "article-locator")
+    (("bk" "bks") . "book")
+    (("can") . "canon")
     (("ch" "chap" "chaps" "chapt") . "chapter")
     (("col" "cols") . "column")
+    (("el") . "elocation")
+    (("eq" "eqs") . "equation")
     (("fig" "figs") . "figure")
     (("fol" "fols") . "folio")
-    (("no" "nos" "#") . "number")
+    (("iss") . "issue")
     (("l" "ll") . "line")
     (("n" "nn") . "note")
+    ;; number is not listed in the url in the docstring
+    (("no" "nos" "#") . "number")
     (("op" "opp") . "opus")
     (("p" "pp" "pg" "pgs") . "page")
     (("para" "paras" "¶" "¶¶" "§" "§§") . "paragraph")
     (("pt" "pts") . "part")
     (("sec" "secs") . "section")
     (("s.v" "s.vv") . "sub verbo")
+    (("sup" "supp") . "supplement")
+    (("tab" "tabs") . "table")
+    (("ts") . "timestamp")
+    (("ti" "tit") . "title")
     (("v" "vv") . "verse")
     (("vol" "vols") . "volume"))
   "A-list of aliases for a csl label.
 The car is a list of possible aliases (including if they end in a .
-This list was adapted from `org-cite-csl--label-alist'.")
+This list was adapted from `org-cite-csl--label-alist'.
+See https://github.com/citation-style-language/documentation/blob/master/specification.rst#locators")
 
 
 (defun org-ref-dealias-label (alias)
