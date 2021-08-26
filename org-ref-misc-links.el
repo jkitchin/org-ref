@@ -228,6 +228,7 @@ PATH is required for the org-link, but it does nothing here."
 				    ((eq format 'latex)
 				     (format "\\printindex")))))
 
+
 (provide 'org-ref-misc-links)
 
 ;;; org-ref-misc-links.el ends here

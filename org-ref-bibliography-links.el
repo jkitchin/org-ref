@@ -266,12 +266,6 @@ Optional argument BACKEND is the export backend."
 			 :export #'org-ref-bibliographystyle-export)
 
 
-
-(defhydra+ org-ref-insert-link-hydra ()
-  ("bs" (insert (org-ref-bibliographystyle-complete-link)) "Bibliographystyle" :column "Bibliography" :color blue)
-  ("bf" (insert (org-ref-bibliography-complete)) "Bibliography" :column "Bibliography" :color blue)
-  ("bn" (insert (org-ref-nobibliography-complete)) "Bibliography" :column "Bibliography" :color blue))
-
 (provide 'org-ref-bibliography-links)
 
 ;;; org-ref-bibliography-links.el ends here

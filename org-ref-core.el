@@ -257,9 +257,29 @@ provide their own version."
 (defhydra org-ref-insert-link-hydra (:color red :hint nil)
   "Insert an org-ref link
 "
-  ("c" (funcall org-ref-insert-cite-function) "Citation" :column "org-ref")
+  ("]" (funcall org-ref-insert-cite-function) "Citation" :column "org-ref")
   ("r" (funcall org-ref-insert-ref-function) "Cross-reference" :column "org-ref")
   ("l" (funcall org-ref-insert-label-function) "Label"  :column "org-ref"))
+
+
+(defhydra+ org-ref-insert-link-hydra ()
+  ("bs" (insert (org-ref-bibliographystyle-complete-link)) "Bibliographystyle" :column "Bibliography" :color blue)
+  ("bf" (insert (org-ref-bibliography-complete)) "Bibliography" :column "Bibliography" :color blue)
+  ("nb" (insert (org-ref-nobibliography-complete)) "Bibliography" :column "Bibliography" :color blue))
+
+
+(defhydra+ org-ref-insert-link-hydra ()
+  ("g" org-ref-insert-glossary-link "Glossary link" :column "Glossary" :color blue)
+  ("a" org-ref-insert-acronym-link "Acronym link" :column "Glossary" :color blue)
+  ("ng" org-ref-add-glossary-entry "New glossary term" :column "Glossary")
+  ("na" org-ref-add-acronym-entry "New acronym term" :column "Glossary"))
+
+
+(defhydra+ org-ref-insert-link-hydra (:color blue)
+  ("t" (insert "[[list-of-tables:]]\n") "List of tables" :column "Misc")
+  ("f" (insert "[[list-of-figures:]]\n") "List of figures" :column "Misc")
+  ("i" (insert (format "[[index:%s]]" (string-trim (completing-read "Index entry: ")))) "Index entry" :column "Misc")
+  ("p" (insert "[[printindex:]]") "Print index" :column "Misc"))
 
 
 ;;* org-ref-help

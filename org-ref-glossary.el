@@ -580,11 +580,6 @@ This will run in `org-export-before-parsing-hook'."
 
 ;; * Interactive command to insert entries
 
-(defhydra+ org-ref-insert-link-hydra ()
-  ("g" org-ref-insert-glossary-link "Glossary link" :column "Glossary" :color blue)
-  ("a" org-ref-insert-acronym-link "Acronym link" :column "Glossary" :color blue)
-  ("ng" org-ref-add-glossary-entry "New glossary term" :column "Glossary")
-  ("na" org-ref-add-acronym-entry "New acronym term" :column "Glossary"))
 
 ;;;###autoload
 ;; (defun org-ref-insert-glossary-link ()
