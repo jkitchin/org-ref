@@ -465,7 +465,7 @@ Use SORT to specify alphabetical order by key."
     (when sort
       ;; Sort keys alphabetically
       (setq keys (cl-sort keys 'string-lessp :key 'downcase)))
-    keys))
+    (delete-dups keys)))
 
 
 (defun org-ref-pdf-p (filename)
