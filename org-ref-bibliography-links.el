@@ -254,7 +254,10 @@ Optional argument BACKEND is the export backend."
    ((or (eq backend 'latex)
 	(eq backend 'beamer))
     ;; write out the latex bibliography command
-    (format "\\bibliographystyle{%s}" style))))
+    (format "\\bibliographystyle{%s}" style))
+   ;; No other backend needs this I think
+   (t
+    "")))
 
 (org-link-set-parameters "bibliographystyle"
 			 :complete #'org-ref-bibliographystyle-complete-link
