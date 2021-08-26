@@ -314,6 +314,7 @@ PATH has the citations in it."
 		       key-end
 		       key)
 
+		  ;; Look for a key. common pre/post notes do not have keys in them.
 		  (save-match-data
 		    (when (string-match org-ref-citation-key-re s)
 		      (setq key (match-string-no-properties 1 s)
