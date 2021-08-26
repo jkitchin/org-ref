@@ -192,14 +192,7 @@ If the cursor is on a citation key, you should see a tooltip that summarizes whi
 
 The default citation type is customizable (=org-ref-default-citation-link=), and set to "cite".
 
-Here is a list of supported citation types. See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf for the commands supported in biblatex. index:biblatex.
-
-#+BEGIN_SRC emacs-lisp
-org-ref-cite-types
-#+END_SRC
-
-#+RESULTS:
-| cite | nocite | citet | citet* | citep | citep* | citealt | citealt* | citealp | citealp* | citenum | citetext | citeauthor | citeauthor* | citeyear | citeyear* | citeyearpar | Citet | Citep | Citealt | Citealp | Citeauthor | Cite | parencite | Parencite | footcite | footcitetext | textcite | Textcite | smartcite | Smartcite | cite* | parencite* | supercite | autocite | Autocite | autocite* | Autocite* | Citeauthor* | citetitle | citetitle* | citedate | citedate* | citeurl | fullcite | footfullcite | notecite | Notecite | pnotecite | Pnotecite | fnotecite | bibentry |
+See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf for the commands supported in biblatex. index:biblatex.
 
 If the cursor is on a citation, or at the end of the citation, and you add another citation, it will be appended to the current citation.
 
@@ -423,8 +416,6 @@ Here are some examples of the pre/post note syntax for each natbib type. Not all
 - =[[Citeauthor*:See @kitchin-2015-examp page 2]]= :: [[Citeauthor*:See @kitchin-2015-examp page 2]]
 
 
-
-
 *** biblatex users  <<sec-biblatex-users>>
 
 In the latex header you specify the style and bibliography file using addbibresource. Here is an example:
@@ -467,7 +458,35 @@ org-ref-biblatex-types
 #+END_SRC
 
 #+RESULTS:
-| Cite | parencite | Parencite | footcite | footcitetext | textcite | Textcite | smartcite | Smartcite | cite* | parencite* | supercite | autocite | Autocite | autocite* | Autocite* | Citeauthor* | citetitle | citetitle* | citedate | citedate* | citeurl | fullcite | footfullcite | notecite | Notecite | pnotecite | Pnotecite | fnotecite |
+| Cite         |
+| parencite    |
+| Parencite    |
+| footcite     |
+| footcitetext |
+| textcite     |
+| Textcite     |
+| smartcite    |
+| Smartcite    |
+| cite*        |
+| parencite*   |
+| supercite    |
+| autocite     |
+| Autocite     |
+| autocite*    |
+| Autocite*    |
+| Citeauthor*  |
+| citetitle    |
+| citetitle*   |
+| citedate     |
+| citedate*    |
+| citeurl      |
+| fullcite     |
+| footfullcite |
+| notecite     |
+| Notecite     |
+| pnotecite    |
+| Pnotecite    |
+| fnotecite    |
 
 The multitype links support common pre/postnotes, and individual pre/post notes.  These are the multicite commands:
 
@@ -476,7 +495,19 @@ org-ref-biblatex-multitypes
 #+END_SRC
 
 #+RESULTS:
-| cites | Cites | parencites | Parencites | footcites | footcitetexts | smartcites | Smartcites | textcites | Textcites | supercites | autocites | Autocites |
+| cites         |
+| Cites         |
+| parencites    |
+| Parencites    |
+| footcites     |
+| footcitetexts |
+| smartcites    |
+| Smartcites    |
+| textcites     |
+| Textcites     |
+| supercites    |
+| autocites     |
+| Autocites     |
 
 
 Here is a full example. This only exports correctly in biblatex or with CSL, so I include it as an example here.
@@ -554,7 +585,38 @@ doi-utils-pdf-url-functions
 #+END_SRC
 
 #+RESULTS:
-| aps-pdf-url | science-pdf-url | nature-pdf-url | wiley-pdf-url | springer-chapter-pdf-url | springer-pdf-url | acs-pdf-url-1 | acs-pdf-url-2 | acs-pdf-url-3 | iop-pdf-url | jstor-pdf-url | aip-pdf-url | science-direct-pdf-url | linkinghub-elsevier-pdf-url | tandfonline-pdf-url | ecs-pdf-url | ecst-pdf-url | rsc-pdf-url | pnas-pdf-url | copernicus-pdf-url | sage-pdf-url | jneurosci-pdf-url | ieee-pdf-url | ieee2-pdf-url | ieee3-pdf-url | acm-pdf-url | osa-pdf-url | asme-biomechanical-pdf-url | siam-pdf-url | agu-pdf-url | plos-pdf-url | generic-full-pdf-url |
+| aps-pdf-url                 |
+| science-pdf-url             |
+| nature-pdf-url              |
+| wiley-pdf-url               |
+| springer-chapter-pdf-url    |
+| springer-pdf-url            |
+| acs-pdf-url-1               |
+| acs-pdf-url-2               |
+| acs-pdf-url-3               |
+| iop-pdf-url                 |
+| jstor-pdf-url               |
+| aip-pdf-url                 |
+| science-direct-pdf-url      |
+| linkinghub-elsevier-pdf-url |
+| tandfonline-pdf-url         |
+| ecs-pdf-url                 |
+| ecst-pdf-url                |
+| rsc-pdf-url                 |
+| pnas-pdf-url                |
+| copernicus-pdf-url          |
+| sage-pdf-url                |
+| jneurosci-pdf-url           |
+| ieee-pdf-url                |
+| ieee2-pdf-url               |
+| ieee3-pdf-url               |
+| acm-pdf-url                 |
+| osa-pdf-url                 |
+| asme-biomechanical-pdf-url  |
+| siam-pdf-url                |
+| agu-pdf-url                 |
+| plos-pdf-url                |
+| generic-full-pdf-url        |
 
 You can check if a url for the PDF can be found like this. If you get a url, you can probably download a pdf.
 
