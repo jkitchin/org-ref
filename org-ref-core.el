@@ -257,9 +257,9 @@ provide their own version."
 (defhydra org-ref-insert-link-hydra (:color red :hint nil)
   "Insert an org-ref link
 "
-  ("c" (funcall org-ref-insert-cite-function) "Citation")
-  ("r" (funcall org-ref-insert-ref-function) "Cross-reference")
-  ("l" (funcall org-ref-insert-label-function "Label")))
+  ("c" (funcall org-ref-insert-cite-function) "Citation" :column "org-ref")
+  ("r" (funcall org-ref-insert-ref-function) "Cross-reference" :column "org-ref")
+  ("l" (funcall org-ref-insert-label-function) "Label"  :column "org-ref"))
 
 
 ;;* org-ref-help
