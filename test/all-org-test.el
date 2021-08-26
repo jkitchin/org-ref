@@ -1,136 +1,136 @@
 (ert-deftest or-split-key-1 ()
-  (should
-   (equal
-    (org-ref-split-and-strip-string " key1,key2 ")
-    '("key1" "key2"))))
+(should
+(equal
+(org-ref-split-and-strip-string " key1,key2 ")
+'("key1" "key2"))))
 
 (ert-deftest or-split-key-2 ()
-  "Check if keys are split correctly"
-  (should
-   (equal
-    (org-ref-split-and-strip-string " key1 ")
-    '("key1"))))
+"Check if keys are split correctly"
+(should
+(equal
+(org-ref-split-and-strip-string " key1 ")
+'("key1"))))
 
 (ert-deftest or-key-file-p ()
-  "Check `org-ref-key-in-file-p'"
-  (should
-   (not
-    (null
-     (org-ref-key-in-file-p "kitchin-2015-examp"
-			    (expand-file-name
-			     "tests/test-1.bib"
-			     (file-name-directory (locate-library "org-ref"))))))))
+"Check `org-ref-key-in-file-p'"
+(should
+(not
+(null
+(org-ref-key-in-file-p "kitchin-2015-examp"
+(expand-file-name
+"tests/test-1.bib"
+(file-name-directory (locate-library "org-ref"))))))))
 
 (ert-deftest or-key-file-p-nil ()
-  "Check `org-ref-key-in-file-p' for non-existent key"
-  (should
-   (null
-    (org-ref-key-in-file-p "bad-key"
-			   (expand-file-name
-			    "tests/test-1.bib"
-			    (file-name-directory (locate-library "org-ref")))))))
+"Check `org-ref-key-in-file-p' for non-existent key"
+(should
+(null
+(org-ref-key-in-file-p "bad-key"
+(expand-file-name
+"tests/test-1.bib"
+(file-name-directory (locate-library "org-ref")))))))
 
 (ert-deftest swap-1 ()
-  "org swap test"
-  (should
-   (equal
-    '(b a)
-    (org-ref-swap-list-elements 0 1 '(a b)))))
+"org swap test"
+(should
+(equal
+'(b a)
+(org-ref-swap-list-elements 0 1 '(a b)))))
 
 (ert-deftest swap-2 ()
-  "org swap test"
-  (should
-   (equal
-    '(a c b)
-    (org-ref-swap-list-elements 1 2 '(a b c)))))
+"org swap test"
+(should
+(equal
+'(a c b)
+(org-ref-swap-list-elements 1 2 '(a b c)))))
 
 (ert-deftest orfb-3 ()
-  "addbibresource form of bibliography."
-  (should
-   (equal
-    (list (expand-file-name
-	   "tests/test-1.bib"
-	   (file-name-directory
-	    (locate-library "org-ref"))))
-    (mapcar 'file-truename
-	    (org-test-with-temp-text
-		(format "\\addbibresource{%s}"
-			(expand-file-name
-			 "tests/test-1.bib"
-			 (file-name-directory
-			  (locate-library "org-ref"))))
-	      (org-ref-find-bibliography))))))
+"addbibresource form of bibliography."
+(should
+(equal
+(list (expand-file-name
+"tests/test-1.bib"
+(file-name-directory
+(locate-library "org-ref"))))
+(mapcar 'file-truename
+(org-test-with-temp-text
+(format "\\addbibresource{%s}"
+(expand-file-name
+"tests/test-1.bib"
+(file-name-directory
+(locate-library "org-ref"))))
+(org-ref-find-bibliography))))))
 
 (ert-deftest orfb-3a ()
-  "multiple bibliographies addbibresource form of bibliography."
-  (should
-   (equal
-    (list (expand-file-name
-	   "tests/test-1.bib"
-	   (file-name-directory
-	    (locate-library "org-ref")))
-	  (expand-file-name
-	   "tests/test-2.bib"
-	   (file-name-directory
-	    (locate-library "org-ref"))))
-    (org-test-with-temp-text
-	(format "\\addbibresource{%s}
+"multiple bibliographies addbibresource form of bibliography."
+(should
+(equal
+(list (expand-file-name
+"tests/test-1.bib"
+(file-name-directory
+(locate-library "org-ref")))
+(expand-file-name
+"tests/test-2.bib"
+(file-name-directory
+(locate-library "org-ref"))))
+(org-test-with-temp-text
+(format "\\addbibresource{%s}
 \\addbibresource{%s}"
-		(expand-file-name
-		 "tests/test-1.bib"
-		 (file-name-directory
-		  (locate-library "org-ref")))
-		(expand-file-name
-		 "tests/test-2.bib"
-		 (file-name-directory
-		  (locate-library "org-ref"))))
-      (org-ref-find-bibliography)))))
+(expand-file-name
+"tests/test-1.bib"
+(file-name-directory
+(locate-library "org-ref")))
+(expand-file-name
+"tests/test-2.bib"
+(file-name-directory
+(locate-library "org-ref"))))
+(org-ref-find-bibliography)))))
 
 (ert-deftest unique-keys ()
-  (should
-   (equal '("kitchin-2008-alloy" "kitchin-2004-role")
-	  (org-test-with-temp-text
-	      "cite:kitchin-2008-alloy,kitchin-2004-role
+(should
+(equal '("kitchin-2008-alloy" "kitchin-2004-role")
+(org-test-with-temp-text
+"cite:kitchin-2008-alloy,kitchin-2004-role
 
 cite:kitchin-2004-role
 
 bibliography:tests/test-1.bib
 "
-	    (org-ref-get-bibtex-keys)))))
+(org-ref-get-bibtex-keys)))))
 
 (ert-deftest unique-keys-sort ()
-  (should
-   (equal '("kitchin-2004-role" "kitchin-2008-alloy")
-	  (org-test-with-temp-text
-	      "cite:kitchin-2008-alloy,kitchin-2004-role
+(should
+(equal '("kitchin-2004-role" "kitchin-2008-alloy")
+(org-test-with-temp-text
+"cite:kitchin-2008-alloy,kitchin-2004-role
 
 cite:kitchin-2004-role
 
 bibliography:tests/test-1.bib
 "
-	    (org-ref-get-bibtex-keys t)))))
+(org-ref-get-bibtex-keys t)))))
 
 (ert-deftest short-titles ()
-  (org-ref-bibtex-generate-shorttitles)
-  (prog1
-      (should
-       (file-exists-p "shorttitles.bib"))
-    (delete-file "shorttitles.bib")))
+(org-ref-bibtex-generate-shorttitles)
+(prog1
+(should
+(file-exists-p "shorttitles.bib"))
+(delete-file "shorttitles.bib")))
 
 (ert-deftest long-titles ()
-  (org-ref-bibtex-generate-longtitles)
+(org-ref-bibtex-generate-longtitles)
 
-  (prog1
-      (should
-       (file-exists-p "longtitles.bib"))
-    (delete-file "longtitles.bib")))
+(prog1
+(should
+(file-exists-p "longtitles.bib"))
+(delete-file "longtitles.bib")))
 
 (ert-deftest title-case-1 ()
-  (should
-   (string=
-    "Examples of Effective Data Sharing"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp,
+(should
+(string=
+"Examples of Effective Data Sharing"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of effective data sharing},
 journal =	 {ACS Catalysis},
@@ -143,19 +143,19 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (org-ref-title-case-article)
-      (bibtex-autokey-get-field "title")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(org-ref-title-case-article)
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest title-case-2 ()
-  (should (string=
-	   "Examples of Effective Data-Sharing"
-	   (with-temp-buffer
-	     (bibtex-mode)
-	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@article{kitchin-2015-examp,
+(should (string=
+"Examples of Effective Data-Sharing"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of effective data-sharing},
 journal =	 {ACS Catalysis},
@@ -168,17 +168,17 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-	     (goto-char (point-min))
-	     (org-ref-title-case-article)
-	     (bibtex-autokey-get-field "title")))))
+(goto-char (point-min))
+(org-ref-title-case-article)
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest title-case-3 ()
-  (should (string=
-	   "An Example of Effective Data-Sharing"
-	   (with-temp-buffer
-	     (bibtex-mode)
-	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@article{kitchin-2015-examp,
+(should (string=
+"An Example of Effective Data-Sharing"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {An example of effective data-sharing},
 journal =	 {ACS Catalysis},
@@ -191,35 +191,35 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-	     (goto-char (point-min))
-	     (org-ref-title-case-article)
-	     (bibtex-autokey-get-field "title")))))
+(goto-char (point-min))
+(org-ref-title-case-article)
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest title-case-4 ()
-  (should (string=
-	   "An Example of Effective Data-Sharing"
-	   (with-temp-buffer
-	     (bibtex-mode)
-	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@book{kitchin-2015-examp,
+(should (string=
+"An Example of Effective Data-Sharing"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@book{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {An example of effective data-sharing},
 publisher = {Awesome Publishing},
 year =	 2015,
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 }")
-	     (goto-char (point-min))
-	     (let ((org-ref-title-case-types '(("book" "title"))))
-	       (org-ref-title-case))
-	     (bibtex-autokey-get-field "title")))))
+(goto-char (point-min))
+(let ((org-ref-title-case-types '(("book" "title"))))
+(org-ref-title-case))
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest sentence-case-1 ()
-  (should (string=
-	   "Examples of effective data sharing"
-	   (with-temp-buffer
-	     (bibtex-mode)
-	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@article{kitchin-2015-examp,
+(should (string=
+"Examples of effective data sharing"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of Effective Data Sharing},
 journal =	 {ACS Catalysis},
@@ -232,17 +232,17 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-	     (goto-char (point-min))
-	     (org-ref-sentence-case-article)
-	     (bibtex-autokey-get-field "title")))))
+(goto-char (point-min))
+(org-ref-sentence-case-article)
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest sentence-case-2 ()
-  (should (string=
-	   "Effective data sharing: A study"
-	   (with-temp-buffer
-	     (bibtex-mode)
-	     (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	     (insert "@article{kitchin-2015-examp,
+(should (string=
+"Effective data sharing: A study"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Effective Data Sharing: A study},
 journal =	 {ACS Catalysis},
@@ -255,16 +255,16 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-	     (goto-char (point-min))
-	     (org-ref-sentence-case-article)
-	     (bibtex-autokey-get-field "title")))))
+(goto-char (point-min))
+(org-ref-sentence-case-article)
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest stringify ()
-  (should
-   (string=
-    "JCP"
-    (with-temp-buffer
-      (insert "@article{xu-2015-relat,
+(should
+(string=
+"JCP"
+(with-temp-buffer
+(insert "@article{xu-2015-relat,
 author =	 {Zhongnan Xu and John R. Kitchin},
 title =	 {Relationships Between the Surface Electronic and Chemical
 Properties of Doped 4d and 5d Late Transition Metal Dioxides},
@@ -278,19 +278,19 @@ doi =		 {10.1063/1.4914093},
 url =		 {http://dx.doi.org/10.1063/1.4914093},
 date_added =	 {Sat Oct 24 10:57:22 2015},
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (org-ref-stringify-journal-name)
-      (bibtex-autokey-get-field "journal")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(org-ref-stringify-journal-name)
+(bibtex-autokey-get-field "journal")))))
 
 (ert-deftest next-entry-1 ()
-  (should
-   (string=
-    "@article{xu-2015-relat,"
-    (with-temp-buffer
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (insert "@article{kitchin-2015-examp,
+(should
+(string=
+"@article{xu-2015-relat,"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of Effective Data Sharing in Scientific Publishing},
 journal =	 {ACS Catalysis},
@@ -320,18 +320,18 @@ date_added =	 {Sat Oct 24 10:57:22 2015},
 }
 
 ")
-      (goto-char (point-min))
-      (org-ref-bibtex-next-entry)
-      (buffer-substring (line-beginning-position) (line-end-position))))))
+(goto-char (point-min))
+(org-ref-bibtex-next-entry)
+(buffer-substring (line-beginning-position) (line-end-position))))))
 
 (ert-deftest prev-entry-1 ()
-  (should
-   (string=
-    "@article{kitchin-2015-examp,"
-    (with-temp-buffer
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (insert "@article{kitchin-2015-examp,
+(should
+(string=
+"@article{kitchin-2015-examp,"
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of Effective Data Sharing in Scientific Publishing},
 journal =	 {ACS Catalysis},
@@ -361,18 +361,18 @@ date_added =	 {Sat Oct 24 10:57:22 2015},
 }
 
 ")
-      (re-search-backward "xu-2015")
-      (org-ref-bibtex-previous-entry)
-      (buffer-substring (line-beginning-position) (line-end-position))))))
+(re-search-backward "xu-2015")
+(org-ref-bibtex-previous-entry)
+(buffer-substring (line-beginning-position) (line-end-position))))))
 
 (ert-deftest get-bibtex-keys ()
-  (should
-   (equal
-    '("DESC0004031" "early-career" "orgmode" "Data sharing ")
-    (with-temp-buffer
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (insert "@article{kitchin-2015-examp,
+(should
+(equal
+'("DESC0004031" "early-career" "orgmode" "Data sharing ")
+(with-temp-buffer
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of Effective Data Sharing in Scientific Publishing},
 journal =	 {ACS Catalysis},
@@ -402,14 +402,14 @@ date_added =	 {Sat Oct 24 10:57:22 2015},
 }
 
 ")
-      (org-ref-bibtex-keywords)))))
+(org-ref-bibtex-keywords)))))
 
 (ert-deftest set-bibtex-keys ()
-  (should
-   (equal
-    '("key1" "key2" "orgmode")
-    (with-temp-buffer
-      (insert "@article{xu-2015-relat,
+(should
+(equal
+'("key1" "key2" "orgmode")
+(with-temp-buffer
+(insert "@article{xu-2015-relat,
 author =	 {Zhongnan Xu and John R. Kitchin},
 title =	 {Relationships Between the Surface Electronic and Chemical
 Properties of Doped 4d and 5d Late Transition Metal Dioxides},
@@ -423,18 +423,18 @@ doi =		 {10.1063/1.4914093},
 url =		 {http://dx.doi.org/10.1063/1.4914093},
 date_added =	 {Sat Oct 24 10:57:22 2015},
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (org-ref-set-bibtex-keywords '("key1" "key2"))
-      (org-ref-bibtex-keywords)))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(org-ref-set-bibtex-keywords '("key1" "key2"))
+(org-ref-bibtex-keywords)))))
 
 (ert-deftest clean-year-1 ()
-  (should
-   (string=
-    "2015"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp,
+(should
+(string=
+"2015"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of effective data sharing},
 journal =	 {ACS Catalysis},
@@ -447,18 +447,18 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (orcb-clean-year "2015")
-      (bibtex-autokey-get-field "year")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(orcb-clean-year "2015")
+(bibtex-autokey-get-field "year")))))
 
 (ert-deftest clean-year-2 ()
-  (should
-   (string=
-    "2015"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp,
+(should
+(string=
+"2015"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of effective data sharing},
 journal =	 {ACS Catalysis},
@@ -471,18 +471,18 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (orcb-clean-year "2014")
-      (bibtex-autokey-get-field "year")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(orcb-clean-year "2014")
+(bibtex-autokey-get-field "year")))))
 
 (ert-deftest clean-& ()
-  (should
-   (string=
-    "Examples of \\& effective data sharing"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp,
+(should
+(string=
+"Examples of \\& effective data sharing"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp,
 author =	 {Kitchin, John R.},
 title =	 {Examples of & effective data sharing},
 journal =	 {ACS Catalysis},
@@ -495,18 +495,18 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (orcb-&)
-      (bibtex-autokey-get-field "title")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(orcb-&)
+(bibtex-autokey-get-field "title")))))
 
 (ert-deftest clean-comma ()
-  (should
-   (string=
-    "@article{kitchin-2015-examp,"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp
+(should
+(string=
+"@article{kitchin-2015-examp,"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp
 author =	 {Kitchin, John R.},
 title =	 {Examples of & effective data sharing},
 journal =	 {ACS Catalysis},
@@ -519,19 +519,19 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (orcb-key-comma)
-      (buffer-substring-no-properties (point-min)
-				      (line-end-position))))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(orcb-key-comma)
+(buffer-substring-no-properties (point-min)
+(line-end-position))))))
 
 (ert-deftest clean-pages-1 ()
-  (should
-   (string=
-    "123456789"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp
+(should
+(string=
+"123456789"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp
 author =	 {Kitchin, John R.},
 title =	 {Examples of & effective data sharing},
 journal =	 {ACS Catalysis},
@@ -545,18 +545,18 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (orcb-clean-pages)
-      (bibtex-autokey-get-field "pages")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(orcb-clean-pages)
+(bibtex-autokey-get-field "pages")))))
 
 (ert-deftest clean-doi-1 ()
-  (should
-   (string=
-    "10.1021/acscatal.5b00538"
-    (with-temp-buffer
-      (insert "@article{kitchin-2015-examp
+(should
+(string=
+"10.1021/acscatal.5b00538"
+(with-temp-buffer
+(insert "@article{kitchin-2015-examp
 author =	 {Kitchin, John R.},
 title =	 {Examples of & effective data sharing},
 journal =	 {ACS Catalysis},
@@ -570,17 +570,17 @@ url =		 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
-      (bibtex-mode)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (goto-char (point-min))
-      (orcb-clean-doi)
-      (bibtex-autokey-get-field "doi")))))
+(bibtex-mode)
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(goto-char (point-min))
+(orcb-clean-doi)
+(bibtex-autokey-get-field "doi")))))
 
 (ert-deftest bib-1 ()
-  "test finding an entry in a temp-buffer"
-  (should
-   (= 1 (with-temp-buffer
-	  (insert "@article{rippmann-2013-rethin,
+"test finding an entry in a temp-buffer"
+(should
+(= 1 (with-temp-buffer
+(insert "@article{rippmann-2013-rethin,
 author =	 {Matthias Rippmann and Philippe Block},
 title =	 {Rethinking Structural Masonry: Unreinforced, Stone-Cut Shells},
 journal =	 {Proceedings of the ICE - Construction Materials},
@@ -592,46 +592,46 @@ doi =		 {10.1680/coma.12.00033},
 url =		 {http://dx.doi.org/10.1680/coma.12.00033},
 date_added =	 {Mon Jun 1 09:11:23 2015},
 }")
-	  (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	  (bibtex-search-entry "rippmann-2013-rethin")))))
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(bibtex-search-entry "rippmann-2013-rethin")))))
 
 (ert-deftest bib-1a ()
-  "Test finding an entry from an existing file."
-  (should
-   (not (null
-	 (with-temp-buffer
-	   (insert-file-contents (expand-file-name
-				  "tests/test-1.bib"
-				  (file-name-directory
-				   (locate-library "org-ref"))))
-	   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	   (bibtex-search-entry "kitchin-2015-examp"))))))
+"Test finding an entry from an existing file."
+(should
+(not (null
+(with-temp-buffer
+(insert-file-contents (expand-file-name
+"tests/test-1.bib"
+(file-name-directory
+(locate-library "org-ref"))))
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(bibtex-search-entry "kitchin-2015-examp"))))))
 
 (ert-deftest bib-2 ()
-  "Test for null entry"
-  (should
-   (null (with-temp-buffer
-	   (insert-file-contents (expand-file-name
-				  "tests/test-1.bib"
-				  (file-name-directory
-				   (locate-library "org-ref"))))
-	   (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-	   (bibtex-search-entry "bad-key")))))
+"Test for null entry"
+(should
+(null (with-temp-buffer
+(insert-file-contents (expand-file-name
+"tests/test-1.bib"
+(file-name-directory
+(locate-library "org-ref"))))
+(bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
+(bibtex-search-entry "bad-key")))))
 
 (ert-deftest bad-ref ()
-  (should
-   (= 5
-      (length
-       (org-test-with-temp-text
-	   "ref:bad1  ref:bad2 eqref:bad3 pageref:bad4 nameref:bad5"
-	 (org-ref-bad-ref-candidates))))))
+(should
+(= 5
+(length
+(org-test-with-temp-text
+"ref:bad1  ref:bad2 eqref:bad3 pageref:bad4 nameref:bad5"
+(org-ref-bad-ref-candidates))))))
 
 (ert-deftest bad-file-link ()
-  (should
-   (= 5
-      (length
-       (org-test-with-temp-text
-	   "
+(should
+(= 5
+(length
+(org-test-with-temp-text
+"
 file:not.here  [[./or.here]].
 
 We should catch  \\attachfile{latex.style} too.
@@ -640,206 +640,66 @@ Why don't we catch [[attachfile:filepath]] or attachfile:some.file?
 I think they must be defined in jmax, and are unknown links if it is
 not loaded.
 "
-	 (org-add-link-type "attachfile" nil nil)
-	 (org-ref-bad-file-link-candidates))))))
-
-(ert-deftest sort-by-year ()
-  (should
-   (string= (format
-	     "cite:kitchin-2004-role,kitchin-2008-alloy
-
-bibliography:%s
-"
-	     (expand-file-name
-	      "tests/test-1.bib"
-	      (file-name-directory (locate-library "org-ref"))))
-	    (org-test-with-temp-text
-		(format
-		 "cite:kitchin-2008-alloy,kitchin-2004-role
-
-bibliography:%s
-"
-		 (expand-file-name
-		  "tests/test-1.bib"
-		  (file-name-directory (locate-library "org-ref"))))
-	      (org-ref-sort-citation-link)
-	      (buffer-string)))))
+(org-add-link-type "attachfile" nil nil)
+(org-ref-bad-file-link-candidates))))))
 
 (ert-deftest cite-export-1 ()
-  (should
-   (string=
-    "\\cite{kitchin-2008-alloy}
+(should
+(string=
+"\\cite{kitchin-2008-alloy}
 "
-    (org-export-string-as "cite:kitchin-2008-alloy" 'latex t))))
+(org-export-string-as "cite:kitchin-2008-alloy" 'latex t))))
 
 (ert-deftest cite-export-2 ()
-  (should
-   (string=
-    "\\cite[page 2]{kitchin-2008-alloy}
+(should
+(string=
+"\\cite[page 2]{kitchin-2008-alloy}
 "
-    (org-export-string-as "[[cite:page 2;@kitchin-2008-alloy]]" 'latex t))))
+(org-export-string-as "[[cite:page 2;@kitchin-2008-alloy]]" 'latex t))))
 
 (ert-deftest cite-export-3 ()
-  (should
-   (string=
-    "\\cite[page 2][post text]{kitchin-2008-alloy}
+(should
+(string=
+"\\cite[page 2][post text]{kitchin-2008-alloy}
 "
-    (org-export-string-as  "[[cite:page 2;@kitchin-2008-alloy;post text]]" 'latex t))))
+(org-export-string-as  "[[cite:page 2;@kitchin-2008-alloy;post text]]" 'latex t))))
 
 (ert-deftest label-export-1 ()
-  (should
-   (string=
-    "\\label{test}
+(should
+(string=
+"\\label{test}
 "
-    (org-export-string-as "label:test" 'latex t))))
+(org-export-string-as "label:test" 'latex t))))
 
 (ert-deftest ref-export-1 ()
 (should
- (string=
-  "\\ref{test}
+(string=
+"\\ref{test}
 "
-  (org-export-string-as "ref:test" 'latex t))))
+(org-export-string-as "ref:test" 'latex t))))
 
 (ert-deftest curly-1 ()
 (should
- (= 2
-    (org-test-with-temp-text
-	"{}"
-      (require 'org-ref-glossary)
-      (or-find-closing-curly-bracket)))))
+(= 2
+(org-test-with-temp-text
+"{}"
+(require 'org-ref-glossary)
+(or-find-closing-curly-bracket)))))
 
 (ert-deftest curly-2 ()
 (should
- (= 4
-    (org-test-with-temp-text
-	"{{}}"
-      (require 'org-ref-glossary)
-      (or-find-closing-curly-bracket)))))
+(= 4
+(org-test-with-temp-text
+"{{}}"
+(require 'org-ref-glossary)
+(or-find-closing-curly-bracket)))))
 
 (ert-deftest curly-3 ()
 (should
- (= 3
-    (org-test-with-temp-text
-	"{{}}"
-      (require 'org-ref-glossary)
-      (goto-char 2)
-      (or-find-closing-curly-bracket)))))
-
-(ert-deftest fl-next-cite ()
+(= 3
 (org-test-with-temp-text
-    "   cite:kitchin-2015-examp
+"{{}}"
+(require 'org-ref-glossary)
+(goto-char 2)
+(or-find-closing-curly-bracket)))))
 
-bibliography:tests/test-1.bib
-"
-  (goto-char (point-min))
-  (if (fboundp 'org-link-set-parameters)
-      t
-    (org-ref-match-next-cite-link nil)
-    (should
-     (= 27 (point))))))
-
-(ert-deftest cite-face-1 ()
-(org-test-with-temp-text
-    "cite:kitchin-2015-examp
-
-bibliography:tests/test-1.bib
-"
-  (unless (fboundp 'org-link-set-parameters)
-    (font-lock-add-keywords
-     nil
-     '((org-ref-match-next-cite-link (0  'org-ref-cite-face t))
-       (org-ref-match-next-label-link (0  'org-ref-label-face t))
-       (org-ref-match-next-ref-link (0  'org-ref-ref-face t))
-       (org-ref-match-next-bibliography-link (0  'org-link t))
-       (org-ref-match-next-bibliographystyle-link (0  'org-link t)))
-     t))
-  (org-mode)
-  (font-lock-fontify-region (point-min) (point-max))
-  (should (eq 'org-ref-cite-face (get-char-property 1 'face)))))
-
-(ert-deftest cite-face-2 ()
-(org-test-with-temp-text
-    "# cite:kitchin-2015-examp
-
-bibliography:tests/test-1.bib
-"
-  (unless (fboundp 'org-link-set-parameters)
-    (font-lock-add-keywords
-     nil
-     '((org-ref-match-next-cite-link (0  'org-ref-cite-face t)))
-     t))
-  (font-lock-fontify-region (point-min) (point-max))
-  (should (not (eq 'org-ref-cite-face (get-char-property 5 'face))))))
-
-(ert-deftest cite-in-comment ()
-(should
- (org-test-with-temp-text
-     "# cite:kitchin-2015-examp
-
-bibliography:tests/test-1.bib
-"
-   (font-lock-fontify-region (point-min) (point-max))
-   (eq 'font-lock-comment-face (get-char-property 10 'face)))))
-
-(ert-deftest fl-next-ref ()
-  (org-test-with-temp-text
-      "   ref:one
-"
-    (goto-char (point-min))
-    (if (fboundp 'org-link-set-parameters)
-	t
-      (org-ref-match-next-ref-link nil)
-      (should
-       (= 11 (point))))))
-
-(ert-deftest fl-next-label ()
-  (org-test-with-temp-text
-      "   label:one
-"
-    (if (fboundp 'org-link-set-parameters)
-	t
-      (goto-char (point-min))
-      (org-ref-match-next-label-link nil)
-      (should
-       (= 13 (point))))))
-
-(ert-deftest label-face ()
-  (org-test-with-temp-text
-      "label:kitchin-2015-examp
-
-bibliography:tests/test-1.bib
-"
-    (if (fboundp 'org-link-set-parameters)
-	t
-      (font-lock-add-keywords
-       nil
-       '((org-ref-match-next-label-link (0  'org-ref-label-face t)))
-       t)
-      (font-lock-fontify-region (point-min) (point-max))
-      (should (eq 'org-ref-label-face (get-char-property 2 'face))))))
-
-(ert-deftest fl-next-bib ()
-  (org-test-with-temp-text
-      "   bibliography:one
-
-stuff
-"
-    (if (fboundp 'org-link-set-parameters)
-	t
-      (goto-char (point-min))
-      (org-ref-match-next-bibliography-link nil)
-      (should
-       (= 20 (point))))))
-
-(ert-deftest fl-next-bibstyle ()
-  (org-test-with-temp-text
-      "   bibliographystyle:one
-
-cite
-"
-    (if (fboundp 'org-link-set-parameters)
-	t
-      (goto-char (point-min))
-      (org-ref-match-next-bibliographystyle-link nil)
-      (should
-       (= 25 (point))))))
