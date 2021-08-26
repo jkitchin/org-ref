@@ -691,38 +691,56 @@ checked."
 
 ;;* Getting bibtex entries from a DOI
 
-;; I
 ;; [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 ;; you can download metadata about a DOI from http://dx.doi.org. You just have
 ;; to construct the right http request to get it. Here is a function that gets
 ;; the metadata as a plist in emacs.
+;;
+;;
+(defvar doi-utils-cache nil
+  "Cache variable for storing data we can reuse.
+A-list (doi . data) where doi is doi string, and data is what is
+retrieved from it. This is transient, and disappears when you
+restart Emacs. This mostly exists to prevent
+`doi-utils-update-field' from needing to download the data for
+every field.")
+
+
+(defun doi-utils-clear-cache ()
+  "Clear `doi-utils-cache'."
+  (interactive)
+  (setq doi-utils-cache '()))
+
 
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
-  (let ((url-request-method "GET")
-        (url-mime-accept-string "application/citeproc+json")
-        (json-object-type 'plist)
-        (json-data)
-	(url (concat doi-utils-dx-doi-org-url doi)))
-    (with-current-buffer
-        (url-retrieve-synchronously
-         ;; (concat "http://dx.doi.org/" doi)
-	 url)
-      (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
-      (cond
-       ((or (string-match "<title>Error: DOI Not Found</title>" json-data)
-	    (string-match "Resource not found" json-data)
-	    (string-match "Status *406" json-data)
-	    (string-match "400 Bad Request" json-data))
-	(browse-url (concat doi-utils-dx-doi-org-url doi))
-	(error "Something went wrong.  We got this response:
+  (if-let ((data (cdr (assoc doi doi-utils-cache))))
+      ;; We have the data already, so we return it.
+      data
+    (let ((url-request-method "GET")
+          (url-mime-accept-string "application/citeproc+json")
+          (json-object-type 'plist)
+          (json-data)
+	  (url (concat doi-utils-dx-doi-org-url doi)))
+      (with-current-buffer
+          (url-retrieve-synchronously
+           ;; (concat "http://dx.doi.org/" doi)
+	   url)
+	(setq json-data (buffer-substring url-http-end-of-headers (point-max)))
+
+	(when (or (string-match "<title>Error: DOI Not Found</title>" json-data)
+		  (string-match "Resource not found" json-data)
+		  (string-match "Status *406" json-data)
+		  (string-match "400 Bad Request" json-data))
+	  (browse-url (concat doi-utils-dx-doi-org-url doi))
+	  (error "Something went wrong.  We got this response:
 %s
 
 Opening %s" json-data url))
 
-       ;; everything seems ok with the data
-       (t
-	(json-read-from-string json-data))))))
+	(setq data (json-read-from-string json-data))
+	(cl-pushnew (cons doi data) doi-utils-cache)
+	data))))
 
 
 (defun doi-utils-get-json-metadata-curl (doi)
