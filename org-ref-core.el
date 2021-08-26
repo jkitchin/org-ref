@@ -300,8 +300,6 @@ provide their own version."
      ["Extract bibtex entries" org-ref-extract-bibtex-entries]
      ["Check org-file" org-ref]
      "--"
-     ["Change completion backend" org-ref-change-completion]
-     "--"
      ["Help" org-ref-help]
      ["Customize org-ref" (customize-group 'org-ref)])
    "Show/Hide")
