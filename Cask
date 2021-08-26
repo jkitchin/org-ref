@@ -11,4 +11,5 @@
  (depends-on "ert-runner")
  (depends-on "el-mock")
  (depends-on "parsebib")
- (depends-on "undercover"))
+ (depends-on "undercover")
+ (depends-on "citeproc")
