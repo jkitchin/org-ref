@@ -395,9 +395,9 @@ PATH has the citations in it."
   ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
 
   ;; Navigation
-  ("[" org-ref-previous-key "Previous key" :column "Navigation")
-  ("]"  org-ref-next-key "Next key" :column "Navigation")
-  ("v" org-ref-jump-to-visible-key "Visible key" :column "Navigation")
+  ("[" org-ref-previous-key "Previous key" :column "Navigation" :color red)
+  ("]"  org-ref-next-key "Next key" :column "Navigation" :color red)
+  ("v" org-ref-jump-to-visible-key "Visible key" :column "Navigation" :color red)
   ("q" nil "Quit"))
 
 
@@ -407,12 +407,26 @@ PATH has the citations in it."
 
 ;; * Citation links tooltips
 
+;; (defun org-ref-cite-tooltip (_win _obj position)
+;;   "Get a tooltip for the cite at POSITION."
+;;   (let ((key (get-text-property position 'cite-key)))
+;;     (when key
+;;       (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+;; 	(bibtex-completion-apa-format-reference key)))))
+
 (defun org-ref-cite-tooltip (_win _obj position)
   "Get a tooltip for the cite at POSITION."
   (let ((key (get-text-property position 'cite-key)))
     (when key
-      (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-	(bibtex-completion-apa-format-reference key)))))
+      (let ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	    (has-pdf (when (bibtex-completion-find-pdf key) bibtex-completion-pdf-symbol))
+	    (has-notes (when (cl-some #'identity
+				      (mapcar (lambda (fn)
+						(funcall fn key))
+					      bibtex-completion-find-note-functions))
+			 bibtex-completion-notes-symbol)))
+	(format "%s%s %s" (or has-pdf "") (or has-notes "")
+		(bibtex-completion-apa-format-reference key))))))
 
 
 ;; * Exporting citation links
@@ -685,8 +699,29 @@ Use with apply-partially."
 
 
 (defun org-ref-get-bibtex-key-under-cursor ()
-  "Return key under the cursor in org-mode."
-  (get-text-property (point) 'cite-key))
+  "Return key under the cursor in org-mode.
+If not on a key, but on a cite, prompt for key."
+  (if-let ((key (get-text-property (point) 'cite-key)))
+      key
+    (let ((el (org-element-context))
+	  data
+	  keys)
+      (when (and
+	     (eq (org-element-type el) 'link)
+	     (member (org-element-property :type el) org-ref-cite-types))
+	(goto-char (org-element-property :begin el))
+	(setq data (org-ref-parse-cite-path (org-element-property :path el))
+	      keys (cl-loop for ref in (plist-get data :references) collect (plist-get ref :key)))
+	(cond
+	 ((= 1 (length keys))
+	  (search-forward (car keys))
+	  (goto-char (match-beginning 0)))
+	 ;; multiple keys
+	 (t
+	  (setq key (completing-read "Key: " keys))
+	  (search-forward key)
+	  (goto-char (match-beginning 0))))
+	(get-text-property (point) 'cite-key)))))
 
 
 ;; ** Shift-arrow sorting of keys in a cite link
@@ -827,9 +862,7 @@ move to the beginning of the previous cite link after this one."
 			       (cons (bibtex-completion-format-entry entry (1- (frame-width)))
 				     (cdr entry)))
 			     (bibtex-completion-candidates)))
-	 (choice (minibuffer-with-setup-hook
-		     #'minibuffer-completion-help
-		   (completing-read "BibTeX entries: " candidates))))
+	 (choice (completing-read "BibTeX entries: " candidates)))
     (cdr (assoc "=key=" (assoc choice candidates)))))
 
 
