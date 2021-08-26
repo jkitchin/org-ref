@@ -691,7 +691,7 @@ bibliography:%s
    (string=
     "\\label{test}
 "
-    (org-export-string-as "label:test" 'latex t)))))
+    (org-export-string-as "label:test" 'latex t))))
 
 (ert-deftest ref-export-1 ()
 (should

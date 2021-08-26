@@ -1540,7 +1540,7 @@ bibliography:%s
    (string=
     "\\label{test}
 "
-    (org-export-string-as "label:test" 'latex t))))
+    (org-export-string-as "label:test" 'latex t)))
 #+END_SRC
 
 #+RESULTS: label-export-1
