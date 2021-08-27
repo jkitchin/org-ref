@@ -123,10 +123,10 @@ actually done in oc-csl too, although it uses a flat a-list."
 
 (defun org-ref-get-cite-links ()
   "Return list of cite links in the order they appear in the buffer."
-  (reverse (org-element-map (org-element-parse-buffer) 'link
-	     (lambda (lnk)
-	       (when (member (org-element-property :type lnk) org-ref-cite-types)
-		 lnk)))))
+  (org-element-map (org-element-parse-buffer) 'link
+    (lambda (lnk)
+      (when (member (org-element-property :type lnk) org-ref-cite-types)
+	lnk))))
 
 
 (defun org-ref-ref-csl-data (ref type)
