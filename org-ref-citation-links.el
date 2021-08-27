@@ -255,19 +255,27 @@ which means we need to re-compute the valid-keys.")
   "Buffer-local variable for current valid keys.
 This is used to cache the valid keys.")
 
+(defun org-ref-clear-cache ()
+  (interactive)
+  (setq-local org-ref-buffer-local-bib nil
+	      org-ref-buffer-local-valid-keys nil))
 
 (defun org-ref-valid-keys ()
   "Return a list of valid bibtex keys for this buffer.
 This is used a lot in `org-ref-cite-activate' so we try to cache
 it as a local variable, but also detect when the cache is
 invalid, e.g. if you change the bibliographies."
-  (let ((current-bib (org-ref-find-bibliography)))
-    (if (equal current-bib org-ref-buffer-local-bib)
+  (let ((current-bib (cl-loop for bibfile in (org-ref-find-bibliography)
+			      collect
+			      (cons bibfile
+				    (file-attribute-modification-time (file-attributes bibfile))))))
+    (if (and org-ref-buffer-local-valid-keys (equal current-bib org-ref-buffer-local-bib))
 	org-ref-buffer-local-valid-keys
       (setq-local
        org-ref-buffer-local-bib current-bib
        org-ref-buffer-local-valid-keys
-       (let ((bibtex-completion-bibliography current-bib))
+       (let ((bibtex-completion-bibliography (mapcar 'car current-bib)))
+	 (bibtex-completion-init)
 	 (cl-loop for entry in (bibtex-completion-candidates)
 		  collect (cdr (assoc "=key=" (cdr entry)))))))))
 
