@@ -50,30 +50,28 @@
 (defun org-ref-cite-insert-ivy ()
   "Function for inserting a citation."
   (interactive)
+
   (ivy-set-actions
-   'org-ref-cite-insert
+   'org-ref-cite-insert-ivy
    org-ref-citation-alternate-insert-actions)
 
-  (ivy-set-display-transformer
-   'org-ref-cite-insert 'ivy-bibtex-display-transformer)
+  (unless bibtex-completion-display-formats-internal
+    (bibtex-completion-init))
 
-  (bibtex-completion-init)
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (candidates (bibtex-completion-candidates))
+	 (candidates (if org-ref-buffer-local-candidates
+			 org-ref-buffer-local-candidates
+		       ;; trigger cached variables
+		       (org-ref-valid-keys)
+		       org-ref-buffer-local-candidates))
 	 (choice (ivy-read "BibTeX entries: " candidates
-			   :caller 'org-ref-cite-insert
-			   ;; Marking candidates seems to make things freeze up
-			   :multi-action (lambda (candidates)
-					   (org-ref-insert-cite-keys
-					    (cl-loop for candidate in candidates collect
-						     (cdr (assoc "=key=" (cdr candidate))))))
+			   :preselect (ivy-thing-at-point)
 			   :action '(1
 				     ("o" (lambda (candidate)
-					    (org-ref-insert-cite-key (cdr (assoc "=key="
-										 (cdr candidate)))))
+					    (org-ref-insert-cite-key
+					     (cdr (assoc "=key=" (cdr candidate)))))
 				      "insert")
 				     ("r" (lambda (candidate)
-
 					    (let* ((object (org-element-context))
 						   (type (org-element-property :type object))
 						   (begin (org-element-property :begin object))
@@ -103,12 +101,13 @@
 						    (re-search-forward link-string)
 						    (replace-match (org-ref-interpret-cite-data data)))
 						  (goto-char cp)))))
-				      "Replace key at point")))))))
+				      "Replace key at point"))
+			   :caller 'org-ref-cite-insert-ivy)))))
 
 
 (setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
       org-ref-insert-cite-function 'org-ref-cite-insert-ivy
-      org-ref-insert-label-function nil
+      org-ref-insert-label-function 'org-ref-insert-label-link
       org-ref-insert-ref-function 'org-ref-insert-ref-link
       org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
 

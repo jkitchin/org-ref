@@ -255,10 +255,14 @@ which means we need to re-compute the valid-keys.")
   "Buffer-local variable for current valid keys.
 This is used to cache the valid keys.")
 
+(defvar-local org-ref-buffer-local-candidates nil
+  "Buffer-local variable to store completion candidates.")
+
 (defun org-ref-clear-cache ()
   (interactive)
   (setq-local org-ref-buffer-local-bib nil
-	      org-ref-buffer-local-valid-keys nil))
+	      org-ref-buffer-local-valid-keys nil
+	      org-ref-buffer-local-candidates nil))
 
 (defun org-ref-valid-keys ()
   "Return a list of valid bibtex keys for this buffer.
@@ -268,16 +272,28 @@ invalid, e.g. if you change the bibliographies."
   (let ((current-bib (cl-loop for bibfile in (org-ref-find-bibliography)
 			      collect
 			      (cons bibfile
-				    (file-attribute-modification-time (file-attributes bibfile))))))
-    (if (and org-ref-buffer-local-valid-keys (equal current-bib org-ref-buffer-local-bib))
+				    (file-attribute-modification-time (file-attributes bibfile)))))
+	valid-keys local-candidates)
+    (if (and org-ref-buffer-local-valid-keys
+	     org-ref-buffer-local-candidates
+	     (equal current-bib org-ref-buffer-local-bib))
 	org-ref-buffer-local-valid-keys
+      ;; Not up to date
       (setq-local
        org-ref-buffer-local-bib current-bib
-       org-ref-buffer-local-valid-keys
-       (let ((bibtex-completion-bibliography (mapcar 'car current-bib)))
-	 (bibtex-completion-init)
-	 (cl-loop for entry in (bibtex-completion-candidates)
-		  collect (cdr (assoc "=key=" (cdr entry)))))))))
+       org-ref-buffer-local-valid-keys nil
+       org-ref-buffer-local-candidates nil)
+
+      (let ((bibtex-completion-bibliography (mapcar 'car current-bib)))
+	(bibtex-completion-init)
+	(cl-loop for entry in (bibtex-completion-candidates)
+		 do
+		 (push (cdr (assoc "=key=" (cdr entry))) valid-keys)
+		 (push (cons (bibtex-completion-format-entry entry (1- (frame-width)))
+			     (cdr entry))
+		       local-candidates)))
+      (setq-local org-ref-buffer-local-candidates (reverse local-candidates)
+		  org-ref-buffer-local-valid-keys valid-keys))))
 
 
 (defun org-ref-cite-activate (start end path _bracketp)
