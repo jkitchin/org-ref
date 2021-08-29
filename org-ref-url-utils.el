@@ -21,6 +21,9 @@
 ;;; Commentary:
 
 ;; Drag a webpage onto a bibtex file to insert a bibtex entry.
+;;
+;; [2021-08-29 Sun] I have not found drag-and-drop reliable or convenient. I
+;; don't recommend using this, but I am also not deleting it (yet).
 
 ;; This works by scraping DOIs from the content at the URL using patterns in
 ;; `org-ref-doi-regexps'. If one DOI is found, it is added as an entry. If
