@@ -287,6 +287,15 @@ must return a pdf-url, or nil.")
       (format "http://scitation.aip.org/deliver/fulltext/%s.pdf?itemId=/%s&mimeType=pdf&containerItemId=%s"
               p1 p2 p3))))
 
+(defun aip-pdf-url-2 (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  ;; [2021-08-28 Sat] Seems like they changed the link a little?
+  ;; https://aip.scitation.org/doi/10.1063/1.5019667
+  ;; to
+  ;; https://aip.scitation.org/doi/pdf/10.1063/1.5019667
+  (when (string-match "^http\\(s?\\)://aip.scitation.org" *doi-utils-redirect*)
+    (concat "https://aip.scitation.org/doi/pdf" (cl-second (split-string *doi-utils-redirect* "doi")))))
+
 ;;** Taylor and Francis
 
 (defun tandfonline-pdf-url (*doi-utils-redirect*)
@@ -590,6 +599,7 @@ It would be better to parse this, but here I just use a regexp.
        'iop-pdf-url
        'jstor-pdf-url
        'aip-pdf-url
+       'aip-pdf-url-2
        'science-direct-pdf-url
        'linkinghub-elsevier-pdf-url
        'tandfonline-pdf-url
