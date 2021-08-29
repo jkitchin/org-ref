@@ -7,10 +7,6 @@
 # this must be a locales file in `org-cite-csl-locales-dir'. Defaults to en-US
 #+csl-locale: en-US
 
-#+BEGIN_SRC emacs-lisp
-(setq org-cite-csl-styles-dir "/Users/jkitchin/Dropbox/emacs/journal/2021/08/20"
-      org-cite-csl-locales-dir "/Users/jkitchin/Dropbox/emacs/journal/2021/08/20/")
-#+END_SRC
 
 [[elisp:(org-ref-export-to-html)]]
 
