@@ -1140,13 +1140,10 @@ Optional argument NODELIM see `bibtex-make-field'."
       (insert value))))
 
 
-;; The updating function for a whole entry looks like this. We get all the keys
-;; from the json plist metadata, and update the fields if they exist.
-
-
 (defun plist-get-keys (plist)
   "Return keys in a PLIST."
   (-slice plist 0 nil 2))
+
 
 ;;;###autoload
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
@@ -1345,49 +1342,23 @@ May be empty if none are found."
     (url-hexify-string doi))))
 
 
-(defvar doi-link-menu-funcs '()
-  "Functions to run in doi menu.
-Each entry is a list of (key menu-name function).  The function
-must take one argument, the doi.")
+(defhydra doi-link-follow (:color blue :hint nil)
+  "DOI actions:
+"
+  ("o" (doi-utils-open (org-element-property :path (org-element-context))) "open")
+  ("w" (doi-utils-wos (org-element-property :path (org-element-context))) "wos")
+  ("c" (doi-utils-wos-citing (org-element-property :path (org-element-context))) "wos citing articles")
+  ("r" (doi-utils-wos-related (org-element-property :path (org-element-context))) "wos related articles" )
+  ("a" (doi-utils-ads (org-element-property :path (org-element-context))) "ads")
+  ("s" (doi-utils-google-scholar (org-element-property :path (org-element-context))) "Google Scholar")
+  ("f" (doi-utils-crossref (org-element-property :path (org-element-context))) "CrossRef")
+  ("p" (doi-utils-pubmed (org-element-property :path (org-element-context))) "Pubmed")
+  ("b" (doi-utils-open-bibtex (org-element-property :path (org-element-context))) "open in bibtex")
+  ("g" (doi-utils-add-bibtex-entry-from-doi (org-element-property :path (org-element-context))) "get bibtex entry"))
 
-(setq doi-link-menu-funcs
-      '(("o" "pen" doi-utils-open)
-        ("w" "os" doi-utils-wos)
-        ("c" "iting articles" doi-utils-wos-citing)
-        ("r" "elated articles" doi-utils-wos-related)
-        ("a" "ds" doi-utils-ads)
-        ("s" "Google Scholar" doi-utils-google-scholar)
-        ("f" "CrossRef" doi-utils-crossref)
-        ("p" "ubmed" doi-utils-pubmed)
-        ("b" "open in bibtex" doi-utils-open-bibtex)
-        ("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
-
-
-;;;###autoload
-(defun doi-link-menu (link-string)
-  "Generate the link menu message, get choice and execute it.
-Options are stored in `doi-link-menu-funcs'.
-Argument LINK-STRING Passed in on link click."
-  (interactive)
-  (message
-   (concat
-    (mapconcat
-     (lambda (tup)
-       (concat "[" (elt tup 0) "]"
-               (elt tup 1) " "))
-     doi-link-menu-funcs "") ": "))
-  (let* ((input (read-char-exclusive))
-         (choice (assoc
-                  (char-to-string input) doi-link-menu-funcs)))
-    (when choice
-      (funcall
-       (elt
-        choice
-        2)
-       link-string))))
 
 (org-link-set-parameters "doi"
-			 :follow #'doi-link-menu
+			 :follow (lambda (_) (doi-link-follow/body))
 			 :export (lambda (doi desc format)
 				   (cond
 				    ((eq format 'html)
