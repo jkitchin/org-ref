@@ -50,6 +50,8 @@ cover any math (yet)."
 					    ("doi" . "%s")
 					    ("url" . "%s")
 					    ("citename" . "%s")
+					    ;; natexlab seems to be for differentiating similar authors.
+					    ("natexlab" . "(%s)")
 					    ;; I use \ce{} a lot, and just strip it here.
 					    ("ce" . "%s"))
 	       do
@@ -197,11 +199,15 @@ Returns a plist (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 		 (setq p1 (point))
 		 (forward-list)
 		 (setq p2 (point))
-		 ;; the bracket contains [stuff (year) more stuff]
+		 ;; the bracket usually contains [stuff (year) more stuff]
 		 (setq ss (org-bbl-clean-string
 			   (buffer-substring-no-properties p1 p2)))
-		 (string-match "\\[\\(?1:.*\\)(\\(?2:[0-9]*\\))\\(.*\\)\\]" ss)
-		 (setq bibitem-bracket (format "%s [%s]" (match-string 1 ss) (match-string 2 ss)))
+
+		 (let* ((s (string-match "(" ss))
+			(e (string-match ")" ss s)))
+		   (setq bibitem-bracket (format "%s [%s]"
+						 (substring ss 0 s)
+						 (substring ss s e))))
 
 		 ;; Now get the key. From the last
 		 (search-forward "{")
@@ -233,8 +239,13 @@ Returns a plist (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 
 	(setq ss (org-bbl-clean-string
 		  (buffer-substring-no-properties p1 p2)))
-	(string-match "\\(?1:.*\\)(\\(?2:[0-9]*\\))\\(.*\\)" ss)
-	(setq bibitem-bracket (format "%s [%s]" (match-string 1 ss) (match-string 2 ss)))
+
+	(let* ((s (string-match "(" ss))
+	       (e (string-match ")" ss s)))
+	  (setq bibitem-bracket (format "%s [%s]"
+					(substring ss 0 s)
+					(substring ss s (+ e 1)))))
+
 
 	;; Now get the key. From the last
 	(search-forward "{")
