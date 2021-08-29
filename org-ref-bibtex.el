@@ -585,8 +585,7 @@ all the title entries in articles."
           (setq start (match-end 1))))
 
       ;; this is defined in doi-utils
-      (bibtex-set-field
-       "title" title)
+      (bibtex-set-field "title" title)
 
       ;; clean and refill entry so it looks nice
       (bibtex-clean-entry)
@@ -623,6 +622,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
   (when
       (re-search-backward bibtex-entry-head nil t (and (numberp n) n))
     (bibtex-beginning-of-entry)))
+
 
 ;;;###autoload
 (defun org-ref-bibtex-visible-entry ()
@@ -748,6 +748,7 @@ calls functions with a DOI argument."
   (interactive)
   (org-ref-open-bibtex-pdf))
 
+
 (defun org-ref-bibtex-get-file-move-func (prefix)
   "Determine whether to use `rename-file' or `copy-file' for `org-ref-bibtex-assoc-pdf-with-entry'.
 When called with a PREFIX argument,
@@ -760,6 +761,7 @@ opposite function from that which is defined in
     (if (eq org-ref-bibtex-assoc-pdf-with-entry-move-function 'rename-file)
 	'copy-file
       'rename-file)))
+
 
 ;;;###autoload
 (defun org-ref-bibtex-assoc-pdf-with-entry (&optional prefix)
@@ -1378,15 +1380,26 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 	    org-ref-clean-bibtex-entry-hook))))
 
 
+;; * Missing functions in bibtex-completion
+;; I couldn't find these, and they seem useful.
+
+(defun org-ref-bibtex-get-entry (key)
+  "Return a parsed bibtex entry."
+  (save-window-excursion
+    (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+      (bibtex-completion-show-entry (list key))
+      (bibtex-beginning-of-entry)
+      (bibtex-parse-entry))))
+
+
+(defun org-ref-bibtex-get-entry-value (key field)
+  "For the entry associated with KEY get the FIELD value."
+  (cdr (assoc field (org-ref-bibtex-get-entry key))))
+
+
 (defun org-ref-get-citation-year (key)
   "Get the year of an entry with KEY.  Return year as a string."
-  (let* ((results (org-ref-get-bibtex-key-and-file key))
-         (bibfile (cdr results)))
-    (with-temp-buffer
-      (insert-file-contents bibfile)
-      (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-      (bibtex-search-entry key nil 0)
-      (prog1 (reftex-get-bib-field "year" (bibtex-parse-entry t))))))
+  (org-ref-bibtex-get-entry-value key "year"))
 
 
 ;;* The end
