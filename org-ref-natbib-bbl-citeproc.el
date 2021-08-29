@@ -205,9 +205,13 @@ Returns a plist (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 
 		 (let* ((s (string-match "(" ss))
 			(e (string-match ")" ss s)))
-		   (setq bibitem-bracket (format "%s [%s]"
+		   ;; in numerical mode I think this is ignored, but we get it
+		   ;; just in case for some later day.
+		   (setq bibitem-bracket (format "%s%s"
 						 (substring ss 0 s)
-						 (substring ss s e))))
+						 (if (string= "()" (substring ss s (+ e 1)))
+						     ""
+						   (concat " " (substring ss s (+ e 1)))))))
 
 		 ;; Now get the key. From the last
 		 (search-forward "{")
@@ -228,7 +232,7 @@ Returns a plist (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 		 (cl-pushnew (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 				   :index i :bracket-data bibitem-bracket)
 			     data))
-      ;; no number found
+      ;; no number found probably author year
       (while (search-forward "\\bibitem[" nil t)
 	(cl-incf counter)
 	;; get text in [...]
@@ -242,9 +246,12 @@ Returns a plist (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 
 	(let* ((s (string-match "(" ss))
 	       (e (string-match ")" ss s)))
-	  (setq bibitem-bracket (format "%s [%s]"
+
+	  (setq bibitem-bracket (format "%s%s"
 					(substring ss 0 s)
-					(substring ss s (+ e 1)))))
+					(if (string= "()" (substring ss s (+ e 1)))
+					    ""
+					  (concat " " (substring ss s (+ e 1)))))))
 
 
 	;; Now get the key. From the last
