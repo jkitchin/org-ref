@@ -199,28 +199,13 @@ set in `bibtex-completion-bibliography'"
 (defun org-ref-get-bibtex-key-and-file (&optional key)
   "Return a  a cons cell of (KEY . file) that KEY is in.
 If no key is provided, get one under point."
-  (let ((org-ref-bibliography-files (org-ref-find-bibliography))
-        (file))
-    (unless key
-      (setq key (org-ref-get-bibtex-key-under-cursor)))
-    (setq file (cl-loop for bib-file in org-ref-bibliography-files
-			when (let* ((key "schuett-2018-schnet")
-				    (buf (or (get-file-buffer bib-file)
-					     (find-buffer-visiting bib-file)))
-				    (found (with-current-buffer (find-file-noselect bib-file)
-					     (widen)
-					     (goto-char (point-min))
-					     (prog1
-						 (re-search-forward
-						  (concat "^@\\(" parsebib--bibtex-identifier
-							  "\\)[[:space:]]*[\(\{][[:space:]]*"
-							  (regexp-quote key) "[[:space:]]*,")
-						  nil t)
-					       (unless buf
-						 (kill-buffer))))))
-			       found)
-			return bib-file))
-    (cons key (when (stringp file) (substring-no-properties file)))))
+  (unless key
+    (setq key (org-ref-get-bibtex-key-under-cursor)))
+
+  (cons key (save-window-excursion
+	      (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+		(bibtex-completion-show-entry (list key))
+		(buffer-file-name)))))
 
 
 ;; * Insert link functions
