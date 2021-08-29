@@ -107,6 +107,11 @@ fails with a proxy. An alternative is
 program to use curl.")
 
 
+(defcustom doi-utils-async-download t
+  "Use `doi-utils-async-download-pdf' to get pdfs asynchrounously.
+If non-nil use `doi-utils-get-bibtex-entry-pdf' synchronously.")
+
+
 ;;* Getting pdf files from a DOI
 
 ;; The idea here is simple. When you visit http://dx.doi.org/doi or
@@ -638,6 +643,67 @@ until one is found."
           (throw 'pdf-url this-pdf-url))))))
 
 ;;** Finally, download the pdf
+;;;###autoload
+(defun doi-utils-async-download-pdf ()
+  "Download the PDF for bibtex entry at point asynchronously.
+It is not fully async, only the download is. Fully async is
+harder because you need to run `doi-utils-get-pdf-url' async
+too. "
+  (interactive)
+  (require 'async)
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let (;; get doi, removing http://dx.doi.org/ if it is there.
+          (doi (replace-regexp-in-string
+                "https?://\\(dx.\\)?.doi.org/" ""
+                (bibtex-autokey-get-field "doi")))
+          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
+          (pdf-url)
+          (pdf-file))
+
+      (setq pdf-file
+	    (concat (cond
+		     ((stringp bibtex-completion-library-path)
+		      bibtex-completion-library-path)
+		     ((= 1 (length bibtex-completion-library-path))
+		      (car bibtex-completion-library-path))
+		     (t
+		      (completing-read "Dir: " bibtex-completion-library-path)))
+		    key ".pdf"))
+
+      (unless doi (error "No DOI found to get a pdf for"))
+
+      (when (file-exists-p pdf-file)
+	(error "%s already exists. Delete to re-download" pdf-file))
+
+      ;; (doi-utils-get-pdf-url "10.1063/1.5019667")
+      ;; If you get here, try getting the pdf file
+      (async-start
+       `(lambda ()
+	  (setq package-user-dir ,package-user-dir)
+	  (require 'package)
+	  (package-initialize)
+	  (add-to-list 'load-path ,(file-name-directory (locate-library "doi-utils")))
+	  (require 'doi-utils)
+	  ;; (load-file ,(locate-library "doi-utils"))
+	  (setq pdf-url (doi-utils-get-pdf-url ,doi))
+
+	  (url-copy-file pdf-url ,pdf-file t)
+
+	  (let* ((header (with-temp-buffer
+			   (set-buffer-multibyte nil)
+			   (insert-file-contents-literally ,pdf-file nil 0 5)
+			   (buffer-string)))
+		 (valid (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
+	    (if valid
+		(format "%s downloaded" ,pdf-file)
+	      (delete-file ,pdf-file)
+	      (require 'browse-url)
+	      (browse-url ,pdf-url)
+	      (message "Invalid pdf (file deleted). Header = %s" header))))
+       `(lambda (result)
+	  (message "doi-utils-async-download-pdf: %s"  result))))))
+
 
 ;;;###autoload
 (defun doi-utils-get-bibtex-entry-pdf (&optional arg)
@@ -658,7 +724,7 @@ checked."
   (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
-    (let ( ;; get doi, removing http://dx.doi.org/ if it is there.
+    (let (;; get doi, removing http://dx.doi.org/ if it is there.
           (doi (replace-regexp-in-string
                 "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
@@ -937,7 +1003,9 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
 
   ;; try to get pdf
   (when doi-utils-download-pdf
-    (doi-utils-get-bibtex-entry-pdf)))
+    (if doi-utils-async-download
+	(doi-utils-async-download-pdf)
+      (doi-utils-get-bibtex-entry-pdf))))
 
 
 ;;;###autoload
