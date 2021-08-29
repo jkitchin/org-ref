@@ -21,13 +21,12 @@
 ;; and [comma, semicolon; colon] for citation separators
 ;; and [sort, compress, sort&compress] if you want to sort and/or compress citation numbers.
 ;;
-;; longnamesfirst is not currenlty supported.
+;; longnamesfirst is not currently supported.
 ;;
 ;; To use this for HTML export you do something like this:
 ;; (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
 ;;   (org-open-file (org-html-export-to-html)))
 ;;
-;; Known issues: The keys used for authoryear are not great. I don't know how these are generated
 ;;
 ;;; Code:
 
