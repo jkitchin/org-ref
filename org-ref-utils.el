@@ -292,18 +292,16 @@ Can also be called with THEKEY in a program."
   (interactive)
   (when (null thekey)
     (setq thekey (org-ref-get-bibtex-key-under-cursor)))
-  (bibtex-completion-edit-notes (list thekey)))
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (bibtex-completion-edit-notes (list thekey))))
 
 
 ;;;###autoload
 (defun org-ref-open-citation-at-point ()
   "Open bibtex file to key at point."
   (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-         (bibfile (cdr results)))
-    (find-file bibfile)
-    (bibtex-search-entry key)))
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))))
 
 
 ;;*** cite menu
