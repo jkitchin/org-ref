@@ -1,0 +1,37 @@
+#+latex_class: article-no-defaults
+#+latex_header: \usepackage[super, sort&compress]{natbib}
+#+latex_header: \usepackage{natmove}
+#+latex_header: \usepackage[version=3]{mhchem}
+
+
+A single key [[cite:@boes-2016-neural-networ]].
+
+another single [[cite:@boes-2017-neural-networ]]
+
+Two keys [[cite:@boes-2016-neural-networ;@boes-2017-neural-networ]].
+
+Three keys [[cite:@boes-2016-neural-networ;@xu-2017-first-princ;@boes-2017-neural-networ]] that should be merged.
+
+Four keys, with last three merged [[cite:@boes-2016-neural-networ;@xu-2017-first-princ;@boes-2017-model-segreg;@geng-2017-first-princ]].
+
+A book [[cite:@Dominik201408]].
+
+Misc entry cite:@jkitchin76:online.
+
+bibliographystyle:unsrtnat
+[[bibliography:../org-ref.bib]]
+
+* build :noexport:
+#+BEGIN_SRC emacs-lisp :exports none
+(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
+  (org-open-file (org-html-export-to-html)))
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC emacs-lisp
+(cl-loop for ext in '("aux" "fdb_latexmk" "html" "md" "tex" "dvi" "log" "pdf" "run.xml" "fls"
+			"blg" "ilg" "ind" "xml" "bbl" "bcf" "out" "odt" "odf" "txt" "toc" "lof" "lot")
+	   do (shell-command (format "rm -f *%s" ext)))
+#+END_SRC
