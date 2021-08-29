@@ -1,6 +1,6 @@
 ;;; org-ref-utils.el --- Utility functions for org-ref  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016  John Kitchin
+;; Copyright (C) 2016-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
@@ -26,7 +26,6 @@
   (require 'cl-lib))
 
 (require 'org)
-(require 'org-ref-pdf)  		; for pdftotext-executable
 
 (require 'reftex-cite)
 
@@ -95,6 +94,7 @@ Opens https://github.com/jkitchin/org-ref/issues/new."
 
 
 ;;* Debug
+;; this is just for me to have a nicer debug statement.
 (defmacro ords (&rest body)
   "Evaluate BODY and return a string."
   `(format "%s" (progn ,@body)))
@@ -158,20 +158,6 @@ ${org-latex-pdf-process}
 	       ("org-ref-url-p" . ,(ords (featurep 'org-ref-url)))))))
 
 
-
-(defun org-ref-reftex-get-bib-field (field entry &optional format)
-  "Get FIELD from a bibtex ENTRY in optional FORMAT.
-Similar to `reftex-get-bib-field', but removes enclosing braces
-and quotes in FIELD in the bibtex ENTRY."
-  (let ((result))
-    (setq result (reftex-get-bib-field field entry format))
-    (when (and (not (string= result "")) (string= "{" (substring result 0 1)))
-      (setq result (substring result 1 -1)))
-    (when (and (not (string= result "")) (string= "\"" (substring result 0 1)))
-      (setq result (substring result 1 -1)))
-    result))
-
-
 (defun org-ref-get-bibtex-entry-citation (key)
   "Return a string for the bibliography entry corresponding to KEY."
   (bibtex-completion-apa-format-reference key))
@@ -214,7 +200,7 @@ Argument KEY is the bibtex key."
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
       (setq entry (bibtex-parse-entry))
-      (let ((e (org-ref-reftex-get-bib-field "file" entry)))
+      (let ((e (reftex-get-bib-field field entry format)))
         (if (> (length e) 4)
             (let ((clean-field (replace-regexp-in-string "{\\|}\\|\\\\" "" e)))
               (let ((first-file (car (split-string clean-field ";" t))))
@@ -227,6 +213,7 @@ Argument KEY is the bibtex key."
 						    (car bibtex-completion-library-path))
 						   (t
 						    (completing-read "PDF dir: " bibtex-completion-library-path)))))))))
+
 
 (defun org-ref-get-pdf-filename-bibtex-completion (key)
   "Use bibtex-completion to retrieve a PDF filename for KEY.
@@ -367,27 +354,20 @@ Can also be called with THEKEY in a program."
    (url-encode-url
     (format
      "http://scholar.google.com/scholar?q=%s"
-     (let* ((key-file (org-ref-get-bibtex-key-and-file))
-            (key (car key-file))
-            (file (cdr key-file))
-            entry)
-       (with-temp-buffer
-         (insert-file-contents file)
-         (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-         (bibtex-search-entry key nil 0)
-         (setq entry (bibtex-parse-entry))
-         (org-ref-reftex-get-bib-field "title" entry)))))))
+     (bibtex-completion-get-value
+      "title"
+      (bibtex-completion-get-entry (org-ref-get-bibtex-key-under-cursor)))))))
 
 
 ;;;###autoload
 (defun org-ref-biblio-at-point ()
   "Do a biblio search for bibtex key under point using the title."
   (interactive)
-  (biblio-lookup nil
-		 (save-window-excursion
-		   (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))
-		   (setq entry (bibtex-parse-entry))
-		   (org-ref-reftex-get-bib-field "title" entry))))
+  (biblio-lookup
+   nil
+   (bibtex-completion-get-value
+    "title"
+    (bibtex-completion-get-entry (org-ref-get-bibtex-key-under-cursor)))))
 
 
 ;;;###autoload
