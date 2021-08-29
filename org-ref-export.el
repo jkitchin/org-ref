@@ -332,7 +332,6 @@ VISIBLE-ONLY BODY-ONLY and INFO."
   (let* ((fname (buffer-file-name))
 	 (extensions '((html . ".html")
 		       (latex . ".tex")
-		       (md . ".md")
 		       (ascii . ".txt")
 		       (odt . ".odf")))
 
@@ -362,15 +361,6 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 See `org-export-as' for the meaning of ASYNC SUBTREEP
 VISIBLE-ONLY BODY-ONLY and INFO."
   (org-ref-export-to 'html async subtreep visible-only
-		     body-only info))
-
-
-(defun org-ref-export-to-md (&optional async subtreep visible-only
-				       body-only info)
-  "Export the buffer to Markdown and open.
-See `org-export-as' for the meaning of ASYNC SUBTREEP
-VISIBLE-ONLY BODY-ONLY and INFO."
-  (org-ref-export-to 'md async subtreep visible-only
 		     body-only info))
 
 
@@ -424,8 +414,8 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 
 (defun org-ref-export-to-message (&optional async subtreep visible-only
 					    body-only info)
-  "Export to ascii and insert"
-  (let* ((backend 'md)
+  "Export to ascii and insert in an email message."
+  (let* ((backend 'ascii)
 	 (content (org-export-with-buffer-copy
 		   (org-ref-process-buffer backend)
 		   (org-export-as backend))))
@@ -438,10 +428,9 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 (org-export-define-derived-backend 'org-ref 'org
   :menu-entry
   '(?r "Org-ref export"
-       ((?a "to Ascii" org-ref-export-as-ascii)
+       ((?a "to Ascii" org-ref-export-to-ascii)
 	(?h "to html" org-ref-export-to-html)
-	(?l "to LaTeX" org-ref-export-as-latex)
-	(?m "to Markdown" org-ref-export-as-md)
+	(?l "to LaTeX" org-ref-export-to-latex)
 	(?o "to ODT" org-ref-export-as-odt)
 	(?O "to Org buffer" org-ref-export-as-org)
 	(?e "to email" org-ref-export-to-message))))
