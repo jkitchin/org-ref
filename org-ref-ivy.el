@@ -66,6 +66,13 @@
 		       org-ref-buffer-local-candidates))
 	 (choice (ivy-read "BibTeX entries: " candidates
 			   :preselect (ivy-thing-at-point)
+			   :multi-action (lambda (candidates)
+					   (with-ivy-window
+					     (org-ref-insert-cite-keys
+					      (mapcar (lambda (entry)
+							(cdr (assoc "=key=" (cdr entry))))
+						      candidates))))
+
 			   :action '(1
 				     ("o" (lambda (candidate)
 					    (org-ref-insert-cite-key
