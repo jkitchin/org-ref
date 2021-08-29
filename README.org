@@ -1,15 +1,15 @@
 # -*- org-edit-src-content-indentation: 0; -*-
 #+TITLE: org-ref: citations, cross-references, indexes, glossaries and bibtex utilities for org-mode
 
+# TODO change branch name back to master
 #+BEGIN_HTML
-<a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
+<a href="https://travis-ci.com/jkitchin/org-ref"><img src="https://travis-ci.com/jkitchin/org-ref.svg?branch=org-ref-3"></a>
 <a href='https://coveralls.io/github/jkitchin/org-ref?branch=master'><img src='https://coveralls.io/repos/github/jkitchin/org-ref/badge.svg?branch=master' alt='Coverage Status' /></a>
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 <a href="http://stable.melpa.org/#/org-ref"><img alt="MELPA Stable" src="http://stable.melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
-
-
+# TODO: make a new YouTube video. Probably when this is merged to master.
 # Introduction to org-ref on [[https://www.youtube.com/watch?v=2t925KRBbFc][YouTube]].
 # #+BEGIN_HTML
 # <a href="https://www.youtube.com/watch?v=2t925KRBbFc">
