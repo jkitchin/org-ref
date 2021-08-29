@@ -5,6 +5,7 @@
 #+LATEX_HEADER: \usepackage{natbib}
 #+LATEX_HEADER: \usepackage[version=3]{mhchem}
 #+latex_header: \usepackage{makeidx}
+#+latex_header: \usepackage{cleveref}
 #+latex_header: \makeindex
 # This ridiculousness is to make the index start in the middle of a page.
 # https://tex.stackexchange.com/questions/23870/index-shouldnt-start-new-page
@@ -1005,19 +1006,51 @@ You may want to build a pdf of this file. Here is an emacs-lisp block that will 
 
 *** Other formats
 
+
+*** Other formats using CSL
+
+org-ref supports export to other formats using [[https://github.com/andras-simonyi/citeproc-el][citeproc]] in a preprocessing filter. This works by modifying a copy of your org-file during the export to replace the citation and bibliography links with formatted text using the CSL. These functions are defined in [[./org-ref-export.el]]. You set the style with `org-ref-csl-default-style' or with a =CSL-KEYWORD=. See  [[./examples/basic-csl.org]] for an example.
+
+org-ref provides a new exporter for convenience with the following export options: After C-c C-e r
+
+| a | to ascii and open|
+| h | to html and open|
+
+
+An alternative to this exporter is to use an  `org-export-before-parsing-hook' to do the pre-processing like this.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
+#+END_SRC
+
+
 These links will run export commands to get this document in different formats. It is worth noting that if your bibtex entries use LaTeX markup (e.g. subscripts, superscripts, chemical equations, etc.) in them, it will probably not render faithfully in the alternative backend. It is in general difficult to have a single format in bibtex that correctly renders in all backends. I don't know of a great solution for this, since LaTeX and CSL use different citation processors.
 
 [[elisp:(org-ref-export-to-html)]]
 
 [[elisp:(org-ref-export-to-latex)]]
 
-[[elisp:(org-ref-export-to-md)]]
+[[elisp:(org-ref-export-to-md)]] TODO: doesn't seem to work
 
 [[elisp:(org-ref-export-to-ascii)]]
 
-[[elisp:(org-ref-export-to-odt)]]
+[[elisp:(org-ref-export-to-odt)]]   TODO: doesn't seem to work, citations are not right.
+
+[[elisp:(org-ref-export-to-message)]] export to body of an email message
 
 
+*** Other formats without using CSL
+
+An alternative approach to using citeproc is to use LaTeX/bibtex more directly. [[./org-ref-natbib-bbl-citeproc.el]] defines another pre-processor that uses LaTeX and natbib/bibtex to create citations and bibliographies.
+
+Here is an example
+
+#+BEGIN_SRC emacs-lisp :exports none
+(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
+  (org-open-file (org-html-export-to-html)))
+#+END_SRC
+
+#+RESULTS:
 
 * Index
 
