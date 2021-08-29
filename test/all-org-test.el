@@ -1,25 +1,14 @@
-(ert-deftest or-split-key-1 ()
-(should
-(equal
-(org-ref-split-and-strip-string " key1,key2 ")
-'("key1" "key2"))))
 
-(ert-deftest or-split-key-2 ()
-"Check if keys are split correctly"
-(should
-(equal
-(org-ref-split-and-strip-string " key1 ")
-'("key1"))))
 
 (ert-deftest or-key-file-p ()
-"Check `org-ref-key-in-file-p'"
-(should
-(not
-(null
-(org-ref-key-in-file-p "kitchin-2015-examp"
-(expand-file-name
-"tests/test-1.bib"
-(file-name-directory (locate-library "org-ref"))))))))
+  "Check `org-ref-key-in-file-p'"
+  (should
+   (not
+    (null
+     (org-ref-key-in-file-p "kitchin-2015-examp"
+			    (expand-file-name
+			     "tests/test-1.bib"
+			     (file-name-directory (locate-library "org-ref"))))))))
 
 (ert-deftest or-key-file-p-nil ()
 "Check `org-ref-key-in-file-p' for non-existent key"
@@ -702,4 +691,3 @@ not loaded.
 (require 'org-ref-glossary)
 (goto-char 2)
 (or-find-closing-curly-bracket)))))
-

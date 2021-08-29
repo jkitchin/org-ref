@@ -158,8 +158,9 @@ set in `bibtex-completion-bibliography'"
 			(member (org-element-property :type link) '("bibliography" "nobibliography")))
 	       (setq org-ref-bibliography-files
 		     (mapcar 'org-ref-get-bibfile-path
-			     (org-ref-split-and-strip-string
-			      (org-element-property :path link))))
+			     (mapcar 'string-trim (split-string
+						   (org-element-property :path link)
+						   ","))))
 	       (throw 'result (nreverse (delete-dups org-ref-bibliography-files))))))
 
          (goto-char (point-min))

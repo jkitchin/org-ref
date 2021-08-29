@@ -27,12 +27,6 @@
 
 (require 'org)
 
-(require 'reftex-cite)
-
-(defcustom org-ref-search-whitespace-regexp "\\s-+"
-  "A whitespace regexp for use in `org-ref-strip-string."
-  :group 'org-ref)
-
 (defvar org-ref-cite-types)
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
@@ -411,18 +405,6 @@ Can also be called with THEKEY in a program."
 
 
 ;;* General org-ref utilities
-(defun org-ref-strip-string (string)
-  "Strip leading and trailing whitespace from the STRING."
-  (replace-regexp-in-string
-   (concat org-ref-search-whitespace-regexp "$" ) ""
-   (replace-regexp-in-string
-    (concat "^" org-ref-search-whitespace-regexp ) "" string)))
-
-
-(defun org-ref-split-and-strip-string (string)
-  "Split key-string and strip keys in STRING.
-Assumes the key-string is comma delimited."
-  (mapcar 'org-ref-strip-string (split-string string ",")))
 
 
 (defun org-ref-get-bibtex-keys (&optional sort)

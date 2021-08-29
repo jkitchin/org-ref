@@ -120,41 +120,6 @@ Is it a test? If this returns non-nil,
 
 * Basic tests
 
-#+name: or-split-key-1
-#+BEGIN_SRC emacs-lisp :test
-(should
-   (equal
-    (org-ref-split-and-strip-string " key1,key2 ")
-    '("key1" "key2")))
-#+END_SRC
-
-#+RESULTS: or-split-key-1
-: t
-
-
-
-
-
-
-
-
-
-
-#+name: or-split-key-2
-#+BEGIN_SRC emacs-lisp :test
-"Check if keys are split correctly"
-(should
- (equal
-  (org-ref-split-and-strip-string " key1 ")
-  '("key1")))
-#+END_SRC
-
-#+RESULTS: or-split-key-2
-: t
-
-
-
-
 
 
 
