@@ -921,56 +921,46 @@ Rules:
 	    version (org-ref-cite-version link-string)
 	    data (org-ref-parse-cite-path link-string)
 	    references (plist-get data :references)
-	    key-at-point (org-ref-get-bibtex-key-under-cursor))
+	    key-at-point (get-text-property (point) 'cite-key))
 
       ;; There are two scenarios where key-at-point is null
       ;; 1. on the link-type before the :
       ;; 2. at the end of the link
+      ;; Either way we just go to the end.
       (when (null key-at-point)
-	;; see if we are before the colon, and move to the first ref if so.
-	(if (search-forward ":" (org-element-property :end object) t)
-	    (progn
-	      (search-forward (plist-get (cl-first references) :key))
-	      (goto-char (match-beginning 0))
-	      (when (= 3 version)
-		(backward-char 1))
-	      (setq key-at-point (plist-get (cl-first references) :key)))
+	;; that failed, so move to the last one
+	;; This seems weird, but when you insert several marked candidates the point does weird things.
+	(goto-char (org-element-property :end object))
+	(skip-chars-backward " ")
+	(setq key-at-point (plist-get (car (last references)) :key)))
 
-	  ;; that failed, so move to the last one
-	  (search-backward (plist-get (car (last references)) :key))
-	  (when (= 3 version)
-	    (backward-char 1))
-	  (setq key-at-point (plist-get (car (last references)) :key))))
 
       ;; this is index of selected key
       (setq index (seq-position references key-at-point
 				(lambda (el1 key-at-point)
 				  (string= key-at-point (plist-get el1 :key)))))
 
+      (setq data (plist-put data :references
+			    (-insert-at
+			     (+ index (if (and (= 3 version) (looking-at "@"))
+					  0
+					+1))
+			     (list :key key) references)))
+      (cl--set-buffer-substring (org-element-property :begin object)
+				(org-element-property :end object)
+				(concat "[[" type ":" (org-ref-interpret-cite-data data) "]]"))
 
-      (save-excursion
-	(goto-char (org-element-property :begin object))
-	(search-forward key-at-point)
-	(setq data (plist-put data :references
-			      (-insert-at
-			       (+ index (if (= cp (- (match-beginning 0) (if (= 3 version) 1 0)))
-					    -1
-					  +1))
-			       (list :key key) references)))
-	(goto-char (org-element-property :begin object))
-	(search-forward link-string)
-	(replace-match (org-ref-interpret-cite-data data)))
-      (goto-char (org-element-property :begin object))
-      (search-forward key)
-      (goto-char (match-end 0))
-      ;; for version 3 go back one to get on @
-      (when (= 3 version)
-	(backward-char 1)))))
+      ;; Now get to the end of the key you just put in.
+      (setq object (org-element-context))
+      (goto-char (org-element-property :end object))
+      (skip-chars-backward " "))))
 
 
-(defun org-ref-insert-cite-keys (keys)
-  "Insert KEYS as citation links."
-  (mapcar 'org-ref-insert-cite-key keys))
+  (defun org-ref-insert-cite-keys (keys)
+    "Insert KEYS as citation links."
+    (cl-loop for key in keys
+	     do
+	     (org-ref-insert-cite-key key)))
 
 
 ;;;###autoload
