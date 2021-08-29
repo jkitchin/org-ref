@@ -1,6 +1,6 @@
 ;;; org-ref-core.el --- citations, cross-references and bibliographies in org-mode
 
-;; Copyright(C) 2014-2017 John Kitchin
+;; Copyright(C) 2014-2021 John Kitchin
 
 ;; This file is not currently part of GNU Emacs.
 
