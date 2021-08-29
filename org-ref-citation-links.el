@@ -443,13 +443,6 @@ PATH has the citations in it."
 
 ;; * Citation links tooltips
 
-;; (defun org-ref-cite-tooltip (_win _obj position)
-;;   "Get a tooltip for the cite at POSITION."
-;;   (let ((key (get-text-property position 'cite-key)))
-;;     (when key
-;;       (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-;; 	(bibtex-completion-apa-format-reference key)))))
-
 (defun org-ref-cite-tooltip (_win _obj position)
   "Get a tooltip for the cite at POSITION."
   (let ((key (get-text-property position 'cite-key)))
@@ -770,10 +763,8 @@ If not on a key, but on a cite, prompt for key."
   lst)
 
 
-;;;###autoload
 (defun org-ref-swap-citation-link (direction)
   "Move citation at point in DIRECTION +1 is to the right, -1 to the left."
-  (interactive)
   (let* ((object (org-element-context))
          (type (org-element-property :type object))
          (begin (org-element-property :begin object))
@@ -787,8 +778,8 @@ If not on a key, but on a cite, prompt for key."
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
       (if (> direction 0) ;; shift right
-          (org-ref-swap-keys i (min (+ i 1) (- (length references) 1)) references)
-        (org-ref-swap-keys i (max (- i 1) 0) references))
+          (org-ref-swap-list-elements i (min (+ i 1) (- (length references) 1)) references)
+        (org-ref-swap-list-elements i (max (- i 1) 0) references))
       (setq data (plist-put data :references references))
 
       ;; and replace the link with the sorted keys
@@ -797,8 +788,21 @@ If not on a key, but on a cite, prompt for key."
 	(re-search-forward link-string)
 	(replace-match (org-ref-interpret-cite-data data)))
       ;; now go forward to key so we can move with the key
+      (goto-char begin)
       (re-search-forward key)
       (goto-char (match-beginning 0)))))
+
+
+(defun org-ref-cite-shift-left ()
+  "Shift reference at point to the left."
+  (interactive)
+  (org-ref-swap-citation-link -1))
+
+
+(defun org-ref-cite-shift-right ()
+  "Shift citation at point to the right."
+  (interactive)
+  (org-ref-swap-citation-link +1))
 
 
 ;;** Sort cite in cite link
@@ -956,11 +960,11 @@ Rules:
       (skip-chars-backward " "))))
 
 
-  (defun org-ref-insert-cite-keys (keys)
-    "Insert KEYS as citation links."
-    (cl-loop for key in keys
-	     do
-	     (org-ref-insert-cite-key key)))
+(defun org-ref-insert-cite-keys (keys)
+  "Insert KEYS as citation links."
+  (cl-loop for key in keys
+	   do
+	   (org-ref-insert-cite-key key)))
 
 
 ;;;###autoload
