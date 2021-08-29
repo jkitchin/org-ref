@@ -22,18 +22,20 @@
 
 ;; This library provides functions to enable drag-n-drop of pdfs onto a bibtex
 ;; buffer to add bibtex entries to it.
+;;
+;; [2021-08-29 Sun] I have not found drag-and-drop to be especially reliable,
+;; and don't recommend you use it. This code relies 'pdf-tools, which is slow to
+;; load for me. pdf-tools is no longer automatically installed, so if you use
+;; this, you should install it yourself.
 
 ;; TODO: If no DOI is found, figure out a way to do a crossref/google query to
 ;; get a doi. This needs a reliable title/citation.
 
 ;;; Code:
+(require 'pdf-tools)
 
 (require 'f)
 
-;; [2019-10-13 Sun] I am commenting this out for now. I added it for some
-;; reason, but I cannot figure out why. It is pretty slow to load, so since I
-;; don't know why it is here, I am commenting it out until it is obvious again.
-;; (require 'pdf-tools)
 
 (eval-when-compile
   (require 'cl-lib))
@@ -44,6 +46,7 @@
   :tag "Org Ref PDF"
   :group 'org-ref-pdf)
 
+
 (defcustom pdftotext-executable
   "pdftotext"
   "Executable for pdftotext. Set if the executable is not on your
@@ -51,17 +54,20 @@ path, or you want to use another version."
   :type 'file
   :group 'org-ref-pdf)
 
+
 (defcustom org-ref-pdf-doi-regex
   "10\\.[0-9]\\{4,9\\}/[-+._;()/:A-Z0-9]+"
   "Regular expression to match DOIs in a pdf converted to text."
   :type 'regexp
   :group 'org-ref-pdf)
 
+
 (defcustom org-ref-pdf-to-bibtex-function
   'copy-file
   "Function for getting  a pdf to a directory.
 Defaults to `copy-file', but could also be `rename-file'."
   :type 'File :group 'org-ref-pdf)
+
 
 (defun org-ref-extract-doi-from-pdf (pdf)
   "Try to extract a doi from a PDF file.
@@ -71,9 +77,7 @@ bracket, space or end of line. dx.doi.org/up to a quote, bracket,
 space or end of line.
 
 If there is a trailing . we chomp it off. Returns a list of doi
-strings, or nil.
-
-"
+strings, or nil."
   (with-temp-buffer
     (insert (shell-command-to-string (format "%s %s -"
 					     pdftotext-executable
@@ -145,6 +149,7 @@ should be open in Emacs using the `pdf-tools' package."
 				   (car bibtex-completion-library-path))
 				  (t
 				   (completing-read "Dir: " bibtex-completion-library-path))))))))
+
 
 ;;;###autoload
 (defun org-ref-pdf-debug-pdf (pdf-file)
