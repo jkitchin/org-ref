@@ -206,7 +206,7 @@ Argument KEY is the bibtex key."
 						 ((= 1 (length bibtex-completion-library-path))
 						  (car bibtex-completion-library-path))
 						 (t
-						  (completing-read "PDF dir: " bibtex-completion-library-path)))))))))
+						  (completing-read "PDF dir: " bibtex-completion-library-path))))))))
 
 
 (defun org-ref-get-pdf-filename-bibtex-completion (key)
