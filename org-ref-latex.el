@@ -39,7 +39,7 @@
 	  "\\(?2:\\[[^}]*\\)?"		; optional []
 	  "\\(3?:\\[[^}]*\\)?"		; optional []
 	  "{\\(?4:[^}]*\\)}")           ; group 4 contains the keys
-  "Regexp for LaTeX citations. \citetype[optional]{some,keys}.
+  "Regexp for LaTeX citations. \citetype[optional][optional]{some,keys}.
 The clickable part are the keys.")
 
 
