@@ -59,15 +59,6 @@ The clickable part are the keys.")
 
       bibliography)))
 
-;;;###autoload
-(defun org-ref-latex-debug ()
-  (interactive)
-  (message-box "%S\n%S\n%S"
-	       (org-ref-latex-get-key)
-	       (org-ref-latex-get-bibliography)
-	       (ignore-errors
-		 (org-ref-latex-help-echo nil nil (point)))))
-
 
 (defun org-ref-next-latex-cite (&optional limit)
   "Font-lock function to make cites in LaTeX documents clickable."
