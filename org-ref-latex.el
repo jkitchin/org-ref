@@ -91,12 +91,9 @@ The clickable part are the keys.")
 (defun org-ref-latex-cite-on ()
   "Add the font-lock on for citations."
   (font-lock-add-keywords
-   ;; 'latex-mode
-   ;; it seems like 'latex mode is what you want, but it doesn't work all the time.
-   nil
+   'latex-mode
    '((org-ref-next-latex-cite 0 font-lock-constant-face))))
 
-(add-hook 'latex-mode-hook 'org-ref-latex-cite-on)
 (add-hook 'LaTeX-mode-hook 'org-ref-latex-cite-on)
 
 
