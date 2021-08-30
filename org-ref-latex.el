@@ -23,6 +23,7 @@
 
 ;;; Code:
 
+(require 'org-ref-citation-links)
 (require 'bibtex-completion)
 
 (defvar latex-mode-map)
