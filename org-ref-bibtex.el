@@ -68,7 +68,6 @@
 (require 'doi-utils)
 
 
-(declare-function reftex-get-bib-field "reftex-cite")
 (declare-function key-chord-define-global "key-chord")
 (declare-function org-ref-find-bibliography "org-ref-core")
 (declare-function org-ref-open-bibtex-pdf "org-ref-core")
@@ -673,7 +672,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
     (let ((entry (bibtex-parse-entry t)))
       (when (null entry)
 	(error "Unable to parse this bibtex entry."))
-      (reftex-get-bib-field "doi" entry))))
+      (cdr (assoc "doi" entry)))))
 
 ;; function that ensures that the url field of a bibtex entry is the
 ;; properly-formatted hyperlink of the DOI. See
@@ -729,7 +728,7 @@ there is a DOI."
      (if (string= "" doi)
 	 (save-excursion
 	   (bibtex-beginning-of-entry)
-	   (reftex-get-bib-field "title" (bibtex-parse-entry t)))
+	   (cdr (assoc "title" (bibtex-parse-entry t))))
        doi))))
 
 
@@ -778,7 +777,7 @@ a directory. Optional PREFIX argument toggles between
     (let* ((file (read-file-name "Select file associated with entry: "))
 	   (bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
-           (key (reftex-get-bib-field "=key=" entry))
+           (key (cdr (assoc "=key=" entry)))
 	   (file-move-func (org-ref-bibtex-get-file-move-func prefix))
 	   pdf)
       (if (bibtex-completion-find-pdf-in-library key)
@@ -926,7 +925,7 @@ a directory. Optional PREFIX argument toggles between
   "Email current bibtex entry at point and pdf if it exists."
   (interactive)
   (bibtex-beginning-of-entry)
-  (let* ((key (reftex-get-bib-field "=key=" (bibtex-parse-entry t)))
+  (let* ((key (cdr (assoc "=key=" (bibtex-parse-entry t))))
 	 (pdfs (bibtex-completion-find-pdf key)))
 
     (bibtex-copy-entry-as-kill)
@@ -1326,7 +1325,7 @@ If not, issue a warning."
     (save-excursion
       (bibtex-beginning-of-entry)
       (let* ((entry (bibtex-parse-entry t))
-             (journal (reftex-get-bib-field "journal" entry)))
+             (journal (cdr (assoc "=journal" entry))))
         (when (null journal)
           (error "Unable to get journal for this entry."))
         (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))

@@ -176,8 +176,7 @@ creates a cite link."
 			":@"
 			(save-excursion
                           (bibtex-beginning-of-entry)
-                          (reftex-get-bib-field
-			   "=key=" (bibtex-parse-entry))))))
+			  (cdr (assoc "=key=" (bibtex-parse-entry)))))))
       (push (list link) org-stored-links)
       (car org-stored-links))))
 
