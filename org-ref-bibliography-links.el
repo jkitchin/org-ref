@@ -81,13 +81,13 @@ PATH is a comma-separated list of bibfiles."
 	   (put-text-property (match-beginning 0) (match-end 0) 'help-echo (format "File exists at %s" p))
 
 	   ;; activate files that don't exist
-	   (when (not (file-exists-p p))
+	   (when (or (null p) (not (file-exists-p p)))
 	     (put-text-property (match-beginning 0) (match-end 0)
 				'face 'font-lock-warning-face)
 	     (put-text-property (match-beginning 0) (match-end 0)
 				'help-echo "This file was not found."))
 
-	   (when (file-exists-p p)
+	   (when (and p (file-exists-p p))
 	     ;; Let's do a validation, but only if it has changed since the last time we checked.
 	     (let* ((mod-time-last-check (or (get-text-property (match-beginning 0)
 								'mod-time-last-check)
