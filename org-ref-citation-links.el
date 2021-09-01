@@ -158,6 +158,18 @@ https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   :group 'org-ref)
 
 
+(defcustom org-ref-cite-insert-version 3
+  "Default version to insert citations with.
+The default is 3. In legacy documents you might prefer 2 though,
+so this variable can be buffer- or directory local if you want.
+
+version 2 means the links are not bracketed, and comma-separated keys.
+
+version 3 means the links are bracketed, with semicolon-separated
+@keys."
+  :type 'number
+  :group 'org-ref)
+
 (defvar org-ref-citation-key-re
   (rx "@" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%&~"))))
   "Numbered regular expression for a version 3 cite key.
@@ -950,9 +962,19 @@ Rules:
 					  0
 					+1))
 			     (list :key key) references)))
-      (cl--set-buffer-substring (org-element-property :begin object)
-				(org-element-property :end object)
-				(concat "[[" type ":" (org-ref-interpret-cite-data data) "]]"))
+
+      (pcase org-ref-cite-insert-version
+	(2
+	 (cl--set-buffer-substring
+	  (org-element-property :begin object)
+	  (org-element-property :end object)
+	  (concat type ":" (string-join (cl-loop for ref in references
+						 collect (plist-get ref :key))))))
+	(3 (cl--set-buffer-substring
+	    (org-element-property :begin object)
+	    (org-element-property :end object)
+	    (concat "[[" type ":" (org-ref-interpret-cite-data data) "]]"))))
+
 
       ;; Now get to the end of the key you just put in.
       (setq object (org-element-context))
