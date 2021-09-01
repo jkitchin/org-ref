@@ -996,6 +996,44 @@ Rules:
   (org-ref-insert-cite-key (org-ref-read-key)))
 
 
+;; * natmove like pre-processing
+;;
+;; I think that citations belong in the sentence where they are used, which
+;; means on the left side of punctuation. However, for some citation styles,
+;; especially superscripts, it is nicer if they appear on the right hand side of
+;; punctuation. achemso in LaTeX provides natmove
+;; (https://ctan.org/pkg/natmove?lang=en) for this. It doesn't seem to work for
+;; all LaTeX styles though, and in particular only works on the cite command
+;; itself. So, Here is a preprocessor function you can use to move all the
+;; cites.
+
+(defun org-ref-cite-natmove (_backend)
+  "Move citations to the right side of punctuation.
+Intended for use in `org-export-before-parsing-hook'.
+
+Here is an example use:
+
+  (let ((org-export-before-parsing-hook '(org-ref-cite-natmove)))
+    (org-open-file (org-latex-export-to-pdf)))"
+  (let ((cites (org-ref-get-cite-links))
+	;; temp point holders
+	p1 p2
+	punct)
+    (cl-loop for cite in (reverse cites) do
+	     (goto-char (org-element-property :end cite))
+	     (skip-chars-backward " ")
+	     (when (string-match-p "[[:punct:]]" (buffer-substring (point) (+ (point) 1)))
+	       (setq punct (buffer-substring (point) (+ (point) 1)))
+	       ;; delete the punctuation
+	       (cl--set-buffer-substring (point) (+ (point) 1) "")
+	       ;; and insert it at the beginning of the link.
+	       (goto-char (org-element-property :begin cite))
+	       ;; delete spaces backward
+	       (skip-chars-backward " ")
+	       (cl--set-buffer-substring (point) (org-element-property :begin cite) "")
+	       (insert punct)))))
+
+
 (provide 'org-ref-citation-links)
 
 ;;; org-ref-citation-links.el ends here
