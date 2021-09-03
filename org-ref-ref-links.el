@@ -125,25 +125,33 @@ font-lock."
     (delete-dups (reverse labels))))
 
 
-(defhydra org-ref-ref-follow ()
-  "Org-ref ref
-"
-  ("o" org-ref-ref-jump-to "Jump to")
-  ("r"  org-ref-change-ref-type "Change type"))
+;; (defhydra org-ref-ref-follow ()
+;;   "Org-ref ref
+;; "
+;;   ("o" org-ref-ref-jump-to "Jump to")
+;;   ("r"  org-ref-change-ref-type "Change type"))
 
 
-(defun org-ref-ref-follow (_path)
-  "Follow a ref link. _PATH is ignored.
-Opens a hydra menu."
-  (interactive)
-  (org-ref-ref-follow/body))
+;; (defun org-ref-ref-follow (_path)
+;;   "Follow a ref link. _PATH is ignored.
+;; Opens a hydra menu."
+;;   (interactive)
+;;   (org-ref-ref-follow/body))
 
 
-(defun org-ref-ref-jump-to ()
+(defun org-ref-ref-jump-to (&optional _path)
   "Jump to the target for the ref link at point."
   (interactive)
+  (message "%s" _path)
   (let ((label (get-text-property (point) 'org-ref-ref-label))
+	(labels (split-string _path ","))
 	(rx (string-join org-ref-ref-label-regexps "\\|")))
+    (when (null label)
+      (pcase (length labels)
+	(1
+	 (setq label (cl-first labels)))
+	(_
+	 (setq label (completing-read "Label: " labels)))))
     (when label
       (org-mark-ring-push)
       (widen)
@@ -293,7 +301,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 
     (when label
       (cl-loop for reftype in org-ref-ref-types do
-	       (org-store-link-props
+	       (org-link-store-props
 		:type reftype
 		:link (concat reftype ":" label)))
       (format (concat  org-ref-default-ref-type ":" label)))))
@@ -310,7 +318,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "ref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "ref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -322,7 +330,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "pageref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "pageref")
 			 :face 'org-ref-ref-face
 			 :complete (lambda (&optional arg) (org-ref-complete-link arg "pageref"))
@@ -335,7 +343,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "nameref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "nameref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -346,7 +354,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "eqref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "eqref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -357,7 +365,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "autoref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "autoref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -371,7 +379,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "cref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "cref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -381,7 +389,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :store #'org-ref-store-ref
 			 :complete (apply-partially #'org-ref-complete-link "Cref")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export (apply-partially #'org-ref-ref-export "Cref")
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -412,7 +420,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 (org-link-set-parameters "crefrange"
 			 :complete (apply-partially #'org-ref-crefrange-complete "crefrange")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export #'org-ref-crefrange-export
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -421,7 +429,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 (org-link-set-parameters "Crefrange"
 			 :complete (apply-partially #'org-ref-crefrange-complete "Crefrange")
 			 :activate-func #'org-ref-ref-activate
-			 :follow #'org-ref-ref-follow
+			 :follow #'org-ref-ref-jump-to
 			 :export #'org-ref-Crefrange-export
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
@@ -506,6 +514,8 @@ If on a link, append a label to the end."
 
       (insert (format  "%s:%s" type label)))
     (goto-char (org-element-property :end (org-element-context)))))
+
+
 
 (provide 'org-ref-ref-links)
 
