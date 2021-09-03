@@ -31,6 +31,11 @@ some directory, absolute, etc."
   :group 'org-ref)
 
 
+(defcustom org-ref-validate-bibliography nil
+  "If non-nil, validate bibliography files in fontification.
+This can be slow, so we don't do it by default.")
+
+
 ;;* bibliography* links
 
 (defun org-ref-get-bibfile-path (bibfile)
@@ -88,33 +93,34 @@ PATH is a comma-separated list of bibfiles."
 				'help-echo "This file was not found."))
 
 	   (when (and p (file-exists-p p))
-	     ;; Let's do a validation, but only if it has changed since the last time we checked.
-	     (let* ((mod-time-last-check (or (get-text-property (match-beginning 0)
-								'mod-time-last-check)
-					     '(0 0 0 0)))
-		    (last-modified (file-attribute-modification-time (file-attributes p)))
-		    (bibtex-valid))
-	       (if (time-equal-p mod-time-last-check last-modified)
-		   (setq bibtex-valid (get-text-property (match-beginning 0) 'bibtex-valid))
+	     (when org-ref-validate-bibliography
+	       ;; Let's do a validation, but only if it has changed since the last time we checked.
+	       (let* ((mod-time-last-check (or (get-text-property (match-beginning 0)
+								  'mod-time-last-check)
+					       '(0 0 0 0)))
+		      (last-modified (file-attribute-modification-time (file-attributes p)))
+		      (bibtex-valid))
+		 (if (time-equal-p mod-time-last-check last-modified)
+		     (setq bibtex-valid (get-text-property (match-beginning 0) 'bibtex-valid))
 
-		 ;; the times were not equal, so we check and store the state.
-		 (setq bibtex-valid (save-match-data
-				      (with-current-buffer (find-file-noselect p)
-					(bibtex-validate))))
-		 (put-text-property (match-beginning 0)
-				    (match-end 0)
-				    'mod-time-last-check
-				    last-modified)
-		 (put-text-property (match-beginning 0)
-				    (match-end 0)
-				    'bibtex-valid
-				    bibtex-valid))
+		   ;; the times were not equal, so we check and store the state.
+		   (setq bibtex-valid (save-match-data
+					(with-current-buffer (find-file-noselect p)
+					  (bibtex-validate))))
+		   (put-text-property (match-beginning 0)
+				      (match-end 0)
+				      'mod-time-last-check
+				      last-modified)
+		   (put-text-property (match-beginning 0)
+				      (match-end 0)
+				      'bibtex-valid
+				      bibtex-valid))
 
-	       (unless bibtex-valid
-		 (put-text-property (match-beginning 0) (match-end 0)
-				    'face 'font-lock-warning-face)
-		 (put-text-property (match-beginning 0) (match-end 0)
-				    'help-echo "This file did not pass `bibtex-validate'."))))))
+		 (unless bibtex-valid
+		   (put-text-property (match-beginning 0) (match-end 0)
+				      'face 'font-lock-warning-face)
+		   (put-text-property (match-beginning 0) (match-end 0)
+				      'help-echo "This file did not pass `bibtex-validate'.")))))))
 
 
 
