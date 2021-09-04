@@ -142,7 +142,6 @@ font-lock."
 (defun org-ref-ref-jump-to (&optional _path)
   "Jump to the target for the ref link at point."
   (interactive)
-  (message "%s" _path)
   (let ((label (get-text-property (point) 'org-ref-ref-label))
 	(labels (split-string _path ","))
 	(rx (string-join org-ref-ref-label-regexps "\\|")))
