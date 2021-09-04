@@ -166,23 +166,31 @@ plt.plot([1, 2, 4])
   :CUSTOM_ID: build
   :END:
 
+An alternative to using these blocks is to define the hook as a file local variable.
 
-
+** HTML
 #+BEGIN_SRC emacs-lisp
-(let ((org-export-before-parsing-hook '(org-ref-refproc)) ( org-export-with-broken-links t))
+(let ((org-export-before-parsing-hook '(org-ref-refproc)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC
 
 #+RESULTS:
 
+** To an org buffer
 
 #+BEGIN_SRC emacs-lisp
 (let ((org-export-before-parsing-hook '(org-ref-refproc)))
    (org-org-export-as-org))
 #+END_SRC
 
+** LaTeX
+
+It isn't clear why you would go this route, since org-ref is for LaTeX in the
+first place, but this does work nicely.
 
 #+BEGIN_SRC emacs-lisp
 (let ((org-export-before-parsing-hook '(org-ref-refproc)))
-  (org-open-file (org-latex-export-to-latex)))
+  (org-open-file (org-babel-latex-tex-to-pdf (org-latex-export-to-latex))))
 #+END_SRC
+
+#+RESULTS:

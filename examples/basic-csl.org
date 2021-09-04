@@ -16,11 +16,6 @@
 
 [[elisp:(org-ref-export-to-ascii)]]
 
-
-This does not currently work.
-These seem to be required. I am not sure what hfy-user-sheet-assoc  is for. nil is probably wrong, but the var is not defined and causes the export to fail.
-
-(require 'htmlfontify) (setq hfy-user-sheet-assoc nil)
 [[elisp:(org-ref-export-to-odt)]]
 
 
