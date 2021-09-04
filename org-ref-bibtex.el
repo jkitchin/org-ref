@@ -683,11 +683,13 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 (defun org-ref-bibtex-format-url-if-doi ()
   "Hook function to format url to follow the current DOI conventions."
   (interactive)
-  (if (eq (org-ref-bibtex-entry-doi) "") nil
-    (let ((front-url "https://doi.org/")
-          (doi (org-ref-bibtex-entry-doi)))
-      (bibtex-set-field "url"
-                        (concat front-url doi)))))
+  ;; Don't overwrite an existing url field though.
+  (unless (bibtex-autokey-get-field "url")
+    (if (eq (org-ref-bibtex-entry-doi) "") nil
+      (let ((front-url "https://doi.org/")
+            (doi (org-ref-bibtex-entry-doi)))
+	(bibtex-set-field "url"
+                          (concat front-url doi))))))
 
 
 ;;;###autoload
@@ -1218,15 +1220,17 @@ will leave the empty entries so that you may fill them in later."
 
 
 (defun orcb-clean-doi ()
-  "Remove http://dx.doi.org/ in the doi field."
+  "Remove http://dx.doi.org/ or https://doi.org in the doi field."
   (let ((doi (bibtex-autokey-get-field "doi")))
-    (when (string-match "^http://dx.doi.org/" doi)
+    (when (or (string-match "^http://dx.doi.org/" doi)
+	      (string-match "^https://doi.org/" doi))
+      (setq doi (replace-match "" nil nil doi))
       (bibtex-beginning-of-entry)
       (goto-char (car (cdr (bibtex-search-forward-field "doi" t))))
       (bibtex-kill-field)
       (bibtex-make-field "doi")
       (backward-char)
-      (insert (replace-regexp-in-string "^http://dx.doi.org/" "" doi)))))
+      (insert doi))))
 
 
 (defun orcb-clean-year (&optional new-year)
@@ -1328,7 +1332,7 @@ If not, issue a warning."
       (let* ((entry (bibtex-parse-entry t))
              (journal (cdr (assoc "=journal" entry))))
         (when (null journal)
-          (error "Unable to get journal for this entry."))
+          (warn "Unable to get journal for this entry."))
         (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))
           (message "Journal \"%s\" not found in org-ref-bibtex-journal-abbreviations." journal))))))
 
