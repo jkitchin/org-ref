@@ -241,7 +241,7 @@ BACKEND is the export backend."
        (save-excursion
 	 (goto-char (org-element-property :begin ref-link))
 	 (search-forward ":")
-	 (org-ref-ref-jump-to)
+	 (org-ref-ref-jump-to (org-element-property :path ref-link))
 	 (pcase (plist-get data :type)
 	   ('section
 	    (org-previous-visible-heading 1)
