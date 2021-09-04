@@ -138,7 +138,8 @@ The default behavior is to remove : from the key."
     orcb-clean-pages
     orcb-check-journal
     org-ref-sort-bibtex-entry
-    orcb-fix-spacing)
+    orcb-fix-spacing
+    orcb-download-pdf)
   "Hook that is run in `org-ref-clean-bibtex-entry'.
 The functions should have no arguments, and
 operate on the bibtex entry at point. You can assume point starts
@@ -1358,6 +1359,15 @@ If not, issue a warning."
 	(when (looking-at "[}][ \t]*\\|@Comment.+\\|%.+")
 	  (end-of-line)
 	  (newline))))))
+
+
+(defun orcb-download-pdf ()
+  "Try to get the pdf in an entry."
+  ;; try to get pdf
+  (when doi-utils-download-pdf
+    (if doi-utils-async-download
+	(doi-utils-async-download-pdf)
+      (doi-utils-get-bibtex-entry-pdf))))
 
 
 ;;;###autoload
