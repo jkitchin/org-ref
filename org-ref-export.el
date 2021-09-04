@@ -295,10 +295,10 @@ BACKEND is the org export backend."
 	 ;; org-code so it exports appropriately.
 	 (cite-formatters '((html . "@@html:%s@@")
 			    (latex . "@@latex:%s@@")
-			    (org-odt . "@@odt:%s@@")))
+			    (odt . "@@odt:%s@@")))
 	 (bib-formatters '((html .  "\n#+BEGIN_EXPORT html\n%s\n#+END_EXPORT\n")
 			   (latex .  "\n#+BEGIN_EXPORT latex\n%s\n#+END_EXPORT\n")
-			   (org-odt . "\n#+BEGIN_EXPORT ODT\n%s\n#+END_EXPORT\n"))))
+			   (odt . "\n#+BEGIN_EXPORT ODT\n%s\n#+END_EXPORT\n"))))
 
     ;; replace the cite links
     (cl-loop for cl in (reverse cite-links) for rc in (reverse rendered-citations) do
