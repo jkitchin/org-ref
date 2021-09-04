@@ -60,39 +60,83 @@ considered equations, which might be wrong for other
 environments)."
   (let* ((parse-data (org-element-parse-buffer))
 	 ;; for each type, we specify what org-element to get the labels from.
-	 (referencables (cl-loop for (type . el) in '((listing . src-block)
-						      (section . headline)
-						      (equation . latex-environment)
-						      (proof . latex-environment)
+	 (referencables (cl-loop for (type . el) in '((section . headline)
+						      (figure . link)
 						      (table . table)
-						      (figure . link))
+						      (equation . latex-environment)
+						      (listing . src-block)
+						      (proof . latex-environment))
 				 collect
 				 (cons type
 				       (org-element-map parse-data el
 					 (lambda (e)
 					   (pcase el
+					     ;; Headlines
 					     ('headline
-					      (when-let (name (org-element-property :CUSTOM_ID e))
-						name))
-					     ;; equation
-					     ('latex-environment
-					      (when (or (and (eq type 'equation) (string-match "\\\\begin{equation}" (org-element-property :value e)))
-							(and (eq type 'proof) (string-match "\\\\begin{proof}" (org-element-property :value e))))
-						(if-let (name (org-element-property :name e))
-						    name
-						  ;; maybe we still a have a label in the env?
-						  (when (string-match "\\\\label{\\(.*\\)}" (org-element-property :value e))
-						    (match-string 1 (org-element-property :value e))))))
+					      (cond
+					       ;; There is a custom_id, we use it.
+					       ((org-element-property :CUSTOM_ID e)
+						(org-element-property :CUSTOM_ID e))
+					       ;; See if there is a target in the heading
+					       ((string-match org-target-regexp (org-element-property :raw-value e))
+						(match-string 1 (org-element-property :raw-value e)))
+					       ;; Check for a label link
+					       ((string-match (concat "label:" org-ref-label-re) (org-element-property :raw-value e))
+						(match-string 1 (org-element-property :raw-value e)))))
 
-					     ;;  these are special, since we only want images here
+					     ;;  Figures
 					     ('link
-					      (when (and (org-file-image-p (org-element-property :path e))
-							 (org-element-property :name (org-element-property :parent e)))
-						(org-element-property :name (org-element-property :parent e))))
-					     ('src-block
-					      (when-let (name (org-element-property :name e))
-						name))
+					      (cond
+					       ;; file link with a name property
+					       ((and (org-file-image-p (org-element-property :path e))
+						     (org-element-property :name (org-element-property :parent e)))
+						(org-element-property :name (org-element-property :parent e)))
+					       ;; a label link in the caption
+					       ((and  (org-file-image-p (org-element-property :path e))
+						      (org-element-property :caption (org-element-property :parent e))
+
+						      (string-match (concat "label:" org-ref-label-re)
+								    (org-element-interpret-data
+								     (org-element-property :caption
+											   (org-element-property :parent e)))))
+						(match-string 1 (org-element-interpret-data
+								 (org-element-property :caption
+										       (org-element-property :parent e)))))))
+
+					     ;; Tables
 					     ('table
+					      (cond
+					       ;; A name keyword is preferred
+					       ((org-element-property :name e)
+						(org-element-property :name e))
+					       ;; a label link in a caption also works
+					       ((string-match (concat "label:" org-ref-label-re)
+							      (or (org-element-interpret-data
+								   (org-element-property :caption e))
+								  ""))
+						(match-string 1 (org-element-interpret-data
+								 (org-element-property :caption e))))))
+
+					     ;; equations, proofs, and other latex environments
+					     ('latex-environment
+					      (when (or (and (eq type 'equation)
+							     (string-match "\\\\begin{equation}"
+									   (org-element-property :value e)))
+							(and (eq type 'proof) (string-match "\\\\begin{proof}"
+											    (org-element-property :value e))))
+
+						(cond
+						 ;; Name keyword
+						 ((org-element-property :name e)
+						  (org-element-property :name e))
+
+						 ;; latex label in the value
+						 ((string-match "\\\\label{\\(.*\\)}" (org-element-property :value e))
+						  (match-string 1 (org-element-property :value e))))))
+
+
+					     ;; Listings of code blocks
+					     ('src-block
 					      (when-let (name (org-element-property :name e))
 						name)))))))))
     referencables))
