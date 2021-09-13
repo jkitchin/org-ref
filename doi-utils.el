@@ -1297,14 +1297,15 @@ May be empty if none are found."
 
 ;;;###autoload
 (defun doi-utils-open-bibtex (doi)
-  "Search through variable `reftex-default-bibliography' for DOI."
+  "Search through variable `bibtex-completion-bibliography' for DOI."
   (interactive "sDOI: ")
-  (catch 'file
-    (dolist (f reftex-default-bibliography)
-      (find-file f)
-      (when (search-forward doi (point-max) t)
-        (bibtex-beginning-of-entry)
-        (throw 'file t)))))
+  (cl-loop for f in (if (listp bibtex-completion-bibliography)
+			bibtex-completion-bibliography
+		      (list bibtex-completion-bibliography))
+	   when (progn (find-file f)
+		       (when (search-forward doi (point-max) t)
+			 (bibtex-beginning-of-entry)))
+	   return f))
 
 
 ;;;###autoload
