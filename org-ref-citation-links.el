@@ -171,7 +171,7 @@ version 3 means the links are bracketed, with semicolon-separated
   :group 'org-ref)
 
 (defvar org-ref-citation-key-re
-  (rx "@" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%&~"))))
+  (rx "@" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Numbered regular expression for a version 3 cite key.
 Key is in group 1.
 Adapted from the expression in org-cite.")
