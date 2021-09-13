@@ -275,6 +275,9 @@ key."
               (setq key (bibtex-read-key "Duplicate Key found, edit: " key))))
         (setq key (bibtex-read-key "Key not found, insert: ")))
       (insert key)
+      (bibtex-end-of-entry)
+      (backward-char)
+      (insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))
       (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf")))))
 
 (provide 'org-ref-arxiv)
