@@ -278,7 +278,12 @@ key."
               (setq key (bibtex-read-key "Duplicate Key found, edit: " key))))
         (setq key (bibtex-read-key "Key not found, insert: ")))
       (insert key)
-      (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf")))))
+      (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf"))
+      ;; Check that it worked, and insert a field for it.
+      (when (file-exists-p (concat pdfdir key ".pdf"))
+	(bibtex-end-of-entry)
+	(backward-char)
+	(insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))))))
 
 (provide 'org-ref-arxiv)
 ;;; org-ref-arxiv.el ends here
