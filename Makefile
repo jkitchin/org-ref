@@ -10,7 +10,8 @@ INIT-DEVEL = test/init-devel.el
 all: test
 
 github-actions:
-	curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
+	git clone https://github.com/cask/cask ~/.cask
+	export PATH=$HOME/.cask/bin:$PATH
 	cask install
 	${CASK_EXEC} ert-runner
 
