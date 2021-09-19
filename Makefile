@@ -11,7 +11,7 @@ all: test
 
 github-actions:
 	git clone https://github.com/cask/cask ~/.cask
-	export PATH=$HOME/.cask/bin:$PATH
+	export PATH=${HOME}/.cask/bin:$PATH
 	cask install
 	${CASK_EXEC} ert-runner
 
