@@ -1,7 +1,6 @@
 *.elc
 /.cask/
 /.projectile
-sandbox
 /.DS_Store
 .DS_Store
 /tests/.test-org-id-locations
