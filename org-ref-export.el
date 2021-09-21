@@ -431,7 +431,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
        ((?a "to Ascii" org-ref-export-to-ascii)
 	(?h "to html" org-ref-export-to-html)
 	(?l "to LaTeX" org-ref-export-to-latex)
-	(?o "to ODT" org-ref-export-as-odt)
+	(?o "to ODT" org-ref-export-to-odt)
 	(?O "to Org buffer" org-ref-export-as-org)
 	(?e "to email" org-ref-export-to-message))))
 
