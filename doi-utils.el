@@ -761,6 +761,10 @@ checked."
 	    (write-file pdf-file)))
 	 (t
 	  (message "We don't have a recipe for this journal.")))
+
+	(when (file-exists-p pdf-file)
+	  (bibtex-set-field file pdf-file))
+
 	(when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
 	  (org-open-file pdf-file))))))
 
@@ -988,8 +992,7 @@ MATCHING-TYPES."
 ;; cursor, clean the entry, try to get the pdf.
 
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
-  "Insert bibtex entry from a DOI.
-Also cleans entry using ‘org-ref’, and tries to download the corresponding pdf."
+  "Insert and clean bibtex entry from a DOI."
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
   ;; set date added for the record
