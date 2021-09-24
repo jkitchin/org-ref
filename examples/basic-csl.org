@@ -79,17 +79,21 @@ bibliography:../org-ref.bib
 
 * build :noexport:
 
-Here are a few convenient functions you can use.
+Here are a few convenient functions you can use. These only preprocess the buffer with the CSL hook, so if you want to use the refproc, or natmove processor, you need to do a more [[fine-tuned export]].
 
 [[elisp:(org-ref-export-to-html)]]
-
-[[elisp:(org-ref-export-to-latex)]]
 
 [[elisp:(org-ref-export-to-ascii)]]
 
 [[elisp:(org-ref-export-to-odt)]]
 
-If you want a more fine-tuned export, it would look like this. Here, if you want to use natmove, you use it first, before the cites are replaced by csl. Using refproc is what gives the cleveref links their cleverness.
+If you want a standalone, bibtex free LaTeX/PDF export you can use
+
+[[elisp:(org-ref-export-to-latex)]]
+
+[[elisp:(org-ref-export-to-pdf)]] 
+
+If you want a more <<fine-tuned export>>, it would look like this. Here, if you want to use natmove, you use it first, before the cites are replaced by csl. Using refproc is what gives the cleveref links their cleverness.
 
 #+BEGIN_SRC emacs-lisp
 (require 'org-ref-refproc)
