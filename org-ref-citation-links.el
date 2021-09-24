@@ -25,21 +25,29 @@
 ;; their own pre/postnotes.
 ;;
 ;; These links are fontified to indicate if the citation keys are valid, and to
-;; indicate the pre/post-note structure.
+;; indicate the pre/post-note structure. They also have tooltips that show
+;; information from the bibtex entry.
 ;;
-;; Each link is functional, and clicking on one will open a hydra menu of
-;; actions that range from opening the bibtex entry, notes, pdf or associated
-;; URL, to searching the internet for related articles.
+;; Each link is functional, and clicking on one will open a hydra menu
+;; `org-ref-citation-hydra/body' of actions that range from opening the bibtex
+;; entry, notes, pdf or associated URL, to searching the internet for related
+;; articles.
 ;;
 ;; Each citation link also has a local keymap on it, which provides keyboard
 ;; shortcuts for some actions like sorting, rearranging and navigating citation
-;; links.
+;; links. See `org-ref-cite-keymap' for the key bindings.
 ;;
 ;; Each link exports to a corresponding LaTeX citation command, or can be
 ;; rendered with CSL for other kinds of exports like HTML, markdown, or ODT.
 ;;
+;; This library also provides a minimal set of insertion functions that use
+;; completion. You can also use the org link completion mechanism to insert a
+;; citation.
+;;
+;; natmove like preprocessing is provided with `org-ref-cite-natmove'.
 ;;
 ;;; Code:
+
 (require 'hydra)
 
 (defface org-ref-cite-face
@@ -176,6 +184,7 @@ version 3 means the links are bracketed, with semicolon-separated
   :type 'number
   :group 'org-ref)
 
+
 (defvar org-ref-citation-key-re
   (rx "@" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Numbered regular expression for a version 3 cite key.
@@ -260,23 +269,29 @@ to a path string."
 
 ;; * Activating citation links
 ;;
-;; We use the activate-func for sophisticated fontification of pieces of each
-;; link.
+;; We use the activate-func for fontification of pieces of each link.
 
+;; These variables are for a local cache for performance.
 (defvar-local org-ref-buffer-local-bib nil
   "Buffer-local variable for current bibliography files.
 This is used to tell when the local bibliography has changed,
-which means we need to re-compute the valid-keys.")
+which means we need to re-compute the valid-keys. This variable
+should store an a-list of (bibfile . modification-time).")
 
 
 (defvar-local org-ref-buffer-local-valid-keys nil
   "Buffer-local variable for current valid keys.
-This is used to cache the valid keys.")
+This is used to cache the valid keys. It should be a list of
+keys.")
+
 
 (defvar-local org-ref-buffer-local-candidates nil
-  "Buffer-local variable to store completion candidates.")
+  "Buffer-local variable to store completion candidates.
+This is a list of strings.")
+
 
 (defun org-ref-clear-cache ()
+  "Convenience function for clearing the cache variables."
   (interactive)
   (setq-local org-ref-buffer-local-bib nil
 	      org-ref-buffer-local-valid-keys nil
@@ -284,7 +299,10 @@ This is used to cache the valid keys.")
 
 
 (defun org-ref-cache-valid-p ()
-  "Return non-nil if cache is valid."
+  "Return non-nil if cache is valid.
+A cache is valid if it is the same as it was last time. The cache
+becomes invalid when a file modification time differs from the
+previous time we checked."
   (let ((current-bib (cl-loop for bibfile in (org-ref-find-bibliography)
 			      collect
 			      (cons bibfile
@@ -458,6 +476,7 @@ PATH has the citations in it."
 (defun org-ref-cite-follow (_path)
   "Follow a cite link."
   (org-ref-citation-hydra/body))
+
 
 ;; * Citation links tooltips
 
@@ -920,7 +939,7 @@ move to the beginning of the previous cite link after this one."
 			       (cons (bibtex-completion-format-entry entry (1- (frame-width)))
 				     (cdr entry)))
 			     (bibtex-completion-candidates)))
-	 (choice (completing-read "BibTeX entries: " candidates)))
+	 (choice (completing-read "org-ref BibTeX entries: " candidates)))
     (cdr (assoc "=key=" (assoc choice candidates)))))
 
 
