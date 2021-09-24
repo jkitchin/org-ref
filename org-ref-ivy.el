@@ -24,6 +24,10 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+;;
+;; This customizes org-ref specifically around using ivy and ivy-bibtex. The
+;; citation selection looks like `ivy-bibtex' but it is a customized ivy
+;; function with customized actions.
 
 (require 'org-ref-core)
 (require 'ivy-bibtex)
