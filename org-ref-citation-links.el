@@ -152,6 +152,12 @@ https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
     (define-key map (kbd "<tab>") (lambda ()
 				    (interactive)
 				    (funcall org-ref-insert-cite-function)))
+
+    ;; xref navigation
+    (define-key map (kbd "M-.") (lambda ()
+				  (interactive)
+				  (xref-push-marker-stack)
+				  (org-ref-open-citation-at-point)))
     map)
   "Keymap for cite links."
   :type 'symbol
