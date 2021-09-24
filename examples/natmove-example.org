@@ -1,0 +1,39 @@
+#+title: Using the natmove preprocessor
+#+options: toc:nil
+
+@@latex:\maketitle@@
+
+When I write documents with citations I like the citations to be in the sentence or clause where they originate. Some reference styles, however, put the citations as superscripts on the right-hand side of punctuation. 
+
+In LaTeX, there is the natmove package within achemso which does this automatically at build time. That way, you can put the citations in the sentence where they originate, but have them rendered on the other side of punctuation when the style indicates it.
+
+Here are some examples:
+
+- A cite [[cite:@kitchin-2015-examp]] in a sentence is not modified.
+- A cite in a clause  [[cite:@kitchin-2015-examp]], like that one would be moved to the other side of the comma.
+- A cite (in parentheses  [[cite:@kitchin-2015-examp]]) would get moved outside the parentheses.
+- A cite before a colon  [[cite:@kitchin-2015-examp]]: is moved to the other side.
+- A cite before a semicolon  [[cite:@kitchin-2015-examp]]; is moved to the other side.
+- A cite at the end of a sentence is moved outside the sentence  cite:@kitchin-2015-examp.
+- A cite at the end of an excited sentence is moved outside the sentence [[cite:@kitchin-2015-examp]]!
+- A cite at the end of a question is moved outside the sentence [[cite:@kitchin-2015-examp]]?
+
+bibliographystyle:unsrtnat
+bibliography:../org-ref.bib 
+
+* build :noexport:
+
+=org-ref-cite-natmove = operates as a preprocessing hook. It works on a copy of the buffer prior to export, and in this case it just moves the citations before converting them to the backend export formats.
+
+#+BEGIN_SRC emacs-lisp
+(let ((org-export-before-parsing-hook '(org-ref-cite-natmove)))
+    (org-org-export-as-org))
+#+END_SRC
+
+
+To get a pdf:
+
+#+BEGIN_SRC emacs-lisp
+(let ((org-export-before-parsing-hook '(org-ref-cite-natmove)))
+    (org-open-file (org-latex-export-to-pdf)))
+#+END_SRC
