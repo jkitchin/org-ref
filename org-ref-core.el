@@ -66,19 +66,6 @@
   :group 'org)
 
 
-(defcustom org-ref-completion-library
-  'org-ref-ivy
-  "Symbol for library to define completion functions.
-The completion library should provide functions for
-`org-ref-insert-link-function', `org-ref-insert-cite-function',
-`org-ref-insert-label-function', `org-ref-insert-ref-function',
-and `org-ref-cite-onclick-function', and set those variables to
-the values of those functions."
-  :type 'symbol
-  :options '(org-ref-ivy)
-  :group 'org-ref)
-
-
 (defcustom org-ref-insert-link-function
   nil
   "Generic function for inserting org-ref links.
@@ -129,8 +116,7 @@ insert the ref link."
   nil
   "Function that runs when you click on a cite link.
 The function must take one argument which is the path of the link
-that was clicked on. This function is normally set by the
-function in `org-ref-completion-library'."
+that was clicked on."
   :type 'function
   :group 'org-ref)
 
