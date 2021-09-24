@@ -53,14 +53,12 @@ no-user:
 ivy:
 	${CASK_EXEC} ${emacs} -Q  \
 	--eval="(setq scimax-load-user-dir nil)" \
-	--eval="(setq org-ref-completion-library 'org-ref-ivy-cite)" \
 	-l ${INIT} \
 	tests/test-1.org
 
 devel:
 	${CASK_EXEC} ${emacs} -Q  \
 	--eval="(setq scimax-load-user-dir nil)" \
-	--eval="(setq org-ref-completion-library 'org-ref-ivy-cite)" \
 	-l ${INIT} \
 	-l ${INIT-DEVEL}
 
