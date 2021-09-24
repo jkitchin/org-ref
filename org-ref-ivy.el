@@ -58,32 +58,48 @@
   "Alternate actions to do instead of inserting.")
 
 
+;; This is modified from ivy-bibtex which had " " instead of "" which breaks marking.
+(defun org-ref-ivy-bibtex-display-transformer (candidate)
+  "Prepare bib entry CANDIDATE for display."
+  (let* ((width (- (frame-width) 2))
+	 (idx (get-text-property 1 'idx candidate))
+	 (entry (cdr (nth idx (ivy-state-collection ivy-last)))))
+    (s-concat (if (s-starts-with-p ivy-mark-prefix candidate) ivy-mark-prefix "")
+	      (bibtex-completion-format-entry entry width))))
+
+
+(ivy-set-display-transformer
+ 'org-ref-cite-insert-ivy 
+ 'org-ref-ivy-bibtex-display-transformer)
+
+
+(defun org-ref-cite-multi-insert-ivy (candidates)
+  "A multi-action function to insert CANDIDATES."
+  (with-ivy-window
+    (org-ref-insert-cite-keys
+     (mapcar (lambda (entry)
+	       (cdr (assoc "=key=" (cdr entry))))
+	     candidates))))
+
+
 (defun org-ref-cite-insert-ivy ()
   "Function for inserting a citation."
   (interactive)
-
+  ;; Set this in the function so it is updated if you change the functions while
+  ;; writing
   (ivy-set-actions
    'org-ref-cite-insert-ivy
    org-ref-citation-alternate-insert-actions)
 
+  ;; This initializes bibtex if the variable is not defined.
   (unless bibtex-completion-display-formats-internal
     (bibtex-completion-init))
 
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (candidates (if org-ref-buffer-local-candidates
-			 org-ref-buffer-local-candidates
-		       ;; trigger cached variables
-		       (org-ref-valid-keys)
-		       org-ref-buffer-local-candidates))
+	 (candidates (bibtex-completion-candidates))
 	 (choice (ivy-read "BibTeX entries: " candidates
 			   :preselect (ivy-thing-at-point)
-			   :multi-action (lambda (candidates)
-					   (with-ivy-window
-					     (org-ref-insert-cite-keys
-					      (mapcar (lambda (entry)
-							(cdr (assoc "=key=" (cdr entry))))
-						      candidates))))
-
+			   :multi-action #'org-ref-cite-multi-insert-ivy
 			   :action '(1
 				     ("o" (lambda (candidate)
 					    (org-ref-insert-cite-key
