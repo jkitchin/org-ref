@@ -107,24 +107,40 @@ Opens https://github.com/jkitchin/org-ref/issues/new."
 ${org-ref-version}
 
 * System
-system-type: ${system}
-system-configuration: ${system-configuration}
-window system: ${window-system}
-Emacs: ${emacs-version}
-org-version: ${org-version}
+
+- system-type :: ${system}
+- system-configuration :: ${system-configuration}
+- window system :: ${window-system}
+- Emacs :: ${emacs-version}
+- org-version :: ${org-version}
 
 * about org-ref
-org-ref installed in ${org-ref-location}.
 
-* org-ref-pdf (loaded: ${org-ref-pdf-p})
-system pdftotext: ${pdftotext}
-You set pdftotext-executable to ${pdftotext-executable} (exists: ${pdftotext-executable-p})
+org-ref installed in [[${org-ref-location}]].
 
-* org-ref-url-utils (loaded: ${org-ref-url-p})
+* org-ref setup
+
+-  org-ref-insert-link-function :: ${org-ref-insert-link-function}
+-  org-ref-insert-cite-function :: ${org-ref-insert-cite-function}
+-  org-ref-insert-label-function :: ${org-ref-insert-label-function}
+-  org-ref-insert-ref-function :: ${org-ref-insert-ref-function}
+-  org-ref-cite-onclick-function :: ${org-ref-cite-onclick-function}
+
+* org-ref libraries
+
+** org-ref-helm (loaded: ${org-ref-helm-p})
+** org-ref-ivy  (loaded: ${org-ref-ivy-p})
+** org-ref-pdf (loaded: ${org-ref-pdf-p})
+
+- system pdftotext :: ${pdftotext}
+
+You set =pdftotext-executable= to ${pdftotext-executable} (exists: ${pdftotext-executable-p})
+
+** org-ref-url-utils (loaded: ${org-ref-url-p})
 
 * export variables
-org-latex-pdf-process:
-${org-latex-pdf-process}
+
+- org-latex-pdf-process :: ${org-latex-pdf-process}
 "
 	     'aget
 	     `(("org-ref-version" . ,(org-ref-version))
@@ -138,18 +154,26 @@ ${org-latex-pdf-process}
 	       ("org-version" . ,(org-version))
 
 	       ("org-ref-pdf-p" . ,(ords (featurep 'org-ref-pdf)))
+	       ("org-ref-helm-p" . ,(ords (featurep 'org-ref-helm)))
+	       ("org-ref-ivy-p" . ,(ords (featurep 'org-ref-ivy)))
+
 	       ("pdftotext" . ,(ords (if (featurep 'org-ref-pdf)
 					 (executable-find "pdftotext")
 				       "org-ref-pdf not loaded")))
 	       ("pdftotext-executable" . ,(ords (if (featurep 'org-ref-pdf)
 						    pdftotext-executable
 						  "org-ref-pdf not loaded")))
-	       ("pdftotext-executable-p" . ,(ords (if (featurep 'org-ref-pdf)
+	       ("pdftotext-executable-p" . ,(ords (if (boundp 'pdftotext-executable)
 						      (or
 						       (executable-find pdftotext-executable)
 						       (file-exists-p pdftotext-executable))
-						    "org-ref-pdf not loaded")))
-	       ("org-ref-url-p" . ,(ords (featurep 'org-ref-url)))))))
+						    "pdftotext-executable is not bound")))
+	       ("org-ref-url-p" . ,(ords (featurep 'org-ref-url)))
+	       ("org-ref-insert-link-function" . ,org-ref-insert-link-function)
+	       ("org-ref-insert-cite-function" . ,org-ref-insert-cite-function)
+	       ("org-ref-insert-label-function" . ,org-ref-insert-label-function)
+	       ("org-ref-insert-ref-function" . ,org-ref-insert-ref-function)
+	       ("org-ref-cite-onclick-function" . ,org-ref-cite-onclick-function)))))
 
 
 (defun org-ref-get-bibtex-entry-citation (key)
@@ -988,7 +1012,6 @@ if FORCE is non-nil reparse the buffer no matter what."
 								 (file-name-sans-extension
 								  (locate-library "org-ref"))
 								 ".el"))
-			  ,(format "completion backend = %s" org-ref-completion-library)
 			  ,(format "org-ref-insert-cite-function = %s" org-ref-insert-cite-function)
 			  ,(format "org-ref-insert-label-function = %s" org-ref-insert-label-function)
 			  ,(format "org-ref-insert-ref-function = %s" org-ref-insert-ref-function)
