@@ -57,7 +57,8 @@
      (format "<<\\(?1:%s\\|%s[^<>\n\r]*%s\\)>>"
 	     border border border))
    ;; A label link
-   (concat "label:" org-ref-label-re "\\_>"))
+   (concat "label:" org-ref-label-re "\\_>")
+   "\\\\lstset{.*label=\\(?1:.*?\\),.*}")
   "List of regular expressions to labels.
 The label should always be in group 1.")
 
@@ -89,7 +90,8 @@ A NAME keyword
 A CUSTOM_ID property on a heading
 A LaTeX label
 A target.
-A label link.
+A label link
+A setting in lstset
 
 See `org-ref-ref-label-regexps' for the patterns that find these.
 
