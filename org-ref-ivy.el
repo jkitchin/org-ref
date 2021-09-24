@@ -97,7 +97,7 @@
 
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
 	 (candidates (bibtex-completion-candidates))
-	 (choice (ivy-read "BibTeX entries: " candidates
+	 (choice (ivy-read "org-ref-ivy BibTeX entries: " candidates
 			   :preselect (ivy-thing-at-point)
 			   :multi-action #'org-ref-cite-multi-insert-ivy
 			   :action '(1
@@ -137,13 +137,6 @@
 						  (goto-char cp)))))
 				      "Replace key at point"))
 			   :caller 'org-ref-cite-insert-ivy)))))
-
-
-(setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
-      org-ref-insert-cite-function 'org-ref-cite-insert-ivy
-      org-ref-insert-label-function 'org-ref-insert-label-link
-      org-ref-insert-ref-function 'org-ref-insert-ref-link
-      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
 
 
 (provide 'org-ref-ivy)
