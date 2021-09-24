@@ -8,16 +8,6 @@
 #+csl-locale: en-US
 
 
-[[elisp:(org-ref-export-to-html)]]
-
-[[elisp:(org-ref-export-to-latex)]]
-
-[[elisp:(org-ref-export-to-md)]]
-
-[[elisp:(org-ref-export-to-ascii)]]
-
-[[elisp:(org-ref-export-to-odt)]]
-
 
 * Introduction
 
@@ -28,7 +18,6 @@
 ** Textual
 
 - citet :: [[citet:@kitchin-2015-examp]]
-
 
 ** Parenthetical
 
@@ -48,7 +37,66 @@
 - many with notes ::  [[citet:See @kitchin-2015-examp pg. 15;and @boes-2016-neural-networ pg. 3]]
 - many with notes and common notes ::  [[citet:See; this reference @kitchin-2015-examp pg. 15;and @boes-2016-neural-networ pg. 3; for example]]
 
+Here are some more examples for looking in natmove:
+
+- A cite [[cite:@kitchin-2015-examp]] in a sentence is not modified.
+- A cite in a clause  [[cite:@kitchin-2015-examp]], like that one would be moved to the other side of the comma.
+- A cite (in parentheses  [[cite:@kitchin-2015-examp]]) would get moved outside the parentheses.
+- A cite before a colon  [[cite:@kitchin-2015-examp]]: is moved to the other side.
+- A cite before a semicolon  [[cite:@kitchin-2015-examp]]; is moved to the other side.
+- A cite at the end of a sentence is moved outside the sentence  cite:@kitchin-2015-examp.
+- A cite at the end of an excited sentence is moved outside the sentence [[cite:@kitchin-2015-examp]]!
+- A cite at the end of a question is moved outside the sentence [[cite:@kitchin-2015-examp]]?
+
+** check out cross-references
+
+#+attr_latex: :placement [H]
+#+name: g1
+#+caption: figure caption g1
+[[file:./.ob-jupyter/46ed61e65bf11890f8772850057bb35847f984b8.png]]
+
+
+#+attr_latex: :placement [H]
+#+name: g2
+#+caption: figure caption g2
+[[file:./.ob-jupyter/46ed61e65bf11890f8772850057bb35847f984b8.png]]
+
+
+- ref :: ref:g1
+- nameref ::  nameref:g1
+- pageref :: pageref:g1
+- autoref :: autoref:g1
+
+- cref :: cref:g1
+- cref,2 :: cref:g1,g2
+- Cref :: Cref:g1
+- Cref :: Cref:g1,g2
 
 * Bibliography
 
 bibliography:../org-ref.bib
+
+
+* build :noexport:
+
+Here are a few convenient functions you can use.
+
+[[elisp:(org-ref-export-to-html)]]
+
+[[elisp:(org-ref-export-to-latex)]]
+
+[[elisp:(org-ref-export-to-ascii)]]
+
+[[elisp:(org-ref-export-to-odt)]]
+
+If you want a more fine-tuned export, it would look like this. Here, if you want to use natmove, you use it first, before the cites are replaced by csl. Using refproc is what gives the cleveref links their cleverness.
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref-refproc)
+(let ((org-export-before-parsing-hook '(org-ref-cite-natmove ;; do this first
+					org-ref-csl-preprocess-buffer
+					org-ref-refproc)))
+  (org-open-file (org-html-export-to-html)))
+#+END_SRC
+
+#+RESULTS:

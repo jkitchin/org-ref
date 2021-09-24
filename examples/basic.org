@@ -83,3 +83,14 @@ bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
 
 bibliographystyle:unsrtnat
 bibliography:../org-ref.bib
+
+
+* build                                                            :noexport:
+
+** PDF
+
+org-ref was designed for making PDFs via LaTeX. It should just work with a regular export mechanism. For this document your `org-latex-pdf-process' must run bibtex and makeindex.
+
+[[elisp:(org-open-file (org-latex-export-to-pdf))]]
+
+This document has many features that are not compatible with other formats (e.g. the list of tables, index, etc...). See [[./basic-csl.org]] for an example that works with other formats.
