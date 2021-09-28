@@ -129,6 +129,7 @@ Note many of these have been renamed with an org-ref prefix.
 - [[./org-ref-bibtex.el][org-ref-bibtex]] :: Utility functions for bibtex
 - [[./org-ref-latex.el][org-ref-latex]] :: org-ref-like features in LaTeX.
 - [[./org-ref-arxiv.el][org-ref-arxiv]] :: arxiv links, add bibtex entries from arxiv.org.
+- [[./org-ref-zotero.el][org-ref-zotero]] :: add bibtex entries from any website that is supported by [[https://github.com/zotero/translators/][Zotero translators]].
 - [[./org-ref-pubmed.el][org-ref-pubmed]] :: pubmed links, add bibtex entries from PMID.
 - [[./org-ref-isbn.el][org-ref-isbn]] :: Add bibtex entries from a book ISBN
 - [[./org-ref-wos.el][org-ref-wos]] :: WebOfKnowledge links and queries

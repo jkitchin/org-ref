@@ -655,6 +655,52 @@ This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-
 - ~arxiv-add-bibtex-entry~
 - ~arxiv-get-pdf~
 
+** org-ref-zotero
+index:zotero
+
+This library provides a function to get a bibtex entry for any link that is supported by [[https://github.com/zotero/translators/][Zotero translators]]:
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref-zotero)
+#+END_SRC
+
+#+RESULTS:
+: org-ref-zotero
+
+- ~zot-translate-add-bibtex-entry~
+
+This library sends queries to the [[https://github.com/zotero/translation-server/][Zotero translation server]].
+The easiest way to run this server, as described in the readme page of the [[https://github.com/zotero/translation-server/][Zotero translation server]] is to install [[https://www.docker.com/][Docker]] and pull the translation server's image by running:
+
+#+begin_src shell
+docker pull zotero/translation-server
+#+end_src
+
+Then you can run a local instance of the server:
+
+#+begin_src shell
+docker run -d -p 1969:1969 --rm --name translation-server zotero/translation-server
+#+end_src
+
+If you run the command with the flag `--restart=always', the translation server will automatically run on system startup and you will not need to run it again:
+
+#+begin_src shell
+docker run --restart=always -d -p 1969:1969 --name translation-server zotero/translation-server
+#+end_src
+
+Note that this library will not work if the server is not running.
+You can check if the server is running using:
+
+#+begin_src shell
+docker ps
+#+end_src
+
+If you want to stop the server, you can simply run:
+
+#+begin_src shell
+docker stop translation-server
+#+end_src
+
 ** org-ref-sci-id
    :PROPERTIES:
    :ID:       AD7C70CF-1BB8-4610-B9AD-580790250459
