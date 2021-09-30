@@ -487,18 +487,17 @@ This will run in `org-export-before-parsing-hook'."
     ("Acp"      . "Glspl")))
 
 
-(cl-loop for mapping in org-ref-glossary-acr-commands-mapping
-	 do
-	 (org-link-set-parameters (car mapping)
-				  :follow #'or-follow-acronym
-				  :face 'org-ref-acronym-face-fn
-				  :help-echo 'or-acronym-tooltip
-				  :export (lambda (path _ format)
-					    (cond
-					     ((memq format '(latex beamer))
-					      (format "\\%s{%s}" (cdr mapping) path))
-					     (t
-					      (format "%s" (upcase path)))))))
+(cl-dolist (mapping org-ref-glossary-acr-commands-mapping)
+  (org-link-set-parameters (car mapping)
+			   :follow #'or-follow-acronym
+			   :face 'org-ref-acronym-face-fn
+			   :help-echo 'or-acronym-tooltip
+			   :export (lambda (path _ format)
+				     (cond
+				      ((memq format '(latex beamer))
+				       (format "\\%s{%s}" (cdr mapping) path))
+				      (t
+				       (format "%s" (upcase path)))))))
 
 
 ;;** Tooltips on acronyms
