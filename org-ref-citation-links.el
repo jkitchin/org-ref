@@ -854,7 +854,8 @@ If not on a key, but on a cite, prompt for key."
          (end (org-element-property :end object))
          (link-string (org-element-property :path object))
 	 (data (org-ref-parse-cite-path link-string))
-	 (references (plist-get data :references)))
+	 (references (plist-get data :references))
+	 (bibtex-completion-bibliography (org-ref-find-bibliography)))
 
     (setq references (cl-sort (cl-loop for ref in references collect
 				       (append ref (list :year (bibtex-completion-get-value
