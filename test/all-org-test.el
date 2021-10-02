@@ -642,14 +642,14 @@ not loaded.
    (string=
     "\\cite[page 2]{kitchin-2008-alloy}
 "
-    (org-export-string-as "[[cite:page 2;@kitchin-2008-alloy]]" 'latex t))))
+    (org-export-string-as "[[cite:page 2;&kitchin-2008-alloy]]" 'latex t))))
 
 (ert-deftest cite-export-3 ()
   (should
    (string=
     "\\cite[page 2][post text]{kitchin-2008-alloy}
 "
-    (org-export-string-as  "[[cite:page 2;@kitchin-2008-alloy;post text]]" 'latex t))))
+    (org-export-string-as  "[[cite:page 2;&kitchin-2008-alloy;post text]]" 'latex t))))
 
 (ert-deftest label-export-1 ()
   (should

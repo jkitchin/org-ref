@@ -179,7 +179,7 @@ This essentially the same as the store link in org-bibtex, but it
 creates a cite link."
   (when (eq major-mode 'bibtex-mode)
     (let ((link (concat org-ref-default-citation-link
-			":@"
+			":&"
 			(save-excursion
                           (bibtex-beginning-of-entry)
 			  (cdr (assoc "=key=" (bibtex-parse-entry)))))))

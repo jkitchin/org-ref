@@ -18,9 +18,9 @@ This is a basic example. The section uses a target label. The next section (Sec.
 index:citations
 
 Here are a few typical
-- cite :: [[cite:@kitchin-2015-examp-effec]]
-- citeauthor ::  [[citeauthor:@kitchin-2015-examp-effec]]
-- citenum ::  [[citenum:@kitchin-2015-examp-effec]]
+- cite :: [[cite:&kitchin-2015-examp-effec]]
+- citeauthor ::  [[citeauthor:&kitchin-2015-examp-effec]]
+- citenum ::  [[citenum:&kitchin-2015-examp-effec]]
 
 index:label!table
 #+name: tab-data

@@ -13,40 +13,40 @@
 
 ** Default
 
-- cite :: [[cite:@kitchin-2015-examp]]
+- cite :: [[cite:&kitchin-2015-examp]]
 
 ** Textual
 
-- citet :: [[citet:@kitchin-2015-examp]]
+- citet :: [[citet:&kitchin-2015-examp]]
 
 ** Parenthetical
 
-- citep :: [[citep:@kitchin-2015-examp]]
+- citep :: [[citep:&kitchin-2015-examp]]
 
 ** Suppress author
 
-- citenum ::  [[citenum:@kitchin-2015-examp]]
+- citenum ::  [[citenum:&kitchin-2015-examp]]
 
 ** year only
 
-- citeyear ::  [[citeyear:@kitchin-2015-examp]]
+- citeyear ::  [[citeyear:&kitchin-2015-examp]]
 
 ** full examples
 
-- single with notes :: [[citet:See @kitchin-2015-examp pg. 15]]
-- many with notes ::  [[citet:See @kitchin-2015-examp pg. 15;and @boes-2016-neural-networ pg. 3]]
-- many with notes and common notes ::  [[citet:See; this reference @kitchin-2015-examp pg. 15;and @boes-2016-neural-networ pg. 3; for example]]
+- single with notes :: [[citet:See &kitchin-2015-examp pg. 15]]
+- many with notes ::  [[citet:See &kitchin-2015-examp pg. 15;and &boes-2016-neural-networ pg. 3]]
+- many with notes and common notes ::  [[citet:See; this reference &kitchin-2015-examp pg. 15;and &boes-2016-neural-networ pg. 3; for example]]
 
 Here are some more examples for looking in natmove:
 
-- A cite [[cite:@kitchin-2015-examp]] in a sentence is not modified.
-- A cite in a clause  [[cite:@kitchin-2015-examp]], like that one would be moved to the other side of the comma.
-- A cite (in parentheses  [[cite:@kitchin-2015-examp]]) would get moved outside the parentheses.
-- A cite before a colon  [[cite:@kitchin-2015-examp]]: is moved to the other side.
-- A cite before a semicolon  [[cite:@kitchin-2015-examp]]; is moved to the other side.
-- A cite at the end of a sentence is moved outside the sentence  cite:@kitchin-2015-examp.
-- A cite at the end of an excited sentence is moved outside the sentence [[cite:@kitchin-2015-examp]]!
-- A cite at the end of a question is moved outside the sentence [[cite:@kitchin-2015-examp]]?
+- A cite [[cite:&kitchin-2015-examp]] in a sentence is not modified.
+- A cite in a clause  [[cite:&kitchin-2015-examp]], like that one would be moved to the other side of the comma.
+- A cite (in parentheses  [[cite:&kitchin-2015-examp]]) would get moved outside the parentheses.
+- A cite before a colon  [[cite:&kitchin-2015-examp]]: is moved to the other side.
+- A cite before a semicolon  [[cite:&kitchin-2015-examp]]; is moved to the other side.
+- A cite at the end of a sentence is moved outside the sentence  cite:&kitchin-2015-examp.
+- A cite at the end of an excited sentence is moved outside the sentence [[cite:&kitchin-2015-examp]]!
+- A cite at the end of a question is moved outside the sentence [[cite:&kitchin-2015-examp]]?
 
 ** check out cross-references
 

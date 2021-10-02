@@ -9,14 +9,14 @@ In LaTeX, there is the natmove package within achemso which does this automatica
 
 Here are some examples:
 
-- A cite [[cite:@kitchin-2015-examp]] in a sentence is not modified.
-- A cite in a clause  [[cite:@kitchin-2015-examp]], like that one would be moved to the other side of the comma.
-- A cite (in parentheses  [[cite:@kitchin-2015-examp]]) would get moved outside the parentheses.
-- A cite before a colon  [[cite:@kitchin-2015-examp]]: is moved to the other side.
-- A cite before a semicolon  [[cite:@kitchin-2015-examp]]; is moved to the other side.
-- A cite at the end of a sentence is moved outside the sentence  cite:@kitchin-2015-examp.
-- A cite at the end of an excited sentence is moved outside the sentence [[cite:@kitchin-2015-examp]]!
-- A cite at the end of a question is moved outside the sentence [[cite:@kitchin-2015-examp]]?
+- A cite [[cite:&kitchin-2015-examp]] in a sentence is not modified.
+- A cite in a clause  [[cite:&kitchin-2015-examp]], like that one would be moved to the other side of the comma.
+- A cite (in parentheses  [[cite:&kitchin-2015-examp]]) would get moved outside the parentheses.
+- A cite before a colon  [[cite:&kitchin-2015-examp]]: is moved to the other side.
+- A cite before a semicolon  [[cite:&kitchin-2015-examp]]; is moved to the other side.
+- A cite at the end of a sentence is moved outside the sentence  cite:&kitchin-2015-examp.
+- A cite at the end of an excited sentence is moved outside the sentence [[cite:&kitchin-2015-examp]]!
+- A cite at the end of a question is moved outside the sentence [[cite:&kitchin-2015-examp]]?
 
 bibliographystyle:unsrtnat
 bibliography:../org-ref.bib 

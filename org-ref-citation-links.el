@@ -180,13 +180,13 @@ so this variable can be buffer- or directory local if you want.
 version 2 means the links are not bracketed, and comma-separated keys.
 
 version 3 means the links are bracketed, with semicolon-separated
-@keys."
+&keys."
   :type 'number
   :group 'org-ref)
 
 
 (defvar org-ref-citation-key-re
-  (rx "@" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
+  (rx "&" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Numbered regular expression for a version 3 cite key.
 Key is in group 1.
 Adapted from the expression in org-cite.")
@@ -196,9 +196,9 @@ Adapted from the expression in org-cite.")
   "Return the version for PATH.
 PATH is from a cite link.
 Version 2 is separated by commas and uses plain keys.
-Version 3 is separated by semicolons and uses @keys.
-I think that if there is a @ in path, it must be version 3."
-  (if (string-match "@" path)
+Version 3 is separated by semicolons and uses &keys.
+I think that if there is a & in path, it must be version 3."
+  (if (string-match "&" path)
       3
     2))
 
@@ -261,7 +261,7 @@ to a path string."
       (string-join (cl-loop for ref in (plist-get data :references) collect
 			    (concat
 			     (plist-get ref :prefix)
-			     "@" (plist-get ref :key)
+			     "&" (plist-get ref :key)
 			     (plist-get ref :suffix)))
 		   ";")
       (when-let (suffix (plist-get data :suffix)) (concat ";" suffix))))))
@@ -406,7 +406,7 @@ PATH has the citations in it."
 		  (when key
 		    (save-excursion
 		      (save-match-data
-			(search-backward (concat "@" key))
+			(search-backward (concat "&" key))
 			(setq key-begin (match-beginning 0)
 			      key-end (match-end 0))))
 		    ;; store key on the whole thing
@@ -650,7 +650,7 @@ Use with apply-partially."
   "Cite link completion for CMD."
   (concat
    cmd ":"
-   "@" (org-ref-read-key)))
+   "&" (org-ref-read-key)))
 
 ;; * Generate all the links
 ;;
@@ -956,7 +956,7 @@ Rules:
 
     (if (null (member type org-ref-cite-types))
 	;; Not on a link, so we just insert a cite
-	(insert (format "[[%s:@%s]]" org-ref-default-citation-link key))
+	(insert (format "[[%s:&%s]]" org-ref-default-citation-link key))
 
       ;; On a link somewhere, and we need to figure out what to do.
       (setq link-string (org-element-property :path object)
@@ -984,7 +984,7 @@ Rules:
 
       (setq data (plist-put data :references
 			    (-insert-at
-			     (+ index (if (and (= 3 version) (looking-at "@"))
+			     (+ index (if (and (= 3 version) (looking-at "&"))
 					  0
 					+1))
 			     (list :key key) references)))

@@ -1529,7 +1529,7 @@ not loaded.
    (string=
     "\\cite[page 2]{kitchin-2008-alloy}
 "
-    (org-export-string-as "[[cite:page 2;@kitchin-2008-alloy]]" 'latex t)))
+    (org-export-string-as "[[cite:page 2;&kitchin-2008-alloy]]" 'latex t)))
 #+END_SRC
 
 #+RESULTS: cite-export-2
@@ -1558,7 +1558,7 @@ not loaded.
  (string=
   "\\cite[page 2][post text]{kitchin-2008-alloy}
 "
-  (org-export-string-as  "[[cite:page 2;@kitchin-2008-alloy;post text]]" 'latex t)))
+  (org-export-string-as  "[[cite:page 2;&kitchin-2008-alloy;post text]]" 'latex t)))
 #+END_SRC
 
 #+RESULTS: cite-export-3

@@ -3,19 +3,19 @@
 #+latex_header: \usepackage[version=3]{mhchem}
 
 
-A single key [[cite:@boes-2016-neural-networ]].
+A single key [[cite:&boes-2016-neural-networ]].
 
-another single [[cite:@boes-2017-neural-networ]]
+another single [[cite:&boes-2017-neural-networ]]
 
-Two keys [[cite:@boes-2016-neural-networ;@boes-2017-neural-networ]].
+Two keys [[cite:&boes-2016-neural-networ;&boes-2017-neural-networ]].
 
-Three keys [[cite:@boes-2016-neural-networ;@xu-2017-first-princ;@boes-2017-neural-networ]] that should be merged.
+Three keys [[cite:&boes-2016-neural-networ;&xu-2017-first-princ;&boes-2017-neural-networ]] that should be merged.
 
-Four keys, with last three merged [[cite:@boes-2016-neural-networ;@xu-2017-first-princ;@boes-2017-model-segreg;@geng-2017-first-princ]].
+Four keys, with last three merged [[cite:&boes-2016-neural-networ;&xu-2017-first-princ;&boes-2017-model-segreg;&geng-2017-first-princ]].
 
-A book [[cite:@Dominik201408]].
+A book [[cite:&Dominik201408]].
 
-Misc entry cite:@jkitchin76:online.
+Misc entry cite:&jkitchin76:online. 
 
 bibliographystyle:unsrtnat
 [[bibliography:../org-ref.bib]]
