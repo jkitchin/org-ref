@@ -67,6 +67,11 @@
   "Face for global prefix/suffix in a cite link.")
 
 
+(defface org-ref-cite-&-face
+  `((t (:inherit org-ref-cite-face :weight bold)))
+  "Face for the starting & in a cite key.")
+
+
 (defface org-ref-cite-local-prefix/suffix-face
   `((t (:inherit org-ref-cite-face :slant italic)))
   "Face for local prefix/suffix in a cite link.")
@@ -409,6 +414,9 @@ PATH has the citations in it."
 			(search-backward (concat "&" key))
 			(setq key-begin (match-beginning 0)
 			      key-end (match-end 0))))
+		    ;; mark the &
+		    (put-text-property key-begin (+ 1 key-begin) 
+				       'face 'org-ref-cite-&-face)
 		    ;; store key on the whole thing
 		    (put-text-property (match-beginning 0)
 				       (match-end 0)
