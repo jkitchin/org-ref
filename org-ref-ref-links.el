@@ -105,7 +105,8 @@ Returns a list of cons cells (label . context).
 
 It is important for this function to be fast, since we use it in
 font-lock."
-  (let ((rx (string-join org-ref-ref-label-regexps "\\|"))
+  (let ((case-fold-search t)
+	(rx (string-join org-ref-ref-label-regexps "\\|"))
 	(labels '())
 	context)
     (save-excursion
@@ -144,7 +145,8 @@ font-lock."
 (defun org-ref-ref-jump-to (&optional _path)
   "Jump to the target for the ref link at point."
   (interactive)
-  (let ((label (get-text-property (point) 'org-ref-ref-label))
+  (let ((case-fold-search t)
+	(label (get-text-property (point) 'org-ref-ref-label))
 	(labels (split-string _path ","))
 	(rx (string-join org-ref-ref-label-regexps "\\|")))
     (when (null label)
