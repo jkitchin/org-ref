@@ -38,3 +38,4 @@ elpa-for-orgref
 meta.xml
 styles.xml
 *.run.xml
+/sandbox/
