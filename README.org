@@ -3,7 +3,6 @@
 
 #+BEGIN_HTML
 <a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
-<a href='https://coveralls.io/github/jkitchin/org-ref?branch=master'><img src='https://coveralls.io/repos/github/jkitchin/org-ref/badge.svg?branch=master' alt='Coverage Status' /></a>
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 <a href="http://stable.melpa.org/#/org-ref"><img alt="MELPA Stable" src="http://stable.melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
