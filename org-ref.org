@@ -32,7 +32,7 @@
 
 * Introduction to org-ref
 
-Org-ref is a library for org-mode [[cite:@Dominik201408]] that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
+Org-ref is a library for org-mode [[cite:&Dominik201408]] that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
 
 The basic idea of org-ref is that it defines a convenient interface to insert citations from a reference database (e.g. from a bibtex file(s)), cross-references to targets in the document, and a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref uses [[https://github.com/tmalsburg/helm-bibtex][bibtex-completion]] for the candidates you can use for citations.
 
@@ -65,26 +65,26 @@ If you want to export this document to another format like PDF or HTML, see sect
 
 A new citation syntax was recently (2021) integrated into org-mode. Initially I thought this would make at least the citation part of org-ref obsolete. I no longer think that is the case though. One of the goals of org-ref is to provide complete coverage of natbib/biblatex citation commands, with syntax that is close to what you would write in LaTeX, and that is close to what you would read in the LaTeX documentation. The new org-mode citation syntax does not do that. It uses a very different notion of citation and bibliography style syntax. I still think there is significant value to new writers, as well as more experienced writers who are very familiar with LaTeX to use the org-ref approach.
 
-An early criticism of org-ref was its limited capability to support prenote/postnote syntax, especially for multiple citations. It turns out to be reasonably straightforward to support this, and version 3 does fully support the same syntax as the org-mode citation syntax, and it supports common prefix/suffix text, as well as local prefix/suffix text on each citation reference.
+An early criticism of org-ref was its limited capability to support prenote/postnote syntax, especially for multiple citations. It turns out to be reasonably straightforward to support this, and version 3 does fully support the same syntax as the org-mode citation syntax, and it supports common prefix/suffix text, as well as local prefix/suffix text on each citation reference. I have intentionally chosen to use =&= as the prefix for bibtex keys in org-ref, so that it is explicitly different than the one org-cite uses (=@=) to reduce confusion about which syntax you are using.
 
- [[citep:See; in @kitchin-2015-examp page 12; in @kitchin-2015-data-surfac-scien figure 6; for examples]]
+ [[citep:See; in &kitchin-2015-examp page 12; in &kitchin-2015-data-surfac-scien figure 6; for examples]]
 
-You can use both version 2 and version 3 syntax in the same document. Here are the same citations from above in version 3 syntax.
+You can use both version 2 and version 3 syntax in the same document (although you should not mix them in the same citation). Here are the same citations from above in version 3 syntax.
 
-- cite:@hallenbeck-2013-effec
-- cite:@mehta-2014-ident-poten
-- cite:@xu-2014-relat-elect
-- cite:@xu-2014-probin-cover
-- cite:@miller-2014-simul-temper
-- cite:@curnan-2014-effec-concen
-- cite:@boes-2015-estim-bulk
-- cite:@xu-2015-linear-respon
-- cite:@xu-2015-relat-between
-- cite:@boes-2016-neural-networ
-- cite:@boes-2017-neural-networ
-- cite:@xu-2017-first-princ
+- cite:&hallenbeck-2013-effec
+- cite:&mehta-2014-ident-poten
+- cite:&xu-2014-relat-elect
+- cite:&xu-2014-probin-cover
+- cite:&miller-2014-simul-temper
+- cite:&curnan-2014-effec-concen
+- cite:&boes-2015-estim-bulk
+- cite:&xu-2015-linear-respon
+- cite:&xu-2015-relat-between
+- cite:&boes-2016-neural-networ
+- cite:&boes-2017-neural-networ
+- cite:&xu-2017-first-princ
 
-You should not mix org-ref links and org-cite citations though. They are treated separately at this point.
+You should not mix org-ref links and org-cite citations. They are treated separately and you are not likely to get what you want.
 
 Another criticism was that non-LaTeX exports were usually not that good because org-ref either implemented a minimal formatting engine, and because my early effort at developing a citeproc in org-ref fizzled out. Now, there is citeproc-el, and org-ref supports that for export.
 
@@ -99,18 +99,7 @@ At this time, I have not integrated the org-cite capability I wrote in https://g
 
 ** known issues with org-ref and org-citations
 
-There is currently some syntax leakage between an org-ref cite: link and the org-citation. On one hand, if you don't have oc.el loaded, org-mode sees the org-citation syntax as an org link in single brackets. If you do have oc.el loaded, then org sees a double bracketed link as an org-citation inside brackets. This only affects the cite: links; there is no overlap with the other kinds of links.
-
-- unbracketed link: cite:@kitchin-2015-examp
-- org-cite [cite:@kitchin-2015-examp]
-- bracketed link  [[cite:@kitchin-2015-examp]]
-
-
-- unbracketed link: citet:@kitchin-2015-examp
-- org-cite [cite/t:@kitchin-2015-examp]
-- bracketed link  [[citet:@kitchin-2015-examp]]
-
-You should not try to define a cite/: link. It will also cause a problem.
+You should not try to define a cite/*: (i.e. do not define a link type that starts with cite/) link. org-cite will probably think it is an org-citation.
 
 ** Basic configuration <<basic-configuration>>
 
@@ -127,7 +116,7 @@ Here is the setup I use.
 					 "~/Dropbox/emacs/bibliography/archive.bib")
 	bibtex-completion-library-path '("~/Dropbox/emacs/bibliography/bibtex-pdfs/")
 	bibtex-completion-notes-path "~/Dropbox/emacs/bibliography/notes/"
-	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:@${=key=}]]\n"
+	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
 
 	bibtex-completion-additional-search-fields '(keywords)
 	bibtex-completion-display-formats
@@ -155,11 +144,22 @@ Here is the setup I use.
 	bibtex-autokey-titlewords-stretch 1
 	bibtex-autokey-titleword-length 5)
   (define-key bibtex-mode-map (kbd "H-b") 'org-ref-bibtex-hydra/body)
-  (define-key org-mode-map (kbd "s-]") 'org-ref-insert-link)
+  (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
+  (define-key org-mode-map (kbd "s-[") 'org-ref-insert-link-hydra/body)
   (require 'org-ref-ivy)
   (require 'org-ref-arxiv)
   (require 'org-ref-scopus)
   (require 'org-ref-wos))
+
+
+(use-package org-ref-ivy
+  :ensure nil
+  :load-path (lambda () (expand-file-name "org-ref" scimax-dir))
+  :init (setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
+	      org-ref-insert-cite-function 'org-ref-cite-insert-ivy
+	      org-ref-insert-label-function 'org-ref-insert-label-link
+	      org-ref-insert-ref-function 'org-ref-insert-ref-link
+	      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body))))
 #+END_SRC
 
 
@@ -219,21 +219,30 @@ org-ref has two versions of syntax. In version 2 there is very limited support f
 
 version 3 is much more capable, similar to the new org-cite syntax. The general syntax is:
 
-=Common prefix; prenote 1 @key1 postnote1; prenote n @keyn postnote n; Common suffix=
+=Common prefix; prenote 1 &key1 postnote1; prenote n &keyn postnote n; Common suffix=
 
-The tradeoff is you have to prefix the keys with @, separate them by semicolons, and the links have to be bracketed if you put spaces in the notes. The previous citation in version 3 looks like  [[citep:See page 20 @Dominik201408, for example]] as "local" pre/postnotes, or  [[citep:See page 20 ;@Dominik201408;, for example]], as "common" or "global" pre/post notes. You can do this with multiple keys too: [[citep:See @Dominik201408 pg. 2;and @kitchin-2015-examp for examples]]. Note in this example, the internal prefix on the second reference is ignored, because the cite command does not support it; use biblatex with a multicite if you need that in your citations. There are still a few caveats. Natbib only supports a single set of pre/post notes; some citation styles with biblatex support the full syntax. Not all cite types in LaTeX support pre/post text (e.g. cite, citenum do not support them), so be careful when you use them.
+The tradeoff is you have to prefix the keys with &, separate them by semicolons, and the links have to be bracketed if you put spaces in the notes. The previous citation in version 3 looks like  [[citep:See page 20 &Dominik201408, for example]] as "local" pre/postnotes, or  [[citep:See page 20 ;&Dominik201408;, for example]], as "common" or "global" pre/post notes. You can do this with multiple keys too: [[citep:See &Dominik201408 pg. 2;and &kitchin-2015-examp for examples]]. Note in this example, the internal prefix on the second reference is ignored, because the cite command does not support it; use biblatex with a multicite if you need that in your citations. There are still a few caveats. Natbib only supports a single set of pre/post notes; some citation styles with biblatex support the full syntax. Not all cite types in LaTeX support pre/post text (e.g. cite, citenum do not support them), so be careful when you use them.
 
 
-*** label links
+*** labels
     :PROPERTIES:
     :CUSTOM_ID: sec-label-link
     :END:
 index:label
 
-LaTeX uses labels to define places you can refer to. These can be labels in the captions of figures and tables, or labels in sections. We illustrate some uses here.
+LaTeX uses labels to define places you can refer to. These can be labels in the captions of figures and tables, or labels in sections. We illustrate some uses here. You can use label links, but it is preferred to use name keywords or other native org label mechanisms.
 
+Here is a way to use a label link:
 
 #+caption: Another simple table. label:tab-ydata
+| y |
+| 4 |
+| 5 |
+
+This is the preferred way to label a table.
+
+#+name: tab-ydata-name
+#+caption: Another simple table. 
 | y |
 | 4 |
 | 5 |
@@ -391,30 +400,30 @@ Here are the natbib types (these will export in LaTeX with the unsrtnat style). 
 Here are some examples of the pre/post note syntax for each natbib type. Not all of these make sense. For example the plain cite command does not take pre/post notes, even with natbib. If you use these a lot, you should use citet/citep. Not all of the commands take pre/post notes, e.g. citenum.
 
 
-- =[[citet:See @kitchin-2015-examp page 2]]= :: [[citet:See @kitchin-2015-examp page 2]]
-- =[[citet*:See @kitchin-2015-examp page 2]]= :: [[citet*:See @kitchin-2015-examp page 2]]
-- =[[citep:See @kitchin-2015-examp page 2]]= :: [[citep:See @kitchin-2015-examp page 2]]
-- =[[citep*:See @kitchin-2015-examp page 2]]= :: [[citep*:See @kitchin-2015-examp page 2]]
-- =[[citealt:See @kitchin-2015-examp page 2]]= :: [[citealt:See @kitchin-2015-examp page 2]]
-- =[[citealt*:See @kitchin-2015-examp page 2]]= :: [[citealt*:See @kitchin-2015-examp page 2]]
-- =[[citealp:See @kitchin-2015-examp page 2]]= :: [[citealp:See @kitchin-2015-examp page 2]]
-- =[[citealp*:See @kitchin-2015-examp page 2]]= :: [[citealp*:See @kitchin-2015-examp page 2]]
-- =[[citenum:@kitchin-2015-examp]]= :: [[citenum:@kitchin-2015-examp]]
-- =[[citetext:See @kitchin-2015-examp page 2]]= :: [[citetext:See @kitchin-2015-examp page 2]]
-- =[[citeauthor:See @kitchin-2015-examp page 2]]= :: [[citeauthor:See @kitchin-2015-examp page 2]]
-- =[[citeauthor*:See @kitchin-2015-examp page 2]]= :: [[citeauthor*:See @kitchin-2015-examp page 2]]
-- =[[citeyear:See @kitchin-2015-examp page 2]]= :: [[citeyear:See @kitchin-2015-examp page 2]]
-- =[[citeyearpar:See @kitchin-2015-examp page 2]]= :: [[citeyearpar:See @kitchin-2015-examp page 2]]
-- =[[Citet:See @kitchin-2015-examp page 2]]= :: [[Citet:See @kitchin-2015-examp page 2]]
-- =[[Citet*:See @kitchin-2015-examp page 2]]= :: [[Citet*:See @kitchin-2015-examp page 2]]
-- =[[Citep:See @kitchin-2015-examp page 2]]= :: [[Citep:See @kitchin-2015-examp page 2]]
-- =[[Citep*:See @kitchin-2015-examp page 2]]= :: [[Citep*:See @kitchin-2015-examp page 2]]
-- =[[Citealt:See @kitchin-2015-examp page 2]]= :: [[Citealt:See @kitchin-2015-examp page 2]]
-- =[[Citealt*:See @kitchin-2015-examp page 2]]= :: [[Citealt*:See @kitchin-2015-examp page 2]]
-- =[[Citealp:See @kitchin-2015-examp page 2]]= :: [[Citealp:See @kitchin-2015-examp page 2]]
-- =[[Citealp*:See @kitchin-2015-examp page 2]]= :: [[Citealp*:See @kitchin-2015-examp page 2]]
-- =[[Citeauthor:See @kitchin-2015-examp page 2]]= :: [[Citeauthor:See @kitchin-2015-examp page 2]]
-- =[[Citeauthor*:See @kitchin-2015-examp page 2]]= :: [[Citeauthor*:See @kitchin-2015-examp page 2]]
+- =[[citet:See &kitchin-2015-examp page 2]]= :: [[citet:See &kitchin-2015-examp page 2]]
+- =[[citet*:See &kitchin-2015-examp page 2]]= :: [[citet*:See &kitchin-2015-examp page 2]]
+- =[[citep:See &kitchin-2015-examp page 2]]= :: [[citep:See &kitchin-2015-examp page 2]]
+- =[[citep*:See &kitchin-2015-examp page 2]]= :: [[citep*:See &kitchin-2015-examp page 2]]
+- =[[citealt:See &kitchin-2015-examp page 2]]= :: [[citealt:See &kitchin-2015-examp page 2]]
+- =[[citealt*:See &kitchin-2015-examp page 2]]= :: [[citealt*:See &kitchin-2015-examp page 2]]
+- =[[citealp:See &kitchin-2015-examp page 2]]= :: [[citealp:See &kitchin-2015-examp page 2]]
+- =[[citealp*:See &kitchin-2015-examp page 2]]= :: [[citealp*:See &kitchin-2015-examp page 2]]
+- =[[citenum:&kitchin-2015-examp]]= :: [[citenum:&kitchin-2015-examp]]
+- =[[citetext:See &kitchin-2015-examp page 2]]= :: [[citetext:See &kitchin-2015-examp page 2]]
+- =[[citeauthor:See &kitchin-2015-examp page 2]]= :: [[citeauthor:See &kitchin-2015-examp page 2]]
+- =[[citeauthor*:See &kitchin-2015-examp page 2]]= :: [[citeauthor*:See &kitchin-2015-examp page 2]]
+- =[[citeyear:See &kitchin-2015-examp page 2]]= :: [[citeyear:See &kitchin-2015-examp page 2]]
+- =[[citeyearpar:See &kitchin-2015-examp page 2]]= :: [[citeyearpar:See &kitchin-2015-examp page 2]]
+- =[[Citet:See &kitchin-2015-examp page 2]]= :: [[Citet:See &kitchin-2015-examp page 2]]
+- =[[Citet*:See &kitchin-2015-examp page 2]]= :: [[Citet*:See &kitchin-2015-examp page 2]]
+- =[[Citep:See &kitchin-2015-examp page 2]]= :: [[Citep:See &kitchin-2015-examp page 2]]
+- =[[Citep*:See &kitchin-2015-examp page 2]]= :: [[Citep*:See &kitchin-2015-examp page 2]]
+- =[[Citealt:See &kitchin-2015-examp page 2]]= :: [[Citealt:See &kitchin-2015-examp page 2]]
+- =[[Citealt*:See &kitchin-2015-examp page 2]]= :: [[Citealt*:See &kitchin-2015-examp page 2]]
+- =[[Citealp:See &kitchin-2015-examp page 2]]= :: [[Citealp:See &kitchin-2015-examp page 2]]
+- =[[Citealp*:See &kitchin-2015-examp page 2]]= :: [[Citealp*:See &kitchin-2015-examp page 2]]
+- =[[Citeauthor:See &kitchin-2015-examp page 2]]= :: [[Citeauthor:See &kitchin-2015-examp page 2]]
+- =[[Citeauthor*:See &kitchin-2015-examp page 2]]= :: [[Citeauthor*:See &kitchin-2015-examp page 2]]
 
 
 *** biblatex users  <<sec-biblatex-users>>
@@ -514,7 +523,7 @@ org-ref-biblatex-multitypes
 Here is a full example. This only exports correctly in biblatex or with CSL, so I include it as an example here.
 
 #+BEGIN_EXAMPLE
- [[cites:See; in @kitchin-2015-examp page 1;in @kitchin-2015-data-surfac-scien page 2;and in @kitchin-2016-autom-data page 3; for examples]]
+ [[cites:See; in &kitchin-2015-examp page 1;in &kitchin-2015-data-surfac-scien page 2;and in &kitchin-2016-autom-data page 3; for examples]]
 #+END_EXAMPLE
 
 
@@ -530,6 +539,16 @@ All other exports are handled by citeproc now. This is done by preprocessing in 
 | C-c C-e r l | latex      |
 | C-c C-c r O | org buffer |
 
+
+* org-ref-export
+
+org-ref now supports the use of citeproc-el to export citations to non-LaTeX backends. See section [[sec-other-forms]] for more details. You can also use [[./org-ref-natbib-bbl-citeproc.el]]
+
+* org-refproc
+
+org-ref also supports exporting cross-references to other formats using [[./org-ref-refproc.el]]. This library also works by pre-processing a copy of the buffer to convert org-ref cross-reference links to org-syntax before exporting to the target backend. This even support cleveref style links with automatic prefixing and sorting. Compression of the references is not yet supported.
+
+See  [[./examples/refproc.org]] for a pretty comprehensive set of examples.
 
 * Other libraries in org-ref
 
@@ -975,22 +994,19 @@ First ac:bb. Second ac:bb. First ac:qos. Second ac:qos.
 
 Before building this file you need to require the following libraries so the links will be resolved.
 
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-wos)
 (require 'org-ref-scopus)
 (require 'org-ref-pubmed)
 (require 'org-ref-sci-id)
  #+END_SRC
 
- #+RESULTS:
- : org-ref-sci-id
-
 
 *** PDF
 
 You may want to build a pdf of this file. Here is an emacs-lisp block that will create and open the PDF.
 
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp :results silent
 (let ((org-export-with-broken-links t)
       (org-latex-pdf-process
        '("pdflatex -interaction nonstopmode -shell-escape -output-directory %o %f"
@@ -1001,10 +1017,13 @@ You may want to build a pdf of this file. Here is an emacs-lisp block that will 
   (org-open-file (org-latex-export-to-pdf)))
  #+END_SRC
 
- #+RESULTS:
+*** Best practices for other formats
 
+org-ref relies on bibtex entries for bibliographies. Bibtex was designed for LaTeX export, and it is common to have LaTeX markup in the BibTeX entries to get the highest quality output in LaTeX (e.g. properly formatted equations, chemical formulas, accents in author names, etc.). This markup will usually not export correctly to other formats without some translation efforts.
 
-*** Other formats
+It is not generally possible to have a single BibTeX file that easily, and correctly exports to all backends. If perfection in your exports is needed, you need separate bibtex files for each backend, where the markup is intended for that backend. For example you might have "\ce{H2O}" in an entry intended for LaTeX export, but "H<sub>2</sub>O" in an entry for HTML export, and "H_{2}O" for org export.
+
+Maybe you could try an approach where your bibtex file is only org-mode, and then generate a bibtex file by "export" so that at export time it would be in the right format. I haven't tried that yet. It sounds complicated.
 
 
 *** Other formats using CSL
@@ -1013,15 +1032,13 @@ org-ref supports export to other formats using [[https://github.com/andras-simon
 
 org-ref provides a new exporter for convenience with the following export options: After C-c C-e r
 
-| a | to ascii and open|
-| h | to html and open|
+| a | to ascii and open      |                                                                 |
+| h | to html and open       |                                                                 |
+| l | to latex and open      | all cite links and bibliography are exported to latex           |
+| o | to OpenOffice and open |                                                                 |
+| O | to org buffer          | only goes to a buffer so you don't overwrite the current buffer |
+| e | to email               |                                                                 |
 
-
-An alternative to this exporter is to use an  `org-export-before-parsing-hook' to do the pre-processing like this.
-
-#+BEGIN_SRC emacs-lisp
-(add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
-#+END_SRC
 
 
 These links will run export commands to get this document in different formats. It is worth noting that if your bibtex entries use LaTeX markup (e.g. subscripts, superscripts, chemical equations, etc.) in them, it will probably not render faithfully in the alternative backend. It is in general difficult to have a single format in bibtex that correctly renders in all backends. I don't know of a great solution for this, since LaTeX and CSL use different citation processors.
@@ -1030,27 +1047,46 @@ These links will run export commands to get this document in different formats. 
 
 [[elisp:(org-ref-export-to-latex)]]
 
-[[elisp:(org-ref-export-to-md)]] TODO: doesn't seem to work
-
 [[elisp:(org-ref-export-to-ascii)]]
 
-[[elisp:(org-ref-export-to-odt)]]   TODO: doesn't seem to work, citations are not right.
+[[elisp:(org-ref-export-to-odt)]]
 
-[[elisp:(org-ref-export-to-message)]] export to body of an email message
+[[elisp:(org-ref-export-to-message)]] export to body of an ascii email message
 
+Some basic styles are provide in [[./csl-locales/]], and a US-English locale in [[./csl-locales/]].
+
+#+BEGIN_SRC sh
+ls csl-styles
+#+END_SRC
+
+#+RESULTS:
+| apa-5th-edition.csl                  |
+| apa-numeric-superscript-brackets.csl |
+| chicago-author-date-16th-edition.csl |
+| elsevier-harvard.csl                 |
+| elsevier-with-titles.csl             |
+
+
+An alternative to this exporter is to use an  `org-export-before-parsing-hook' to do the pre-processing like this. This should work for most backends with the usual export keys and commands.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
+#+END_SRC
 
 *** Other formats without using CSL
 
-An alternative approach to using citeproc is to use LaTeX/bibtex more directly. [[./org-ref-natbib-bbl-citeproc.el]] defines another pre-processor that uses LaTeX and natbib/bibtex to create citations and bibliographies.
+An alternative approach to using citeproc is to use LaTeX/bibtex more directly. [[./org-ref-natbib-bbl-citeproc.el]] defines another pre-processor that uses LaTeX and natbib/bibtex to create citations and bibliographies. The bbl file is still intended for consumption by LaTeX. org-ref does some light processing to remove LaTeX artifacts, but it is not complete so some artifacts may still appear in your export (e.g. LaTeX commands that are not handled, some backslashes, etc).
 
-Here is an example
+Here is an example how to export to HTML with the bbl file produced by LaTeX and bibtex. Your org-file must compile without error once with LaTeX and once with bibtex.
 
-#+BEGIN_SRC emacs-lisp :exports none
+#+BEGIN_SRC emacs-lisp :exports none :results silent
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC
 
-#+RESULTS:
+The natbib options for [super, numbers, authoryear] are supported, and citation options [square, round, angle, curly], and separators [comma, colon, semicolon] are supported. You can also use [sort, compress, sort&compress] for numeric styles. The longnamesfirst option is not currently supported.
+
+The bibliography entries are formatted from the bbl file. See these examples [[./examples/bbl-super.org]], [[./examples/bbl-numbers.org]] and [[./examples/bbl-authoryear.org]].
 
 * Index
 
