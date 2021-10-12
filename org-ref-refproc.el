@@ -11,6 +11,8 @@
 ;;
 
 ;;; Code:
+(require 'org-ref-ref-links)
+
 
 (defcustom org-ref-refproc-clever-prefixes
   '((section :full "section" :abbrv "sec.")
@@ -327,6 +329,7 @@ which capitalizes each prefix."
 						     (< (plist-get a :index) (plist-get b :index))))))
 	 ;; temp vars
 	 prefix
+	 prefix-data
 	 ;; Now we have to be clever on each sorted group. One day I should add compression to the groups, e.g. 1,2,3 - > 1 to 3
 	 ;; For each group we need a prefix, and it may have to be a plural prefix.
 	 ;; If there are two members of a group, they are joined by and
