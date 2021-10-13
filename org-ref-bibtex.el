@@ -68,21 +68,6 @@
 (require 'doi-utils)
 
 
-(declare-function key-chord-define-global "key-chord")
-(declare-function org-ref-find-bibliography "org-ref-core")
-(declare-function org-ref-open-bibtex-pdf "org-ref-core")
-(declare-function org-ref-open-bibtex-notes "org-ref-core")
-(declare-function org-ref-clean-bibtex-entry "org-ref-core")
-(declare-function org-ref-open-in-browser "org-ref-core")
-(declare-function org-ref-sort-bibtex-entry "org-ref-core")
-(declare-function org-ref-build-full-bibliography "org-ref-core")
-(declare-function bibtex-completion-edit-notes "bibtex-completion")
-(declare-function bibtex-completion-get-value "bibtex-completion")
-(declare-function bibtex-completion-get-entry "bibtex-completion")
-(declare-function parsebib-find-next-item "parsebib")
-(declare-function parsebib-read-entry "parsebib")
-
-
 ;;* Custom variables
 (defgroup org-ref-bibtex nil
   "Customization group for org-ref-bibtex."
@@ -113,6 +98,7 @@ The replacement string should be escaped for use with
 `replace-match'. Compare to the default value. Common choices
 would be to omit the space or to replace the space with a ~ for a
 non-breaking space."
+  :type 'regexp
   :group 'org-ref)
 
 
@@ -234,7 +220,9 @@ users may be interested in adding themselves."
   "Cons list of non-ascii characters and their LaTeX representations.
 This may be deprecated. When `org-ref' started, non-ascii
 characters were often problematic with bibtex, but in 2021, it is
-not obvious that is still try.")
+not obvious that is still try."
+  :type '(alist :key-type (string) :value-type (string))
+  :group 'org-ref-bibtex)
 
 (defcustom org-ref-bibtex-assoc-pdf-with-entry-move-function 'rename-file
   "Function to use when associating pdf files with bibtex entries.
@@ -353,6 +341,7 @@ original file in place while creating a renamed copy in some directory."
     ("WR" "Water Research" "Water Res."))
   "List of (string journal-full-name journal-abbreviation). Find
   new abbreviations at http://cassi.cas.org/search.jsp."
+  :type '(list (repeat (list string string)))
   :group 'org-ref-bibtex)
 
 
@@ -477,7 +466,9 @@ books."
     (bibtex-narrow-to-entry)
     (bibtex-beginning-of-entry)
     (let* ((entry-type (downcase (cdr (assoc "=type=" (bibtex-parse-entry)))))
-	   (fields (cdr (assoc entry-type org-ref-title-case-types))))
+	   (fields (cdr (assoc entry-type org-ref-title-case-types)))
+	   ;; temporary variables
+	   title words)
       (when fields
 	(cl-loop for field in fields
 		 when (bibtex-autokey-get-field field)
