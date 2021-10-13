@@ -23,6 +23,7 @@
     (listing :full "listing" :abbrv "lst."))
   "Prefixes for cleveref links.
 plist with :full and :abbrv forms for each type."
+  :type 'sexp
   :group 'org-ref)
 
 
