@@ -222,26 +222,20 @@ provide their own version."
 "
   ("[" (funcall org-ref-insert-cite-function) "Citation" :column "org-ref")
   ("]" (funcall org-ref-insert-ref-function) "Cross-reference" :column "org-ref")
-  ("\\" (funcall org-ref-insert-label-function) "Label"  :column "org-ref"))
-
-
-(defhydra+ org-ref-insert-link-hydra ()
+  ("\\" (funcall org-ref-insert-label-function) "Label"  :column "org-ref")
+  
   ("bs" (insert (org-ref-bibliographystyle-complete-link)) "Bibliographystyle" :column "Bibliography" :color blue)
   ("bf" (insert (org-ref-bibliography-complete)) "Bibliography" :column "Bibliography" :color blue)
-  ("nb" (insert (org-ref-nobibliography-complete)) "Bibliography" :column "Bibliography" :color blue))
-
-
-(defhydra+ org-ref-insert-link-hydra ()
+  ("nb" (insert (org-ref-nobibliography-complete)) "Bibliography" :column "Bibliography" :color blue)
+  
   ("g" org-ref-insert-glossary-link "Glossary link" :column "Glossary" :color blue)
   ("a" org-ref-insert-acronym-link "Acronym link" :column "Glossary" :color blue)
   ("ng" org-ref-add-glossary-entry "New glossary term" :column "Glossary")
-  ("na" org-ref-add-acronym-entry "New acronym term" :column "Glossary"))
-
-
-(defhydra+ org-ref-insert-link-hydra (:color blue)
+  ("na" org-ref-add-acronym-entry "New acronym term" :column "Glossary")
+  
   ("t" (insert "[[list-of-tables:]]\n") "List of tables" :column "Misc")
   ("f" (insert "[[list-of-figures:]]\n") "List of figures" :column "Misc")
-  ("i" (insert (format "[[index:%s]]" (string-trim (completing-read "Index entry: ")))) "Index entry" :column "Misc")
+  ("i" (insert (format "[[index:%s]]" (string-trim (read-string "Index entry: ")))) "Index entry" :column "Misc")
   ("p" (insert "[[printindex:]]") "Print index" :column "Misc"))
 
 
