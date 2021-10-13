@@ -346,7 +346,7 @@ Used in fontification."
 
 
 ;; ** exporting with a glossary table
-(defun org-ref-glossary-before-parsing (backend)
+(defun org-ref-glossary-before-parsing (_backend)
   "Function to preprocess a glossary table on export.
 This assumes a table like
 
@@ -662,7 +662,7 @@ This will run in `org-export-before-parsing-hook'."
   ;; gather entries
   (let* ((glossary-candidates '())
 	 key entry type
-	 candidates)
+	 choice)
 
     ;; glossary terms
     (save-excursion
@@ -706,7 +706,6 @@ This will run in `org-export-before-parsing-hook'."
   ;; gather entries
   (let* ((acronym-candidates '())
 	 key entry
-	 candidates
 	 type
 	 choice)
 
