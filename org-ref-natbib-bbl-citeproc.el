@@ -48,6 +48,7 @@
 ;;
 ;;; Code:
 
+(defvar org-ref-natmove)  			;silence compiler
 
 (defun org-bbl-clean-string (s)
   "Clean S of markups.
@@ -100,29 +101,29 @@ cover any math (yet)."
 		 (setq p4 (point)
 		       p3 (- (point) 1))
 		 (setq ss (string-trim (buffer-substring p2 p3)))
-		 (setf (buffer-substring p1 p4) (format fmt ss)))))
+		 (setf (buffer-substring p1 p4) (format fmt ss))))
 
-    ;; {text} for protecting case. This is tricky to do reliably. I try to check
-    ;; if this is not part of a command, and skip it if so. This leaves
-    ;; un-cleaned commands in, which is desirable to me so you can see if there
-    ;; are ones we might handle in the future.
-    (goto-char (point-min))
-    (while (search-forward "{" nil t)
-      ;; I think if we go back a word, and are then looking back at \\, we are in a command.
-      ;; this would fail on a latex command like \word-word{} but I can't think of any right now.
-      (save-excursion
-	(backward-word)
-	(setq cmd-p (looking-back "\\\\" 1)))
-      ;; This looks back for a \cmd, basically things not a closing }
-      (unless cmd-p
-	(setq p1 (match-beginning 0)
-	      p2 (point))
-	(backward-char)
-	(forward-list)
-	(setq p4 (point)
-	      p3 (- (point) 1))
-	(setq s (buffer-substring p2 p3))
-	(cl--set-buffer-substring p1 p4 s)))
+      ;; {text} for protecting case. This is tricky to do reliably. I try to check
+      ;; if this is not part of a command, and skip it if so. This leaves
+      ;; un-cleaned commands in, which is desirable to me so you can see if there
+      ;; are ones we might handle in the future.
+      (goto-char (point-min))
+      (while (search-forward "{" nil t)
+	;; I think if we go back a word, and are then looking back at \\, we are in a command.
+	;; this would fail on a latex command like \word-word{} but I can't think of any right now.
+	(save-excursion
+	  (backward-word)
+	  (setq cmd-p (looking-back "\\\\" 1)))
+	;; This looks back for a \cmd, basically things not a closing }
+	(unless cmd-p
+	  (setq p1 (match-beginning 0)
+		p2 (point))
+	  (backward-char)
+	  (forward-list)
+	  (setq p4 (point)
+		p3 (- (point) 1))
+	  (setq s (buffer-substring p2 p3))
+	  (cl--set-buffer-substring p1 p4 s))))
 
 
     (let ((result (buffer-string)))
@@ -158,7 +159,7 @@ done in a temp-buffer so we don't actually modify the bbl file."
 	  p3
 	  p4
 	  s
-	  author
+	  authors
 	  blocks
 	  entry)
       (setq p1 (point))
@@ -398,7 +399,8 @@ Argument BIBDATA the data parsed from a bbl file."
 
     (setq p2 (org-element-property :end link))
 
-    (when natmove
+    ;; org-ref-natmove is dynamically bound here
+    (when org-ref-natmove
       (save-excursion
 	(goto-char (org-element-property :end link))
 	(skip-chars-backward " ")
@@ -459,7 +461,7 @@ bibliography.
   (let* ((org-export-before-parsing-hook nil)
 	 (tex-file (org-latex-export-to-latex))
 	 (bbl-file (concat (file-name-sans-extension tex-file) ".bbl"))
-	 natbib-options bibdata natmove
+	 natbib-options bibdata org-ref-natmove
 	 buf)
 
     (when-let (buf (find-buffer-visiting tex-file))
@@ -477,7 +479,7 @@ bibliography.
       (goto-char (point-min))
       (setq natbib-options (org-ref-bbl-get-natbib-options))
       (goto-char (point-min))
-      (setq natmove (search-forward "\\usepackage{natmove}" nil t)))
+      (setq org-ref-natmove (search-forward "\\usepackage{natmove}" nil t)))
     (kill-buffer buf)
 
     (setq buf (find-file-noselect bbl-file))
