@@ -44,6 +44,8 @@
 
 ;;; Code:
 
+(defvar hfy-user-sheet-assoc)  		; to quiet compiler
+
 (require 'ox-org)
 
 (require 'citeproc)
