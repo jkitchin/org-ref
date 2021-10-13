@@ -535,7 +535,7 @@ WINDOW and OBJECT are ignored."
 
 
 ;; ** Exporting with an acronym table
-(defun org-ref-acronyms-before-parsing (backend)
+(defun org-ref-acronyms-before-parsing (_backend)
   "Function to preprocess a glossary table on export.
 This assumes a table like
 
