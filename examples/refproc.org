@@ -45,7 +45,7 @@ This document is a set of examples to see how the org-ref cross-reference proces
 - autoref :: autoref:b1
 - nameref :: nameref:b1
 - pageref :: pageref:b1
-- cref :: cref cref:b1
+- cref :: cref:b1
 - cref, two :: cref:b1,b2
 - Cref :: Cref:b1
 - Cref, two :: Cref:b1,b2
