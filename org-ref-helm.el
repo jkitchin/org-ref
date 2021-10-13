@@ -32,6 +32,8 @@
 (require 'org-ref-core)
 (require 'helm-bibtex)
 
+(defvar helm-bibtex-local-bib)  ; to quiet compiler. 
+
 ;;; Code:
 
 (helm-bibtex-helmify-action org-ref-insert-cite-keys org-ref-helm-bibtex-insert-citation)
