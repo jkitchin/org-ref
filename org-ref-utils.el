@@ -29,6 +29,7 @@
 
 (defvar org-ref-cite-types)
 
+
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 (declare-function 'org-ref-bib-citation "org-ref-core.el")
@@ -211,26 +212,24 @@ Falls back to `org-ref-get-pdf-filename' if file field does not exist.
 Contributed by https://github.com/autosquid.
 Argument KEY is the bibtex key."
   (let* ((results (org-ref-get-bibtex-key-and-file key))
-         (bibfile (cdr results))
-
-         entry)
+         (bibfile (cdr results)))
     (with-temp-buffer
       (insert-file-contents bibfile)
       (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
       (bibtex-search-entry key nil 0)
-      (let ((e (bibtex-autokey-get-field "file"))))
-      (if (> (length e) 4)
-          (let ((clean-field (replace-regexp-in-string "{\\|}\\|\\\\" "" e)))
-            (let ((first-file (car (split-string clean-field ";" t))))
-              (format "/%s" (substring first-file 1
-				       (- (length first-file) 4)))))
-        (expand-file-name (format "%s.pdf" key) (cond
-						 ((stringp bibtex-completion-library-path)
-						  bibtex-completion-library-path)
-						 ((= 1 (length bibtex-completion-library-path))
-						  (car bibtex-completion-library-path))
-						 (t
-						  (completing-read "PDF dir: " bibtex-completion-library-path))))))))
+      (let ((e (bibtex-autokey-get-field "file")))
+	(if (> (length e) 4)
+            (let ((clean-field (replace-regexp-in-string "{\\|}\\|\\\\" "" e)))
+              (let ((first-file (car (split-string clean-field ";" t))))
+		(format "/%s" (substring first-file 1
+					 (- (length first-file) 4)))))
+          (expand-file-name (format "%s.pdf" key) (cond
+						   ((stringp bibtex-completion-library-path)
+						    bibtex-completion-library-path)
+						   ((= 1 (length bibtex-completion-library-path))
+						    (car bibtex-completion-library-path))
+						   (t
+						    (completing-read "PDF dir: " bibtex-completion-library-path)))))))))
 
 
 (defun org-ref-get-pdf-filename-bibtex-completion (key)
@@ -548,8 +547,8 @@ if FORCE is non-nil reparse the buffer no matter what."
 		       do
 		       (when (not (member (plist-get ref :key) bibtex-keys))
 			 (goto-char (plist-get plist :begin))
-			 (re-search-forward key)
-			 (push (cons key (point-marker)) bad-citations)))))))
+			 (re-search-forward (plist-get ref :key))
+			 (push (cons (plist-get ref :key) (point-marker)) bad-citations)))))))
       ;; add with-affiliates to get cites in caption
       nil nil nil t)
     (goto-char cp)
@@ -582,15 +581,11 @@ if FORCE is non-nil reparse the buffer no matter what."
 (defun org-ref-count-labels (label)
   "Return the number of times LABEL appears in the buffer."
   (let ((rx (string-join org-ref-ref-label-regexps "\\|"))
-	(labels '())
-	context)
+	(labels '()))
     (save-excursion
       (org-with-wide-buffer
        (goto-char (point-min))
        (while (re-search-forward rx nil t)
-	 (setq context (buffer-substring
-			(save-excursion (forward-line -1) (point))
-			(save-excursion (forward-line +2) (point))))
 	 (cl-pushnew (match-string-no-properties 1) labels))))
     (-count (lambda (x) (and (stringp x) (string= x label))) labels)))
 
@@ -665,7 +660,7 @@ if FORCE is non-nil reparse the buffer no matter what."
       (goto-char (point-min))
       (while (re-search-forward "\\\\attachfile{\\([^}]*\\)}" nil t)
         (unless (file-exists-p (match-string 1))
-          (add-to-list 'bad-files (cons (match-string 1) (point-marker))))))
+          (push  (cons (match-string 1) (point-marker)) bad-files))))
     bad-files))
 
 
@@ -743,6 +738,9 @@ if FORCE is non-nil reparse the buffer no matter what."
 	 (org-latex-prefer-user-labels (and (boundp 'org-latex-prefer-user-labels)
 					    org-latex-prefer-user-labels)))
 
+    (when elc-ok nil)  		; this is to silence a compiler error
+					; about elc-ok not being used. I use it
+					; as a side-effect above
 
     ;; See if natbib, biblatex or cleveref are required
     (org-element-map (org-element-parse-buffer) 'link
@@ -982,6 +980,11 @@ if FORCE is non-nil reparse the buffer no matter what."
 		       mchar (marker-position marker))
 		 (insert (format "- [[elisp:(progn (switch-to-buffer %S) (goto-char %S)(org-show-entry))][%s]]\n"
 				 mbuffer mchar key))))
+
+      (when bad-files
+	(insert "\n* Bad files\n")
+	(cl-loop for (fname pos) in bad-files do
+		 (insert (format "- [[elisp:(goto-char %s)][%s]]\n" pos fname))))
 
       (when unreferenced-labels
 	(insert "\n* Unreferenced label links\n")
