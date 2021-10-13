@@ -189,8 +189,7 @@ in the file. Data comes from worldcat."
 		(org-ref-isbn-clean-bibtex-entry)
 		(org-ref-clean-bibtex-entry)
 		(bibtex-fill-entry)
-		(s-trim (buffer-string))
-		(buffer-string)))
+		(s-trim (buffer-string))))
       (save-buffer))))
 
 (provide 'org-ref-isbn)
