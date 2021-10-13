@@ -33,7 +33,9 @@ some directory, absolute, etc."
 
 (defcustom org-ref-validate-bibliography nil
   "If non-nil, validate bibliography files in fontification.
-This can be slow, so we don't do it by default.")
+This can be slow, so we don't do it by default."
+  :type 'boolean
+  :group 'org-ref)
 
 
 ;;* bibliography* links
@@ -196,7 +198,7 @@ creates a cite link."
 			 :help-echo "Bibliography link"
 			 :export (apply-partially 'org-ref-bibliography*-export "\\bibliography")
 			 :activate-func #'org-ref-bibliography-activate
-			 :face #'org-link)
+			 :face 'org-link)
 
 
 (org-link-set-parameters "nobibliography"
@@ -206,7 +208,7 @@ creates a cite link."
 			 :activate-func #'org-ref-bibliography-activate
 			 :follow #'org-ref-bibliography*-follow
 			 :export (apply-partially 'org-ref-bibliography*-export "\\nobibliography")
-			 :face #'org-link)
+			 :face 'org-link)
 
 
 (org-link-set-parameters "printbibliography"
