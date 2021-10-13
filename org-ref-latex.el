@@ -66,8 +66,7 @@ The clickable part are the keys.")
   (while (re-search-forward org-ref-latex-cite-re limit t)
     (setq font-lock-extra-managed-props (delq 'help-echo font-lock-extra-managed-props))
     (goto-char (match-beginning 0))
-    (let ((end (match-end 0))
-	  p)
+    (let ((end (match-end 0)))
       (cl-loop for key in (split-string (match-string-no-properties 4) ",")
 	       do
 	       (save-match-data
