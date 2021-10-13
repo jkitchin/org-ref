@@ -26,7 +26,8 @@
 
 (defface org-ref-label-face
   `((t (:inherit org-link :foreground "dark magenta")))
-  "Color for ref links in `org-ref'.")
+  "Color for ref links in `org-ref'."
+  :group 'org-ref-faces)
 
 
 ;;** label link (maybe deprecated)
