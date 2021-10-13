@@ -55,7 +55,9 @@
 		   (format "cite:@%s" (cdr (assoc "=key=" candidate)))))
      "Insert org-heading")
     ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options"))
-  "Alternate actions to do instead of inserting.")
+  "Alternate actions to do instead of inserting."
+  :type '(list (repeat (string function string)))
+  :group 'org-ref)
 
 
 ;; This is modified from ivy-bibtex which had " " instead of "" which breaks marking.
@@ -68,9 +70,7 @@
 	      (bibtex-completion-format-entry entry width))))
 
 
-(ivy-set-display-transformer
- 'org-ref-cite-insert-ivy 
- 'org-ref-ivy-bibtex-display-transformer)
+(ivy-configure 'org-ref-cite-insert-ivy :display-transformer-fn 'org-ref-ivy-bibtex-display-transformer)
 
 
 (defun org-ref-cite-multi-insert-ivy (candidates)
@@ -96,47 +96,47 @@
     (bibtex-completion-init))
 
   (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	 (candidates (bibtex-completion-candidates))
-	 (choice (ivy-read "org-ref-ivy BibTeX entries: " candidates
-			   :preselect (ivy-thing-at-point)
-			   :multi-action #'org-ref-cite-multi-insert-ivy
-			   :action '(1
-				     ("o" (lambda (candidate)
-					    (org-ref-insert-cite-key
-					     (cdr (assoc "=key=" (cdr candidate)))))
-				      "insert")
-				     ("r" (lambda (candidate)
-					    (let* ((object (org-element-context))
-						   (type (org-element-property :type object))
-						   (begin (org-element-property :begin object))
-						   (end (org-element-property :end object))
-						   (link-string (org-element-property :path object))
-						   (data (org-ref-parse-cite-path link-string))
-						   (references (plist-get data :references))
-						   (cp (point))
-						   (key)
-						   keys i)
-					      ;;   We only want this to work on citation links
-					      (when (-contains? org-ref-cite-types type)
-						(setq key (org-ref-get-bibtex-key-under-cursor))
-						(if (null key)
-						    ;; delete the whole cite
-						    (cl--set-buffer-substring begin end "")
-						  (setq i (seq-position
-							   references key
-							   (lambda (el key)
-							     (string= key
-								      (plist-get el :key)))))
-						  (setf (plist-get (nth i references) :key)
-							(cdr (assoc "=key=" (cdr candidate))))
-						  (setq data (plist-put data :references references))
-						  (save-excursion
-						    (goto-char begin)
-						    (re-search-forward link-string)
-						    (replace-match (org-ref-interpret-cite-data data)))
-						  (goto-char cp)))))
-				      "Replace key at point"))
-			   :caller 'org-ref-cite-insert-ivy)))))
+	 (candidates (bibtex-completion-candidates)))
+    (ivy-read "org-ref-ivy BibTeX entries: " candidates
+	      :preselect (ivy-thing-at-point)
+	      :multi-action #'org-ref-cite-multi-insert-ivy
+	      :action '(1
+			("o" (lambda (candidate)
+			       (org-ref-insert-cite-key
+				(cdr (assoc "=key=" (cdr candidate)))))
+			 "insert")
+			("r" (lambda (candidate)
+			       (let* ((object (org-element-context))
+				      (type (org-element-property :type object))
+				      (begin (org-element-property :begin object))
+				      (end (org-element-property :end object))
+				      (link-string (org-element-property :path object))
+				      (data (org-ref-parse-cite-path link-string))
+				      (references (plist-get data :references))
+				      (cp (point))
+				      (key)
+				      keys i)
+				 ;;   We only want this to work on citation links
+				 (when (-contains? org-ref-cite-types type)
+				   (setq key (org-ref-get-bibtex-key-under-cursor))
+				   (if (null key)
+				       ;; delete the whole cite
+				       (cl--set-buffer-substring begin end "")
+				     (setq i (seq-position
+					      references key
+					      (lambda (el key)
+						(string= key
+							 (plist-get el :key)))))
+				     (setf (plist-get (nth i references) :key)
+					   (cdr (assoc "=key=" (cdr candidate))))
+				     (setq data (plist-put data :references references))
+				     (save-excursion
+				       (goto-char begin)
+				       (re-search-forward link-string)
+				       (replace-match (org-ref-interpret-cite-data data)))
+				     (goto-char cp)))))
+			 "Replace key at point"))
+	      :caller 'org-ref-cite-insert-ivy)))
 
 
 (provide 'org-ref-ivy)
