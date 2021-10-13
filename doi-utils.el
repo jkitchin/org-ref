@@ -103,12 +103,16 @@ e.g. (lambda () nil)"
 The default is `doi-utils-get-json-metadata', but it sometimes
 fails with a proxy. An alternative is
 `doi-utils-get-json-metadata-curl' which requires an external
-program to use curl.")
+program to use curl."
+  :type 'function
+  :group 'doi-utils)
 
 
 (defcustom doi-utils-async-download t
   "Use `doi-utils-async-download-pdf' to get pdfs asynchrounously.
-If non-nil use `doi-utils-get-bibtex-entry-pdf' synchronously.")
+If non-nil use `doi-utils-get-bibtex-entry-pdf' synchronously."
+  :type 'boolean
+  :group 'doi-utils)
 
 
 ;;* Getting pdf files from a DOI
@@ -763,7 +767,7 @@ checked."
 	  (message "We don't have a recipe for this journal.")))
 
 	(when (file-exists-p pdf-file)
-	  (bibtex-set-field file pdf-file))
+	  (bibtex-set-field "file" pdf-file))
 
 	(when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
 	  (org-open-file pdf-file))))))
@@ -1434,7 +1438,7 @@ Get a list of possible matches. Choose one with completion."
       	  (replace-match "\\\"" nil t)))
       (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
       ;; decode json string
-      (setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
+      (setq json-string (decode-coding-string (encode-coding-string raw-json-string 'utf-8) 'utf-8))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s" (org-ref-bib-citation)))
@@ -1548,7 +1552,7 @@ Get a list of possible matches. Choose one with completion."
       	  (replace-match "\\\"" nil t)))
       (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
       ;; decode json string
-      (setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
+      (setq json-string (decode-coding-string (encode-coding-string raw-json-string 'utf-8) 'utf-8))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s"
