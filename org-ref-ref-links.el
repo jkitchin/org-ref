@@ -32,7 +32,8 @@
 
 (defface org-ref-ref-face
   `((t (:inherit org-link :foreground "dark red")))
-  "Face for ref links in org-ref.")
+  "Face for ref links in org-ref."
+  :group 'org-ref-faces)
 
 
 (defvar org-ref-label-re
