@@ -54,22 +54,30 @@
     (md . plain)
     (ascii . plain)
     (odt . org-odt))
-  "Mapping of export backend to csl-backends.")
+  "Mapping of export backend to csl-backends."
+  :type '(alist :key-type (symbol) :value-type (symbol))
+  :group 'org-ref)
 
 
 (defcustom org-ref-cite-internal-links 'auto
   "Should be on of
 - 'bib-links :: link cites to bibliography entries
 - 'no-links :: do not link cites to bibliography entries
-- nil or 'auto :: add links based on the style.")
+- nil or 'auto :: add links based on the style."
+  :type '(choice bib-links no-links auto nil)
+  :group 'org-ref)
 
 
 (defcustom org-ref-csl-default-style "chicago-author-date-16th-edition.csl"
-  "Default csl style to use.")
+  "Default csl style to use."
+  :type 'string
+  :group 'org-ref)
 
 
 (defcustom org-ref-csl-default-locale "en-US"
-  "Default csl locale to use.")
+  "Default csl locale to use."
+  :type 'string
+  :group 'org-ref)
 
 
 (defcustom org-ref-csl-label-aliases
@@ -103,7 +111,9 @@
   "A-list of aliases for a csl label.
 The car is a list of possible aliases (including if they end in a .
 This list was adapted from `org-cite-csl--label-alist'.
-See https://github.com/citation-style-language/documentation/blob/master/specification.rst#locators")
+See https://github.com/citation-style-language/documentation/blob/master/specification.rst#locators"
+  :type '(alist :key-type (list (repeat string)) :value-type string)
+  :group 'org-ref)
 
 
 (defun org-ref-dealias-label (alias)
