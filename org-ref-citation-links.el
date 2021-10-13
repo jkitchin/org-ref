@@ -50,37 +50,46 @@
 
 (require 'hydra)
 
+(defgroup org-ref-faces nil
+  "A group for faces in `org-ref'.")
+
 (defface org-ref-cite-face
   `((t (:inherit org-link
                  :foreground "forest green")))
-  "Color for cite-like links in org-ref.")
+  "Color for cite-like links in org-ref."
+  :group 'org-ref-faces)
 
 
 (defface org-ref-bad-cite-key-face
   `((t (:inherit org-ref-cite-face
 		 :foreground "red")))
-  "Color for bad cite keys in org-ref.")
+  "Color for bad cite keys in org-ref."
+  :group 'org-ref-faces)
 
 
 (defface org-ref-cite-global-prefix/suffix-face
   `((t (:inherit org-ref-cite-face :weight bold)))
-  "Face for global prefix/suffix in a cite link.")
+  "Face for global prefix/suffix in a cite link."
+  :group 'org-ref-faces)
 
 
 (defface org-ref-cite-&-face
   `((t (:inherit org-ref-cite-face :weight bold)))
-  "Face for the starting & in a cite key.")
+  "Face for the starting & in a cite key."
+  :group 'org-ref-faces)
 
 
 (defface org-ref-cite-local-prefix/suffix-face
   `((t (:inherit org-ref-cite-face :slant italic)))
-  "Face for local prefix/suffix in a cite link.")
+  "Face for local prefix/suffix in a cite link."
+  :group 'org-ref-faces)
 
 
 (defface org-ref-cite-invalid-local-prefix/suffix-face
   `((t (:inherit org-ref-cite-face :foreground "red")))
   "Face for invalid local prefix/suffix in a cite link.
-This is mostly for multicites and natbib.")
+This is mostly for multicites and natbib."
+  :group 'org-ref-faces)
 
 
 (defcustom org-ref-default-citation-link
