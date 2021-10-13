@@ -50,8 +50,11 @@
 
 (require 'hydra)
 
+
 (defgroup org-ref-faces nil
-  "A group for faces in `org-ref'.")
+  "A group for faces in `org-ref'."
+  :group 'org-ref-faces)
+
 
 (defface org-ref-cite-face
   `((t (:inherit org-link
