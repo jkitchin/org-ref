@@ -52,7 +52,7 @@
 	   (insert (bibtex-completion-apa-format-reference
 		    (cdr (assoc "=key=" candidate)))
 		   " "
-		   (format "cite:@%s" (cdr (assoc "=key=" candidate)))))
+		   (format "cite:&%s" (cdr (assoc "=key=" candidate)))))
      "Insert org-heading")
     ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options"))
   "Alternate actions to do instead of inserting."
