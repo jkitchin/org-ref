@@ -503,10 +503,12 @@ the first instance of the label, or nil of there is none."
 
 (defun org-ref-insert-ref-link (&optional set-type)
   "Insert a ref link.
-If on a link, append a label to the end."
+If on a link, append a label to the end.
+With a prefix arg SET-TYPE choose the ref type."
   (interactive "P")
   (let* ((label (completing-read "Label: " (org-ref-get-labels)))
-	 (type (if set-type (completing-read "Type: " org-ref-ref-types)
+	 (type (if (or set-type current-prefix-arg)
+		   (completing-read "Type: " org-ref-ref-types)
 		 (org-ref-infer-ref-type label))))
     (if-let* ((lnk (org-ref-ref-link-p))
 	      (path (org-element-property :path lnk))
