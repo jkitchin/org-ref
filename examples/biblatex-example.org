@@ -1,8 +1,11 @@
+#+title: org-ref with biblatex
+#+options: toc:nil
 #+latex_class: article-nodefaults
 #+latex_header: \usepackage[version=3]{mhchem}  % for some references
-#+latex_header: \usepackage{biblatex}
+#+latex_header: \usepackage[style=authoryear]{biblatex}
 #+latex_header: \usepackage[linktocpage,pdfstartview=FitH,colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue]{hyperref}
 #+latex_header: \addbibresource{../org-ref.bib}
+@@latex:\maketitle@@
 
 The latex_class here makes sure you don't use default packages so you can load biblatex and use it.
 
@@ -12,7 +15,7 @@ Here is a single citation [[cite:&boes-2016-neural-networ]], and one with multip
 
 * simple cites with notes
 
-Only global pre/post notes are supported for non-multi types, so you see them here  [[cite:See; &boes-2016-neural-networ; for example]], but not here [[cite:See &boes-2016-neural-networ for example]]
+Pre/post notes are supported for single non-multi types, so you see them here  [[cite:See; &boes-2016-neural-networ; for example]], and here [[cite:See &boes-2016-neural-networ for example]]
 
 It is the same for multiple keys, you see these notes [[cite:See; &boes-2016-neural-networ;&xu-2017-first-princ; for example]], but not these notes, which are defined as local to each citation reference [[cite:See &boes-2016-neural-networ for example;and &boes-2017-neural-networ pg. 13]]
 
@@ -23,18 +26,17 @@ You can do proper multiple citations with global and individual notes if you use
 - parencites ::  [[parencites:global prefix; See &boes-2016-neural-networ pg. 3;and &boes-2017-neural-networ pg. 5; global suffix]]
 - cites ::  [[cites:global prefix; See &boes-2016-neural-networ pg. 3;and &boes-2017-neural-networ pg. 5; global suffix]]
 
-
+# This is where the bibliography is printed
 [[printbibliography:]]
 
 * build                                                            :noexport:
 
-You need to use a biblatex setup for this. After you export this to latex (C-c C-e ll) run this cell.
+You need to use a biblatex setup for this.
 
-I am not real familiar with biblatex, so this feels clunky.
-
-#+BEGIN_SRC sh :results silent
-rm -f biblatex-example.pdf
-latexmk -C
-latexmk -f -pdf -bibtex biblatex-example
-open biblatex-example.pdf
+#+BEGIN_SRC emacs-lisp
+(let ((org-latex-pdf-process '("latexmk -f -pdf -%latex -bibtex -interaction=nonstopmode -output-directory=%o %f")))
+  (org-open-file (org-latex-export-to-pdf)))
 #+END_SRC
+
+#+RESULTS:
+
