@@ -476,6 +476,13 @@ PATH has the citations in it."
   ("f" (kill-new (bibtex-completion-apa-format-reference
 		  (org-ref-get-bibtex-key-under-cursor)))
    "Copy formatted" :column "Copy")
+  ("h" (kill-new
+	(format "* %s\n\n cite:&%s"
+		(bibtex-completion-apa-format-reference
+		 (org-ref-get-bibtex-key-under-cursor))
+		(car (org-ref-get-bibtex-key-and-file))))
+   "Copy org heading"
+   :column "Copy")
 
   ;; Editing actions
   ("<left>" org-ref-cite-shift-left "Shift left" :color red :column "Edit")
