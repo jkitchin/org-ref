@@ -159,17 +159,19 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
 	(setq label (match-string 1 full-suffix)
 	      locator (match-string 2 full-suffix)
 	      suffix (match-string 3 full-suffix))
-      (setq label ""
-	    locator ""
+      (setq label nil
+	    locator nil
 	    suffix full-suffix))
+    
     ;; Let's assume if you have a locator but not a label that you mean page.
     (when (and locator (string= "" (string-trim label)))
       (setq label "page"))
+    
     `((id . ,(plist-get ref :key))
-      (prefix . ,(or (plist-get ref :prefix) ""))
+      (prefix . ,(plist-get ref :prefix))
       (suffix . ,suffix)
       (locator . ,locator)
-      (label . ,(org-ref-dealias-label (string-trim label)))
+      (label . ,(when label (org-ref-dealias-label (string-trim label))))
       ;; TODO: proof of concept and not complete
       (suppress-author . ,(not (null (member type
 					     '("citenum"
