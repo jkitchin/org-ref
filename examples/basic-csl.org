@@ -8,8 +8,9 @@
 #+csl-locale: en-US
 
 
-
 * Introduction
+
+Let's see how these get rendered.
 
 ** Default
 
@@ -31,22 +32,25 @@
 
 - citeyear ::  [[citeyear:&kitchin-2015-examp]]
 
-** full examples
+** locators
 
-- single with notes :: [[citet:See &kitchin-2015-examp pg. 15]]
-- many with notes ::  [[citet:See &kitchin-2015-examp pg. 15;and &boes-2016-neural-networ pg. 3]]
-- many with notes and common notes ::  [[citet:See; this reference &kitchin-2015-examp pg. 15;and &boes-2016-neural-networ pg. 3; for example]]
+- single number implies page :: [[citet:See &kitchin-2015-examp  15]]
+- page :: [[citet:See &kitchin-2015-examp pg 15]]
+- chapter ::  [[citet:See &kitchin-2015-examp ch 15]]
+- line ::  [[citet:See &kitchin-2015-examp l 15]]
+- line (full label) ::  [[citet:See &kitchin-2015-examp line 15]] 
+- figure ::  [[citet:See &kitchin-2015-examp fig 15]] 
 
-Here are some more examples for looking in natmove:
+These may not be supported by this CSL style.
 
-- A cite [[cite:&kitchin-2015-examp]] in a sentence is not modified.
-- A cite in a clause  [[cite:&kitchin-2015-examp]], like that one would be moved to the other side of the comma.
-- A cite (in parentheses  [[cite:&kitchin-2015-examp]]) would get moved outside the parentheses.
-- A cite before a colon  [[cite:&kitchin-2015-examp]]: is moved to the other side.
-- A cite before a semicolon  [[cite:&kitchin-2015-examp]]; is moved to the other side.
-- A cite at the end of a sentence is moved outside the sentence  cite:&kitchin-2015-examp.
-- A cite at the end of an excited sentence is moved outside the sentence [[cite:&kitchin-2015-examp]]!
-- A cite at the end of a question is moved outside the sentence [[cite:&kitchin-2015-examp]]?
+- eq ::  [[citet:See &kitchin-2015-examp eq 15]]
+- table ::  [[citet:See &kitchin-2015-examp tab 15]] 
+
+** full examples with notes
+
+- single with notes :: [[citet:See &kitchin-2015-examp pg 15]]
+- many with notes ::  [[citet:See &kitchin-2015-examp 15;and &boes-2016-neural-networ 3]]
+- many with notes and common notes ::  [[citet:See; this reference &kitchin-2015-examp 15;and &boes-2016-neural-networ 3; for example]]
 
 ** check out cross-references
 
@@ -72,6 +76,19 @@ Here are some more examples for looking in natmove:
 - Cref :: Cref:g1
 - Cref :: Cref:g1,g2
 
+* natmove
+
+Here are some more examples for looking in natmove:
+
+- A cite [[cite:&kitchin-2015-examp]] in a sentence is not modified.
+- A cite in a clause  [[cite:&kitchin-2015-examp]], like that one would be moved to the other side of the comma.
+- A cite (in parentheses  [[cite:&kitchin-2015-examp]]) would get moved outside the parentheses.
+- A cite before a colon  [[cite:&kitchin-2015-examp]]: is moved to the other side.
+- A cite before a semicolon  [[cite:&kitchin-2015-examp]]; is moved to the other side.
+- A cite at the end of a sentence is moved outside the sentence  cite:&kitchin-2015-examp.
+- A cite at the end of an excited sentence is moved outside the sentence [[cite:&kitchin-2015-examp]]!
+- A cite at the end of a question is moved outside the sentence [[cite:&kitchin-2015-examp]]?
+- 
 * Bibliography
 
 bibliography:../org-ref.bib
@@ -81,17 +98,23 @@ bibliography:../org-ref.bib
 
 Here are a few convenient functions you can use. These only preprocess the buffer with the CSL hook, so if you want to use the refproc, or natmove processor, you need to do a more [[fine-tuned export]].
 
-[[elisp:(org-ref-export-to-html)]]
+These are registered with C-c C-e r prefix
 
-[[elisp:(org-ref-export-to-ascii)]]
+[[elisp:(org-ref-export-as-org)]] C-c C-e rO
 
-[[elisp:(org-ref-export-to-odt)]]
+[[elisp:(org-ref-export-to-html)]]  C-c C-e rh
+
+[[elisp:(org-ref-export-to-ascii)]] C-c C-e ra
+
+[[elisp:(org-ref-export-to-odt)]] C-c C-e ro
+
+[[elisp:(org-ref-export-to-message)]] C-c C-e re
 
 If you want a standalone, bibtex free LaTeX/PDF export you can use
 
-[[elisp:(org-ref-export-to-latex)]]
+[[elisp:(org-ref-export-to-latex)]] C-c C-e rl
 
-[[elisp:(org-ref-export-to-pdf)]] 
+[[elisp:(org-ref-export-to-pdf)]] C-c C-e rp
 
 If you want a more <<fine-tuned export>>, it would look like this. Here, if you want to use natmove, you use it first, before the cites are replaced by csl. Using refproc is what gives the cleveref links their cleverness.
 

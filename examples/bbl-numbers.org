@@ -1,3 +1,5 @@
+#+title: BBL-citeproc with numeric citations
+
 #+latex_class: article-no-defaults
 #+latex_header: \usepackage[numbers, angle, sort&compress]{natbib}
 #+latex_header: \usepackage[version=3]{mhchem}
@@ -22,6 +24,7 @@ bibliographystyle:unsrtnat
 
 * build :noexport:
 #+BEGIN_SRC emacs-lisp :exports none
+(require 'org-ref-natbib-bbl-citeproc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC

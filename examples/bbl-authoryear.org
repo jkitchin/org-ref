@@ -26,6 +26,7 @@ bibliographystyle:unsrtnat
 
 * build :noexport:
 #+BEGIN_SRC emacs-lisp :exports none
+(require 'org-ref-natbib-bbl-citeproc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC
