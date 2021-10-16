@@ -294,6 +294,7 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
   "Open the notes for bibtex key under point in a cite link in a buffer.
 Can also be called with THEKEY in a program."
   (interactive)
+  (org-mark-ring-push)
   (when (null thekey)
     (setq thekey (org-ref-get-bibtex-key-under-cursor)))
   (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
@@ -304,6 +305,7 @@ Can also be called with THEKEY in a program."
 (defun org-ref-open-citation-at-point ()
   "Open bibtex file to key at point."
   (interactive)
+  (org-mark-ring-push)
   (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
     (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))))
 
