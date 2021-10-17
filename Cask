@@ -15,3 +15,4 @@
  (depends-on "citeproc")
  (depends-on "bibtex-completion")
  (depends-on "hydra"))
+
