@@ -826,8 +826,9 @@ If not on a key, but on a cite, prompt for key."
        ;; places like keywords are not parsed as links, but they seem to get
        ;; activated, so we can just get onto the key, and then open it.
        ((member (thing-at-point 'word) org-ref-cite-types)
-	(when (re-search-forward ":" (line-end-position) t)
-	  (get-text-property (point) 'cite-key)))))))
+	(save-excursion
+	  (when (re-search-forward ":" (line-end-position) t)
+	    (get-text-property (point) 'cite-key))))))))
 
 
 ;; ** Shift-arrow sorting of keys in a cite link
