@@ -10,8 +10,6 @@
 <a href="http://stable.melpa.org/#/org-ref"><img alt="MELPA Stable" src="http://stable.melpa.org/packages/org-ref-badge.svg"/></a>
 #+END_HTML
 
-# I might stop using coveralls.
-# <a href='https://coveralls.io/github/jkitchin/org-ref?branch=master'><img src='https://coveralls.io/repos/github/jkitchin/org-ref/badge.svg?branch=master' alt='Coverage Status' /></a>
 
 # TODO: make a new YouTube video. Probably when this is merged to master.
 # Introduction to org-ref on [[https://www.youtube.com/watch?v=2t925KRBbFc][YouTube]].
@@ -49,6 +47,17 @@ If you are happy with your version 2 setup, you can keep it, and the version 2 b
   - The older org-ref citeproc has been removed
 - Drag-and-drop code is gone 
 - legacy code supporting org-mode version 8 is gone
+
+** What about org-cite?
+
+A new syntax for citations was added in org-mode version 9.5. This library is similar to org-ref, in the sense that it provides a mechanism to add citations to org-files, but it has a different approach. org-cite is designed to be very modular, with different processors for inserting, activating, following and exporting citations. It also uses a different cite/style type of syntax. It does not handle cross-references or provide any of the bibtex tools that are available in org-ref. The main advantages of org-cite include:
+
+1. It is built in to org-mode now
+2. It is highly modular, so you can configure it any way you want
+
+org-cite does not meet my citation and technical document publishing needs, and it was not possible to integrate it into org-ref without compromising those. I decided to continue developing org-ref for that reason. org-ref now provides the same citation capabilities as org-cite does as far as I know. I plan to continue using org-ref for my technical document writing activities.
+
+You can use both org-cite and org-ref (although you should not do that in the same document as they are independent citation tools).
 
 * Screenshots
 
