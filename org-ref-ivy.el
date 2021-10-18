@@ -79,7 +79,8 @@
     (org-ref-insert-cite-keys
      (mapcar (lambda (entry)
 	       (cdr (assoc "=key=" (cdr entry))))
-	     candidates))))
+	     candidates)
+     ivy-current-prefix-arg)))
 
 
 (defun org-ref-cite-insert-ivy ()
@@ -103,7 +104,8 @@
 	      :action '(1
 			("o" (lambda (candidate)
 			       (org-ref-insert-cite-key
-				(cdr (assoc "=key=" (cdr candidate)))))
+				(cdr (assoc "=key=" (cdr candidate)))
+				ivy-current-prefix-arg))
 			 "insert")
 			("r" (lambda (candidate)
 			       (let* ((object (org-element-context))

@@ -971,8 +971,9 @@ move to the beginning of the previous cite link after this one."
     (cdr (assoc "=key=" (assoc choice candidates)))))
 
 
-(defun org-ref-insert-cite-key (key)
+(defun org-ref-insert-cite-key (key &optional set-type)
   "Insert KEY at point as a cite link.
+With optional prefix SET-TYPE choose the link type (only on initial insert).
 Rules:
 1. at beginning of key, insert before it.
 2. at middle or end of key, insert after it."
@@ -983,7 +984,11 @@ Rules:
 
     (if (null (member type org-ref-cite-types))
 	;; Not on a link, so we just insert a cite
-	(insert (format "[[%s:&%s]]" org-ref-default-citation-link key))
+	(insert (format "[[%s:&%s]]"
+			(if set-type
+			    (completing-read "cite type: " org-ref-cite-types) 
+			  org-ref-default-citation-link)
+			key))
 
       ;; On a link somewhere, and we need to figure out what to do.
       (setq link-string (org-element-property :path object)
@@ -1035,18 +1040,20 @@ Rules:
       (skip-chars-backward " "))))
 
 
-(defun org-ref-insert-cite-keys (keys)
-  "Insert KEYS as citation links."
+(defun org-ref-insert-cite-keys (keys &optional set-type)
+  "Insert KEYS as citation links.
+Optional SET-TYPE to choose the cite type."
   (cl-loop for key in keys
 	   do
-	   (org-ref-insert-cite-key key)))
+	   (org-ref-insert-cite-key key set-type)))
 
 
 ;;;###autoload
-(defun org-ref-insert-cite-link ()
-  "Insert a cite link with completion."
-  (interactive)
-  (org-ref-insert-cite-key (org-ref-read-key)))
+(defun org-ref-insert-cite-link (&optional set-type)
+  "Insert a cite link with completion.
+Optional prefix arg SET-TYPE to choose the cite type."
+  (interactive "P")
+  (org-ref-insert-cite-key (org-ref-read-key) set-type))
 
 
 ;; * natmove like pre-processing
