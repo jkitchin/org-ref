@@ -30,6 +30,7 @@
   (require 'cl-lib))
 
 (require 'org)
+(require 'org-macs)
 (require 'org-element)
 
 (require 'dash)
