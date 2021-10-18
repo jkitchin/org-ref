@@ -321,10 +321,11 @@ Returns a plist (list bibitem-key :entry (org-ref-bbl-entry bibitem-entry)
 	       (_ (format "[[%s]]-[[%s]]" (cl-first group) (car (last group))))))))
 
 
-(defun org-ref-replace-cite-link (link bibdata NATBIB-OPTIONS)
+(defun org-ref-replace-cite-link (link bibdata NATBIB-OPTIONS backend)
   "NATBIB-OPTIONS is the string to options.
 Argument LINK is an org link for a citation.
-Argument BIBDATA the data parsed from a bbl file."
+Argument BIBDATA the data parsed from a bbl file.
+Argument BACKEND is the export format."
   (let* ((refs (plist-get (org-ref-parse-cite-path (org-element-property :path link)) :references))
 	 (keys (cl-loop for ref in refs collect (plist-get ref :key)))
 	 items replacements replacement joiner p1 p2)
@@ -349,9 +350,13 @@ Argument BIBDATA the data parsed from a bbl file."
      ((string-match-p "authoryear" NATBIB-OPTIONS)
       (setq replacements (cl-loop for key in keys
 				  collect
-				  (format "@@html:<a href=\"#%s\">%s</a>@@"
-					  (plist-get (cdr (assoc key bibdata)) :bracket-data)
-					  (plist-get (cdr (assoc key bibdata)) :bracket-data)))))
+				  (cond
+				   ((eq backend 'html)
+				    (format "@@html:<a href=\"#%s\">%s</a>@@"
+					    (plist-get (cdr (assoc key bibdata)) :bracket-data) 
+					    (plist-get (cdr (assoc key bibdata)) :bracket-data)))
+				   (t
+				    (format "[[%s]]" (plist-get (cdr (assoc key bibdata)) :bracket-data)))))))
      (t
       (error "%s not supported yet" NATBIB-OPTIONS)))
 
@@ -416,10 +421,11 @@ Argument BIBDATA the data parsed from a bbl file."
 	  (concat replacement (make-string (org-element-property :post-blank link) ? )))))
 
 
-(defun org-ref-bbl-replace-bibliography (bib-link bibdata NATBIB-OPTIONS)
+(defun org-ref-bbl-replace-bibliography (bib-link bibdata NATBIB-OPTIONS backend)
   "Get a replacement bibliography string for BIBDATA and NATBIB-OPTIONS.
 BIBDATA comes from `org-ref-bbl-bibliography-data'.
-Argument BIB-LINK an org link for a bibliography."
+Argument BIB-LINK an org link for a bibliography.
+Argument BACKEND is the export format."
   (cl--set-buffer-substring (org-element-property :begin bib-link)
 			    (org-element-property :end bib-link)
 			    (cond
@@ -439,10 +445,18 @@ Argument BIB-LINK an org link for a bibliography."
 			      (concat "\n* Bibliography\n\n"
 				      (string-join
 				       (cl-loop for entry in bibdata collect
-						(format "- @@html:<a id=\"%s\"></a>@@(%s) %s\n"
-							(plist-get (cdr entry) :bracket-data)
-							(plist-get (cdr entry) :bracket-data)
-							(plist-get (cdr entry) :entry)))
+						(cond
+						 ((eq backend 'html)
+						  (format "- @@html:<a id=\"%s\"></a>@@(%s) %s\n"
+							  (plist-get (cdr entry) :bracket-data)
+							  (plist-get (cdr entry) :bracket-data)
+							  (plist-get (cdr entry) :entry)))
+						 (t
+						  (format "- <<%s>> %s"
+							  (plist-get (cdr entry) :bracket-data)
+							  (plist-get (cdr entry) :entry)))))
+				       
+				       
 				       "\n")))
 			     (t
 			      (error "%s not supported yet" NATBIB-OPTIONS)))))
@@ -490,7 +504,7 @@ bibliography.
 
     ;; Replace all the cite links
     (cl-loop for cl in (reverse (org-ref-get-cite-links)) do
-	     (org-ref-replace-cite-link cl bibdata natbib-options))
+	     (org-ref-replace-cite-link cl bibdata natbib-options backend))
 
     (org-ref-bbl-replace-bibliography
      (org-element-map (org-element-parse-buffer) 'link
@@ -499,7 +513,7 @@ bibliography.
 	   lnk))
        nil
        t)
-     bibdata natbib-options)))
+     bibdata natbib-options backend)))
 
 
 (provide 'org-ref-natbib-bbl-citeproc)

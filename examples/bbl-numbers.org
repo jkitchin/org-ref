@@ -1,4 +1,4 @@
-#+title: BBL-citeproc with numeric citations
+#+title: The natbib bbl cite processor with numeric citations
 
 #+latex_class: article-no-defaults
 #+latex_header: \usepackage[numbers, angle, sort&compress]{natbib}
@@ -23,7 +23,14 @@ bibliographystyle:unsrtnat
 [[bibliography:../org-ref.bib]]
 
 * build :noexport:
-#+BEGIN_SRC emacs-lisp :exports none
+
+#+BEGIN_SRC emacs-lisp :results silent
+(require 'org-ref-natbib-bbl-citeproc)
+(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
+  (find-file (org-org-export-to-org)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-natbib-bbl-citeproc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
   (org-open-file (org-html-export-to-html)))
