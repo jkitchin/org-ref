@@ -217,6 +217,14 @@ If you use some other completing-read backend like selectrum, or ido, then for a
 (require 'org-ref)
 #+END_SRC
 
+You can use any other library that inserts links you want. Some of these include:
+
+1. bibtex-actions (https://github.com/bdarcus/bibtex-actions#configuration)
+2. ebib (https://joostkremers.github.io/ebib/)
+3. You could even roll your own insert functions.
+
+
+** LaTeX/PDF export
 
 If you plan to build PDF files via LaTeX you need to make sure that org-latex-pdf-process is set to process the bibliography (using bibtex or biblatex). Here is one example of how to do that (see [[./org-ref.org::*LaTeX export]] for other alternatives).
 
