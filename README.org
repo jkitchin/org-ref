@@ -71,13 +71,11 @@ Here is an example of a menu of actions you get when you click on a cite link.
 #+caption: Menu of actions from clicking on a cite link.
 [[./screenshots/functional-cite-links.png]]
 
-
 Here is a cross-reference link.
 
 #+attr_org: :width 800
 #+caption: Functional cross-reference link.
 [[./screenshots/functional-links-2.png]]
-
 
 
 org-ref can analyze your org-file and tell you about it, for example if there are bad citations, multiply defined labels, bad reference links, missing bibliography files, etc... You can select each one and it will jump to the location to help you fix it.
