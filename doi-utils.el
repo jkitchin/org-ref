@@ -55,6 +55,7 @@
 
 (require 'url-http)
 (require 'org-ref-utils)
+(require 'hydra)
 
 ;;* Customization
 (defgroup doi-utils nil
