@@ -795,16 +795,22 @@ Use with apply-partially."
   "Return key under the cursor in org-mode.
 If not on a key, but on a cite, prompt for key."
   (if-let ((key (get-text-property (point) 'cite-key)))
+      ;; Point is on a key, so we get it directly
       key
+    ;; point is not on a key, but may still be on a cite link
     (let ((el (org-element-context))
 	  data
 	  keys)
-      (when (and
-	     (eq (org-element-type el) 'link)
-	     (member (org-element-property :type el) org-ref-cite-types))
+      (cond
+       ;; on a cite-link type
+       ((and
+	 (eq (org-element-type el) 'link)
+	 (member (org-element-property :type el) org-ref-cite-types))
+
 	(goto-char (org-element-property :begin el))
 	(setq data (org-ref-parse-cite-path (org-element-property :path el))
-	      keys (cl-loop for ref in (plist-get data :references) collect (plist-get ref :key)))
+	      keys (cl-loop for ref in (plist-get data :references)
+			    collect (plist-get ref :key)))
 	(cond
 	 ((= 1 (length keys))
 	  (search-forward (car keys))
@@ -814,7 +820,14 @@ If not on a key, but on a cite, prompt for key."
 	  (setq key (completing-read "Key: " keys))
 	  (search-forward key)
 	  (goto-char (match-beginning 0))))
-	(get-text-property (point) 'cite-key)))))
+	(get-text-property (point) 'cite-key))
+
+       ;; somewhere else, but looking at a cite-type see issue #908. links in
+       ;; places like keywords are not parsed as links, but they seem to get
+       ;; activated, so we can just get onto the key, and then open it.
+       ((member (thing-at-point 'word) org-ref-cite-types)
+	(when (re-search-forward ":" (line-end-position) t)
+	  (get-text-property (point) 'cite-key)))))))
 
 
 ;; ** Shift-arrow sorting of keys in a cite link
