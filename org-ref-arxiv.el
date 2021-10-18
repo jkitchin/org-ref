@@ -1,6 +1,6 @@
 ;;; org-ref-arxiv.el --- arxiv utilities for org-mode        -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
@@ -37,8 +37,7 @@
 ;; This is a local variable defined in `url-http'.  We need it to avoid
 ;; byte-compiler errors.
 (defvar url-http-end-of-headers)
-(defvar org-ref-default-bibliography)
-(defvar org-ref-pdf-directory)
+
 
 (declare-function parsebib-find-bibtex-dialect "parsebib")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
@@ -48,17 +47,17 @@
 ;;* The org-mode link
 ;; this just makes a clickable link that opens the entry.
 ;; example: arxiv:cond-mat/0410285
-(org-ref-link-set-parameters "arxiv"
-  :follow (lambda (link-string)
-            (browse-url (format "http://arxiv.org/abs/%s" link-string)))
-  :export (lambda (keyword desc format)
-            (cond
-             ((eq format 'html)
-              (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>"
-                       keyword  (or desc keyword)))
-             ((eq format 'latex)
-              ;; write out the latex command
-              (format "\\url{http://arxiv.org/abs/%s}{%s}" keyword (or desc keyword))))))
+(org-link-set-parameters "arxiv"
+			 :follow (lambda (link-string)
+				   (browse-url (format "http://arxiv.org/abs/%s" link-string)))
+			 :export (lambda (keyword desc format)
+				   (cond
+				    ((eq format 'html)
+				     (format  "<a href=\"http://arxiv.org/abs/%s\">arxiv:%s</a>"
+					      keyword  (or desc keyword)))
+				    ((eq format 'latex)
+				     ;; write out the latex command
+				     (format "\\url{http://arxiv.org/abs/%s}{%s}" keyword (or desc keyword))))))
 
 ;;* Getting a bibtex entry for an arXiv article using remote service:
 ;; For an arxiv article, there is a link to a NASA ADS page like this:
@@ -191,7 +190,7 @@ Returns a formatted BibTeX entry."
          (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                  org-ref-default-bibliography))))
+                  bibtex-completion-bibliography))))
   (save-window-excursion
     (find-file bibfile)
     (goto-char (point-max))
@@ -242,10 +241,14 @@ key."
          (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                  org-ref-default-bibliography))
-         (read-directory-name
-          "PDF directory: "
-          org-ref-pdf-directory)))
+                  bibtex-completion-bibliography))
+	 (cond
+	  ((stringp bibtex-completion-library-path)
+	   bibtex-completion-library-path)
+	  ((= 1 (length bibtex-completion-library-path))
+	   (car bibtex-completion-library-path))
+	  (t
+	   (completing-read "PDF dir: " bibtex-completion-library-path)))))
 
   (arxiv-add-bibtex-entry arxiv-number bibfile)
 
@@ -275,10 +278,13 @@ key."
               (setq key (bibtex-read-key "Duplicate Key found, edit: " key))))
         (setq key (bibtex-read-key "Key not found, insert: ")))
       (insert key)
-      (bibtex-end-of-entry)
-      (backward-char)
-      (insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))
-      (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf")))))
+      (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf"))
+      ;; Check that it worked, and insert a field for it.
+      (when (file-exists-p (concat pdfdir key ".pdf"))
+	(bibtex-end-of-entry)
+	(backward-char)
+	(insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))))))
+
 
 (provide 'org-ref-arxiv)
 ;;; org-ref-arxiv.el ends here

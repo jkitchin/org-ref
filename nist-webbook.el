@@ -29,13 +29,13 @@
            (url-hexify-string name)
            "&Units=SI")))
 
-(org-ref-link-set-parameters "nist-wb-name"
-  :follow (lambda (name)
-            (nist-webbook-name name)))
+(org-link-set-parameters "nist-wb-name"
+			 :follow (lambda (name)
+				   (nist-webbook-name name)))
 
-(org-ref-link-set-parameters "nist-wb-formula"
-  :follow (lambda (formula)
-            (nist-webbook-formula formula)))
+(org-link-set-parameters "nist-wb-formula"
+			 :follow (lambda (formula)
+				   (nist-webbook-formula formula)))
 
 (provide 'nist-webbook)
 

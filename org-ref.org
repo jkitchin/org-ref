@@ -1,10 +1,11 @@
-#+TITLE: The org-ref manual
+#+TITLE: The org-ref manual (version 3)
 #+AUTHOR: John Kitchin
-#+DATE: 2015-03-15 Sun
+#+DATE: [2021-08-25 Wed]
 #+OPTIONS: toc:nil ^:{}
 #+LATEX_HEADER: \usepackage{natbib}
 #+LATEX_HEADER: \usepackage[version=3]{mhchem}
 #+latex_header: \usepackage{makeidx}
+#+latex_header: \usepackage{cleveref}
 #+latex_header: \makeindex
 # This ridiculousness is to make the index start in the middle of a page.
 # https://tex.stackexchange.com/questions/23870/index-shouldnt-start-new-page
@@ -26,21 +27,18 @@
 #+latex_header_extra: \newglossaryentry{acronym}{name={acronym},description={An acronym is an abbreviation used as a word which is formed from the initial components in a phrase or a word. Usually these components are individual letters (as in NATO or laser) or parts of words or names (as in Benelux)}}
 #+latex_header_extra: \newacronym{tla}{TLA}{Three Letter Acronym}
 
-\maketitle
-\tableofcontents
-
+@@latex:\maketitle@@
+@@latex:\tableofcontents@@
 
 * Introduction to org-ref
 
-Org-ref is a library for org-mode cite:Dominik201408 that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
+Org-ref is a library for org-mode [[cite:&Dominik201408]] that provides rich support for citations, labels and cross-references in org-mode. org-ref is especially suitable for org-mode documents destined for LaTeX export and scientific publication. org-ref is also extremely useful for research documents and notes. org-ref bundles several other libraries that provide functions to create and modify bibtex entries from a variety of sources, but most notably from a DOI.
 
-The basic idea of org-ref is that it defines a convenient interface to insert citations from a reference database (e.g. from a bibtex file(s)), and a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref interfaces with helm-bibtex to facilitate citation entry, and it can also use reftex.
+The basic idea of org-ref is that it defines a convenient interface to insert citations from a reference database (e.g. from a bibtex file(s)), cross-references to targets in the document, and a set of functional org-mode links for citations, cross-references and labels that export properly to LaTeX, and that provide clickable functionality to the user. org-ref uses [[https://github.com/tmalsburg/helm-bibtex][bibtex-completion]] for the candidates you can use for citations.
 
 org-ref provides a fairly large number of utilities for finding bad citations, extracting bibtex entries from citations in an org-file, and functions for interacting with bibtex entries. We find these utilities indispensable in scientific writing.
 
-org-ref is [[*Customizing org-ref][customizable]].
-
-org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. We have published over a dozen scientific articles with it so far:
+org-ref has been in development since sometime in 2013. It was written to aid in the preparation of scientific manuscripts. These are the first dozen scientific articles we wrote with it:
 
 - cite:hallenbeck-2013-effec
 - cite:mehta-2014-ident-poten
@@ -54,125 +52,210 @@ org-ref has been in development since sometime in 2013. It was written to aid in
 - cite:boes-2016-neural-networ
 - cite:boes-2017-neural-networ
 - cite:xu-2017-first-princ
-- cite:geng-2017-first-princ
+
 
 Be sure to check out the supporting information files for each of these. The org source for the supporting information is usually embedded in the supporting information. You may also find these two perspective articles cite:kitchin-2015-examp,kitchin-2015-data-surfac-scien interesting, as well as this article on data sharing cite:kitchin-2016-autom-data we wrote.
 
-There has been a lot of recent discussion on the org-mode mailing list about a citation syntax for org-mode. It is not clear what the impact of this on org-ref will be. The new syntax will more cleanly support pre/post text, and it will be separate from the links used in org-ref. It is not clear if the new syntax will support all of the citation types, especially those in biblatex, that are supported in org-ref. The new citations are likely to be clickable, and could share functionality with org-ref. The new citation syntax will not cover labels and cross-references though, so these links from org-ref will still exist. We anticipate a long life for org-ref.
 
-Biblatex users should read this [[id:212B487E-CC38-4BDF-9F0E-6993845AF49B][section]].
+Biblatex users should read section ref:sec-biblatex-users.
 
-If you want to export this document to another format like PDF or HTML, see [[id:5BBB8F29-3C82-4C7B-8FDB-9D146751D187][Other forms of this document]].
+If you want to export this document to another format like PDF or HTML, see section ref:sec-other-forms.
+
+** 2021 version 2 vs version 3
+
+A new citation syntax was recently (2021) integrated into org-mode. Initially I thought this would make at least the citation part of org-ref obsolete. I no longer think that is the case though. One of the goals of org-ref is to provide complete coverage of natbib/biblatex citation commands, with syntax that is close to what you would write in LaTeX, and that is close to what you would read in the LaTeX documentation. The new org-mode citation syntax does not do that. It uses a very different notion of citation and bibliography style syntax. I still think there is significant value to new writers, as well as more experienced writers who are very familiar with LaTeX to use the org-ref approach.
+
+An early criticism of org-ref was its limited capability to support prenote/postnote syntax, especially for multiple citations. It turns out to be reasonably straightforward to support this, and version 3 does fully support the same syntax as the org-mode citation syntax, and it supports common prefix/suffix text, as well as local prefix/suffix text on each citation reference. I have intentionally chosen to use =&= as the prefix for bibtex keys in org-ref, so that it is explicitly different than the one org-cite uses (=@=) to reduce confusion about which syntax you are using.
+
+ [[citep:See; in &kitchin-2015-examp page 12; in &kitchin-2015-data-surfac-scien figure 6; for examples]]
+
+You can use both version 2 and version 3 syntax in the same document (although you should not mix them in the same citation). Here are the same citations from above in version 3 syntax.
+
+- cite:&hallenbeck-2013-effec
+- cite:&mehta-2014-ident-poten
+- cite:&xu-2014-relat-elect
+- cite:&xu-2014-probin-cover
+- cite:&miller-2014-simul-temper
+- cite:&curnan-2014-effec-concen
+- cite:&boes-2015-estim-bulk
+- cite:&xu-2015-linear-respon
+- cite:&xu-2015-relat-between
+- cite:&boes-2016-neural-networ
+- cite:&boes-2017-neural-networ
+- cite:&xu-2017-first-princ
+
+You should not mix org-ref links and org-cite citations. They are treated separately and you are not likely to get what you want.
+
+Another criticism was that non-LaTeX exports were usually not that good because org-ref either implemented a minimal formatting engine, and because my early effort at developing a citeproc in org-ref fizzled out. Now, there is citeproc-el, and org-ref supports that for export.
+
+The new citation syntax does not cover labels and cross-references, which are essential in our scientific writing. org-ref continues to support this. We anticipate a long life for org-ref.
+
+Should you use org-ref? If your main export target is LaTeX, and you want cross-references, then probably so.
+
+If you have no need for cross-references (either you don't use them, or vanilla org syntax is adequate), or if you don't like using ivy, and don't want to roll your own citation inserter, then you may not need org-ref.
+
+At this time, I have not integrated the org-cite capability I wrote in https://github.com/jkitchin/org-ref-cite into org-ref. I have not decided if that is a good or bad idea to do.
+
+
+** known issues with org-ref and org-citations
+
+You should not try to define a cite/*: (i.e. do not define a link type that starts with cite/) link. org-cite will probably think it is an org-citation.
+
+** Basic configuration <<basic-configuration>>
+
+You have to setup bibtex-completion variables if you want default bibliographies, notes, pdfs, and other features. You should also set the bibtex-autokey-* variables for generating bibtex keys if you use doi-utils.
+
+Here is the setup I use.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy-bibtex
+  :init
+  (setq bibtex-completion-bibliography '("~/Dropbox/emacs/bibliography/references.bib"
+					 "~/Dropbox/emacs/bibliography/dei.bib"
+					 "~/Dropbox/emacs/bibliography/master.bib"
+					 "~/Dropbox/emacs/bibliography/archive.bib")
+	bibtex-completion-library-path '("~/Dropbox/emacs/bibliography/bibtex-pdfs/")
+	bibtex-completion-notes-path "~/Dropbox/emacs/bibliography/notes/"
+	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+
+	bibtex-completion-additional-search-fields '(keywords)
+	bibtex-completion-display-formats
+	'((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+	bibtex-completion-pdf-open-function
+	(lambda (fpath)
+	  (call-process "open" nil 0 nil fpath))))
+
+(use-package org-ref
+  :ensure nil
+  :load-path (lambda () (expand-file-name "org-ref" scimax-dir))
+  :init
+  (add-to-list 'load-path
+	       (expand-file-name "org-ref" scimax-dir))
+  (require 'bibtex)
+  (setq bibtex-autokey-year-length 4
+	bibtex-autokey-name-year-separator "-"
+	bibtex-autokey-year-title-separator "-"
+	bibtex-autokey-titleword-separator "-"
+	bibtex-autokey-titlewords 2
+	bibtex-autokey-titlewords-stretch 1
+	bibtex-autokey-titleword-length 5)
+  (define-key bibtex-mode-map (kbd "H-b") 'org-ref-bibtex-hydra/body)
+  (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
+  (define-key org-mode-map (kbd "s-[") 'org-ref-insert-link-hydra/body)
+  (require 'org-ref-ivy)
+  (require 'org-ref-arxiv)
+  (require 'org-ref-scopus)
+  (require 'org-ref-wos))
+
+
+(use-package org-ref-ivy
+  :ensure nil
+  :load-path (lambda () (expand-file-name "org-ref" scimax-dir))
+  :init (setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
+	      org-ref-insert-cite-function 'org-ref-cite-insert-ivy
+	      org-ref-insert-label-function 'org-ref-insert-label-link
+	      org-ref-insert-ref-function 'org-ref-insert-ref-link
+	      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body))))
+#+END_SRC
+
 
 ** Basic usage of org-ref
 
 *** Bibliography links
 index:bibliography index:bibliographystyle
 
-org-ref provides a bibliography link to specify which bibtex files to use in the document. You should use the filename with extension, and separate filenames by commas. This link is clickable; clicking on a filename will open the file. Also, if your cursor is on a filename, you will see a minibuffer message about whether the file exists or not. On export, the bibliography will appear at the position where the link is defined. Usually this link goes near the end of your document, e.g. like [[bibliography link][here]].
+org-ref provides a bibliography link to specify which bibtex files to use in the document.
+
+1. A comma separated list of relative or absolute paths
+2. A comma separated list of files found in your BIBINPUTS environment variable
+
+This link is clickable; clicking on a filename will open the file. On export, the bibliography will appear at the position where the link is defined. Usually this link goes near the end of your document, e.g. like [[bibliography link][here]].
 
 There is also a nobibliography link, which is useful for specifying a bibliography file, but not listing a bibliography in the exported document.
 
-There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command. For LaTeX export a bibliography and bibliographystyle link is /required/ if you use bibtex. If you use biblatex see [[id:212B487E-CC38-4BDF-9F0E-6993845AF49B][biblatex users]].
+There is also a bibliographystyle link that specifies the style. This link does nothing but export to a LaTeX command. For LaTeX export a bibliography and bibliographystyle link is /required/ if you use bibtex. If you use biblatex see ref:sec-biblatex-users.
 
-*** Citations
-    :PROPERTIES:
-    :CUSTOM_ID: citations
-    :END:
+These links support completion, so you can type C-c C-l, choose one of them, and it will help you complete the link.
+
+*** Citations <<citations>>
+
 index:cite
 
-org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~reftex-default-bibliography~ or ~org-ref-default-bibliography~ if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~org-ref-default-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]].
+org-ref uses the [[bibliography link]] to determine which bibtex files to get citations from, and falls back to the bibtex files defined in the variable ~bibtex-completion-bibliography~  if no bibliography link is found. Note that you *must* include a [[bibliography link]] in your document if you are exporting your document to pdf; ~bibtex-completion-bibliography~ is not used by the [[BibTeX users][LaTeX exporter]].
 
-For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding ~C-c ]~ by default), select the reference(s) you want in the helm-bibtex buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. If you want to match any other field, you need to add it to the variable ~bibtex-completion-additional-search-fields~; org-ref [[id:5d7a19d3-0411-4964-9154-99af4f281015][does this automatically]] for the ~keywords~ field. You can select multiple entries by pressing ~C-SPC~ to mark entries in the helm-bibtex buffer.
+For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding you chose for inserting org-ref links), select the reference(s) you want in the completion buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. If you want to match any other field, you need to add it to the variable ~bibtex-completion-additional-search-fields~.
 
-If the cursor is on a citation key, you should see a message in the minibuffer that summarizes which citation it refers to. If you click on a key, you should see a helm selection buffer with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
+If the cursor is on a citation key, you should see a tooltip that summarizes which citation it refers to. If you click on a key, you should get a hydra menu with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
 
-The default citation type is [[*Customizing org-ref][customizable]], and set to "cite". If you want another type of citation type, then type ~C-u~ before pressing enter in the helm-bibtex selection buffer. You will be prompted for the type of citation you actually want.
+The default citation type is customizable (=org-ref-default-citation-link=), and set to "cite".
 
-Here is a list of supported citation types. You can customize this if you want. If you do not know what all these types are, you probably do not need them. The default cite is what you need. See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf
- for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf
- for the commands supported in biblatex. For most scientific journals, only bibtex is supported. index:biblatex
-
-#+BEGIN_SRC emacs-lisp
-org-ref-cite-types
-#+END_SRC
-
-#+RESULTS:
-| cite | nocite | citet | citet* | citep | citep* | citealt | citealt* | citealp | citealp* | citenum | citetext | citeauthor | citeauthor* | citeyear | citeyear* | Citet | Citep | Citealt | Citealp | Citeauthor | Cite | parencite | Parencite | footcite | footcitetext | textcite | Textcite | smartcite | Smartcite | cite* | parencite* | supercite | autocite | Autocite | autocite* | Autocite* | Citeauthor* | citetitle | citetitle* | citedate | citedate* | citeurl | fullcite | footfullcite | notecite | Notecite | pnotecite | Pnotecite | fnotecite | cites | Cites | parencites | Parencites | footcites | footcitetexts | smartcites | Smartcites | textcites | Textcites | supercites | autocites | Autocites | bibentry |
+See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf for the cite commands supported in bibtex index:natbib, and http://ctan.mirrorcatalogs.com/macros/latex/contrib/biblatex/doc/biblatex.pdf for the commands supported in biblatex. index:biblatex.
 
 If the cursor is on a citation, or at the end of the citation, and you add another citation, it will be appended to the current citation.
 
-index:cite!replace
-If you want to /replace/ an existing key in a citation, put the cursor on the key, run the insert citation command, and type ~C-u C-u~ before pressing enter in the helm-bibtex selection buffer. The key will be replaced. Of course, you can just delete it yourself, and add a new key.
-
 [[index:cite!shift]]
-Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can run the command ~org-ref-sort-citation-link~ which will sort the keys by year, oldest to newest.
+Finally, if you do not like the order of the keys in a citation, you can put your cursor on a key and use shift-arrows (left or right) to move the key around. Alternatively, you can use shift-up or you can run the command ~org-ref-sort-citation-link~ which will sort the keys by year, oldest to newest.
 
-You may want to bind a hydra menu to a key-binding or key-chord. For example:
+Alternatively, there is a keymap defined on cite links. By default this map is defined in the variable ~org-ref-cite-keymap~.
 
-#+BEGIN_SRC emacs-lisp
-(key-chord-define-global "kk" 'org-ref-cite-hydra/body)
-#+END_SRC
+There are navigation bindings that work on a cite link.
 
-This will allow you to quickly press ~kk~ while on a cite link to access functions that can act on the link.
+| C-left  | Jump to previous key  |
+| C-right | Jump to next key      |
+| S-left  | move key to the left  |
+| S-right | move key to the right |
 
-Alternatively, there is now a keymap defined on cite links. By default this map is defined in the variable ~org-ref-cite-keymap~. Note if you change any of these, you have to either restart emacs or run ~org-ref-generate-cite-links~. I am a fan of the [[http://ergoemacs.org/emacs/emacs_hyper_super_keys.html][hyper]] key, so the following are defined by default:
+You can also sort a cite link with multiple keys by year.
 
-| H-b | Open the citation to the bibtex entry      |
-| H-u | Open the citation URL                      |
-| H-p | Open the citation PDF (if it exists)       |
-| H-n | Open the citation notes                    |
-| H-c | Open Web of Science citing articles        |
-| H-e | Email the bibtex entry and pdf             |
-| H-f | Copy a formatted entry string              |
-| H-g | Open Google Scholar                        |
-| H-w | Copy the key at point                      |
-| H-y | Paste the key in an existing link          |
-
-There are navigation bindings:
-
-| C-left  | Jump to previous key              |
-| C-right | Jump to next key                  |
-| S-left  | move key to the left              |
-| S-right | move key to the right             |
-
-You can also sort
-| S-up    | sort keys by ascending year       |
+| S-up | sort keys by ascending year |
 
 *** Pre/post text support
 
-org-ref has basic and limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[cite:Dominik201408][See page 20::, for example]]. It is not easy (maybe not possible) to extend this for the humanities style of citations (e.g. harvard) with nested pre/post text on multiple citations. If anyone knows how to do it, pull requests are welcome! There is an ongoing effort in org-mode for a new citation syntax that may make this more feasible.
+org-ref has two versions of syntax. In version 2 there is very limited support for pre/post text in citations. You can get pre/post text by using a description in a cite link, with pre/post text separated by ::. For example, [[citep:Dominik201408][See page 20::, for example]]. I do not recommend you use this anymore.
 
-If you use helm-bibtex and would like pre/post text support enabled, you can add ~org-ref-format-citation~ to ~bibtex-completion-format-citation-functions~:
+version 3 is much more capable, similar to the new org-cite syntax. The general syntax is:
 
-#+BEGIN_SRC emacs-lisp
-(setf (cdr (assoc 'org-mode bibtex-completion-format-citation-functions)) 'org-ref-format-citation)
-#+END_SRC
+=Common prefix; prenote 1 &key1 postnote1; prenote n &keyn postnote n; Common suffix=
 
-See also: [[https://github.com/tmalsburg/helm-bibtex#format-of-citations][Format of citations]] and [[https://github.com/tmalsburg/helm-bibtex#latex-citation-commands][Insert LaTeX cite commands]]. Note that pre/post prompt can also be switched off by setting the variable ~bibtex-completion-cite-prompt-for-optional-arguments~ to nil.
+The tradeoff is you have to prefix the keys with &, separate them by semicolons, and the links have to be bracketed if you put spaces in the notes. The previous citation in version 3 looks like  [[citep:See page 20 &Dominik201408, for example]] as "local" pre/postnotes, or  [[citep:See page 20 ;&Dominik201408;, for example]], as "common" or "global" pre/post notes. You can do this with multiple keys too: [[citep:See &Dominik201408 pg. 2;and &kitchin-2015-examp for examples]]. Note in this example, the internal prefix on the second reference is ignored, because the cite command does not support it; use biblatex with a multicite if you need that in your citations. There are still a few caveats. Natbib only supports a single set of pre/post notes; some citation styles with biblatex support the full syntax. Not all cite types in LaTeX support pre/post text (e.g. cite, citenum do not support them), so be careful when you use them.
 
-*** label links
+
+*** labels
+    :PROPERTIES:
+    :CUSTOM_ID: sec-label-link
+    :END:
 index:label
 
-LaTeX uses labels to define places you can refer to. These can be labels in the captions of figures and tables, or labels in sections. We illustrate some uses here.
+LaTeX uses labels to define places you can refer to. These can be labels in the captions of figures and tables, or labels in sections. We illustrate some uses here. You can use label links, but it is preferred to use name keywords or other native org label mechanisms.
 
-label links are "functional" if you put your cursor on the link, you will get a message in the minibuffer showing you the number of occurrences of that label in the buffer. That number should be one! It is most preferable to put a label link into a caption like this.
+Here is a way to use a label link:
 
 #+caption: Another simple table. label:tab-ydata
 | y |
 | 4 |
 | 5 |
 
-org-ref can help you insert unique labels with the command elisp:org-ref-helm-insert-label-link. This will show you the existing labels, and insert your new label as a link. There is no default key-binding for this.
+This is the preferred way to label a table.
 
-*** ref links
-    :PROPERTIES:
-    :ID:       290260A1-F07C-4852-B4B3-CEE3E768AA3B
-    :CUSTOM_ID: ref-links
-    :END:
+#+name: tab-ydata-name
+#+caption: Another simple table. 
+| y |
+| 4 |
+| 5 |
+
+org-ref can help you insert unique labels with the command =org-ref-insert-label-link=. This will show you the existing labels, and insert your new label as a link. There is no default key-binding for this.
+
+*** ref links <<ref-links>>
 index:ref
 
-A ref link refers to a label of some sort. For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
+A ref link refers to a label of some sort. You can use the label in a name keyword, a LaTeX label, a CUSTOM_ID property, a label link (ref:sec-label-link), or a radio target.
+
+
+For example, you can refer to a table name, e.g. Table ref:table-1. You have to provide the context before the ref link, e.g. Table, Figure, Equation, Section, and so on.
 
 #+name: table-1
 #+caption: A simple table.
@@ -183,7 +266,7 @@ A ref link refers to a label of some sort. For example, you can refer to a table
 Or you can refer to an org-mode label as in Table ref:table-3.
 
 
-Note: You may need to set org-latex-prefer-user-labels to t if you refer to times by their "name" for the export to use the name you create.
+Note: You may need to set org-latex-prefer-user-labels to t if you refer to things by their "name" for the export to use the name you create.
 
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-prefer-user-labels t)
@@ -201,11 +284,11 @@ Note: You may need to set org-latex-prefer-user-labels to t if you refer to time
 
 You can also refer to an org-ref label link as in Table ref:tab-ydata.
 
-To help you insert ref links, use the "Org -> org-ref -> Insert ref" menu, or run the command elisp:org-ref-helm-insert-ref-link. There is no default key-binding for this.
+To help you insert ref links, use the "Org -> org-ref -> Insert ref" menu, or run the command = org-ref-insert-ref-link=.
 
-ref links are functional. If you put the cursor on a ref link, you should see a message in the minibuffer with some context of the corresponding label. If you click on the ref link, the cursor will jump to the label.
+ref links are functional. If you put the cursor on a ref link, you will see a tooltip with some context of the corresponding label. If you click on the ref link, you will get a hydra to jump to it or change the ref type.
 
-A brief note about references to a section. You can make a ref link to a CUSTOM_ID. Section ref:sec-misc has a label link in the headline. That works, but is not too pretty. Section ref:ref-links uses the CUSTOM_ID property. For this to work, you should set ~org-latex-prefer-user-labels~ to t.
+You can make a ref link to a section with a CUSTOM_ID. For this to work, you should set ~org-latex-prefer-user-labels~ to t.
 
 Also note that "#+tblname:" and "#+label:" are deprecated in org-mode now, and "#+name:" is preferred.
 
@@ -217,68 +300,41 @@ org-ref also provides these links:
 - pageref :: The page a label is on
 - nameref :: The name of a section a label is in
 - eqref :: Puts the equation number in parentheses
-- autoref :: A command from hyperref that automatically prefixes the reference number.
-- cref & Cref :: [[https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref?lang=en][cleveref – Intelligent cross-referencing]] (crefrange is not supported)
+- autoref :: A command from hyperref that automatically prefixes the reference number. (requires hyperref)
+- cref & Cref :: [[https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref?lang=en][cleveref – Intelligent cross-referencing]]
+- crefrange & Crefrange ::  [[https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref?lang=en][cleveref – Intelligent cross-referencing]]
 
 Note for eqref, you must use a LaTeX label like this:
 
-\begin{equation}
-e^x = 4 \label{eq:1}
+\begin{equation} \label{eq:1}
+e^x = 4
 \end{equation}
 
-Then you can refer to Eq. eqref:eq:1 in your documents.
+or a named equation like this:
+
+#+name: eq-in-name
+\begin{equation}
+e^x = 4
+\end{equation}
+
+Then you can refer to Eq. eqref:eq:1 or ref:eq-in-name in your documents.
 
 Autoref works like this: autoref:table-3, autoref:sec-misc.
 
-You can specify the default ref link type in `org-ref-default-ref-type'.
+The crefranges require two labels to define the range: Crefrange:table-1,table-3  and crefrange:table-1,table-3
+
+These links do not have much meaning outside of LaTeX.
 
 *** Some other links
 [[index:list of tables]] [[index:list of figures]]
 
-org-ref provides clickable links for a list-of-tables:nil and list-of-figures:nil. We have to put some text in the link, anything will do. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
+org-ref provides clickable links for a =[[list-of-tables:]]= and =[[list-of-figures:]]=. These links don't need a path, so you have to put them in brackets. These export as listoftables and listoffigures LaTeX commands, and they are clickable links that open a mini table of contents with links to the tables and figures in the buffer. There are also interactive commands for this: elisp:org-ref-list-of-tables and elisp:org-ref-list-of-figures.
 
-*** Controlling link messages and tooltips
-
-Org-ref is setup to provide messages in the minibuffer when your cursor is on a link, and tooltips when your mouse hovers over a link. If this is distracting you can turn it off by putting this in your init file:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-show-citation-on-enter nil)
-#+END_SRC
-
-Alternatively, you can turn this on and off interactively with the commands:
-
-- org-ref-mouse-messages-on
-- org-ref-mouse-messages-off
-
-Org-ref can also be configured to show bad label,ref and cite links by setting this in your init files:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-show-broken-links t)
-#+END_SRC
-
-#+RESULTS:
-: t
-
-This may be slow in large files, so you can turn it off by setting that variable to nil.
-
-** org-ref customization of helm-bibtex
-:PROPERTIES:
-:ID:       5d7a19d3-0411-4964-9154-99af4f281015
-:END:
-index:helm-bibtex
-
-org-ref adds a few new features to helm-bibtex.
-
-First, we add =keywords= as a searchable field, and modify the helm-bibtex search buffer to include the keywords. Since keywords now can have a central role in searching, we add some functionality to add keywords from the helm-bibtex buffer as a new action.
-
-We change the order of the actions in helm-bibtex to suit our work flow, and add some new actions as well. We define a format function for org-mode that is compatible with the usage defined in section [[#citations]]. Finally, we add some new fallback options for additional scientific search engines.
-
-The =keywords= field is added onto the existing value, such that existing customization wouldn’t be lost; if you still prefer to add the field yourself, set ~org-ref-bibtex-completion-add-keywords-field~ to nil before loading org-ref.
 
 ** Some basic org-ref utilities
 [[index:bibtex!clean entry]]
 
-The command ~org-ref~ does a lot for you automatically. It will check the buffer for errors, e.g. multiply-defined labels, bad citations or ref links, and provide easy access to a few commands through a helm buffer.
+The command ~org-ref~ does a lot for you automatically. It will check the buffer for errors, e.g. multiply-defined labels, bad citations or ref links, and provide easy access to a few commands through a side-window buffer.
 
 ~org-ref-clean-bibtex-entry~ will sort the fields of a bibtex entry, clean it, and give it a bibtex key. By default, this function does a lot of cleaning:
 
@@ -293,7 +349,20 @@ The command ~org-ref~ does a lot for you automatically. It will check the buffer
 9. checks the entry for non-ascii characters
 10. converts article title to title case (note: see below to convert titles in other entry types)
 
+
+
 This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add functions to of your own. Each function must work on a bibtex entry at point. (Note: the default behavior can be changed by removing the relevant functions from the initial value of ~org-ref-clean-bibtex-entry-hook~.)
+
+Here are the functions run on cleaning:
+
+#+BEGIN_SRC emacs-lisp
+org-ref-clean-bibtex-entry-hook
+#+END_SRC
+
+#+RESULTS:
+| org-ref-bibtex-format-url-if-doi | orcb-key-comma | org-ref-replace-nonascii | orcb-& | orcb-% | org-ref-title-case-article | orcb-clean-year | orcb-key | orcb-clean-doi | orcb-clean-pages | orcb-check-journal | org-ref-sort-bibtex-entry | orcb-fix-spacing |
+
+You can add your own function to the hook like this.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'org-ref-clean-bibtex-entry-hook 'org-ref-replace-nonascii)
@@ -321,12 +390,43 @@ I have also had success with this setup:
 #+END_SRC
 
 *** BibTeX users
-In order to have your citations compiled by BibTex, you *must* include a [[bibliography link]]. ~org-ref~ has a customization variable for setting the default bibliography, ~org-ref-default-bibliography~, but this is *not used in LaTeX export*; you have to set it explicitly in your file. You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
 
-*** biblatex users
-   :PROPERTIES:
-   :ID:       212B487E-CC38-4BDF-9F0E-6993845AF49B
-   :END:
+To have your citations compiled by BibTex, you *must* include a [[bibliography link]].  You will also need to include a [[bibliographystyle link]], unless you are using a LaTeX style that includes that for you.
+
+Note that some citation types may require additional LaTeX packages to be included in your export settings.
+
+Here are the natbib types (these will export in LaTeX with the unsrtnat style). These will export differently in author-year styles.
+
+Here are some examples of the pre/post note syntax for each natbib type. Not all of these make sense. For example the plain cite command does not take pre/post notes, even with natbib. If you use these a lot, you should use citet/citep. Not all of the commands take pre/post notes, e.g. citenum.
+
+
+- =[[citet:See &kitchin-2015-examp page 2]]= :: [[citet:See &kitchin-2015-examp page 2]]
+- =[[citet*:See &kitchin-2015-examp page 2]]= :: [[citet*:See &kitchin-2015-examp page 2]]
+- =[[citep:See &kitchin-2015-examp page 2]]= :: [[citep:See &kitchin-2015-examp page 2]]
+- =[[citep*:See &kitchin-2015-examp page 2]]= :: [[citep*:See &kitchin-2015-examp page 2]]
+- =[[citealt:See &kitchin-2015-examp page 2]]= :: [[citealt:See &kitchin-2015-examp page 2]]
+- =[[citealt*:See &kitchin-2015-examp page 2]]= :: [[citealt*:See &kitchin-2015-examp page 2]]
+- =[[citealp:See &kitchin-2015-examp page 2]]= :: [[citealp:See &kitchin-2015-examp page 2]]
+- =[[citealp*:See &kitchin-2015-examp page 2]]= :: [[citealp*:See &kitchin-2015-examp page 2]]
+- =[[citenum:&kitchin-2015-examp]]= :: [[citenum:&kitchin-2015-examp]]
+- =[[citetext:See &kitchin-2015-examp page 2]]= :: [[citetext:See &kitchin-2015-examp page 2]]
+- =[[citeauthor:See &kitchin-2015-examp page 2]]= :: [[citeauthor:See &kitchin-2015-examp page 2]]
+- =[[citeauthor*:See &kitchin-2015-examp page 2]]= :: [[citeauthor*:See &kitchin-2015-examp page 2]]
+- =[[citeyear:See &kitchin-2015-examp page 2]]= :: [[citeyear:See &kitchin-2015-examp page 2]]
+- =[[citeyearpar:See &kitchin-2015-examp page 2]]= :: [[citeyearpar:See &kitchin-2015-examp page 2]]
+- =[[Citet:See &kitchin-2015-examp page 2]]= :: [[Citet:See &kitchin-2015-examp page 2]]
+- =[[Citet*:See &kitchin-2015-examp page 2]]= :: [[Citet*:See &kitchin-2015-examp page 2]]
+- =[[Citep:See &kitchin-2015-examp page 2]]= :: [[Citep:See &kitchin-2015-examp page 2]]
+- =[[Citep*:See &kitchin-2015-examp page 2]]= :: [[Citep*:See &kitchin-2015-examp page 2]]
+- =[[Citealt:See &kitchin-2015-examp page 2]]= :: [[Citealt:See &kitchin-2015-examp page 2]]
+- =[[Citealt*:See &kitchin-2015-examp page 2]]= :: [[Citealt*:See &kitchin-2015-examp page 2]]
+- =[[Citealp:See &kitchin-2015-examp page 2]]= :: [[Citealp:See &kitchin-2015-examp page 2]]
+- =[[Citealp*:See &kitchin-2015-examp page 2]]= :: [[Citealp*:See &kitchin-2015-examp page 2]]
+- =[[Citeauthor:See &kitchin-2015-examp page 2]]= :: [[Citeauthor:See &kitchin-2015-examp page 2]]
+- =[[Citeauthor*:See &kitchin-2015-examp page 2]]= :: [[Citeauthor*:See &kitchin-2015-examp page 2]]
+
+
+*** biblatex users  <<sec-biblatex-users>>
 
 In the latex header you specify the style and bibliography file using addbibresource. Here is an example:
 
@@ -352,49 +452,103 @@ Or like this in a bibtex file:
 Make sure you invoke biblatex in the org-latex-pdf-process. Here is one way to do it.
 
 #+BEGIN_SRC emacs-lisp
-(setq  org-latex-pdf-process
-       '("latexmk -shell-escape -bibtex -pdf %f"))
+(setq  org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f"))
 #+END_SRC
 
-Finally, where you want the bibliography put this command:
+Finally, where you want the bibliography put this empty link:
 
 #+BEGIN_EXAMPLE
-\printbibliography
+[[printbibliography:]]
+#+END_EXAMPLE
+
+The regular biblatex cite links support common pre/post notes, and multiple keys. These are:
+
+#+BEGIN_SRC emacs-lisp
+org-ref-biblatex-types
+#+END_SRC
+
+#+RESULTS:
+| Cite         |
+| parencite    |
+| Parencite    |
+| footcite     |
+| footcitetext |
+| textcite     |
+| Textcite     |
+| smartcite    |
+| Smartcite    |
+| cite*        |
+| parencite*   |
+| supercite    |
+| autocite     |
+| Autocite     |
+| autocite*    |
+| Autocite*    |
+| Citeauthor*  |
+| citetitle    |
+| citetitle*   |
+| citedate     |
+| citedate*    |
+| citeurl      |
+| fullcite     |
+| footfullcite |
+| notecite     |
+| Notecite     |
+| pnotecite    |
+| Pnotecite    |
+| fnotecite    |
+
+The multitype links support common pre/postnotes, and individual pre/post notes.  These are the multicite commands:
+
+#+BEGIN_SRC emacs-lisp
+org-ref-biblatex-multitypes
+#+END_SRC
+
+#+RESULTS:
+| cites         |
+| Cites         |
+| parencites    |
+| Parencites    |
+| footcites     |
+| footcitetexts |
+| smartcites    |
+| Smartcites    |
+| textcites     |
+| Textcites     |
+| supercites    |
+| autocites     |
+| Autocites     |
+
+
+Here is a full example. This only exports correctly in biblatex or with CSL, so I include it as an example here.
+
+#+BEGIN_EXAMPLE
+ [[cites:See; in &kitchin-2015-examp page 1;in &kitchin-2015-data-surfac-scien page 2;and in &kitchin-2016-autom-data page 3; for examples]]
 #+END_EXAMPLE
 
 
 ** Other exports
-index:export!html index:export!ascii
+index:export!html index:export!ascii  index:export!latex  index:export!markdown  index:export!odt
 
-There is some basic support for HTML and ascii export. Not all bibtex entry types are supported, but basic support exists for articles and books. For a markdown export, the cite links are exported as Pandoc style links. During HTML export, the references get the HTML class ~org-ref-reference~, the bibliography headline has the class ~org-ref-bib-h1~ and the list of references has the class ~org-ref-bib~.
+All other exports are handled by citeproc now. This is done by preprocessing in a dedicated exporter called org-ref. There is a new entry in the export menu
 
-* org-ref-ivy
+| C-c C-e r h | html       |
+| C-c C-e r m | md         |
+| C-c C-e r a | ascii      |
+| C-c C-c r o | odt        |
+| C-c C-e r l | latex      |
+| C-c C-c r O | org buffer |
 
-org-ref provides an alternative to reftex and helm with ivy as the backend completion engine for searching and entering citations.
 
-You can set this backend in your init file like this
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-completion-library 'org-ref-ivy-cite)
-(require 'org-ref)
-#+END_SRC
+* org-ref-export
 
-There are some non-standard ivy features in org-ref ;)
+org-ref now supports the use of citeproc-el to export citations to non-LaTeX backends. See section [[sec-other-forms]] for more details. You can also use [[./org-ref-natbib-bbl-citeproc.el]]
 
-You still use C-c ] to search for a bibtex entry, and Ret to insert it as a citation.  C-c ] C-u Ret will prompt you for a different citation type.
+* org-refproc
 
-1. You can mark entries with C-space like in helm, and pressing enter will insert the citations.
+org-ref also supports exporting cross-references to other formats using [[./org-ref-refproc.el]]. This library also works by pre-processing a copy of the buffer to convert org-ref cross-reference links to org-syntax before exporting to the target backend. This even support cleveref style links with automatic prefixing and sorting. Compression of the references is not yet supported.
 
-2. C-, will show you the only the marked entries, and C-. will show them all again.
-
-3. C-up and C-down will move an entry up and down to reorder them.
-
-4. In the selection buffer C-y will sort in increasing year, C-M-y will sort in decreasing year.
-
-5. C-Ret will insert the current entry  and move to the next one.
-
-C-u C-c ] will insert a ref link. You will see a list of labels to select. Pres Ret to enter a ref link, or C-u Ret to select a different type of ref.
-
-C-u C-u C-c ] will insert a label link. You should see a list of all the current labels to help you avoid duplicating them.
+See  [[./examples/refproc.org]] for a pretty comprehensive set of examples.
 
 * Other libraries in org-ref
 
@@ -451,17 +605,50 @@ doi-utils-pdf-url-functions
 #+END_SRC
 
 #+RESULTS:
-| aps-pdf-url | science-pdf-url | nature-pdf-url | wiley-pdf-url | springer-chapter-pdf-url | springer-pdf-url | acs-pdf-url-1 | acs-pdf-url-2 | iop-pdf-url | jstor-pdf-url | aip-pdf-url | science-direct-pdf-url | linkinghub-elsevier-pdf-url | tandfonline-pdf-url | ecs-pdf-url | ecst-pdf-url | rsc-pdf-url | pnas-pdf-url | sage-pdf-url | jneurosci-pdf-url | ieee-pdf-url | acm-pdf-url | generic-full-pdf-url |
+| aps-pdf-url                 |
+| science-pdf-url             |
+| nature-pdf-url              |
+| wiley-pdf-url               |
+| springer-chapter-pdf-url    |
+| springer-pdf-url            |
+| acs-pdf-url-1               |
+| acs-pdf-url-2               |
+| acs-pdf-url-3               |
+| iop-pdf-url                 |
+| jstor-pdf-url               |
+| aip-pdf-url                 |
+| science-direct-pdf-url      |
+| linkinghub-elsevier-pdf-url |
+| tandfonline-pdf-url         |
+| ecs-pdf-url                 |
+| ecst-pdf-url                |
+| rsc-pdf-url                 |
+| pnas-pdf-url                |
+| copernicus-pdf-url          |
+| sage-pdf-url                |
+| jneurosci-pdf-url           |
+| ieee-pdf-url                |
+| ieee2-pdf-url               |
+| ieee3-pdf-url               |
+| acm-pdf-url                 |
+| osa-pdf-url                 |
+| asme-biomechanical-pdf-url  |
+| siam-pdf-url                |
+| agu-pdf-url                 |
+| plos-pdf-url                |
+| generic-full-pdf-url        |
 
-You can check if a url for the PDF can be found like this:
+You can check if a url for the PDF can be found like this. If you get a url, you can probably download a pdf.
+
 #+BEGIN_SRC emacs-lisp
 (doi-utils-get-pdf-url "10.1021/jp511426q")
 #+END_SRC
 
 #+RESULTS:
-: http://pubs.acs.org/doi/pdf/10.1021/jp511426q
+: https://pubs.acs.org/doi/pdf/10.1021/jp511426q
 
 ** org-ref-bibtex
+
 These are functions I use often in bibtex files.
 
 *** Generate new bibtex files with adapted journal names
@@ -520,32 +707,14 @@ These functions are compatible with ~bibtex-map-entries~, so it is possible to c
   - org-ref-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
   - org-ref-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
 
-You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra. You can do that like this before you require ~org-ref-bibtex~:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-bibtex-hydra-key-binding "\C-cj")
-#+END_SRC
-
-Or this if you like key-chord:
-
-#+BEGIN_SRC emacs-lisp
-(key-chord-define-global "jj" 'org-ref-bibtex-hydra/body)
-#+END_SRC
+You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
 
 *** Formatted bibtex entry citations
 
-org-ref has some limited capability to make formatted bibliography entries from a bibtex entry or citation link. This is generally a hard problem, and the first solution is not a replacement for a dedicated citation processor like BibTeX. Two variable determine the behavior of formatted citations:
-
-- Formats are from `org-ref-formatted-citation-formats' is an a-list of (backend . formats). formats is an alist of (entry-type . format-string).
-- The variable `org-ref-formatted-citation-backend' determines which set of format strings is used. The default is "text", and "org" format strings are also defined.
-
-So, if you click on a citation link, there should be a menu option to copy a formatted citation, which will copy the citation string to the clipboard.
+If you click on a citation link, there should be a menu option to copy a formatted citation, which will copy the citation string to the clipboard. This is a lightly formatted version using bibtex-completion.
 
 If you are on a bibtex entry, the `org-ref-bibtex-hydra/body' has an option to copy a formatted citation for the entry your cursor is in.
 
-Finally, depending on your org-ref backend, there may be an action in the org-ref-insert-link command.
-
-For the second approach see [[./citeproc/readme.org]]. It is more advanced in someways, but it is currently limited to a few formats, and is a long-term work in progress.
 
 ** org-ref-wos
 This is a small utility for Web of Science/Knowledge (WOK) (http://apps.webofknowledge.com).
@@ -656,9 +825,7 @@ This library provides an org-mode link to http://arxiv.org entries:  arxiv:cond-
 - ~arxiv-get-pdf~
 
 ** org-ref-sci-id
-   :PROPERTIES:
-   :ID:       AD7C70CF-1BB8-4610-B9AD-580790250459
-   :END:
+
 index:orcid [[index:researcher id]]
 
 #+BEGIN_SRC emacs-lisp
@@ -698,135 +865,14 @@ This provides some org-ref like capabilities in LaTeX files, e.g. the links are 
 
 =org-ref-pdf= allows Emacs to get bibliography information from pdf files that contain a DOI. You must have =pdftotext= installed where Emacs can find it. This library is known to not work on Windows very well.
 
-- Drag and drop a PDF onto a bibtex file to add a bibtex entry
-- If you have a pdf file open in Emacs (from, for example, an email attachment), use ~org-ref-pdf-to-bibtex~ to try to extract and write the bibliography information to a bib file, (defaulting to ~org-ref-default-bibliography~) and save the pdf to ~org-ref-pdf-directory~.
-
 ** org-ref-url-utils
 
 Allows you to drag-n-drop a webpage from a browser onto a bibtex file to add a bibtex entry (as long as it is from a recognized publisher that org-ref knows about). This library does not work well on Windows.
 
 * Appendix
-** Customizing org-ref
-   :PROPERTIES:
-   :ID:       32B558A3-7B48-4581-982B-082017B0AEE8
-   :END:
-index:customization
-
-You will probably want to customize a few variables before using org-ref. One way to do this is through the Emacs customization interface: [[elisp:(customize-group "org-ref")]].
-
-Also see:  [[elisp:(customize-group "org-ref-bibtex")]].
-
-Here is my minimal setup:
-#+BEGIN_SRC emacs-lisp
-(setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
-
-(setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
-      org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
-      org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
-#+END_SRC
-
-You can also specify different completion backends. The default is `org-ref-helm-bibtex'.
-
-- org-ref-helm-bibtex :: The default backend that uses helm-bibtex
-- org-ref-reftex :: A backend that uses reftex
-- org-ref-helm-cite :: An alternative helm completion backend (does not use helm-bibtex)
-- org-ref-ivy-cite :: uses ivy for the backend
-
-To use one of these, add a line like this before you "require" org-ref.
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-completion-library 'org-ref-ivy-cite)
-#+END_SRC
-
-** Customizing how PDFs are opened
-*** Using doc-view or pdf-tools
-
-There are a few different ways in which PDFs can be opened from org-ref. By default, org-ref uses the function ~org-ref-open-pdf-at-point~, which looks for the corresponding file in the directory specified in ~org-ref-library-path~. If the file was found, it opens it externally with ~org-open-file~. To open the PDF from within Emacs, using doc-view or pdf-tools, you will need to modify the function slightly and assign it to the variable ~org-ref-open-pdf-function~, as in the example below.
-
-#+BEGIN_SRC emacs-lisp
-(defun my/org-ref-open-pdf-at-point ()
-  "Open the pdf for bibtex key under point if it exists."
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-    (if (file-exists-p pdf-file)
-        (find-file pdf-file)
-      (message "No PDF found for %s" key))))
-
-(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
-#+END_SRC
-
-An alternative approach adapted from https://github.com/jkitchin/org-ref/issues/184 to use pdfview is described here. First, install org-pdfview (on MELPA).
-
-Add this to your init file:
-
-#+BEGIN_SRC emacs-lisp
-;; PDF links for org-mode
-(with-eval-after-load 'pdf-tools
-  (use-package org-pdftools
-    :config
-    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00169.html
-    ;; Before adding, remove it (to avoid clogging)
-    (delete '("\\.pdf\\'" . default) org-file-apps)
-    ;; https://lists.gnu.org/archive/html/emacs-orgmode/2016-11/msg00176.html
-    (add-to-list 'org-file-apps
-		 '("\\.pdf\\'" . (lambda (file link)
-				   (org-pdftools-open link))))))
-#+END_SRC
-
-*** A note for Mendeley, JabRef and Zotero users
-
-If ~bibtex-completion-pdf-field~ is defined, the function below should work with JabRef and Zotero. For more information, see https://github.com/tmalsburg/helm-bibtex#pdf-files.
-
-#+BEGIN_SRC emacs-lisp
-(defun my/org-ref-open-pdf-at-point ()
-  "Open the pdf for bibtex key under point if it exists."
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-	 (pdf-file (car (bibtex-completion-find-pdf key))))
-    (if (file-exists-p pdf-file)
-	(org-open-file pdf-file)
-      (message "No PDF found for %s" key))))
-
-(setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
-#+END_SRC
-
-Mendeley users should set to:
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ref-get-pdf-filename-function 'org-ref-get-mendeley-filename)
-#+END_SRC
-
-** Setting up notes to work with multiple notes.org files
-
-Adapted from https://github.com/jkitchin/org-ref/issues/443. This setup lets helm-bibtex find the note file for an entry.
-
-#+BEGIN_SRC emacs-lisp
-;; Tell org-ref to let helm-bibtex find notes for it
-(setq org-ref-notes-function
-      (lambda (thekey)
-	(let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-	  (bibtex-completion-edit-notes
-	   (list (car (org-ref-get-bibtex-key-and-file thekey)))))))
-#+END_SRC
-
-** Customizing the notes format
-
-A user asked about customizing note formats in https://github.com/jkitchin/org-ref/issues/225. The issue is that helm-bibtex command creates notes as defined in `bibtex-completion-notes-template-one-file' and org-ref creates the notes as defined in `org-ref-open-bibtex-notes'. They wanted some consistency so they got the same results either way they open the notes. @jagrg suggested this approach:
-
-#+BEGIN_SRC emacs-lisp
-(defun my/org-ref-notes-function (candidates)
-  (let ((key (helm-marked-candidates)))
-    (funcall org-ref-notes-function (car key))))
-
-(helm-delete-action-from-source "Edit notes" helm-source-bibtex)
-;; Note that 7 is a magic number of the index where you want to insert the command. You may need to change yours.
-(helm-add-action-to-source "Edit notes" 'my/org-ref-notes-function helm-source-bibtex 7)
-#+END_SRC
 
 ** Other things org-ref supports
+
 *** org-completion
 index:completion index:link!completion
 
@@ -836,19 +882,6 @@ Most org-ref links support org-mode completion. You can type ~C-c C-l~ to insert
 - bibliographystyle
 - all cite types
 - ref
-
-*** Storing org-links to labels
-    :PROPERTIES:
-    :ID:       AD9663C7-1369-413F-842A-157916D4BB75
-    :CUSTOM_ID: sec-store-links
-    :END:
-index:link!storing
-
-If you are on a label link, or on a table name, or on an org-mode label you can "store" a link to it by typing C-c l. Then you can insert the corresponding ref link with ~C-c C-l~. This will insert a ref link or custom_id link as needed. This usually works, but it is not used by me too often, so it is not tested too deeply.
-
-*** Storing links to bibtex entries
-
-If you have a bibtex file open, you type ~C-c C-l~ with your cursor in a bibtex entry to store a link to that entry. In an org buffer if you then type ~C-c l~, you can enter a cite link.
 
 *** Indexes
 index:index
@@ -954,49 +987,26 @@ First ac:bb. Second ac:bb. First ac:qos. Second ac:qos.
 \glsaddall
 \printglossaries
 
-** Prelude users
 
-An issue related to using org-ref with prelude was [[https://github.com/jkitchin/org-ref/issues/583][reported]], along with a solution that loads org-ref before loading prelude. The solution was to create a file like ~/.emacs.d/personal/preload/preload.el with these contents.
-
-#+BEGIN_SRC emacs-lisp
-(package-initialize)
-
-(setq reftex-default-bibliography '("~/bibliography/references.bib"))
-(setq org-ref-bibliography-notes "~/bibliography/notes.org"
-      org-ref-default-bibliography '("~/bibliography/references.bib")
-      org-ref-pdf-directory "~/bibliography/bibtex-pdfs/")
-
-(require 'org-ref)
-
-(provide 'preload)
-
-;;; preload.el ends here
-#+END_SRC
-
-** Other forms of this document
-   :PROPERTIES:
-   :ID:       5BBB8F29-3C82-4C7B-8FDB-9D146751D187
-   :END:
+** Other forms of this document <<sec-other-forms>>
 
 *** Build notes
 
 Before building this file you need to require the following libraries so the links will be resolved.
 
- #+BEGIN_SRC emacs-lisp
-(require 'org-id)
+ #+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-wos)
 (require 'org-ref-scopus)
 (require 'org-ref-pubmed)
+(require 'org-ref-sci-id)
  #+END_SRC
 
- #+RESULTS:
- : org-ref-pubmed
 
 *** PDF
 
 You may want to build a pdf of this file. Here is an emacs-lisp block that will create and open the PDF.
 
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp :results silent
 (let ((org-export-with-broken-links t)
       (org-latex-pdf-process
        '("pdflatex -interaction nonstopmode -shell-escape -output-directory %o %f"
@@ -1007,32 +1017,88 @@ You may want to build a pdf of this file. Here is an emacs-lisp block that will 
   (org-open-file (org-latex-export-to-pdf)))
  #+END_SRC
 
- #+RESULTS:
+*** Best practices for other formats
+
+org-ref relies on bibtex entries for bibliographies. Bibtex was designed for LaTeX export, and it is common to have LaTeX markup in the BibTeX entries to get the highest quality output in LaTeX (e.g. properly formatted equations, chemical formulas, accents in author names, etc.). This markup will usually not export correctly to other formats without some translation efforts.
+
+It is not generally possible to have a single BibTeX file that easily, and correctly exports to all backends. If perfection in your exports is needed, you need separate bibtex files for each backend, where the markup is intended for that backend. For example you might have "\ce{H2O}" in an entry intended for LaTeX export, but "H<sub>2</sub>O" in an entry for HTML export, and "H_{2}O" for org export.
+
+Maybe you could try an approach where your bibtex file is only org-mode, and then generate a bibtex file by "export" so that at export time it would be in the right format. I haven't tried that yet. It sounds complicated.
 
 
-*** HTML
+*** Other formats using CSL
 
-You may want to build an html version of this file. Here is an emacs-lisp block that will create and open the html in your browser. You will see the bibliography is not perfect, but it is pretty functional.
+org-ref supports export to other formats using [[https://github.com/andras-simonyi/citeproc-el][citeproc]] in a preprocessing filter. This works by modifying a copy of your org-file during the export to replace the citation and bibliography links with formatted text using the CSL. These functions are defined in [[./org-ref-export.el]]. You set the style with `org-ref-csl-default-style' or with a =CSL-KEYWORD=. See  [[./examples/basic-csl.org]] for an example.
 
- #+BEGIN_SRC emacs-lisp
-(let ((org-export-with-broken-links t))
-  (browse-url (org-html-export-to-html)))
- #+END_SRC
+org-ref provides a new exporter for convenience with the following export options: After C-c C-e r
 
- #+RESULTS:
- : #<process open org-ref.html>
+| a | to ascii and open      |                                                                 |
+| h | to html and open       |                                                                 |
+| l | to latex and open      | all cite links and bibliography are exported to latex           |
+| o | to OpenOffice and open |                                                                 |
+| O | to org buffer          | only goes to a buffer so you don't overwrite the current buffer |
+| e | to email               |                                                                 |
+
+
+
+These links will run export commands to get this document in different formats. It is worth noting that if your bibtex entries use LaTeX markup (e.g. subscripts, superscripts, chemical equations, etc.) in them, it will probably not render faithfully in the alternative backend. It is in general difficult to have a single format in bibtex that correctly renders in all backends. I don't know of a great solution for this, since LaTeX and CSL use different citation processors.
+
+[[elisp:(org-ref-export-to-html)]]
+
+[[elisp:(org-ref-export-to-latex)]]
+
+[[elisp:(org-ref-export-to-ascii)]]
+
+[[elisp:(org-ref-export-to-odt)]]
+
+[[elisp:(org-ref-export-to-message)]] export to body of an ascii email message
+
+Some basic styles are provide in [[./csl-locales/]], and a US-English locale in [[./csl-locales/]].
+
+#+BEGIN_SRC sh
+ls csl-styles
+#+END_SRC
+
+#+RESULTS:
+| apa-5th-edition.csl                  |
+| apa-numeric-superscript-brackets.csl |
+| chicago-author-date-16th-edition.csl |
+| elsevier-harvard.csl                 |
+| elsevier-with-titles.csl             |
+
+
+An alternative to this exporter is to use an  `org-export-before-parsing-hook' to do the pre-processing like this. This should work for most backends with the usual export keys and commands.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
+#+END_SRC
+
+*** Other formats without using CSL
+
+An alternative approach to using citeproc is to use LaTeX/bibtex more directly. [[./org-ref-natbib-bbl-citeproc.el]] defines another pre-processor that uses LaTeX and natbib/bibtex to create citations and bibliographies. The bbl file is still intended for consumption by LaTeX. org-ref does some light processing to remove LaTeX artifacts, but it is not complete so some artifacts may still appear in your export (e.g. LaTeX commands that are not handled, some backslashes, etc).
+
+Here is an example how to export to HTML with the bbl file produced by LaTeX and bibtex. Your org-file must compile without error once with LaTeX and once with bibtex.
+
+#+BEGIN_SRC emacs-lisp :exports none :results silent
+(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
+  (org-open-file (org-html-export-to-html)))
+#+END_SRC
+
+The natbib options for [super, numbers, authoryear] are supported, and citation options [square, round, angle, curly], and separators [comma, colon, semicolon] are supported. You can also use [sort, compress, sort&compress] for numeric styles. The longnamesfirst option is not currently supported.
+
+The bibliography entries are formatted from the bbl file. See these examples [[./examples/bbl-super.org]], [[./examples/bbl-numbers.org]] and [[./examples/bbl-authoryear.org]].
 
 * Index
 
 This is a functional link that will open a buffer of clickable index entries:
 # This eliminates the duplicate Index section name
-\renewcommand{\indexname}{}
-printindex:nil
+@@latex:\renewcommand{\indexname}{}@@
+[[printindex:]]
 
 * References
 
 <<bibliographystyle link>>
-bibliographystyle:unsrt
+bibliographystyle:unsrtnat
 
 <<bibliography link>>
 bibliography:org-ref.bib

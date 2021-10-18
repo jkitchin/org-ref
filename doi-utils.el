@@ -1,6 +1,6 @@
 ;;; doi-utils.el --- DOI utilities for making bibtex entries
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords: convenience
@@ -36,17 +36,10 @@
 
 ;;; Code:
 
-(defvar org-ref-pdf-directory)
-(defvar org-ref-bibliography-notes)
-(defvar org-ref-default-bibliography)
-(defvar reftex-default-bibliography)
 (defvar url-http-end-of-headers)
-(declare-function org-ref-bib-citation "org-ref-core")
 (declare-function org-ref-find-bibliography "org-ref-core")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
-(declare-function reftex-get-bib-field "reftex-cite")
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
-(declare-function helm "helm")
 (declare-function org-bibtex-yank "org-bibtex")
 (declare-function org-ref-possible-bibfiles "org-ref-core")
 
@@ -82,11 +75,6 @@
   :type 'boolean
   :group 'doi-utils)
 
-(defcustom doi-utils-make-notes
-  t
-  "Whether to create notes when adding bibtex entries."
-  :type 'boolean
-  :group 'doi-utils)
 
 (defcustom doi-utils-timestamp-field
   "DATE_ADDED"
@@ -102,15 +90,6 @@ e.g. (lambda () nil)"
   :type 'function
   :group 'doi-utils)
 
-(defcustom doi-utils-make-notes-function
-  (lambda ()
-    (bibtex-beginning-of-entry)
-    (bibtex-completion-edit-notes (list (cdr (assoc "=key=" (bibtex-parse-entry))))))
-  "Function to create notes for a bibtex entry.
-
-Set `doi-utils-make-notes' to nil if you want no notes."
-  :type 'function
-  :group 'doi-utils)
 
 (defcustom doi-utils-dx-doi-org-url
   "https://doi.org/"
@@ -118,12 +97,22 @@ Set `doi-utils-make-notes' to nil if you want no notes."
   :type 'string
   :group 'doi-utils)
 
+
 (defcustom doi-utils-metadata-function 'doi-utils-get-json-metadata
   "Function for retrieving json metadata from `doi-utils-dx-doi-org-url'.
 The default is `doi-utils-get-json-metadata', but it sometimes
 fails with a proxy. An alternative is
 `doi-utils-get-json-metadata-curl' which requires an external
-program to use curl.")
+program to use curl."
+  :type 'function
+  :group 'doi-utils)
+
+
+(defcustom doi-utils-async-download t
+  "Use `doi-utils-async-download-pdf' to get pdfs asynchrounously.
+If non-nil use `doi-utils-get-bibtex-entry-pdf' synchronously."
+  :type 'boolean
+  :group 'doi-utils)
 
 
 ;;* Getting pdf files from a DOI
@@ -305,6 +294,15 @@ must return a pdf-url, or nil.")
       (setq p3 (concat "/" (nth 0 s) (nth 1 s) "/" (nth 2 s) "/" (nth 3 s)))
       (format "http://scitation.aip.org/deliver/fulltext/%s.pdf?itemId=/%s&mimeType=pdf&containerItemId=%s"
               p1 p2 p3))))
+
+(defun aip-pdf-url-2 (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  ;; [2021-08-28 Sat] Seems like they changed the link a little?
+  ;; https://aip.scitation.org/doi/10.1063/1.5019667
+  ;; to
+  ;; https://aip.scitation.org/doi/pdf/10.1063/1.5019667
+  (when (string-match "^http\\(s?\\)://aip.scitation.org" *doi-utils-redirect*)
+    (concat "https://aip.scitation.org/doi/pdf" (cl-second (split-string *doi-utils-redirect* "doi")))))
 
 ;;** Taylor and Francis
 
@@ -609,6 +607,7 @@ It would be better to parse this, but here I just use a regexp.
        'iop-pdf-url
        'jstor-pdf-url
        'aip-pdf-url
+       'aip-pdf-url-2
        'science-direct-pdf-url
        'linkinghub-elsevier-pdf-url
        'tandfonline-pdf-url
@@ -647,16 +646,77 @@ until one is found."
           (throw 'pdf-url this-pdf-url))))))
 
 ;;** Finally, download the pdf
+;;;###autoload
+(defun doi-utils-async-download-pdf ()
+  "Download the PDF for bibtex entry at point asynchronously.
+It is not fully async, only the download is. Fully async is
+harder because you need to run `doi-utils-get-pdf-url' async
+too. "
+  (interactive)
+  (require 'async)
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let (;; get doi, removing http://dx.doi.org/ if it is there.
+          (doi (replace-regexp-in-string
+                "https?://\\(dx.\\)?.doi.org/" ""
+                (bibtex-autokey-get-field "doi")))
+          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
+          (pdf-url)
+          (pdf-file))
+
+      (setq pdf-file
+	    (concat (cond
+		     ((stringp bibtex-completion-library-path)
+		      bibtex-completion-library-path)
+		     ((= 1 (length bibtex-completion-library-path))
+		      (car bibtex-completion-library-path))
+		     (t
+		      (completing-read "Dir: " bibtex-completion-library-path)))
+		    key ".pdf"))
+
+      (unless doi (error "No DOI found to get a pdf for"))
+
+      (when (file-exists-p pdf-file)
+	(error "%s already exists. Delete to re-download" pdf-file))
+
+      ;; (doi-utils-get-pdf-url "10.1063/1.5019667")
+      ;; If you get here, try getting the pdf file
+      (async-start
+       `(lambda ()
+	  (setq package-user-dir ,package-user-dir)
+	  (require 'package)
+	  (package-initialize)
+	  (add-to-list 'load-path ,(file-name-directory (locate-library "doi-utils")))
+	  (require 'doi-utils)
+	  ;; (load-file ,(locate-library "doi-utils"))
+	  (setq pdf-url (doi-utils-get-pdf-url ,doi))
+
+	  (url-copy-file pdf-url ,pdf-file t)
+
+	  (let* ((header (with-temp-buffer
+			   (set-buffer-multibyte nil)
+			   (insert-file-contents-literally ,pdf-file nil 0 5)
+			   (buffer-string)))
+		 (valid (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
+	    (if valid
+		(format "%s downloaded" ,pdf-file)
+	      (delete-file ,pdf-file)
+	      (require 'browse-url)
+	      (browse-url ,pdf-url)
+	      (message "Invalid pdf (file deleted). Header = %s" header))))
+       `(lambda (result)
+	  (message "doi-utils-async-download-pdf: %s"  result))))))
+
 
 ;;;###autoload
 (defun doi-utils-get-bibtex-entry-pdf (&optional arg)
   "Download pdf for entry at point if the pdf does not already exist locally.
-The entry must have a doi. The pdf will be saved
-to `org-ref-pdf-directory', by the name %s.pdf where %s is the
-bibtex label.  Files will not be overwritten.  The pdf will be
-checked to make sure it is a pdf, and not some html failure
-page. You must have permission to access the pdf. We open the pdf
-at the end if `doi-utils-open-pdf-after-download' is non-nil.
+The entry must have a doi. The pdf will be saved, by the name
+%s.pdf where %s is the bibtex label. Files will not be
+overwritten. The pdf will be checked to make sure it is a pdf,
+and not some html failure page. You must have permission to
+access the pdf. We open the pdf at the end if
+`doi-utils-open-pdf-after-download' is non-nil.
 
 With one prefix ARG, directly get the pdf from a file (through
 `read-file-name') instead of looking up a DOI. With a double
@@ -667,7 +727,7 @@ checked."
   (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
-    (let ( ;; get doi, removing http://dx.doi.org/ if it is there.
+    (let (;; get doi, removing http://dx.doi.org/ if it is there.
           (doi (replace-regexp-in-string
                 "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
@@ -675,7 +735,15 @@ checked."
           (pdf-url)
           (pdf-file))
 
-      (setq pdf-file (funcall org-ref-get-pdf-filename-function key))
+      (setq pdf-file
+	    (concat (cond
+		     ((stringp bibtex-completion-library-path)
+		      bibtex-completion-library-path)
+		     ((= 1 (length bibtex-completion-library-path))
+		      (car bibtex-completion-library-path))
+		     (t
+		      (completing-read "Dir: " bibtex-completion-library-path)))
+		    key ".pdf"))
       ;; now get file if needed.
       (unless (file-exists-p pdf-file)
 	(cond
@@ -697,43 +765,65 @@ checked."
 	    (write-file pdf-file)))
 	 (t
 	  (message "We don't have a recipe for this journal.")))
+
+	(when (file-exists-p pdf-file)
+	  (bibtex-set-field "file" pdf-file))
+
 	(when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
 	  (org-open-file pdf-file))))))
 
 ;;* Getting bibtex entries from a DOI
 
-;; I
 ;; [[http://homepages.see.leeds.ac.uk/~eeaol/notes/2013/02/doi-metadata/][found]]
 ;; you can download metadata about a DOI from http://dx.doi.org. You just have
 ;; to construct the right http request to get it. Here is a function that gets
 ;; the metadata as a plist in emacs.
+;;
+;;
+(defvar doi-utils-cache nil
+  "Cache variable for storing data we can reuse.
+A-list (doi . data) where doi is doi string, and data is what is
+retrieved from it. This is transient, and disappears when you
+restart Emacs. This mostly exists to prevent
+`doi-utils-update-field' from needing to download the data for
+every field.")
+
+
+(defun doi-utils-clear-cache ()
+  "Clear `doi-utils-cache'."
+  (interactive)
+  (setq doi-utils-cache '()))
+
 
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
-  (let ((url-request-method "GET")
-        (url-mime-accept-string "application/citeproc+json")
-        (json-object-type 'plist)
-        (json-data)
-	(url (concat doi-utils-dx-doi-org-url doi)))
-    (with-current-buffer
-        (url-retrieve-synchronously
-         ;; (concat "http://dx.doi.org/" doi)
-	 url)
-      (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
-      (cond
-       ((or (string-match "<title>Error: DOI Not Found</title>" json-data)
-	    (string-match "Resource not found" json-data)
-	    (string-match "Status *406" json-data)
-	    (string-match "400 Bad Request" json-data))
-	(browse-url (concat doi-utils-dx-doi-org-url doi))
-	(error "Something went wrong.  We got this response:
+  (if-let ((data (cdr (assoc doi doi-utils-cache))))
+      ;; We have the data already, so we return it.
+      data
+    (let ((url-request-method "GET")
+          (url-mime-accept-string "application/citeproc+json")
+          (json-object-type 'plist)
+          (json-data)
+	  (url (concat doi-utils-dx-doi-org-url doi)))
+      (with-current-buffer
+          (url-retrieve-synchronously
+           ;; (concat "http://dx.doi.org/" doi)
+	   url)
+	(setq json-data (buffer-substring url-http-end-of-headers (point-max)))
+
+	(when (or (string-match "<title>Error: DOI Not Found</title>" json-data)
+		  (string-match "Resource not found" json-data)
+		  (string-match "Status *406" json-data)
+		  (string-match "400 Bad Request" json-data))
+	  (browse-url (concat doi-utils-dx-doi-org-url doi))
+	  (error "Something went wrong.  We got this response:
 %s
 
 Opening %s" json-data url))
 
-       ;; everything seems ok with the data
-       (t
-	(json-read-from-string json-data))))))
+	(setq data (json-read-from-string json-data))
+	(cl-pushnew (cons doi data) doi-utils-cache)
+	data))))
 
 
 (defun doi-utils-get-json-metadata-curl (doi)
@@ -903,12 +993,10 @@ MATCHING-TYPES."
 
 ;; That is just the string for the entry. To be useful, we need a function that
 ;; inserts the string into a buffer. This function will insert the string at the
-;; cursor, clean the entry, try to get the pdf, and create a notes entry for
-;; you.
+;; cursor, clean the entry, try to get the pdf.
 
 (defun doi-utils-insert-bibtex-entry-from-doi (doi)
-  "Insert bibtex entry from a DOI.
-Also cleans entry using ‘org-ref’, and tries to download the corresponding pdf."
+  "Insert and clean bibtex entry from a DOI."
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
   ;; set date added for the record
@@ -917,30 +1005,13 @@ Also cleans entry using ‘org-ref’, and tries to download the corresponding p
       (bibtex-set-field doi-utils-timestamp-field
 			ts)))
   (org-ref-clean-bibtex-entry)
-  (save-buffer)
-
-  (when (and doi-utils-make-notes org-ref-bibliography-notes)
-    (save-excursion
-      (when (f-file? org-ref-bibliography-notes)
-	(find-file-noselect org-ref-bibliography-notes)
-	(save-buffer))
-      (let ((bibtex-completion-bibliography (list (buffer-file-name))))
-	(funcall doi-utils-make-notes-function))))
-  ;; try to get pdf
-  (when doi-utils-download-pdf
-    (doi-utils-get-bibtex-entry-pdf)))
-
-
-;; It may be you are in some other place when you want to add a bibtex entry.
-;; This next function will open the first entry in org-ref-default-bibliography
-;; go to the end, and add the entry. You can sort it later.
+  (save-buffer))
 
 
 ;;;###autoload
 (defun doi-utils-add-bibtex-entry-from-doi (doi &optional bibfile)
   "Add DOI entry to end of a file in the current directory.
-Pick the file ending with .bib or in
-`org-ref-default-bibliography'.  If you have an active region that
+Pick the file ending with .bib or in .  If you have an active region that
 starts like a DOI, that will be the initial prompt.  If no region
 is selected and the first entry of the ‘kill-ring’ starts like a
 DOI, then that is the intial prompt.  Otherwise, you have to type
@@ -1069,13 +1140,10 @@ Optional argument NODELIM see `bibtex-make-field'."
       (insert value))))
 
 
-;; The updating function for a whole entry looks like this. We get all the keys
-;; from the json plist metadata, and update the fields if they exist.
-
-
 (defun plist-get-keys (plist)
   "Return keys in a PLIST."
   (-slice plist 0 nil 2))
+
 
 ;;;###autoload
 (defun doi-utils-update-bibtex-entry-from-doi (doi)
@@ -1236,14 +1304,15 @@ May be empty if none are found."
 
 ;;;###autoload
 (defun doi-utils-open-bibtex (doi)
-  "Search through variable `reftex-default-bibliography' for DOI."
+  "Search through variable `bibtex-completion-bibliography' for DOI."
   (interactive "sDOI: ")
-  (catch 'file
-    (dolist (f reftex-default-bibliography)
-      (find-file f)
-      (when (search-forward doi (point-max) t)
-        (bibtex-beginning-of-entry)
-        (throw 'file t)))))
+  (cl-loop for f in (if (listp bibtex-completion-bibliography)
+			bibtex-completion-bibliography
+		      (list bibtex-completion-bibliography))
+	   when (progn (find-file f)
+		       (when (search-forward doi (point-max) t)
+			 (bibtex-beginning-of-entry)))
+	   return f))
 
 
 ;;;###autoload
@@ -1274,61 +1343,35 @@ May be empty if none are found."
     (url-hexify-string doi))))
 
 
-(defvar doi-link-menu-funcs '()
-  "Functions to run in doi menu.
-Each entry is a list of (key menu-name function).  The function
-must take one argument, the doi.")
-
-(setq doi-link-menu-funcs
-      '(("o" "pen" doi-utils-open)
-        ("w" "os" doi-utils-wos)
-        ("c" "iting articles" doi-utils-wos-citing)
-        ("r" "elated articles" doi-utils-wos-related)
-        ("a" "ds" doi-utils-ads)
-        ("s" "Google Scholar" doi-utils-google-scholar)
-        ("f" "CrossRef" doi-utils-crossref)
-        ("p" "ubmed" doi-utils-pubmed)
-        ("b" "open in bibtex" doi-utils-open-bibtex)
-        ("g" "et bibtex entry" doi-utils-add-bibtex-entry-from-doi)))
+(defhydra doi-link-follow (:color blue :hint nil)
+  "DOI actions:
+"
+  ("o" (doi-utils-open (org-element-property :path (org-element-context))) "open")
+  ("w" (doi-utils-wos (org-element-property :path (org-element-context))) "wos")
+  ("c" (doi-utils-wos-citing (org-element-property :path (org-element-context))) "wos citing articles")
+  ("r" (doi-utils-wos-related (org-element-property :path (org-element-context))) "wos related articles" )
+  ("a" (doi-utils-ads (org-element-property :path (org-element-context))) "ads")
+  ("s" (doi-utils-google-scholar (org-element-property :path (org-element-context))) "Google Scholar")
+  ("f" (doi-utils-crossref (org-element-property :path (org-element-context))) "CrossRef")
+  ("p" (doi-utils-pubmed (org-element-property :path (org-element-context))) "Pubmed")
+  ("b" (doi-utils-open-bibtex (org-element-property :path (org-element-context))) "open in bibtex")
+  ("g" (doi-utils-add-bibtex-entry-from-doi (org-element-property :path (org-element-context))) "get bibtex entry"))
 
 
-;;;###autoload
-(defun doi-link-menu (link-string)
-  "Generate the link menu message, get choice and execute it.
-Options are stored in `doi-link-menu-funcs'.
-Argument LINK-STRING Passed in on link click."
-  (interactive)
-  (message
-   (concat
-    (mapconcat
-     (lambda (tup)
-       (concat "[" (elt tup 0) "]"
-               (elt tup 1) " "))
-     doi-link-menu-funcs "") ": "))
-  (let* ((input (read-char-exclusive))
-         (choice (assoc
-                  (char-to-string input) doi-link-menu-funcs)))
-    (when choice
-      (funcall
-       (elt
-        choice
-        2)
-       link-string))))
-
-(org-ref-link-set-parameters "doi"
-  :follow #'doi-link-menu
-  :export (lambda (doi desc format)
-            (cond
-             ((eq format 'html)
-              (format "<a href=\"%s%s\">%s</a>"
-                      doi-utils-dx-doi-org-url
-                      doi
-                      (or desc (concat "doi:" doi))))
-             ((eq format 'latex)
-              (format "\\href{%s%s}{%s}"
-                      doi-utils-dx-doi-org-url
-                      doi
-                      (or desc (concat "doi:" doi)))))))
+(org-link-set-parameters "doi"
+			 :follow (lambda (_) (doi-link-follow/body))
+			 :export (lambda (doi desc format)
+				   (cond
+				    ((eq format 'html)
+				     (format "<a href=\"%s%s\">%s</a>"
+					     doi-utils-dx-doi-org-url
+					     doi
+					     (or desc (concat "doi:" doi))))
+				    ((eq format 'latex)
+				     (format "\\href{%s%s}{%s}"
+					     doi-utils-dx-doi-org-url
+					     doi
+					     (or desc (concat "doi:" doi)))))))
 
 ;;* Getting a doi for a bibtex entry missing one
 
@@ -1361,25 +1404,21 @@ Argument LINK-STRING Passed in on link click."
 
 ;; According to http://search.crossref.org/help/api we can send a query with a
 ;; free form citation that may give us something back. We do this to get a list
-;; of candidates, and run a helm command to get the doi.
+;; of candidates, which could be used to get the doi.
 
 
 ;;;###autoload
 (defun doi-utils-crossref-citation-query ()
   "Query Crossref with the title of the bibtex entry at point.
-Get a list of possible matches.  This opens a helm buffer to
-select an entry.  The default action inserts a doi and url field
-in the bibtex entry at point.  The second action opens the doi
-url.  If there is already a doi field, the function raises an
-error."
+Get a list of possible matches. Choose one with completion."
   (interactive)
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))
 	 (raw-json-string)
          (json-string)
          (json-data)
-         (doi))
-    (unless (string= ""(reftex-get-bib-field "doi" entry))
+         (doi (bibtex-autokey-get-field "doi")))
+    (unless (string= "" doi)
       (error "Entry already has a doi field"))
 
     (with-current-buffer
@@ -1399,33 +1438,26 @@ error."
       	  (replace-match "\\\"" nil t)))
       (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
       ;; decode json string
-      (setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
+      (setq json-string (decode-coding-string (encode-coding-string raw-json-string 'utf-8) 'utf-8))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s" (org-ref-bib-citation)))
-           (helm-candidates (mapcar (lambda (x)
-                                      (cons
-                                       (concat
-                                        (cdr (assoc 'fullCitation x)))
-                                       (cdr (assoc 'doi x))))
-                                    json-data))
+           (candidates (mapcar (lambda (x)
+                                 (cons
+                                  (concat
+                                   (cdr (assoc 'fullCitation x)))
+                                  (cdr (assoc 'doi x))))
+                               json-data))
 
-           (source `((name . ,name)
-                     (candidates . ,helm-candidates)
-                     ;; just return the candidate
-                     (action . (("Insert doi and url field" . (lambda (doi)
-                                                                (bibtex-make-field "doi" t)
-                                                                (backward-char)
-                                                                ;; crossref returns doi url, but I prefer only a doi for the doi field
-                                                                (insert (replace-regexp-in-string "^https?://\\(dx.\\)?doi.org/" "" doi))
-                                                                (when (string= ""(reftex-get-bib-field "url" entry))
-                                                                  (bibtex-make-field "url" t)
-                                                                  (backward-char)
-                                                                  (insert doi))))
-                                ("Open url" . (lambda (doi)
-                                                (browse-url doi))))))))
-      (helm :sources source
-	    :buffer "*doi utils*"))))
+	   (doi (cdr (assoc (completing-read "DOI: " candidates) candidates))))
+      (bibtex-make-field "doi" t)
+      (backward-char)
+      ;; crossref returns doi url, but I prefer only a doi for the doi field
+      (insert (replace-regexp-in-string "^https?://\\(dx.\\)?doi.org/" "" doi))
+      (when (string= "" (bibtex-autokey-get-field "url"))
+        (bibtex-make-field "url" t)
+        (backward-char)
+        (insert doi)))))
 
 
 
@@ -1472,14 +1504,14 @@ error."
 
 ;;* Adding a bibtex entry from a crossref query
 
-;; The idea here is to perform a query on Crossref, get a helm buffer of
+;; The idea here is to perform a query on Crossref, get a completion buffer of
 ;; candidates, and select the entry(ies) you want to add to your bibtex file.
 ;; You can select a region, e.g. a free form citation, or set of words, or you
 ;; can type the query in by hand.
 
 ;;;###autoload
 (defun doi-utils-add-entry-from-crossref-query (query bibtex-file)
-  "Search Crossref with QUERY and use helm to select an entry to add to BIBTEX-FILE."
+  "Search Crossref with QUERY and use completion to select an entry to add to BIBTEX-FILE."
   (interactive (list
                 (read-string
                  "Query: "
@@ -1496,7 +1528,7 @@ error."
                 (completing-read
                  "Bibfile: "
                  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                         org-ref-default-bibliography))))
+                         bibtex-completion-bibliography))))
   (let* ((raw-json-string)
 	 (json-string)
 	 (json-data)
@@ -1520,33 +1552,24 @@ error."
       	  (replace-match "\\\"" nil t)))
       (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
       ;; decode json string
-      (setq json-string (decode-coding-string (string-make-unibyte raw-json-string) 'utf-8))
+      (setq json-string (decode-coding-string (encode-coding-string raw-json-string 'utf-8) 'utf-8))
       (setq json-data (json-read-from-string json-string)))
 
     (let* ((name (format "Crossref hits for %s"
-			 ;; remove carriage returns. they cause problems in helm.
+			 ;; remove carriage returns. They can make completion confusing.
 			 (replace-regexp-in-string "\n" " " query)))
-	   (helm-candidates (mapcar (lambda (x)
-				      (cons
-				       (concat
-					(cdr (assoc 'fullCitation x)))
-				       (cdr (assoc 'doi x))))
-				    json-data))
-	   (source `((name . ,name)
-		     (candidates . ,helm-candidates)
-		     ;; just return the candidate
-		     (action . (("Insert bibtex entry" .  (lambda (doi)
-							    (with-current-buffer (find-file-noselect bibtex-file)
-							      (cl-loop for doi in (helm-marked-candidates)
-								       do
-								       (doi-utils-add-bibtex-entry-from-doi
-									(replace-regexp-in-string
-									 "^https?://\\(dx.\\)?doi.org/" "" doi)
-									,bibtex-file)))))
-				("Open url" . (lambda (doi)
-						(browse-url doi))))))))
-      (helm :sources source
-	    :buffer "*doi utils*"))))
+	   (candidates (mapcar (lambda (x)
+				 (cons
+				  (concat
+				   (cdr (assoc 'fullCitation x)))
+				  (cdr (assoc 'doi x))))
+			       json-data))
+	   (doi (cdr (assoc (completing-read "Choice: " candidates) candidates))))
+      (with-current-buffer (find-file-noselect bibtex-file)
+	(doi-utils-add-bibtex-entry-from-doi
+	 (replace-regexp-in-string
+	  "^https?://\\(dx.\\)?doi.org/" "" doi)
+	 bibtex-file)))))
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")

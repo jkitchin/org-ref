@@ -1,6 +1,6 @@
 ;;; org-ref-latex.el --- org-ref functionality for LaTeX files  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords: languages
@@ -19,129 +19,83 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary: Make cites in LaTeX documents clickable, and with tooltips.
-;; We use font-lock to add some functionality to the
-
-;;
+;; We use font-lock to add some functionality to the keys.
 
 ;;; Code:
-(require 'org-ref-core)
+
+(require 'org-ref-citation-links)
+(require 'bibtex-completion)
 
 (defvar latex-mode-map)
 (defvar org-ref-cite-types)
 
 
 (defvar org-ref-latex-cite-re
-  (concat "\\\\\\(" (mapconcat
-		     (lambda (x)
-		       (replace-regexp-in-string "\\*" "\\\\*" x))
-		     org-ref-cite-types
-		     "\\|")
+  (concat "\\\\\\(?1:" (mapconcat
+			(lambda (x)
+			  (replace-regexp-in-string "\\*" "\\\\*" x))
+			org-ref-cite-types
+			"\\|")
 	  "\\)"
-	  "\\(\\[[^}]*\\)?"		; optional []
-	  "\\(\\[[^}]*\\)?"		; optional []
-	  "{\\([^}]*\\)}")
-  "Regexp for LaTeX citations. \citetype[optional]{some,keys}.
+	  "\\(?2:\\[[^]]*\\]\\)?"		; optional []
+	  "\\(?3:\\[[^]]*\\]\\)?"		; optional []
+	  "{\\(?4:[^}]*\\)}")           ; group 4 contains the keys
+  "Regexp for LaTeX citations. \\citetype[opti{o}nal][optiona{l}]{some,keys}.
 The clickable part are the keys.")
 
 
-(defun org-ref-latex-get-key ()
-  "Figure out what key the cursor is on."
-  (let (start end)
-    ;; look back for , or {
-    (save-excursion
-      (re-search-backward ",\\|{")
-      (setq start (+ 1 (point))))
-
-    ;; look forward to , or }
-    (save-excursion
-      (re-search-forward ",\\|}")
-      (setq end (- (point) 1)))
-    (buffer-substring-no-properties start end)))
-
-
-;;;###autoload
-(defun org-ref-latex-debug ()
-  (interactive)
-  (message-box "%S\n%S\n%S\n%S"
-	       (org-ref-latex-get-key)
-	       (org-ref-find-bibliography)
-	       (org-ref-get-bibtex-key-and-file (org-ref-latex-get-key))
-	       (ignore-errors
-		 (org-ref-latex-help-echo nil nil (point)))))
-
-
-(defun org-ref-latex-jump-to-bibtex (&optional key)
-  "Jump to the KEY at point."
-  (let ((results (org-ref-get-bibtex-key-and-file
-		  (or key (org-ref-latex-get-key)))))
-    (find-file (cdr results))
-    (bibtex-search-entry (car results))))
-
-
-;;;###autoload
-(defun org-ref-latex-click ()
-  "Jump to entry clicked on."
-  (interactive)
-  (helm :sources '(((name . "Actions")
-		    (candidates . (("Open Bibtex entry" . org-ref-latex-jump-to-bibtex)
-				   ("Bibtex entry menu" . (lambda ()
-							    (org-ref-latex-jump-to-bibtex)
-							    (org-ref-bibtex-hydra/body)))))
-		      (action . (lambda (f)
-				  (funcall f)))))))
-
-
-(defun org-ref-latex-help-echo (_window _object position)
-  "Get tool tip for a key in WINDOW for OBJECT at POSITION."
+(defun org-ref-latex-get-bibliography ()
+  "Find bibliographies in the tex file"
   (save-excursion
-    (goto-char position)
-    (let* ((key (org-ref-latex-get-key))
-	   (results (org-ref-get-bibtex-key-and-file key))
-	   (bibfile (cdr results))
-	   citation
-	   tooltip)
-      (setq citation
-	    (if bibfile
-		(save-excursion
-		  (with-temp-buffer
-		    (insert-file-contents bibfile)
-		    (bibtex-set-dialect
-		     (parsebib-find-bibtex-dialect) t)
-		    (bibtex-search-entry key)
-		    (org-ref-bib-citation)))
-	      "!!! No entry found !!!"))
-      (setq tooltip
-	    (with-temp-buffer
-	      (insert citation)
-	      (fill-paragraph)
-	      (buffer-string)))
-      tooltip)))
+    (let ((bibliography '()))
+      (goto-char (point-min))
+      (while (re-search-forward "\\\\bibliography{\\(?1:.*\\)}" nil t)
+	(setq bibliography (append bibliography
+				   (mapcar (lambda (f)
+					     (concat f ".bib"))
+					   (split-string (match-string-no-properties 1) ",")))))
+      (goto-char (point-min))
+      (while (re-search-forward "\\\\addbibresource{\\(?1:.*\\)}" nil t)
+	(setq bibliography (append bibliography (list (match-string-no-properties 1)))))
+
+      bibliography)))
 
 
 (defun org-ref-next-latex-cite (&optional limit)
   "Font-lock function to make cites in LaTeX documents clickable."
-  (when (re-search-forward org-ref-latex-cite-re limit t)
+  (while (re-search-forward org-ref-latex-cite-re limit t)
     (setq font-lock-extra-managed-props (delq 'help-echo font-lock-extra-managed-props))
-    (add-text-properties
-     (match-beginning 3)
-     (match-end 3)
-     `(mouse-face
-       highlight
-       local-map ,(let ((map (copy-keymap latex-mode-map)))
-		    (define-key map [mouse-1]
-		      'org-ref-latex-click)
-		    map)
-       help-echo org-ref-latex-help-echo))))
+    (goto-char (match-beginning 0))
+    (let ((end (match-end 0)))
+      (cl-loop for key in (split-string (match-string-no-properties 4) ",")
+	       do
+	       (save-match-data
+		 (search-forward key)
+		 (add-text-properties
+		  (match-beginning 0)
+		  (match-end 0)
+		  `(mouse-face highlight
+			       local-map ,(let ((map (copy-keymap latex-mode-map)))
+					    (define-key map [mouse-1]
+					      `(lambda ()
+						 (interactive)
+						 (let ((bibtex-completion-bibliography (org-ref-latex-get-bibliography)))
+						   (bibtex-completion-show-entry (list ,key))
+						   (bibtex-beginning-of-entry))))
+					    map)
+			       help-echo ,(let* ((bibtex-completion-bibliography (org-ref-latex-get-bibliography)))
+					    (bibtex-completion-apa-format-reference key))))))
+      (goto-char end))))
 
 
 (defun org-ref-latex-cite-on ()
   "Add the font-lock on for citations."
   (font-lock-add-keywords
-   nil
-   '((org-ref-next-latex-cite 3 font-lock-constant-face))))
+   'latex-mode
+   '((org-ref-next-latex-cite 0 font-lock-constant-face))))
 
-(add-hook 'latex-mode-hook 'org-ref-latex-cite-on)
 (add-hook 'LaTeX-mode-hook 'org-ref-latex-cite-on)
+
 
 (provide 'org-ref-latex)
 ;;; org-ref-latex.el ends here

@@ -9,18 +9,12 @@
 (package-initialize)
 (package-refresh-contents)
 
-(dolist (package (list 'org-plus-contrib 'dash 'helm 'helm-bibtex
-		       'ivy 'hydra 'key-chord 's 'f 'lispy 'pdf-tools))
+(dolist (package (list 'org-plus-contrib 'dash 'ivy-bibtex
+		       'hydra 's 'f 'lispy 'pdf-tools))
   (unless (package-installed-p package)
     (message "installing %s" package)
     (package-install package)))
 
-(setq org-ref-bibliography-notes "./notes.org"
-      org-ref-default-bibliography '("./references.bib")
-      org-ref-pdf-directory "./bibtex-pdfs/")
-
-(unless (file-exists-p org-ref-pdf-directory)
-  (make-directory org-ref-pdf-directory t))
 
 (setq org-src-fontify-natively t
       org-confirm-babel-evaluate nil

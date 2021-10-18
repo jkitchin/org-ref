@@ -1,6 +1,6 @@
 ;;; org-ref-url-utils.el --- Utility functions to scrape DOIs from urls  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2021  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
@@ -21,10 +21,13 @@
 ;;; Commentary:
 
 ;; Drag a webpage onto a bibtex file to insert a bibtex entry.
+;;
+;; [2021-08-29 Sun] I have not found drag-and-drop reliable or convenient. I
+;; don't recommend using this, but I am also not deleting it (yet).
 
 ;; This works by scraping DOIs from the content at the URL using patterns in
 ;; `org-ref-doi-regexps'. If one DOI is found, it is added as an entry. If
-;; multiple DOIs are found, you will get a helm selection buffer to choose what
+;; multiple DOIs are found, you will get a selection buffer to choose what
 ;; you want to add. You can add new patterns to `org-ref-doi-regexps'.
 
 ;; You can press Control to "debug" a URL, which will open a buffer of the
@@ -38,30 +41,18 @@
 
 ;;; Code:
 (defvar org-ref-bibliography-entry-format)
-(defvar org-ref-get-pdf-filename-function)
-(defvar org-ref-notes-function)
 (defvar org-ref-cite-types)
 (defvar org-cliplink-escape-alist)
 
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
-(declare-function 'org-ref-key-in-file-p "org-ref-core.el")
-(declare-function 'org-ref-bib-citation "org-ref-core.el")
-(declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
+
 
 (require 'doi-utils)
 (require 'f)
 (require 's)
 (eval-when-compile
   (require 'cl-lib))
-
-
-;; See https://github.com/jkitchin/org-ref/issues/812
-;; apparently there is a function name change coming in
-;; (if (and (not (fboundp 'dnd-unescape-uri))
-;; 	 (fboundp 'dnd--escape-uri))
-;;     (defalias 'dnd-unescape-uri 'dnd--unescape-uri)
-;;   (warn "dnd-unescape-uri is undefined. Some things may not work."))
 
 
 (defgroup org-ref-url nil
@@ -87,17 +78,21 @@ the DOI."
   :type '(repeat regexp)
   :group 'org-ref-url-utils)
 
+
 (defvar org-ref-url-title-re
   "<title.?+?>\\([[:ascii:][:nonascii:]]*?\\|.+\\)</title>"
   "Regular expression for matching title.")
+
 
 (defvar org-ref-url-author-re
   "<meta name=\"author\" content=\"\\(.+\\)\"\s?/?>"
   "Regular expression for matching author.")
 
+
 (defvar org-ref-url-date-re
   "<[a-z].+ class=\\(.?+date.[^>]*\\)>\\([[:ascii:][:nonascii:]]*?\\)</[a-z].+>"
   "Regular expression for matching date.")
+
 
 (defvar org-ref-url-bibtex-template
   "@misc{key,
@@ -128,30 +123,17 @@ Returns a list of collected DOIs in the order found."
   (let ((dois '()))
     (with-current-buffer (url-retrieve-synchronously url)
       (cl-loop for doi-pattern in org-ref-doi-regexps
-	    do
-	    (goto-char (point-min))
-	    (while (re-search-forward doi-pattern nil t)
-	      (cl-pushnew (match-string 1) dois :test #'equal)))
+	       do
+	       (goto-char (point-min))
+	       (while (re-search-forward doi-pattern nil t)
+		 (cl-pushnew (match-string 1) dois :test #'equal)))
       (reverse dois))))
-
-
-(defun org-ref-url-add-doi-entries (_)
-  "Add all entries for CANDIDATE in `helm-marked-candidates'.
-This is used in a helm selection command in `org-ref-url-dnd-protocol'."
-  (cl-loop for doi in (helm-marked-candidates)
-	   do
-	   (doi-utils-add-bibtex-entry-from-doi
-	    doi
-	    (buffer-file-name))
-	   ;; this removes two blank lines before each entry.
-	   (bibtex-beginning-of-entry)
-	   (delete-char -2)))
 
 
 (defun org-ref-url-dnd-protocol (url action)
   "Protocol function for use in `dnd-protocol-alist'.
 We scrape DOIs from the url first. If there is one, we add it. If
-there is more than one, we offer a helm buffer of selections. If
+there is more than one, we offer a completion buffer of selections. If
 no DOI is found, we create a misc entry, with a prompt for a key."
   ;; make sure we are on a bib-file
   (if (and (buffer-file-name)
@@ -166,30 +148,8 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 	  action)
 	 ;; Multiple DOIs found
 	 ((> (length dois) 1)
-	  (helm :sources
-		`((name . "Select a DOI")
-		  (candidates . ,(let ((dois '()))
-				   (with-current-buffer (url-retrieve-synchronously url)
-				     (cl-loop for doi-pattern in org-ref-doi-regexps
-					      do
-					      (goto-char (point-min))
-					      (while (re-search-forward doi-pattern nil t)
-						(cl-pushnew
-						 ;; Cut off the doi, sometimes
-						 ;; false matches are long.
-						 (cons (format "%40s | %s"
-							       (substring
-								(match-string 1)
-								0 (min
-								   (length (match-string 1))
-								   40))
-							       doi-pattern)
-						       (match-string 1))
-						 dois
-						 :test #'equal)))
-				     (reverse dois))))
-		  (action . org-ref-url-add-doi-entries)))
-	  action)
+	  (let ((doi (completing-read "Select a DOI: " dois)))
+	    (doi-utils-add-bibtex-entry-from-doi doi (buffer-file-name))))
 	 ;; No DOIs found, add a misc entry.
 	 (t
           (org-ref-url-html-to-bibtex (buffer-file-name) url)
@@ -211,7 +171,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
 A doi will be either doi:10.xxx  or 10.xxx."
   (if (and (buffer-file-name)
 	   (f-ext? (buffer-file-name) "bib"))
-      (let ((doi (dnd-unescape-uri doi)))
+      (let ((doi (dnd--unescape-uri doi)))
 	;; Get the actual doi now
 	(string-match "\\(?:DOI\\|doi\\)?:? *\\(10.*\\)" doi)
 	(setq doi (match-string 1 doi))
@@ -230,81 +190,21 @@ A doi will be either doi:10.xxx  or 10.xxx."
 (add-to-list 'dnd-protocol-alist '("^10" . org-ref-doi-dnd-protocol))
 
 
-;;* Debug URL in a buffer with C-dnd
+;;* Debugging DOIs from a URL
 
 ;; You can use this to see if there are any DOIs in a URL, and to use re-builder
 ;; to add new patterns to `org-ref-doi-regexps'.
 ;;;###autoload
 (defun org-ref-url-debug-url (url)
   "Open a buffer to URL with all doi patterns highlighted."
-  (interactive)
+  (interactive "sURL: ")
   (switch-to-buffer
    (url-retrieve-synchronously url))
   (highlight-regexp
    (mapconcat 'identity org-ref-doi-regexps "\\|")))
 
 
-;;;###autoload
-(defun org-ref-url-dnd-debug (event)
-  "Drag-n-drop function to debug a url."
-  (interactive "e")
-  (org-ref-url-debug-url (cadr (car (last event)))))
-
-
-(define-key bibtex-mode-map (kbd "<C-drag-n-drop>") 'org-ref-url-dnd-debug)
-
-;;* Add all DOI bibtex entries with M-dnd
-
-(defun org-ref-url-add-all-doi-entries (url)
-  "Add all DOI bibtex entries for URL."
-  (cl-loop for doi in (org-ref-url-scrape-dois url)
-	do
-	(ignore-errors
-	  (doi-utils-add-bibtex-entry-from-doi
-	   doi
-	   (buffer-file-name))
-	  ;; this removes two blank lines before each entry.
-	  (bibtex-beginning-of-entry)
-	  (delete-char -2))))
-
-
-;;;###autoload
-(defun org-ref-url-dnd-all (event)
-  "Drag-n-drop function to get all DOI bibtex entries for a url.
-You probably do not want to do this since the DOI patterns are
-not perfect, and some hits are not actually DOIs."
-  (interactive "e")
-  (org-ref-url-add-all-doi-entries (cadr (car (last event)))))
-
-(define-key bibtex-mode-map (kbd "<M-drag-n-drop>") 'org-ref-url-dnd-all)
-
-
-;; Get first DOI if there is one with s-dnd
-(defun org-ref-url-add-first-doi-entry (url)
-  "Add first DOI bibtex entry for URL if there is one."
-  (let* ((dois (org-ref-url-scrape-dois url))
-	 (doi (car dois)))
-    (if doi
-	(progn
-	  (doi-utils-add-bibtex-entry-from-doi
-	   doi
-	   (buffer-file-name))
-	  ;; this removes two blank lines before each entry.
-	  (bibtex-beginning-of-entry)
-	  (delete-char -2))
-      ;; no doi, add misc
-      (org-ref-url-html-to-bibtex (buffer-file-name) url))))
-
-;;;###autoload
-(defun org-ref-url-dnd-first (event)
-  "Drag-n-drop function to download the first DOI in a url."
-  (interactive "e")
-  (org-ref-url-add-first-doi-entry (cadr (car (last event)))))
-
-(define-key bibtex-mode-map (kbd "<s-drag-n-drop>") 'org-ref-url-dnd-first)
-
-
-;; HTML to BibTeX functions
+;;* HTML to BibTeX functions
 
 (defun org-ref-url-html-replace (string)
   "Replace HTML entities in STRING with their unicode equivalent."

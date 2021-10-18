@@ -1,0 +1,26 @@
+# adapted from https://github.com/purcell/package-lint/blob/master/.github/workflows/test.yml
+name: org-ref
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        emacs_version:
+#          - 26.1
+#          - 26.2
+          - 26.3
+#          - 27.1
+          - 27.2
+          - snapshot
+
+    steps:
+    - uses: purcell/setup-emacs@master
+      with:
+        version: ${{ matrix.emacs_version }}
+
+    - uses: actions/checkout@v2
+    - name: Run tests
+      run: make github-actions

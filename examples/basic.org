@@ -1,0 +1,96 @@
+#+title: A basic example of org-ref
+#+options: toc:nil
+#+latex_header: \usepackage{makeidx}
+#+latex_header: \makeindex
+#+latex_header: \usepackage{cleveref}
+
+\maketitle
+\tableofcontents
+
+* Introduction <<sec-intro>>
+
+This is a basic example. The section uses a target label. The next section (Sec. ref:sec-citations uses a =CUSTOM_ID=).
+
+** Citations
+:PROPERTIES:
+:CUSTOM_ID: sec-citations
+:END:
+index:citations
+
+Here are a few typical
+- cite :: [[cite:&kitchin-2015-examp-effec]]
+- citeauthor ::  [[citeauthor:&kitchin-2015-examp-effec]]
+- citenum ::  [[citenum:&kitchin-2015-examp-effec]]
+
+index:label!table
+#+name: tab-data
+#+caption: some tabular data.
+| x | y |
+| 0 | 1 |
+
+
+index:label!figure
+#+name: fig-cos
+#+caption: You need a caption.
+[[./fig.png]]
+
+Here is an equation using a latex label inside it.:
+
+\begin{equation}\label{eq-int}
+\int_0^1 e^x dx
+\end{equation}
+
+
+** cross-references <<sec-cr>>
+index:cross-references
+
+See section ref:sec-intro. The data is shown in Table ref:tab-data.
+
+Here are some alternate kinds of refs.
+
+- page :: Fig. ref:fig-cos is on page  pageref:fig-cos
+- name :: nameref:fig-cos (uses the caption)
+- equation :: Eq. eqref:eq-int
+
+If you use [[https://ctan.org/pkg/cleveref?lang=en][cleveref]], these cross-references will be modified at compile time so they have a descriptor in front of each label:
+
+- cref:sec-intro
+- cref:tab-data
+- cref:fig-cos
+- cref:eq-int
+
+These are capitalized versions.
+
+- Cref:sec-intro
+- Cref:tab-data
+- Cref:fig-cos
+- Cref:eq-int
+
+You can also put several together  Cref:sec-intro,tab-data,fig-cos,eq-int
+
+And for numerically sequential sequences, they will be collapsed when compiled to a range: cref:sec-cr,sec-misc,sec-citations. How this is done is customized in LaTeX, see the =cleveref= documentation.
+
+[[bibliographystyle:authordate1]]
+bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
+
+** miscellaneous links <<sec-misc>>
+
+[[list-of-tables:]]
+
+[[list-of-figures:]]
+
+[[printindex:]]
+
+bibliographystyle:unsrtnat
+bibliography:../org-ref.bib
+
+
+* build                                                            :noexport:
+
+** PDF
+
+org-ref was designed for making PDFs via LaTeX. It should just work with a regular export mechanism. For this document your `org-latex-pdf-process' must run bibtex and makeindex.
+
+[[elisp:(org-open-file (org-latex-export-to-pdf))]]
+
+This document has many features that are not compatible with other formats (e.g. the list of tables, index, etc...). See [[./basic-csl.org]] for an example that works with other formats.

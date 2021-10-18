@@ -14,6 +14,8 @@
 
 ;; This code is mostly wrappers around the command line utilities at
 ;; http://sourceforge.net/p/bibutils/home/Bibutils.
+;;
+;; on a Mac: brew install bibutils
 
 ;; Here are the commands that are available.
 
