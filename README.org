@@ -1,21 +1,23 @@
 # -*- org-edit-src-content-indentation: 0; -*-
 #+TITLE: org-ref: citations, cross-references, indexes, glossaries and bibtex utilities for org-mode
 
-#+BEGIN_EXPORT html
+#+BEGIN_html
 <a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
+
+<a href="https://github.com/jkitchin/org-ref/actions"><img src="https://github.com/jkitchin/org-ref/workflows/test-org-ref/badge.svg"></a>
 
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
 
 <a href="http://stable.melpa.org/#/org-ref"><img alt="MELPA Stable" src="http://stable.melpa.org/packages/org-ref-badge.svg"/></a>
-#+END_EXPORT
+#+END_html
 
-Overview of org-ref for export to PDF via LaTeX
+Overview of org-ref for export to PDF via LaTeX.
 
-#+BEGIN_EXPORT html
+#+BEGIN_html
  <a href="https://www.youtube.com/watch?v=3u6eTSzHT6s">
  <img src="http://img.youtube.com/vi/3u6eTSzHT6s/0.jpg">
 </a>
-#+END_EXPORT
+#+END_html
 
 * About org-ref
 
