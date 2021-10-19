@@ -1,14 +1,7 @@
 #+title: A basic example of org-ref for csl export
 #+options: toc:nil
 
-These keywords specify the style for citations.
-
-# this file must exist be a path or exist in `org-cite-csl-styles-dir'.
-#+csl-style: apa-5th-edition.csl
-
-# this must be a locales file in `org-cite-csl-locales-dir'. Defaults to en-US
-#+csl-locale: en-US
-
+Out of the box, CSL export uses chicago-author-date-16th-edition.csl for citation styling and English as the locale.
 
 * Introduction
 

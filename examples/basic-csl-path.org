@@ -1,10 +1,10 @@
-#+title: A basic example of org-ref for csl export
+#+title: A basic example of org-ref for csl export with absolute path
 #+options: toc:nil
 
 These keywords specify the style for citations.
 
 # this file must exist be a path or exist in `org-cite-csl-styles-dir'.
-#+csl-style: apa-5th-edition.csl
+#+csl-style: /Users/jkitchin/Desktop/nature.csl
 
 # this must be a locales file in `org-cite-csl-locales-dir'. Defaults to en-US
 #+csl-locale: en-US
@@ -13,6 +13,8 @@ These keywords specify the style for citations.
 * Introduction
 
 Let's see how these get rendered.
+
+** Default
 
 - cite :: Effective data sharing [[cite:&kitchin-2015-examp]].
 
