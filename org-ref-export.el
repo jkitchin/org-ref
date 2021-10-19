@@ -210,11 +210,14 @@ BACKEND is the org export backend."
 		       (file-exists-p (f-join org-cite-csl-styles-dir style)))
 		  (f-join org-cite-csl-styles-dir style))
 		 ;; provided by org-ref
-		 ((file-exists-p (expand-file-name style (f-join (file-name-directory
-								  (locate-library "org-ref"))
-								 "citeproc/csl-styles")))
-		  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref"))
-						  "citeproc/csl-styles")))
+		 ((file-exists-p (expand-file-name style
+						   (f-join (file-name-directory
+							    (locate-library "org-ref"))
+							   "citeproc/csl-styles")))
+		  (expand-file-name style (f-join
+					   (file-name-directory
+					    (locate-library "org-ref"))
+					   "citeproc/csl-styles")))
 		 (t
 		  (error "%s not found" style)))
 		;; item-getter
@@ -247,64 +250,59 @@ BACKEND is the org export backend."
 						(org-ref-ref-csl-data ref type))))
 			   ;; TODO: update eventually
 			   ;; https://github.com/andras-simonyi/citeproc-el/issues/46
-			   ;; To handle common prefixes, suffixes, I just concat them with the first/last entries.
-			   ;; That is all that is supported for now.
-			   ;; Combine common/local prefix
+			   ;; To handle common prefixes, suffixes, I just concat
+			   ;; them with the first/last entries. That is all that
+			   ;; is supported for now. Combine common/local prefix
 			   (setf (cdr (assoc 'prefix (cl-first cites)))
-				 (concat common-prefix (cdr (assoc 'prefix (cl-first cites)))))
+				 (concat common-prefix
+					 (cdr (assoc 'prefix (cl-first cites)))))
 			   ;; Combine local/common suffix
 			   (setf (cdr (assoc 'suffix (car (last cites))))
-				 (concat (cdr (assoc 'suffix (car (last cites)))) common-suffix))
+				 (concat (cdr (assoc 'suffix (car (last cites))))
+					 common-suffix))
 
 			   ;; https://github.com/andras-simonyi/citeproc-el#creating-citation-structures
-			   (citeproc-citation-create :cites
-						     ;; Weird, I used to have to
-						     ;; reverse this to get the
-						     ;; right order, but now it
-						     ;; seems I don't. I wonder
-						     ;; if it is another
-						     ;; generalized variable
-						     ;; leakage?
-						     cites
-						     ;; TODO: proof of concept, incomplete
-						     ;; if this is true, the citation is not parenthetical
-						     :suppress-affixes (let ((type (org-element-property :type cl)))
-									 (when (member type '("citet"
-											      "citet*"
-											      "citenum"))
-									   t))
+			   (citeproc-citation-create
+			    :cites cites
+			    ;; TODO: proof of concept, incomplete if this is
+			    ;; true, the citation is not parenthetical
+			    :suppress-affixes (let ((type (org-element-property :type cl)))
+						(when (member type '("citet"
+								     "citet*"
+								     "citenum"))
+						  t))
 
-						     ;; TODO: this is proof of
-						     ;; concept, and not
-						     ;; complete. mode is one of
-						     ;; suppress-author,
-						     ;; textual, author-only,
-						     ;; year-only, or nil for
-						     ;; default. These are not
-						     ;; all clear to me.
-						     :mode (let ((type (org-element-property :type cl)))
-							     (cond
-							      ((member type '("citet" "citet*"))
-							       'textual)
-							      ((member type '("citeauthor" "citeauthor*"))
-							       'author-only)
-							      ((member type '("citeyear" "citeyear*"))
-							       'year-only)
-							      ((member type '("citedate" "citedate*"))
-							       'suppress-author)
-							      (t
-							       nil)))
+			    ;; TODO: this is proof of concept, and not complete.
+			    ;; mode is one of suppress-author, textual,
+			    ;; author-only, year-only, or nil for default. These
+			    ;; are not all clear to me.
+			    :mode (let ((type (org-element-property :type cl)))
+				    (cond
+				     ((member type '("citet" "citet*"))
+				      'textual)
+				     ((member type '("citeauthor" "citeauthor*"))
+				      'author-only)
+				     ((member type '("citeyear" "citeyear*"))
+				      'year-only)
+				     ((member type '("citedate" "citedate*"))
+				      'suppress-author)
+				     (t
+				      nil)))
 
-						     ;; I think the capitalized styles are what this is for
-						     :capitalize-first (string-match
-									"[A-Z]"
-									(substring (org-element-property :type cl) 0 1))
-						     ;; I don't know where this information would come from.
-						     :note-index nil
-						     :ignore-et-al nil))))
+			    ;; I think the capitalized styles are what this is for
+			    :capitalize-first (string-match
+					       "[A-Z]"
+					       (substring
+						(org-element-property :type cl) 0 1))
+			    ;; I don't know where this information would come from.
+			    :note-index nil
+			    :ignore-et-al nil))))
 
 	 (rendered-citations (progn (citeproc-append-citations cites proc)
 				    (citeproc-render-citations proc csl-backend org-ref-cite-internal-links)))
+	 ;; I only use the returned bibliography string. citeproc returns a
+	 ;; bunch of other things related to offsets and linespacing, but I
+	 ;; don't know what you do with these, so just ignore them here.
 	 (rendered-bib (car (citeproc-render-bib proc csl-backend)))
 	 ;; The idea is we will wrap each citation and the bibliography in
 	 ;; org-code so it exports appropriately.
@@ -319,11 +317,17 @@ BACKEND is the org export backend."
     (cl-loop for cl in (reverse cite-links) for rc in (reverse rendered-citations) do
 	     (cl--set-buffer-substring (org-element-property :begin cl)
 				       (org-element-property :end cl)
-				       (format (or (cdr (assoc backend cite-formatters)) "%s")
+				       (format (or
+						(cdr (assoc backend cite-formatters))
+						"%s")
 					       (concat
 						rc
-						;; Add on extra spaces that were following it.
-						(make-string (or (org-element-property :post-blank cl) 0) ? )))))
+						;; Add on extra spaces that were
+						;; following it.
+						(make-string
+						 (or
+						  (org-element-property :post-blank cl) 0)
+						 ? )))))
 
     ;; replace the bibliography
     (org-element-map (org-element-parse-buffer) 'link
@@ -332,7 +336,11 @@ BACKEND is the org export backend."
 	 ((string= (org-element-property :type lnk) "bibliography")
 	  (cl--set-buffer-substring (org-element-property :begin lnk)
 				    (org-element-property :end lnk)
-				    (format (or (cdr (assoc backend bib-formatters)) "%s") rendered-bib)))
+				    (format (or
+					     (cdr (assoc backend bib-formatters))
+					     "%s")
+					    rendered-bib)))
+	 ;; We just get rid of nobibliography links.
 	 ((string= (org-element-property :type lnk) "nobibliography")
 	  (cl--set-buffer-substring (org-element-property :begin lnk)
 				    (org-element-property :end lnk)
@@ -467,6 +475,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 (defun org-ref-csl-preprocess-buffer (backend)
   "Preprocess the buffer in BACKEND export"
   (org-ref-process-buffer backend))
+
 
 (provide 'org-ref-export)
 
