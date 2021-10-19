@@ -507,7 +507,7 @@ If on a link, append a label to the end.
 With a prefix arg SET-TYPE choose the ref type."
   (interactive "P")
   (let* ((label (completing-read "Label: " (org-ref-get-labels)))
-	 (type (if (or set-type current-prefix-arg)
+	 (type (if (or set-type  ivy-current-prefix-arg)
 		   (completing-read "Type: " org-ref-ref-types)
 		 (org-ref-infer-ref-type label))))
     (if-let* ((lnk (org-ref-ref-link-p))
