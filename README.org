@@ -1,9 +1,9 @@
 # -*- org-edit-src-content-indentation: 0; -*-
 #+TITLE: org-ref: citations, cross-references, indexes, glossaries and bibtex utilities for org-mode
 
-#+BEGIN_html
-<a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
+# <a href="https://travis-ci.org/jkitchin/org-ref"><img src="https://travis-ci.org/jkitchin/org-ref.svg?branch=master"></a>
 
+#+BEGIN_html
 <a href="https://github.com/jkitchin/org-ref/actions"><img src="https://github.com/jkitchin/org-ref/actions/workflows/test-org-ref.yml/badge.svg"></a>
 
 <a href="https://melpa.org/#/org-ref"><img alt="MELPA" src="https://melpa.org/packages/org-ref-badge.svg"/></a>
