@@ -40,6 +40,7 @@
   (rx (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Regexp for labels.")
 
+
 (defvar org-ref-label-link-re
   (rx "label:" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Regexp for label links.")
@@ -506,7 +507,13 @@ the first instance of the label, or nil of there is none."
 If on a link, append a label to the end.
 With a prefix arg SET-TYPE choose the ref type."
   (interactive "P")
-  (let* ((label (completing-read "Label: " (org-ref-get-labels)))
+  (let* ((labels (org-ref-get-labels))
+	 (label (completing-read "Label: " (lambda (str pred action)
+					     (if (eq action 'metadata)
+						 `(metadata
+						   (annotation-function . (lambda (x)
+									    (cdr (assoc x labels)))))
+					       (complete-with-action action labels str pred)))))
 	 (type (if (or set-type  ivy-current-prefix-arg)
 		   (completing-read "Type: " org-ref-ref-types)
 		 (org-ref-infer-ref-type label))))
