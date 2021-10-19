@@ -268,12 +268,9 @@ Or you can refer to an org-mode label as in Table ref:table-3.
 
 Note: You may need to set org-latex-prefer-user-labels to t if you refer to things by their "name" for the export to use the name you create.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (setq org-latex-prefer-user-labels t)
 #+END_SRC
-
-#+RESULTS:
-: t
 
 
 #+caption: Another simple table. label:table-3
@@ -355,7 +352,7 @@ This function has a hook ~org-ref-clean-bibtex-entry-hook~, which you can add fu
 
 Here are the functions run on cleaning:
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :exports both
 org-ref-clean-bibtex-entry-hook
 #+END_SRC
 
@@ -463,7 +460,7 @@ Finally, where you want the bibliography put this empty link:
 
 The regular biblatex cite links support common pre/post notes, and multiple keys. These are:
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :exports both
 org-ref-biblatex-types
 #+END_SRC
 
@@ -500,7 +497,7 @@ org-ref-biblatex-types
 
 The multitype links support common pre/postnotes, and individual pre/post notes.  These are the multicite commands:
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :exports both
 org-ref-biblatex-multitypes
 #+END_SRC
 
@@ -600,7 +597,7 @@ If you do not get json data, doi-utils will not be able to generate the bibtex e
 
 Not all PDFs can be retrieved. doi-utils uses a set of functions to attempt this. Here is the list.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :exports both
 doi-utils-pdf-url-functions
 #+END_SRC
 
@@ -640,7 +637,7 @@ doi-utils-pdf-url-functions
 
 You can check if a url for the PDF can be found like this. If you get a url, you can probably download a pdf.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :exports both
 (doi-utils-get-pdf-url "10.1021/jp511426q")
 #+END_SRC
 
@@ -1053,10 +1050,10 @@ These links will run export commands to get this document in different formats. 
 
 [[elisp:(org-ref-export-to-message)]] export to body of an ascii email message
 
-Some basic styles are provide in [[./csl-locales/]], and a US-English locale in [[./csl-locales/]].
+Some basic styles are provide in [[./citeproc/csl-locales/]], and a US-English locale in [[./citeproc/csl-locales/]].
 
-#+BEGIN_SRC sh
-ls csl-styles
+#+BEGIN_SRC sh :exports both
+ls citeproc/csl-styles
 #+END_SRC
 
 #+RESULTS:
