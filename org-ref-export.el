@@ -26,21 +26,19 @@
 ;;
 ;; The default style is set by a CSL-STYLE keyword or
 ;; `org-ref-csl-default-style'. If this is an absolute or relative path that
-;; exists, it is used. Otherwise, it looks in `org-cite-csl-styles-dir' if it is
-;; defined, and in the csl-styles directory in `org-ref' otherwise.
+;; exists, it is used. Otherwise, it looks in `org-cite-csl-styles-dir' from
+;; `org-cite' if it is defined, and in the citeproc/csl-styles directory in
+;; `org-ref' otherwise.
 ;;
 ;; The default locale is set by a CSL-LOCALE keyword or
 ;; `org-ref-csl-default-locale'. This is looked for in
 ;; `org-cite-csl-locales-dir' if it is defined, and otherwise in the csl-locales
 ;; directory of `org-ref'.
 ;;
-;; Note that citeproc does not do anything for cross-references, so if non-latex
-;; export is your goal, you should be careful in how you do cross-references,
-;; and rely exclusively on org-syntax for that, e.g. radio targets and fuzzy
-;; links.
+;; Note that citeproc does not do anything for cross-references, so if non-LaTeX
+;; export is your goal, you may want to use org-ref-refproc.el to handle
+;; cross-references.
 ;;
-;; TODO: write refproc to take care of cross-references? Should it just revert
-;; to org-markup, maybe adding parentheses around equation refs?
 
 ;;; Code:
 
@@ -71,7 +69,8 @@
 
 
 (defcustom org-ref-csl-default-style "chicago-author-date-16th-edition.csl"
-  "Default csl style to use."
+  "Default csl style to use.
+Should be a csl filename, or an absolute path to a csl filename."
   :type 'string
   :group 'org-ref)
 
@@ -172,7 +171,8 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
       (suffix . ,suffix)
       (locator . ,locator)
       (label . ,(when label (org-ref-dealias-label (string-trim label))))
-      ;; TODO: proof of concept and not complete
+      ;; TODO: proof of concept and not complete. I did not go through all the
+      ;; types to see what else should be in here.
       (suppress-author . ,(not (null (member type
 					     '("citenum"
 					       "citeyear"
@@ -275,7 +275,7 @@ BACKEND is the org export backend."
 
 						     ;; TODO: this is proof of
 						     ;; concept, and not
-						     ;; complete mode is one of
+						     ;; complete. mode is one of
 						     ;; suppress-author,
 						     ;; textual, author-only,
 						     ;; year-only, or nil for
