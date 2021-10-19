@@ -52,6 +52,7 @@
   '((html . html)
     (latex . latex)
     (md . plain)
+    (org . org)
     (ascii . plain)
     (odt . org-odt))
   "Mapping of export backend to csl-backends."
