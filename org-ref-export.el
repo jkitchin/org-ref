@@ -211,9 +211,9 @@ BACKEND is the org export backend."
 		 ;; provided by org-ref
 		 ((file-exists-p (expand-file-name style (f-join (file-name-directory
 								  (locate-library "org-ref"))
-								 "csl-styles")))
+								 "citeproc/csl-styles")))
 		  (expand-file-name style (f-join (file-name-directory (locate-library "org-ref"))
-						  "csl-styles")))
+						  "citeproc/csl-styles")))
 		 (t
 		  (error "%s not found" style)))
 		;; item-getter
@@ -225,7 +225,7 @@ BACKEND is the org export backend."
 						  (t
 						   (f-join (file-name-directory
 							    (locate-library "org-ref"))
-							   "csl-locales"))))
+							   "citeproc/csl-locales"))))
 		;; the actual locale
 		locale))
 
