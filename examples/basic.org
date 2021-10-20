@@ -70,8 +70,6 @@ You can also put several together  Cref:sec-intro,tab-data,fig-cos,eq-int
 
 And for numerically sequential sequences, they will be collapsed when compiled to a range: cref:sec-cr,sec-misc,sec-citations. How this is done is customized in LaTeX, see the =cleveref= documentation.
 
-[[bibliographystyle:authordate1]]
-bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
 
 ** miscellaneous links <<sec-misc>>
 
@@ -81,8 +79,8 @@ bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
 
 [[printindex:]]
 
-bibliographystyle:unsrtnat
-bibliography:../org-ref.bib
+[[bibliographystyle:authordate1]]
+bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
 
 
 * build                                                            :noexport:
