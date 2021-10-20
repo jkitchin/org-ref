@@ -370,6 +370,10 @@ PATH has the citations in it."
     (goto-char start)
     (pcase (org-ref-cite-version path)
       (2
+       ;; This makes the brackets visible, but we only need it when there is a
+       ;; description.
+       (when (looking-at "\\[\\[\\(.*\\)\\]\\[\\(.*\\)\\]\\]")
+	 (remove-text-properties start end '(invisible nil)))
        (setq substrings (split-string path ","))
        (cl-loop for key in substrings
 		do
