@@ -65,9 +65,30 @@
 The label should always be in group 1.")
 
 
+(defvar org-ref-ref-types
+  '(("ref" "A regular cross-reference to a label")
+    ("eqref" "A cross-reference to an equation")
+    ("pageref" "to the page number a label is on")
+    ("nameref" "to the name associated with a label (e.g. a caption)")
+    ("autoref" "from hyperref, adds automatic prefixes")
+    ("cref" "from cleveref, adds automatic prefixes, and condenses multiple refs")
+    ("Cref" "from cleveref, capitalized version of cref")
+    ("crefrange" "from cleveref, makes a range of refs from two refs with a prefix")
+    ("Crefrange" "from cleveref, capitalized prefix version of crefrange"))
+  "List of ref link types (type description).")
+
+
 (defun org-ref-change-ref-type (new-type)
   "Change the ref type to NEW-TYPE."
-  (interactive (list (completing-read "Type: " org-ref-ref-types)))
+  (interactive (list
+		(let* ((type-annotation (lambda (s)
+					  (let ((item (assoc s minibuffer-completion-table)))
+					    (when item (concat
+							(make-string (- 12 (length s)) ? )
+							"-- "
+							(second item))))))
+		       (completion-extra-properties `(:annotation-function ,type-annotation)))
+		  (completing-read "Type: " org-ref-ref-types))))
   (let* ((cite-link (org-element-context))
 	 (old-type (org-element-property :type cite-link))
 	 (begin (org-element-property :begin cite-link))
@@ -128,20 +149,6 @@ font-lock."
 		     labels))))
     ;; reverse so they are in the order we find them.
     (delete-dups (reverse labels))))
-
-
-;; (defhydra org-ref-ref-follow ()
-;;   "Org-ref ref
-;; "
-;;   ("o" org-ref-ref-jump-to "Jump to")
-;;   ("r"  org-ref-change-ref-type "Change type"))
-
-
-;; (defun org-ref-ref-follow (_path)
-;;   "Follow a ref link. _PATH is ignored.
-;; Opens a hydra menu."
-;;   (interactive)
-;;   (org-ref-ref-follow/body))
 
 
 (defun org-ref-ref-jump-to (&optional _path)
@@ -305,16 +312,11 @@ This is meant to be used with `apply-partially' in the link definitions."
       nil))
 
     (when label
-      (cl-loop for reftype in org-ref-ref-types do
+      (cl-loop for (reftype _) in org-ref-ref-types do
 	       (org-link-store-props
 		:type reftype
 		:link (concat reftype ":" label)))
       (format (concat  org-ref-default-ref-type ":" label)))))
-
-
-(defvar org-ref-ref-types
-  '("ref" "eqref" "pageref" "nameref" "autoref" "cref" "Cref" "crefrange" "Crefrange")
-  "List of ref link types.")
 
 
 ;; ** ref link
@@ -498,7 +500,7 @@ the first instance of the label, or nil of there is none."
   "Return the link at point if point is on a ref link."
   (let ((el (org-element-context)))
     (and (eq (org-element-type el) 'link)
-	 (member (org-element-property :type el) org-ref-ref-types)
+	 (assoc (org-element-property :type el) org-ref-ref-types)
 	 el)))
 
 
@@ -507,14 +509,15 @@ the first instance of the label, or nil of there is none."
 If on a link, append a label to the end.
 With a prefix arg SET-TYPE choose the ref type."
   (interactive "P")
-  (let* ((labels (org-ref-get-labels))
-	 (label (completing-read "Label: " (lambda (str pred action)
-					     (if (eq action 'metadata)
-						 `(metadata
-						   (annotation-function . (lambda (x)
-									    (cdr (assoc x labels)))))
-					       (complete-with-action action labels str pred)))))
-	 (type (if (or set-type  ivy-current-prefix-arg)
+  (let* ((label (completing-read "Label: " (org-ref-get-labels))) 
+	 (type-annotation (lambda (s)
+			    (let ((item (assoc s minibuffer-completion-table)))
+			      (when item (concat
+					  (make-string (- 12 (length s)) ? )
+					  "-- "
+					  (second item))))))
+	 (completion-extra-properties `(:annotation-function ,type-annotation))
+	 (type (if (or set-type ivy-current-prefix-arg)
 		   (completing-read "Type: " org-ref-ref-types)
 		 (org-ref-infer-ref-type label))))
     (if-let* ((lnk (org-ref-ref-link-p))
@@ -527,7 +530,6 @@ With a prefix arg SET-TYPE choose the ref type."
 
       (insert (format  "%s:%s" type label)))
     (goto-char (org-element-property :end (org-element-context)))))
-
 
 
 (provide 'org-ref-ref-links)
