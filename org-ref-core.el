@@ -30,7 +30,9 @@
   (require 'cl-lib))
 
 (require 'org)
-(require 'org-macs)
+;; the eval and compile seems especially necessary for native compilation on the newest Emacs.
+(eval-and-compile (require 'org-macs))
+
 (require 'org-element)
 
 (require 'dash)
