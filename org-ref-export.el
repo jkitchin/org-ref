@@ -349,9 +349,9 @@ BACKEND is the org export backend."
     ;; see https://www.mail-archive.com/emacs-orgmode@gnu.org/msg138546.html
     (when (eq backend 'latex)
       (goto-char (point-min))
-      (insert "#+latex_header: \makeatletter
-#+latex_header: \newcommand{\citeprocitem}[2]{\hyper@linkstart{cite}{citeproc_bib_item_#1}#2\hyper@linkend}
-#+latex_header: \makeatother\n"))))
+      (insert "#+latex_header: \\makeatletter
+#+latex_header: \\newcommand{\citeprocitem}[2]{\\hyper@linkstart{cite}{citeproc_bib_item_#1}#2\\hyper@linkend}
+#+latex_header: \\makeatother\n"))))
 
 
 (defun org-ref-export-to (backend &optional async subtreep visible-only
