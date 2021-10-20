@@ -568,7 +568,7 @@ if FORCE is non-nil reparse the buffer no matter what."
     (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
-	  (when (member (plist-get plist ':type)  org-ref-ref-types)
+	  (when (assoc (plist-get plist ':type)  org-ref-ref-types)
 	    (cl-loop for label in (split-string (plist-get plist :path) ",")
 		     do
 		     (unless (-contains? labels label)
