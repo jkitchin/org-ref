@@ -462,23 +462,35 @@ This is meant to be used with `apply-partially' in the link definitions."
 (defun org-ref-enclosing-environment (label)
   "Returns the name of the innermost LaTeX environment containing
 the first instance of the label, or nil of there is none."
-  (save-excursion
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (let ((label-point (search-forward (format "\\label{%s}" label) nil t)))
-	(when label-point
-          (catch 'return
-            (let (last-begin-point last-env)
-              (while (setq
-                      last-begin-point (re-search-backward "\\\\begin{\\([^}]+\\)}" nil t)
-                      last-env (match-string-no-properties 1))
-		(let ((env-end-point
-                       (search-forward (format "\\end{%s}" last-env) nil t)))
-                  (if (and env-end-point
-                           (> env-end-point label-point))
-                      (throw 'return last-env)
-                    (goto-char last-begin-point)))))))))))
+  (or
+   (save-excursion
+     (save-restriction
+       (widen)
+       (goto-char (point-min))
+       (let ((label-point (search-forward (format "\\label{%s}" label) nil t)))
+	 (when label-point
+           (catch 'return
+             (let (last-begin-point last-env)
+               (while (setq
+                       last-begin-point (re-search-backward "\\\\begin{\\([^}]+\\)}" nil t)
+                       last-env (match-string-no-properties 1))
+		 (let ((env-end-point
+			(search-forward (format "\\end{%s}" last-env) nil t)))
+                   (if (and env-end-point
+                            (> env-end-point label-point))
+                       (throw 'return last-env)
+                     (goto-char last-begin-point))))))))))
+   ;; Check latex-environments for names, and matching environment
+   (org-element-map (org-element-parse-buffer) 'latex-environment
+     (lambda (le)
+       (when (and (string= label (org-element-property :name le))
+		  (string-match
+		   (concat "begin{\\("
+			   (regexp-opt org-ref-equation-environments)
+			   "\\)}")
+		   (org-element-property :value le)))
+	 (match-string 1 (org-element-property :value le))))
+     nil t)))
 
 
 (defun org-ref-equation-label-p (label)
