@@ -344,7 +344,14 @@ BACKEND is the org export backend."
 	 ((string= (org-element-property :type lnk) "nobibliography")
 	  (cl--set-buffer-substring (org-element-property :begin lnk)
 				    (org-element-property :end lnk)
-				    "")))))))
+				    "")))))
+    ;; For LaTeX we need to define the citeprocitem commands
+    ;; see https://www.mail-archive.com/emacs-orgmode@gnu.org/msg138546.html
+    (when (eq backend 'latex)
+      (goto-char (point-min))
+      (insert "#+latex_header: \\makeatletter
+#+latex_header: \\newcommand{\\citeprocitem}[2]{\\hyper@linkstart{cite}{citeproc_bib_item_#1}#2\\hyper@linkend}
+#+latex_header: \\makeatother\n"))))
 
 
 (defun org-ref-export-to (backend &optional async subtreep visible-only
