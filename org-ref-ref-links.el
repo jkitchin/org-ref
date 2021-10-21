@@ -22,6 +22,7 @@
 ;;
 
 ;;; Code:
+(eval-and-compile (require 'org-macs))
 (require 'hydra)
 
 (defcustom org-ref-default-ref-type "ref"

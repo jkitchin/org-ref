@@ -22,10 +22,11 @@
 
 ;;
 
-(eval-when-compile
-  (require 'cl-lib))
+(eval-when-compile (require 'cl-lib))
 
 (require 'org)
+(eval-and-compile (require 'org-macs))
+
 
 (defvar org-ref-cite-types)
 
