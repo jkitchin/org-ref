@@ -78,17 +78,21 @@ The label should always be in group 1.")
   "List of ref link types (type description).")
 
 
+(defun org-ref-select-ref-type ()
+  "Select a ref type with annotated completion."
+  (let* ((type-annotation (lambda (s)
+			    (let ((item (assoc s minibuffer-completion-table)))
+			      (when item (concat
+					  (make-string (- 12 (length s)) ? )
+					  "-- "
+					  (second item))))))
+	 (completion-extra-properties `(:annotation-function ,type-annotation)))
+    (completing-read "Type: " org-ref-ref-types)))
+
+
 (defun org-ref-change-ref-type (new-type)
   "Change the ref type to NEW-TYPE."
-  (interactive (list
-		(let* ((type-annotation (lambda (s)
-					  (let ((item (assoc s minibuffer-completion-table)))
-					    (when item (concat
-							(make-string (- 12 (length s)) ? )
-							"-- "
-							(second item))))))
-		       (completion-extra-properties `(:annotation-function ,type-annotation)))
-		  (completing-read "Type: " org-ref-ref-types))))
+  (interactive (list (org-ref-select-ref-type)))
   (let* ((cite-link (org-element-context))
 	 (old-type (org-element-property :type cite-link))
 	 (begin (org-element-property :begin cite-link))
@@ -139,13 +143,7 @@ font-lock."
 	 (setq context (buffer-substring
 			(save-excursion (forward-line -1) (point))
 			(save-excursion (forward-line +2) (point))))
-	 (cl-pushnew (cons (match-string-no-properties 1)
-			   ;; This attempts to pad the context.
-			   (string-join
-			    (mapcar (lambda (s)
-				      (concat (make-string 20 ? ) s))
-				    (split-string context "\n"))
-			    "\n"))
+	 (cl-pushnew (cons (match-string-no-properties 1) context)
 		     labels))))
     ;; reverse so they are in the order we find them.
     (delete-dups (reverse labels))))
@@ -516,21 +514,30 @@ the first instance of the label, or nil of there is none."
 	 el)))
 
 
+(defun org-ref-select-label ()
+  "Select a label in the buffer with annotated completion."
+  (let*  ((type-annotation (lambda (s)
+			     (let ((item (assoc s minibuffer-completion-table))) 
+			       (when item
+				 (with-temp-buffer
+				   (insert "\n" (cdr item))
+				   (indent-rigidly (point-min) (point-max) 20)
+				   (buffer-string))))))
+	  (completion-extra-properties `(:annotation-function ,type-annotation)))
+    (completing-read "Label: " (org-ref-get-labels))))
+
+
+;; Defining this here in case people not using ivy 
+(defvar ivy-current-prefix-arg)
+
 (defun org-ref-insert-ref-link (&optional set-type)
   "Insert a ref link.
 If on a link, append a label to the end.
 With a prefix arg SET-TYPE choose the ref type."
   (interactive "P")
-  (let* ((label (completing-read "Label: " (org-ref-get-labels))) 
-	 (type-annotation (lambda (s)
-			    (let ((item (assoc s minibuffer-completion-table)))
-			      (when item (concat
-					  (make-string (- 12 (length s)) ? )
-					  "-- "
-					  (second item))))))
-	 (completion-extra-properties `(:annotation-function ,type-annotation))
+  (let* ((label (org-ref-select-label)) 
 	 (type (if (or set-type ivy-current-prefix-arg)
-		   (completing-read "Type: " org-ref-ref-types)
+		   (org-ref-select-ref-type)
 		 (org-ref-infer-ref-type label))))
     (if-let* ((lnk (org-ref-ref-link-p))
 	      (path (org-element-property :path lnk))
