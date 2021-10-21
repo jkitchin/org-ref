@@ -47,9 +47,8 @@ These options only affect the cref* links."
   "Return a list of ref links in the buffer."
   (org-element-map (org-element-parse-buffer) 'link
     (lambda (lnk)
-      (when (member (org-element-property :type lnk) org-ref-ref-types)
+      (when (assoc (org-element-property :type lnk) org-ref-ref-types)
 	lnk))))
-
 
 
 (defun org-ref-refproc-referenceables ()
@@ -433,7 +432,6 @@ of the buffer."
   (let ((options (org-ref-refproc-get-options))
 	(ref-links (org-ref-get-ref-links))
 	(referenceables (org-ref-refproc-referenceables)))
-
 
     (cl-loop for ref in (reverse ref-links) do
 	     (cl--set-buffer-substring (org-element-property :begin ref)
