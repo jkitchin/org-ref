@@ -124,6 +124,22 @@ that was clicked on."
   :group 'org-ref)
 
 
+(defvar org-ref-prefix-arg nil
+  "Variable to store a prefix arg during completion.")
+
+
+(defun org-ref-minibuffer-prefix ()
+  "Hook function for `minibuffer-setup-hook'.
+The idea is to locally bind C-u to a function that captures
+prefix args in `org-ref-prefix-arg' so you can use them later."
+  (setq org-ref-prefix-arg nil)
+  (local-set-key (kbd "C-u") (lambda ()
+			       (interactive)
+			       (setq org-ref-prefix-arg
+				     (if (null org-ref-prefix-arg)
+					 '(4)
+				       (list (* 4 (car org-ref-prefix-arg))))))))
+
 
 ;; * Bibliography related functions
 

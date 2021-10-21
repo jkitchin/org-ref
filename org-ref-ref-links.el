@@ -528,16 +528,14 @@ the first instance of the label, or nil of there is none."
     (completing-read "Label: " (org-ref-get-labels))))
 
 
-;; Defining this here in case people not using ivy 
-(defvar ivy-current-prefix-arg)
-
 (defun org-ref-insert-ref-link (&optional set-type)
   "Insert a ref link.
 If on a link, append a label to the end.
 With a prefix arg SET-TYPE choose the ref type."
   (interactive "P")
-  (let* ((label (org-ref-select-label)) 
-	 (type (if (or set-type ivy-current-prefix-arg)
+  (let* ((minibuffer-setup-hook '(org-ref-minibuffer-prefix))
+	 (label (org-ref-select-label)) 
+	 (type (if (or set-type org-ref-prefix-arg)
 		   (org-ref-select-ref-type)
 		 (org-ref-infer-ref-type label))))
     (if-let* ((lnk (org-ref-ref-link-p))
