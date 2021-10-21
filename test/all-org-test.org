@@ -23,46 +23,46 @@
 #+END_SRC
 
 #+RESULTS:
-| [[elisp:(org-babel-goto-nth-test-block 1)][or-key-file-p]]     | t |
-| [[elisp:(org-babel-goto-nth-test-block 2)][or-key-file-p-nil]] | t |
-| [[elisp:(org-babel-goto-nth-test-block 3)][swap-1]]            | t |
-| [[elisp:(org-babel-goto-nth-test-block 4)][swap-2]]            | t |
-| [[elisp:(org-babel-goto-nth-test-block 5)][orfb-3]]            | t |
-| [[elisp:(org-babel-goto-nth-test-block 6)][orfb-3a]]           | t |
-| [[elisp:(org-babel-goto-nth-test-block 7)][unique-keys]]       | t |
-| [[elisp:(org-babel-goto-nth-test-block 8)][unique-keys-sort]]  | t |
-| [[elisp:(org-babel-goto-nth-test-block 9)][short-titles]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 10)][long-titles]]       | t |
-| [[elisp:(org-babel-goto-nth-test-block 11)][title-case-1]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 12)][title-case-2]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 13)][title-case-3]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 14)][title-case-4]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 15)][sentence-case-1]]   | t |
-| [[elisp:(org-babel-goto-nth-test-block 16)][sentence-case-2]]   | t |
-| [[elisp:(org-babel-goto-nth-test-block 17)][stringify]]         | t |
-| [[elisp:(org-babel-goto-nth-test-block 18)][next-entry-1]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 19)][prev-entry-1]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 20)][get-bibtex-keys]]   | t |
-| [[elisp:(org-babel-goto-nth-test-block 21)][set-bibtex-keys]]   | t |
-| [[elisp:(org-babel-goto-nth-test-block 22)][clean-year-1]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 23)][clean-year-2]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 24)][clean-&]]           | t |
-| [[elisp:(org-babel-goto-nth-test-block 25)][clean-comma]]       | t |
-| [[elisp:(org-babel-goto-nth-test-block 26)][clean-pages-1]]     | t |
-| [[elisp:(org-babel-goto-nth-test-block 27)][clean-doi-1]]       | t |
-| [[elisp:(org-babel-goto-nth-test-block 28)][bib-1]]             | t |
-| [[elisp:(org-babel-goto-nth-test-block 29)][bib-1a]]            | t |
-| [[elisp:(org-babel-goto-nth-test-block 30)][bib-2]]             | t |
-| [[elisp:(org-babel-goto-nth-test-block 31)][bad-ref]]           | t |
-| [[elisp:(org-babel-goto-nth-test-block 32)][bad-file-link]]     | t |
-| [[elisp:(org-babel-goto-nth-test-block 33)][cite-export-1]]     | t |
-| [[elisp:(org-babel-goto-nth-test-block 34)][cite-export-2]]     | t |
-| [[elisp:(org-babel-goto-nth-test-block 35)][cite-export-3]]     | t |
-| [[elisp:(org-babel-goto-nth-test-block 36)][label-export-1]]    | t |
-| [[elisp:(org-babel-goto-nth-test-block 37)][ref-export-1]]      | t |
-| [[elisp:(org-babel-goto-nth-test-block 38)][curly-1]]           | t |
-| [[elisp:(org-babel-goto-nth-test-block 39)][curly-2]]           | t |
-| [[elisp:(org-babel-goto-nth-test-block 40)][curly-3]]           | t |
+| [[elisp:(org-babel-goto-nth-test-block 1)][or-key-file-p]]     | t     |
+| [[elisp:(org-babel-goto-nth-test-block 2)][or-key-file-p-nil]] | t     |
+| [[elisp:(org-babel-goto-nth-test-block 3)][swap-1]]            | t     |
+| [[elisp:(org-babel-goto-nth-test-block 4)][swap-2]]            | t     |
+| [[elisp:(org-babel-goto-nth-test-block 5)][orfb-3]]            | t     |
+| [[elisp:(org-babel-goto-nth-test-block 6)][orfb-3a]]           | t     |
+| [[elisp:(org-babel-goto-nth-test-block 7)][unique-keys]]       | error |
+| [[elisp:(org-babel-goto-nth-test-block 8)][unique-keys-sort]]  | error |
+| [[elisp:(org-babel-goto-nth-test-block 9)][short-titles]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 10)][long-titles]]       | t     |
+| [[elisp:(org-babel-goto-nth-test-block 11)][title-case-1]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 12)][title-case-2]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 13)][title-case-3]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 14)][title-case-4]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 15)][sentence-case-1]]   | t     |
+| [[elisp:(org-babel-goto-nth-test-block 16)][sentence-case-2]]   | t     |
+| [[elisp:(org-babel-goto-nth-test-block 17)][stringify]]         | t     |
+| [[elisp:(org-babel-goto-nth-test-block 18)][next-entry-1]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 19)][prev-entry-1]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 20)][get-bibtex-keys]]   | t     |
+| [[elisp:(org-babel-goto-nth-test-block 21)][set-bibtex-keys]]   | t     |
+| [[elisp:(org-babel-goto-nth-test-block 22)][clean-year-1]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 23)][clean-year-2]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 24)][clean-&]]           | t     |
+| [[elisp:(org-babel-goto-nth-test-block 25)][clean-comma]]       | t     |
+| [[elisp:(org-babel-goto-nth-test-block 26)][clean-pages-1]]     | t     |
+| [[elisp:(org-babel-goto-nth-test-block 27)][clean-doi-1]]       | t     |
+| [[elisp:(org-babel-goto-nth-test-block 28)][bib-1]]             | t     |
+| [[elisp:(org-babel-goto-nth-test-block 29)][bib-1a]]            | t     |
+| [[elisp:(org-babel-goto-nth-test-block 30)][bib-2]]             | t     |
+| [[elisp:(org-babel-goto-nth-test-block 31)][bad-ref]]           | t     |
+| [[elisp:(org-babel-goto-nth-test-block 32)][bad-file-link]]     | t     |
+| [[elisp:(org-babel-goto-nth-test-block 33)][cite-export-1]]     | t     |
+| [[elisp:(org-babel-goto-nth-test-block 34)][cite-export-2]]     | t     |
+| [[elisp:(org-babel-goto-nth-test-block 35)][cite-export-3]]     | t     |
+| [[elisp:(org-babel-goto-nth-test-block 36)][label-export-1]]    | t     |
+| [[elisp:(org-babel-goto-nth-test-block 37)][ref-export-1]]      | t     |
+| [[elisp:(org-babel-goto-nth-test-block 38)][curly-1]]           | t     |
+| [[elisp:(org-babel-goto-nth-test-block 39)][curly-2]]           | t     |
+| [[elisp:(org-babel-goto-nth-test-block 40)][curly-3]]           | t     |
 
 
 
@@ -148,6 +148,7 @@ Is it a test? If this returns non-nil,
 
 
 
+
 #+name: or-key-file-p-nil
 #+BEGIN_SRC emacs-lisp :test
 "Check `org-ref-key-in-file-p' for non-existent key"
@@ -161,6 +162,7 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: or-key-file-p-nil
 : t
+
 
 
 
@@ -193,6 +195,7 @@ Is it a test? If this returns non-nil,
 
 
 
+
 #+name: swap-2
 #+BEGIN_SRC emacs-lisp :test
 "org swap test"
@@ -204,6 +207,7 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: swap-2
 : t
+
 
 
 
@@ -250,6 +254,7 @@ Is it a test? If this returns non-nil,
 
 
 
+
 #+name: orfb-3a
 #+BEGIN_SRC emacs-lisp :test
 "multiple bibliographies addbibresource form of bibliography."
@@ -279,6 +284,7 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: orfb-3a
 : t
+
 
 
 
@@ -368,6 +374,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: long-titles
 #+BEGIN_SRC emacs-lisp :test
 (org-ref-bibtex-generate-longtitles)
@@ -380,6 +387,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: long-titles
 : t
+
 
 
 
@@ -437,6 +445,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: title-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -464,6 +473,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-2
 : t
+
 
 
 
@@ -519,6 +529,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: title-case-4
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -541,6 +552,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-4
 : t
+
 
 
 
@@ -611,6 +623,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: sentence-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -638,6 +651,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: sentence-case-2
 : t
+
 
 
 
@@ -680,6 +694,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: stringify
 : t
+
 
 
 
@@ -751,6 +766,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: prev-entry-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -796,6 +812,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: prev-entry-1
 : t
+
 
 
 
@@ -887,6 +904,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: set-bibtex-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -916,6 +934,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: set-bibtex-keys
 : t
+
 
 
 
@@ -995,6 +1014,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-year-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1045,6 +1065,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-&
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1073,6 +1094,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-&
 : t
+
 
 
 
@@ -1146,6 +1168,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-pages-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1197,6 +1220,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-doi-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1226,6 +1250,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-doi-1
 : t
+
 
 
 
@@ -1302,6 +1327,7 @@ the in the past.
 
 
 
+
 #+name: bib-1a
 #+BEGIN_SRC emacs-lisp :test
 "Test finding an entry from an existing file."
@@ -1341,6 +1367,7 @@ the in the past.
 
 
 
+
 #+name: bib-2
 #+BEGIN_SRC emacs-lisp :test
 "Test for null entry"
@@ -1356,6 +1383,7 @@ the in the past.
 
 #+RESULTS: bib-2
 : t
+
 
 
 
@@ -1450,6 +1478,7 @@ label:four
 
 
 
+
 #+name: bad-file-link
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1471,6 +1500,7 @@ not loaded.
 
 #+RESULTS: bad-file-link
 : t
+
 
 
 
@@ -1523,6 +1553,7 @@ not loaded.
 
 
 
+
 #+name: cite-export-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1552,6 +1583,7 @@ not loaded.
 
 
 
+
 #+name: cite-export-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1563,6 +1595,7 @@ not loaded.
 
 #+RESULTS: cite-export-3
 : t
+
 
 
 
@@ -1613,6 +1646,7 @@ not loaded.
 
 
 
+
 ** ref
 #+name: ref-export-1
 #+BEGIN_SRC emacs-lisp :test
@@ -1625,6 +1659,7 @@ not loaded.
 
 #+RESULTS: ref-export-1
 : t
+
 
 
 
@@ -1654,6 +1689,7 @@ not loaded.
 
 #+RESULTS: curly-1
 : t
+
 
 
 
@@ -1714,6 +1750,7 @@ not loaded.
 
 
 
+
 #+name: curly-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1727,5 +1764,6 @@ not loaded.
 
 #+RESULTS: curly-3
 : t
+
 
 

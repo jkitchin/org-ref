@@ -778,7 +778,7 @@ Use with apply-partially."
 	 (cp (point))
          key keys i)
     ;;   We only want this to work on citation links
-    (when (assoc org-ref-cite-types type)
+    (when (assoc type org-ref-cite-types)
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (if (null key)
 	  ;; delete the whole cite
@@ -809,7 +809,7 @@ Use with apply-partially."
 	 (cp (point))
          key keys i)
     ;;   We only want this to work on citation links
-    (when (assoc org-ref-cite-types type)
+    (when (assoc type org-ref-cite-types)
       (setq key (org-ref-get-bibtex-key-under-cursor))
 
       (if (null key)
@@ -913,7 +913,7 @@ If not on a key, but on a cite, prompt for key."
 	 (references (plist-get data :references))
          key keys i)
     ;;   We only want this to work on citation links
-    (when (assoc org-ref-cite-types type)
+    (when (assoc type org-ref-cite-types)
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
       (if (> direction 0) ;; shift right

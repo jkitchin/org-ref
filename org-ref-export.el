@@ -137,7 +137,7 @@ actually done in oc-csl too, although it uses a flat a-list."
   "Return list of cite links in the order they appear in the buffer."
   (org-element-map (org-element-parse-buffer) 'link
     (lambda (lnk)
-      (when (member (org-element-property :type lnk) org-ref-cite-types)
+      (when (assoc (org-element-property :type lnk) org-ref-cite-types)
 	lnk))))
 
 
@@ -236,7 +236,7 @@ BACKEND is the org export backend."
 	 ;; list of links in the buffer
 	 (cite-links (org-element-map (org-element-parse-buffer) 'link
 		       (lambda (lnk)
-			 (when (member (org-element-property :type lnk) org-ref-cite-types)
+			 (when (assoc (org-element-property :type lnk) org-ref-cite-types)
 			   lnk))))
 
 	 (cites (cl-loop for cl in cite-links collect
