@@ -68,7 +68,6 @@ This document is a set of examples to see how the org-ref cross-reference proces
 - cref :: cref:q1,q2
 - Cref :: Cref:q1,q2
 
-
 ** Listings
 
 #+attr_latex: :placement [H]
@@ -170,6 +169,8 @@ An alternative to using these blocks is to define the hook as a file local varia
 
 ** HTML
 #+BEGIN_SRC emacs-lisp
+(require 'org-ref-refproc) ;; this is not loaded by default!
+
 (let ((org-export-before-parsing-hook '(org-ref-refproc)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC
