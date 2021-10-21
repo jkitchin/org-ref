@@ -439,7 +439,7 @@ Use SORT to specify alphabetical order by key."
     (org-element-map (org-element-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
-          (when (-contains? org-ref-cite-types (plist-get plist ':type))
+          (when (assoc org-ref-cite-types (plist-get plist ':type))
 	    (setq keys (append keys (cl-loop for ref in
 					     (plist-get (org-ref-parse-cite-path
 							 (org-element-property :path link))
@@ -543,7 +543,7 @@ if FORCE is non-nil reparse the buffer no matter what."
     (org-element-map (org-ref-parse-buffer) 'link
       (lambda (link)
         (let ((plist (nth 1 link)))
-          (when (-contains? org-ref-cite-types (plist-get plist :type))
+          (when (assoc org-ref-cite-types (plist-get plist :type))
 	    (when (not (string= "*" (plist-get plist :path)))
 	      (cl-loop for ref in (plist-get (org-ref-parse-cite-path (plist-get plist :path)) :references)
 		       do

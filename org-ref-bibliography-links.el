@@ -150,7 +150,7 @@ Optional argument BACKEND is the export backend."
   (interactive)
   (let* ((cite-links (org-element-map (org-element-parse-buffer) 'link
 		       (lambda (lnk)
-			 (when (member (org-element-property :type lnk) org-ref-cite-types)
+			 (when (assoc (org-element-property :type lnk) org-ref-cite-types)
 			   lnk))))
 	 (keys (delete-dups (cl-loop for cl in cite-links append
 				     (cl-loop for ref in (plist-get (org-ref-parse-cite-path

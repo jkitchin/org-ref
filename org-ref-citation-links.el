@@ -103,50 +103,100 @@ This is mostly for multicites and natbib."
 
 
 (defcustom org-ref-natbib-types
-  '("cite" "nocite"
-    "citet" "citet*" "citep" "citep*"
-    "citealt" "citealt*" "citealp" "citealp*"
-    "citenum" "citetext"
-    "citeauthor" "citeauthor*"
-    "citeyear"  "citeyearpar"
-    "Citet" "Citep" "Citealt" "Citealp" "Citeauthor"
-    "Citet*" "Citep*" "Citealt*" "Citealp*" "Citeauthor*")
+  '(("cite" "basic citation")
+    ("nocite" "add key to bibliography, but do not cite it in the text")
+    ("citet" "textual, Jones et al. (1990")
+    ("citet*" "textual, full author list Jones, Baker, and Williams (1990)")
+    ("citep" "parenthetical citation (Jones et al. (1990)")
+    ("citep*" "parenthetical, full author list, (Jones, Baker, and Williams, 1990)")
+    ("citealt" "same as citet, but without parentheses")
+    ("citealt*" "same as citet, with full author list but without parentheses")
+    ("citealp" "same as citep, but without parentheses")
+    ("citealp*" "same as citep, with full author list, but without parentheses")
+    ("citenum" "The number of the citation in the bibliography, e.g. 11")
+    ("citetext" "text inserted in citation in the document")
+    ("citeauthor" "Only the author, Jones et al.")
+    ("citeauthor*" "The full author list, Jones, Baker, and Williams")
+    ("citeyear" "The year of the citation, 2021")
+    ("citeyearpar" "The year in parentheses (2021)")
+    ("Citet" "like citet, but with forced capitalization for starting sentences")
+    ("Citep" "like citep, but with forced capitalization for starting sentences")
+    ("Citealt" "like citet, but with forced capitalization and no parentheses")
+    ("Citealp" "like citep, but with forced capitalization and no parentheses")
+    ("Citeauthor" "like citeauthor with forced capitalization")
+    ("Citet*" "like citet, with full author list and forced capitalization")
+    ("Citep*" "like citep, with full author list and forced capitalization")
+    ("Citealt*" "like citet, with full author list, forced capitalization and no parentheses")
+    ("Citealp*" "like citep, with full author list, forced capitalization and no parentheses")
+    ("Citeauthor*" "like citeauthor with forced capitalization"))
   "Natbib commands can have many references, and global prefix/suffix text.
-For natbib cite commands see
-http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf"
-  :type '(repeat :tag "List of citation types" string)
+  For natbib cite commands see
+  http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf"
+  :type '(repeat :tag "List of citation types" (list string string))
   :group 'org-ref)
 
 
 (defcustom org-ref-biblatex-types
-  '("Cite"
-    "parencite" "Parencite"
-    "footcite" "footcitetext"
-    "textcite" "Textcite"
-    "smartcite" "Smartcite"
-    "cite*" "parencite*" "supercite"
-    "autocite" "Autocite" "autocite*" "Autocite*"
-    "Citeauthor*"
-    "citetitle" "citetitle*"
-    "citedate" "citedate*"
-    "citeurl"
-    "fullcite" "footfullcite"
+  '(("Cite" "basic citation with capitalization")
+    ("parencite" "similar to cite with parentheses")
+    ("Parencite" "similar to cite with parentheses and capitalization")
+    ("footcite" "Put the citation in a footnote")
+    ("footcitetext" "Put the citation in a footnote using \footnotetext")
+    
+    ("textcite" "print the authors or editors as a subject of the sentence")
+    ("Textcite" "print the authors or editors as a subject of the sentence with capitalization")
+    ("smartcite" "like parencite in a footnote, and footcite in the body")
+    ("Smartcite" "like parencite in a footnote, and footcite in the body with capitalization")
+    ("cite*" "similar to cite, but prints the year or title")
+    ("parencite*" "similar to parencite, but prints the year or title")
+    ("supercite" "superscripted numeric citation (only in numberic styles)")
+    
+    ("autocite" "handles some punctuation nuances")
+    ("Autocite" "handles some punctuation nuances with punctuation")
+    ("autocite*" "same as autocite but * is passed to the backend")
+    ("Autocite*" "same as Autocite but * is passed to the backend")
+    
+    ("citetitle" "the shorttitle or title field")
+    ("citetitle*" "the full title")
+    
+    ("citeyear" "the year field")
+    ("citeyear*" "the year field and extradate information if available")
+    
+    ("citedate" "the full date or year")
+    ("citedate*" "the full date or year, including extradate information if available")
+    
+    ("citeurl" "the url field")
+    
+    ("fullcite" "create a full citation similar to what is in the bibliography")
+    ("footfullcite" "create a full citation as a footnote")
     ;; "volcite" "Volcite" cannot support the syntax
-    "notecite" "Notecite"
-    "pnotecite" "Pnotecite"
-    "fnotecite")
+    ("notecite" "print prenote and postnote, but no citation")
+    ("Notecite" "print prenote and postnote, but no citation with capitalization")
+    
+    ("pnotecite" "similar to notecite with parentheses")
+    ("Pnotecite" "similar to Notecite with parentheses")
+    ("fnotecite" "similar to notecite in a footnote"))
   "biblatex commands.
-Biblatex commands
-https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
+  Biblatex commands
+  https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
 
 
 (defcustom org-ref-biblatex-multitypes
-  '("cites" "Cites" "parencites" "Parencites"
-    "footcites" "footcitetexts"
-    "smartcites" "Smartcites" "textcites" "Textcites"
-    "supercites" "autocites" "Autocites")
+  '(("cites" "multicite version of cite")
+    ("Cites" "multicite version of Cite")
+    ("parencites" "multicite version of parencite")
+    ("Parencites" "multicite version of Parencite")
+    ("footcites" "multicite version of footcite")
+    ("footcitetexts" "multicite version of footcitetext")
+    ("smartcites" "multicite version of smartcite")
+    ("Smartcites" "multicite version of Smartcite")
+    ("textcites" "multicite version of textcite")
+    ("Textcites" "multicite version of Textcite")
+    ("supercites" "multicite version of supercite")
+    ("autocites" "multicite version of autocite")
+    ("Autocites" "multicite version of Autocite"))
   "Multicite link types"
   :type '(repeat :tag "List of citation types" string)
   :group 'org-ref)
@@ -158,9 +208,9 @@ https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
    org-ref-biblatex-types
    org-ref-biblatex-multitypes
    ;; for the bibentry package
-   '("bibentry"))
+   '("bibentry" "Insert the bibtex entry"))
   "List of citation types known in `org-ref'."
-  :type '(repeat :tag "List of citation types" string)
+  :type '(repeat :tag "List of citation types (type description)" (list string string))
   :group 'org-ref)
 
 
@@ -191,13 +241,13 @@ https://mirrors.ibiblio.org/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf"
 
 (defcustom org-ref-cite-insert-version 3
   "Default version to insert citations with.
-The default is 3. In legacy documents you might prefer 2 though,
-so this variable can be buffer- or directory local if you want.
+  The default is 3. In legacy documents you might prefer 2 though,
+  so this variable can be buffer- or directory local if you want.
 
-version 2 means the links are not bracketed, and comma-separated keys.
+  version 2 means the links are not bracketed, and comma-separated keys.
 
-version 3 means the links are bracketed, with semicolon-separated
-&keys."
+  version 3 means the links are bracketed, with semicolon-separated
+  &keys."
   :type 'number
   :group 'org-ref)
 
@@ -205,16 +255,16 @@ version 3 means the links are bracketed, with semicolon-separated
 (defvar org-ref-citation-key-re
   (rx "&" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Numbered regular expression for a version 3 cite key.
-Key is in group 1.
-Adapted from the expression in org-cite.")
+  Key is in group 1.
+  Adapted from the expression in org-cite.")
 
 
 (defun org-ref-cite-version (path)
   "Return the version for PATH.
-PATH is from a cite link.
-Version 2 is separated by commas and uses plain keys.
-Version 3 is separated by semicolons and uses &keys.
-I think that if there is a & in path, it must be version 3."
+  PATH is from a cite link.
+  Version 2 is separated by commas and uses plain keys.
+  Version 3 is separated by semicolons and uses &keys.
+  I think that if there is a & in path, it must be version 3."
   (if (string-match "&" path)
       3
     2))
@@ -224,46 +274,46 @@ I think that if there is a & in path, it must be version 3."
 
 (defun org-ref-parse-cite-path (path)
   "Return a data structure representing the PATH.
-the data structure is a plist with (:version :prefix :suffix :references).
-Each reference is a plist with (:key :prefix :suffix)."
+  the data structure is a plist with (:version :prefix :suffix :references).
+  Each reference is a plist with (:key :prefix :suffix)."
   (pcase (org-ref-cite-version path)
     (2
      ;; This will not have any prefix or suffix, since that was previously done in the desc.
      (list :version 2 :references (cl-loop for key in (split-string path ",") collect
 					   (list :key (string-trim key)))))
     (3 (let ((citation-references (split-string path ";"))
-	     (these-results '(:version 3)))
-	 ;; if the first ref doesn't match a key, it must be a global prefix
-	 ;; this pops the referenc off.
-	 (when (null (string-match org-ref-citation-key-re (cl-first citation-references)))
-	   (setq these-results (append these-results (list :prefix (cl-first citation-references)))
-		 citation-references (cdr citation-references)))
+  (these-results '(:version 3)))
+    ;; if the first ref doesn't match a key, it must be a global prefix
+    ;; this pops the referenc off.
+    (when (null (string-match org-ref-citation-key-re (cl-first citation-references)))
+      (setq these-results (append these-results (list :prefix (cl-first citation-references)))
+	    citation-references (cdr citation-references)))
 
-	 ;; if the last ref doesn't match a key, then it is a global suffix
-	 ;; we remove the last one if this is true after getting the suffix.
-	 (when (null (string-match org-ref-citation-key-re (car (last citation-references))))
-	   (setq these-results (append these-results (list :suffix (car (last citation-references))))
-		 citation-references (butlast citation-references)))
+    ;; if the last ref doesn't match a key, then it is a global suffix
+    ;; we remove the last one if this is true after getting the suffix.
+    (when (null (string-match org-ref-citation-key-re (car (last citation-references))))
+      (setq these-results (append these-results (list :suffix (car (last citation-references))))
+	    citation-references (butlast citation-references)))
 
-	 (setq these-results
-	       (append these-results
-		       (list
-			:references
-			(cl-loop for s in citation-references collect
-				 (if (null (string-match org-ref-citation-key-re s))
-				     (error "No label found")
-				   (let* ((key (match-string-no-properties 1 s))
-					  (key-start (match-beginning 0))
-					  (key-end (match-end 0))
-					  (prefix (let ((p (substring s 0 key-start)))
-						    (if (string= "" (string-trim p))
-							nil
-						      p)))
-					  (suffix (let ((s (substring s key-end)))
-						    (if (string= "" (string-trim s))
-							nil
-						      s))))
-				     (list :key key :prefix prefix :suffix suffix)))))))))))
+    (setq these-results
+	  (append these-results
+		  (list
+		   :references
+		   (cl-loop for s in citation-references collect
+			    (if (null (string-match org-ref-citation-key-re s))
+				(error "No label found")
+			      (let* ((key (match-string-no-properties 1 s))
+				     (key-start (match-beginning 0))
+				     (key-end (match-end 0))
+				     (prefix (let ((p (substring s 0 key-start)))
+					       (if (string= "" (string-trim p))
+						   nil
+						 p)))
+				     (suffix (let ((s (substring s key-end)))
+					       (if (string= "" (string-trim s))
+						   nil
+						 s))))
+				(list :key key :prefix prefix :suffix suffix)))))))))))
 
 
 (defun org-ref-interpret-cite-data (data)
@@ -688,8 +738,8 @@ Use with apply-partially."
 ;; We loop on the three categories because there are some differences between
 ;; them, mostly in the multitypes.
 
-(cl-loop for cmd in (append org-ref-natbib-types
-			    org-ref-biblatex-types)
+(cl-loop for (cmd desc) in (append org-ref-natbib-types
+				   org-ref-biblatex-types)
 	 do
 	 (org-link-set-parameters
 	  cmd
@@ -701,7 +751,7 @@ Use with apply-partially."
 	  :activate-func #'org-ref-cite-activate))
 
 
-(cl-loop for cmd in org-ref-biblatex-multitypes do
+(cl-loop for (cmd desc) in org-ref-biblatex-multitypes do
 	 (org-link-set-parameters
 	  cmd
 	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
@@ -728,7 +778,7 @@ Use with apply-partially."
 	 (cp (point))
          key keys i)
     ;;   We only want this to work on citation links
-    (when (-contains? org-ref-cite-types type)
+    (when (assoc org-ref-cite-types type)
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (if (null key)
 	  ;; delete the whole cite
@@ -759,7 +809,7 @@ Use with apply-partially."
 	 (cp (point))
          key keys i)
     ;;   We only want this to work on citation links
-    (when (-contains? org-ref-cite-types type)
+    (when (assoc org-ref-cite-types type)
       (setq key (org-ref-get-bibtex-key-under-cursor))
 
       (if (null key)
@@ -780,7 +830,14 @@ Use with apply-partially."
 (defun org-ref-change-cite-type ()
   "Change the cite type of citation link at point."
   (interactive)
-  (let* ((new-type (completing-read "Type: " org-ref-cite-types))
+  (let* ((type-annotation (lambda (s)
+			    (let ((item (assoc s minibuffer-completion-table)))
+			      (when item (concat
+					  (make-string (- 12 (length s)) ? )
+					  "-- "
+					  (second item))))))
+	 (completion-extra-properties `(:annotation-function ,type-annotation))
+	 (new-type (completing-read "Type: " org-ref-cite-types))
 	 (cite-link (org-element-context))
 	 (cp (point)))
     (cl--set-buffer-substring
@@ -809,7 +866,7 @@ If not on a key, but on a cite, prompt for key."
        ;; on a cite-link type
        ((and
 	 (eq (org-element-type el) 'link)
-	 (member (org-element-property :type el) org-ref-cite-types))
+	 (assoc (org-element-property :type el) org-ref-cite-types))
 
 	(goto-char (org-element-property :begin el))
 	(setq data (org-ref-parse-cite-path (org-element-property :path el))
@@ -829,7 +886,7 @@ If not on a key, but on a cite, prompt for key."
        ;; somewhere else, but looking at a cite-type see issue #908. links in
        ;; places like keywords are not parsed as links, but they seem to get
        ;; activated, so we can just get onto the key, and then open it.
-       ((member (thing-at-point 'word) org-ref-cite-types)
+       ((assoc (thing-at-point 'word) org-ref-cite-types)
 	(save-excursion
 	  (when (re-search-forward ":" (line-end-position) t)
 	    (get-text-property (point) 'cite-key))))))))
@@ -856,7 +913,7 @@ If not on a key, but on a cite, prompt for key."
 	 (references (plist-get data :references))
          key keys i)
     ;;   We only want this to work on citation links
-    (when (-contains? org-ref-cite-types type)
+    (when (assoc org-ref-cite-types type)
       (setq key (org-ref-get-bibtex-key-under-cursor))
       (setq i (seq-position references key (lambda (el key) (string= key (plist-get el :key))))) ;; defined in org-ref
       (if (> direction 0) ;; shift right
@@ -959,7 +1016,7 @@ move to the beginning of the previous cite link after this one."
 	    (save-excursion
 	      (org-element-map (org-element-parse-buffer) 'link
 		(lambda (c)
-		  (when (member (org-element-property :type c) org-ref-cite-types)
+		  (when (assoc (org-element-property :type c) org-ref-cite-types)
 		    (goto-char (org-element-property :begin c))
 		    (let* ((path (org-element-property :path c))
 			   (data (org-ref-parse-cite-path path))
@@ -998,9 +1055,16 @@ Rules:
   (let* ((object (org-element-context))
 	 (type (org-element-property :type object))
 	 (cp (point))
-	 link-string version data references key-at-point index)
+	 link-string version data references key-at-point index
+	 (type-annotation (lambda (s)
+			    (let ((item (assoc s minibuffer-completion-table)))
+			      (when item (concat
+					  (make-string (- 12 (length s)) ? )
+					  "-- "
+					  (second item))))))
+	 (completion-extra-properties `(:annotation-function ,type-annotation)))
 
-    (if (null (member type org-ref-cite-types))
+    (if (null (assoc type org-ref-cite-types))
 	;; Not on a link, so we just insert a cite
 	(insert (format "[[%s:&%s]]"
 			(if set-type

@@ -34,7 +34,7 @@
   (concat "\\\\\\(?1:" (mapconcat
 			(lambda (x)
 			  (replace-regexp-in-string "\\*" "\\\\*" x))
-			org-ref-cite-types
+			(mapcar 'car org-ref-cite-types)
 			"\\|")
 	  "\\)"
 	  "\\(?2:\\[[^]]*\\]\\)?"		; optional []
