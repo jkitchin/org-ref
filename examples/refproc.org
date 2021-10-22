@@ -50,17 +50,25 @@ This document is a set of examples to see how the org-ref cross-reference proces
 - Cref :: Cref:b1
 - Cref, two :: Cref:b1,b2
 
-** equations
+** equations 
 
 #+name: q1
 \begin{equation}
 3+3=6
 \end{equation}
 
+
 #+name: q2
 \begin{equation}
 3+3=6
 \end{equation}
+
+This equation will have a number in the ODT export.
+#+name: q3
+\begin{equation}
+3+3=6
+\end{equation}
+
 
 - eqref :: eqref:q1
 - autoref :: autoref:q1
@@ -165,10 +173,10 @@ plt.plot([1, 2, 4])
   :CUSTOM_ID: build
   :END:
 
-An alternative to using these blocks is to define the hook as a file local variable.
-
 ** HTML
-#+BEGIN_SRC emacs-lisp
+
+
+#+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-refproc) ;; this is not loaded by default!
 
 (let ((org-export-before-parsing-hook '(org-ref-refproc)))
@@ -179,9 +187,20 @@ An alternative to using these blocks is to define the hook as a file local varia
 
 ** To an org buffer
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (let ((org-export-before-parsing-hook '(org-ref-refproc)))
    (org-org-export-as-org))
+#+END_SRC
+
+** To ODT
+
+See https://orgmode.org/manual/LaTeX-math-snippets.html for details about the equations. You need these options. I didn't get the latexml approach to work described there, but this worked somewhat ok.
+
+#+options: tex:dvipng
+
+#+BEGIN_SRC emacs-lisp :results silent
+(let ((org-export-before-parsing-hook '(org-ref-refproc)))
+  (org-open-file (org-odt-export-to-odt) 'system))
 #+END_SRC
 
 ** LaTeX
@@ -189,7 +208,7 @@ An alternative to using these blocks is to define the hook as a file local varia
 It isn't clear why you would go this route, since org-ref is for LaTeX in the
 first place, but this does work nicely.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (let ((org-export-before-parsing-hook '(org-ref-refproc)))
   (org-open-file (org-babel-latex-tex-to-pdf (org-latex-export-to-latex))))
 #+END_SRC
