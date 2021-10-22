@@ -249,17 +249,14 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
   (interactive)
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
-         (pdf-file (concat (cond
-			    ((stringp bibtex-completion-library-path)
-			     bibtex-completion-library-path)
-			    ((= 1 (length bibtex-completion-library-path))
-			     (car bibtex-completion-library-path))
-			    (t
-			     (completing-read "Dir: " bibtex-completion-library-path)))
-			   key ".pdf")))
-    (if (file-exists-p pdf-file)
-        (org-open-file pdf-file)
-      (message "no pdf found for %s" key))))
+         (pdf-file (bibtex-completion-find-pdf key t)))
+    (pcase (length pdf-file)
+      (0
+       (message "no pdf found for %s" key))
+      (1
+       (org-open-file (car pdf-file)))
+      (_
+       (org-open-file (completing-read "pdf: " pdf-file))))))
 
 
 ;;;###autoload
