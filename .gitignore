@@ -39,3 +39,4 @@ meta.xml
 styles.xml
 *.run.xml
 /sandbox/
+*.dvi

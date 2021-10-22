@@ -119,7 +119,7 @@
 				      (key)
 				      keys i)
 				 ;;   We only want this to work on citation links
-				 (when (-contains? org-ref-cite-types type)
+				 (when (assoc type org-ref-cite-types)
 				   (setq key (org-ref-get-bibtex-key-under-cursor))
 				   (if (null key)
 				       ;; delete the whole cite
