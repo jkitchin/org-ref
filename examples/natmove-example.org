@@ -25,11 +25,12 @@ bibliography:../org-ref.bib
 
 =org-ref-cite-natmove = operates as a preprocessing hook. It works on a copy of the buffer prior to export, and in this case it just moves the citations before converting them to the backend export formats.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (let ((org-export-before-parsing-hook '(org-ref-cite-natmove)))
     (org-org-export-as-org))
 #+END_SRC
 
+** PDF
 
 To get a pdf:
 
@@ -37,3 +38,5 @@ To get a pdf:
 (let ((org-export-before-parsing-hook '(org-ref-cite-natmove)))
     (org-open-file (org-latex-export-to-pdf)))
 #+END_SRC
+
+#+RESULTS:
