@@ -33,22 +33,13 @@ See the org version.
 #+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-natbib-bbl-citeproc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
-  (switch-to-buffer (org-org-export-as-org)))
+  (org-org-export-as-org))
 #+END_SRC
 
-
+[[./bbl-authoryear.bbl]]
 
 #+BEGIN_SRC emacs-lisp :results silent
-(require 'org-ref-natbib-bbl-citeproc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC
 
-#+RESULTS:
-
-
-#+BEGIN_SRC emacs-lisp
-(cl-loop for ext in '("aux" "fdb_latexmk" "html" "md" "tex" "dvi" "log" "pdf" "run.xml" "fls"
-			"blg" "ilg" "ind" "xml" "bbl" "bcf" "out" "odt" "odf" "txt" "toc" "lof" "lot")
-	   do (shell-command (format "rm -f *%s" ext)))
-#+END_SRC
