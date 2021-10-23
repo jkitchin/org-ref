@@ -249,13 +249,47 @@ provide their own version."
   
   ("g" org-ref-insert-glossary-link "Glossary link" :column "Glossary" :color blue)
   ("a" org-ref-insert-acronym-link "Acronym link" :column "Glossary" :color blue)
-  ("ng" org-ref-add-glossary-entry "New glossary term" :column "Glossary")
-  ("na" org-ref-add-acronym-entry "New acronym term" :column "Glossary")
+  ("ng" (progn
+	  (org-mark-ring-push)
+	  (goto-char (point-min))
+	  (if (re-search-forward "#\\+name: glossary" nil t)
+	      (progn
+		(goto-char (org-element-property :contents-end (org-element-context)))
+		(backward-char)
+		(org-table-insert-row '(4)))
+	    ;; no table found
+	    (goto-char (point-max))
+	    (insert "\n\n#+name: glossary
+| label | term    | definition                    |
+|-------+---------+-------------------------------|
+|       |         |                               |")
+	    (beginning-of-line)
+	    (forward-char)))
+   "New glossary term" :column "Glossary")
+  
+  ("na" (progn
+	  (org-mark-ring-push)
+	  (goto-char (point-min))
+	  (if (re-search-forward "#\\+name: acronym" nil t)
+	      (progn
+		(goto-char (org-element-property :contents-end (org-element-context)))
+		(backward-char)
+		(org-table-insert-row '(4)))
+	    ;; no table found
+	    (goto-char (point-max))
+	    (insert "\n\n#+name: acronyms
+| label | abbreviation | full form                  |
+|-------+--------------+----------------------------|
+|       |              |                            |")
+	    (beginning-of-line)
+	    (forward-char)))
+   "New acronym term" :column "Glossary")
   
   ("t" (insert "[[list-of-tables:]]\n") "List of tables" :column "Misc")
   ("f" (insert "[[list-of-figures:]]\n") "List of figures" :column "Misc")
   ("i" (insert (format "[[index:%s]]" (string-trim (read-string "Index entry: ")))) "Index entry" :column "Misc")
-  ("p" (insert "[[printindex:]]") "Print index" :column "Misc"))
+  ("pi" (insert "[[printindex:]]") "Print index" :column "Misc")
+  ("pg" (insert "[[printglossaries:]]") "Print glossary" :column "Misc")))
 
 
 ;;* org-ref-help
