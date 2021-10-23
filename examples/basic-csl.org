@@ -118,6 +118,8 @@ If you want a standalone, bibtex free LaTeX/PDF export you can use
 
 If you want a more <<fine-tuned export>>, it would look like this. Here, if you want to use natmove, you use it first, before the cites are replaced by csl. Using refproc is what gives the cleveref links their cleverness.
 
+** HTML
+
 #+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-refproc)
 (let ((org-export-before-parsing-hook '(org-ref-cite-natmove ;; do this first
@@ -127,6 +129,8 @@ If you want a more <<fine-tuned export>>, it would look like this. Here, if you 
 #+END_SRC
 
 
+** OpenDocument
+
 #+BEGIN_SRC emacs-lisp :results silent
 (let ((org-export-before-parsing-hook '(org-ref-cite-natmove ;; do this first
 					org-ref-csl-preprocess-buffer
@@ -134,3 +138,12 @@ If you want a more <<fine-tuned export>>, it would look like this. Here, if you 
   (org-open-file (org-odt-export-to-odt) 'system))
 #+END_SRC
 
+
+** MS Word (docx) via pandoc
+
+#+BEGIN_SRC emacs-lisp :results silent
+(let ((org-export-before-parsing-hook '(org-ref-cite-natmove ;; do this first
+					org-ref-csl-preprocess-buffer
+					org-ref-refproc)))
+  (org-open-file (plist-get (org-pandoc-export-to-docx) 'output-file) 'system))
+#+END_SRC
