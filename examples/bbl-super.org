@@ -3,8 +3,9 @@
 #+latex_class: article-no-defaults
 #+latex_header: \usepackage[super, sort&compress]{natbib}
 #+latex_header: \usepackage{natmove}
-#+latex_header: \usepackage[version=3]{mhchem}
+#+latex_header: \usepackage[version=3]{mhchem}  
 
+* Citations
 
 A single key [[cite:&boes-2016-neural-networ]].
 
@@ -20,10 +21,32 @@ A book [[cite:&Dominik201408]].
 
 Misc entry cite:&jkitchin76:online.
 
+* Cross-references
+
+#+name: eq
+\begin{equation}
+\int_0^1 e^x dx
+\end{equation}
+
+#+name: eq-2
+\begin{equation}
+\int_0^10 e^x dx
+\end{equation}
+
+
+See eqref:eq. and See eqref:eq-2.
+
+
+
 bibliographystyle:unsrtnat
 [[bibliography:../org-ref.bib]]
 
+
+
 * build :noexport:
+
+** Org
+
 #+BEGIN_SRC emacs-lisp :results silent
 (require 'org-ref-natbib-bbl-citeproc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
@@ -32,10 +55,21 @@ bibliographystyle:unsrtnat
 
 [[./bbl-super.bbl]]
 
+** html
+
 #+BEGIN_SRC emacs-lisp :results silent
-(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess)))
+(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess org-ref-refproc)))
   (org-open-file (org-html-export-to-html)))
 #+END_SRC
 
 #+RESULTS:
 
+** docx via pandoc
+
+ox-pandoc
+
+#+BEGIN_SRC emacs-lisp :results silent
+(let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess
+					org-ref-refproc)))
+  (org-open-file (plist-get (org-pandoc-export-to-docx) 'output-file) 'system))
+#+END_SRC
