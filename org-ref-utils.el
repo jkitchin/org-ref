@@ -264,7 +264,8 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
 (defun org-ref-open-url-at-point ()
   "Open the url for bibtex key under point."
   (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results)))
     (save-excursion
