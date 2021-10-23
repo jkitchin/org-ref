@@ -175,8 +175,11 @@ set in `bibtex-completion-bibliography'"
          (when org-ref-bibliography-files
            (throw 'result (nreverse (delete-dups (mapcar 'org-ref-get-bibfile-path org-ref-bibliography-files)))))
 
-         ;; we did not find anything. use defaults
-	 (throw 'result bibtex-completion-bibliography))))))
+         ;; we did not find anything. use defaults. Make sure we have a list in
+         ;; case it is a single string. 
+	 (throw 'result (if (listp bibtex-completion-bibliography)
+			    bibtex-completion-bibliography
+			  (list bibtex-completion-bibliography))))))))
 
 
 (defun org-ref-key-in-file-p (key filename)
