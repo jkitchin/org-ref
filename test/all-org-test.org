@@ -1,24 +1,22 @@
 * Setup
 
-#+BEGIN_SRC emacs-lisp :results silent
+Run this to run tests and tangle the results for CI.
+
+#+BEGIN_SRC emacs-lisp
 (add-to-list 'org-structure-template-alist
 	     '("elt" "#+BEGIN_SRC emacs-lisp :test\n?\n#+END_SRC"
 	       "<src lang=\"emacs-lisp\">\n?\n</src>"))
-#+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(org-ert-tangle "all-org-test.el")
-(find-file "all-org-test.el")
-(lispy--indent-region (point-min) (point-max))
-(save-buffer)
-#+END_SRC
-
-#+RESULTS:
-
-#+BEGIN_SRC emacs-lisp
-;(require 'org-ert)
 (load-file "org-ert.el")
 (load-file "org-test-setup.el")
+
+
+(org-ert-tangle "all-org-test.el")
+(with-current-buffer (find-file-noselect "all-org-test.el")
+  (lispy--indent-region (point-min) (point-max))
+  (save-buffer))
+(kill-buffer "all-org-test.el")
+
 (org-ert-run-tests)
 #+END_SRC
 
@@ -29,8 +27,8 @@
 | [[elisp:(org-babel-goto-nth-test-block 4)][swap-2]]            | t     |
 | [[elisp:(org-babel-goto-nth-test-block 5)][orfb-3]]            | t     |
 | [[elisp:(org-babel-goto-nth-test-block 6)][orfb-3a]]           | t     |
-| [[elisp:(org-babel-goto-nth-test-block 7)][unique-keys]]       | error |
-| [[elisp:(org-babel-goto-nth-test-block 8)][unique-keys-sort]]  | error |
+| [[elisp:(org-babel-goto-nth-test-block 7)][unique-keys]]       | t     |
+| [[elisp:(org-babel-goto-nth-test-block 8)][unique-keys-sort]]  | t     |
 | [[elisp:(org-babel-goto-nth-test-block 9)][short-titles]]      | t     |
 | [[elisp:(org-babel-goto-nth-test-block 10)][long-titles]]       | t     |
 | [[elisp:(org-babel-goto-nth-test-block 11)][title-case-1]]      | t     |
@@ -62,66 +60,21 @@
 | [[elisp:(org-babel-goto-nth-test-block 37)][ref-export-1]]      | t     |
 | [[elisp:(org-babel-goto-nth-test-block 38)][curly-1]]           | t     |
 | [[elisp:(org-babel-goto-nth-test-block 39)][curly-2]]           | t     |
-| [[elisp:(org-babel-goto-nth-test-block 40)][curly-3]]           | t     |
+| [[elisp:(org-babel-goto-nth-test-block 40)][bib-string]]        | t     |
+| [[elisp:(org-babel-goto-nth-test-block 41)][bib-list]]          | t     |
+| [[elisp:(org-babel-goto-nth-test-block 42)][bad-cite-1]]        | t     |
+| [[elisp:(org-babel-goto-nth-test-block 43)][bad-cite-1a]]       | error |
+| [[elisp:(org-babel-goto-nth-test-block 44)][bad-cite-1b]]       | error |
+| [[elisp:(org-babel-goto-nth-test-block 45)][bad-cite-1c]]       | error |
+| [[elisp:(org-babel-goto-nth-test-block 46)][bad-cite-1d]]       | error |
 
 
 
 * Reminders about code blocks
 
-(org-babel-get-src-block-info)
-Returns a list
- (language body header-arguments-alist switches name indent block-head).
 
-Getting the language
-#+BEGIN_SRC emacs-lisp
-(nth 0 (org-babel-get-src-block-info))
-#+END_SRC
-
-#+RESULTS:
-: emacs-lisp
-
-The body
-#+BEGIN_SRC emacs-lisp
-(nth 1 (org-babel-get-src-block-info))
-#+END_SRC
-
-#+RESULTS:
-: (nth 1 (org-babel-get-src-block-info))
-
-header-arguments
-#+BEGIN_SRC emacs-lisp
-(nth 2 (org-babel-get-src-block-info))
-#+END_SRC
-
-#+RESULTS:
-: ((:colname-names) (:rowname-names) (:result-params replace) (:result-type . value) (:comments . ) (:shebang . ) (:cache . no) (:padline . ) (:noweb . no) (:tangle . no) (:exports . code) (:results . replace) (:test . ignore) (:hlines . no) (:session . none))
-
-Name
-#+name: yepper
-#+BEGIN_SRC emacs-lisp
-(nth 4 (org-babel-get-src-block-info))
-#+END_SRC
-
-#+RESULTS: yepper
-: yepper
-
-#+RESULTS:
-
-Is it a test? If this returns non-nil,
-#+BEGIN_SRC emacs-lisp
-(and (assoc :test (nth 2 (org-babel-get-src-block-info)))
-     (not (string= "ignore" (cdr (assoc :test (nth 2 (org-babel-get-src-block-info)))))))
-#+END_SRC
-
-#+RESULTS:
-: t
 
 * Basic tests
-
-
-
-
-
 
 
 #+name: or-key-file-p
@@ -138,7 +91,6 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: or-key-file-p
 : t
-
 
 
 
@@ -171,6 +123,18 @@ Is it a test? If this returns non-nil,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: swap-1
 #+BEGIN_SRC emacs-lisp :test
 "org swap test"
@@ -182,6 +146,18 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: swap-1
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -219,6 +195,18 @@ Is it a test? If this returns non-nil,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 * Get bibliography
 
 
@@ -243,6 +231,18 @@ Is it a test? If this returns non-nil,
 
 #+RESULTS: orfb-3
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -294,6 +294,18 @@ Is it a test? If this returns non-nil,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: unique-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -310,6 +322,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: unique-keys
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -349,6 +373,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 * Bibtex tests
 
 #+name: short-titles
@@ -375,6 +411,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: long-titles
 #+BEGIN_SRC emacs-lisp :test
 (org-ref-bibtex-generate-longtitles)
@@ -387,6 +435,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: long-titles
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -446,6 +506,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: title-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -473,6 +545,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-2
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -530,6 +614,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: title-case-4
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -552,6 +648,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-4
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -624,6 +732,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: sentence-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -651,6 +771,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: sentence-case-2
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -694,6 +826,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: stringify
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -767,6 +911,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: prev-entry-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -812,6 +968,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: prev-entry-1
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -905,6 +1073,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: set-bibtex-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -934,6 +1114,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: set-bibtex-keys
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1015,6 +1207,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: clean-year-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1066,6 +1270,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: clean-&
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1094,6 +1310,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-&
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1169,6 +1397,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: clean-pages-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1221,6 +1461,18 @@ bibliography:tests/test-1.bib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: clean-doi-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1250,6 +1502,18 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-doi-1
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1328,6 +1592,18 @@ the in the past.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: bib-1a
 #+BEGIN_SRC emacs-lisp :test
 "Test finding an entry from an existing file."
@@ -1368,6 +1644,18 @@ the in the past.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #+name: bib-2
 #+BEGIN_SRC emacs-lisp :test
 "Test for null entry"
@@ -1383,6 +1671,18 @@ the in the past.
 
 #+RESULTS: bib-2
 : t
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1448,12 +1748,6 @@ label:four
 
 ** bad cites/labels/refs
 
-
-
-
-
-
-
 #+name: bad-ref
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1466,11 +1760,6 @@ label:four
 
 #+RESULTS: bad-ref
 : t
-
-
-
-
-
 
 
 
@@ -1510,13 +1799,6 @@ not loaded.
 
 
 
-
-
-
-
-
-
-
 * exports
 
 #+name: cite-export-1
@@ -1530,21 +1812,6 @@ not loaded.
 
 #+RESULTS: cite-export-1
 : t
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1575,15 +1842,6 @@ not loaded.
 
 
 
-
-
-
-
-
-
-
-
-
 #+name: cite-export-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1595,16 +1853,6 @@ not loaded.
 
 #+RESULTS: cite-export-3
 : t
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1637,16 +1885,6 @@ not loaded.
 
 
 
-
-
-
-
-
-
-
-
-
-
 ** ref
 #+name: ref-export-1
 #+BEGIN_SRC emacs-lisp :test
@@ -1659,14 +1897,6 @@ not loaded.
 
 #+RESULTS: ref-export-1
 : t
-
-
-
-
-
-
-
-
 
 
 
@@ -1695,25 +1925,6 @@ not loaded.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #+name: curly-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1731,39 +1942,116 @@ not loaded.
 
 
 
+* bib tests
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#+name: curly-3
+#+name: bib-string
 #+BEGIN_SRC emacs-lisp :test
 (should
-   (= 3
-      (org-test-with-temp-text
-	  "{{}}"
-	(require 'org-ref-glossary)
-	(goto-char 2)
-	(or-find-closing-curly-bracket))))
+ (equal
+  (let ((bibtex-completion-bibliography "test.bib"))
+    (org-test-with-temp-text
+	""
+      (org-ref-find-bibliography)))
+  '("test.bib")))
 #+END_SRC
 
-#+RESULTS: curly-3
+#+RESULTS: bib-string
 : t
+
+
+
+
+
+#+RESULTS: curly-3
+| test.bib |
+
+
+
+#+name: bib-list
+#+BEGIN_SRC emacs-lisp :test
+(should
+ (equal
+  (let ((bibtex-completion-bibliography '("test.bib")))
+    (org-test-with-temp-text
+	""
+      (org-ref-find-bibliography)))
+  '("test.bib")))
+#+END_SRC
+
+#+RESULTS: bib-list
+: t
+
+
+
+
+
+
+
+
+#+name: bad-cite-1
+#+BEGIN_SRC emacs-lisp :test
+(should (= 1 (length (let ((bibtex-completion-bibliography "test-1.bib"))
+    (org-test-with-temp-text
+	"cite:tree"
+      (org-ref-bad-cite-candidates))))))
+
+#+END_SRC
+
+#+RESULTS: bad-cite-1
+: t
+
+
+
+
+
+#+RESULTS:
+: t
+
+#+name: bad-cite-1a
+#+BEGIN_SRC emacs-lisp :test
+(should (= 0 (length (let ((bibtex-completion-bibliography "test/test-1.bib"))
+    (org-test-with-temp-text
+	"cite:&xu-2015-tunin-oxide"
+      (org-ref-bad-cite-candidates))))))
+#+END_SRC
+
+
+
+
+#+name: bad-cite-1b
+#+BEGIN_SRC emacs-lisp :test
+(should (= 0 (length (let ((bibtex-completion-bibliography "test/test-1.bib"))
+    (org-test-with-temp-text
+	"cite:xu-2015-tunin-oxide"
+      (org-ref-bad-cite-candidates))))))
+
+#+END_SRC
+
+
+
+
+
+#+name: bad-cite-1c
+#+BEGIN_SRC emacs-lisp :test
+(should (= 0 (length (let ((bibtex-completion-bibliography '("test/test-1.bib")))
+    (org-test-with-temp-text
+	"cite:&xu-2015-tunin-oxide"
+      (org-ref-bad-cite-candidates))))))
+#+END_SRC
+
+
+
+
+
+#+name: bad-cite-1d
+#+BEGIN_SRC emacs-lisp :test
+(should (= 0 (length (let ((bibtex-completion-bibliography '("test/test-1.bib")))
+    (org-test-with-temp-text
+	"cite:xu-2015-tunin-oxide"
+      (org-ref-bad-cite-candidates))))))
+
+#+END_SRC
+
 
 
 

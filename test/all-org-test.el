@@ -681,12 +681,53 @@ not loaded.
 	(require 'org-ref-glossary)
 	(or-find-closing-curly-bracket)))))
 
-(ert-deftest curly-3 ()
+(ert-deftest bib-string ()
   (should
-   (= 3
+   (equal
+    (let ((bibtex-completion-bibliography "test.bib"))
       (org-test-with-temp-text
-	  "{{}}"
-	(require 'org-ref-glossary)
-	(goto-char 2)
-	(or-find-closing-curly-bracket)))))
+	  ""
+	(org-ref-find-bibliography)))
+    '("test.bib"))))
+
+(ert-deftest bib-list ()
+  (should
+   (equal
+    (let ((bibtex-completion-bibliography '("test.bib")))
+      (org-test-with-temp-text
+	  ""
+	(org-ref-find-bibliography)))
+    '("test.bib"))))
+
+(ert-deftest bad-cite-1 ()
+  (should (= 1 (length (let ((bibtex-completion-bibliography "test-1.bib"))
+			 (org-test-with-temp-text
+			     "cite:tree"
+			   (org-ref-bad-cite-candidates))))))
+  )
+
+(ert-deftest bad-cite-1a ()
+  (should (= 0 (length (let ((bibtex-completion-bibliography "test/test-1.bib"))
+			 (org-test-with-temp-text
+			     "cite:&xu-2015-tunin-oxide"
+			   (org-ref-bad-cite-candidates)))))))
+
+(ert-deftest bad-cite-1b ()
+  (should (= 0 (length (let ((bibtex-completion-bibliography "test/test-1.bib"))
+			 (org-test-with-temp-text
+			     "cite:xu-2015-tunin-oxide"
+			   (org-ref-bad-cite-candidates))))))
+  )
+
+(ert-deftest bad-cite-1c ()
+  (should (= 0 (length (let ((bibtex-completion-bibliography '("test/test-1.bib")))
+			 (org-test-with-temp-text
+			     "cite:&xu-2015-tunin-oxide"
+			   (org-ref-bad-cite-candidates)))))))
+
+(ert-deftest bad-cite-1d ()
+  (should (= 0 (length (let ((bibtex-completion-bibliography '("test/test-1.bib")))
+			 (org-test-with-temp-text
+			     "cite:xu-2015-tunin-oxide"
+			   (org-ref-bad-cite-candidates)))))))
 
