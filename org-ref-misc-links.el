@@ -152,6 +152,11 @@ ARG does nothing."
 
 
 ;;* Index link
+;;
+;; You need these lines in the header
+;; 
+;; #+latex_header: \usepackage{makeidx}
+;; #+latex_header: \makeindex
 (org-link-set-parameters "index"
 			 :follow (lambda (path)
 				   (occur path))
@@ -227,6 +232,67 @@ PATH is required for the org-link, but it does nothing here."
 				   (cond
 				    ((eq format 'latex)
 				     (format "\\printindex")))))
+
+
+(defun org-ref-idxproc (_backend)
+  "Preprocess index entries.
+Each entry is replaced by a radio target. The printindex is
+replaced by links to them."
+  (let* ((index-links (reverse (org-element-map (org-element-parse-buffer) 'link
+				 (lambda (lnk)
+				   (when (string= "index" (org-element-property :type lnk))
+				     lnk)))))
+	 (sorted-groups (seq-sort-by
+			 (lambda (x)
+			   "Alphabetically sort groups"
+			   (car x))
+			 #'string-lessp
+			 (seq-group-by
+			  (lambda (lnk)
+			    (org-element-property :path lnk))
+			  index-links)))
+	 (link-replacements '()))
+
+    ;; Sort within each group
+    (cl-loop for (key . links) in sorted-groups do
+	     (setf (cdr (assoc key sorted-groups))
+		   (sort links (lambda (a b)
+				 (< (org-element-property :begin a)
+				    (org-element-property :begin b))))))
+    
+    ;; Compute replacements for each index link.
+    (cl-loop for (key . links) in sorted-groups do
+	     (cl-loop for i from 0 for lnk in links do
+		      (cl-pushnew (cons
+				   (org-element-property :begin lnk)
+				   (format "<<%s-%s>>" key i))
+				  link-replacements)))
+
+    (cl-loop for il in index-links collect
+	     (setf (buffer-substring (org-element-property :begin il)
+				     (org-element-property :end il))
+		   (cdr (assoc (org-element-property :begin il) link-replacements))))
+
+    ;; Now we replace the printindex link
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (lnk)
+	(when (string= "printindex" (org-element-property :type lnk))
+	  (setf (buffer-substring (org-element-property :begin lnk)
+				  (org-element-property :end lnk))
+		(format "*Index*\n\n%s"
+			(string-join
+			 (cl-loop for (key . links) in sorted-groups collect
+				  (format "%s: %s"
+					  key
+					  (string-join 
+					   (cl-loop for i from 0 for lnk in links collect
+						    (format "[[%s-%s][%s-%s]] "
+							    (org-element-property :path lnk)
+							    i
+							    (org-element-property :path lnk)
+							    i))
+					   ", ")))
+			 "\n\n"))))))))
 
 
 (provide 'org-ref-misc-links)
