@@ -289,7 +289,7 @@ provide their own version."
   ("f" (insert "[[list-of-figures:]]\n") "List of figures" :column "Misc")
   ("i" (insert (format "[[index:%s]]" (string-trim (read-string "Index entry: ")))) "Index entry" :column "Misc")
   ("pi" (insert "[[printindex:]]") "Print index" :column "Misc")
-  ("pg" (insert "[[printglossaries:]]") "Print glossary" :column "Misc")))
+  ("pg" (insert "[[printglossaries:]]") "Print glossary" :column "Misc"))
 
 
 ;;* org-ref-help
