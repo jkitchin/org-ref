@@ -247,7 +247,8 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
 (defun org-ref-open-pdf-at-point ()
   "Open the pdf for bibtex key under point if it exists."
   (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (pdf-file (bibtex-completion-find-pdf key t)))
     (pcase (length pdf-file)
