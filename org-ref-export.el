@@ -171,7 +171,7 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
       (group-n 3 (* ".")))
      full-suffix)
 
-    (if (not (string= "" (match-string 2 full-suffix)))
+    (if (and (match-string 2 full-suffix) (not (string= "" (match-string 2 full-suffix))))
 	;; We found a locator
 	(setq label (match-string 1 full-suffix)
 	      locator (match-string 2 full-suffix)
