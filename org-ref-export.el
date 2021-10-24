@@ -159,19 +159,21 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
     ;; idea there is you use everything from the first to last number as the
     ;; locator, but that seems tricky, what about something like: 5, 6 and 12,
     ;; because he had 3 books. 
-    (string-match
-     (rx
-      ;; optional label
-      (group-n 1 (optional
-		  (regexp (regexp-opt (cl-loop for (abbrvs . full) in org-ref-csl-label-aliases
-					       append (append abbrvs (list full)))))))
-      ;; number or numeric ranges
-      (group-n 2 digit (optional "-" digit))
-      ;; everything else
-      (group-n 3 (* ".")))
-     full-suffix)
+    
 
-    (if (and (match-string 2 full-suffix) (not (string= "" (match-string 2 full-suffix))))
+    (if (and (string-match
+	      (rx
+	       ;; optional label
+	       (group-n 1 (optional
+			   (regexp (regexp-opt (cl-loop for (abbrvs . full) in org-ref-csl-label-aliases
+							append (append abbrvs (list full)))))))
+	       ;; number or numeric ranges
+	       (group-n 2 digit (optional "-" digit))
+	       ;; everything else
+	       (group-n 3 (* ".")))
+	      full-suffix)
+	     (match-string 2 full-suffix)
+	     (not (string= "" (match-string 2 full-suffix)))) 
 	;; We found a locator
 	(setq label (match-string 1 full-suffix)
 	      locator (match-string 2 full-suffix)
