@@ -168,7 +168,7 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
 			   (regexp (regexp-opt (cl-loop for (abbrvs . full) in org-ref-csl-label-aliases
 							append (append abbrvs (list full)))))))
 	       ;; number or numeric ranges
-	       (group-n 2 digit (optional "-" digit))
+	       (group-n 2 (one-or-more digit) (optional "-" (one-or-more digit)))
 	       ;; everything else
 	       (group-n 3 (* ".")))
 	      full-suffix)
