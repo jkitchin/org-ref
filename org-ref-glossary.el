@@ -885,13 +885,13 @@ Meant for non-LaTeX exports."
 	      (concat "*Glossary*\n"
 		      (string-join
 		       (cl-loop for (label name description) in glossary collect
-				(format "- %s :: %s <<%s>>" name description label ))
+				(format "<<%s>>\n- %s :: %s" label name description))
 		       "\n")
 
 		      "\n*Acronyms*\n"
 		      (string-join
 		       (cl-loop for (label name description) in acronyms collect
-				(format "- %s :: %s <<%s>>" name description label))
+				(format "<<%s>>\n- %s :: %s " label name description))
 		       "\n"))))
 
 
