@@ -340,6 +340,7 @@ Used in fontification."
 	 (fill-paragraph)
 	 (buffer-string))))))
 
+
 ;; **  printglossaries links
 ;; There is a printglossary command in LaTeX, but I am not supporting it for now.
 (org-link-set-parameters "printglossaries"
@@ -873,7 +874,7 @@ Meant for non-LaTeX exports."
 				   (org-element-parse-buffer)
 				   'link
 				 (lambda (lnk)
-				   (when (string= "printglossary"
+				   (when (string= "printglossaries"
 						  (org-element-property :type lnk))
 				     lnk))
 				 nil t))
