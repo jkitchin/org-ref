@@ -1,4 +1,4 @@
-;;; org-ref-export.el --- org-ref-export library
+;;; org-ref-export.el --- org-ref-export library -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 
@@ -145,15 +145,32 @@ actually done in oc-csl too, although it uses a flat a-list."
   "Return the CSL alist for a REF of TYPE.
 REF is a plist data structure returned from `org-ref-parse-cite-path'."
   ;; I believe the suffix contains "label locator suffix"
-  ;; where locator is a number
+  ;; where locator is a number, or maybe a range of numbers like 5-6.
   ;; label is something like page or chapter
   ;; and the rest is the suffix text.
   ;; For example: ch. 5, for example
   ;; would be label = ch., locator=5, ",for example" as suffix.
-  (let* ((full-suffix (or (plist-get ref :suffix) ""))
+  (let* ((full-suffix (string-trim (or (plist-get ref :suffix) ""))) 
+	 (locator)
 	 location label locator suffix)
-    (string-match "\\(?1:[^[:digit:]]*\\)?\\(?2:[[:digit:]]*\\)?\\(?3:.*\\)"
-		  full-suffix)
+
+    ;; org-cite is more sophisticated than this and would allow things like 5, 6
+    ;; and 12. I am not sure about what all should be supported yet. I guess the
+    ;; idea there is you use everything from the first to last number as the
+    ;; locator, but that seems tricky, what about something like: 5, 6 and 12,
+    ;; because he had 3 books. 
+    (string-match
+     (rx
+      ;; optional label
+      (group-n 1 (optional
+		  (regexp (regexp-opt (cl-loop for (abbrvs . full) in org-ref-csl-label-aliases
+					       append (append abbrvs (list full)))))))
+      ;; number or numeric ranges
+      (group-n 2 digit (optional "-" digit))
+      ;; everything else
+      (group-n 3 (* ".")))
+     full-suffix)
+
     (if (not (string= "" (match-string 2 full-suffix)))
 	;; We found a locator
 	(setq label (match-string 1 full-suffix)
