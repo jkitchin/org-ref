@@ -338,8 +338,11 @@ to a path string."
 ;;
 ;; We use the activate-func for fontification of pieces of each link.
 
-;; maybe we need this for the lexical binding to work?
+
+(declare-function bibtex-completion-candidates "bibtex-completion")
+(declare-function bibtex-completion-init "bibtex-completion")
 (defvar bibtex-completion-bibliography)
+(defvar bibtex-completion-display-formats-internal)
 
 (defun org-ref-valid-keys ()
   "Return a list of valid bibtex keys for this buffer.
