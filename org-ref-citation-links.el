@@ -338,77 +338,18 @@ to a path string."
 ;;
 ;; We use the activate-func for fontification of pieces of each link.
 
-;; These variables are for a local cache for performance.
-(defvar-local org-ref-buffer-local-bib nil
-  "Buffer-local variable for current bibliography files.
-This is used to tell when the local bibliography has changed,
-which means we need to re-compute the valid-keys. This variable
-should store an a-list of (bibfile . modification-time).")
-
-
-(defvar-local org-ref-buffer-local-valid-keys nil
-  "Buffer-local variable for current valid keys.
-This is used to cache the valid keys. It should be a list of
-keys.")
-
-
-(defvar-local org-ref-buffer-local-candidates nil
-  "Buffer-local variable to store completion candidates.
-This is a list of strings.")
-
-
-(defun org-ref-clear-cache ()
-  "Convenience function for clearing the cache variables."
-  (interactive)
-  (setq-local org-ref-buffer-local-bib nil
-	      org-ref-buffer-local-valid-keys nil
-	      org-ref-buffer-local-candidates nil))
-
-
-(defun org-ref-cache-valid-p ()
-  "Return non-nil if cache is valid.
-A cache is valid if it is the same as it was last time. The cache
-becomes invalid when a file modification time differs from the
-previous time we checked."
-  (let ((current-bib (cl-loop for bibfile in (org-ref-find-bibliography)
-			      collect
-			      (cons bibfile
-				    (file-attribute-modification-time (file-attributes bibfile))))))
-    (equal current-bib org-ref-buffer-local-bib)))
-
-
-(defun org-ref-refresh-cache ()
-  "Refresh the cache."
-  (let (valid-keys local-candidates)
-    (setq-local
-     org-ref-buffer-local-bib (cl-loop for bibfile in (org-ref-find-bibliography)
-				       collect
-				       (cons bibfile
-					     (file-attribute-modification-time (file-attributes bibfile))))
-     org-ref-buffer-local-valid-keys nil
-     org-ref-buffer-local-candidates nil)
-
-    (let ((bibtex-completion-bibliography (mapcar 'car org-ref-buffer-local-bib)))
-      (bibtex-completion-init)
-      (cl-loop for entry in (bibtex-completion-candidates)
-	       do
-	       (push (cdr (assoc "=key=" (cdr entry))) valid-keys)
-	       (push (cons (bibtex-completion-format-entry entry (1- (frame-width)))
-			   (cdr entry))
-		     local-candidates)))
-
-    (setq-local org-ref-buffer-local-candidates (reverse local-candidates)
-		org-ref-buffer-local-valid-keys valid-keys)))
-
-
 (defun org-ref-valid-keys ()
   "Return a list of valid bibtex keys for this buffer.
-This is used a lot in `org-ref-cite-activate' so we try to cache
-it as a local variable, but also detect when the cache is
-invalid, e.g. if you change the bibliographies."
-  (unless (org-ref-cache-valid-p)
-    (org-ref-refresh-cache))
-  org-ref-buffer-local-valid-keys)
+This is used a lot in `org-ref-cite-activate' so it needs to be
+fast, but also up to date."
+  ;; this seems to be needed, but we don't want to do this every time
+  (unless bibtex-completion-display-formats-internal
+    (bibtex-completion-init))
+  
+  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+    (cl-loop for entry in (bibtex-completion-candidates)
+	     collect
+	     (cdr (assoc "=key=" (cdr entry))))))
 
 
 (defun org-ref-cite-activate (start end path _bracketp)
