@@ -129,7 +129,10 @@ PATH is a comma-separated list of bibfiles."
 (defun org-ref-bibliography*-follow (_path)
   "Function to follow bibliography links."
   (interactive)
-  (find-file (org-ref-get-bibfile-path (get-text-property (point) 'org-ref-bibfile))))
+  (save-excursion
+    (unless (get-text-property (point) 'org-ref-bibfile)
+      (re-search-forward ":"))
+    (find-file (org-ref-get-bibfile-path (get-text-property (point) 'org-ref-bibfile)))))
 
 
 (defun org-ref-printbibliography-export (options _desc backend)
