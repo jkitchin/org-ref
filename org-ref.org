@@ -1036,8 +1036,6 @@ org-ref provides a new exporter for convenience with the following export option
 | O | to org buffer          | only goes to a buffer so you don't overwrite the current buffer |
 | e | to email               |                                                                 |
 
-
-
 These links will run export commands to get this document in different formats. It is worth noting that if your bibtex entries use LaTeX markup (e.g. subscripts, superscripts, chemical equations, etc.) in them, it will probably not render faithfully in the alternative backend. It is in general difficult to have a single format in bibtex that correctly renders in all backends. I don't know of a great solution for this, since LaTeX and CSL use different citation processors.
 
 [[elisp:(org-ref-export-to-html)]]
@@ -1069,6 +1067,16 @@ An alternative to this exporter is to use an  `org-export-before-parsing-hook' t
 #+BEGIN_SRC emacs-lisp
 (add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
 #+END_SRC
+
+Here is an example to generate a docx file from this document!
+
+#+BEGIN_SRC emacs-lisp
+(require 'ox-pandoc)
+(let ((org-export-before-parsing-hook '(org-ref-csl-preprocess-buffer)))
+  (org-open-file (plist-get (org-pandoc-export-to-docx) 'output-file) 'system))
+#+END_SRC
+
+#+RESULTS:
 
 *** Other formats without using CSL
 
