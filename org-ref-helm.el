@@ -1,4 +1,4 @@
-;;; org-ref-helm.el --- org-ref interface to helm-bibtex
+;;; org-ref-helm.el --- org-ref interface to helm-bibtex -*- lexical-binding: t; -*-
 
 ;; Copyright(C) 2014-2016 John Kitchin
 

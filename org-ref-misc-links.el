@@ -1,4 +1,4 @@
-;;; org-ref-misc-links.el --- Miscellaneous links
+;;; org-ref-misc-links.el --- Miscellaneous links -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 

@@ -1,4 +1,4 @@
-;;; org-ref-label-link.el ---
+;;; org-ref-label-link.el --- -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 

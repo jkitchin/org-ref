@@ -1,4 +1,4 @@
-;;; org-ref-citation-links.el --- citation links for org-ref
+;;; org-ref-citation-links.el --- citation links for org-ref -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 

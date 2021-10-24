@@ -1,4 +1,4 @@
-;;; org-ref-ref-links.el --- cross-reference links for org-ref
+;;; org-ref-ref-links.el --- cross-reference links for org-ref -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 

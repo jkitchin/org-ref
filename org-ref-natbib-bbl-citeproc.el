@@ -1,4 +1,4 @@
-;;; org-ref-natbib-bbl-citeproc.el --- A bibtex + natbib BBL-based citeproc
+;;; org-ref-natbib-bbl-citeproc.el --- A bibtex + natbib BBL-based citeproc -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 

@@ -1,4 +1,4 @@
-;;; org-ref-refproc.el --- refproc - for exporting ref links in non-LaTeX backends
+;;; org-ref-refproc.el --- refproc - for exporting ref links in non-LaTeX backends -*- lexical-binding: t; -*-
 
 ;; For autoref and cref* links, a clever prefix is added at export.
 ;; Prefixes are found in `org-ref-refproc-clever-prefixes'
