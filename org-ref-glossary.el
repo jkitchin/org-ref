@@ -340,14 +340,13 @@ Used in fontification."
 	 (fill-paragraph)
 	 (buffer-string))))))
 
-;; ** printglossary links
-
-;; printglossary:[type=\acronymtype]  =>   \printglossary[type=\acronymtype]
-(org-link-set-parameters "printglossary"
+;; **  printglossaries links
+;; There is a printglossary command in LaTeX, but I am not supporting it for now.
+(org-link-set-parameters "printglossaries"
 			 :export (lambda (path desc format)
 				   (cond
 				    ((memq format '(latex beamer))
-				     (format "\\printglossary%s"
+				     (format "\\printglossaries"
 					     (if (not (string= "" path))
 						 (format "[%s]" path)
 					       "")))
