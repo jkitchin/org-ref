@@ -150,12 +150,12 @@ font-lock."
     (delete-dups (reverse labels))))
 
 
-(defun org-ref-ref-jump-to (&optional _path)
+(defun org-ref-ref-jump-to (&optional path)
   "Jump to the target for the ref link at point."
   (interactive)
   (let ((case-fold-search t)
 	(label (get-text-property (point) 'org-ref-ref-label))
-	(labels (split-string _path ","))
+	(labels (split-string path ","))
 	(rx (string-join org-ref-ref-label-regexps "\\|")))
     (when (null label)
       (pcase (length labels)
