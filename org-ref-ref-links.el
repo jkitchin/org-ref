@@ -86,7 +86,7 @@ The label should always be in group 1.")
 			      (when item (concat
 					  (make-string (- 12 (length s)) ? )
 					  "-- "
-					  (second item))))))
+					  (cl-second item))))))
 	 (completion-extra-properties `(:annotation-function ,type-annotation)))
     (completing-read "Type: " org-ref-ref-types)))
 
