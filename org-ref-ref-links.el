@@ -222,7 +222,7 @@ This is meant to be used with `apply-partially' in the link definitions."
     (format "\\%s{%s}" cmd keyword))))
 
 
-(defun org-ref-complete-link (refstyle &optional arg)
+(defun org-ref-complete-link (refstyle &optional _arg)
   "Complete a ref link to an existing label."
   (concat refstyle ":" (completing-read "Label: " (org-ref-get-labels))))
 
