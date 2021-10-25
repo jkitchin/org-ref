@@ -55,12 +55,6 @@
 (require 'org-ref-glossary)
 
 
-;; org-element-citation-prefix-re is too aggressive, and end up fontifying [[cite:]] links.
-;; Here I add to the beginning so it does not match a bracketed link.
-;; Maybe this will get fixed in org-mode, and we can remove this.
-;; (setq org-element-citation-prefix-re (concat "\\(?:[^[]\\)" "\\[cite\\(?:/\\([/_[:alnum:]-]+\\)\\)?:[	\n ]*"))
-
-
 ;;* Custom variables
 
 (defgroup org-ref nil
