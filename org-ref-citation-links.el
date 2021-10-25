@@ -507,6 +507,14 @@ PATH has the citations in it."
 
 
 ;; * Citation links tooltips
+(defvar bibtex-completion-bibliography)
+(defvar bibtex-completion-pdf-symbol)
+(defvar bibtex-completion-notes-symbol)
+(defvar bibtex-completion-find-note-functions)
+
+(declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function bibtex-completion-find-pdf "bibtex-completion")
+(declare-function bibtex-completion-apa-format-reference "bibtex-completion")
 
 (defun org-ref-cite-tooltip (_win _obj position)
   "Get a tooltip for the cite at POSITION."
