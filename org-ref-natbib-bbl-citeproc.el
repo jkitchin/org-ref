@@ -155,10 +155,7 @@ done in a temp-buffer so we don't actually modify the bbl file."
     (insert (org-bbl-clean-string entry))
     (goto-char (point-min))
     (let (p1
-	  p2
-	  p3
-	  p4
-	  s
+	  p2 
 	  authors
 	  blocks
 	  entry)
