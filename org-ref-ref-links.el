@@ -414,7 +414,7 @@ This is meant to be used with `apply-partially' in the link definitions."
        (format "\\crefrange{%s}{%s}" (cl-first labels) (cl-second labels))))))
 
 
-(defun org-ref-crefrange-complete (cmd &optional arg)
+(defun org-ref-crefrange-complete (cmd &optional _arg)
   "Completing function for the c/Crefrange links."
   (concat cmd ":"
 	  (completing-read "Label 1: " (org-ref-get-labels))
