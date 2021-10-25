@@ -456,9 +456,7 @@ which capitalizes each prefix."
 BACKEND is the
 Meant to be used in an `org-export-before-parsing-hook' on a copy
 of the buffer."
-  ;; (font-lock-fontify-buffer)
-  (let ((options (org-ref-refproc-get-options))
-	(ref-links (org-ref-get-ref-links))
+  (let ((ref-links (org-ref-get-ref-links))
 	(referenceables (org-ref-refproc-referenceables)))
 
     (cl-loop for ref in (reverse ref-links) do
