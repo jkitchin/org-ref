@@ -35,10 +35,10 @@
 
 (org-link-set-parameters
  "label"
- :export (lambda (keyword desc format)
+ :export (lambda (path _desc format)
 	   (cond
 	    ((eq format 'latex)
-	     (format "\\label{%s}" keyword))))
+	     (format "\\label{%s}" path))))
  :face 'org-ref-label-face
  :help-echo "A label")
 
