@@ -167,6 +167,35 @@ plt.plot([1, 2, 4])
 - cref:sec-intro,s1,g1,b2,s2,s4,s3,b1
 - Cref:sec-intro,s1,g1,b2,s2,s4,s3,b1
 
+** math environments
+
+*** Lemmas
+
+#+name: lm-1
+#+BEGIN_lemma
+A named lemma
+#+END_lemma
+
+see cref:lm-1.
+
+*** Corollary
+
+#+name: co-1
+#+BEGIN_corollary
+see  cref:lm-1.
+#+END_corollary
+
+cref:co-1
+
+*** theorem
+
+#+name: thm-1
+#+BEGIN_theorem
+I have a theorem this will work. See the margin
+#+END_theorem
+
+Margin note cref:thm-1
+
 
 * build
   :PROPERTIES:
