@@ -215,7 +215,6 @@ grouping and sorting here."
 REFERENCEABLES comes from `org-ref-refproc-referenceables'.
 BACKEND is the export backend."
   (let* ((ref-type (org-element-property :type ref-link))
-	 (path (org-element-property :path ref-link))
 	 (labels (split-string (org-element-property :path ref-link) ","))
 	 (post-blanks (org-element-property :post-blank ref-link))
 	 (data (cl-loop for label in labels collect (org-ref-refproc-get-type label referenceables))))
