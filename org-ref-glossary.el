@@ -678,7 +678,7 @@ This will run in `org-export-before-parsing-hook'."
 			      (when item (concat
 					  (make-string (- 12 (length s)) ? )
 					  "-- "
-					  (second item)))))
+					  (cl-second item)))))
 	  completion-extra-properties `(:annotation-function ,type-annotation)
 	  type (completing-read "Type: "
 				org-ref-glossary-gls-commands
@@ -766,7 +766,7 @@ This will run in `org-export-before-parsing-hook'."
 			      (when item (concat
 					  (make-string (- 12 (length s)) ? )
 					  "-- "
-					  (second item)))))
+					  (cl-second item)))))
 	  
 	  completion-extra-properties `(:annotation-function ,type-annotation)
 	  type (completing-read "Type: "
