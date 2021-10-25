@@ -624,7 +624,6 @@ This will run in `org-export-before-parsing-hook'."
   ;; gather entries
   (let* ((glossary-candidates '()) 
 	 key entry type
-	 type-candidates
 	 type-annotation
 	 completion-extra-properties
 	 choice)
