@@ -184,7 +184,7 @@ POSITION is the point under the mouse I think."
   (cdr (assoc (get-text-property position 'org-ref-ref-label) (org-ref-get-labels))))
 
 
-(defun org-ref-ref-activate (start end path bracketp)
+(defun org-ref-ref-activate (start _end path _bracketp)
   "Activate a ref link.
 The PATH should be a comma-separated list of labels.
 Argument START is the start of the link.
@@ -200,8 +200,7 @@ Argument END is the end of the link."
 				label)
 
 	     (unless (member label labels)
-
-
+	       
 	       (put-text-property (match-beginning 0)
 				  (match-end 0)
 				  'face
