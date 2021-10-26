@@ -33,6 +33,7 @@
 (require 'org-ref-utils)
 (require 'parsebib)
 
+(require 'xml)
 
 ;; This is a local variable defined in `url-http'.  We need it to avoid
 ;; byte-compiler errors.
@@ -103,8 +104,11 @@
   abstract = {%s},
   url = {%s},
 }"
-	"Template for BibTeX entries of arXiv articles.")
+  "Template for BibTeX entries of arXiv articles.")
 
+
+(declare-function doi-utils-doi-to-bibtex-string "doi-utils")
+(declare-function org-ref-replace-nonascii "org-ref-bibtex")
 
 (defun arxiv-get-bibtex-entry-via-arxiv-api (arxiv-number)
   "Retrieve meta data for ARXIV-NUMBER.
@@ -154,30 +158,31 @@ Returns a formatted BibTeX entry."
          (arxiv-id-old-regexp "[a-z-]+\\(\\.[A-Z]\\{2\\}\\)?/[0-9]\\{5,7\\}$") ; Ex: math.GT/0309136
          (arxiv-id-new-regexp "[0-9]\\{4\\}[.][0-9]\\{4,5\\}\\(v[0-9]+\\)?$") ; Ex: 1304.4404v2
          (arxiv-id-regexp (concat "\\(" arxiv-id-old-regexp "\\|" arxiv-id-new-regexp "\\)")))
-  (cond
-   (;; make sure current-kill has something in it
-    ;; if current-kill is not a string, return nil
-    (not (stringp the-current-kill))
-    nil)
-   (;; check if current-kill looks like an arxiv ID
-    ;; if so, return it
-    ;; Ex: 1304.4404v2
-    (s-match (concat "^" arxiv-id-regexp) the-current-kill)
-    the-current-kill)
-   (;; check if current-kill looks like an arxiv cite
-    ;; if so, remove the prefix and return
-    ;; Ex: arXiv:1304.4404v2 --> 1304.4404v2
-    (s-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp) the-current-kill)
-    (replace-regexp-in-string arxiv-cite-prefix-regexp "" the-current-kill))
-   (;; check if current-kill looks like an arxiv url
-    ;; if so, remove the url prefix and return
-    ;; Ex: https://arxiv.org/pdf/1304.4404 --> 1304.4404
-    (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp) the-current-kill)
-    (replace-regexp-in-string arxiv-url-prefix-regexp "" the-current-kill))
-   ;; otherwise, return nil
-   (t
-    nil))))
+    (cond
+     (;; make sure current-kill has something in it
+      ;; if current-kill is not a string, return nil
+      (not (stringp the-current-kill))
+      nil)
+     (;; check if current-kill looks like an arxiv ID
+      ;; if so, return it
+      ;; Ex: 1304.4404v2
+      (s-match (concat "^" arxiv-id-regexp) the-current-kill)
+      the-current-kill)
+     (;; check if current-kill looks like an arxiv cite
+      ;; if so, remove the prefix and return
+      ;; Ex: arXiv:1304.4404v2 --> 1304.4404v2
+      (s-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp) the-current-kill)
+      (replace-regexp-in-string arxiv-cite-prefix-regexp "" the-current-kill))
+     (;; check if current-kill looks like an arxiv url
+      ;; if so, remove the url prefix and return
+      ;; Ex: https://arxiv.org/pdf/1304.4404 --> 1304.4404
+      (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp) the-current-kill)
+      (replace-regexp-in-string arxiv-url-prefix-regexp "" the-current-kill))
+     ;; otherwise, return nil
+     (t
+      nil))))
 
+(defvar bibtex-completion-bibliography)
 
 ;;;###autoload
 (defun arxiv-add-bibtex-entry (arxiv-number bibfile)
@@ -226,6 +231,8 @@ Returns a formatted BibTeX entry."
         (org-open-file pdf)
       (delete-file pdf)
       (message "Error downloading arxiv pdf %s" pdf-url))))
+
+(defvar bibtex-completion-library-path)
 
 ;;;###autoload
 (defun arxiv-get-pdf-add-bibtex-entry (arxiv-number bibfile pdfdir)
