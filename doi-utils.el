@@ -647,6 +647,10 @@ until one is found."
           (throw 'pdf-url this-pdf-url))))))
 
 ;;** Finally, download the pdf
+(defvar bibtex-completion-library-path)
+(defvar bibtex-completion-bibliography)
+(declare-function async-start "async")
+
 ;;;###autoload
 (defun doi-utils-async-download-pdf ()
   "Download the PDF for bibtex entry at point asynchronously.
@@ -1343,6 +1347,7 @@ May be empty if none are found."
     "http://www.ncbi.nlm.nih.gov/pubmed/?term=%s"
     (url-hexify-string doi))))
 
+(declare-function org-element-property "org-element")
 
 (defhydra doi-link-follow (:color blue :hint nil)
   "DOI actions:
@@ -1407,7 +1412,7 @@ May be empty if none are found."
 ;; free form citation that may give us something back. We do this to get a list
 ;; of candidates, which could be used to get the doi.
 
-
+(declare-function org-ref-bib-citation "org-ref-bibtex")
 ;;;###autoload
 (defun doi-utils-crossref-citation-query ()
   "Query Crossref with the title of the bibtex entry at point.
