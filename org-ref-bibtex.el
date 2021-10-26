@@ -621,14 +621,13 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 (declare-function avy-with "avy")
 (declare-function avy--style-fn "avy")
 (declare-function avy-process "avy")
-(defvar avy-goto-typo)
 (defvar avy-style)
 
 ;;;###autoload
 (defun org-ref-bibtex-visible-entry ()
   "Jump to visible entry."
   (interactive)
-  (avy-with avy-goto-typo
+  (avy-with avy-ve
     (avy-process
      (save-excursion
        (goto-char (window-start))
@@ -643,7 +642,7 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
 (defun org-ref-bibtex-visible-field ()
   "Jump to visible field."
   (interactive)
-  (avy-with avy-goto-typo
+  (avy-with avy-vf
     (avy-process
      (save-excursion
        (goto-char (window-start))
@@ -869,7 +868,10 @@ a directory. Optional PREFIX argument toggles between
 	   (kill-new (bibtex-key-in-head))))
    "Copy key" :column "Copy")
 
-  ("f" (kill-new (bibtex-completion-apa-format-reference (cdr (assoc "=key=" (bibtex-parse-entry t)))))
+  ("f" (save-excursion
+	 (bibtex-beginning-of-entry)
+	 (kill-new (bibtex-completion-apa-format-reference
+		    (cdr (assoc "=key=" (bibtex-parse-entry t))))))
    "Formatted entry" :column "Copy")
 
   ;; Navigation
