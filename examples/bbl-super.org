@@ -69,6 +69,7 @@ bibliographystyle:unsrtnat
 ox-pandoc
 
 #+BEGIN_SRC emacs-lisp :results silent
+(require 'ox-pandoc)
 (let ((org-export-before-parsing-hook '(org-ref-bbl-preprocess
 					org-ref-refproc)))
   (org-open-file (plist-get (org-pandoc-export-to-docx) 'output-file) 'system))

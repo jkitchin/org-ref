@@ -4,7 +4,7 @@
 These keywords specify the style for citations.
 
 # this file must exist be a path or exist in `org-cite-csl-styles-dir'.
-#+csl-style: /Users/jkitchin/Desktop/nature.csl
+#+csl-style: /Users/jkitchin/Dropbox/emacs/scimax/org-ref/citeproc/csl-styles/apa-numeric-superscript-brackets.csl
 
 # this must be a locales file in `org-cite-csl-locales-dir'. Defaults to en-US
 #+csl-locale: en-US

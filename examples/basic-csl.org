@@ -142,6 +142,7 @@ If you want a more <<fine-tuned export>>, it would look like this. Here, if you 
 ** MS Word (docx) via pandoc
 
 #+BEGIN_SRC emacs-lisp :results silent
+(require 'org-ref-refproc)
 (let ((org-export-before-parsing-hook '(org-ref-cite-natmove ;; do this first
 					org-ref-csl-preprocess-buffer
 					org-ref-refproc)))

@@ -40,3 +40,7 @@ styles.xml
 *.run.xml
 /sandbox/
 *.dvi
+*.docx
+*.pyg
+/.ipynb_checkpoints/
+/examples/ltximg/
