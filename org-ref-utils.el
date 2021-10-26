@@ -526,6 +526,8 @@ if FORCE is non-nil reparse the buffer no matter what."
 
 ;;** bad citations, labels, refs and files in orgfile
 ;;  These are used i
+(defvar bibtex-files)
+(defvar bibtex-file-path)
 (defun org-ref-bad-cite-candidates ()
   "Return a list of conses (key . marker) where key does not exist in the known bibliography files, and marker points to the key."
   (let* ((cp (point))			; save to return to later

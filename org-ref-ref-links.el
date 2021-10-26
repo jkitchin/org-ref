@@ -231,84 +231,83 @@ This is meant to be used with `apply-partially' in the link definitions."
   "Store a ref link to a label.  The output will be a ref to that label."
   ;; First we have to make sure we are on a label link.
   (let* ((object (and (eq major-mode 'org-mode) (org-element-context)))
-	 label)
-    (cond
-     ;; here literally on a label link.
-     ((and
-       (equal (org-element-type object) 'link)
-       (equal (org-element-property :type object) "label"))
-      (setq label (org-element-property :path object)))
+	 (label (cond
+		 ;; here literally on a label link.
+		 ((and
+		   (equal (org-element-type object) 'link)
+		   (equal (org-element-property :type object) "label"))
+		  (org-element-property :path object))
 
-     ;; here on a file link. if it has a caption with a label in it, we store
-     ;; it.
-     ((and
-       (equal (org-element-type object) 'link)
-       (equal (org-element-property :type object) "file")
-       (org-file-image-p (org-element-property :path object)))
+		 ;; here on a file link. if it has a caption with a label in it, we store
+		 ;; it.
+		 ((and
+		   (equal (org-element-type object) 'link)
+		   (equal (org-element-property :type object) "file")
+		   (org-file-image-p (org-element-property :path object)))
 
-      (if (org-element-property :name object)
-	  (progn
-	    (setq label (org-element-property :name object)))
-	;; maybe we have a caption to get it from.
-	(let* ((parent (org-element-property :parent object))
-	       (caption))
-	  (when (and parent
-		     (equal (org-element-type parent) 'paragraph))
-	    (if (org-element-property :name parent)
-		;; caption paragraph may have a name which we use if it is there
-		(setq label (org-element-property :name parent))
-	      ;; else search caption
-	      (setq caption (s-join
-			     ""
-			     (mapcar 'org-no-properties
-				     (org-export-get-caption parent))))
-	      (when (string-match org-ref-label-re caption)
-		(setq label (match-string 1 caption))))))))
+		  (if (org-element-property :name object)
+		      (org-element-property :name object)
+		    ;; maybe we have a caption to get it from.
+		    (let* ((parent (org-element-property :parent object)))
+		      (when (and parent
+				 (equal (org-element-type parent) 'paragraph))
+			(if (org-element-property :name parent)
+			    ;; caption paragraph may have a name which we use if it is there
+			    (org-element-property :name parent)
+			  ;; else search caption
+			  (let ((caption (s-join
+					  ""
+					  (mapcar 'org-no-properties
+						  (org-export-get-caption parent))))) 
+			    (when (string-match org-ref-label-re caption)
+			      (match-string 1 caption))))))))
 
-     ;; here on a paragraph (eg in a caption of an image). it is a paragraph with a caption
-     ;; in a caption, with no name, but maybe a label
-     ((equal (org-element-type object) 'paragraph)
-      (if (org-element-property :name object)
-	  (setq label (org-element-property :name object))
+		 ;; here on a paragraph (eg in a caption of an image). it is a paragraph with a caption
+		 ;; in a caption, with no name, but maybe a label
+		 ((equal (org-element-type object) 'paragraph)
+		  (if (org-element-property :name object)
+		      (org-element-property :name object)
 
-	;; See if it is in the caption name
-	(let ((caption (s-join "" (mapcar 'org-no-properties
-					  (org-export-get-caption object)))))
-	  (when (string-match org-ref-label-re caption)
-	    (setq label (match-string 1 caption))))))
+		    ;; See if it is in the caption name
+		    (let ((caption (s-join "" (mapcar 'org-no-properties
+						      (org-export-get-caption object)))))
+		      (when (string-match org-ref-label-re caption)
+			(match-string 1 caption)))))
 
-     ;; If you are in a table, we need to be at the beginning to make sure we get the name.
-     ;; Note when in a caption it appears you are in a table but org-at-table-p is nil there.
-     ((or (equal (org-element-type object) 'table) (org-at-table-p))
-      (save-excursion
-	(goto-char (org-table-begin))
-	(let* ((table (org-element-context))
-	       (label (org-element-property :name table))
-	       (caption (s-join "" (mapcar 'org-no-properties (org-export-get-caption table)))))
-	  (when (null label)
-	    ;; maybe there is a label in the caption?
-	    (when (string-match org-ref-label-link-re caption)
-	      (setq label (match-string 1 caption)))))))
+		 ;; If you are in a table, we need to be at the beginning to
+		 ;; make sure we get the name. Note when in a caption it appears
+		 ;; you are in a table but org-at-table-p is nil there.
+		 ((or (equal (org-element-type object) 'table) (org-at-table-p))
+		  (save-excursion
+		    (goto-char (org-table-begin))
+		    (let* ((table (org-element-context))
+			   (label (org-element-property :name table))
+			   (caption (s-join "" (mapcar 'org-no-properties
+						       (org-export-get-caption table)))))
+		      (when (null label)
+			;; maybe there is a label in the caption?
+			(when (string-match org-ref-label-link-re caption)
+			  (match-string 1 caption))))))
 
-     ;; and to #+namel: lines
-     ((and (equal (org-element-type object) 'paragraph)
-           (org-element-property :name object))
-      (setq label (org-element-property :name object)))
+		 ;; and to #+namel: lines
+		 ((and (equal (org-element-type object) 'paragraph)
+		       (org-element-property :name object))
+		  (org-element-property :name object))
 
-     ;; in a latex environment
-     ((equal (org-element-type object) 'latex-environment)
-      (let ((value (org-element-property :value object))
-	    label)
-	(when (string-match "\\\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}" value)
-	  (setq label (match-string-no-properties 1 value)))))
+		 ;; in a latex environment
+		 ((equal (org-element-type object) 'latex-environment)
+		  (let ((value (org-element-property :value object))
+			label)
+		    (when (string-match "\\\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}" value)
+		      (match-string-no-properties 1 value))))
 
-     ;; Match targets, like <<label>>
-     ((equal (org-element-type object) 'target)
-      (setq label (org-element-property :value object)))
+		 ;; Match targets, like <<label>>
+		 ((equal (org-element-type object) 'target)
+		  (org-element-property :value object))
 
-     (t
-      nil))
-
+		 (t
+		  nil))))
+    
     (when label
       (cl-loop for (reftype _) in org-ref-ref-types do
 	       (org-link-store-props
