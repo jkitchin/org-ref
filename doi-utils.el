@@ -692,6 +692,7 @@ too. "
 	  (require 'package)
 	  (package-initialize)
 	  (add-to-list 'load-path ,(file-name-directory (locate-library "doi-utils")))
+	  (add-to-list 'load-path ,package-user-dir)
 	  (require 'doi-utils)
 	  ;; (load-file ,(locate-library "doi-utils"))
 	  (setq pdf-url (doi-utils-get-pdf-url ,doi))
