@@ -344,13 +344,10 @@ Used in fontification."
 ;; **  printglossaries links
 ;; There is a printglossary command in LaTeX, but I am not supporting it for now.
 (org-link-set-parameters "printglossaries"
-			 :export (lambda (path desc format)
+			 :export (lambda (path _desc format)
 				   (cond
 				    ((memq format '(latex beamer))
-				     (format "\\printglossaries"
-					     (if (not (string= "" path))
-						 (format "[%s]" path)
-					       "")))
+				     "\\printglossaries")
 				    (t
 				     (format "%s" path)))))
 
