@@ -364,7 +364,7 @@ fast, but also up to date."
   "Activation function for a cite link.
 START and END are the bounds of the link.
 PATH has the citations in it."
-  (let* ((valid-keys (org-ref-valid-keys)) ;; this is cached in a buffer local var.
+  (let* ((valid-keys (org-ref-valid-keys)) 
 	 valid-key
 	 substrings)
     (goto-char start)
