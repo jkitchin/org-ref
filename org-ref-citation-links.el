@@ -49,7 +49,7 @@
 ;;; Code:
 
 (require 'hydra)
-
+(require 'xref)
 
 (defgroup org-ref-faces nil
   "A group for faces in `org-ref'."
@@ -214,6 +214,8 @@ This is mostly for multicites and natbib."
   :group 'org-ref)
 
 
+(defvar org-ref-insert-cite-function)
+
 (defcustom org-ref-cite-keymap
   (let ((map (copy-keymap org-mouse-map)))
     ;; Navigation keys
@@ -363,6 +365,7 @@ fast, but also up to date."
 START and END are the bounds of the link.
 PATH has the citations in it."
   (let* ((valid-keys (org-ref-valid-keys)) ;; this is cached in a buffer local var.
+	 valid-key
 	 substrings)
     (goto-char start)
     (pcase (org-ref-cite-version path)
@@ -452,6 +455,8 @@ PATH has the citations in it."
 
 
 ;; * Following citation links
+
+(declare-function org-ref-get-bibtex-key-and-file "org-ref-core")
 
 (defhydra org-ref-citation-hydra (:color blue :hint nil)
   "Citation actions
@@ -682,7 +687,7 @@ Use with apply-partially."
 ;;
 ;; This allows you to type C-c l, choose a cite link type, and then insert a key.
 
-(defun org-ref-cite-link-complete (cmd &optional arg)
+(defun org-ref-cite-link-complete (cmd &optional _arg)
   "Cite link completion for CMD."
   (concat
    cmd ":"
@@ -693,8 +698,8 @@ Use with apply-partially."
 ;; We loop on the three categories because there are some differences between
 ;; them, mostly in the multitypes.
 
-(cl-loop for (cmd desc) in (append org-ref-natbib-types
-				   org-ref-biblatex-types)
+(cl-loop for (cmd _desc) in (append org-ref-natbib-types
+				    org-ref-biblatex-types)
 	 do
 	 (org-link-set-parameters
 	  cmd
@@ -706,7 +711,7 @@ Use with apply-partially."
 	  :activate-func #'org-ref-cite-activate))
 
 
-(cl-loop for (cmd desc) in org-ref-biblatex-multitypes do
+(cl-loop for (cmd _desc) in org-ref-biblatex-multitypes do
 	 (org-link-set-parameters
 	  cmd
 	  :complete (apply-partially #'org-ref-cite-link-complete cmd)
@@ -731,7 +736,7 @@ Use with apply-partially."
 	 (data (org-ref-parse-cite-path link-string))
 	 (references (plist-get data :references))
 	 (cp (point))
-         key keys i)
+         key i)
     ;;   We only want this to work on citation links
     (when (assoc type org-ref-cite-types)
       (setq key (org-ref-get-bibtex-key-under-cursor))
@@ -762,7 +767,7 @@ Use with apply-partially."
 	 (data (org-ref-parse-cite-path link-string))
 	 (references (plist-get data :references))
 	 (cp (point))
-         key keys i)
+         key i)
     ;;   We only want this to work on citation links
     (when (assoc type org-ref-cite-types)
       (setq key (org-ref-get-bibtex-key-under-cursor))
@@ -781,6 +786,8 @@ Use with apply-partially."
 	(goto-char cp)))))
 
 
+(declare-function org-element-create "org-element")
+
 ;;;###autoload
 (defun org-ref-change-cite-type ()
   "Change the cite type of citation link at point."
@@ -790,7 +797,7 @@ Use with apply-partially."
 			      (when item (concat
 					  (make-string (- 12 (length s)) ? )
 					  "-- "
-					  (second item))))))
+					  (cl-second item))))))
 	 (completion-extra-properties `(:annotation-function ,type-annotation))
 	 (new-type (completing-read "Type: " org-ref-cite-types))
 	 (cite-link (org-element-context))
@@ -862,11 +869,11 @@ If not on a key, but on a cite, prompt for key."
   (let* ((object (org-element-context))
          (type (org-element-property :type object))
          (begin (org-element-property :begin object))
-         (end (org-element-property :end object))
+         ;; (end (org-element-property :end object))
          (link-string (org-element-property :path object))
 	 (data (org-ref-parse-cite-path link-string))
 	 (references (plist-get data :references))
-         key keys i)
+         key i)
     ;;   We only want this to work on citation links
     (when (assoc type org-ref-cite-types)
       (setq key (org-ref-get-bibtex-key-under-cursor))
@@ -906,9 +913,9 @@ If not on a key, but on a cite, prompt for key."
   "Replace link at point with sorted link by year."
   (interactive)
   (let* ((object (org-element-context))
-         (type (org-element-property :type object))
+         ;; (type (org-element-property :type object))
          (begin (org-element-property :begin object))
-         (end (org-element-property :end object))
+         ;; (end (org-element-property :end object))
          (link-string (org-element-property :path object))
 	 (data (org-ref-parse-cite-path link-string))
 	 (references (plist-get data :references))
@@ -960,12 +967,23 @@ move to the beginning of the previous cite link after this one."
     (when-let (prev (previous-single-property-change (point) 'cite-key))
       (goto-char prev))))
 
+(defvar avy-goto-key)
+(defvar avy-style)
+(declare-function avy--style-fn "avy")
+(declare-function avy-process "avy")
+(declare-function avy-with "avy")
+(declare-function org-element-parse-buffer "org-element")
+(declare-function org-element-property "org-element")
+(declare-function org-element-type "org-element")
+(declare-function org-element-map "org-element")
+(declare-function bibtex-completion-get-value "bibtex-completion")
+(declare-function bibtex-completion-get-entry "bibtex-completion")
 
 ;;;###autoload
 (defun org-ref-jump-to-visible-key ()
   "Jump to a visible key with avy."
   (interactive)
-  (avy-with avy-goto-typo
+  (avy-with avy-goto-key
     (avy-process
      (apply #'append
 	    (save-excursion
@@ -985,6 +1003,7 @@ move to the beginning of the previous cite link after this one."
 
 
 ;; * Insert links
+(declare-function bibtex-completion-format-entry "bibtex-completion")
 
 ;; The formatting is adapted from ivy-bibtex-transformer. I feel like it is
 ;; slower than ivy-bibtex though. It is completion agnostic though...
@@ -1009,14 +1028,14 @@ Rules:
 2. at middle or end of key, insert after it."
   (let* ((object (org-element-context))
 	 (type (org-element-property :type object))
-	 (cp (point))
+	 ;; (cp (point))
 	 link-string version data references key-at-point index
 	 (type-annotation (lambda (s)
 			    (let ((item (assoc s minibuffer-completion-table)))
 			      (when item (concat
 					  (make-string (- 12 (length s)) ? )
 					  "-- "
-					  (second item))))))
+					  (cl-second item))))))
 	 (completion-extra-properties `(:annotation-function ,type-annotation)))
 
     (if (null (assoc type org-ref-cite-types))
@@ -1104,6 +1123,8 @@ Optional prefix arg SET-TYPE to choose the cite type."
 ;; itself. So, Here is a preprocessor function you can use to move all the
 ;; cites.
 
+(declare-function org-ref-get-cite-links "org-ref-export")
+
 (defun org-ref-cite-natmove (_backend)
   "Move citations to the right side of punctuation.
 Intended for use in `org-export-before-parsing-hook'.
@@ -1113,8 +1134,6 @@ Here is an example use:
   (let ((org-export-before-parsing-hook '(org-ref-cite-natmove)))
     (org-open-file (org-latex-export-to-pdf)))"
   (let ((cites (org-ref-get-cite-links))
-	;; temp point holders
-	p1 p2
 	punct)
     (cl-loop for cite in (reverse cites) do
 	     (goto-char (org-element-property :end cite))

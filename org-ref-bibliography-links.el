@@ -147,6 +147,13 @@ Optional argument BACKEND is the export backend."
 		(format "[%s]" options)
 	      "")))))
 
+(defvar org-ref-cite-types)
+(declare-function org-element-map "org-element")
+(declare-function org-element-property "org-element")
+(declare-function org-element-parse-buffer "org-element")
+(declare-function bibtex-completion-show-entry "bibtex-completion")
+(declare-function org-ref-possible-bibfiles "org-ref-core")
+(declare-function org-ref-parse-cite-path "org-ref-citation-links")
 
 (defun org-ref-insert-bibliography-link ()
   "Insert a bibliography link for the files used in this buffer."
@@ -177,6 +184,8 @@ Optional argument BACKEND is the export backend."
   (concat "nobibliography:"
 	  (completing-read "Bibliography file: " (org-ref-possible-bibfiles))))
 
+
+(defvar org-ref-default-citation-link)
 
 (defun org-ref-bibtex-store-link ()
   "Store a link from a bibtex file. Only supports the cite link.

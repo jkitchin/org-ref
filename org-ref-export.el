@@ -151,20 +151,22 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
   ;; For example: ch. 5, for example
   ;; would be label = ch., locator=5, ",for example" as suffix.
   (let* ((full-suffix (string-trim (or (plist-get ref :suffix) ""))) 
-	 (locator)
-	 location label locator suffix)
+	 locator
+	 label locator suffix)
 
     ;; org-cite is more sophisticated than this and would allow things like 5, 6
     ;; and 12. I am not sure about what all should be supported yet. I guess the
     ;; idea there is you use everything from the first to last number as the
     ;; locator, but that seems tricky, what about something like: 5, 6 and 12,
-    ;; because he had 3 books. 
+    ;; because he had 3 books. One solution might be some kind of delimiter,
+    ;; e.g. {5, 6 and 12}, because he had 3 books.
 
     (if (and (string-match
 	      (rx
 	       ;; optional label
 	       (group-n 1 (optional
-			   (regexp (regexp-opt (cl-loop for (abbrvs . full) in org-ref-csl-label-aliases
+			   (regexp (regexp-opt (cl-loop for (abbrvs . full)
+							in org-ref-csl-label-aliases
 							append (append abbrvs (list full)))))))
 	       (optional (one-or-more space))
 	       ;; number or numeric ranges
@@ -203,6 +205,7 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
 					       "citetitle*"
 					       "citeurl"))))))))
 
+(declare-function org-ref-find-bibliography "org-ref-core")
 
 (defun org-ref-process-buffer (backend)
   "Process the citations and bibliography in the org-buffer.
@@ -452,7 +455,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 		     body-only info))
 
 
-(defun org-ref-export-as-org (&optional async subtreep visible-only
+(defun org-ref-export-as-org (&optional _async subtreep visible-only
 					body-only info)
   "Export the buffer to an ORG buffer and open.
 We only make a buffer here to avoid overwriting the original file.
@@ -463,7 +466,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 
     (org-export-with-buffer-copy
      (org-ref-process-buffer 'org)
-     (setq export (org-export-as 'org))
+     (setq export (org-export-as 'org subtreep visible-only body-only info))
      (with-current-buffer (get-buffer-create export-buf)
        (erase-buffer)
        (org-mode)
@@ -471,13 +474,14 @@ VISIBLE-ONLY BODY-ONLY and INFO."
     (pop-to-buffer export-buf)))
 
 
-(defun org-ref-export-to-message (&optional async subtreep visible-only
+(defun org-ref-export-to-message (&optional _async subtreep visible-only
 					    body-only info)
   "Export to ascii and insert in an email message."
   (let* ((backend 'ascii)
 	 (content (org-export-with-buffer-copy
 		   (org-ref-process-buffer backend)
-		   (org-export-as backend))))
+		   (org-export-as backend subtreep visible-only
+				  body-only info))))
     (compose-mail)
     (message-goto-body)
     (insert content)
@@ -502,6 +506,63 @@ VISIBLE-ONLY BODY-ONLY and INFO."
   "Preprocess the buffer in BACKEND export"
   (org-ref-process-buffer backend))
 
+
+;; A hydra exporter with preprocessors
+(defhydradio org-ref ()
+  (natmove "natmove")
+  (citeproc "CSL citations")
+  (refproc "cross-references")
+  (acrossproc "Acronyms, glossary")
+  (idxproc "Index")
+  (bblproc "BBL citations"))
+
+
+(defun org-ref-export-from-hydra (&optional arg)
+  "Run the export dispatcher with the desired hooks selected in `org-ref-export/body'."
+  (interactive "P")
+
+  (when (and org-ref/citeproc org-ref/bblproc)
+    (error "You cannot use CSL and BBL at the same time."))
+  
+  (let ((org-export-before-parsing-hook org-export-before-parsing-hook))
+    (when org-ref/citeproc
+      (cl-pushnew 'org-ref-csl-preprocess-buffer org-export-before-parsing-hook))
+
+    (when org-ref/refproc
+      (cl-pushnew 'org-ref-refproc org-export-before-parsing-hook))
+
+    (when org-ref/acrossproc
+      (cl-pushnew 'org-ref-acrossproc org-export-before-parsing-hook))
+
+    (when org-ref/idxproc
+      (cl-pushnew 'org-ref-idxproc org-export-before-parsing-hook))
+
+    (when org-ref/bblproc
+      (unless (featurep 'org-ref-natbib-bbl-citeproc)
+	(require 'org-ref-natbib-bbl-citeproc))
+      (cl-pushnew 'org-ref-bbl-preprocess org-export-before-parsing-hook))
+    
+    ;; this goes last since it moves cites before they might get replaced.
+    (when org-ref/natmove
+      (cl-pushnew 'org-ref-cite-natmove org-export-before-parsing-hook))
+
+    (org-export-dispatch arg)))
+
+
+(defhydra org-ref-export (:color red)
+  "
+_C-n_: natmove % -15`org-ref/natmove       _C-c_: citeproc % -15`org-ref/citeproc^^^  _C-r_: refproc % -15`org-ref/refproc^^^
+_C-a_: acrossproc % -15`org-ref/acrossproc    _C-i_: idxproc % -15`org-ref/idxproc^^^   _C-b_: bblproc % -15`org-ref/bblproc^^^
+"
+  ("C-n" (org-ref/natmove) nil)
+  ("C-c" (org-ref/citeproc) nil)
+  ("C-r" (org-ref/refproc) nil)
+  ("C-a" (org-ref/acrossproc) nil)
+  ("C-i" (org-ref/idxproc) nil)
+  ("C-b" (org-ref/bblproc) nil)
+
+  ("e" org-ref-export-from-hydra "Export" :color blue)
+  ("q" nil "quit"))
 
 (provide 'org-ref-export)
 

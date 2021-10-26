@@ -67,6 +67,10 @@
 (require 's)
 (require 'doi-utils)
 
+(defvar bibtex-completion-bibliography)
+(declare-function bibtex-completion-show-entry "bibtex-completion")
+(declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function org-element-property "org-element")
 
 ;;* Custom variables
 (defgroup org-ref-bibtex nil
@@ -614,6 +618,11 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
       (re-search-backward bibtex-entry-head nil t (and (numberp n) n))
     (bibtex-beginning-of-entry)))
 
+(declare-function avy-with "avy")
+(declare-function avy--style-fn "avy")
+(declare-function avy-process "avy")
+(defvar avy-goto-typo)
+(defvar avy-style)
 
 ;;;###autoload
 (defun org-ref-bibtex-visible-entry ()
@@ -756,6 +765,10 @@ opposite function from that which is defined in
       'rename-file)))
 
 
+(defvar bibtex-completion-library-path)
+(declare-function bibtex-completion-find-pdf-in-library "bibtex-completion")
+
+
 ;;;###autoload
 (defun org-ref-bibtex-assoc-pdf-with-entry (&optional prefix)
   "Prompt for pdf associated with entry at point and rename it.
@@ -876,6 +889,9 @@ a directory. Optional PREFIX argument toggles between
   ("q" nil))
 
 
+(declare-function biblio-lookup "biblio")
+(declare-function arxiv-add-bibtex-entry "org-ref-arxiv")
+(declare-function doi-insert-bibtex "doi-utils")
 
 ;;** Hydra menu for new bibtex entries
 ;; A hydra for adding new bibtex entries.
@@ -913,6 +929,7 @@ a directory. Optional PREFIX argument toggles between
 
 
 ;;* Email a bibtex entry
+(declare-function bibtex-completion-find-pdf "bibtex-completion")
 
 ;;;###autoload
 (defun org-ref-email-bibtex-entry ()
@@ -994,6 +1011,7 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
 
 
 ;; * Extract bibtex blocks from an org-file
+
 ;;;###autoload
 (defun org-ref-extract-bibtex-blocks (bibfile)
   "Extract all bibtex blocks in buffer to BIBFILE.
@@ -1026,6 +1044,8 @@ will clobber the file."
 
 
 ;;** create text citations from a bibtex entry
+(declare-function bibtex-completion-apa-format-reference "bibtex-completion")
+(declare-function bibtex-completion-get-key-bibtex "bibtex-completion")
 
 (defun org-ref-bib-citation ()
   "From a bibtex entry, create and return a lightly formatted citation string."
@@ -1033,6 +1053,7 @@ will clobber the file."
 
 
 ;;** Open pdf in bibtex entry
+(declare-function bibtex-completion-open-pdf "bibtex-completion")
 ;;;###autoload
 (defun org-ref-open-bibtex-pdf ()
   "Open pdf for a bibtex entry, if it exists."
@@ -1041,6 +1062,8 @@ will clobber the file."
 
 
 ;;** Open notes from bibtex entry
+(declare-function bibtex-completion-edit-notes "bibtex-completion")
+
 ;;;###autoload
 (defun org-ref-open-bibtex-notes ()
   "From a bibtex entry, open the notes if they exist."
@@ -1049,6 +1072,8 @@ will clobber the file."
 
 
 ;;** Open bibtex entry in browser
+(declare-function bibtex-completion-open-url-or-doi "bibtex-completion")
+
 ;;;###autoload
 (defun org-ref-open-in-browser ()
   "Open the bibtex entry at point in a browser using the url field or doi field."
