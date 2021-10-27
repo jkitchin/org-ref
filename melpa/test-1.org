@@ -1,0 +1,67 @@
+
+#+latex_header: \usepackage{glossaries}
+#+latex_header: \makeglossaries
+
+
+cite:some-proceeding  cite:some-conference 
+
+cite:xu15_tunin_oxide_activ_throug_modif 
+
+citep:xu15_tunin_oxide_activ_throug_modif
+
+citep:badcite
+
+  10.1021/acscatal.5b01774
+
+10.1073/pnas.1517441113
+
+* Links that should work
+  cite:kitchin-2015-examp
+
+  [[cite:&xu15_relat_between_surfac_elect_chemic]]
+multiple cites: [[cite:,kitchin-2015-examp,xu15_relat_between_surfac_elect_chemic,xu15_tunin_oxide_activ_throug_modif]]
+
+
+Acronym entries: [[gls:lvm][LVM]] and another one [[gls:lvm][LVM]].
+
+gls:son   
+
+A  [[gls:computer][computer]] is good  for computing. Gls:computer is capitalized. We can also use a bunch of glspl:computer to make a cluster. Glspl:computer a re the wave of the future. They do not use up any glspl:tree.
+
+(or-next-glossary-link nil)
+
+ [[gls:tree][tree]]            fjdsa;fdsa
+
+Labels and refs: label:one
+
+label:two   ref:two
+
+ Multiply defined label:one
+
+ref:bad-label
+
+\printglossaries
+
+(org-ref-valid-keys)
+
+bibliographystyle:unsrt
+bibliography:test-1.bib
+
+
+#+name: acronyms
+| label | abbreviation | full form              |
+|-------+--------------+------------------------|
+| tla   | TLA          | three letter acronym   |
+
+
+
+#+name: glossary
+| label    | term     | definition             |
+|----------+----------+------------------------|
+| test     | test     | a test                 |
+| son      | son      | male                   |
+| naive    | naive    | lacking sophisticatio  |
+| tree     | tree     | a big, woody plant     |
+| computer | computer | a digital machine      |
+| lvm      | LVM      | logical volume manager |
+
