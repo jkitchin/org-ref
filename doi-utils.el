@@ -691,7 +691,7 @@ too. "
 	  (setq package-user-dir ,package-user-dir)
 	  (require 'package)
 	  (package-initialize)
-	  (setq load-path ,load-path)
+	  (setq load-path (list ,@load-path))
 	  (require 'doi-utils)
 	  ;; (load-file ,(locate-library "doi-utils"))
 	  (setq pdf-url (doi-utils-get-pdf-url ,doi))
