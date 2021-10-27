@@ -1149,6 +1149,27 @@ Here is an example use:
 	       (cl--set-buffer-substring (point) (org-element-property :begin cite) "")
 	       (insert punct)))))
 
+;; * Convert version 2 to version 3
+
+(defun org-ref-v2-cites-to-v3 ()
+  "Replace version 2 citation syntax with version 3 citation syntax"
+  (interactive)
+  (cl-loop for cite in (reverse (org-ref-get-cite-links))
+	   collect
+	   (let ((data (org-ref-parse-cite-path (org-element-property :path cite)))
+		 prefix-suffix)
+	     (when (org-element-property :contents-begin cite)
+	       (setq prefix-suffix (split-string (buffer-substring (org-element-property :contents-begin cite)
+								   (org-element-property :contents-end cite))
+						 "::"))
+	       (plist-put data :prefix (cl-first prefix-suffix))
+	       (plist-put data :suffix (cl-second prefix-suffix)))
+	     (plist-put data :version  3)
+	     (setf (buffer-substring (org-element-property :begin cite)
+				     (org-element-property :end cite))
+		   (format "[[%s:%s]]" (org-element-property :type cite)
+			   (org-ref-interpret-cite-data data))))))
+
 
 (provide 'org-ref-citation-links)
 
