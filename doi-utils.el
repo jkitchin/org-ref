@@ -693,22 +693,23 @@ too. "
 	  (package-initialize)
 	  (setq load-path (list ,@load-path))
 	  (require 'doi-utils)
-	  ;; (load-file ,(locate-library "doi-utils"))
+
 	  (setq pdf-url (doi-utils-get-pdf-url ,doi))
+	  (when pdf-url
+	    (url-copy-file pdf-url ,pdf-file t)
 
-	  (url-copy-file pdf-url ,pdf-file t)
-
-	  (let* ((header (with-temp-buffer
-			   (set-buffer-multibyte nil)
-			   (insert-file-contents-literally ,pdf-file nil 0 5)
-			   (buffer-string)))
-		 (valid (string-equal (encode-coding-string header 'utf-8) "%PDF-")))
-	    (if valid
-		(format "%s downloaded" ,pdf-file)
-	      (delete-file ,pdf-file)
-	      (require 'browse-url)
-	      (browse-url ,pdf-url)
-	      (message "Invalid pdf (file deleted). Header = %s" header))))
+	    (let* ((header (with-temp-buffer
+			     (set-buffer-multibyte nil)
+			     (insert-file-contents-literally ,pdf-file nil 0 5)
+			     (buffer-string)))
+		   (valid (and (stringp header)
+			       (string-equal (encode-coding-string header 'utf-8) "%PDF-"))))
+	      (if valid
+		  (format "%s downloaded" ,pdf-file)
+		(delete-file ,pdf-file)
+		(require 'browse-url)
+		(browse-url pdf-url)
+		(message "Invalid pdf (file deleted). Header = %s" header)))))
        `(lambda (result)
 	  (message "doi-utils-async-download-pdf: %s"  result))))))
 
