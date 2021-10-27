@@ -707,27 +707,64 @@ not loaded.
   )
 
 (ert-deftest bad-cite-1a ()
-  (should (= 0 (length (let ((bibtex-completion-bibliography "test/test-1.bib"))
+  (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
+							      "test/test-1.bib"
+							      (file-name-directory (locate-library "org-ref")))))
 			 (org-test-with-temp-text
 			     "cite:&xu-2015-tunin-oxide"
 			   (org-ref-bad-cite-candidates)))))))
 
 (ert-deftest bad-cite-1b ()
-  (should (= 0 (length (let ((bibtex-completion-bibliography "test/test-1.bib"))
+  (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
+							      "test/test-1.bib"
+							      (file-name-directory (locate-library "org-ref")))))
 			 (org-test-with-temp-text
 			     "cite:xu-2015-tunin-oxide"
 			   (org-ref-bad-cite-candidates))))))
   )
 
 (ert-deftest bad-cite-1c ()
-  (should (= 0 (length (let ((bibtex-completion-bibliography '("test/test-1.bib")))
+  (should (= 0 (length (let ((bibtex-completion-bibliography (list (expand-file-name
+								    "test/test-1.bib"
+								    (file-name-directory (locate-library "org-ref"))))))
 			 (org-test-with-temp-text
 			     "cite:&xu-2015-tunin-oxide"
 			   (org-ref-bad-cite-candidates)))))))
 
 (ert-deftest bad-cite-1d ()
-  (should (= 0 (length (let ((bibtex-completion-bibliography '("test/test-1.bib")))
+  (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
+							      "test/test-1.bib"
+							      (file-name-directory (locate-library "org-ref")))))
 			 (org-test-with-temp-text
 			     "cite:xu-2015-tunin-oxide"
-			   (org-ref-bad-cite-candidates)))))))
+			   (org-ref-bad-cite-candidates))))))
+  )
+
+(ert-deftest v2-1 ()
+  (should (string= "[[cite:&xu-2015-tunin-oxide]]"
+		   (car (org-test-with-temp-text
+			    "cite:xu-2015-tunin-oxide"
+			  (org-ref-v2-cites-to-v3)))))
+  )
+
+(ert-deftest v2-2 ()
+  (should (string= "[[citeauthor:&xu-2015-tunin-oxide]]"
+		   (car (org-test-with-temp-text
+			    "citeauthor:xu-2015-tunin-oxide"
+			  (org-ref-v2-cites-to-v3)))))
+  )
+
+(ert-deftest v2-3 ()
+  (should (string= "[[citep:prenote;&xu-2015-tunin-oxide;postnote]]"
+		   (car (org-test-with-temp-text
+			    "[[citep:xu-2015-tunin-oxide][prenote::postnote]]"
+			  (org-ref-v2-cites-to-v3)))))
+  )
+
+(ert-deftest v2-4 ()
+  (should (string= "[[citep:&key1;&key2]]"
+		   (car (org-test-with-temp-text
+			    "citep:key1,key2"
+			  (org-ref-v2-cites-to-v3)))))
+  )
 
