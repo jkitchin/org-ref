@@ -63,15 +63,17 @@ Argument BACKEND is the export backend."
    ((eq backend 'latex)
     (format "%s{%s}"
 	    cmd
-	    (replace-regexp-in-string
-	     "\\.bib" ""
-	     (mapconcat
-	      'identity
-	      (mapcar
-	       (lambda (f)
-		 (funcall org-ref-latex-bib-resolve-func (org-ref-get-bibfile-path f)))
-	       (split-string bibfiles ","))
-	      ","))))))
+	    (if (not (string= "" bibfiles)) 
+		(replace-regexp-in-string
+		 "\\.bib" ""
+		 (mapconcat
+		  'identity
+		  (mapcar
+		   (lambda (f)
+		     (funcall org-ref-latex-bib-resolve-func (org-ref-get-bibfile-path f)))
+		   (split-string bibfiles ","))
+		  ","))
+	      "")))))
 
 
 (defun org-ref-bibliography-activate (start end path _bracketp)
@@ -220,6 +222,16 @@ creates a cite link."
 			 :activate-func #'org-ref-bibliography-activate
 			 :follow #'org-ref-bibliography*-follow
 			 :export (apply-partially 'org-ref-bibliography*-export "\\nobibliography")
+			 :face 'org-link)
+
+
+(org-link-set-parameters "nobibliography*"
+			 :complete #'org-ref-nobibliography-complete
+			 :store #'org-ref-bibtex-store-link
+			 :help-echo "No bibliography link"
+			 :activate-func #'org-ref-bibliography-activate
+			 :follow #'org-ref-bibliography*-follow
+			 :export (apply-partially 'org-ref-bibliography*-export "\\nobibliography*")
 			 :face 'org-link)
 
 

@@ -722,6 +722,16 @@ Use with apply-partially."
 	  :activate-func #'org-ref-cite-activate))
 
 
+(org-link-set-parameters
+ "bibentry" 
+ :complete (apply-partially #'org-ref-cite-link-complete "bibentry")
+ :follow #'org-ref-cite-follow
+ :face 'org-ref-cite-face
+ :help-echo #'org-ref-cite-tooltip
+ :export (apply-partially 'org-ref-cite-export  "bibentry")
+ :activate-func #'org-ref-cite-activate)
+
+
 ;; * Cite link utilities
 
 ;;;###autoload
