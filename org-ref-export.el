@@ -41,6 +41,8 @@
 ;;
 
 ;;; Code:
+(eval-when-compile
+  (require 'hydra))
 
 (defvar hfy-user-sheet-assoc)  		; to quiet compiler
 
