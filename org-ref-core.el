@@ -196,7 +196,9 @@ set in `bibtex-completion-bibliography'"
 		     (and (not (string-match "#" f))
 			  (f-ext? f "bib"))))
     ;; and last in the default bibliography
-    bibtex-completion-bibliography)))
+    (if (stringp bibtex-completion-bibliography)
+	(list bibtex-completion-bibliography)
+      bibtex-completion-bibliography))))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
