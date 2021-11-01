@@ -145,35 +145,35 @@ set in `bibtex-completion-bibliography'"
   (let ((org-ref-bibliography-files ()))
     (catch 'result
       (save-excursion
-	(org-with-wide-buffer
-         (goto-char (point-min))
-	 ;; This just searches for these strings, and then checks if it
-	 ;; is on a link. This is faster than parsing the org-file when
-	 ;; it gets large.
-         ;; look for org-ref bibliography
-         (while (re-search-forward "\\(no\\)?bibliography:" nil t)
-	   (let ((link (org-element-context)))
-	     (when (and (eq (car link) 'link)
-			(member (org-element-property :type link) '("bibliography" "nobibliography")))
-	       (setq org-ref-bibliography-files
-		     (mapcar 'org-ref-get-bibfile-path
-			     (mapcar 'string-trim (split-string
-						   (org-element-property :path link)
-						   ","))))
-	       (throw 'result (nreverse (delete-dups org-ref-bibliography-files))))))
+	(when (eq major-mode 'org-mode)
+	  (org-with-wide-buffer
+           (goto-char (point-min))
+	   ;; This just searches for these strings, and then checks if it
+	   ;; is on a link. This is faster than parsing the org-file when
+	   ;; it gets large.
+           ;; look for org-ref bibliography
+           (while (re-search-forward "\\(no\\)?bibliography:" nil t)
+	     (let ((link (org-element-context)))
+	       (when (and (eq (car link) 'link)
+			  (member (org-element-property :type link) '("bibliography" "nobibliography")))
+		 (setq org-ref-bibliography-files
+		       (mapcar 'org-ref-get-bibfile-path
+			       (mapcar 'string-trim (split-string
+						     (org-element-property :path link)
+						     ","))))
+		 (throw 'result (nreverse (delete-dups org-ref-bibliography-files))))))
 
-         (goto-char (point-min))
-         (while (re-search-forward "\\\\addbibresource{\\(.*\\)}" nil t)
-           (push (match-string 1) org-ref-bibliography-files))
+           (goto-char (point-min))
+           (while (re-search-forward "\\\\addbibresource{\\(.*\\)}" nil t)
+             (push (match-string 1) org-ref-bibliography-files))
 
-         (when org-ref-bibliography-files
-           (throw 'result (nreverse (delete-dups (mapcar 'org-ref-get-bibfile-path org-ref-bibliography-files)))))
-
-         ;; we did not find anything. use defaults. Make sure we have a list in
-         ;; case it is a single string. 
-	 (throw 'result (if (listp bibtex-completion-bibliography)
-			    bibtex-completion-bibliography
-			  (list bibtex-completion-bibliography))))))))
+           (when org-ref-bibliography-files
+             (throw 'result (nreverse (delete-dups (mapcar 'org-ref-get-bibfile-path org-ref-bibliography-files)))))))
+	;; we did not find anything. use defaults. Make sure we have a list in
+        ;; case it is a single string. 
+	(throw 'result (if (listp bibtex-completion-bibliography)
+			   bibtex-completion-bibliography
+			 (list bibtex-completion-bibliography)))))))
 
 
 (defun org-ref-key-in-file-p (key filename)
