@@ -20,5 +20,4 @@ jobs:
 
     - uses: actions/checkout@v2
     - name: Setup org-ref from Melpa
-      run: ls
       run: make -f melpa/makefile ivy-melpa
