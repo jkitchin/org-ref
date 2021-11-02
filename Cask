@@ -14,5 +14,9 @@
  (depends-on "undercover")
  (depends-on "citeproc")
  (depends-on "bibtex-completion")
+ (depends-on "helm-bibtex")
+ (depends-on "ivy-bibtex")
+ (depends-on "avy")
+ (depends-on "pdf-tools")	
  (depends-on "hydra"))
 
