@@ -66,6 +66,7 @@
 (require 'message)
 (require 's)
 (require 'doi-utils)
+(require 'avy)
 
 (defvar bibtex-completion-bibliography)
 (declare-function bibtex-completion-show-entry "bibtex-completion")
@@ -618,10 +619,6 @@ N is a prefix argument.  If it is numeric, jump that many entries back."
       (re-search-backward bibtex-entry-head nil t (and (numberp n) n))
     (bibtex-beginning-of-entry)))
 
-(declare-function avy-with "avy")
-(declare-function avy--style-fn "avy")
-(declare-function avy-process "avy")
-(defvar avy-style)
 
 ;;;###autoload
 (defun org-ref-bibtex-visible-entry ()

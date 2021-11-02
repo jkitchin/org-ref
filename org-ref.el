@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jkitchin/org-ref
 ;; Version: 3.0
 ;; Keywords: org-mode, cite, ref, label
-;; Package-Requires: ((dash "0") (s "0") (f "0") (htmlize "0") (hydra "0") (parsebib "0") (bibtex-completion "0") (citeproc "0"))
+;; Package-Requires: ((dash "0") (s "0") (f "0") (htmlize "0") (hydra "0") (avy "0") (parsebib "0") (bibtex-completion "0") (citeproc "0"))
 ;; This file is not currently part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or
