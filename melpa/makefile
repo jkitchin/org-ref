@@ -17,4 +17,6 @@ helm:
 	${EMACS} -q -Q -l init-helm.el test-1.org
 
 ivy-melpa:
-	${EMACS} --batch -l init-ivy.el
+	pwd
+	ls
+	${EMACS} --batch -l melpa/init-ivy.el
