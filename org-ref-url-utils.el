@@ -47,6 +47,8 @@
 (declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
 (declare-function 'org-ref-find-bibliography "org-ref-core.el")
 
+(declare-function dnd-handle-one-url "dnd")
+(declare-function dnd--unescape-uri "dnd")
 
 (require 'doi-utils)
 (require 'f)
