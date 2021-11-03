@@ -19,4 +19,5 @@ helm:
 .PHONY: melpa
 
 melpa:
+	mkdir /home/runner/.emacs.d
 	${EMACS} --batch -l melpa/init-melpa.el
