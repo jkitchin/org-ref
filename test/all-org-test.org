@@ -111,6 +111,8 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
+
 #+name: or-key-file-p-nil
 #+BEGIN_SRC emacs-lisp :test
 "Check `org-ref-key-in-file-p' for non-existent key"
@@ -149,6 +151,8 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
+
 #+name: swap-1
 #+BEGIN_SRC emacs-lisp :test
 "org swap test"
@@ -160,6 +164,8 @@ Run this to run tests and tangle the results for CI.
 
 #+RESULTS: swap-1
 : t
+
+
 
 
 
@@ -229,6 +235,8 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
+
 * Get bibliography
 
 
@@ -253,6 +261,8 @@ Run this to run tests and tangle the results for CI.
 
 #+RESULTS: orfb-3
 : t
+
+
 
 
 
@@ -336,6 +346,8 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
+
 #+name: unique-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -352,6 +364,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: unique-keys
 : t
+
+
 
 
 
@@ -423,6 +437,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 * Bibtex tests
 
 #+name: short-titles
@@ -465,6 +481,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: long-titles
 #+BEGIN_SRC emacs-lisp :test
 (org-ref-bibtex-generate-longtitles)
@@ -477,6 +495,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: long-titles
 : t
+
+
 
 
 
@@ -568,6 +588,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: title-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -595,6 +617,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-2
 : t
+
+
 
 
 
@@ -684,6 +708,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: title-case-4
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -706,6 +732,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-4
 : t
+
+
 
 
 
@@ -810,6 +838,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: sentence-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -837,6 +867,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: sentence-case-2
 : t
+
+
 
 
 
@@ -896,6 +928,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: stringify
 : t
+
+
 
 
 
@@ -1001,6 +1035,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: prev-entry-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1046,6 +1082,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: prev-entry-1
 : t
+
+
 
 
 
@@ -1171,6 +1209,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: set-bibtex-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1200,6 +1240,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: set-bibtex-keys
 : t
+
+
 
 
 
@@ -1313,6 +1355,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: clean-year-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1380,6 +1424,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: clean-&
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1408,6 +1454,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-&
 : t
+
+
 
 
 
@@ -1515,6 +1563,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: clean-pages-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1583,6 +1633,8 @@ bibliography:tests/test-1.bib
 
 
 
+
+
 #+name: clean-doi-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1612,6 +1664,8 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-doi-1
 : t
+
+
 
 
 
@@ -1722,6 +1776,8 @@ the in the past.
 
 
 
+
+
 #+name: bib-1a
 #+BEGIN_SRC emacs-lisp :test
 "Test finding an entry from an existing file."
@@ -1778,6 +1834,8 @@ the in the past.
 
 
 
+
+
 #+name: bib-2
 #+BEGIN_SRC emacs-lisp :test
 "Test for null entry"
@@ -1793,6 +1851,8 @@ the in the past.
 
 #+RESULTS: bib-2
 : t
+
+
 
 
 
@@ -1898,6 +1958,8 @@ label:four
 
 
 
+
+
 #+name: bad-file-link
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1919,6 +1981,8 @@ not loaded.
 
 #+RESULTS: bad-file-link
 : t
+
+
 
 
 
@@ -1959,6 +2023,8 @@ not loaded.
 
 
 
+
+
 #+name: cite-export-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1984,6 +2050,8 @@ not loaded.
 
 
 
+
+
 #+name: cite-export-3
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1995,6 +2063,8 @@ not loaded.
 
 #+RESULTS: cite-export-3
 : t
+
+
 
 
 
@@ -2035,6 +2105,8 @@ not loaded.
 
 
 
+
+
 ** ref
 #+name: ref-export-1
 #+BEGIN_SRC emacs-lisp :test
@@ -2047,6 +2119,8 @@ not loaded.
 
 #+RESULTS: ref-export-1
 : t
+
+
 
 
 
@@ -2083,6 +2157,8 @@ not loaded.
 
 
 
+
+
 #+name: curly-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2095,6 +2171,8 @@ not loaded.
 
 #+RESULTS: curly-2
 : t
+
+
 
 
 
@@ -2119,6 +2197,8 @@ not loaded.
 
 #+RESULTS: bib-string
 : t
+
+
 
 
 
@@ -2158,6 +2238,8 @@ not loaded.
 
 
 
+
+
 #+name: bad-cite-1
 #+BEGIN_SRC emacs-lisp :test
 (should (= 1 (length (let ((bibtex-completion-bibliography "test-1.bib"))
@@ -2169,6 +2251,8 @@ not loaded.
 
 #+RESULTS: bad-cite-1
 : t
+
+
 
 
 
@@ -2200,6 +2284,8 @@ not loaded.
 
 
 
+
+
 #+name: bad-cite-1b
 #+BEGIN_SRC emacs-lisp :test
 (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
@@ -2213,6 +2299,8 @@ not loaded.
 
 #+RESULTS: bad-cite-1b
 : t
+
+
 
 
 
@@ -2241,6 +2329,8 @@ not loaded.
 
 
 
+
+
 #+name: bad-cite-1d
 #+BEGIN_SRC emacs-lisp :test
 (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
@@ -2254,6 +2344,8 @@ not loaded.
 
 #+RESULTS: bad-cite-1d
 : t
+
+
 
 
 
@@ -2275,6 +2367,8 @@ not loaded.
 #+RESULTS: v2-1
 : t
 
+
+
 t
 
 
@@ -2290,6 +2384,8 @@ t
 #+RESULTS: v2-2
 : t
 
+
+
 t
 
 
@@ -2304,6 +2400,8 @@ t
 
 #+RESULTS: v2-3
 : t
+
+
 
 t
 
@@ -2326,12 +2424,17 @@ t
 #+name: tooltip-1
 #+BEGIN_SRC emacs-lisp :test 
 (should
- (string= " Abild-Pedersen, F., Greeley, J., Studt, F., Rossmeisl, J., Munter, T. R., Moses, P. G., Sk\\’ulason, E., … (2007). Scaling properties of adsorption energies for hydrogen-containing molecules on transition-metal surfaces. Physical Review Letters, 99(1), 4–7. http://dx.doi.org/10.1103/PhysRevLett.99.016105"
+ (string= " Kitchin, J. R. (2021). Simple title. The Journal of Reproducible Science, 1(1), 1."
 	  (with-temp-buffer
 	    (org-mode)
 	    (insert
-	     "[[cite:&Abild-Pedersen2007]]
-bibliography:test-1.bib")
+	     (format
+	     "[[cite:&jk-2021]]
+bibliography:%s"
+	     (expand-file-name
+	       "test/test-1.bib"
+	       (file-name-directory
+		(locate-library "org-ref")))))
 	    (font-lock-fontify-buffer)
 	    (goto-char 8)
 	    (display-local-help))))
@@ -2343,15 +2446,22 @@ bibliography:test-1.bib")
 
 
 
+
+
 #+name: tooltip-2
 #+BEGIN_SRC emacs-lisp :test 
 (should
- (string= " Abild-Pedersen, F., Greeley, J., Studt, F., Rossmeisl, J., Munter, T. R., Moses, P. G., Sk\\'ulason, E., … (2007). Scaling properties of adsorption energies for hydrogen-containing molecules on transition-metal surfaces. Physical Review Letters, 99(1), 4–7. http://dx.doi.org/10.1103/PhysRevLett.99.016105"
+ (string= " Kitchin, J. R. (2021). Simple title. The Journal of Reproducible Science, 1(1), 1."
 	  (with-temp-buffer
 	    (org-mode)
 	    (insert
-	     "[[cite:&Abild-Pedersen2007]]
-bibliography:test-1.bib")
+	     (format
+	      "[[cite:&jk-2021]]
+bibliography:%s"
+	      (expand-file-name
+	       "test/test-1.bib"
+	       (file-name-directory
+		(locate-library "org-ref")))))
 	    (font-lock-fontify-buffer)
 	    (goto-char 8)
 	    (org-no-properties (org-ref-cite-tooltip (selected-window) (selected-frame) 8)))))
@@ -2359,5 +2469,7 @@ bibliography:test-1.bib")
 
 #+RESULTS: tooltip-2
 : t
+
+
 
 

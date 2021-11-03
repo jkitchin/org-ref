@@ -770,24 +770,34 @@ not loaded.
 
 (ert-deftest tooltip-1 ()
   (should
-   (string= " Abild-Pedersen, F., Greeley, J., Studt, F., Rossmeisl, J., Munter, T. R., Moses, P. G., Sk\\’ulason, E., … (2007). Scaling properties of adsorption energies for hydrogen-containing molecules on transition-metal surfaces. Physical Review Letters, 99(1), 4–7. http://dx.doi.org/10.1103/PhysRevLett.99.016105"
+   (string= " Kitchin, J. R. (2021). Simple title. The Journal of Reproducible Science, 1(1), 1."
 	    (with-temp-buffer
 	      (org-mode)
 	      (insert
-	       "[[cite:&Abild-Pedersen2007]]
-bibliography:test-1.bib")
+	       (format
+		"[[cite:&jk-2021]]
+bibliography:%s"
+		(expand-file-name
+		 "test/test-1.bib"
+		 (file-name-directory
+		  (locate-library "org-ref")))))
 	      (font-lock-fontify-buffer)
 	      (goto-char 8)
 	      (display-local-help)))))
 
 (ert-deftest tooltip-2 ()
   (should
-   (string= " Abild-Pedersen, F., Greeley, J., Studt, F., Rossmeisl, J., Munter, T. R., Moses, P. G., Sk\\'ulason, E., … (2007). Scaling properties of adsorption energies for hydrogen-containing molecules on transition-metal surfaces. Physical Review Letters, 99(1), 4–7. http://dx.doi.org/10.1103/PhysRevLett.99.016105"
+   (string= " Kitchin, J. R. (2021). Simple title. The Journal of Reproducible Science, 1(1), 1."
 	    (with-temp-buffer
 	      (org-mode)
 	      (insert
-	       "[[cite:&Abild-Pedersen2007]]
-bibliography:test-1.bib")
+	       (format
+		"[[cite:&jk-2021]]
+bibliography:%s"
+		(expand-file-name
+		 "test/test-1.bib"
+		 (file-name-directory
+		  (locate-library "org-ref")))))
 	      (font-lock-fontify-buffer)
 	      (goto-char 8)
 	      (org-no-properties (org-ref-cite-tooltip (selected-window) (selected-frame) 8))))))
