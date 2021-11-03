@@ -16,7 +16,7 @@ ivy29:
 helm:
 	${EMACS} -q -Q -l init-helm.el test-1.org
 
+.PHONY: melpa
+
 melpa:
-	pwd
-	ls
 	${EMACS} --batch -l melpa/init-melpa.el
