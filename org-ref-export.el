@@ -245,7 +245,8 @@ BACKEND is the org export backend."
 		 (t
 		  (error "%s not found" style)))
 		;; item-getter
-		(citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
+		;; (citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
+		(citeproc-hash-itemgetter-from-any (org-ref-find-bibliography))
 		;; locale getter
 		(citeproc-locale-getter-from-dir (cond
 						  ((boundp 'org-cite-csl-locales-dir)
