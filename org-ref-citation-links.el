@@ -633,7 +633,11 @@ Use with apply-partially."
 				      ((plist-get (car (last references)) :suffix)
 				       (format "[%s]" (string-trim (plist-get (car (last references)) :suffix))))
 				      (t
-				       ""))))
+				       ;; You need an empty bracket, at least
+				       ;; for biblatex commands. With just one
+				       ;; set of brackets it is interpreted as a
+				       ;; suffix.
+				       "[]"))))
 		      ("keys" . ,(string-join keys ","))))))))))
 
 
