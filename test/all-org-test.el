@@ -802,3 +802,20 @@ bibliography:%s"
 	      (goto-char 8)
 	      (org-no-properties (org-ref-cite-tooltip (selected-window) (selected-frame) 8))))))
 
+(ert-deftest key-cursor ()
+  (should
+   (string= "jk-2021"
+	    (with-temp-buffer
+	      (org-mode)
+	      (insert
+	       (format
+		"[[cite:&jk-2021]]
+bibliography:%s"
+		(expand-file-name
+		 "test/test-1.bib"
+		 (file-name-directory
+		  (locate-library "org-ref")))))
+	      (font-lock-fontify-buffer)
+	      (goto-char 8)
+	      (org-ref-get-bibtex-key-under-cursor)))))
+
