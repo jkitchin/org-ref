@@ -50,6 +50,7 @@
 
 (require 'hydra)
 (require 'xref)
+(eval-when-compile (require 'subr-x))
 
 (defgroup org-ref-faces nil
   "A group for faces in `org-ref'."
