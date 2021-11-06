@@ -499,6 +499,7 @@ PATH has the citations in it."
   ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
   ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
   ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
+  ("P" org-ref-edit-pre-post-notes "Edit pre/suffix" :column "Edit")
 
   ;; Navigation
   ("[" org-ref-previous-key "Previous key" :column "Navigation" :color red)
@@ -799,6 +800,77 @@ Use with apply-partially."
 	  (re-search-forward link-string)
 	  (replace-match (org-ref-interpret-cite-data data)))
 	(goto-char cp)))))
+
+
+;;;###autoload
+(defun org-ref-edit-pre-post-notes (&optional common)
+  "Edit the pre/post notes at point.
+
+if you are not on a key, or with optional prefix
+arg COMMON, edit the common prefixes instead."
+  (interactive "P")
+  ;; find out what the point is on.
+  (let* ((key (get-text-property (point) 'cite-key))
+	 (cp (point))
+	 (cite (org-element-context))
+	 (type (org-element-property :type cite))
+	 (data (org-ref-parse-cite-path (org-element-property :path cite)))
+	 prefix suffix
+	 (delta 0))
+    
+    (if (or (null key) common)
+	(progn
+	  (setq prefix (read-string "prenote: " (plist-get data :prefix))
+		suffix (read-string "postnote: " (plist-get data :suffix))
+		delta (- (length (plist-get data :prefix)) (length prefix)))
+
+	  (plist-put data :prefix (if (string= "" prefix)
+				      nil prefix))
+	  
+	  (plist-put data :suffix (if (string= "" suffix)
+				      nil suffix)))
+
+      ;; On a key
+      (let ((index (seq-position (plist-get data :references)
+				 key
+				 (lambda (el1 key-at-point)
+				   (string= key-at-point (plist-get el1 :key))))))
+	;; Pad with spaces after prefix and before suffix
+	(setq prefix (concat 
+		      (read-string "prenote: "
+				   (string-trim
+				    (plist-get
+				     (nth index (plist-get data :references))
+				     :prefix)))
+		      " ")
+	      suffix (concat " "
+			     (read-string "postnote: "
+					  (string-trim
+					   (plist-get
+					    (nth index (plist-get data :references))
+					    :suffix))))
+	      delta (- (length (plist-get
+				(nth index (plist-get data :references))
+				:prefix))
+		       (length prefix)))
+	(plist-put
+	 (nth index (plist-get data :references))
+	 :prefix (if (string= "" prefix)
+		     nil prefix))
+	
+	(plist-put
+	 (nth index (plist-get data :references))
+	 :suffix (if (string= "" suffix)
+		     nil suffix))))
+    
+    
+    (setf (buffer-substring (org-element-property :begin cite) (org-element-property :end cite))
+	  (format "[[%s:%s]]" type (org-ref-interpret-cite-data data)))
+
+    ;; This doesn't exactly save the point. I need a fancier calculation for
+    ;; that I think that accounts for the change due to the prefix change. e.g.
+    ;; you might add or subtract from the prefix.
+    (goto-char (- cp delta))))
 
 
 (declare-function org-element-create "org-element")
