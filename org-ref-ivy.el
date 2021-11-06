@@ -54,6 +54,10 @@
 		   " "
 		   (format "cite:&%s" (cdr (assoc "=key=" candidate)))))
      "Insert org-heading")
+    ("m" (lambda (candidate)
+	   (insert (bibtex-completion-apa-format-reference
+		    (cdr (assoc "=key=" candidate)))))
+     "Insert formatted citation")
     ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options"))
   "Alternate actions to do instead of inserting."
   :type '(list (repeat (string function string)))
