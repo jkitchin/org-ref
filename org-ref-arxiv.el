@@ -155,8 +155,8 @@ Returns a formatted BibTeX entry."
   (let* ((the-current-kill (ignore-errors (current-kill 0 t)))  ;; nil if empty kill ring
          (arxiv-url-prefix-regexp "^https?://arxiv\\.org/\\(pdf\\|abs\\|format\\)/")
          (arxiv-cite-prefix-regexp "^\\(arXiv\\|arxiv\\):")
-         (arxiv-id-old-regexp "[a-z-]+\\(\\.[A-Z]\\{2\\}\\)?/[0-9]\\{5,7\\}$") ; Ex: math.GT/0309136
-         (arxiv-id-new-regexp "[0-9]\\{4\\}[.][0-9]\\{4,5\\}\\(v[0-9]+\\)?$") ; Ex: 1304.4404v2
+         (arxiv-id-old-regexp "[a-z-]+\\(\\.[A-Z]\\{2\\}\\)?/[0-9]\\{5,7\\}") ; Ex: math.GT/0309136
+         (arxiv-id-new-regexp "[0-9]\\{4\\}[.][0-9]\\{4,5\\}\\(v[0-9]+\\)?") ; Ex: 1304.4404v2
          (arxiv-id-regexp (concat "\\(" arxiv-id-old-regexp "\\|" arxiv-id-new-regexp "\\)")))
     (cond
      (;; make sure current-kill has something in it
@@ -171,13 +171,18 @@ Returns a formatted BibTeX entry."
      (;; check if current-kill looks like an arxiv cite
       ;; if so, remove the prefix and return
       ;; Ex: arXiv:1304.4404v2 --> 1304.4404v2
-      (s-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp) the-current-kill)
+      (s-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp "$") the-current-kill)
       (replace-regexp-in-string arxiv-cite-prefix-regexp "" the-current-kill))
      (;; check if current-kill looks like an arxiv url
       ;; if so, remove the url prefix and return
-      ;; Ex: https://arxiv.org/pdf/1304.4404 --> 1304.4404
-      (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp) the-current-kill)
+      ;; Ex: https://arxiv.org/abs/1304.4404 --> 1304.4404
+      (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp "$") the-current-kill)
       (replace-regexp-in-string arxiv-url-prefix-regexp "" the-current-kill))
+     (;; check if current-kill looks like an arxiv PDF url
+      ;; if so, remove the url prefix, the .pdf suffix, and return
+      ;; Ex: https://arxiv.org/pdf/1304.4404.pdf --> 1304.4404
+      (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp "\\.pdf$") the-current-kill)
+      (replace-regexp-in-string arxiv-url-prefix-regexp "" (substring the-current-kill 0 (- (length the-current-kill) 4))))
      ;; otherwise, return nil
      (t
       nil))))
