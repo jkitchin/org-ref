@@ -232,8 +232,7 @@ Returns a formatted BibTeX entry."
                    (match-string 1))))
     (url-copy-file pdf-url pdf)
     ;; now check if we got a pdf
-    (if (org-ref-pdf-p pdf)
-        (org-open-file pdf)
+    (unless (org-ref-pdf-p pdf)
       (delete-file pdf)
       (message "Error downloading arxiv pdf %s" pdf-url))))
 
