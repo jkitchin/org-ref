@@ -49,6 +49,7 @@
 
 (defvar org-ref-ref-label-regexps
   (list
+   (concat ":ID:\\s-+" org-ref-label-re "\\_>")
    ;; CUSTOM_ID in a heading
    (concat ":CUSTOM_ID:\\s-+" org-ref-label-re "\\_>")
    ;; #+name
@@ -122,12 +123,6 @@ A label link
 A setting in lstset
 
 See `org-ref-ref-label-regexps' for the patterns that find these.
-
-I am not putting label links here for now to keep it totally
-separate from `org-ref'. I think that the NAME keyword is
-adequate for figures and tables, and CUSTOM_ID is ok for
-headings. You can always fall back on the \\label syntax if you
-need to.
 
 Returns a list of cons cells (label . context).
 
