@@ -209,7 +209,7 @@ This is mostly for multicites and natbib."
    org-ref-biblatex-types
    org-ref-biblatex-multitypes
    ;; for the bibentry package
-   '("bibentry" "Insert the bibtex entry"))
+   '(("bibentry" "Insert the bibtex entry")))
   "List of citation types known in `org-ref'."
   :type '(repeat :tag "List of citation types (type description)" (list string string))
   :group 'org-ref)
