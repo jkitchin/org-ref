@@ -347,18 +347,43 @@ to a path string."
 (defvar bibtex-completion-bibliography)
 (defvar bibtex-completion-display-formats-internal)
 
+;; (defun org-ref-valid-keys ()
+;;   "Return a list of valid bibtex keys for this buffer.
+;; This is used a lot in `org-ref-cite-activate' so it needs to be
+;; fast, but also up to date."
+;;   ;; this seems to be needed, but we don't want to do this every time
+;;   (unless bibtex-completion-display-formats-internal
+;;     (bibtex-completion-init))
+
+;;   (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+;;     (cl-loop for entry in (bibtex-completion-candidates)
+;; 	     collect
+;; 	     (cdr (assoc "=key=" (cdr entry))))))
+
+
 (defun org-ref-valid-keys ()
   "Return a list of valid bibtex keys for this buffer.
 This is used a lot in `org-ref-cite-activate' so it needs to be
 fast, but also up to date."
+  
   ;; this seems to be needed, but we don't want to do this every time
   (unless bibtex-completion-display-formats-internal
     (bibtex-completion-init))
-  
-  (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-    (cl-loop for entry in (bibtex-completion-candidates)
-	     collect
-	     (cdr (assoc "=key=" (cdr entry))))))
+
+  (let ((files (org-ref-find-bibliography)))
+    (if (seq-every-p 'identity (cl-loop for file in files
+					collect (assoc file bibtex-completion-cache)))
+	;; We have a cache for each file
+	(cl-loop for entry in 
+		 (cl-loop
+		  for file in files
+		  append (cddr (assoc file bibtex-completion-cache)))
+		 collect (cdr (assoc "=key=" (cdr entry))))
+      ;; you need to get a cache
+      (let ((bibtex-completion-bibliography files))
+	(cl-loop for entry in (bibtex-completion-candidates)
+		 collect
+		 (cdr (assoc "=key=" (cdr entry))))))))
 
 
 (defun org-ref-cite-activate (start end path _bracketp)
