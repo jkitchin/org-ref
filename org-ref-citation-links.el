@@ -654,17 +654,24 @@ Use with apply-partially."
 					 ""))
 				     ;; Multiple references
 				     (cond
+				      ;; this is a common suffix
 				      ((plist-get cite :suffix)
 				       (format "[%s]" (string-trim (plist-get cite :suffix))))
 				      ;; last reference has a suffix
 				      ((plist-get (car (last references)) :suffix)
 				       (format "[%s]" (string-trim (plist-get (car (last references)) :suffix))))
 				      (t
-				       ;; You need an empty bracket, at least
-				       ;; for biblatex commands. With just one
-				       ;; set of brackets it is interpreted as a
+				       ;; If there is a prefix, then this should
+				       ;; be an empty bracket, and if not it
+				       ;; should am empty string. You need an
+				       ;; empty bracket, at least for biblatex
+				       ;; commands. With just one set of
+				       ;; brackets it is interpreted as a
 				       ;; suffix.
-				       "[]"))))
+				       (if (or (plist-get cite :prefix)
+					       (plist-get (car references) :prefix))
+					   "[]"
+					 "")))))
 		      ("keys" . ,(string-join keys ","))))))))))
 
 
