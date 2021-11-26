@@ -40,25 +40,6 @@
 (require org-ref-completion-library)
 
 
-(when (boundp 'org-ref-default-bibliography)
-  (display-warning :warning  "Warning: You are using deprecated variables in org-ref that will be removed in version 3.
-
-The following variables will not be used in version 3:
-- org-ref-bibliography-notes
-- org-ref-default-bibliography
-- org-ref-pdf-directory 
-
-They are replaced by these variables in `bibtex-completion':
-- bibtex-completion-notes-path
-- bibtex-completion-bibliography
-- bibtex-completion-library-path
-
-There are some other changes that are likely to break existing workflows, for example all non-LaTeX exports will be handled by CSL, and all the old export code has been removed.
-
-For more details see https://github.com/jkitchin/org-ref/tree/org-ref-3#readme.
-
-The release date for org-ref version 3 is planned for [2021-10-18 Mon]."))
-
 ;;* The end
 (provide 'org-ref)
 
