@@ -6,7 +6,7 @@
 
 (development
  (depends-on "s")
- (depends-on "org-plus-contrib")
+ (depends-on "org")
  (depends-on "ecukes")
  (depends-on "ert-runner")
  (depends-on "el-mock")

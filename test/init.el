@@ -9,7 +9,7 @@
 (package-initialize)
 (package-refresh-contents)
 
-(dolist (package (list 'org-plus-contrib 'dash 'ivy-bibtex
+(dolist (package (list 'org 'dash 'ivy-bibtex
 		       'hydra 's 'f 'lispy 'pdf-tools))
   (unless (package-installed-p package)
     (message "installing %s" package)
