@@ -1159,10 +1159,13 @@ Rules:
 
     (if (null (assoc type org-ref-cite-types))
 	;; Not on a link, so we just insert a cite
-	(insert (format "[[%s:&%s]]"
+	(insert (format "[[%s:%s%s]]"
 			(if set-type
 			    (completing-read "cite type: " org-ref-cite-types) 
 			  org-ref-default-citation-link)
+			(pcase org-ref-cite-insert-version
+			  (2 "")
+			  (3 "&"))
 			key))
 
       ;; On a link somewhere, and we need to figure out what to do.
@@ -1201,8 +1204,9 @@ Rules:
 	 (cl--set-buffer-substring
 	  (org-element-property :begin object)
 	  (org-element-property :end object)
-	  (concat type ":" (string-join (cl-loop for ref in references
-						 collect (plist-get ref :key))))))
+	  (concat type ":" (string-join (cl-loop for ref in (plist-get data :references)
+						 collect (plist-get ref :key))
+					","))))
 	(3 (cl--set-buffer-substring
 	    (org-element-property :begin object)
 	    (org-element-property :end object)
