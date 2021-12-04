@@ -1157,18 +1157,34 @@ Rules:
 					  (cl-second item))))))
 	 (completion-extra-properties `(:annotation-function ,type-annotation)))
 
-    (if (null (assoc type org-ref-cite-types))
-	;; Not on a link, so we just insert a cite
-	(insert (format "[[%s:%s%s]]"
-			(if set-type
-			    (completing-read "cite type: " org-ref-cite-types) 
-			  org-ref-default-citation-link)
-			(pcase org-ref-cite-insert-version
-			  (2 "")
-			  (3 "&"))
-			key))
+    
+    (cond
+     ;; Not on a link, so we just insert a cite
+     ((null (assoc type org-ref-cite-types))
+      (insert (format "[[%s:%s%s]]"
+		      (if set-type
+			  (completing-read "cite type: " org-ref-cite-types)
+			org-ref-default-citation-link)
+		      (pcase org-ref-cite-insert-version
+			(2 "")
+			(3 "&"))
+		      key)))
+     ;; On a link with no path
+     ;; See https://github.com/jkitchin/org-ref/issues/951#issuecomment-985998821
+     ;; This is an unusual corner case most often triggered by a snippet, although
+     ;; perhaps there is some scenario like [[cite:]]
+     ((string= "" (org-element-property :path object))
+      (unless (looking-back ":" 1)
+	(goto-char (org-element-property :end object))
+	(skip-chars-backward "]"))
+      (insert (concat
+	       (pcase org-ref-cite-insert-version
+		 (2 "")
+		 (3 "&"))
+	       key)))
 
-      ;; On a link somewhere, and we need to figure out what to do.
+     ;; On a link somewhere, and we need to figure out what to do.
+     (t
       (setq link-string (org-element-property :path object)
 	    version (org-ref-cite-version link-string)
 	    data (org-ref-parse-cite-path link-string)
@@ -1180,8 +1196,8 @@ Rules:
       ;; 2. at the end of the link
       ;; Either way we just go to the end.
       (when (null key-at-point)
-	;; that failed, so move to the last one
-	;; This seems weird, but when you insert several marked candidates the point does weird things.
+	;; that failed, so move to the last one This seems weird, but when you
+	;; insert several marked candidates the point does weird things.
 	(goto-char (org-element-property :end object))
 	(skip-chars-backward " ")
 	(setq key-at-point (plist-get (car (last references)) :key)))
@@ -1196,7 +1212,7 @@ Rules:
 			    (-insert-at
 			     (+ index (if (and (= 3 version) (looking-at "&"))
 					  0
-					+1))
+					1))
 			     (list :key key) references)))
 
       (pcase org-ref-cite-insert-version
@@ -1210,13 +1226,12 @@ Rules:
 	(3 (cl--set-buffer-substring
 	    (org-element-property :begin object)
 	    (org-element-property :end object)
-	    (concat "[[" type ":" (org-ref-interpret-cite-data data) "]]"))))
+	    (concat "[[" type ":" (org-ref-interpret-cite-data data) "]]"))))))
 
-
-      ;; Now get to the end of the key you just put in.
-      (setq object (org-element-context))
-      (goto-char (org-element-property :end object))
-      (skip-chars-backward " "))))
+    ;; Now get to the end of the key you just put in.
+    (setq object (org-element-context))
+    (goto-char (org-element-property :end object))
+    (skip-chars-backward " ")))
 
 
 (defun org-ref-insert-cite-keys (keys &optional set-type)
