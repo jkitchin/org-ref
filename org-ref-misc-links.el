@@ -280,20 +280,23 @@ replaced by links to them."
 	(when (string= "printindex" (org-element-property :type lnk))
 	  (setf (buffer-substring (org-element-property :begin lnk)
 				  (org-element-property :end lnk))
-		(format "*Index*\n\n%s"
-			(string-join
-			 (cl-loop for (key . links) in sorted-groups collect
-				  (format "%s: %s"
-					  key
-					  (string-join 
-					   (cl-loop for i from 0 for lnk in links collect
-						    (format "[[%s-%s][%s-%s]] "
-							    (org-element-property :path lnk)
-							    i
-							    (org-element-property :path lnk)
-							    i))
-					   ", ")))
-			 "\n\n"))))))))
+		;; If sorted-groups is empty, we should do nothing I think.
+		(if sorted-groups
+		    (format "*Index*\n\n%s"
+			    (string-join
+			     (cl-loop for (key . links) in sorted-groups collect
+				      (format "%s: %s"
+					      key
+					      (string-join 
+					       (cl-loop for i from 0 for lnk in links collect
+							(format "[[%s-%s][%s-%s]] "
+								(org-element-property :path lnk)
+								i
+								(org-element-property :path lnk)
+								i))
+					       ", ")))
+			     "\n\n"))
+		  "")))))))
 
 
 (provide 'org-ref-misc-links)
