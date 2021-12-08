@@ -498,7 +498,7 @@ PATH has the citations in it."
   ("wc" org-ref-wos-citing-at-point "WOS citing" :column "WWW")
   ("wg" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
   ("wp" org-ref-pubmed-at-point "Pubmed" :column "WWW")
-  ("wc" org-ref-crossref-at-point "Crossref" :column "WWW")
+  ("wf" org-ref-crossref-at-point "Crossref" :column "WWW")
   ("wb" org-ref-biblio-at-point "Biblio" :column "WWW")
   ("e" org-ref-email-at-point "Email" :column "WWW")
 
