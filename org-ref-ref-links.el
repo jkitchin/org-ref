@@ -26,7 +26,7 @@
 (require 'hydra)
 
 (defcustom org-ref-default-ref-type "ref"
-  "Default ref link type to use when inserting ref links"
+  "Default ref link type to use when inserting ref links."
   :type 'string
   :group 'org-ref)
 
@@ -530,7 +530,14 @@ With a prefix arg SET-TYPE choose the ref type."
 	 (label (org-ref-select-label)) 
 	 (type (if (or set-type org-ref-prefix-arg)
 		   (org-ref-select-ref-type)
-		 (org-ref-infer-ref-type label))))
+		 ;; in general, we prefer to infer the type, so that equations
+		 ;; get a better default. However, if you customize
+		 ;; `org-ref-default-ref-type', we use that instead. The most
+		 ;; common use case for this is setting that variable to cref,
+		 ;; which does its own automatic inference of the type.
+		 (if (string= "ref" org-ref-default-ref-type)
+		     (org-ref-infer-ref-type label)
+		   org-ref-default-ref-type))))
     (if-let* ((lnk (org-ref-ref-link-p))
 	      (path (org-element-property :path lnk))
 	      (beg (org-element-property :begin lnk))
