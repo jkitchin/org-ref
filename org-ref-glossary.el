@@ -519,7 +519,7 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
     ("acrfullpl" "Both the acronym and its definition in plural")
     ("Acrfull" "Capitalized both the acronym and its definition")
     ("Acrfullpl" "Capitalized both the acronym and its definition in plural")
-    ("ACRfull" "Both the acronym and its definition in ALL-CAPS}")
+    ("ACRfull" "Both the acronym and its definition in ALL-CAPS")
     ("ACRfullpl" "Both the acronym and its definition in plurall ALL-CAPS"))
   "list of acronym types (type description)")
 
