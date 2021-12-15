@@ -1345,7 +1345,7 @@ If not, issue a warning."
     (save-excursion
       (bibtex-beginning-of-entry)
       (let* ((entry (bibtex-parse-entry t))
-             (journal (cdr (assoc "=journal" entry))))
+             (journal (cdr (assoc "journal" entry))))
         (when (null journal)
           (warn "Unable to get journal for this entry."))
         (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))
