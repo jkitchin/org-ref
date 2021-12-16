@@ -389,12 +389,21 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 		       (latex . ".tex")
 		       (ascii . ".txt")
 		       (odt . ".odf")))
-
+	 (cp (point))
+	 (mm) 				;marker to save place
 	 (export-name (concat (file-name-sans-extension fname)
 			      (or (cdr (assoc backend extensions)) ""))))
 
     (org-export-with-buffer-copy
+     ;; Note I use a marker here to make sure we stay in the same place we were.
+     ;; This is more robust than save-excursion I think, since processing moves
+     ;; points around. In theory the marker should move too.
+     (setq mm (make-marker))
+     (move-marker mm cp)
      (org-ref-process-buffer backend)
+     (goto-char (marker-position mm))
+     (set-marker mm nil)
+     
      (pcase backend
        ;; odt is a little bit special, and is missing one argument
        ('odt (org-open-file (org-odt-export-to-odt async subtreep visible-only
