@@ -111,7 +111,7 @@ program to use curl."
 
 (defcustom doi-utils-async-download t
   "Use `doi-utils-async-download-pdf' to get pdfs asynchrounously.
-If non-nil use `doi-utils-get-bibtex-entry-pdf' synchronously."
+If nil use `doi-utils-get-bibtex-entry-pdf' synchronously."
   :type 'boolean
   :group 'doi-utils)
 
