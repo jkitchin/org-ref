@@ -304,7 +304,7 @@ This is mostly for multicites and natbib."
 		   :references
 		   (cl-loop for s in citation-references collect
 			    (if (null (string-match org-ref-citation-key-re s))
-				(error "No label found")
+				(error (concat "org-ref: malformed cite: " path))
 			      (let* ((key (match-string-no-properties 1 s))
 				     (key-start (match-beginning 0))
 				     (key-end (match-end 0))
