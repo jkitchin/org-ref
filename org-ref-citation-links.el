@@ -285,38 +285,38 @@ This is mostly for multicites and natbib."
      (list :version 2 :references (cl-loop for key in (split-string path ",") collect
 					   (list :key (string-trim key)))))
     (3 (let ((citation-references (split-string path ";"))
-  (these-results '(:version 3)))
-    ;; if the first ref doesn't match a key, it must be a global prefix
-    ;; this pops the referenc off.
-    (when (null (string-match org-ref-citation-key-re (cl-first citation-references)))
-      (setq these-results (append these-results (list :prefix (cl-first citation-references)))
-	    citation-references (cdr citation-references)))
+	     (these-results '(:version 3)))
+	 ;; if the first ref doesn't match a key, it must be a global prefix
+	 ;; this pops the referenc off.
+	 (when (null (string-match org-ref-citation-key-re (cl-first citation-references)))
+	   (setq these-results (append these-results (list :prefix (cl-first citation-references)))
+		 citation-references (cdr citation-references)))
 
-    ;; if the last ref doesn't match a key, then it is a global suffix
-    ;; we remove the last one if this is true after getting the suffix.
-    (when (null (string-match org-ref-citation-key-re (car (last citation-references))))
-      (setq these-results (append these-results (list :suffix (car (last citation-references))))
-	    citation-references (butlast citation-references)))
+	 ;; if the last ref doesn't match a key, then it is a global suffix
+	 ;; we remove the last one if this is true after getting the suffix.
+	 (when (null (string-match org-ref-citation-key-re (car (last citation-references))))
+	   (setq these-results (append these-results (list :suffix (car (last citation-references))))
+		 citation-references (butlast citation-references)))
 
-    (setq these-results
-	  (append these-results
-		  (list
-		   :references
-		   (cl-loop for s in citation-references collect
-			    (if (null (string-match org-ref-citation-key-re s))
-				(error "No label found")
-			      (let* ((key (match-string-no-properties 1 s))
-				     (key-start (match-beginning 0))
-				     (key-end (match-end 0))
-				     (prefix (let ((p (substring s 0 key-start)))
-					       (if (string= "" (string-trim p))
-						   nil
-						 p)))
-				     (suffix (let ((s (substring s key-end)))
-					       (if (string= "" (string-trim s))
-						   nil
-						 s))))
-				(list :key key :prefix prefix :suffix suffix)))))))))))
+	 (setq these-results
+	       (append these-results
+		       (list
+			:references
+			(cl-loop for s in citation-references collect
+				 (if (null (string-match org-ref-citation-key-re s))
+				     (error "No matching key found in %s" s)
+				   (let* ((key (match-string-no-properties 1 s))
+					  (key-start (match-beginning 0))
+					  (key-end (match-end 0))
+					  (prefix (let ((p (substring s 0 key-start)))
+						    (if (string= "" (string-trim p))
+							nil
+						      p)))
+					  (suffix (let ((s (substring s key-end)))
+						    (if (string= "" (string-trim s))
+							nil
+						      s))))
+				     (list :key key :prefix prefix :suffix suffix)))))))))))
 
 
 (defun org-ref-interpret-cite-data (data)
@@ -370,20 +370,26 @@ fast, but also up to date."
   (unless bibtex-completion-display-formats-internal
     (bibtex-completion-init))
 
-  (let ((files (org-ref-find-bibliography)))
-    (if (seq-every-p 'identity (cl-loop for file in files
-					collect (assoc file bibtex-completion-cache)))
+  (let* ((files (org-ref-find-bibliography))
+	 (valid-keys ))
+    ;; bibtex-completion-cache contains (filename md5hash entries)
+
+    ;;  this means there is a file for each file in org-ref-find-bibliography in the known cache.
+    (if (seq-every-p 'identity
+		     (cl-loop for file in files
+			      collect (assoc file bibtex-completion-cache)))
 	;; We have a cache for each file
 	(cl-loop for entry in 
 		 (cl-loop
 		  for file in files
 		  append (cddr (assoc file bibtex-completion-cache)))
 		 collect (cdr (assoc "=key=" (cdr entry))))
-      ;; you need to get a cache
+      ;; you need to get a cache because one or more of the files was not in the cache.
       (let ((bibtex-completion-bibliography files))
 	(cl-loop for entry in (bibtex-completion-candidates)
 		 collect
-		 (cdr (assoc "=key=" (cdr entry))))))))
+		 (cdr (assoc "=key=" (cdr entry))))))
+    valid-keys))
 
 
 (defun org-ref-cite-activate (start end path _bracketp)
