@@ -370,15 +370,12 @@ fast, but also up to date."
   (unless bibtex-completion-display-formats-internal
     (bibtex-completion-init))
 
-  (let* ((files (org-ref-find-bibliography))
-	 (valid-keys ))
-    ;; bibtex-completion-cache contains (filename md5hash entries)
-
-    ;;  this means there is a file for each file in org-ref-find-bibliography in the known cache.
+  (let* ((files (org-ref-find-bibliography)))
     (if (seq-every-p 'identity
 		     (cl-loop for file in files
 			      collect (assoc file bibtex-completion-cache)))
 	;; We have a cache for each file
+	;; bibtex-completion-cache contains (filename md5hash entries)
 	(cl-loop for entry in 
 		 (cl-loop
 		  for file in files
@@ -388,8 +385,7 @@ fast, but also up to date."
       (let ((bibtex-completion-bibliography files))
 	(cl-loop for entry in (bibtex-completion-candidates)
 		 collect
-		 (cdr (assoc "=key=" (cdr entry))))))
-    valid-keys))
+		 (cdr (assoc "=key=" (cdr entry))))))))
 
 
 (defvar-local org-ref-valid-keys-hashes nil)
