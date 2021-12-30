@@ -523,7 +523,12 @@ PATH has the citations in it."
   ("e" org-ref-email-at-point "Email" :column "WWW")
 
   ;; Copyish actions
-  ("K" org-ref-copy-entry-as-summary "Copy bibtex" :column "Copy")
+  ("K" (save-window-excursion
+	 (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+	   (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))
+	   (bibtex-copy-entry-as-kill)
+	   (kill-new (pop bibtex-entry-kill-ring))))
+   "Copy bibtex" :column "Copy")
   ("k" (kill-new (car (org-ref-get-bibtex-key-and-file))) "Copy key" :column "Copy")
   ("f" (kill-new (bibtex-completion-apa-format-reference
 		  (org-ref-get-bibtex-key-under-cursor)))
