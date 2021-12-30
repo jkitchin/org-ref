@@ -403,8 +403,11 @@ VISIBLE-ONLY BODY-ONLY and INFO."
      ;; points around. In theory the marker should move too.
      (setq mm (make-marker))
      (move-marker mm cp)
+     ;; make sure we expand includes
+     (org-export-expand-include-keyword)
      (goto-char (marker-position mm))
      (org-ref-process-buffer backend subtreep)
+     (message-box (buffer-substring (line-beginning-position) (line-end-position)))
      (set-marker mm nil)
      
      (pcase backend
