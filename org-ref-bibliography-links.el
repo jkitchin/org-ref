@@ -127,7 +127,6 @@ PATH is a comma-separated list of bibfiles."
 				      'help-echo "This file did not pass `bibtex-validate'.")))))))
 
 
-
 (defun org-ref-bibliography*-follow (_path)
   "Function to follow bibliography links."
   (interactive)
@@ -241,21 +240,32 @@ creates a cite link."
 ;; Note I removed the addbibresource link, it goes in the header, not the document.
 
 ;; *** bibliographystyle
+(defvar-local org-ref-bst-styles nil
+  "A list of known bibliography styles. Used to cache results.")
+
+
+(defun org-ref-clear-bst-cache ()
+  "Clear `org-ref-bst-styles' to reload it."
+  (interactive)
+  (setq org-ref-bst-styles nil))
+
 
 (defun org-ref-bibliography-styles ()
-  "Return a list of known bibliography styles."
-  (mapcar 'file-name-nondirectory
-	  (mapcar 'file-name-sans-extension
-		  (-flatten
-		   (mapcar (lambda (path)
-			     (setq path (replace-regexp-in-string "!" "" path))
-			     (when (file-directory-p path)
-			       (f-entries path (lambda (f) (f-ext? f "bst")) t)))
-			   (split-string
-			    ;; https://tex.stackexchange.com/questions/431948/get-a-list-of-installed-bibliography-styles-with-kpsewhich?noredirect=1#comment1082436_431948
-			    (shell-command-to-string "kpsewhich -expand-path '$BSTINPUTS'")
-			    ":"))))))
-
+  "Return a list of known bibliography styles.
+Returns `org-ref-bst-styles' or sets it and returns it."
+  (or org-ref-bst-styles
+      (setq org-ref-bst-styles
+	    (mapcar 'file-name-nondirectory
+		    (mapcar 'file-name-sans-extension
+			    (-flatten
+			     (mapcar (lambda (path)
+				       (setq path (replace-regexp-in-string "!" "" path))
+				       (when (file-directory-p path)
+					 (f-entries path (lambda (f) (f-ext? f "bst")) t)))
+				     (split-string
+				      ;; https://tex.stackexchange.com/questions/431948/get-a-list-of-installed-bibliography-styles-with-kpsewhich?noredirect=1#comment1082436_431948
+				      (shell-command-to-string "kpsewhich -expand-path '$BSTINPUTS'")
+				      ":"))))))))
 
 
 (defun org-ref-bibliographystyle-complete-link (&optional arg)
