@@ -81,7 +81,7 @@ strings, or nil."
   (with-temp-buffer
     (insert (shell-command-to-string (format "%s %s -"
 					     pdftotext-executable
-					     (shell-quote-argument (dnd--unescape-uri pdf)))))
+					     (shell-quote-argument pdf))))
     (goto-char (point-min))
     (let ((matches '()))
       (while (re-search-forward org-ref-pdf-doi-regex nil t)
