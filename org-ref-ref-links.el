@@ -131,14 +131,31 @@ font-lock."
   (let ((case-fold-search t)
 	(rx (string-join org-ref-ref-label-regexps "\\|"))
 	(labels '())
+	oe 				;; org-element
 	context)
     (save-excursion
       (org-with-wide-buffer
        (goto-char (point-min))
        (while (re-search-forward rx nil t)
-	 (setq context (buffer-substring
-			(save-excursion (forward-line -1) (point))
-			(save-excursion (forward-line +2) (point))))
+	 (save-match-data
+	   ;; Here we try to get some relevant context for different things you
+	   ;; might reference.
+	   (setq oe (org-element-context)
+		 context (string-trim
+			  (pcase (car oe)
+			    ('latex-environment (buffer-substring
+						 (org-element-property :begin oe)
+						 (org-element-property :end oe)))
+			    ;; figure
+			    ('paragraph (buffer-substring
+					 (org-element-property :begin oe)
+					 (org-element-property :end oe)))
+			    ('table (buffer-substring
+				     (org-element-property :begin oe)
+				     (org-element-property :end oe)))
+			    ;; Headings fall here.
+			    (_ (buffer-substring (line-beginning-position)
+						 (line-end-position)))))))
 	 (cl-pushnew (cons (match-string-no-properties 1) context)
 		     labels))))
     ;; reverse so they are in the order we find them.
