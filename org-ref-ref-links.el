@@ -128,38 +128,55 @@ Returns a list of cons cells (label . context).
 
 It is important for this function to be fast, since we use it in
 font-lock."
-  (let ((case-fold-search t)
-	(rx (string-join org-ref-ref-label-regexps "\\|"))
-	(labels '())
-	oe 				;; org-element
-	context)
-    (save-excursion
-      (org-with-wide-buffer
-       (goto-char (point-min))
-       (while (re-search-forward rx nil t)
-	 (save-match-data
-	   ;; Here we try to get some relevant context for different things you
-	   ;; might reference.
-	   (setq oe (org-element-context)
-		 context (string-trim
-			  (pcase (car oe)
-			    ('latex-environment (buffer-substring
-						 (org-element-property :begin oe)
-						 (org-element-property :end oe)))
-			    ;; figure
-			    ('paragraph (buffer-substring
+  (if (or
+       ;; if we have not checked we have to check
+       (null (get 'org-ref-get-labels 'md5))
+       ;; buffer has changed since last time we looked. Is this fast? it is
+       ;; faster than before, but still probably 5-6 times slower than checking
+       ;; modification times. That however, is tricky to work with unsaved
+       ;; buffers.
+       (not (string= (md5 (buffer-string)) (get 'org-ref-get-labels 'md5))))
+      
+      (let ((case-fold-search t)
+	    (rx (string-join org-ref-ref-label-regexps "\\|"))
+	    (labels '())
+	    oe ;; org-element
+	    context
+	    data)
+	(save-excursion
+	  (org-with-wide-buffer
+	   (goto-char (point-min))
+	   (while (re-search-forward rx nil t)
+	     (save-match-data
+	       ;; Here we try to get some relevant context for different things you
+	       ;; might reference.
+	       (setq oe (org-element-context)
+		     context (string-trim
+			      (pcase (car oe)
+				('latex-environment (buffer-substring
+						     (org-element-property :begin oe)
+						     (org-element-property :end oe)))
+				;; figure
+				('paragraph (buffer-substring
+					     (org-element-property :begin oe)
+					     (org-element-property :end oe)))
+				('table (buffer-substring
 					 (org-element-property :begin oe)
 					 (org-element-property :end oe)))
-			    ('table (buffer-substring
-				     (org-element-property :begin oe)
-				     (org-element-property :end oe)))
-			    ;; Headings fall here.
-			    (_ (buffer-substring (line-beginning-position)
-						 (line-end-position)))))))
-	 (cl-pushnew (cons (match-string-no-properties 1) context)
-		     labels))))
-    ;; reverse so they are in the order we find them.
-    (delete-dups (reverse labels))))
+				;; Headings fall here.
+				(_ (buffer-substring (line-beginning-position)
+						     (line-end-position)))))))
+	     (cl-pushnew (cons (match-string-no-properties 1) context)
+			 labels))))
+	
+	;; reverse so they are in the order we find them.
+	(put 'org-ref-get-labels 'md5 (md5 (buffer-string)))
+	(setq data (delete-dups (reverse labels)))
+	(put 'org-ref-get-labels 'label-data data)
+	data)
+
+    ;; retrieve the cached data
+    (get 'org-ref-get-labels 'label-data)))
 
 
 (defun org-ref-ref-jump-to (&optional path)
