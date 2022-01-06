@@ -94,6 +94,14 @@
   :group 'org)
 
 
+(defcustom org-ref-activate-glossary-links t
+  "If non-nil activate acronym and glossary links.
+Checks in `org-ref-glossary-face-fn' and `org-ref-acronym-face-fn'.
+This is not always fast, so we provide a way to disable it."
+  :type 'boolean
+  :group 'org-ref-glossary)
+
+
 (defvar org-ref-glsentries '()
   "Variable to hold locations of glsentries load files.")
 
@@ -251,12 +259,14 @@ manually add them to the glossary table."
 
 (defun org-ref-glossary-face-fn (label)
   "Return a face for a glossary link."
-  (save-match-data
-    (cond
-     ((or-parse-glossary-entry label)
-      'org-ref-glossary-face)
-     (t
-      'font-lock-warning-face))))
+  (if org-ref-activate-glossary-links
+      (save-match-data
+	(cond
+	 ((or-parse-glossary-entry label)
+	  'org-ref-glossary-face)
+	 (t
+	  'font-lock-warning-face)))
+    'org-ref-glossary-face))
 
 
 ;;** Glossary links
@@ -545,12 +555,14 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
 
 (defun org-ref-acronym-face-fn (label)
   "Return a face for an acronym link."
-  (save-match-data
-    (cond
-     ((or-parse-acronym-entry label)
-      'org-ref-acronym-face)
-     (t
-      'font-lock-warning-face))))
+  (if org-ref-activate-glossary-links
+      (save-match-data
+	(cond
+	 ((or-parse-acronym-entry label)
+	  'org-ref-acronym-face)
+	 (t
+	  'font-lock-warning-face)))
+    'org-ref-acronym-face))
 
 
 (defun or-acronym-tooltip (_window _object position)
