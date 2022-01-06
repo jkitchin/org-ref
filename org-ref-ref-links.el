@@ -120,6 +120,14 @@ The label should always be in group 1.")
     (goto-char (+ begin deltap (- (length new-type) (length old-type))))))
 
 
+(defvar-local org-ref-label-cache nil
+  "Buffer-local cache variable for labels.")
+
+
+(defvar-local org-ref-buffer-chars-modified-tick nil
+  "Buffer-local variable to hold `buffer-chars-modified-tick'.")
+
+
 (defun org-ref-get-labels ()
   "Return a list of referenceable labels in the document.
 You can reference:
@@ -138,13 +146,14 @@ It is important for this function to be fast, since we use it in
 font-lock."
   (if (or
        ;; if we have not checked we have to check
-       (null (get 'org-ref-get-labels 'buffer-chars-modified-tick))
-       ;; buffer has changed since last time we looked. We check this with the
-       ;; buffer-chars-modified-tick which keeps track of changes. If this
-       ;; hasn't changed, no chars have been modified.
+       (null org-ref-buffer-chars-modified-tick)
+       ;; Now check if buffer has changed since last time we looked. We check
+       ;; this with the buffer-chars-modified-tick which keeps track of changes.
+       ;; If this hasn't changed, no chars have been modified.
        (not (= (buffer-chars-modified-tick)
-	       (get 'org-ref-get-labels 'buffer-chars-modified-tick))))
-      
+	       org-ref-buffer-chars-modified-tick)))
+      ;; We need to search for all the labels either because we don't have them,
+      ;; or the buffer has changed since we looked last time.
       (let ((case-fold-search t)
 	    (rx (string-join org-ref-ref-label-regexps "\\|"))
 	    (labels '())
@@ -178,13 +187,12 @@ font-lock."
 			 labels))))
 	
 	;; reverse so they are in the order we find them.
-	(put 'org-ref-get-labels 'buffer-chars-modified-tick (buffer-chars-modified-tick))
-	(setq data (delete-dups (reverse labels)))
-	(put 'org-ref-get-labels 'label-data data)
-	data)
+	(setq
+	 org-ref-buffer-chars-modified-tick (buffer-chars-modified-tick)
+	 org-ref-label-cache (delete-dups (reverse labels))))
 
     ;; retrieve the cached data
-    (get 'org-ref-get-labels 'label-data)))
+    org-ref-label-cache))
 
 
 (defun org-ref-ref-jump-to (&optional path)
