@@ -96,7 +96,7 @@ This is mostly for multicites and natbib."
   :group 'org-ref-faces)
 
 
-(defcustom org-ref-cite-activate-p t
+(defcustom org-ref-activate-cite-links t
   "If non-nil use font-lock to activate citations.
 In large documents with many citations activation can be slow.
 Set this to nil to turn that off, which increase performance."
@@ -416,7 +416,7 @@ fast, but also up to date."
   "Activation function for a cite link.
 START and END are the bounds of the link.
 PATH has the citations in it."
-  (when org-ref-cite-activate-p
+  (when org-ref-activate-cite-links
     (let* ((valid-keys (org-ref-valid-keys)) 
 	   valid-key
 	   substrings)
