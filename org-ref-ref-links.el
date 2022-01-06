@@ -138,12 +138,12 @@ It is important for this function to be fast, since we use it in
 font-lock."
   (if (or
        ;; if we have not checked we have to check
-       (null (get 'org-ref-get-labels 'md5))
-       ;; buffer has changed since last time we looked. Is this fast? it is
-       ;; faster than before, but still probably 5-6 times slower than checking
-       ;; modification times. That however, is tricky to work with unsaved
-       ;; buffers.
-       (not (string= (md5 (buffer-string)) (get 'org-ref-get-labels 'md5))))
+       (null (get 'org-ref-get-labels 'buffer-chars-modified-tick))
+       ;; buffer has changed since last time we looked. We check this with the
+       ;; buffer-chars-modified-tick which keeps track of changes. If this
+       ;; hasn't changed, no chars have been modified.
+       (not (= (buffer-chars-modified-tick)
+	       (get 'org-ref-get-labels 'buffer-chars-modified-tick))))
       
       (let ((case-fold-search t)
 	    (rx (string-join org-ref-ref-label-regexps "\\|"))
@@ -178,7 +178,7 @@ font-lock."
 			 labels))))
 	
 	;; reverse so they are in the order we find them.
-	(put 'org-ref-get-labels 'md5 (md5 (buffer-string)))
+	(put 'org-ref-get-labels 'buffer-chars-modified-tick (buffer-chars-modified-tick))
 	(setq data (delete-dups (reverse labels)))
 	(put 'org-ref-get-labels 'label-data data)
 	data)
