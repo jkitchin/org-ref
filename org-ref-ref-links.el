@@ -31,6 +31,14 @@
   :group 'org-ref)
 
 
+(defcustom org-ref-activate-ref-links t
+  "If non-nil use font lock to activate ref links.
+Activation can be slow in large documents with a lot of ref
+links. Set this to nil to turn off activation."
+  :type 'boolean
+  :group 'org-ref)
+
+
 (defface org-ref-ref-face
   `((t (:inherit org-link :foreground "dark red")))
   "Face for ref links in org-ref."
@@ -218,26 +226,27 @@ POSITION is the point under the mouse I think."
 The PATH should be a comma-separated list of labels.
 Argument START is the start of the link.
 Argument END is the end of the link."
-  (let ((labels (mapcar 'car (org-ref-get-labels))))
-    (goto-char start)
-    (cl-loop for label in (split-string path ",") do
-	     (search-forward label)
-	     ;; store property so we can follow it later.
-	     (put-text-property (match-beginning 0)
-				(match-end 0)
-				'org-ref-ref-label
-				label)
+  (when org-ref-activate-ref-links
+    (let ((labels (mapcar 'car (org-ref-get-labels))))
+      (goto-char start)
+      (cl-loop for label in (split-string path ",") do
+	       (search-forward label)
+	       ;; store property so we can follow it later.
+	       (put-text-property (match-beginning 0)
+				  (match-end 0)
+				  'org-ref-ref-label
+				  label)
 
-	     (unless (member label labels)
-	       
-	       (put-text-property (match-beginning 0)
-				  (match-end 0)
-				  'face
-				  'font-lock-warning-face)
-	       (put-text-property (match-beginning 0)
-				  (match-end 0)
-				  'help-echo
-				  "Label not found")))))
+	       (unless (member label labels)
+		 
+		 (put-text-property (match-beginning 0)
+				    (match-end 0)
+				    'face
+				    'font-lock-warning-face)
+		 (put-text-property (match-beginning 0)
+				    (match-end 0)
+				    'help-echo
+				    "Label not found"))))))
 
 
 (defun org-ref-ref-export (cmd keyword _desc backend)
