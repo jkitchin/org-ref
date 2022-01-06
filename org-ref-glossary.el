@@ -106,6 +106,14 @@ This is not always fast, so we provide a way to disable it."
   "Variable to hold locations of glsentries load files.")
 
 
+(defvar-local org-ref-glossary-cache nil
+  "Buffer-local variable for glossary entry cache.")
+
+
+(defvar-local org-ref-acronym-cache nil
+  "Buffer-local variable for acronym entry cache.")
+
+
 (defun or-find-closing-curly-bracket (&optional limit)
   "Find closing bracket for the bracket at point and move point to it.
 Go up to LIMIT or `point-max'. This is a parsing function. I
@@ -130,107 +138,127 @@ there is an escaped \" for example. This seems pretty robust."
 ;;* Glossary
 (defun or-parse-glossary-entry (entry)
   "Parse a LaTeX glossary ENTRY definition to a p-list of key=value.
-Typically:
-  (:name name :description description)
-but there could be other :key value pairs."
-  (save-excursion
-    (goto-char (point-min))
-    (let* (end-of-entry
-	   data
-	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
-		       (match-string 1)))
-	   (glsentries (and external
-			    (or (cdr (assoc external org-ref-glsentries))
-				(progn
-				  (cl-pushnew (cons external (s-trim (shell-command-to-string
-								      (format "kpsewhich tex %s" external))))
-					      org-ref-glsentries)
-				  (cdr (assoc external org-ref-glsentries))))))
-	   key value p1 p2)
-      (catch 'data
-	;; look inside first for latex-headers
-	(goto-char (point-min))
-	(when (re-search-forward
-	       (format "\\newglossaryentry{%s}" entry) nil t)
-	  (re-search-forward "{")
-	  (save-excursion
-	    (backward-char)
-	    (or-find-closing-curly-bracket)
-	    (setq end-of-entry (point)))
+ENTRY is the label we are looking for.
+Typically returns  (:name name :description description)
+but there could be other :key value pairs.
 
-	  (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
-	    (setq key (match-string 1))
-	    ;; get value
-	    (goto-char (+ 1 (match-end 1)))
-	    (setq p1 (point))
-	    (if (looking-at "{")
-		;; value is wrapped in {}
-		(progn
-		  (or-find-closing-curly-bracket)
-		  (setq p2 (point)
-			value (buffer-substring (+ 1 p1) p2)))
-	      ;; value is up to the next comma
-	      (re-search-forward "," end-of-entry 'mv)
-	      (setq value (buffer-substring p1 (- (point) 1))))
-	    ;; remove #+latex_header_extra:
-	    (setq value (replace-regexp-in-string
-			 "#\\+latex_header_extra: " "" value))
-	    (setq value (replace-regexp-in-string
-			 "\n +" " " value))
-	    (setq data (append data
-			       (list :label entry)
-			       (list (intern (format ":%s" key)))
-			       (list value))))
-	  (throw 'data data))
+This is a source of performance loss, because this is search
+based and it is done on each fontification. It is easy to cache
+the results, but not easy to invalidate them, e.g. to reflect
+changes."
+  (if (and org-ref-glossary-cache (gethash entry org-ref-glossary-cache))
+      ;; We have the cache, and an entry and use it
+      (gethash entry org-ref-glossary-cache)
+    ;; We don't have a cache, or an entry in it, so we find it.
+    ;; No cache? we make one
+    (unless org-ref-glossary-cache
+      (setq-local org-ref-glossary-cache (make-hash-table)))
 
-	;; check for a glossary table
-	(let* ((entries (save-excursion
-			  (catch 'found
-			    (org-element-map
-				(org-element-parse-buffer)
-				'table
-			      (lambda (el)
-				(when (string= "glossary" (org-element-property :name el))
-				  (goto-char (org-element-property :contents-begin el))
-				  (throw 'found
-					 (nthcdr 2 (org-babel-read-table)))))))))
-	       (result (assoc entry entries)))
-	  (when result
-	    (throw 'data (list :label entry :name (cl-second result) :description (cl-third result)))))
+    ;; Now we search to get the data
+    (save-excursion
+      (goto-char (point-min))
+      (let* (end-of-entry
+	     data
+	     (external (when (re-search-forward
+			      "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+			 (match-string 1)))
+	     (glsentries (and external
+			      (or (cdr (assoc external org-ref-glsentries))
+				  (progn
+				    (cl-pushnew (cons external (s-trim
+								(shell-command-to-string
+								 (format "kpsewhich tex %s"
+									 external))))
+						org-ref-glsentries)
+				    (cdr (assoc external org-ref-glsentries))))))
+	     key value p1 p2)
+	(setq data
+	      (catch 'data
+		;; look inside first for latex-headers
+		(goto-char (point-min))
+		(when (re-search-forward
+		       (format "\\newglossaryentry{%s}" entry) nil t)
+		  (re-search-forward "{")
+		  (save-excursion
+		    (backward-char)
+		    (or-find-closing-curly-bracket)
+		    (setq end-of-entry (point)))
 
-	;; then external
-	(when (and glsentries
-		   (file-exists-p glsentries))
+		  (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+		    (setq key (match-string 1))
+		    ;; get value
+		    (goto-char (+ 1 (match-end 1)))
+		    (setq p1 (point))
+		    (if (looking-at "{")
+			;; value is wrapped in {}
+			(progn
+			  (or-find-closing-curly-bracket)
+			  (setq p2 (point)
+				value (buffer-substring (+ 1 p1) p2)))
+		      ;; value is up to the next comma
+		      (re-search-forward "," end-of-entry 'mv)
+		      (setq value (buffer-substring p1 (- (point) 1))))
+		    ;; remove #+latex_header_extra:
+		    (setq value (replace-regexp-in-string
+				 "#\\+latex_header_extra: " "" value))
+		    (setq value (replace-regexp-in-string
+				 "\n +" " " value))
+		    (setq data (append data
+				       (list :label entry)
+				       (list (intern (format ":%s" key)))
+				       (list value))))
+		  (throw 'data data))
 
-	  (with-current-buffer (find-file-noselect glsentries)
-	    (goto-char (point-min))
-	    (when (re-search-forward
-		   (format "\\newglossaryentry{%s}" entry) nil t)
-	      (re-search-forward "{")
-	      (save-excursion
-		(backward-char)
-		(or-find-closing-curly-bracket)
-		(setq end-of-entry (point)))
+		;; check for a glossary table
+		(let* ((entries (save-excursion
+				  (catch 'found
+				    (org-element-map
+					(org-element-parse-buffer)
+					'table
+				      (lambda (el)
+					(when (string= "glossary" (org-element-property :name el))
+					  (goto-char (org-element-property :contents-begin el))
+					  (throw 'found
+						 (nthcdr 2 (org-babel-read-table)))))))))
+		       (result (assoc entry entries)))
+		  (when result
+		    (throw 'data (list :label entry :name (cl-second result) :description (cl-third result)))))
 
-	      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
-		(setq key (match-string 1))
-		;; get value
-		(goto-char (+ 1 (match-end 1)))
-		(setq p1 (point))
-		(if (looking-at "{")
-		    ;; value is wrapped in {}
-		    (progn
-		      (or-find-closing-curly-bracket)
-		      (setq p2 (point)
-			    value (buffer-substring (+ 1 p1) p2)))
-		  ;; value is up to the next comma
-		  (re-search-forward "," end-of-entry 'mv)
-		  (setq value (buffer-substring p1 (- (point) 1))))
-		(setq data (append data
-				   (list :label entry)
-				   (list (intern (format ":%s" key)))
-				   (list value))))
-	      (throw 'data data))))))))
+		;; then external
+		(when (and glsentries
+			   (file-exists-p glsentries))
+
+		  (with-current-buffer (find-file-noselect glsentries)
+		    (goto-char (point-min))
+		    (when (re-search-forward
+			   (format "\\newglossaryentry{%s}" entry) nil t)
+		      (re-search-forward "{")
+		      (save-excursion
+			(backward-char)
+			(or-find-closing-curly-bracket)
+			(setq end-of-entry (point)))
+
+		      (while (re-search-forward "\\(\\w+?\\)=" end-of-entry t)
+			(setq key (match-string 1))
+			;; get value
+			(goto-char (+ 1 (match-end 1)))
+			(setq p1 (point))
+			(if (looking-at "{")
+			    ;; value is wrapped in {}
+			    (progn
+			      (or-find-closing-curly-bracket)
+			      (setq p2 (point)
+				    value (buffer-substring (+ 1 p1) p2)))
+			  ;; value is up to the next comma
+			  (re-search-forward "," end-of-entry 'mv)
+			  (setq value (buffer-substring p1 (- (point) 1))))
+			(setq data (append data
+					   (list :label entry)
+					   (list (intern (format ":%s" key)))
+					   (list value))))
+		      (throw 'data data))))))
+	(puthash entry data org-ref-glossary-cache)
+	data))))
 
 
 ;;;###autoload
@@ -432,65 +460,85 @@ them manually to the acroynms table."
 
 (defun or-parse-acronym-entry (label)
   "Parse an acronym entry LABEL to a plist.
-  (:abbrv abbrv :full full :label label)
+Returns (:abbrv abbrv :full full :label label)
 The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
-  (save-excursion
-    (goto-char (point-min))
-    (let* (abbrv
-	   full p1
-	   (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
-		       (match-string 1)))
-	   (glsentries (and external
-			    (or (cdr (assoc external org-ref-glsentries))
-				(progn
-				  (cl-pushnew (cons external
-						    (s-trim (shell-command-to-string
-							     (format "kpsewhich tex %s" external))))
-					      org-ref-glsentries)
-				  (cdr (assoc external org-ref-glsentries)))))))
-      (catch 'data
-	(goto-char (point-min))
-	;; check in the definitions of newacronym
-	(when (re-search-forward (format "\\newacronym{%s}" label) nil t)
-	  (setq p1 (+ 1 (point)))
-	  (forward-list)
-	  (setq abbrv (buffer-substring p1 (- (point) 1)))
-	  (setq p1 (+ 1 (point)))
-	  (forward-list)
-	  (setq full (buffer-substring p1 (- (point) 1)))
-	  (throw 'data
-		 (list :label label :abbrv abbrv :full full)))
+  (if (and org-ref-acronym-cache (gethash label org-ref-acronym-cache))
+      ;; We have the cache, and an entry and use it
+      (gethash label org-ref-acronym-cache)
+    ;; We don't have a cache, or an label in it, so we find it.
+    ;; No cache? we make one
+    (unless org-ref-acronym-cache
+      (setq-local org-ref-acronym-cache (make-hash-table)))
 
-	;; look for acronyms table
-	(let* ((entries (save-excursion
-			  (catch 'found
-			    (org-element-map
-				(org-element-parse-buffer)
-				'table
-			      (lambda (el)
-				(when (string= "acronyms" (org-element-property :name el))
-				  (goto-char (org-element-property :contents-begin el))
-				  (throw 'found
-					 (nthcdr 2 (org-babel-read-table)))))))))
-	       (result (assoc label entries)))
-	  (when result
-	    (throw 'data (list :label label
-			       :abbrv (cl-second result) :full (cl-third result)))))
+    ;; Now search for the data
+    (save-excursion
+      (goto-char (point-min))
+      (let* (abbrv
+	     full p1
+	     (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+			 (match-string 1)))
+	     (glsentries (and external
+			      (or (cdr (assoc external org-ref-glsentries))
+				  (progn
+				    (cl-pushnew (cons external
+						      (s-trim (shell-command-to-string
+							       (format "kpsewhich tex %s" external))))
+						org-ref-glsentries)
+				    (cdr (assoc external org-ref-glsentries))))))
+	     data)
+	(setq data
+	      (catch 'data
+		(goto-char (point-min))
+		;; check in the definitions of newacronym
+		(when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+		  (setq p1 (+ 1 (point)))
+		  (forward-list)
+		  (setq abbrv (buffer-substring p1 (- (point) 1)))
+		  (setq p1 (+ 1 (point)))
+		  (forward-list)
+		  (setq full (buffer-substring p1 (- (point) 1)))
+		  (throw 'data
+			 (list :label label :abbrv abbrv :full full)))
 
-	;; look external
-	(when (and glsentries
-		   (file-exists-p glsentries))
-	  (with-current-buffer (find-file-noselect glsentries)
-	    (goto-char (point-min))
-	    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
-	      (setq p1 (+ 1 (point)))
-	      (forward-list)
-	      (setq abbrv (buffer-substring p1 (- (point) 1)))
-	      (setq p1 (+ 1 (point)))
-	      (forward-list)
-	      (setq full (buffer-substring p1 (- (point) 1)))
-	      (throw 'data
-		     (list :label label :abbrv abbrv :full full )))))))))
+		;; look for acronyms table
+		(let* ((entries (save-excursion
+				  (catch 'found
+				    (org-element-map
+					(org-element-parse-buffer)
+					'table
+				      (lambda (el)
+					(when (string= "acronyms" (org-element-property :name el))
+					  (goto-char (org-element-property :contents-begin el))
+					  (throw 'found
+						 (nthcdr 2 (org-babel-read-table)))))))))
+		       (result (assoc label entries)))
+		  (when result
+		    (throw 'data (list :label label
+				       :abbrv (cl-second result) :full (cl-third result)))))
+
+		;; look external
+		(when (and glsentries
+			   (file-exists-p glsentries))
+		  (with-current-buffer (find-file-noselect glsentries)
+		    (goto-char (point-min))
+		    (when (re-search-forward (format "\\newacronym{%s}" label) nil t)
+		      (setq p1 (+ 1 (point)))
+		      (forward-list)
+		      (setq abbrv (buffer-substring p1 (- (point) 1)))
+		      (setq p1 (+ 1 (point)))
+		      (forward-list)
+		      (setq full (buffer-substring p1 (- (point) 1)))
+		      (throw 'data
+			     (list :label label :abbrv abbrv :full full )))))))
+	(puthash label data org-ref-acronym-cache)
+	data))))
+
+
+(defun org-ref-glossary-invalidate-caches ()
+  "Function to invalidate the caches."
+  (interactive)
+  (setq-local org-ref-acronym-cache (make-hash-table))
+  (setq-local org-ref-glossary-cache (make-hash-table)))
 
 ;;** Acronym links
 (defun or-follow-acronym (label)
