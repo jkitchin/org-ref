@@ -251,13 +251,11 @@ BACKEND is the org export backend."
 		  ;; (citeproc-itemgetter-from-bibtex (org-ref-find-bibliography))
 		  (citeproc-hash-itemgetter-from-any (org-ref-find-bibliography))
 		  ;; locale getter
-		  (citeproc-locale-getter-from-dir (cond
-						    ((boundp 'org-cite-csl-locales-dir)
-						     org-cite-csl-locales-dir)
-						    (t
+		  (citeproc-locale-getter-from-dir (if org-cite-csl-locales-dir
+						       org-cite-csl-locales-dir
 						     (f-join (file-name-directory
 							      (locate-library "org-ref"))
-							     "citeproc/csl-locales"))))
+							     "citeproc/csl-locales")))
 		  ;; the actual locale
 		  locale))
 
