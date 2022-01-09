@@ -233,7 +233,7 @@ BACKEND is the org export backend."
 		   ((file-exists-p style)
 		    style)
 		   ;; In a user-dir
-		   ((and (boundp 'org-cite-csl-styles-dir)
+		   ((and  org-cite-csl-styles-dir
 			 (file-exists-p (f-join org-cite-csl-styles-dir style)))
 		    (f-join org-cite-csl-styles-dir style))
 		   ;; provided by org-ref
