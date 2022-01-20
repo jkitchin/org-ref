@@ -56,7 +56,8 @@
     (md . plain)
     (org . org)
     (ascii . plain)
-    (odt . org-odt))
+    (odt . org-odt)
+    (docx . org))
   "Mapping of export backend to csl-backends."
   :type '(alist :key-type (symbol) :value-type (symbol))
   :group 'org-ref)
@@ -413,6 +414,11 @@ VISIBLE-ONLY BODY-ONLY and INFO."
        ('odt (org-open-file (org-odt-export-to-odt async subtreep visible-only
 						   info)
 			    'system))
+       ;; for pandoc, we mean make a docx via pandoc
+       ('docx (org-open-file (plist-get (org-pandoc-export-to-docx async subtreep visible-only
+								   body-only info)
+					'output-file)
+			     'system))
        (_
 	(org-open-file (org-export-to-file backend export-name
 			 async subtreep visible-only
@@ -471,6 +477,17 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 		     body-only info))
 
 
+(defun org-ref-export-to-docx (&optional async subtreep visible-only
+					 body-only info)
+  "Export the buffer to docx via pandoc and open.
+See `org-export-as' for the meaning of ASYNC SUBTREEP
+VISIBLE-ONLY BODY-ONLY and INFO."
+  (org-ref-export-to 'docx async subtreep visible-only
+		     body-only info))
+
+
+
+
 (defun org-ref-export-as-org (&optional _async subtreep visible-only
 					body-only info)
   "Export the buffer to an ORG buffer and open.
@@ -513,7 +530,8 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 	(?p "to PDF" org-ref-export-to-pdf)
 	(?o "to ODT" org-ref-export-to-odt)
 	(?O "to Org buffer" org-ref-export-as-org)
-	(?e "to email" org-ref-export-to-message))))
+	(?e "to email" org-ref-export-to-message)
+	(?w "to docx" org-ref-export-to-docx))))
 
 ;; An alternative to this exporter is to use an  `org-export-before-parsing-hook'
 ;; (add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
