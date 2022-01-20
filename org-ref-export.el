@@ -486,8 +486,6 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 		     body-only info))
 
 
-
-
 (defun org-ref-export-as-org (&optional _async subtreep visible-only
 					body-only info)
   "Export the buffer to an ORG buffer and open.
