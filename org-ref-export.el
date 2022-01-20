@@ -405,7 +405,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
      (org-export-expand-include-keyword)
      (goto-char (marker-position mm))
      (org-ref-process-buffer backend subtreep)
-     (message-box (buffer-substring (line-beginning-position) (line-end-position)))
+     ;; (message-box (buffer-substring (line-beginning-position) (line-end-position)))
      (set-marker mm nil)
      
      (pcase backend
