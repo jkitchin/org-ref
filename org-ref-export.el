@@ -525,8 +525,8 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 				  body-only info))))
     (compose-mail)
     (message-goto-body)
-    (message-goto-to)
-    (insert content)))
+    (insert content)
+    (message-goto-to)))
 
 
 (org-export-define-derived-backend 'org-ref 'org
