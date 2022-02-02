@@ -569,7 +569,7 @@ It would be better to parse this, but here I just use a regexp.
      (lambda (status)
        (goto-char (point-min))
        (re-search-forward "citation_pdf_url\" content=\"\\(.*\\)\"" nil t)
-       (message-box (match-string 1))
+       ;; (message-box (match-string 1))
        (setq *doi-utils-pdf-url* (match-string 1)
 	     *doi-utils-waiting* nil)))
     (while (and *doi-utils-waiting* (< *doi-utils-waiting* 5))
