@@ -390,6 +390,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 	 (extensions '((html . ".html")
 		       (latex . ".tex")
 		       (ascii . ".txt")
+		       (md . ".md")
 		       (odt . ".odf")))
 	 (cp (point))
 	 (mm) 				;marker to save place
@@ -444,6 +445,15 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 See `org-export-as' for the meaning of ASYNC SUBTREEP
 VISIBLE-ONLY BODY-ONLY and INFO."
   (org-ref-export-to 'ascii async subtreep visible-only
+		     body-only info))
+
+
+(defun org-ref-export-to-md (&optional async subtreep visible-only
+				       body-only info)
+  "Export the buffer to md and open.
+See `org-export-as' for the meaning of ASYNC SUBTREEP
+VISIBLE-ONLY BODY-ONLY and INFO."
+  (org-ref-export-to 'md async subtreep visible-only
 		     body-only info))
 
 
@@ -515,14 +525,15 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 				  body-only info))))
     (compose-mail)
     (message-goto-body)
-    (insert content)
-    (message-goto-to)))
+    (message-goto-to)
+    (insert content)))
 
 
 (org-export-define-derived-backend 'org-ref 'org
   :menu-entry
   '(?r "Org-ref export"
        ((?a "to Ascii" org-ref-export-to-ascii)
+	(?m "to markdown" org-ref-export-to-md)
 	(?h "to html" org-ref-export-to-html)
 	(?l "to LaTeX" org-ref-export-to-latex)
 	(?p "to PDF" org-ref-export-to-pdf)
