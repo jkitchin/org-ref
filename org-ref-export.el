@@ -383,7 +383,7 @@ BACKEND is the org export backend."
 
 	  ;; hard-coded the hanging indent. oc-csl uses a variable for this. I
 	  ;; guess we could too, but this seems simpler.
-	  (when (cdr (assq 'hanging-indent parameters))
+	  (when (cdr (assq 'hanging-indent bib-parameters))
 	    (setq s2 "<style>.csl-entry{text-indent: -1.5em; margin-left: 1.5em;}</style>"))
 	  
 	  (setq rendered-bib (concat
