@@ -372,15 +372,22 @@ BACKEND is the org export backend."
       ;; (line-spacing . 2)
       (cond
        ((eq 'html backend)
-	(let ((s1 ""))
+	(let ((s1 "")
+	      (s2 ""))
 	  (when (cdr (assq 'second-field-align bib-parameters))
 	    (setq s1 (format
 		      "<style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 %dem;}</style>"
 		      ;; I hard coded this factor of 0.6 from the oc-csl code.  
 		      (* 0.6  (cdr (assq 'max-offset bib-parameters))))))
+
+	  ;; hard-coded the hanging indent. oc-csl uses a variable for this. I
+	  ;; guess we could too, but this seems simpler.
+	  (when (cdr (assq 'hanging-indent parameters))
+	    (setq s2 "<style>.csl-entry{text-indent: -1.5em; margin-left: 1.5em;}</style>"))
+	  
 	  (setq rendered-bib (concat
-			      s1
+			      s1 s2
 			      rendered-bib)))))
 
       ;; replace the bibliography
