@@ -330,7 +330,9 @@ BACKEND is the org export backend."
 	   ;; I only use the returned bibliography string. citeproc returns a
 	   ;; bunch of other things related to offsets and linespacing, but I
 	   ;; don't know what you do with these, so just ignore them here.
-	   (rendered-bib (car (citeproc-render-bib proc csl-backend)))
+	   (bibdata (citeproc-render-bib proc csl-backend))
+	   (rendered-bib (car bibdata))
+	   (bib-parameters (cdr bibdata))
 	   ;; The idea is we will wrap each citation and the bibliography in
 	   ;; org-code so it exports appropriately.
 	   (cite-formatters '((html . "@@html:%s@@")
@@ -355,6 +357,31 @@ BACKEND is the org export backend."
 						   (or
 						    (org-element-property :post-blank cl) 0)
 						   ? )))))
+
+      ;; Decorate the bibliography for different outputs adapted from
+      ;;  `org-cite-csl-render-bibliography' in oc-csl I don't know what all
+      ;;  these do or how to use them in the CSS for html, or LaTeX. This is to
+      ;;  fix an annoying HTML feature that has an extra line in the numbering.
+      ;;  This seems to do the right thing. I don't support hanging-indent like
+      ;;  oc-csl does, and I don't currently support LaTeX here. It already does
+      ;;  a good job there.
+      ;;
+      ;; Here are some examples of what is in the bib-parameters.
+      ;;  (max-offset . 2) (hanging-indent) (second-field-align . flush)
+      ;; (entry-spacing . 0)
+      ;; (line-spacing . 2)
+      (cond
+       ((eq 'html backend)
+	(let ((s1 ""))
+	  (when (cdr (assq 'second-field-align bib-parameters))
+	    (setq s1 (format
+		      "<style>.csl-left-margin{float: left; padding-right: 0em;}
+ .csl-right-inline{margin: 0 0 0 %dem;}</style>"
+		      ;; I hard coded this factor of 0.6 from the oc-csl code.  
+		      (* 0.6  (cdr (assq 'max-offset bib-parameters))))))
+	  (setq rendered-bib (concat
+			      s1
+			      rendered-bib)))))
 
       ;; replace the bibliography
       (org-element-map (org-element-parse-buffer) 'link
@@ -407,7 +434,6 @@ VISIBLE-ONLY BODY-ONLY and INFO."
      (org-export-expand-include-keyword)
      (goto-char (marker-position mm))
      (org-ref-process-buffer backend subtreep)
-     ;; (message-box (buffer-substring (line-beginning-position) (line-end-position)))
      (set-marker mm nil)
      
      (pcase backend
