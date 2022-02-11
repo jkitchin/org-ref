@@ -121,6 +121,16 @@ See https://github.com/citation-style-language/documentation/blob/master/specifi
   :group 'org-ref)
 
 
+(defcustom org-ref-export-suppress-affix-types
+  "List of cite types to suppress affixes (usually parentheses) on."
+  '("citet"
+    "citet*"
+    "citetitle"
+    "citenum")
+  :type '(list (repeat string))
+  :group 'org-ref)
+
+
 (defun org-ref-dealias-label (alias)
   "Return the full, de-aliased label for ALIAS.
 Looked up from `org-ref-csl-label-aliases'.
@@ -294,10 +304,8 @@ BACKEND is the org export backend."
 			      ;; TODO: proof of concept, incomplete if this is
 			      ;; true, the citation is not parenthetical
 			      :suppress-affixes (let ((type (org-element-property :type cl)))
-						  (when (member type '("citet"
-								       "citet*"
-								       "citetitle"
-								       "citenum"))
+						  (when (member type
+								org-ref-export-suppress-affix-types)
 						    t))
 
 			      ;; TODO: this is proof of concept, and not complete.
