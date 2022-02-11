@@ -121,12 +121,12 @@ See https://github.com/citation-style-language/documentation/blob/master/specifi
   :group 'org-ref)
 
 
-(defcustom org-ref-export-suppress-affix-types
-  "List of cite types to suppress affixes (usually parentheses) on."
+(defcustom org-ref-export-suppress-affix-types 
   '("citet"
     "citet*"
     "citetitle"
     "citenum")
+  "List of cite types to suppress affixes (usually parentheses) on."
   :type '(list (repeat string))
   :group 'org-ref)
 
