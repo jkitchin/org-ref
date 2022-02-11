@@ -296,6 +296,7 @@ BACKEND is the org export backend."
 			      :suppress-affixes (let ((type (org-element-property :type cl)))
 						  (when (member type '("citet"
 								       "citet*"
+								       "citetitle"
 								       "citenum"))
 						    t))
 
