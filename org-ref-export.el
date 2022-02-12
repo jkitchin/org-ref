@@ -376,10 +376,14 @@ BACKEND is the org export backend."
       ;;  oc-csl does, and I don't currently support LaTeX here. It already does
       ;;  a good job there.
       ;;
+      ;; (find-library "oc-csl")
+      ;;
       ;; Here are some examples of what is in the bib-parameters.
       ;;  (max-offset . 2) (hanging-indent) (second-field-align . flush)
       ;; (entry-spacing . 0)
       ;; (line-spacing . 2)
+      ;;
+      ;; Here we add style css for html output.
       (cond
        ((eq 'html backend)
 	(let ((s1 "")
