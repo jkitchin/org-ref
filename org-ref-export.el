@@ -125,7 +125,10 @@ See https://github.com/citation-style-language/documentation/blob/master/specifi
   '("citet"
     "citet*"
     "citetitle"
-    "citenum")
+    "citeyear"
+    "citeauthor"
+    "citenum"
+    "textcite")
   "List of cite types to suppress affixes (usually parentheses) on."
   :type '(list (repeat string))
   :group 'org-ref)
