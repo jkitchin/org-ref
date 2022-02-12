@@ -264,7 +264,8 @@ Set this to nil to turn that off, which increase performance."
 
 
 (defvar org-ref-citation-key-re
-  (rx "&" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
+  (rx-to-string
+   '(seq "&" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~")))))
   "Numbered regular expression for a version 3 cite key.
   Key is in group 1.
   Adapted from the expression in org-cite.")

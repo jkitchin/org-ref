@@ -178,17 +178,18 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
     ;; e.g. {5, 6 and 12}, because he had 3 books.
 
     (if (and (string-match
-	      (rx
-	       ;; optional label
-	       (group-n 1 (optional
-			   (regexp (regexp-opt (cl-loop for (abbrvs . full)
-							in org-ref-csl-label-aliases
-							append (append abbrvs (list full)))))))
-	       (optional (one-or-more space))
-	       ;; number or numeric ranges
-	       (group-n 2 (one-or-more digit) (optional "-" (one-or-more digit)))
-	       ;; everything else
-	       (group-n 3 (* ".")))
+	      (rx-to-string
+	       `(seq
+		 ;; optional label
+		 (group-n 1 (optional
+			     (regexp ,(regexp-opt (cl-loop for (abbrvs . full)
+							   in org-ref-csl-label-aliases
+							   append (append abbrvs (list full)))))))
+		 (optional (one-or-more space))
+		 ;; number or numeric ranges
+		 (group-n 2 (one-or-more digit) (optional "-" (one-or-more digit)))
+		 ;; everything else
+		 (group-n 3 (* "."))))	      
 	      full-suffix)
 	     (match-string 2 full-suffix)
 	     (not (string= "" (match-string 2 full-suffix)))) 

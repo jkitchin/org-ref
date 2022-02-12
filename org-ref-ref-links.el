@@ -46,12 +46,14 @@ links. Set this to nil to turn off activation."
 
 
 (defvar org-ref-label-re
-  (rx (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
+  (rx-to-string
+   '(group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Regexp for labels.")
 
 
 (defvar org-ref-label-link-re
-  (rx "label:" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
+  (rx-to-string
+   `(seq "label:" (group-n 1 (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~")))))
   "Regexp for label links.")
 
 
