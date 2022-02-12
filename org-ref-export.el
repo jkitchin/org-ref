@@ -304,8 +304,6 @@ BACKEND is the org export backend."
 			     ;; https://github.com/andras-simonyi/citeproc-el#creating-citation-structures
 			     (citeproc-citation-create
 			      :cites cites
-			      ;; TODO: proof of concept, incomplete if this is
-			      ;; true, the citation is not parenthetical
 			      :suppress-affixes (let ((type (org-element-property :type cl)))
 						  (when (member type
 								org-ref-export-suppress-affix-types)
