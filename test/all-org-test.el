@@ -820,6 +820,7 @@ bibliography:%s"
 	      (org-ref-get-bibtex-key-under-cursor)))))
 
 (ert-deftest preprocess ()
+  (message "**************** org-version : %s" (org-version))
   (with-temp-buffer
     (org-mode)
     (insert
