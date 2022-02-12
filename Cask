@@ -1,6 +1,6 @@
 (source gnu)
+(source nongnu)
 (source melpa)
-(source org)
 
 (package-file "org-ref.el")
 
