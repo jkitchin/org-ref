@@ -1,12 +1,11 @@
 (source gnu)
-(source nongnu)
 (source melpa)
 
 (package-file "org-ref.el")
 
 (development
- (depends-on "s")
  (depends-on "org")
+ (depends-on "s") 
  (depends-on "ecukes")
  (depends-on "ert-runner")
  (depends-on "el-mock")
