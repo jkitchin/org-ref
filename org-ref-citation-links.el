@@ -558,6 +558,7 @@ PATH has the citations in it."
   ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
   ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
   ("P" org-ref-edit-pre-post-notes "Edit pre/suffix" :column "Edit")
+  ("T" org-ref-cite-add-title-desc "Edit link's title" :column "Edit")
 
   ;; Navigation
   ("[" org-ref-previous-key "Previous key" :column "Navigation" :color red)
@@ -1282,6 +1283,28 @@ Optional prefix arg SET-TYPE to choose the cite type."
   (interactive "P")
   (org-ref-insert-cite-key (org-ref-read-key) set-type))
 
+
+;;;###autoload
+(defun org-ref-cite-add-title-desc ()
+  "Add the citation's title, either short or full, as an org-mode
+link description to the citation link at point."
+  (interactive)
+  (save-excursion
+    (org-ref-open-citation-at-point)
+    (setq title
+          (completing-read "Choose a title: "
+                           (seq-remove
+                            'string-empty-p
+                            `(,(bibtex-autokey-get-field
+                                "shorttitle"
+                                bibtex-autokey-titleword-change-strings)
+                              ,(bibtex-autokey-get-field
+                                "title"
+                                bibtex-autokey-titleword-change-strings)))))
+    (kill-this-buffer))
+  (search-forward-regexp "\\( \\|[^a-zA-Z0-9;:&]\\)")
+  (insert (format "[%s]" title))
+  (forward-char))
 
 ;; * natmove like pre-processing
 ;;
