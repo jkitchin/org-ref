@@ -1302,7 +1302,7 @@ link description to the citation link at point."
                                  "title"
                                  bibtex-autokey-titleword-change-strings)))))))
     (kill-this-buffer)
-    (search-forward-regexp "\\( \\|[^a-zA-Z0-9;:&]\\)")
+    (goto-char (1- (org-element-property :end (org-element-context))))
     (insert (format "[%s]" title))
     (forward-char)))
 
