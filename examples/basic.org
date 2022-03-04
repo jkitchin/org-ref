@@ -80,7 +80,7 @@ And for numerically sequential sequences, they will be collapsed when compiled t
 [[printindex:]]
 
 [[bibliographystyle:authordate1]]
-bibliography:/Users/jkitchin/Dropbox/emacs/bibliography/references.bib
+bibliography:basic.bib
 
 
 * build                                                            :noexport:
