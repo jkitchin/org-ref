@@ -409,31 +409,33 @@ names are arbitrary, but three columns are expected, and the
 hline is expected.
 
 This is intended to be run in `org-export-before-parsing-hook'."
-  (let* (begin
-	 end
-	 (entries (save-excursion
-		    (catch 'found
-		      (org-element-map
-			  (org-element-parse-buffer)
-			  'table
-			(lambda (el)
-			  (when (and (org-element-property :name el)
-				     (stringp (org-element-property :name el))
-				     (string= "glossary" (org-element-property :name el)))
-			    (setq begin (org-element-property :begin el)
-				  end (org-element-property :end el))
-			    (goto-char (org-element-property :contents-begin el))
-			    (throw 'found
-				   (nthcdr 2 (org-babel-read-table))))))))))
-    ;; Delete the table
-    (when entries
-      (setf (buffer-substring begin end) "")
+  (save-restriction
+    (widen)
+    (let* (begin
+	   end
+	   (entries (save-excursion
+		      (catch 'found
+			(org-element-map
+			    (org-element-parse-buffer)
+			    'table
+			  (lambda (el)
+			    (when (and (org-element-property :name el)
+				       (stringp (org-element-property :name el))
+				       (string= "glossary" (org-element-property :name el)))
+			      (setq begin (org-element-property :begin el)
+				    end (org-element-property :end el))
+			      (goto-char (org-element-property :contents-begin el))
+			      (throw 'found
+				     (nthcdr 2 (org-babel-read-table))))))))))
+      ;; Delete the table
+      (when entries
+	(setf (buffer-substring begin end) "")
 
-      (goto-char (point-min))
-      (cl-loop for (label name description) in entries
-	       do
-	       (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name=%s,description={{%s}}}\n"
-			       label name description))))))
+	(goto-char (point-min))
+	(cl-loop for (label name description) in entries
+		 do
+		 (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name=%s,description={{%s}}}\n"
+				 label name description)))))))
 
 
 ;;* Acronyms
@@ -646,31 +648,33 @@ This assumes a table like
 is in the org-buffer, and will add the relevant latex_header items if there is. The table is deleted in a copy of the buffer before the export.
 
 This will run in `org-export-before-parsing-hook'."
-  (let* (begin
-	 end
-	 (entries (save-excursion
-		    (catch 'found
-		      (org-element-map
-			  (org-element-parse-buffer)
-			  'table
-			(lambda (el)
-			  (when (and (org-element-property :name el)
-				     (stringp (org-element-property :name el))
-				     (string= "acronyms" (org-element-property :name el)))
-			    (setq begin (org-element-property :begin el)
-				  end (org-element-property :end el))
-			    (goto-char (org-element-property :contents-begin el))
-			    (throw 'found
-				   (nthcdr 2 (org-babel-read-table))))))))))
-    (when entries
-      ;; Delete the table
-      (setf (buffer-substring begin end) "")
+  (save-restriction
+    (widen)
+    (let* (begin
+	   end
+	   (entries (save-excursion
+		      (catch 'found
+			(org-element-map
+			    (org-element-parse-buffer)
+			    'table
+			  (lambda (el)
+			    (when (and (org-element-property :name el)
+				       (stringp (org-element-property :name el))
+				       (string= "acronyms" (org-element-property :name el)))
+			      (setq begin (org-element-property :begin el)
+				    end (org-element-property :end el))
+			      (goto-char (org-element-property :contents-begin el))
+			      (throw 'found
+				     (nthcdr 2 (org-babel-read-table))))))))))
+      (when entries
+	;; Delete the table
+	(setf (buffer-substring begin end) "")
 
-      (goto-char (point-min))
-      (cl-loop for (label name description) in entries
-	       do
-	       (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
-			       label name description))))))
+	(goto-char (point-min))
+	(cl-loop for (label name description) in entries
+		 do
+		 (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
+				 label name description)))))))
 
 
 ;; * Interactive command to insert acroynm/glossary links
