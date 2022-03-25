@@ -114,9 +114,9 @@ Set this to nil to turn that off, which increase performance."
 (defcustom org-ref-natbib-types
   '(("cite" "basic citation")
     ("nocite" "add key to bibliography, but do not cite it in the text")
-    ("citet" "textual, Jones et al. (1990")
+    ("citet" "textual, Jones et al. (1990)")
     ("citet*" "textual, full author list Jones, Baker, and Williams (1990)")
-    ("citep" "parenthetical citation (Jones et al. (1990)")
+    ("citep" "parenthetical citation (Jones et al. (1990))")
     ("citep*" "parenthetical, full author list, (Jones, Baker, and Williams, 1990)")
     ("citealt" "same as citet, but without parentheses")
     ("citealt*" "same as citet, with full author list but without parentheses")
