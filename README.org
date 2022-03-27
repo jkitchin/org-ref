@@ -41,7 +41,6 @@ It is possible to use org-cite for citation support instead of the org-ref citat
 You can still use the org-ref cross-reference links if you use org-cite citations. These packages should be able to co-exist without issue.
 
 
-
 * Screenshots
 
 Here are some annotated images of basic insertion of citations in org-mode. These are with the ivy backend.
@@ -217,7 +216,7 @@ If you use some other completing-read backend like selectrum, or ido, then for a
 
 You can use any other library that inserts links you want. Some of these include:
 
-1. bibtex-actions (https://github.com/bdarcus/bibtex-actions#configuration)
+1. citar (https://github.com/bdarcus/citar#configuration)
 2. ebib (https://joostkremers.github.io/ebib/)
 3. You could even roll your own insert functions.
 
