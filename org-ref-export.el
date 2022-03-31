@@ -510,9 +510,11 @@ VISIBLE-ONLY BODY-ONLY and INFO."
   "Export the buffer to PDF via LaTeX and open.
 See `org-export-as' for the meaning of ASYNC SUBTREEP
 VISIBLE-ONLY BODY-ONLY and INFO."
-  (let ((org-export-before-parsing-hook '(org-ref-csl-preprocess-buffer)))
+  (let ((org-export-before-parsing-hook (append
+					 org-export-before-parsing-hook
+					 '(org-ref-csl-preprocess-buffer))))
     (org-open-file (org-latex-export-to-pdf async subtreep visible-only
-					body-only info))))
+					    body-only info))))
 
 
 (defun org-ref-export-to-latex (&optional async subtreep visible-only
