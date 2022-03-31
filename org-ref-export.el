@@ -64,7 +64,7 @@
 
 
 (defcustom org-ref-cite-internal-links 'auto
-  "Should be on of
+  "Should be one of
 - 'bib-links :: link cites to bibliography entries
 - 'no-links :: do not link cites to bibliography entries
 - nil or 'auto :: add links based on the style."
