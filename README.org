@@ -192,12 +192,12 @@ org-ref no longer binds keyboard shortcuts for you. You have some options here. 
 or
 
 #+BEGIN_SRC emacs-lisp
-(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link-hydra)
+(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link-hydra/body)
 #+END_SRC
 
-- C-c ] c :: insert a citation
-- C-c ] r :: insert a cross-reference
-- C-c ] l :: insert a label
+- C-c ] [:: insert a citation
+- C-c ] ] :: insert a cross-reference
+- C-c ] \ :: insert a label
 
 You can bind each insert command separately if you want after the library is loaded like this. Here I use the hyper key as a modifier, but you can choose anything you find convenient.
 
