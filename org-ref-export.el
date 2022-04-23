@@ -395,7 +395,7 @@ BACKEND is the org export backend."
 		      "<style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 %dem;}</style>"
 		      ;; I hard coded this factor of 0.6 from the oc-csl code.  
-		      (* 0.6  (cdr (assq 'max-offset bib-parameters))))))
+		      (* 0.6  (or (cdr (assq 'max-offset bib-parameters)) 0)))))
 
 	  ;; hard-coded the hanging indent. oc-csl uses a variable for this. I
 	  ;; guess we could too, but this seems simpler.
