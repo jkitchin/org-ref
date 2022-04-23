@@ -417,7 +417,12 @@ fast, but also up to date."
   "Activation function for a cite link.
 START and END are the bounds of the link.
 PATH has the citations in it."
-  (when org-ref-activate-cite-links
+  (when (and org-ref-activate-cite-links
+	     ;; Try avoid fontifying org-cite elements. this is based on the
+	     ;; path containing @ which makes it likely to be an org-cite. Maybe
+	     ;; a text property is better, in case this is an issue in the
+	     ;; future.
+	     (not (s-contains-p "@" path)))
     (let* ((valid-keys (org-ref-valid-keys)) 
 	   valid-key
 	   substrings)
