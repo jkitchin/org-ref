@@ -334,7 +334,8 @@ BACKEND is the org export backend."
 						  (org-element-property :type cl) 0 1))
 			      ;; I don't know where this information would come from.
 			      :note-index nil
-			      :ignore-et-al nil))))
+			      :ignore-et-al nil
+			      :grouped nil))))
 
 	   (rendered-citations (progn (citeproc-append-citations cites proc)
 				      (citeproc-render-citations proc csl-backend org-ref-cite-internal-links)))
