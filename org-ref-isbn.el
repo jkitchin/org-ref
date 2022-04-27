@@ -167,7 +167,7 @@ in the file. Data comes from worldcat."
        nil)))
     (completing-read "Bibfile: " (org-ref-possible-bibfiles))))
 
-  (let* ((url (format "https://www.ottobib.com/isbn/%s/bibtex" isbn))
+  (let* ((url (format "https://www.ebook.de/de/tools/isbn2bibtex?isbn=%s" isbn))
 	 (entry))
     (with-current-buffer (url-retrieve-synchronously url t t)
       (goto-char (point-min))
