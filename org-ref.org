@@ -562,10 +562,10 @@ This library adds two extremely useful tools for getting bibtex entries and pdf 
 This provides two important commands:
 
 - ~doi-utils-add-bibtex-entry-from-doi~
-This will prompt you for a DOI, and a bibtex file, and then try to get the bibtex entry, and pdf of the article.
+This will prompt you for a DOI, and a bibtex file, and then try to get the bibtex entry. Adds the entry to the bibtex file if successful. Automatically calls ~org-ref-clean-bibtex-entry~.
 
 - ~doi-utils-add-entry-from-crossref-query~
-This will prompt you for a query string, which is usually the title of an article, or a free-form text citation of an article. Then you will get a helm buffer of matching items, which you can choose from to insert a new bibtex entry into a bibtex file.
+This will prompt you for a query string, which is usually the title of an article, or a free-form text citation of an article. Searches using [[https://www.crossref.org/][Crossref.org]], then prompts in the minibuffer with a list of matching items, which you can choose from to insert a new bibtex entry into a bibtex file. Also calls ~org-ref-clean-bibtex-entry~.
 
 This library also redefines the org-mode doi link. Now, when you click on this link you will get a menu of options, e.g. to open a bibtex entry or a pdf if you have it, or to search the doi in some scientific search engines. Try it out  doi:10.1021/jp511426q.
 
