@@ -234,19 +234,25 @@ Go forth and citate.
 
 Note many of these have been renamed with an org-ref prefix.
 
+- [[./x2bib.el][x2bib]] :: Convert bibliography formats to and from bibtex. In most cases, it relies on the command line [[https://sourceforge.net/p/bibutils/home/Bibutils/][bibutils]] package (available in source form at the link; can be installed on a Mac using Homebrew with ~brew install bibutils~.
+
+The following libraries are not loaded by default. They may be useful in specialist cases:
+
 - [[./doi-utils.el][doi-utils]] :: Download bibtex entries and PDFs from doi and crossref queries.
-- [[./org-ref-pdf.el][org-ref-pdf]] :: Add drag-n-drop PDF to create bibtex entries
-- [[./org-ref-url-utils.el][org-ref-url-utils]] :: Add drag-n-drop urls to create bibtex entries
-- [[./org-ref-bibtex.el][org-ref-bibtex]] :: Utility functions for bibtex
-- [[./org-ref-arxiv.el][org-ref-arxiv]] :: arxiv links, add bibtex entries from arxiv.org.
-- [[./org-ref-pubmed.el][org-ref-pubmed]] :: pubmed links, add bibtex entries from PMID.
-- [[./org-ref-isbn.el][org-ref-isbn]] :: Add bibtex entries from a book ISBN
-- [[./org-ref-wos.el][org-ref-wos]] :: WebOfKnowledge links and queries
-- [[./org-ref-scopus.el][org-ref-scopus]] :: Scopus links and queries
-- [[./x2bib.el][x2bib]] :: Convert bibliography formats to and from bibtex
 - [[./nist-webbook.el][nist-webbook]] :: Links to NIST Webbook resources
+- [[./org-ref-arxiv.el][org-ref-arxiv]] :: arxiv links, add bibtex entries from arxiv.org.
+- [[./org-ref-bibtex.el][org-ref-bibtex]] :: Utility functions for bibtex
+- [[./org-ref-isbn.el][org-ref-isbn]] :: Add bibtex entries from a book ISBN
+- [[./org-ref-pubmed.el][org-ref-pubmed]] :: pubmed links, add bibtex entries from PMID.
 - [[./org-ref-scifinder.el][org-ref-scifinder]] :: one small function for searching SciFinder
+- [[./org-ref-scopus.el][org-ref-scopus]] :: Scopus links and queries
 - [[./org-ref-worldcat.el][org-ref-worldcat]] :: One small function for searching Worldcat
+- [[./org-ref-wos.el][org-ref-wos]] :: WebOfKnowledge links and queries
+
+The following libraries are still included, but they have been unreliable and are no longer recommended for use:
+
+- [[./org-ref-pdf.el][org-ref-pdf]] :: Add drag-n-drop PDF to create bibtex entries (this code has not been reliable, and is no longer recommended for use)
+- [[./org-ref-url-utils.el][org-ref-url-utils]] :: Add drag-n-drop urls to create bibtex entries
 
 * Manual
 
