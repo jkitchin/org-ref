@@ -140,13 +140,12 @@ file."
 
 
 ;; Here we get isbn metadata and build a bibtex entry.
-;; http://xisbn.worldcat.org/xisbnadmin/doc/api.htm#getmetadata
 
 ;;;###autoload
 (defun isbn-to-bibtex (isbn bibfile)
   "Get bibtex entry for ISBN and insert it into BIBFILE.
 Nothing happens if an entry with the generated key already exists
-in the file. Data comes from worldcat."
+in the file. Data comes from www.ebook.de."
   (interactive
    (list
     (read-string
