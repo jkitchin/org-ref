@@ -359,6 +359,20 @@ title-case by org-ref-title-case."
   :group 'org-ref-bibtex)
 
 
+(defcustom org-ref-bibtex-pdf-download-dir
+  (cond
+   ((stringp bibtex-completion-library-path)
+    bibtex-completion-library-path)
+   (t
+    (car bibtex-completion-library-path)))
+  "Default directory to look for downloaded pdfs.
+Used in `org-ref-bibtex-assoc-pdf-with-entry' when looking for a
+PDF to associate with an entry. Defaults to the first entry in
+`bibtex-completion-library-path'."
+  :group 'org-ref-bibtex
+  :type 'directory)
+
+
 ;; * Modifying journal titles
 ;;;###autoload
 (defun org-ref-bibtex-generate-longtitles ()
@@ -777,7 +791,9 @@ a directory. Optional PREFIX argument toggles between
   (interactive "P")
   (save-excursion
     (bibtex-beginning-of-entry)
-    (let* ((file (read-file-name "Select file associated with entry: "))
+    (let* ((file (read-file-name
+		  "Select file associated with entry: "
+		  org-ref-bibtex-pdf-download-dir))
 	   (bibtex-expand-strings t)
            (entry (bibtex-parse-entry t))
            (key (cdr (assoc "=key=" entry)))
