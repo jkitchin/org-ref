@@ -158,24 +158,15 @@ After you set those options, you have these options to load org-ref.
 If you prefer ivy-bibtex, you should use this. It requires =ivy-bibtex=, but this is not currently automatically installed by MELPA.
 
 #+BEGIN_SRC emacs-lisp
+(require 'org-ref)
 (require 'org-ref-ivy)
-
-(setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
-      org-ref-insert-cite-function 'org-ref-cite-insert-ivy
-      org-ref-insert-label-function 'org-ref-insert-label-link
-      org-ref-insert-ref-function 'org-ref-insert-ref-link
-      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
 #+END_SRC
 
 If you prefer helm, you can instead use this. This uses code from =helm-bibtex= for citation insertion. It requires helm-bibtex, but this is not currently automatically installed by MELPA.
 
 #+BEGIN_SRC emacs-lisp
+(require 'org-ref)
 (require 'org-ref-helm)
-(setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
-      org-ref-insert-cite-function 'org-ref-cite-insert-helm
-      org-ref-insert-label-function 'org-ref-insert-label-link
-      org-ref-insert-ref-function 'org-ref-insert-ref-link
-      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
 #+END_SRC
 
 org-ref no longer binds keyboard shortcuts for you. You have some options here. To get the behavior of version 2, use this in your init file:

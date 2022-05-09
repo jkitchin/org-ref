@@ -106,6 +106,9 @@ frequent searches (e.g. your own publications)."
           :bibtex-local-bib local-bib)))
 
 
+(setq org-ref-insert-cite-function 'org-ref-cite-insert-helm)
+
+
 (provide 'org-ref-helm)
 
 ;;; org-ref-helm.el ends here

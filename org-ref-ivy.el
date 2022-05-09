@@ -145,6 +145,9 @@
 	      :caller 'org-ref-cite-insert-ivy)))
 
 
+(setq org-ref-insert-cite-function 'org-ref-cite-insert-ivy)
+
+
 (provide 'org-ref-ivy)
 
 ;;; org-ref-ivy.el ends here
