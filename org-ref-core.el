@@ -283,6 +283,11 @@ provide their own version."
 	    (beginning-of-line)
 	    (forward-char)))
    "New acronym term" :column "Glossary")
+
+  ("bd" doi-add-bibtex-entry "Add bibtex entry from a DOI" :column "Bibtex")
+  ("bc" crossref-add-bibtex-entry "Add bibtex entry from Crossref" :column "Bibtex")
+  ("bo" (find-file (completing-read "Bibliography: " (org-ref-find-bibliography)))
+   "Open bibtex file" :column "Bibtex")
   
   ("t" (insert "[[list-of-tables:]]\n") "List of tables" :column "Misc")
   ("f" (insert "[[list-of-figures:]]\n") "List of figures" :column "Misc")
