@@ -47,6 +47,7 @@
 (defvar hfy-user-sheet-assoc)  		; to quiet compiler
 
 (require 'ox-org)
+(require 'ox-pandoc)
 
 (require 'citeproc)
 
