@@ -255,9 +255,10 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
       (0
        (message "no pdf found for %s" key))
       (1
-       (org-open-file (car pdf-file)))
+       (funcall bibtex-completion-pdf-open-function (car pdf-file)))
       (_
-       (org-open-file (completing-read "pdf: " pdf-file))))))
+       (funcall bibtex-completion-pdf-open-function
+		(completing-read "pdf: " pdf-file))))))
 
 
 ;;;###autoload
