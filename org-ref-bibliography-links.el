@@ -172,7 +172,7 @@ Optional argument BACKEND is the export backend."
 				      (save-window-excursion
 					(bibtex-completion-show-entry (list key))
 					(buffer-file-name))))))
-    (insert (format "bibliography:%s" (string-join files ",")))))
+    (insert (format "[[bibliography:%s]]" (string-join files ",")))))
 
 
 (defun org-ref-bibliography-complete (&optional arg)
