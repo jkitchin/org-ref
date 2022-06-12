@@ -967,7 +967,7 @@ MATCHING-TYPES."
                           "}\n")))))))
          doi-utils-bibtex-type-generators))
 
-(doi-utils-def-bibtex-type article ("journal-article" "article-journal")
+(doi-utils-def-bibtex-type article ("journal-article" "article-journal" "article")
                            author title journal year volume number pages doi url)
 
 (doi-utils-def-bibtex-type inproceedings ("proceedings-article" "paper-conference")
