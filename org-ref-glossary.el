@@ -858,7 +858,7 @@ This will run in `org-export-before-parsing-hook'."
 	       ("acrfull" (format "%s (%s)"
 				  (plist-get entry :full)
 				  (plist-get entry :abbrv)))
-	       ("acrfullpl" (format "%s (%s)s"
+	       ("acrfullpl" (format "%ss (%ss)"
 				    (plist-get entry :full)
 				    (plist-get entry :abbrv)))
 	       
