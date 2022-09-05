@@ -1264,7 +1264,11 @@ Rules:
 	(3 (cl--set-buffer-substring
 	    (org-element-property :begin object)
 	    (org-element-property :end object)
-	    (concat "[[" type ":" (org-ref-interpret-cite-data data) "]]"))))))
+	    (concat "[["
+		    type ":"
+		    (org-ref-interpret-cite-data data)
+		    "]]"
+		    (make-string (org-element-property :post-blank object) ? )))))))
 
     ;; Now get to the end of the key you just put in.
     (setq object (org-element-context))
