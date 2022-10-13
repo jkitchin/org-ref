@@ -200,7 +200,9 @@ Returns a formatted BibTeX entry."
          (completing-read
           "Bibfile: "
           (append (f-entries "." (lambda (f) (f-ext? f "bib")))
-                  bibtex-completion-bibliography))))
+		  (if (stringp bibtex-completion-bibliography)
+		      (list bibtex-completion-bibliography)
+		    bibtex-completion-bibliography)))))
   (save-window-excursion
     (find-file bibfile)
     (goto-char (point-max))
