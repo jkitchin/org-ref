@@ -151,7 +151,7 @@ Set this to nil to turn that off, which increase performance."
     ("Parencite" "similar to cite with parentheses and capitalization")
     ("footcite" "Put the citation in a footnote")
     ("footcitetext" "Put the citation in a footnote using \footnotetext")
-    
+
     ("textcite" "print the authors or editors as a subject of the sentence")
     ("Textcite" "print the authors or editors as a subject of the sentence with capitalization")
     ("smartcite" "like parencite in a footnote, and footcite in the body")
@@ -159,29 +159,29 @@ Set this to nil to turn that off, which increase performance."
     ("cite*" "similar to cite, but prints the year or title")
     ("parencite*" "similar to parencite, but prints the year or title")
     ("supercite" "superscripted numeric citation (only in numberic styles)")
-    
+
     ("autocite" "handles some punctuation nuances")
     ("Autocite" "handles some punctuation nuances with punctuation")
     ("autocite*" "same as autocite but * is passed to the backend")
     ("Autocite*" "same as Autocite but * is passed to the backend")
-    
+
     ("citetitle" "the shorttitle or title field")
     ("citetitle*" "the full title")
-    
+
     ("citeyear" "the year field")
     ("citeyear*" "the year field and extradate information if available")
-    
+
     ("citedate" "the full date or year")
     ("citedate*" "the full date or year, including extradate information if available")
-    
+
     ("citeurl" "the url field")
-    
+
     ("fullcite" "create a full citation similar to what is in the bibliography")
     ("footfullcite" "create a full citation as a footnote")
     ;; "volcite" "Volcite" cannot support the syntax
     ("notecite" "print prenote and postnote, but no citation")
     ("Notecite" "print prenote and postnote, but no citation with capitalization")
-    
+
     ("pnotecite" "similar to notecite with parentheses")
     ("Pnotecite" "similar to Notecite with parentheses")
     ("fnotecite" "similar to notecite in a footnote"))
@@ -374,7 +374,7 @@ to a path string."
   "Return a list of valid bibtex keys for this buffer.
 This is used a lot in `org-ref-cite-activate' so it needs to be
 fast, but also up to date."
-  
+
   ;; this seems to be needed, but we don't want to do this every time
   (unless bibtex-completion-display-formats-internal
     (bibtex-completion-init))
@@ -385,7 +385,7 @@ fast, but also up to date."
 			      collect (assoc file bibtex-completion-cache)))
 	;; We have a cache for each file
 	;; bibtex-completion-cache contains (filename md5hash entries)
-	(cl-loop for entry in 
+	(cl-loop for entry in
 		 (cl-loop
 		  for file in files
 		  append (cddr (assoc file bibtex-completion-cache)))
@@ -423,7 +423,7 @@ PATH has the citations in it."
 	     ;; a text property is better, in case this is an issue in the
 	     ;; future.
 	     (not (s-contains-p "@" path)))
-    (let* ((valid-keys (org-ref-valid-keys)) 
+    (let* ((valid-keys (org-ref-valid-keys))
 	   valid-key
 	   substrings)
       (goto-char start)
@@ -490,7 +490,7 @@ PATH has the citations in it."
 			  (setq key-begin (match-beginning 0)
 				key-end (match-end 0))))
 		      ;; mark the &
-		      (put-text-property key-begin (+ 1 key-begin) 
+		      (put-text-property key-begin (+ 1 key-begin)
 					 'face 'org-ref-cite-&-face)
 		      ;; store key on the whole thing
 		      (put-text-property (match-beginning 0)
@@ -799,7 +799,7 @@ Use with apply-partially."
 
 
 (org-link-set-parameters
- "bibentry" 
+ "bibentry"
  :complete (apply-partially #'org-ref-cite-link-complete "bibentry")
  :follow #'org-ref-cite-follow
  :face 'org-ref-cite-face
@@ -887,7 +887,7 @@ arg COMMON, edit the common prefixes instead."
 	 (data (org-ref-parse-cite-path (org-element-property :path cite)))
 	 prefix suffix
 	 (delta 0))
-    
+
     (if (or (null key) common)
 	(progn
 	  (setq prefix (read-string "prenote: " (plist-get data :prefix))
@@ -896,7 +896,7 @@ arg COMMON, edit the common prefixes instead."
 
 	  (plist-put data :prefix (if (string= "" prefix)
 				      nil prefix))
-	  
+
 	  (plist-put data :suffix (if (string= "" suffix)
 				      nil suffix)))
 
@@ -906,7 +906,7 @@ arg COMMON, edit the common prefixes instead."
 				 (lambda (el1 key-at-point)
 				   (string= key-at-point (plist-get el1 :key))))))
 	;; Pad with spaces after prefix and before suffix
-	(setq prefix (concat 
+	(setq prefix (concat
 		      (read-string "prenote: "
 				   (string-trim
 				    (plist-get
@@ -927,13 +927,13 @@ arg COMMON, edit the common prefixes instead."
 	 (nth index (plist-get data :references))
 	 :prefix (if (string= "" prefix)
 		     nil prefix))
-	
+
 	(plist-put
 	 (nth index (plist-get data :references))
 	 :suffix (if (string= "" suffix)
 		     nil suffix))))
-    
-    
+
+
     (setf (buffer-substring (org-element-property :begin cite) (org-element-property :end cite))
 	  (format "[[%s:%s]]" type (org-ref-interpret-cite-data data)))
 
@@ -1195,7 +1195,10 @@ Rules:
 					  (cl-second item))))))
 	 (completion-extra-properties `(:annotation-function ,type-annotation)))
 
-    
+    (cond
+     ((derived-mode-p 'latex-mode)
+      (insert (bibtex-completion-format-citation-cite (list key))))
+     (t
     (cond
      ;; Not on a link, so we just insert a cite
      ((null (assoc type org-ref-cite-types))
@@ -1273,7 +1276,7 @@ Rules:
     ;; Now get to the end of the key you just put in.
     (setq object (org-element-context))
     (goto-char (org-element-property :end object))
-    (skip-chars-backward " ")))
+    (skip-chars-backward " ")))))
 
 
 (defun org-ref-insert-cite-keys (keys &optional set-type)
