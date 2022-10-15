@@ -119,6 +119,7 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
 #+name: or-key-file-p-nil
 #+BEGIN_SRC emacs-lisp :test
 "Check `org-ref-key-in-file-p' for non-existent key"
@@ -163,6 +164,7 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
 #+name: swap-1
 #+BEGIN_SRC emacs-lisp :test
 "org swap test"
@@ -174,6 +176,7 @@ Run this to run tests and tangle the results for CI.
 
 #+RESULTS: swap-1
 : t
+
 
 
 
@@ -255,6 +258,7 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
 * Get bibliography
 
 
@@ -279,6 +283,7 @@ Run this to run tests and tangle the results for CI.
 
 #+RESULTS: orfb-3
 : t
+
 
 
 
@@ -374,6 +379,7 @@ Run this to run tests and tangle the results for CI.
 
 
 
+
 #+name: unique-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -390,6 +396,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: unique-keys
 : t
+
 
 
 
@@ -473,6 +480,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 * Bibtex tests
 
 #+name: short-titles
@@ -521,6 +529,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: long-titles
 #+BEGIN_SRC emacs-lisp :test
 (org-ref-bibtex-generate-longtitles)
@@ -533,6 +542,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: long-titles
 : t
+
 
 
 
@@ -636,6 +646,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: title-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -663,6 +674,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-2
 : t
+
 
 
 
@@ -764,6 +776,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: title-case-4
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -786,6 +799,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: title-case-4
 : t
+
 
 
 
@@ -902,6 +916,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: sentence-case-2
 #+BEGIN_SRC emacs-lisp :test
 (should (string=
@@ -929,6 +944,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: sentence-case-2
 : t
+
 
 
 
@@ -994,6 +1010,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: stringify
 : t
+
 
 
 
@@ -1111,6 +1128,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: prev-entry-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1156,6 +1174,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: prev-entry-1
 : t
+
 
 
 
@@ -1293,6 +1312,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: set-bibtex-keys
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1322,6 +1342,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: set-bibtex-keys
 : t
+
 
 
 
@@ -1447,6 +1468,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-year-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1520,6 +1542,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-&
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1548,6 +1571,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-&
 : t
+
 
 
 
@@ -1667,6 +1691,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-pages-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1741,6 +1766,7 @@ bibliography:tests/test-1.bib
 
 
 
+
 #+name: clean-doi-1
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -1770,6 +1796,7 @@ bibliography:tests/test-1.bib
 
 #+RESULTS: clean-doi-1
 : t
+
 
 
 
@@ -1892,6 +1919,7 @@ the in the past.
 
 
 
+
 #+name: bib-1a
 #+BEGIN_SRC emacs-lisp :test
 "Test finding an entry from an existing file."
@@ -1954,6 +1982,7 @@ the in the past.
 
 
 
+
 #+name: bib-2
 #+BEGIN_SRC emacs-lisp :test
 "Test for null entry"
@@ -1969,6 +1998,7 @@ the in the past.
 
 #+RESULTS: bib-2
 : t
+
 
 
 
@@ -2086,6 +2116,7 @@ label:four
 
 
 
+
 #+name: bad-file-link
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2107,6 +2138,7 @@ not loaded.
 
 #+RESULTS: bad-file-link
 : t
+
 
 
 
@@ -2159,17 +2191,19 @@ not loaded.
 
 
 
+
 #+name: cite-export-2
 #+BEGIN_SRC emacs-lisp :test
 (should
    (string=
-    "\\cite[page 2]{kitchin-2008-alloy}
+    "\\cite[page 2][]{kitchin-2008-alloy}
 "
     (org-export-string-as "[[cite:page 2;&kitchin-2008-alloy]]" 'latex t)))
 #+END_SRC
 
 #+RESULTS: cite-export-2
 : t
+
 
 
 
@@ -2201,6 +2235,7 @@ not loaded.
 
 #+RESULTS: cite-export-3
 : t
+
 
 
 
@@ -2253,6 +2288,7 @@ not loaded.
 
 
 
+
 ** ref
 #+name: ref-export-1
 #+BEGIN_SRC emacs-lisp :test
@@ -2265,6 +2301,7 @@ not loaded.
 
 #+RESULTS: ref-export-1
 : t
+
 
 
 
@@ -2313,6 +2350,7 @@ not loaded.
 
 
 
+
 #+name: curly-2
 #+BEGIN_SRC emacs-lisp :test
 (should
@@ -2325,6 +2363,7 @@ not loaded.
 
 #+RESULTS: curly-2
 : t
+
 
 
 
@@ -2355,6 +2394,7 @@ not loaded.
 
 #+RESULTS: bib-string
 : t
+
 
 
 
@@ -2406,6 +2446,7 @@ not loaded.
 
 
 
+
 #+name: bad-cite-1
 #+BEGIN_SRC emacs-lisp :test
 (should (= 1 (length (let ((bibtex-completion-bibliography "test-1.bib"))
@@ -2417,6 +2458,7 @@ not loaded.
 
 #+RESULTS: bad-cite-1
 : t
+
 
 
 
@@ -2460,6 +2502,7 @@ not loaded.
 
 
 
+
 #+name: bad-cite-1b
 #+BEGIN_SRC emacs-lisp :test
 (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
@@ -2473,6 +2516,7 @@ not loaded.
 
 #+RESULTS: bad-cite-1b
 : t
+
 
 
 
@@ -2513,6 +2557,7 @@ not loaded.
 
 
 
+
 #+name: bad-cite-1d
 #+BEGIN_SRC emacs-lisp :test
 (should (= 0 (length (let ((bibtex-completion-bibliography (expand-file-name
@@ -2526,6 +2571,7 @@ not loaded.
 
 #+RESULTS: bad-cite-1d
 : t
+
 
 
 
@@ -2559,6 +2605,7 @@ not loaded.
 
 
 
+
 t
 
 
@@ -2573,6 +2620,7 @@ t
 
 #+RESULTS: v2-2
 : t
+
 
 
 
@@ -2601,6 +2649,7 @@ t
 
 
 
+
 t
 
 
@@ -2615,6 +2664,7 @@ t
 
 #+RESULTS: v2-4
 : t
+
 
 
 
@@ -2654,6 +2704,7 @@ bibliography:%s"
 
 
 
+
 #+name: tooltip-2
 #+BEGIN_SRC emacs-lisp :test 
 (should
@@ -2675,6 +2726,7 @@ bibliography:%s"
 
 #+RESULTS: tooltip-2
 : t
+
 
 
 
@@ -2708,6 +2760,7 @@ bibliography:%s"
 
 
 
+
 * export try
 
 This should just raise no error.
@@ -2732,6 +2785,7 @@ t)
 
 #+RESULTS: preprocess
 : t
+
 
 
 

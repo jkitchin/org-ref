@@ -640,7 +640,7 @@ not loaded.
 (ert-deftest cite-export-2 ()
   (should
    (string=
-    "\\cite[page 2]{kitchin-2008-alloy}
+    "\\cite[page 2][]{kitchin-2008-alloy}
 "
     (org-export-string-as "[[cite:page 2;&kitchin-2008-alloy]]" 'latex t))))
 
