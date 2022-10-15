@@ -413,6 +413,7 @@ fast, but also up to date."
                (puthash entry t org-ref-valid-keys-cache))))
   org-ref-valid-keys-cache)
 
+
 (defun org-ref-cite-activate (start end path _bracketp)
   "Activation function for a cite link.
 START and END are the bounds of the link.
@@ -645,6 +646,15 @@ Use with apply-partially."
 		      ("prefix" . ,(if (= 1 (length references))
 				       ;; single reference
 				       (cond
+					;; global and common prefixes exist, combine them
+					((and (plist-get cite :prefix)
+					      (plist-get (car references) :prefix))
+
+					 (concat "["
+						 (plist-get cite :prefix)
+						 ";" ;; add this back as a separator
+						 (plist-get (car references) :prefix)
+						 "]"))
 					;; local prefix is not empty, we use it.
 					((plist-get (car references) :prefix)
 					 (concat "["
@@ -673,7 +683,8 @@ Use with apply-partially."
 				       (concat "["
 					       (string-trim (plist-get (car references) :prefix))
 					       "]"))
-				      ;; if you have a suffix, you need an empty prefix
+				      ;; if you get here, the prefix is empty.
+				      ;; if you have a suffix, you need an empty prefix placeholder
 				      ((plist-get cite :suffix)
 				       "[]")
 				      (t
@@ -681,15 +692,25 @@ Use with apply-partially."
 		      ("suffix" . ,(if (= 1 (length references))
 				       ;; Single reference
 				       (cond
-					;; local prefix is not empty, so use it
+					;; local suffix is not empty, so use it
 					((plist-get (car references) :suffix)
 					 (format "[%s]"
 						 (string-trim (plist-get (car references) :suffix))))
-					;; global prefix is not empty
+					;; global suffix is not empty
 					((plist-get cite :suffix)
 					 (format "[%s]" (string-trim (plist-get cite :suffix))))
 					(t
-					 ""))
+					 ;; If there is a prefix, then this should
+					 ;; be an empty bracket, and if not it
+					 ;; should am empty string. You need an
+					 ;; empty bracket, at least for biblatex
+					 ;; commands. With just one set of
+					 ;; brackets it is interpreted as a
+					 ;; suffix.
+					 (if (or (plist-get cite :prefix)
+						 (plist-get (car references) :prefix))
+					     "[]"
+					   "")))
 				     ;; Multiple references
 				     (cond
 				      ;; this is a common suffix
