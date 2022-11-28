@@ -68,6 +68,7 @@ The clickable part are the keys.")
     (goto-char (match-beginning 0))
     (let ((end (match-end 0)))
       (cl-loop for key in (mapcar #'s-trim (split-string (match-string-no-properties 4) ","))
+	       unless (string-empty-p key)
 	       do
 	       (save-match-data
 		 (search-forward key)
