@@ -67,7 +67,8 @@ The clickable part are the keys.")
     (setq font-lock-extra-managed-props (delq 'help-echo font-lock-extra-managed-props))
     (goto-char (match-beginning 0))
     (let ((end (match-end 0)))
-      (cl-loop for key in (split-string (match-string-no-properties 4) ",")
+      (cl-loop for key in (mapcar #'s-trim (split-string (match-string-no-properties 4) ","))
+	       unless (string-empty-p key)
 	       do
 	       (save-match-data
 		 (search-forward key)
@@ -84,7 +85,9 @@ The clickable part are the keys.")
 						   (bibtex-beginning-of-entry))))
 					    map)
 			       help-echo ,(let* ((bibtex-completion-bibliography (org-ref-latex-get-bibliography)))
-					    (bibtex-completion-apa-format-reference key))))))
+					    (condition-case nil
+						(bibtex-completion-apa-format-reference key)
+					      (error (display-warning :warning (format "Key %s missing." key)))))))))
       (goto-char end))))
 
 
