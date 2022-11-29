@@ -1576,7 +1576,8 @@ Get a list of possible matches. Choose one with completion."
 	(doi-utils-add-bibtex-entry-from-doi
 	 (replace-regexp-in-string
 	  "^https?://\\(dx.\\)?doi.org/" "" doi)
-	 bibtex-file)))))
+	 bibtex-file)
+	(save-buffer)))))
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")
