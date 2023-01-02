@@ -674,7 +674,7 @@ This will run in `org-export-before-parsing-hook'."
       (cl-loop for (label name description) in entries
 	       do
 	       (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
-			       label name description)))))))
+			       label name description))))))
 
 
 ;; * Interactive command to insert acroynm/glossary links
