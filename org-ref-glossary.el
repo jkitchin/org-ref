@@ -435,7 +435,7 @@ This is intended to be run in `org-export-before-parsing-hook'."
       (cl-loop for (label name description) in entries
 	       do
 	       (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name=%s,description={{%s}}}\n"
-			       label name description)))))))
+			       label name description))))))
 
 
 ;;* Acronyms
