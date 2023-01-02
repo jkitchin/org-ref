@@ -113,11 +113,11 @@ The label should always be in group 1.")
 	 (path (org-element-property :path cite-link))
 	 (deltap (- (point) begin)))
     ;; note this does not respect brackets
-    (setf (buffer-substring begin end)
-	  (concat
-	   (if bracketp "[[" "")
-	   new-type ":" path
-	   (if bracketp "]]" "")))
+    (cl--set-buffer-substring begin end
+			      (concat
+			       (if bracketp "[[" "")
+			       new-type ":" path
+			       (if bracketp "]]" "")))
     ;; try to preserve the character the point is on.
     (goto-char (+ begin deltap (- (length new-type) (length old-type))))))
 
