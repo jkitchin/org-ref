@@ -9,6 +9,7 @@
 (package-initialize)
 (package-refresh-contents)
 (package-install 'org)
+(message "************ ORG VERSION ************ %s" (org-version))
 (package-install 'ivy-bibtex)
 (package-install 'helm-bibtex)
 (package-install 'pdf-tools)
