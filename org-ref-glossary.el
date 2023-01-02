@@ -909,71 +909,71 @@ Meant for non-LaTeX exports."
 			     ;; delete the table
 			     (cl--set-buffer-substring (org-element-property :begin el)
 						       (org-element-property :end el)
-						       "")))))
-	    nil t))
-    (setq acronyms (org-element-map
-		       (org-element-parse-buffer)
-		       'table 
-		     (lambda (el)
-		       (when (and (org-element-property :name el)
-				  (stringp (org-element-property :name el))
-				  (string= "acronyms" (org-element-property :name el))) 
-			 (goto-char (org-element-property :contents-begin el))
-			 (prog1
-			     (nthcdr 2 (org-babel-read-table))
-			   ;; delete the table
-			   (cl--set-buffer-substring (org-element-property :begin el)
-						     (org-element-property :end el)
-						     "")))))
-	  nil t))
-  
-  ;; Replace printglossary link
-  ;; For each entry, use - name :: description <<label>>
-  (setq printglossary-link (org-element-map
-			       ;; reparse in case the replacement above changed places
-			       (org-element-parse-buffer)
-			       'link
-			     (lambda (lnk)
-			       (when (string= "printglossaries"
-					      (org-element-property :type lnk))
-				 lnk))
-			     nil t))
-  (when printglossary-link
-    (cl--set-buffer-substring (org-element-property :begin printglossary-link)
-			      (org-element-property :end printglossary-link)
-			      
-			      (concat "*Glossary*\n"
-				      (string-join
-				       (cl-loop for (label name description) in glossary collect
-						(format "<<%s>>\n- %s :: %s" label name description))
-				       "\n")
+						       ""))))
+		       nil t))
+      (setq acronyms (org-element-map
+			 (org-element-parse-buffer)
+			 'table 
+		       (lambda (el)
+			 (when (and (org-element-property :name el)
+				    (stringp (org-element-property :name el))
+				    (string= "acronyms" (org-element-property :name el))) 
+			   (goto-char (org-element-property :contents-begin el))
+			   (prog1
+			       (nthcdr 2 (org-babel-read-table))
+			     ;; delete the table
+			     (cl--set-buffer-substring (org-element-property :begin el)
+						       (org-element-property :end el)
+						       ""))))
+		       nil t))
+      
+      ;; Replace printglossary link
+      ;; For each entry, use - name :: description <<label>>
+      (setq printglossary-link (org-element-map
+				   ;; reparse in case the replacement above changed places
+				   (org-element-parse-buffer)
+				   'link
+				 (lambda (lnk)
+				   (when (string= "printglossaries"
+						  (org-element-property :type lnk))
+				     lnk))
+				 nil t))
+      (when printglossary-link
+	(cl--set-buffer-substring (org-element-property :begin printglossary-link)
+				  (org-element-property :end printglossary-link)
+				  
+				  (concat "*Glossary*\n"
+					  (string-join
+					   (cl-loop for (label name description) in glossary collect
+						    (format "<<%s>>\n- %s :: %s" label name description))
+					   "\n")
 
-				      "\n*Acronyms*\n"
-				      (string-join
-				       (cl-loop for (label name description) in acronyms collect
-						(format "<<%s>>\n- %s :: %s " label name description))
-				       "\n")))))
+					  "\n*Acronyms*\n"
+					  (string-join
+					   (cl-loop for (label name description) in acronyms collect
+						    (format "<<%s>>\n- %s :: %s " label name description))
+					   "\n"))))
 
 
-  ;; Replace links
-  (setq links (org-element-map
-		  ;; reparse in case the replacement above changed places
-		  (org-element-parse-buffer)
-		  'link
-		(lambda (lnk)
-		  (when (assoc (org-element-property :type lnk)
-			       (append org-ref-glossary-gls-commands
-				       org-ref-acronym-types))
-		    lnk))))
-  ;; For each link, replace with [[label][link description]]
-  (cl-loop for lnk in (reverse links) do
-	   (cl--set-buffer-substring (org-element-property :begin lnk)
-				     (org-element-property :end lnk)
-				     (format "[[%s][%s]]%s"
-					     (org-element-property :path lnk)
-					     (buffer-substring (org-element-property :contents-begin lnk)
-							       (org-element-property :contents-end lnk))
-					     (make-string (org-element-property :post-blank lnk) ? ))))))))
+      ;; Replace links
+      (setq links (org-element-map
+		      ;; reparse in case the replacement above changed places
+		      (org-element-parse-buffer)
+		      'link
+		    (lambda (lnk)
+		      (when (assoc (org-element-property :type lnk)
+				   (append org-ref-glossary-gls-commands
+					   org-ref-acronym-types))
+			lnk))))
+      ;; For each link, replace with [[label][link description]]
+      (cl-loop for lnk in (reverse links) do
+	       (cl--set-buffer-substring (org-element-property :begin lnk)
+					 (org-element-property :end lnk)
+					 (format "[[%s][%s]]%s"
+						 (org-element-property :path lnk)
+						 (buffer-substring (org-element-property :contents-begin lnk)
+								   (org-element-property :contents-end lnk))
+						 (make-string (org-element-property :post-blank lnk) ? )))))))
 
 
 (provide 'org-ref-glossary)
