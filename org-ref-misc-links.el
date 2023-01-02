@@ -273,31 +273,31 @@ replaced by links to them."
 	     (cl--set-buffer-substring
 	      (org-element-property :begin il)
 	      (org-element-property :end il)
-	      (cdr (assoc (org-element-property :begin il) link-replacements)))))
+	      (cdr (assoc (org-element-property :begin il) link-replacements))))
 
-  ;; Now we replace the printindex link
-  (org-element-map (org-element-parse-buffer) 'link
-    (lambda (lnk)
-      (when (string= "printindex" (org-element-property :type lnk))
-	(cl--set-buffer-substring (org-element-property :begin lnk)
-				  (org-element-property :end lnk)
-				  ;; If sorted-groups is empty, we should do nothing I think.
-				  (if sorted-groups
-				      (format "*Index*\n\n%s"
-					      (string-join
-					       (cl-loop for (key . links) in sorted-groups collect
-							(format "%s: %s"
-								key
-								(string-join 
-								 (cl-loop for i from 0 for lnk in links collect
-									  (format "[[%s-%s][%s-%s]] "
-										  (org-element-property :path lnk)
-										  i
-										  (org-element-property :path lnk)
-										  i))
-								 ", ")))
-					       "\n\n"))
-				    ""))))))))
+    ;; Now we replace the printindex link
+    (org-element-map (org-element-parse-buffer) 'link
+      (lambda (lnk)
+	(when (string= "printindex" (org-element-property :type lnk))
+	  (cl--set-buffer-substring (org-element-property :begin lnk)
+				    (org-element-property :end lnk)
+				    ;; If sorted-groups is empty, we should do nothing I think.
+				    (if sorted-groups
+					(format "*Index*\n\n%s"
+						(string-join
+						 (cl-loop for (key . links) in sorted-groups collect
+							  (format "%s: %s"
+								  key
+								  (string-join 
+								   (cl-loop for i from 0 for lnk in links collect
+									    (format "[[%s-%s][%s-%s]] "
+										    (org-element-property :path lnk)
+										    i
+										    (org-element-property :path lnk)
+										    i))
+								   ", ")))
+						 "\n\n"))
+				      "")))))))
 
 
 (provide 'org-ref-misc-links)
