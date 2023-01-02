@@ -58,7 +58,17 @@
 	   (insert (bibtex-completion-apa-format-reference
 		    (cdr (assoc "=key=" candidate)))))
      "Insert formatted citation")
-    ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options"))
+    ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options")
+    ("d" (lambda (_)
+	   "Add a bibtex entry from doi and insert cite to it at point."
+	   (funcall-interactively 'doi-utils-add-bibtex-entry-from-doi
+				  (read-string
+				   "DOI: "
+				   ;; now set initial input
+				   (doi-utils-maybe-doi-from-region-or-current-kill)))
+	   (org-ref-insert-cite-key
+	    (current-kill 0 t)))
+     "Insert from a DOI"))
   "Alternate actions to do instead of inserting."
   :type '(list (repeat (string function string)))
   :group 'org-ref)
