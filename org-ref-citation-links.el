@@ -930,16 +930,20 @@ arg COMMON, edit the common prefixes instead."
 	(setq prefix (concat
 		      (read-string "prenote: "
 				   (string-trim
-				    (plist-get
-				     (nth index (plist-get data :references))
-				     :prefix)))
+				    (or
+				     (plist-get
+				      (nth index (plist-get data :references))
+				      :prefix)
+				     "")))
 		      " ")
 	      suffix (concat " "
 			     (read-string "postnote: "
 					  (string-trim
-					   (plist-get
-					    (nth index (plist-get data :references))
-					    :suffix))))
+					   (or
+					    (plist-get
+					     (nth index (plist-get data :references))
+					     :suffix)
+					    ""))))
 	      delta (- (length (plist-get
 				(nth index (plist-get data :references))
 				:prefix))
