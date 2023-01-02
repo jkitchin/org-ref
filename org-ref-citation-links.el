@@ -1376,7 +1376,7 @@ Here is an example use:
 	     (cl--set-buffer-substring (org-element-property :begin cite)
 				       (org-element-property :end cite)
 				       (format "[[%s:%s]]" (org-element-property :type cite)
-					       (org-ref-interpret-cite-data data)))))))
+					       (org-ref-interpret-cite-data data))))))
 
 
 (provide 'org-ref-citation-links)
