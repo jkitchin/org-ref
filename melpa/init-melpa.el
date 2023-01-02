@@ -8,7 +8,7 @@
 
 (package-initialize)
 (package-refresh-contents)
-
+(package-install 'org)
 (package-install 'ivy-bibtex)
 (package-install 'helm-bibtex)
 (package-install 'pdf-tools)
