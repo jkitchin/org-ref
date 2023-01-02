@@ -960,12 +960,12 @@ arg COMMON, edit the common prefixes instead."
 
 
     (cl--set-buffer-substring (org-element-property :begin cite) (org-element-property :end cite)
-			      (format "[[%s:%s]]" type (org-ref-interpret-cite-data data))))
+			      (format "[[%s:%s]]" type (org-ref-interpret-cite-data data)))
 
-  ;; This doesn't exactly save the point. I need a fancier calculation for
-  ;; that I think that accounts for the change due to the prefix change. e.g.
-  ;; you might add or subtract from the prefix.
-  (goto-char (- cp delta))))
+    ;; This doesn't exactly save the point. I need a fancier calculation for
+    ;; that I think that accounts for the change due to the prefix change. e.g.
+    ;; you might add or subtract from the prefix.
+    (goto-char (- cp delta))))
 
 
 (declare-function org-element-create "org-element")
