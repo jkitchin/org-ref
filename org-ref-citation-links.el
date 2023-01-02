@@ -959,13 +959,13 @@ arg COMMON, edit the common prefixes instead."
 		     nil suffix))))
 
 
-    (setf (buffer-substring (org-element-property :begin cite) (org-element-property :end cite))
-	  (format "[[%s:%s]]" type (org-ref-interpret-cite-data data)))
+    (cl--set-buffer-substring (org-element-property :begin cite) (org-element-property :end cite)
+			      (format "[[%s:%s]]" type (org-ref-interpret-cite-data data))))
 
-    ;; This doesn't exactly save the point. I need a fancier calculation for
-    ;; that I think that accounts for the change due to the prefix change. e.g.
-    ;; you might add or subtract from the prefix.
-    (goto-char (- cp delta))))
+  ;; This doesn't exactly save the point. I need a fancier calculation for
+  ;; that I think that accounts for the change due to the prefix change. e.g.
+  ;; you might add or subtract from the prefix.
+  (goto-char (- cp delta))))
 
 
 (declare-function org-element-create "org-element")
@@ -1373,10 +1373,10 @@ Here is an example use:
 	       (plist-put data :prefix (cl-first prefix-suffix))
 	       (plist-put data :suffix (cl-second prefix-suffix)))
 	     (plist-put data :version  3)
-	     (setf (buffer-substring (org-element-property :begin cite)
-				     (org-element-property :end cite))
-		   (format "[[%s:%s]]" (org-element-property :type cite)
-			   (org-ref-interpret-cite-data data))))))
+	     (cl--set-buffer-substring (org-element-property :begin cite)
+				       (org-element-property :end cite)
+				       (format "[[%s:%s]]" (org-element-property :type cite)
+					       (org-ref-interpret-cite-data data)))))))
 
 
 (provide 'org-ref-citation-links)
