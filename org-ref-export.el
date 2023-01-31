@@ -389,7 +389,7 @@ BACKEND is the org export backend."
       ;;
       ;; Here we add style css for html output.
       (cond
-       ((eq 'html backend)
+       ((or (eq 'html backend) (eq 'html csl-backend))
 	(let ((s1 "")
 	      (s2 ""))
 	  (when (cdr (assq 'second-field-align bib-parameters))
