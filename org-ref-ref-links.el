@@ -275,9 +275,10 @@ This is meant to be used with `apply-partially' in the link definitions."
   (concat refstyle ":" (completing-read "Label: " (org-ref-get-labels))))
 
 
-(defun org-ref-store-ref ()
+(defun org-ref-store-ref-link (&optional reftype)
   "Store a ref link to a label.  The output will be a ref to that label."
   ;; First we have to make sure we are on a label link.
+  (unless reftype (setq reftype "ref"))
   (let* ((object (and (eq major-mode 'org-mode) (org-element-context)))
 	 (label (cond
 		 ;; here literally on a label link.
@@ -367,7 +368,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 ;; ** ref link
 
 (org-link-set-parameters "ref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-ref () (org-ref-store-ref-link "ref"))
 			 :complete (apply-partially #'org-ref-complete-link "ref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
@@ -379,7 +380,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 ;;** pageref link
 
 (org-link-set-parameters "pageref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-pageref () (org-ref-store-ref-link "pageref"))
 			 :complete (apply-partially #'org-ref-complete-link "pageref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
@@ -392,7 +393,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 ;;** nameref link
 
 (org-link-set-parameters "nameref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-nameref () (org-ref-store-ref-link "nameref"))
 			 :complete (apply-partially #'org-ref-complete-link "nameref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
@@ -403,7 +404,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 ;;** eqref link
 
 (org-link-set-parameters "eqref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-eqref () (org-ref-store-ref-link "eqref"))
 			 :complete (apply-partially #'org-ref-complete-link "eqref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
@@ -414,7 +415,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 ;;** autoref link
 
 (org-link-set-parameters "autoref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-autoref () (org-ref-store-ref-link "autoref"))
 			 :complete (apply-partially #'org-ref-complete-link "autoref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
@@ -428,7 +429,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 
 
 (org-link-set-parameters "cref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-cref () (org-ref-store-ref-link "cref"))
 			 :complete (apply-partially #'org-ref-complete-link "cref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
@@ -438,7 +439,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 
 
 (org-link-set-parameters "Cref"
-			 :store #'org-ref-store-ref
+			 :store (defun org-ref-store-Cref () (org-ref-store-ref-link "Cref"))
 			 :complete (apply-partially #'org-ref-complete-link "Cref")
 			 :activate-func #'org-ref-ref-activate
 			 :follow #'org-ref-ref-jump-to
