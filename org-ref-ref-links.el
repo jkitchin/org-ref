@@ -488,6 +488,19 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :help-echo #'org-ref-ref-help-echo)
 
 
+;; ** remove store functions
+(defun org-ref-ref-remove-store ()
+  "Remove the store functions from ref links.
+These tend to clobber the org store links. You can use C-u C-u
+C-c C-l to not use them, but if you prefer not to use them, this
+function removes the store functions from the links."
+  (interactive)
+  (cl-loop for reflink in '("ref" "pageref" "nameref" "eqref" "autoref"
+			    "cref" "Cref" "crefrange" "Crefrange")
+	   do
+	   (setf (cdr (assoc reflink org-link-parameters))
+		 (org-plist-delete (cdr (assoc reflink org-link-parameters)) :store))))
+
 ;; * Insert link
 (defvar org-ref-equation-environments
   '("equation"
