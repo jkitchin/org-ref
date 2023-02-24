@@ -360,8 +360,7 @@ This is meant to be used with `apply-partially' in the link definitions."
     (when label
       (org-link-store-props
        :type reftype
-       :link (concat reftype ":" label))
-      (format (concat  org-ref-default-ref-type ":" label))
+       :link (concat reftype ":" label)) 
       t)))
 
 
