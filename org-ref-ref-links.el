@@ -358,11 +358,11 @@ This is meant to be used with `apply-partially' in the link definitions."
 		  nil))))
     
     (when label
-      (cl-loop for (reftype _) in org-ref-ref-types do
-	       (org-link-store-props
-		:type reftype
-		:link (concat reftype ":" label)))
-      (format (concat  org-ref-default-ref-type ":" label)))))
+      (org-link-store-props
+       :type reftype
+       :link (concat reftype ":" label))
+      (format (concat  org-ref-default-ref-type ":" label))
+      t)))
 
 
 ;; ** ref link
