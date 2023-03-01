@@ -1405,6 +1405,16 @@ If not, issue a warning."
       (doi-utils-get-bibtex-entry-pdf))))
 
 
+(defun orcb-clean-<>-tags ()
+  "Try removing <tags> from the entry."
+  (sgml-mode)
+  (ignore-errors
+    (while (sgml-skip-tag-forward 1)
+      (sgml-skip-tag-backward 1)
+      (sgml-delete-tag 1)))
+  (bibtex-mode))
+
+
 ;;;###autoload
 (defun org-ref-clean-bibtex-entry ()
   "Clean and replace the key in a bibtex entry.
