@@ -234,7 +234,7 @@ API: https://openlibrary.org/developers/api
 				     (cdr (assoc 'personal_name
 						 (json-read-from-string
 						  (string-trim (buffer-substring url-http-end-of-headers (point-max)))))))))) 
-	 (burl (format "https://openlibrary.org/%s" (cdr (assoc 'key json))))
+	 (burl (format "https://openlibrary.org%s" (cdr (assoc 'key json))))
 	 (bibtex (format "@Book{,
   author = 	 {%s},
   title = 	 {%s},
