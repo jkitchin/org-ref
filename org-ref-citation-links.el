@@ -1101,7 +1101,8 @@ If not on a key, but on a cite, prompt for key."
          (link-string (org-element-property :path object))
 	 (data (org-ref-parse-cite-path link-string))
 	 (references (plist-get data :references))
-	 (bibtex-completion-bibliography (org-ref-find-bibliography)))
+	 (bibtex-completion-bibliography (org-ref-find-bibliography))
+	 current-point)
 
     (setq references (cl-sort (cl-loop for ref in references collect
 				       (append ref (list :year (bibtex-completion-get-value
@@ -1111,11 +1112,12 @@ If not on a key, but on a cite, prompt for key."
 			      (lambda (x y)
 				(< (string-to-number (plist-get x :year))
 				   (string-to-number (plist-get y :year))))))
-    (setq data (plist-put data :references references))
-    (save-excursion
-      (goto-char begin)
-      (re-search-forward link-string)
-      (replace-match (org-ref-interpret-cite-data data)))))
+    (setq data (plist-put data :references references)
+	  current-point (point))
+    (goto-char begin)
+    (re-search-forward link-string)
+    (replace-match (org-ref-interpret-cite-data data))
+    (goto-char current-point)))
 
 
 ;;** C-arrow navigation of cite keys
