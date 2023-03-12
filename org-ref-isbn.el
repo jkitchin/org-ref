@@ -191,5 +191,69 @@ in the file. Data comes from www.ebook.de."
 		(s-trim (buffer-string))))
       (save-buffer))))
 
+
+(defun isbn-to-bibtex-open-library (isbn bibfile)
+  "Retrieve bibtex entry for a book with ISBN using openlibrary.org.
+
+API: https://openlibrary.org/developers/api
+"
+  (interactive
+   (list
+    (read-string
+     "ISBN: "
+     ;; now set initial input
+     (cond
+      ;; If region is active and it starts with a number, we use it
+      ((and  (region-active-p)
+             (s-match "^[0-9]" (buffer-substring (region-beginning) (region-end))))
+       (buffer-substring (region-beginning) (region-end)))
+      ;; if first entry in kill ring starts with a number assume it is an isbn
+      ;; and use it as the guess
+      ((stringp (car kill-ring))
+       (when (s-match "^[0-9]" (car kill-ring))
+	 (car kill-ring)))
+      ;; type or paste it in
+      (t
+       nil)))
+    (completing-read "Bibfile: " (org-ref-possible-bibfiles))))
+
+  (let* ((url (format "https://openlibrary.org/isbn/%s.json" isbn))
+	 (json (with-current-buffer (url-retrieve-synchronously url)
+		 (json-read-from-string (string-trim (buffer-substring url-http-end-of-headers (point-max))))))
+	 (title (cdr (assoc 'title json)))
+	 (publisher (s-join ", " (cdr (assoc 'publishers json))))
+	 (year (cdr (assoc 'publish_date  json)))
+	 ;; this is a list of urls
+	 (author-urls (cdr (assoc 'authors json)))
+	 (authors (s-join " and "
+			  (cl-loop for aurl across author-urls
+				   collect
+				   (with-current-buffer (url-retrieve-synchronously
+							 (format "https://openlibrary.org%s.json"
+								 (cdr (assoc 'key  aurl)))) 
+				     (cdr (assoc 'personal_name
+						 (json-read-from-string
+						  (string-trim (buffer-substring url-http-end-of-headers (point-max)))))))))) 
+	 (burl (format "https://openlibrary.org/%s" (cdr (assoc 'key json))))
+	 (bibtex (format "@Book{,
+  author = 	 {%s},
+  title = 	 {%s},
+  publisher = 	 {%s},
+  year = 	 {%s},
+  url = {%s}
+}"
+			 authors
+			 title
+			 publisher
+			 year
+			 burl)))
+
+    (with-current-buffer (find-file-noselect bibfile)
+      (goto-char (point-max))
+      (insert "\n\n")
+      (insert bibtex)
+      (org-ref-clean-bibtex-entry)
+      (save-buffer))))
+
 (provide 'org-ref-isbn)
 ;;; org-ref-isbn.el ends here
