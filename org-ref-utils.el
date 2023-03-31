@@ -190,6 +190,16 @@ You set =pdftotext-executable= to ${pdftotext-executable} (exists: ${pdftotext-e
     (bibtex-copy-entry-as-kill)
     (pop bibtex-entry-kill-ring)))
 
+(defun org-ref-library-path ()
+  "return the library path"
+  (cond
+   ((stringp bibtex-completion-library-path)
+    bibtex-completion-library-path)
+   ((and (listp bibtex-completion-library-path)
+	 (= 1 (length bibtex-completion-library-path)))
+    (car bibtex-completion-library-path))
+   (t
+    (completing-read "Dir: " bibtex-completion-library-path))))
 
 ;;*** key at point functions
 (defun org-ref-get-pdf-filename (key)
@@ -260,6 +270,36 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
        (funcall bibtex-completion-pdf-open-function
 		(completing-read "pdf: " pdf-file))))))
 
+
+;;;###autoload
+(defun org-ref-add-pdf-at-point (&optional prefix)
+  "Add the pdf for bibtex key under point if it exists.
+
+Similar to org-ref-bibtex-assoc-pdf-with-entry prompt for pdf
+associated with bibtex key at point and rename it.  Check whether a
+pdf already exists in `bibtex-completion-library' with the name
+'[bibtexkey].pdf'. If the file does not exist, rename it to
+'[bibtexkey].pdf' using
+`org-ref-bibtex-assoc-pdf-with-entry-move-function' and place it
+in a directory. Optional PREFIX argument toggles between
+`rename-file' and `copy-file'."
+
+  (interactive)
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (results (org-ref-get-bibtex-key-and-file))
+         (key (car results))
+         (pdf-file (bibtex-completion-find-pdf-in-library key)))
+    (if pdf-file
+        (message "PDF for key [%s] already exists %s" key pdf-file)
+      (let* (
+             (source-file-name (read-file-name (format "Select pdf file associated with key [%s]: " key)
+		                   org-ref-bibtex-pdf-download-dir))
+             (dest-file-name (expand-file-name (format "%s.pdf" key) (org-ref-library-path)))
+             (file-move-func (org-ref-bibtex-get-file-move-func prefix))
+             )
+        (progn
+          (funcall file-move-func source-file-name dest-file-name)
+          (message "added file %s to key %s" dest-file-name))))))
 
 ;;;###autoload
 (defun org-ref-open-url-at-point ()
