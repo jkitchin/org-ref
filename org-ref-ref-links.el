@@ -83,6 +83,7 @@ The label should always be in group 1.")
     ("pageref" "to the page number a label is on")
     ("nameref" "to the name associated with a label (e.g. a caption)")
     ("autoref" "from hyperref, adds automatic prefixes")
+    ("Autoref" "from hyperref, capitalized version of autoref")
     ("cref" "from cleveref, adds automatic prefixes, and condenses multiple refs")
     ("Cref" "from cleveref, capitalized version of cref")
     ("crefrange" "from cleveref, makes a range of refs from two refs with a prefix")
@@ -422,6 +423,16 @@ This is meant to be used with `apply-partially' in the link definitions."
 			 :face 'org-ref-ref-face
 			 :help-echo #'org-ref-ref-help-echo)
 
+
+(org-link-set-parameters "Autoref"
+			 :store (defun org-ref-store-Autoref () (org-ref-store-ref-link "Autoref"))
+			 :complete (apply-partially #'org-ref-complete-link "Autoref")
+			 :activate-func #'org-ref-ref-activate
+			 :follow #'org-ref-ref-jump-to
+			 :export (apply-partially #'org-ref-ref-export "Autoref")
+			 :face 'org-ref-ref-face
+			 :help-echo #'org-ref-ref-help-echo)
+
 ;;** cref link
 ;; for LaTeX cleveref package:
 ;; https://www.ctan.org/tex-archive/macros/latex/contrib/cleveref
@@ -494,7 +505,7 @@ These tend to clobber the org store links. You can use C-u C-u
 C-c C-l to not use them, but if you prefer not to use them, this
 function removes the store functions from the links."
   (interactive)
-  (cl-loop for reflink in '("ref" "pageref" "nameref" "eqref" "autoref"
+  (cl-loop for reflink in '("ref" "pageref" "nameref" "eqref" "autoref" "Autoref"
 			    "cref" "Cref" "crefrange" "Crefrange")
 	   do
 	   (setf (cdr (assoc reflink org-link-parameters))
