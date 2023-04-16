@@ -140,15 +140,7 @@ should be open in Emacs using the `pdf-tools' package."
     (let ((key (org-ref-bibtex-key-from-doi doi)))
       (funcall org-ref-pdf-to-bibtex-function
 	       (buffer-file-name)
-               (expand-file-name (format "%s.pdf" key)
-				 (cond
-				  ((stringp bibtex-completion-library-path)
-				   bibtex-completion-library-path)
-				  ((and (listp bibtex-completion-library-path)
-					(= 1 (length bibtex-completion-library-path)))
-				   (car bibtex-completion-library-path))
-				  (t
-				   (completing-read "Dir: " bibtex-completion-library-path))))))))
+               (expand-file-name (format "%s.pdf" key) (org-ref-library-path))))))
 
 
 ;;;###autoload
