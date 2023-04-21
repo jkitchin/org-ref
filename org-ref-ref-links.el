@@ -469,7 +469,7 @@ This is meant to be used with `apply-partially' in the link definitions."
   (pcase backend
     ('latex
      (let ((labels (split-string path ",")))
-       (format "\\crefrange{%s}{%s}" (cl-first labels) (cl-second labels))))))
+       (format "\\Crefrange{%s}{%s}" (cl-first labels) (cl-second labels))))))
 
 
 (defun org-ref-crefrange-complete (cmd &optional _arg)
