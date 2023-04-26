@@ -1005,6 +1005,7 @@ If not on a key, but on a cite, prompt for key."
       key
     ;; point is not on a key, but may still be on a cite link
     (let ((el (org-element-context))
+	  (cp (point))
 	  data
 	  keys)
       (cond
@@ -1026,7 +1027,9 @@ If not on a key, but on a cite, prompt for key."
 	  (setq key (completing-read "Key: " keys))
 	  (search-forward key)
 	  (goto-char (match-beginning 0))))
-	(get-text-property (point) 'cite-key))
+	(prog1
+	    (get-text-property (point) 'cite-key)
+	  (goto-char cp)))
 
        ;; somewhere else, but looking at a cite-type see issue #908. links in
        ;; places like keywords are not parsed as links, but they seem to get
@@ -1034,7 +1037,9 @@ If not on a key, but on a cite, prompt for key."
        ((assoc (thing-at-point 'word) org-ref-cite-types)
 	(save-excursion
 	  (when (re-search-forward ":" (line-end-position) t)
-	    (get-text-property (point) 'cite-key))))))))
+	    (prog1
+		(get-text-property (point) 'cite-key)
+	      (goto-char cp)))))))))
 
 
 ;; ** Shift-arrow sorting of keys in a cite link
