@@ -213,10 +213,23 @@ must return a pdf-url, or nil.")
 ;; http://onlinelibrary.wiley.com/doi/pdf/10.1002/anie.201402680
 ;; Hence fewer steps are now required.
 
-(defun wiley-pdf-url (*doi-utils-redirect*)
-  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+;; https://onlinelibrary.wiley.com/doi/10.1002/adts.202200926
+;; https://onlinelibrary.wiley.com/doi/epdf/10.1002/adts.202200926
+
+;; (defun wiley-pdf-url (*doi-utils-redirect*)
+;;   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+;;   (when (string-match "^http\\(s?\\)://onlinelibrary.wiley.com" *doi-utils-redirect*)
+;;     (replace-regexp-in-string "doi/abs" "doi/pdf" *doi-utils-redirect*)))
+
+
+(defun wiley-pdf-url-2 (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*.
+[2023-04-10 Mon] updated a new rule.
+https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/anie.201310461?download=true"
   (when (string-match "^http\\(s?\\)://onlinelibrary.wiley.com" *doi-utils-redirect*)
-    (replace-regexp-in-string "doi/abs" "doi/pdf" *doi-utils-redirect*)))
+    (concat
+     (replace-regexp-in-string "doi/" "doi/pdfdirect/" *doi-utils-redirect*)
+     "?download=true")))
 
 
 (defun agu-pdf-url (*doi-utils-redirect*)
@@ -340,39 +353,66 @@ must return a pdf-url, or nil.")
       url)))
 
 ;;** Science Direct
-(defun doi-utils-get-science-direct-pdf-url (redirect-url)
-  "Science direct hides the pdf url in html.  We get it out here.
-REDIRECT-URL is where the pdf url will be in."
-  (let ((first-url
-         (with-current-buffer (url-retrieve-synchronously redirect-url)
-           (goto-char (point-min))
-           (when (re-search-forward "pdf_url\" content=\"\\([^\"]*\\)\"" nil t)
-             (match-string-no-properties 1)))))
-    (and first-url
-         (with-current-buffer (url-retrieve-synchronously first-url)
-           (goto-char (point-min))
-           (when (re-search-forward "or click <a href=\"\\([^\"]*\\)\">" nil t)
-             (match-string-no-properties 1))))))
+
+;; https://www.sciencedirect.com/science/article/pii/S001085452200577X?via%3Dihub
+;; https://www.sciencedirect.com/science/article/pii/S001085452200577X/pdfft?isDTMRedir=true&download=true
 
 (defun science-direct-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http\\(s?\\)://www.sciencedirect.com" *doi-utils-redirect*)
-    (doi-utils-get-science-direct-pdf-url *doi-utils-redirect*)))
+    (replace-string "?via%3Dihub" "/pdfft?isDTMRedir=true&download=true" *doi-utils-redirect*)))
+
+;; (defun doi-utils-get-science-direct-pdf-url (redirect-url)
+;;   "Science direct hides the pdf url in html.  We get it out here.
+;; REDIRECT-URL is where the pdf url will be in."
+;;   (let ((first-url
+;;          (with-current-buffer (url-retrieve-synchronously redirect-url)
+;;            (goto-char (point-min))
+;;            (when (re-search-forward "pdf_url\" content=\"\\([^\"]*\\)\"" nil t)
+;;              (match-string-no-properties 1)))))
+;;     (and first-url
+;;          (with-current-buffer (url-retrieve-synchronously first-url)
+;;            (goto-char (point-min))
+;;            (when (re-search-forward "or click <a href=\"\\([^\"]*\\)\">" nil t)
+;;              (match-string-no-properties 1))))))
+
+;; (defun science-direct-pdf-url (*doi-utils-redirect*)
+;;   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+;;   (when (string-match "^http\\(s?\\)://www.sciencedirect.com" *doi-utils-redirect*)
+;;     (doi-utils-get-science-direct-pdf-url *doi-utils-redirect*)))
 
 ;; sometimes I get
 ;; http://linkinghub.elsevier.com/retrieve/pii/S0927025609004558
 ;; which actually redirect to
 ;; http://www.sciencedirect.com/science/article/pii/S0927025609004558
+
+;; https://www.sciencedirect.com/science/article/pii/S001085452200577X?via%3Dihub
+;; https://www.sciencedirect.com/science/article/pii/S001085452200577X/pdfft?isDTMRedir=true&download=true
+
+;; (defun linkinghub-elsevier-pdf-url (*doi-utils-redirect*)
+;;   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+;;   (when (string-match
+;; 	 "^https://linkinghub.elsevier.com/retrieve" *doi-utils-redirect*)
+;;     (science-direct-pdf-url
+;;      (replace-regexp-in-string
+;;       ;; change URL to science direct and use function to get pdf URL
+;;       "https://linkinghub.elsevier.com/retrieve"
+;;       "https://www.sciencedirect.com/science/article"
+;;       *doi-utils-redirect*))))
+
+;; https://www.sciencedirect.com/science/article/pii/S1385894723014973/pdfft?isDTMRedir=true&download=true
+
 (defun linkinghub-elsevier-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match
 	 "^https://linkinghub.elsevier.com/retrieve" *doi-utils-redirect*)
-    (doi-utils-get-science-direct-pdf-url
+    (concat
      (replace-regexp-in-string
       ;; change URL to science direct and use function to get pdf URL
       "https://linkinghub.elsevier.com/retrieve"
       "https://www.sciencedirect.com/science/article"
-      *doi-utils-redirect*))))
+      *doi-utils-redirect*)
+     "/pdfft?isDTMRedir=true")))
 
 ;;** PNAS
 ;; http://www.pnas.org/content/early/2014/05/08/1319030111
@@ -592,6 +632,25 @@ It would be better to parse this, but here I just use a regexp.
     (concat (replace-regexp-in-string (regexp-quote "/article?id=") "/article/file?id=" *doi-utils-redirect*) "&type=printable")))
 
 
+;; https://www.frontiersin.org/articles/10.3389/fchem.2022.1037997/full
+;; https://www.frontiersin.org/articles/10.3389/fchem.2022.1037997/pdf
+(defun frontiers-pdf-url (*doi-utils-redirect*)
+  (when (string-match "^http\\(s*\\)://www.frontiersin.org" *doi-utils-redirect*)
+    (replace-regexp-in-string "/full" "/pdf" *doi-utils-redirect*)))
+
+
+
+
+;; https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/celc.201902035
+;; https://chemistry-europe.onlinelibrary.wiley.com/doi/epdf/10.1002/celc.201902035
+(defun chemistry-europe-pdf-url (*doi-utils-redirect*)
+  (when (string-match "^http\\(s*\\)://chemistry-europe.onlinelibrary.wiley.com" *doi-utils-redirect*)
+    (concat
+     (replace-regexp-in-string "/doi" "/doi/pdfdirect" *doi-utils-redirect*)
+     "?download=true")))
+
+
+
 ;;** Add all functions
 
 (setq doi-utils-pdf-url-functions
@@ -599,7 +658,8 @@ It would be better to parse this, but here I just use a regexp.
        'aps-pdf-url
        'science-pdf-url
        'nature-pdf-url
-       'wiley-pdf-url
+       ;; 'wiley-pdf-url
+       'wiley-pdf-url-2
        'springer-chapter-pdf-url
        'springer-pdf-url
        'acs-pdf-url-1
@@ -628,6 +688,8 @@ It would be better to parse this, but here I just use a regexp.
        'siam-pdf-url
        'agu-pdf-url
        'plos-pdf-url
+       'frontiers-pdf-url
+       'chemistry-europe-pdf-url 
        'generic-full-pdf-url))
 
 ;;** Get the pdf url for a doi
