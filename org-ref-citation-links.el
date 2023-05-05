@@ -158,7 +158,7 @@ Set this to nil to turn that off, which increase performance."
     ("Smartcite" "like parencite in a footnote, and footcite in the body with capitalization")
     ("cite*" "similar to cite, but prints the year or title")
     ("parencite*" "similar to parencite, but prints the year or title")
-    ("supercite" "superscripted numeric citation (only in numberic styles)")
+    ("supercite" "superscripted numeric citation (only in numeric styles)")
 
     ("autocite" "handles some punctuation nuances")
     ("Autocite" "handles some punctuation nuances with punctuation")
@@ -296,7 +296,7 @@ Set this to nil to turn that off, which increase performance."
     (3 (let ((citation-references (split-string path ";"))
 	     (these-results '(:version 3)))
 	 ;; if the first ref doesn't match a key, it must be a global prefix
-	 ;; this pops the referenc off.
+	 ;; this pops the reference off.
 	 (when (null (string-match org-ref-citation-key-re (cl-first citation-references)))
 	   (setq these-results (append these-results (list :prefix (cl-first citation-references)))
 		 citation-references (cdr citation-references)))

@@ -447,7 +447,7 @@ This is intended to be run in `org-export-before-parsing-hook'."
   FULL is the expanded acronym.
 
 This is not the preferred way to add acronyms, you should add
-them manually to the acroynms table."
+them manually to the acronyms table."
   (interactive "sLabel: \nsAcronym: \nsFull name: ")
   (save-excursion
     (re-search-backward "#\\+latex_header" nil t)

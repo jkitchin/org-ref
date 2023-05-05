@@ -1005,7 +1005,7 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
        (if (listp keywords)
            (mapconcat 'identity keywords ", ")
          keywords)
-     ;; else concatentate
+     ;; else concatenate
      (concat
       (if (listp keywords)
           (mapconcat 'identity keywords ", ")
@@ -1215,7 +1215,7 @@ The removal is conditional. Sometimes it is useful to have nil
 around, e.g. for ASAP articles where the fields are not defined
 yet but will be in the future.
 
-With \\[univeral-argument], run `bibtex-clean-entry' after."
+With \\[universal-argument], run `bibtex-clean-entry' after."
   (interactive "P")
   (bibtex-beginning-of-entry)
   (let* ((entry (bibtex-parse-entry))

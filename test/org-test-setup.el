@@ -344,7 +344,7 @@ setting `pp-escape-newlines' to nil manually."
 
 
 (defun org-test-string-exact-match (regex string &optional start)
-  "case sensative string-match"
+  "case sensitive string-match"
   (let ((case-fold-search nil)
         (case-replace nil))
     (if(and (equal regex "")

@@ -1082,7 +1082,7 @@ MATCHING-TYPES."
 Pick the file ending with .bib or in .  If you have an active region that
 starts like a DOI, that will be the initial prompt.  If no region
 is selected and the first entry of the ‘kill-ring’ starts like a
-DOI, then that is the intial prompt.  Otherwise, you have to type
+DOI, then that is the initial prompt.  Otherwise, you have to type
 or paste in a DOI.
 Argument BIBFILE the bibliography to use."
   (interactive
