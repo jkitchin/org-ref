@@ -1171,7 +1171,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 
 
 
-;;** Find non-ascii charaters
+;;** Find non-ascii characters
 ;;;###autoload
 (defun org-ref-find-non-ascii-characters ()
   "Find non-ascii characters in the buffer.  Useful for cleaning up bibtex files."
