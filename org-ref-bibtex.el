@@ -1209,7 +1209,7 @@ will clobber the file."
 ;;** Clean a bibtex entry
 ;; These functions operate on a bibtex entry and "clean" it in some way.
 
-(defun orcb-clean-nil (arg)
+(defun orcb-clean-nil (&optional arg)
   "Remove nil from some article fields.
 The removal is conditional. Sometimes it is useful to have nil
 around, e.g. for ASAP articles where the fields are not defined
