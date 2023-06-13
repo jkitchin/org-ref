@@ -650,6 +650,28 @@ It would be better to parse this, but here I just use a regexp.
      "?download=true")))
 
 
+;; ** from issue #1081
+
+(defun arxiv-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match-p "^https?://arxiv\\.org" *doi-utils-redirect*)
+    (concat (replace-regexp-in-string "/abs/" "/pdf/" *doi-utils-redirect*)
+	    ".pdf")))
+
+
+(defun rss-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match-p "roboticsproceedings" *doi-utils-redirect*)
+    (concat (replace-regexp-in-string "\\.html" ".pdf" *doi-utils-redirect*))))
+
+
+(defun ieeestamp-pdf-url (*doi-utils-redirect*)
+  "Get url to the pdf from *DOI-UTILS-REDIRECT*."
+  (when (string-match "^https?://ieeexplore\\.ieee\\.org/document/\\([0-9]+\\)"
+		      *doi-utils-redirect*)
+    (concat "https://ieeexplore.ieee.org/stampPDF/getPDF.jsp?tp=&arnumber="
+	    (match-string 1 *doi-utils-redirect*))))
+
 
 ;;** Add all functions
 
@@ -690,7 +712,10 @@ It would be better to parse this, but here I just use a regexp.
        'plos-pdf-url
        'frontiers-pdf-url
        'chemistry-europe-pdf-url 
-       'generic-full-pdf-url))
+       'generic-full-pdf-url
+       'arxiv-pdf-url
+       'rss-pdf-url
+       'ieeestamp-pdf-url))
 
 ;;** Get the pdf url for a doi
 
