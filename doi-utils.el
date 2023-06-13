@@ -898,11 +898,10 @@ every field.")
           (json-object-type 'plist)
           (json-data)
 	  (url (concat doi-utils-dx-doi-org-url doi)))
-      (with-current-buffer
-          (url-retrieve-synchronously
-           ;; (concat "http://dx.doi.org/" doi)
-	   url)
-	(setq json-data (buffer-substring url-http-end-of-headers (point-max)))
+      (with-temp-buffer
+	(url-insert
+	 (url-retrieve-synchronously url))
+	(setq json-data (buffer-string))
 
 	(when (or (string-match "<title>Error: DOI Not Found</title>" json-data)
 		  (string-match "Resource not found" json-data)
@@ -1565,10 +1564,11 @@ Get a list of possible matches. Choose one with completion."
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/citeproc+json")
         (json-data))
-    (with-current-buffer
-        (url-retrieve-synchronously
-         (concat doi-utils-dx-doi-org-url doi))
-      (setq json-data (buffer-substring url-http-end-of-headers (point-max)))
+    (with-temp-buffer
+      (url-insert
+       (url-retrieve-synchronously
+	(concat doi-utils-dx-doi-org-url doi)))
+      (setq json-data (buffer-string))
       (if (string-match "Resource not found" json-data)
           (progn
             (browse-url (concat doi-utils-dx-doi-org-url doi))
@@ -1589,10 +1589,11 @@ Get a list of possible matches. Choose one with completion."
 	  (let ((url-request-method "GET")
 		(url-mime-accept-string "application/citeproc+json"))
 	    (pp
-	     (json-read-from-string (with-current-buffer
-					(url-retrieve-synchronously
-					 (concat doi-utils-dx-doi-org-url doi))
-				      (buffer-substring url-http-end-of-headers (point-max))))))
+	     (json-read-from-string (with-temp-buffer
+				      (url-insert
+				       (url-retrieve-synchronously
+					(concat doi-utils-dx-doi-org-url doi)))
+				      (buffer-string)))))
 	  "\n\n")
   (goto-char (point-min)))
 
@@ -1623,48 +1624,40 @@ Get a list of possible matches. Choose one with completion."
                  "Bibfile: "
                  (append (f-entries "." (lambda (f) (f-ext? f "bib")))
                          bibtex-completion-bibliography))))
-  (let* ((raw-json-string)
-	 (json-string)
-	 (json-data)
-	 (doi))
+  (let* ((json-data (with-temp-buffer
+		      (url-insert
+		       (url-retrieve-synchronously
+			(concat
+			 "https://api.crossref.org/works?query="
+			 (url-hexify-string query))))
+		      
+		      (json-read-from-string (buffer-string))))
+	 (name (format "Crossref hits for %s"
+		       ;; remove carriage returns. They can make completion confusing.
+		       (replace-regexp-in-string "\n" " " query)))
+	 (candidates (let-alist json-data
+		       (cl-loop for item across .message.items
+				collect (let-alist item
+					  (cons (format "%s, %s, %s, %s."
+							(string-join .title " ")
+							(string-join
+							 (cl-loop for author across .author collect
+								  (let-alist author
+								    (format "%s %s"
+									    .given .family)))
+							 ", ")
+							.publisher
+							.created.date-parts)			       
+						.DOI)))))
+	 (doi (cdr (assoc (completing-read "Choice: " candidates) candidates))))
 
-    (with-current-buffer
-	(url-retrieve-synchronously
-	 (concat
-	  "http://search.crossref.org/dois?q="
-	  (url-hexify-string query)))
-      ;; replace html entities
-      (save-excursion
-      	(goto-char (point-min))
-      	(while (re-search-forward "<i>\\|</i>" nil t)
-      	  (replace-match ""))
-	(goto-char (point-min))
-	(while (re-search-forward "&amp;" nil t)
-	  (replace-match "&"))
-      	(goto-char (point-min))
-      	(while (re-search-forward "&quot;" nil t)
-      	  (replace-match "\\\"" nil t)))
-      (setq raw-json-string (buffer-substring url-http-end-of-headers (point-max)))
-      ;; decode json string
-      (setq json-string (decode-coding-string (encode-coding-string raw-json-string 'utf-8) 'utf-8))
-      (setq json-data (json-read-from-string json-string)))
+    (with-current-buffer (find-file-noselect bibtex-file)
+      (doi-utils-add-bibtex-entry-from-doi
+       (replace-regexp-in-string
+	"^https?://\\(dx.\\)?doi.org/" "" doi)
+       bibtex-file)
+      (save-buffer))))
 
-    (let* ((name (format "Crossref hits for %s"
-			 ;; remove carriage returns. They can make completion confusing.
-			 (replace-regexp-in-string "\n" " " query)))
-	   (candidates (mapcar (lambda (x)
-				 (cons
-				  (concat
-				   (cdr (assoc 'fullCitation x)))
-				  (cdr (assoc 'doi x))))
-			       json-data))
-	   (doi (cdr (assoc (completing-read "Choice: " candidates) candidates))))
-      (with-current-buffer (find-file-noselect bibtex-file)
-	(doi-utils-add-bibtex-entry-from-doi
-	 (replace-regexp-in-string
-	  "^https?://\\(dx.\\)?doi.org/" "" doi)
-	 bibtex-file)
-	(save-buffer)))))
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")
