@@ -1178,6 +1178,11 @@ if FORCE is non-nil reparse the buffer no matter what."
   (interactive)
   (occur "[^[:ascii:]]"))
 
+
+;;* Utilities
+
+;;** Extract bibtex entries in org-file
+
 ;;;###autoload
 (defun org-ref-extract-bibtex-to-file (bibfile &optional clobber)
   "Extract all bibtex entries for citations buffer to BIBFILE.
@@ -1216,10 +1221,6 @@ which will CLOBBER the file."
 	       "\n\n")))))
 
 
-;;* Utilities
-
-;;** Extract bibtex entries in org-file
-
 ;;;###autoload
 (defun org-ref-extract-bibtex-entries ()
   "Extract the bibtex entries in the current buffer into a bibtex src block."
@@ -1256,6 +1257,22 @@ which will CLOBBER the file."
 		     "\n\n")))))
 
 
+;;** Extract cited pdfs
+;;;###autoload
+(defun org-ref-extract-cited-pdfs (newdir)
+  "Copy PDFs in citations in current buffer to NEWDIR."
+  (interactive (list (read-directory-name "Copy to: ")))
+  ;; Make sure newdir exists
+  (unless (file-directory-p newdir)
+    (mkdir newdir t))
+  
+  (cl-loop for key in (org-ref-get-bibtex-keys) do
+	   (let ((pdf (org-ref-get-pdf-filename key)))
+	     (if (file-exists-p pdf)
+		 (progn
+		   (message "Copying %s to %s." pdf newdir)
+		   (copy-file pdf newdir t))
+	       (message "%s not found" pdf)))))
 
 
 (provide 'org-ref-utils)
