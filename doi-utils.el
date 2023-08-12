@@ -54,6 +54,7 @@
     (require 'org-bibtex)) ; org-bibtex-yank
 
 (require 'url-http)
+(require 'url-handlers)
 (require 'org-ref-utils)
 (require 'hydra)
 
