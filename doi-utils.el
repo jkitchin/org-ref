@@ -1098,7 +1098,8 @@ MATCHING-TYPES."
       (bibtex-set-field doi-utils-timestamp-field
 			ts)))
   (org-ref-clean-bibtex-entry)
-  (save-buffer))
+  (when (buffer-file-name)
+      (save-buffer)))
 
 
 ;;;###autoload
