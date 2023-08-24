@@ -1088,7 +1088,7 @@ MATCHING-TYPES."
 ;; inserts the string into a buffer. This function will insert the string at the
 ;; cursor, clean the entry, try to get the pdf.
 
-(defun doi-utils-insert-bibtex-entry-from-doi (doi &optional nosave)
+(defun doi-utils-insert-bibtex-entry-from-doi (doi)
   "Insert and clean bibtex entry from a DOI."
   (insert (doi-utils-doi-to-bibtex-string doi))
   (backward-char)
@@ -1098,7 +1098,7 @@ MATCHING-TYPES."
       (bibtex-set-field doi-utils-timestamp-field
 			ts)))
   (org-ref-clean-bibtex-entry)
-  (if (not nosave)
+  (when (buffer-file-name)
       (save-buffer)))
 
 
