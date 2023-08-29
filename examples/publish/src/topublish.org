@@ -1,0 +1,6 @@
+#+title: An example publish project
+
+See [[cite:&kitchin-2015-examp-effec]] for example.
+
+bibliographystyle:unsrt
+bibliography:../../basic.bib

@@ -1,0 +1,34 @@
+#+title: Example setup for publishing with org-ref
+
+Here is a short setup to publish files in [[./src/]] to html and pdf format using org-publish and org-ref. Adapted from code contributed by Madhu.
+
+#+BEGIN_SRC emacs-lisp
+(load-file "../../org-ref-publish.el")
+				      
+;; set up this async init file if you want asynchronous publishing
+(setq org-export-async-init-file (expand-file-name "async-init.el"))
+
+(require 'ox)
+(setq org-publish-use-timestamps-flag nil)
+(setq org-export-async-debug t)
+
+;; HTML target
+(org-publish '("src files"
+	       :base-directory "./src"
+	       :publishing-function org-ref-publish-to-html
+	       :publishing-directory "./build"
+	       :section-numbers nil)
+	     'async)
+
+;; PDF target
+(org-publish '("src files"
+	       :base-directory "./src"
+	       :publishing-function org-ref-publish-to-pdf
+	       :publishing-directory "./build"
+	       :section-numbers nil)
+	     'async)
+#+END_SRC
+
+#+RESULTS:
+
+You can use  M-x org-export-stack to inspect the results after calling org-publish.
