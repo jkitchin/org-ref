@@ -305,7 +305,7 @@ in a directory. Optional PREFIX argument toggles between
 (defun org-ref-open-url-at-point ()
   "Open the url for bibtex key under point."
   (interactive)
-  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+  (let* ((bibtex-completion-bibliography (file-truename (car (org-ref-find-bibliography))))
 	 (results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results)))
