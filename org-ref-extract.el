@@ -90,32 +90,54 @@ FILE field to the entry."
   "At point, create a BibTeX entry for the given OpenReview ID."
   (interactive "MOpenReview ID: ")
   (let* ((url-request-method "GET")
-	 (url (concat "https://openreview.net/forum?id=" id)))
+	 (url (concat "https://openreview.net/forum?id=" id))
+	 (html-buffer))
+    (with-current-buffer (url-retrieve-synchronously url)
+      ;; TODO refactor this pattern
+      ;; This is needed just to prepend a string to the supp URL:
+      (setq html-buffer (current-buffer))
+      ;; This serves to replace XML entities such as &amp;→&
+      (goto-char (point-min))
+      (insert (xml-substitute-special (buffer-string)))
+      (delete-region (point) (point-max)))
     (org-ref--extract-entry-from-html
-     (url-retrieve-synchronously url)
+     html-buffer
      '("\"_bibtex\":\"\\(@.+?}\\)\"" . 1)
      (replace-regexp-in-string "forum" "pdf" url)
-     '(("abstract" .
+     (list
+      '("abstract" .
 	("<meta name=\"citation_abstract\" content=\"\\(.+?\\(\n.*?\\)*?\\)\"/>" . 1))
-       ("area" .
-	("\"Please_choose_the_closest_area_that_your_submission_falls_into\":\"\\(.+?\\)\"" . 1))
-       ("keywords" .
-	("Keywords.*?\"note-content-value\">\\(.+?\\)</span>" . 1))
-       ("summary" .
-	("\\(Summary\\|TL;DR\\).*?\"note-content-value\">\\(.+?\\)</span>"
-	 . 2))))))
+      '("area" .
+       ("\"Please_choose_the_closest_area_that_your_submission_falls_into\":\"\\(.+?\\)\"" . 1))
+      '("keywords" . ("Keywords.*?\"note-content-value\">\\(.+?\\)</span>" . 1))
+      '("summary" .
+	("\\(Summary\\|TL;DR\\).*?\"note-content-value\">\\(.+?\\)</span>" . 2))
+      ;; Should we proactively download supplementary materials too?
+      (cons "supp"
+	    (let ((supp (org-ref--extract
+			 html-buffer
+			 ">Supplementary Material<.*?href=\"\\([^\"]+\\)" 1)))
+	      (if supp
+		  (concat "https://openreview.net" supp)
+		nil)))))))
 
 
 (defun org-ref-extract-from-pmlr (url)
   "At point, create a BibTeX entry for the given PMLR URL."
   (interactive "MPMLR URL: ")
-    (let ((url-request-method "GET"))
-      (org-ref--extract-entry-from-html
-       (url-retrieve-synchronously url)
-       '("id=\"bibtex\">\n\\(@.+\\(\n.*?\\)+?\\)\n</" . 1)
-       '("{\\(http.+\\.pdf\\)}" . 1)
-       ;; Should we proactively download supplementary materials too?
-       '(("supp" . ("href=\"\\(https?://proceedings\\.mlr\\.press/[^\"]+?-supp[^\"]*?\\)\".*?>Supplementary PDF</" . 1))))))
+  (let ((url-request-method "GET")
+	(bibtex-buffer (current-buffer))
+	(html-buffer))
+    (with-temp-buffer
+      (setq html-buffer (current-buffer))
+      (url-insert (url-retrieve-synchronously url))
+      (with-current-buffer bibtex-buffer
+	(org-ref--extract-entry-from-html
+	 html-buffer
+	 '("id=\"bibtex\">\n\\(@.+\\(\n.*?\\)+?\\)\n</" . 1)
+	 '("{\\(http.+\\.pdf\\)}" . 1)
+	 ;; Should we proactively download supplementary materials too?
+	 '(("supp" . ("href=\"\\(https?://proceedings\\.mlr\\.press/[^\"]+?-supp[^\"]*?\\)\".*?>Supplementary PDF</" . 1))))))))
 
 
 (defun org-ref-extract-from-neurips (url)
