@@ -56,7 +56,7 @@ FILE field to the entry."
 (defun org-ref--extract-entry-from-html
     (html-buffer bibtex pdf-url &rest more-fields)
   "At point, create a BibTeX entry using information extracted
-  from the HTML-BUFFER."
+  from the HTML-BUFFER, and kill HTML-BUFFER."
   (bibtex-mode)
   (let ((bibtex (if (consp bibtex)
 		    (org-ref--extract html-buffer (car bibtex) (cdr bibtex))
@@ -83,23 +83,27 @@ FILE field to the entry."
     (dolist (pair more-fields)
       (when (cdr pair)
 	(bibtex-set-field (car pair) (cdr pair))))
-    (org-ref--get-pdf pdf-url)))
+    (org-ref--get-pdf pdf-url))
+  (kill-buffer html-buffer))
+
+
+(defun org-ref--html-buffer (url)
+  "Retrieve resource from URL, decode it, substitute XML entities,
+and return the buffer."
+  (with-current-buffer (generate-new-buffer "org-ref--html")
+    (let ((url-request-method "GET"))
+      (url-insert (url-retrieve-synchronously url)))
+    (goto-char (point-min))
+    (insert (xml-substitute-special (buffer-string)))
+    (delete-region (point) (point-max))
+    (current-buffer)))
 
 
 (defun org-ref-extract-from-openreview (id)
   "At point, create a BibTeX entry for the given OpenReview ID."
   (interactive "MOpenReview ID: ")
-  (let* ((url-request-method "GET")
-	 (url (concat "https://openreview.net/forum?id=" id))
-	 (html-buffer))
-    (with-current-buffer (url-retrieve-synchronously url)
-      ;; TODO refactor this pattern
-      ;; This is needed just to prepend a string to the supp URL:
-      (setq html-buffer (current-buffer))
-      ;; This serves to replace XML entities such as &amp;→&
-      (goto-char (point-min))
-      (insert (xml-substitute-special (buffer-string)))
-      (delete-region (point) (point-max)))
+  (let* ((url (concat "https://openreview.net/forum?id=" id))
+	 (html-buffer (org-ref--html-buffer url)))
     (org-ref--extract-entry-from-html
      html-buffer
      '("\"_bibtex\":\"\\(@.+?}\\)\"" . 1)
@@ -113,30 +117,21 @@ FILE field to the entry."
        ("\\(Summary\\|TL;DR\\).*?\"note-content-value\">\\(.+?\\)</span>" . 2))
      ;; Should we proactively download supplementary materials too?
      (cons "supp"
-	   (let ((supp (org-ref--extract
-			html-buffer
-			">Supplementary Material<.*?href=\"\\([^\"]+\\)" 1)))
-	     (if supp
-		 (concat "https://openreview.net" supp)
-	       nil))))))
+	   (if-let ((supp (org-ref--extract
+			   html-buffer
+			   ">Supplementary Material<.*?href=\"\\([^\"]+\\)" 1)))
+	       (concat "https://openreview.net" supp))))))
 
 
 (defun org-ref-extract-from-pmlr (url)
   "At point, create a BibTeX entry for the given PMLR URL."
   (interactive "MPMLR URL: ")
-  (let ((url-request-method "GET")
-	(bibtex-buffer (current-buffer))
-	(html-buffer))
-    (with-temp-buffer
-      (setq html-buffer (current-buffer))
-      (url-insert (url-retrieve-synchronously url))
-      (with-current-buffer bibtex-buffer
-	(org-ref--extract-entry-from-html
-	 html-buffer
-	 '("id=\"bibtex\">\n\\(@.+\\(\n.*?\\)+?\\)\n</" . 1)
-	 '("{\\(http.+\\.pdf\\)}" . 1)
-	 ;; Should we proactively download supplementary materials too?
-	 '("supp" . ("href=\"\\(https?://proceedings\\.mlr\\.press/[^\"]+?-supp[^\"]*?\\)\".*?>Supplementary PDF</" . 1)))))))
+  (org-ref--extract-entry-from-html
+   (org-ref--html-buffer url)
+   '("id=\"bibtex\">\n\\(@.+\\(\n.*?\\)+?\\)\n</" . 1)
+   '("{\\(http.+\\.pdf\\)}" . 1)
+   ;; Should we proactively download supplementary materials too?
+   '("supp" . ("href=\"\\(https?://proceedings\\.mlr\\.press/[^\"]+?-supp[^\"]*?\\)\".*?>Supplementary PDF</" . 1))))
 
 
 (defun org-ref-extract-from-neurips (url)
@@ -145,11 +140,9 @@ FILE field to the entry."
   (let ((hash (progn (string-match "/\\([0-9a-f]+\\)-" url)
 		     (match-string 1 url)))
 	(neurips-url "https://proceedings.neurips.cc")
-	(url-request-method "GET")
-	(html-buffer)
+	(html-buffer (org-ref--html-buffer url))
 	(bibtex))
-    (with-current-buffer (url-retrieve-synchronously url)
-      (setq html-buffer (current-buffer))
+    (with-current-buffer html-buffer
       (goto-char (point-min))
       (re-search-forward "href=[\"']\\([^\"']+bibtex[^\"']*\\)[\"']")
       (let ((bibtex-url (match-string 1)))
@@ -178,13 +171,7 @@ FILE field to the entry."
   "At point, create a BibTeX entry for the given CVF HTML URL."
   (interactive "MCVF HTML URL: ")
   (let ((cvf-url "https://openaccess.thecvf.com")
-	(url-request-method "GET")
-	(html-buffer))
-    (with-current-buffer (url-retrieve-synchronously url)
-      (setq html-buffer (current-buffer))
-      (goto-char (point-min))
-      (insert (xml-substitute-special (buffer-string)))
-      (delete-region (point) (point-max)))
+	(html-buffer (org-ref--html-buffer url)))
     (org-ref--extract-entry-from-html
      html-buffer
      '("class=\"bibref[^\"]*\">[ \n]*\\(@.+?\\(\n.*?\\)+?\\)[ \n]*</" . 1)
