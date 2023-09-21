@@ -606,13 +606,16 @@ It would be better to parse this, but here I just use a regexp.
 "
 
   (when (or (string-match "^http\\(s?\\)://biomechanical.asmedigitalcollection.asme.org" *doi-utils-redirect*)
-	    (string-match "^http\\(s?\\)://ojs.aaai.org" *doi-utils-redirect*))
+	    (string-match "^http\\(s?\\)://ojs.aaai.org" *doi-utils-redirect*)
+	    (string-match "^http\\(s?\\)://aclanthology.org" *doi-utils-redirect*))
     (setq *doi-utils-waiting* 0)
     (url-retrieve
      *doi-utils-redirect*
      (lambda (status)
-       (goto-char (point-min))
-       (re-search-forward "citation_pdf_url\" content=\"\\(.*\\)\"" nil t)
+       (or (progn (goto-char (point-min))
+		  (re-search-forward "citation_pdf_url\"? content=\"\\(.*\\)\"" nil t))
+	   (progn (goto-char (point-min))
+		  (re-search-forward "\"\\([^\"]*\\)\" name=\"?citation_pdf_url" nil t)))
        ;; (message-box (match-string 1))
        (setq *doi-utils-pdf-url* (match-string 1)
 	     *doi-utils-waiting* nil)))
