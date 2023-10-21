@@ -299,7 +299,7 @@ in a directory. Optional PREFIX argument toggles between
              )
         (progn
           (funcall file-move-func source-file-name dest-file-name)
-          (message "added file %s to key %s" dest-file-name))))))
+          (message "added file %s to key %s" dest-file-name key))))))
 
 ;;;###autoload
 (defun org-ref-open-url-at-point ()

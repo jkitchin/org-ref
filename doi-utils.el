@@ -591,9 +591,11 @@ REDIRECT-URL is where the pdf url will be in."
 
 
 
-;;** ASME Biomechanical Journal
+;;** Publishers using Highwire Press metatags
+;; For context and details, see:
+;; https://webmasters.stackexchange.com/questions/72746/where-are-the-complete-set-of-highwire-press-metatags-defined
 
-(defun asme-biomechanical-pdf-url (*doi-utils-redirect*)
+(defun highwire-pdf-url (*doi-utils-redirect*)
   "Typical URL:  http://biomechanical.asmedigitalcollection.asme.org/article.aspx?articleid=1427237
 
 On this page the pdf might be here:     <meta name=\"citation_author\" content=\"Dalong Li\" /><meta name=\"citation_author_email\" content=\"dal40@pitt.edu\" /><meta name=\"citation_author\" content=\"Anne M. Robertson\" /><meta name=\"citation_author_email\" content=\"rbertson@pitt.edu\" /><meta name=\"citation_title\" content=\"A Structural Multi-Mechanism Damage Model for Cerebral Arterial Tissue\" /><meta name=\"citation_firstpage\" content=\"101013\" /><meta name=\"citation_doi\" content=\"10.1115/1.3202559\" /><meta name=\"citation_keyword\" content=\"Mechanisms\" /><meta name=\"citation_keyword\" content=\"Biological tissues\" /><meta name=\"citation_keyword\" content=\"Stress\" /><meta name=\"citation_keyword\" content=\"Fibers\" /><meta name=\"citation_journal_title\" content=\"Journal of Biomechanical Engineering\" /><meta name=\"citation_journal_abbrev\" content=\"J Biomech Eng\" /><meta name=\"citation_volume\" content=\"131\" /><meta name=\"citation_issue\" content=\"10\" /><meta name=\"citation_publication_date\" content=\"2009/10/01\" /><meta name=\"citation_issn\" content=\"0148-0731\" /><meta name=\"citation_publisher\" content=\"American Society of Mechanical Engineers\" /><meta name=\"citation_pdf_url\" content=\"http://biomechanical.asmedigitalcollection.asme.org/data/journals/jbendy/27048/101013_1.pdf\" />
@@ -603,13 +605,17 @@ It is in the citation_pdf_url.
 It would be better to parse this, but here I just use a regexp.
 "
 
-  (when (string-match "^http\\(s?\\)://biomechanical.asmedigitalcollection.asme.org" *doi-utils-redirect*)
+  (when (or (string-match "^http\\(s?\\)://biomechanical.asmedigitalcollection.asme.org" *doi-utils-redirect*)
+	    (string-match "^http\\(s?\\)://ojs.aaai.org" *doi-utils-redirect*)
+	    (string-match "^http\\(s?\\)://aclanthology.org" *doi-utils-redirect*))
     (setq *doi-utils-waiting* 0)
     (url-retrieve
      *doi-utils-redirect*
      (lambda (status)
-       (goto-char (point-min))
-       (re-search-forward "citation_pdf_url\" content=\"\\(.*\\)\"" nil t)
+       (or (progn (goto-char (point-min))
+		  (re-search-forward "citation_pdf_url\"? content=\"\\(.*\\)\"" nil t))
+	   (progn (goto-char (point-min))
+		  (re-search-forward "\"\\([^\"]*\\)\" name=\"?citation_pdf_url" nil t)))
        ;; (message-box (match-string 1))
        (setq *doi-utils-pdf-url* (match-string 1)
 	     *doi-utils-waiting* nil)))
@@ -707,7 +713,7 @@ It would be better to parse this, but here I just use a regexp.
        'ieee3-pdf-url
        'acm-pdf-url
        'osa-pdf-url
-       'asme-biomechanical-pdf-url
+       'highwire-pdf-url
        'siam-pdf-url
        'agu-pdf-url
        'plos-pdf-url
@@ -1098,7 +1104,8 @@ MATCHING-TYPES."
       (bibtex-set-field doi-utils-timestamp-field
 			ts)))
   (org-ref-clean-bibtex-entry)
-  (save-buffer))
+  (when (buffer-file-name)
+      (save-buffer)))
 
 
 ;;;###autoload
