@@ -1000,46 +1000,79 @@ arg COMMON, edit the common prefixes instead."
 (defun org-ref-get-bibtex-key-under-cursor ()
   "Return key under the cursor in org-mode.
 If not on a key, but on a cite, prompt for key."
-  (if-let ((key (get-text-property (point) 'cite-key)))
-      ;; Point is on a key, so we get it directly
-      key
-    ;; point is not on a key, but may still be on a cite link
+  (cond
+   (org-ref-activate-cite-links
+    (if-let ((key (get-text-property (point) 'cite-key)))
+	;; Point is on a key, so we get it directly
+	key
+      ;; point is not on a key, but may still be on a cite link
+      (let ((el (org-element-context))
+	    (cp (point))
+	    data
+	    keys)
+	(cond
+	 ;; on a cite-link type
+	 ((and
+	   (eq (org-element-type el) 'link)
+	   (assoc (org-element-property :type el) org-ref-cite-types))
+
+	  (goto-char (org-element-property :begin el))
+	  (setq data (org-ref-parse-cite-path (org-element-property :path el))
+		keys (cl-loop for ref in (plist-get data :references)
+			      collect (plist-get ref :key)))
+	  (cond
+	   ((= 1 (length keys))
+	    (search-forward (car keys))
+	    (goto-char (match-beginning 0)))
+	   ;; multiple keys
+	   (t
+	    (setq key (completing-read "Key: " keys))
+	    (search-forward key)
+	    (goto-char (match-beginning 0))))
+	  (prog1
+	      (get-text-property (point) 'cite-key)
+	    (goto-char cp)))
+
+	 ;; somewhere else, but looking at a cite-type see issue #908. links in
+	 ;; places like keywords are not parsed as links, but they seem to get
+	 ;; activated, so we can just get onto the key, and then open it.
+	 ((assoc (thing-at-point 'word) org-ref-cite-types)
+	  (save-excursion
+	    (when (re-search-forward ":" (line-end-position) t)
+	      (prog1
+		  (get-text-property (point) 'cite-key)
+		(goto-char cp)))))))))
+   
+   ;; org-ref-activate-cite-links is nil so font-lock does not put
+   ;; text-properties on keys. We temporarily activate this
+   
+   (t
     (let ((el (org-element-context))
 	  (cp (point))
+	  (org-ref-activate-cite-links t) ;; temporary
 	  data
-	  keys)
+	  keys
+	  )
+      (and
+       (eq (org-element-type el) 'link)
+       (assoc (org-element-property :type el) org-ref-cite-types))
+      (save-excursion
+	;; We activate just this one link
+	(org-ref-cite-activate
+	 (org-element-property :begin el)
+	 (org-element-property :end el)
+	 (org-element-property :path el)
+	 nil))
+      ;; Now we have to handle some cases.
       (cond
-       ;; on a cite-link type
-       ((and
-	 (eq (org-element-type el) 'link)
-	 (assoc (org-element-property :type el) org-ref-cite-types))
-
-	(goto-char (org-element-property :begin el))
-	(setq data (org-ref-parse-cite-path (org-element-property :path el))
-	      keys (cl-loop for ref in (plist-get data :references)
-			    collect (plist-get ref :key)))
-	(cond
-	 ((= 1 (length keys))
-	  (search-forward (car keys))
-	  (goto-char (match-beginning 0)))
-	 ;; multiple keys
-	 (t
-	  (setq key (completing-read "Key: " keys))
-	  (search-forward key)
-	  (goto-char (match-beginning 0))))
-	(prog1
-	    (get-text-property (point) 'cite-key)
-	  (goto-char cp)))
-
-       ;; somewhere else, but looking at a cite-type see issue #908. links in
-       ;; places like keywords are not parsed as links, but they seem to get
-       ;; activated, so we can just get onto the key, and then open it.
-       ((assoc (thing-at-point 'word) org-ref-cite-types)
-	(save-excursion
-	  (when (re-search-forward ":" (line-end-position) t)
-	    (prog1
-		(get-text-property (point) 'cite-key)
-	      (goto-char cp)))))))))
+       ;; on a key, return a key
+       ((get-text-property (point) 'cite-key)
+	(get-text-property (point) 'cite-key))
+       ;; not on a key, but on a cite. this is lazy, but we just search forward
+       ;; to the first key
+       (t
+	(search-forward ":")
+	(get-text-property (point) 'cite-key)))))))
 
 
 ;; ** Shift-arrow sorting of keys in a cite link
