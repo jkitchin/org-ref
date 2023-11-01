@@ -134,6 +134,9 @@ environments)."
 					      (when (or (and (eq type 'equation)
 							     (string-match "\\\\begin{equation}"
 									   (org-element-property :value e)))
+							(and (eq type 'equation)
+							     (string-match "\\\\begin{align}"
+									   (org-element-property :value e)))
 							(and (eq type 'proof) (string-match "\\\\begin{proof}"
 											    (org-element-property :value e))))
 
@@ -144,7 +147,13 @@ environments)."
 
 						 ;; latex label in the value
 						 ((string-match "\\\\label{\\(.*\\)}" (org-element-property :value e))
-						  (match-string 1 (org-element-property :value e))))))
+						  (save-match-data
+						    (let ((pos 1)
+							  matches)
+						      (while (string-match "\\\\label{\\(.*\\)}" (org-element-property :value e) pos)
+							(push (match-string 1 (org-element-property :value e)) matches)
+							(setq pos (match-end 0)))
+						      matches))))))
 
 					     ;; special blocks
 					     ('special-block
@@ -169,7 +178,9 @@ environments)."
 					     ('src-block
 					      (when-let (name (org-element-property :name e))
 						name)))))))))
-    referencables))
+    ;; the align equation environment needs to be flattened
+    (cl-loop for type in referencables
+	     collect (cons (car type) (-flatten (cdr type))))))
 
 
 (defun org-ref-refproc-get-type (label referenceables)
@@ -340,9 +351,7 @@ REFERENCEABLES comes from `org-ref-refproc-referenceables'.
 If CAPITALIZE is non-nil, capitalize the first entry (this is for
 Cref) and is different than the capitalize option in #+refproc:
 which capitalizes each prefix."
-  (let* ((options (org-ref-refproc-get-options))
-	 ;; I guess I know this will be cref or Cref here.
-	 ;; (ref-type (org-element-property :type ref-link))
+  (let* ((options (org-ref-refproc-get-options)) 
 	 (labels (split-string (org-element-property :path ref-link) ","))
 	 (post-blanks (org-element-property :post-blank ref-link))
 	 (data (cl-loop for label in labels collect (org-ref-refproc-get-type label referenceables)))
@@ -371,12 +380,17 @@ which capitalizes each prefix."
 									  :full)))
 				   (when (plist-get options :capitalize)
 				     (setq prefix (capitalize prefix)))
-				   (format "%s [[%s]]"
+				   (format "%s %s"
 					   ;; prefix
 					   prefix
 					   (concat
-					    (if (eq 'section (plist-get collection :type)) "#" "")
-					    (plist-get collection :label))))
+					    (cond
+					     ((eq 'section (plist-get collection :type))
+					      (format "[[#%s]]" (plist-get collection :label)))
+					     ((eq 'equation (plist-get collection :type))
+					      (format "\\ref{%s}" (plist-get collection :label)))
+					     (t
+					      (format "[[%s]]" (plist-get collection :label)))))))
 				  (2
 				   ;; the prefix can be found from the first label, but we have to make it plural.
 				   (setq prefix-data (cdr (assoc (plist-get (cl-first collection) :type)
