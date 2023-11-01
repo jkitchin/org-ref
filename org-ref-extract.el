@@ -106,7 +106,7 @@ and return the buffer."
 	 (html-buffer (org-ref--html-buffer url)))
     (org-ref--extract-entry-from-html
      html-buffer
-     '("\"_bibtex\":\"\\(@.+?}\\)\"" . 1)
+     '("\"_bibtex\":\\({\"value\":\\)?\"\\(@.+?}\\)\"" . 2)
      (replace-regexp-in-string "forum" "pdf" url)
      '("abstract" .
        ("<meta name=\"citation_abstract\" content=\"\\(.+?\\(\n.*?\\)*?\\)\"/>" . 1))
