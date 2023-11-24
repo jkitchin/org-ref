@@ -592,13 +592,13 @@ PATH has the citations in it."
   "Get a tooltip for the cite at POSITION."
   (let ((key (get-text-property position 'cite-key)))
     (when key
-      (let ((bibtex-completion-bibliography (org-ref-find-bibliography))
-	    (has-pdf (when (bibtex-completion-find-pdf key) bibtex-completion-pdf-symbol))
-	    (has-notes (when (cl-some #'identity
-				      (mapcar (lambda (fn)
-						(funcall fn key))
-					      bibtex-completion-find-note-functions))
-			 bibtex-completion-notes-symbol)))
+      (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	     (has-pdf (when (bibtex-completion-find-pdf key) bibtex-completion-pdf-symbol))
+	     (has-notes (when (cl-some #'identity
+				       (mapcar (lambda (fn)
+						 (funcall fn key))
+					       bibtex-completion-find-note-functions))
+			  bibtex-completion-notes-symbol)))
 	(format "%s%s %s" (or has-pdf "") (or has-notes "")
 		(bibtex-completion-apa-format-reference key))))))
 
