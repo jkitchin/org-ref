@@ -128,6 +128,12 @@ org-ref installed in [[${org-ref-location}]].
 -  org-ref-insert-ref-function :: ${org-ref-insert-ref-function}
 -  org-ref-cite-onclick-function :: ${org-ref-cite-onclick-function}
 
+* bibtex-completion setup
+
+- bibtex-completion-bibliography :: ${bibtex-completion-bibliography}
+- bibtex-completion-library-path :: ${bibtex-completion-library-path}
+- bibtex-completion-notes-path :: ${bibtex-completion-notes-path}
+
 * org-ref libraries
 
 ** org-ref-helm (loaded: ${org-ref-helm-p})
@@ -175,7 +181,11 @@ You set =pdftotext-executable= to ${pdftotext-executable} (exists: ${pdftotext-e
 	       ("org-ref-insert-cite-function" . ,org-ref-insert-cite-function)
 	       ("org-ref-insert-label-function" . ,org-ref-insert-label-function)
 	       ("org-ref-insert-ref-function" . ,org-ref-insert-ref-function)
-	       ("org-ref-cite-onclick-function" . ,org-ref-cite-onclick-function)))))
+	       ("org-ref-cite-onclick-function" . ,org-ref-cite-onclick-function)
+
+	       ("bibtex-completion-bibliography" . ,bibtex-completion-bibliography)
+	       ("bibtex-completion-library-path" . ,bibtex-completion-library-path)
+	       ("bibtex-completion-notes-path" . ,bibtex-completion-notes-path)))))
 
 
 (defun org-ref-get-bibtex-entry-citation (key)
@@ -263,7 +273,10 @@ Jabref, Mendeley and Zotero. See `bibtex-completion-find-pdf'."
          (pdf-file (bibtex-completion-find-pdf key t)))
     (pcase (length pdf-file)
       (0
-       (message "no pdf found for %s" key))
+       (message "no pdf found for %s" key)
+       (save-window-excursion
+	 (org-ref-open-citation-at-point) 
+	 (doi-utils-get-bibtex-entry-pdf)))
       (1
        (funcall bibtex-completion-pdf-open-function (car pdf-file)))
       (_
@@ -291,12 +304,12 @@ in a directory. Optional PREFIX argument toggles between
          (pdf-file (bibtex-completion-find-pdf-in-library key)))
     (if pdf-file
         (message "PDF for key [%s] already exists %s" key pdf-file)
-      (let* (
-             (source-file-name (read-file-name (format "Select pdf file associated with key [%s]: " key)
-		                   org-ref-bibtex-pdf-download-dir))
-             (dest-file-name (expand-file-name (format "%s.pdf" key) (org-ref-library-path)))
-             (file-move-func (org-ref-bibtex-get-file-move-func prefix))
-             )
+      (let* ((source-file-name (read-file-name
+				(format "Select pdf file associated with key [%s]: " key)
+				org-ref-bibtex-pdf-download-dir))
+	     (dest-file-name (expand-file-name (format "%s.pdf" key)
+					       (org-ref-library-path)))
+	     (file-move-func (org-ref-bibtex-get-file-move-func prefix)))
         (progn
           (funcall file-move-func source-file-name dest-file-name)
           (message "added file %s to key %s" dest-file-name key))))))
