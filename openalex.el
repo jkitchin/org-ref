@@ -713,7 +713,8 @@ Recently published papers are probably missing.
     ;; Finally lets fix the year so Excel reads it correctly. I use the publication date
     (setq current-authors (cl-loop for row in current-authors 
 				   collect
-				   (list (nth 0 row)
+				   (list "A:"
+					 (nth 0 row)
 					 (nth 1 row)
 					 (nth 2 row)
 					 (nth 4 row))))
