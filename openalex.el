@@ -643,13 +643,19 @@ institution if an author is listed multiple times. Sometimes this
 is empty, and sometimes an author has multiple institutions
 listed.
 
+There may be duplicates for people who have different names in
+OpenAlex, e.g. missing initials, differences in abbreviations,
+including having a period or not.
+
 Your name will be included, you will need to delete this manually
 in the Excel sheet.
 
 This only gets the coauthors in publications known to OpenAlex.
 Recently published papers are probably missing.
 "
-  (interactive "sORCID:\nfCOA-file")
+  (interactive (list (read-string "ORCID: ")
+		     (when (y-or-n-p "Save to file?")
+		       (read-file-name "File: "))))
   (let* ((url (format
 	       "https://api.openalex.org/works?filter=author.orcid:https://orcid.org/%s&email=%s"
 	       orcid
@@ -735,7 +741,8 @@ Recently published papers are probably missing.
 							  row)
 						  "\t")
 				     "\n"))
-			   current-authors)))))
+			   current-authors))
+      (message "COA data on the clipboard."))))
 
 
 (provide 'openalex)
