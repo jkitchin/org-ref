@@ -393,7 +393,7 @@ With prefix arg ASCENDING sort from low to high."
     data))
 
 
-(defun oa-author-entries (works-data url)
+(defun oa--author-entries (works-data url)
   "Get entries from WORKS-DATA."
   (let* ((meta (plist-get works-data :meta)) 
 	 (per-page (plist-get meta :per_page))
@@ -435,42 +435,6 @@ ${(oa--elisp-get-bibtex result)}
     entries))
 
 
-;; (defun oa-author (entity-id)
-;;   "View Author for ENTITY-ID in an org-buffer."
-;;   (let* ((buf (get-buffer-create "*OpenAlex - Author*"))
-;; 	 (data (oa--author entity-id))
-;; 	 (works-count (plist-get data :works_count))
-;; 	 (works-url (plist-get data :works_api_url))
-;; 	 (works-data (request-response-data
-;; 		      (request works-url
-;; 			:sync t
-;; 			:parser 'oa--response-parser))))
-;;     (with-current-buffer buf
-;;       (erase-buffer)
-;;       (insert (s-format "* ${display_name} ([[${oa-url}][json]])
-;; :PROPERTIES:
-;; :ORCID: ${orcid}
-;; :SCOPUS: ${ids.scopus}
-;; :WORKS_COUNT: ${works_count}
-;; :CITED_BY_COUNT: ${cited_by_count}
-;; :INSTITUTION: ${last_known_institution.display_name}, ${last_known_institution.country_code}
-;; :END:
-
-;; #+COLUMNS: %25ITEM %YEAR %CITED_BY_COUNT
-;; elisp:org-columns    elisp:org-columns-quit
-
-;; #+caption: Sort
-;; | year     | [[elisp:(oa-buffer-sort-year t)][old first]] | [[elisp:(oa-buffer-sort-year)][new first]] |
-;; | cited by | [[elisp:(oa-buffer-sort-cited-by-count t)][low first]] | [[elisp:(oa-buffer-sort-cited-by-count)][high first]] |
-
-;; "
-;; 			'oa--replacer data))
-;;       (insert (s-join "\n" (oa-author-entries works-data works-url)))
-;;       (org-mode)
-;;       (goto-char (point-min))
-;;       (org-next-visible-heading 1))
-;;     (pop-to-buffer buf)))
-
 (defun oa-author (entity-id)
   "View Author for ENTITY-ID in an org-buffer."
   (let* ((buf (get-buffer-create "*OpenAlex - Author*"))
@@ -503,7 +467,7 @@ elisp:org-columns    elisp:org-columns-quit
 
 "
 			'oa--replacer data))
-      (insert (s-join "\n" (oa-author-entries works-data works-url)))
+      (insert (s-join "\n" (oa--author-entries works-data works-url)))
       ;; It would be nice to have a table or two with citations by year
       (insert "\n** Bibliometrics\n\n")
 
