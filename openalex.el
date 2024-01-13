@@ -128,21 +128,21 @@ The string is a comma-separated list of links to author pages in OpenAlex."
 
 (defun oa--elisp-get-oa-related (wrk)
   "Return a elisp link to get related works for WRK."
-  (format "[[elisp:(progn (xref--push-markers) (oa--related-works \"%s\"))][Get related work (%s)]]"
+  (format "[[elisp:(progn (xref--push-markers (current-buffer) (point)) (oa--related-works \"%s\"))][Get related work (%s)]]"
 	  (plist-get wrk :id)
 	  (length (plist-get wrk :related_works))))
 
 
 (defun oa--elisp-get-oa-refs (wrk)
   "Return a elisp link to get references for WRK."
-  (format "[[elisp:(progn (xref--push-markers) (oa--referenced-works \"%s\"))][Get references (%s)]]"
+  (format "[[elisp:(progn (xref--push-markers (current-buffer) (point)) (oa--referenced-works \"%s\"))][Get references (%s)]]"
 	  (plist-get wrk :id)
 	  (length  (plist-get wrk :referenced_works))))
 
 
 (defun oa--elisp-get-oa-cited-by (wrk)
   "Return a elisp link to get works that cite WRK."
-  (format "[[elisp:(progn (xref--push-markers) (oa--cited-by-works \"%s\"))][Get cited by (%s)]]"
+  (format "[[elisp:(progn (xref--push-markers (current-buffer) (point)) (oa--cited-by-works \"%s\"))][Get cited by (%s)]]"
 	  (plist-get wrk :id)
 	  (plist-get wrk :cited_by_count)))
 
@@ -706,12 +706,13 @@ ${(oa--elisp-get-bibtex result)}
 
 
 ;; * NSF Collaborators and Other Affiliations
-(defun oa-coa (orcid &optional COA-file)
+(defun oa-coa (entity-id &optional COA-file)
   "Get a list of collaborators for the past 5 years in tab-delimited form.
 This is for Table 4 in the COA_template at
 https://www.nsf.gov/bfa/dias/policy/coa/coa_template.xlsx.
 
-ORCID is a string like 0000-0003-2625-9232.
+ENTITY-ID is an identifier that OpenAlex can use. Used
+interactively you can query and select an author.
 
 If COA-FILE is non-nil write results to that file, otherwise save
 to the clipboard. You should be able to paste the results
@@ -739,22 +740,24 @@ in the Excel sheet.
 This only gets the coauthors in publications known to OpenAlex.
 Recently published papers are probably missing.
 "
-  (interactive (list (read-string "ORCID: ")
-		     (when (y-or-n-p "Save to file?")
-		       (read-file-name "File: "))))
-  (let* ((url (format
-	       "https://api.openalex.org/works?filter=author.orcid:https://orcid.org/%s&email=%s"
-	       orcid
-	       user-mail-address))
-	 (req (request url :sync t :parser 'oa--response-parser))
-	 (data (request-response-data req))
-	 (meta (plist-get data :meta))
+  (interactive (list
+		(let ((candidates (oa--author-candidates)))
+		  (cdr (assoc (completing-read "Author: " candidates) candidates)))
+		(when (y-or-n-p "Save to file?")
+		  (read-file-name "File: "))))
+  
+  (let* ((data (oa--author entity-id))
+	 (works-url (plist-get data :works_api_url)) 
+	 (works-data (request-response-data
+		      (request works-url
+			:sync t
+			:parser 'oa--response-parser)))
+	 (meta (plist-get works-data :meta))
 	 (count (plist-get meta :count))
 	 (per-page (plist-get meta :per_page))
-	 (pages (/ count per-page))
+	 (pages 1)
+	 (results (plist-get works-data :results))
 	 (current-year (string-to-number (format-time-string "%Y" (current-time))))
-	 ;; this is the first page of results
-	 (results (plist-get data :results))
 	 (current-authors '()))
 
     ;; Now we need to accumulate the rest of the results from other pages
@@ -762,12 +765,13 @@ Recently published papers are probably missing.
 
     (cl-loop for i from 2 to pages
 	     do
-	     (setq purl (concat url (format "&page=%s" i))
+	     (setq purl (concat works-url (format "&page=%s" i))
 		   works-data (request-response-data
 			       (request purl
 				 :sync t
 				 :parser 'oa--response-parser))
 		   results (append results (plist-get works-data :results))))
+    
     ;; Now results is a list of your publications. We need to iterate over each
     ;; one, and accumulate author information
     (cl-loop for result in results do
