@@ -731,8 +731,8 @@ is empty, and sometimes an author has multiple institutions
 listed.
 
 There may be duplicates for people who have different names in
-OpenAlex, e.g. missing initials, differences in abbreviations,
-including having a period or not.
+OpenAlex, e.g. missing initials, differences in spelling,
+abbreviations, including having a period or not.
 
 Your name will be included, you will need to delete this manually
 in the Excel sheet.
