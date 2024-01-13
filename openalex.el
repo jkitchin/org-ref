@@ -12,6 +12,12 @@
 (require 'dash)
 (require 'request)
 
+(defcustom oa-api-key
+  nil
+  "Your API key if you have one."
+  :group 'openalex
+  :type 'string)
+
 ;;; Code:
 
 (defun oa--response-parser ()
@@ -44,6 +50,11 @@ https://docs.openalex.org/api-entities/works"
 			   (if filter
 			       (concat "&mailto=" user-mail-address)
 			     (concat "?mailto=" user-mail-address))
+			 "")
+		       (if oa-api-key
+			   (if filter
+			       (concat "&api_key=" oa-api-key)
+			     (concat "?api_key=" oa-api-key))
 			 "")))
 	 (req (request url :sync t :parser 'oa--response-parser))
 	 (data (request-response-data req)))
@@ -404,6 +415,11 @@ FILTER is an optional string to add to the URL."
 			 (concat "/" entity-id))
 		       (if user-mail-address
 			   (concat "?mailto=" user-mail-address)
+			 "")
+		       (if oa-api-key
+			   (if filter
+			       (concat "&api_key=" oa-api-key)
+			     (concat "?api_key=" oa-api-key))
 			 "")))
 	 (req (request url :sync t :parser 'oa--response-parser))
 	 (data (request-response-data req))) 
@@ -537,8 +553,7 @@ plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per 
 	     (cmdfile (make-temp-file "gnuplot-cmds-" nil ".gpl"))
              (shellcmd (format "gnuplot --persist -c \"%s\"" cmdfile)))
 	(with-temp-file cmdfile
-	  (insert gnuplot)
-	  (message (buffer-string)))
+	  (insert gnuplot))
 	(shell-command shellcmd)
 	(delete-file cmdfile)
 	(format "[[%s]]" pngfile))
@@ -648,10 +663,13 @@ PAGE is optional, and loads that page of results. Defaults to 1."
   (interactive (list (read-string "Query: ")
 		     (read-number "Page: ")))
   (when (null page) (setq page 1))
-  (let* ((url (format "https://api.openalex.org/works?filter=fulltext.search:%s&page=%s&mailto=%s"
+  (let* ((url (format "https://api.openalex.org/works?filter=fulltext.search:%s&page=%s&mailto=%s%s"
 		      (url-hexify-string query)
 		      page
-		      user-mail-address))
+		      user-mail-address
+		      (if oa-api-key
+			  (concat "&api_key=" oa-api-key)
+			"")))
 	 (req (request url
 		:sync t
 		:parser #'oa--response-parser))
