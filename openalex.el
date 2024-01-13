@@ -47,7 +47,8 @@ https://docs.openalex.org/api-entities/works"
 			 "")))
 	 (req (request url :sync t :parser 'oa--response-parser))
 	 (data (request-response-data req)))
-    ;; this is for convenience to inspect data in a browser.
+    ;; this is for convenience to inspect data in a browser, e.g. you can click
+    ;; on the url in Emacs and it opens in a browser.
     (plist-put data :oa-url url)
     data))
 
@@ -57,9 +58,6 @@ https://docs.openalex.org/api-entities/works"
 ;; This section provides a replacer and helper function to format org-entries
 ;; from the results returned in OpenAlex.
 
-
-
-
 (defun oa--replacer (key object)
   "Replacer function for `s-format'.
 QUERY is a string that is either a sexp for a function to
@@ -68,19 +66,31 @@ sexp, it is read and evaluated. Otherwise, the path is split, and
 looked up sequentially in object.
 
 OBJECT is a plist, usually from a Work request."
-  (if (or (s-starts-with? "(" key)
-	  (boundp (intern-soft key)))
-      ;; this is a function we should evaluate
-      ;; it is kind of janky and might miss context.
-      (eval (read key) t)
+  (cond
+   ((s-starts-with? "(" key)
+    ;; this is potentially janky and might mess up things with dynamic scoping
+    ;; and other lexical things. It does seem to work.
+    (eval (read key)))
+
+   ;; in principle this should be a variable you want to put in the template. it
+   ;; is tricky though, and I don't understand why, sometimes it appears that
+   ;; something is bound, but then it isn't. I wonder if it is related to
+   ;; lexical binding or something. This seems to do what I want.
+   ((and (boundp (intern-soft key))
+	 (symbol-value (intern-soft key))) 
+    (symbol-value (intern-soft key)))
+   
+   (t
     ;; just get data
     (let ((fields (s-split "\\." key))
 	  result)
+      ;; sequentially process the dot-notation field by field
       (while fields
 	(setq object (plist-get object (intern-soft (concat ":" (pop fields))))))
-      (or (string-replace "\\n" "" (format "%s" object)) "Not found"))))
-
-
+      (or
+       ;; I find it useful to remove line breaks
+       (string-replace "\\n" "" (format "%s" object))
+       "Not found")))))
 
 
 ;; ** help functions for complex data
@@ -312,7 +322,7 @@ With prefix arg ASCENDING, sort in ascending order (old to new)"
 
 
 (defun oa-buffer-sort-cited-by-count (&optional ascending)
-  "Sort orgheadings by cited by count in descending order high to low.
+  "Sort org headings by cited by count in descending order high to low.
 With prefix arg ASCENDING sort from low to high."
   (interactive "P")
   (if ascending
@@ -351,14 +361,15 @@ With prefix arg ASCENDING sort from low to high."
   (oa--cited-by-works (concat "doi:" (org-ref-get-doi-at-point))))
 
 
-
 (defhydra+ org-ref-citation-hydra ()
   "Add related documents action to `org-ref-citation-hydra'."
   ("xr" oa-related-works "Related documents" :column "OpenAlex"))
 
+
 (defhydra+ org-ref-citation-hydra ()
   "Add cited by documents action to `org-ref-citation-hydra'."
   ("xc" oa-cited-by-works "Cited by documents" :column "OpenAlex"))
+
 
 (defhydra+ org-ref-citation-hydra ()
   "Add references from action to `org-ref-citation-hydra'."
@@ -378,7 +389,8 @@ With prefix arg ASCENDING sort from low to high."
 ;; * Author object
 
 (defun oa--author (entity-id &optional filter)
-  "Get an Author object for entity-id"
+  "Get an Author object for ENTITY-ID.
+FILTER is an optional string to add to the URL."
   (let* ((url (concat  "https://api.openalex.org/authors"
 		       (if filter
 			   (concat "?" filter entity-id)
@@ -435,10 +447,81 @@ ${(oa--elisp-get-bibtex result)}
     entries))
 
 
+(defun oa--author-candidates ()
+  (let* ((str (read-string "Author: ")) 
+	 (url (format "https://api.openalex.org/autocomplete/authors?q=%s"
+		      (url-hexify-string str)))
+	 (req (request url :sync t :parser 'oa--response-parser))
+	 (data (request-response-data req))
+	 (results (plist-get data :results))
+	 (candidates (cl-loop for author in results collect
+			      (cons
+			       (format "%s - %s"
+				       (plist-get author :display_name)
+				       (plist-get
+					author :hint))
+			       (plist-get author :id)))))
+    candidates))
+
+
+(defun oa--counts-by-year (data)
+  "Get citation counts by year and make a graph.
+DATA is an author from OpenAlex.
+Requires gnuplot. Generates a temporary file."
+  (if (executable-find "gnuplot")
+      (let* ((pngfile (make-temp-file "oa-" nil ".png"))
+	     (counts (sort
+		      (cl-loop for i from 1 for item in (plist-get data :counts_by_year)
+			       collect
+			       (list
+				(plist-get item :year)
+				(plist-get item :cited_by_count)
+				(plist-get item :works_count)))
+		      (lambda (a b)
+			(< (nth 0 a)
+			   (nth 0 b)))))
+	     (count-string (cl-loop for i from 1 for (year cites works) in counts
+				    concat
+				    (format "%s \"%s\" %s %s\n"
+					    i year cites works)))
+	     (gnuplot (format "set terminal \"png\" size 800,400
+set output \"%s\"
+$counts << EOD
+%s
+EOD
+set boxwidth 0.5
+set style fill solid noborder
+set style line 1 lc rgb \"grey\"
+set ylabel \"Citation count\"
+set y2label \"Document count\"
+plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per year\", \"\" using 1:4 axes x1y2 with lines title \"Document count\"
+"
+			      pngfile
+			      count-string))
+	     (cmdfile (make-temp-file "gnuplot-cmds-" nil ".gpl"))
+             (shellcmd (format "gnuplot --persist -c \"%s\"" cmdfile)))
+	(with-temp-file cmdfile
+	  (insert gnuplot)
+	  (message (buffer-string)))
+	(shell-command shellcmd)
+	(delete-file cmdfile)
+	(format "[[%s]]" pngfile))
+    "Gnuplot required to see citation graph. Please install it."))
+
+
 (defun oa-author (entity-id)
-  "View Author for ENTITY-ID in an org-buffer."
+  "View Author for ENTITY-ID in an org-buffer.
+ENTITY-ID is usually a url, e.g. to OpenAlex or orcid.
+See https://docs.openalex.org/api-entities/authors/get-a-single-author.
+
+When run interactively, you are queried for a name and an
+autocomplete set of candidates is provided."
+  (interactive
+   (list (let ((candidates (oa--author-candidates)))
+	   (cdr (assoc (completing-read "Author: " candidates) candidates)))))
   (let* ((buf (get-buffer-create "*OpenAlex - Author*"))
 	 (data (oa--author entity-id))
+	 (citations-image (oa--counts-by-year data))
 	 (works-count (plist-get data :works_count))
 	 (works-url (plist-get data :works_api_url))
 	 (works-data (request-response-data
@@ -449,6 +532,7 @@ ${(oa--elisp-get-bibtex result)}
       (erase-buffer)
       (insert (s-format "* ${display_name} ([[${oa-url}][json]])
 :PROPERTIES:
+:OPENALEX: ${id}
 :ORCID: ${orcid}
 :SCOPUS: ${ids.scopus}
 :WORKS_COUNT: ${works_count}
@@ -458,6 +542,8 @@ ${(oa--elisp-get-bibtex result)}
 
 #+COLUMNS: %25ITEM %YEAR %CITED_BY_COUNT
 elisp:org-columns    elisp:org-columns-quit
+
+${citations-image}
 
 ** Articles
 
