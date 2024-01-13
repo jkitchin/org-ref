@@ -536,6 +536,7 @@ set style fill solid noborder
 set style line 1 lc rgb \"grey\"
 set ylabel \"Citation count\"
 set y2label \"Document count\"
+set y2tics nomirror
 plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per year\", \"\" using 1:4 axes x1y2 with lines title \"Document count\"
 "
 			      pngfile
@@ -595,49 +596,7 @@ ${citations-image}
 "
 			'oa--replacer data))
       (insert (s-join "\n" (oa--author-entries works-data works-url)))
-      ;; It would be nice to have a table or two with citations by year
-      (insert "\n** Bibliometrics\n\n")
 
-      (let ((data (oa--author-entries works-data works-url))
-	    (years '())
-	    (cites '()))
-	(cl-loop for result in data
-		 do
-		 (if (cdr (assoc (plist-get result :publication_year) years))
-		     (setf (cdr (assoc (plist-get result :publication_year) years))
-			   (+ 1 (cdr (assoc (plist-get result :publication_year) years))))
-		   (push (cons (plist-get result :publication_year) 1) years)))
-	(insert (format "*** Publication count by year
-
-| year | count |
-|------|-------|
-%s
-" (cl-loop for (year . count) in  (sort years (lambda (a b) (< (car a) (car b))))
-	   concat
-	   (format "| %s | %s |\n" year count))))
-
-	;;  now we cature citations by year
-	(cl-loop for result in data
-		 do
-		 (cl-loop for cnt in (plist-get result :counts_by_year)
-			  do
-			  (if (cdr (assoc (plist-get cnt :year) cites))
-			      (setf (cdr (assoc (plist-get cnt :year) cites))
-				    (+ (cdr (assoc (plist-get cnt :year) cites))
-				       (plist-get cnt :cited_by_count)))
-			    (push (cons (plist-get cnt :year)
-					(plist-get cnt :cited_by_count))
-				  cites))))
-
-	(insert (format "*** Citation count by year
-
-| year | count |
-|------|-------|
-%s
-" (cl-loop for (year . count) in  (sort cites (lambda (a b) (< (car a) (car b))))
-	   concat
-	   (format "| %s | %s |\n" year count)))))
-      
       (org-mode)
       (goto-char (point-min))
       (org-next-visible-heading 1))
