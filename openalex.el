@@ -112,6 +112,11 @@ The string is a comma-separated list of links to author pages in OpenAlex."
 				 :display_name)))))
 
 
+(defun oa--title (wrk)
+  "Return a title from WRK with linebreaks removed."
+  (string-replace "\n" " " (plist-get wrk :title)))
+
+
 ;; I want some links if they can be made so the buffer is interactive. It might
 ;; be nice to integrate M-, navigation.
 (defun oa--elisp-get-bibtex (wrk)
@@ -318,7 +323,8 @@ With prefix arg ASCENDING, sort in ascending order (old to new)"
     (org-sort-entries nil ?f
 		      (lambda () (string-to-number (or (org-entry-get (point) "YEAR") "0")))
 		      (lambda (y1 y2)
-			(> y1 y2)))))
+			(> y1 y2))))
+  (org-show-all))
 
 
 (defun oa-buffer-sort-cited-by-count (&optional ascending)
@@ -338,7 +344,8 @@ With prefix arg ASCENDING sort from low to high."
 			 (or
 			  (org-entry-get (point) "CITED_BY_COUNT")
 			  "0")))
-		      #'>)))
+		      #'>))
+  (org-show-all))
 
 
 ;; * Interactive versions for org-ref citations
@@ -427,7 +434,7 @@ FILTER is an optional string to add to the URL."
 		   entries (append entries
 				   (cl-loop for result in (plist-get works-data :results)
 					    collect
-					    (s-format "** ${title}
+					    (s-format "*** ${(oa--title result)}
 :PROPERTIES:
 :ID: ${id}
 :DOI: ${ids.doi}
@@ -443,8 +450,37 @@ ${(oa--elisp-get-bibtex result)}
 - ${(oa--elisp-get-oa-related result)}
 - ${(oa--elisp-get-oa-cited-by result)}
 
+${(oa--abstract result)}
+
     " 'oa--replacer result)))))
     entries))
+
+(defun oa--abstract (wrk)
+  "Construct an abstract from a WRK."
+  (let* ((aii (plist-get wrk :abstract_inverted_index))
+	 (word_index '())
+	 sorted)
+
+    (cl-loop for (k v) on aii by 'cddr
+	     do
+	     (cl-loop for index in v
+		      do
+		      (push (list k index) word_index)))
+
+    (setq sorted (sort
+		  word_index
+		  (lambda (a b)
+		    (<
+		     (nth 1 a)
+		     (nth 1 b)))))
+
+    (string-join (mapcar
+		  (lambda (x)
+		    (substring
+		     (symbol-name (car x))
+		     1))
+		  sorted)
+		 " ")))
 
 
 (defun oa--author-candidates ()
