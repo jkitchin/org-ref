@@ -394,16 +394,6 @@ With prefix arg ASCENDING sort from low to high."
   ("xf" oa-referenced-works "References from" :column "OpenAlex"))
 
 
-;; * utilities
-
-(defun oa-kill-buffers ()
-  "Kill OpenAlex buffers."
-  (interactive)
-  (cl-loop for buf in (buffer-list)
-	   do
-	   (when (s-starts-with? "*OpenAlex" (buffer-name buf))
-	     (kill-buffer buf))))
-
 ;; * Author object
 
 (defun oa--author (entity-id &optional filter)
@@ -852,6 +842,31 @@ Recently published papers are probably missing.
 			   current-authors))
       (message "COA data on the clipboard."))))
 
+
+
+;; * utilities
+
+(defun oa-kill-buffers ()
+  "Kill OpenAlex buffers."
+  (interactive)
+  (cl-loop for buf in (buffer-list)
+	   do
+	   (when (s-starts-with? "*OpenAlex" (buffer-name buf))
+	     (kill-buffer buf))))
+
+
+(defun oa-get-bibtex-entries ()
+  "Download all the bibtex entries in the buffer.
+Operates on headings with a DOI property."
+  (interactive)
+  (let ((bibfile (completing-read "Bibfile: " (org-ref-possible-bibfiles))))
+    (org-map-entries
+     (lambda ()
+       (kill-new (org-entry-get (point) "DOI"))
+       (doi-utils-add-bibtex-entry-from-doi
+	(doi-utils-maybe-doi-from-region-or-current-kill) 
+	bibfile))
+     "DOI<>\"\"")))
 
 (provide 'openalex)
 
