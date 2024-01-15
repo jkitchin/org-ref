@@ -610,7 +610,7 @@ ${citations-image}
   "Perform a fulltext search on QUERY.
 PAGE is optional, and loads that page of results. Defaults to 1."
   (interactive (list (read-string "Query: ")
-		     (read-number "Page: ")))
+		     nil))
   (when (null page) (setq page 1))
   (let* ((url (format "https://api.openalex.org/works?filter=fulltext.search:%s&page=%s&mailto=%s%s"
 		      (url-hexify-string query)
@@ -826,6 +826,7 @@ Operates on headings with a DOI property."
 	(doi-utils-maybe-doi-from-region-or-current-kill) 
 	bibfile))
      "DOI<>\"\"")))
+
 
 (provide 'openalex)
 
