@@ -3,11 +3,30 @@
 ;;; Commentary:
 ;; This is an elisp interface to OpenAlex (https://docs.openalex.org/) for org-ref.
 ;;
-;; This provides functionality for the Work and Author API
+;; This provides functionality for the OpenAlex APIs.
 ;;
-;; See
-;; https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool
-;; for why we add email to the request.
+;; `oa-query' provides a general interface to all the endpoints with a filter.
+;; It is not interactive though.
+;;
+;; `oa-author' provides an interactive way to search for an author and then see
+;; a Google Scholar like org buffer with information about the author.
+;;
+;; `oa-fulltext-search' provides an interactive full text search of Works in
+;; OpenAlex. You get an org-buffer of results, with links to subsequent pages of
+;; results.
+;;
+;; `oa-coa' is an interactive command to generate the NSF COA form data for
+;; coauthors.
+;;
+;; `oa-get-bibtex-entries' is an interactive command to download all bibtex
+;; entries from headings in the current buffer with a DOI property.
+;;
+;; if you have an OpenAlex API you can set `oa-api-key' to use it. The
+;; `user-mail-address' value will be added to the queries if it exists so you
+;; will get the polite pool.
+;;
+;; This library extends the `org-ref-citation-hydra' and adds keys to get to
+;; cited by, references and related documents in OpenAlex.
 
 (require 'dash)
 (require 'request)
@@ -28,6 +47,113 @@
 	(json-false nil)
 	(json-encoding-pretty-print nil))
     (json-read)))
+
+
+;; * General query
+
+(defun oa-query (endpoint &rest filter)
+  "Run a query at ENDPOINT with FILTER.
+ENDPOINT can be works, authors, sources, institutions, concepts,
+publishers, or funders.
+
+FILTER is a plist (:field value) where :field is a valid filter
+field (see
+https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists),
+and value is what you want to filter on. The following logic is supported:
+
+!value is negation
+<value is less than
+>value is greater than
+value1+value2 is and within a field
+value1|value2 is or within a field
+
+Your 
+"
+  (let* ((page (if (plist-get filter :page)
+		   (prog1
+		       (string-to-number (plist-get filter :page))
+		     (setq filter (org-plist-delete filter :page)))
+		 1))
+	 (base-url "https://api.openalex.org")
+	 (url (concat base-url "/" endpoint "?filter="))
+	 (filter-string (string-join
+			 (cl-loop for key in (plist-get-keys filter) collect
+				  (concat (substring (symbol-name key) 1)
+					  ":"
+					  (url-hexify-string
+					   (plist-get filter key))))
+			 ","))
+	 (url (concat url filter-string
+		      (format "&page=%s" page) 
+		      (if user-mail-address
+			  (concat "&mailto=" user-mail-address)
+			"")
+		      (if oa-api-key
+			  (concat "&api_key=" oa-api-key)
+			"")))
+	 (req (request url :sync t :parser 'oa--response-parser))
+	 (data (request-response-data req))
+	 (meta (plist-get data :meta))
+	 (count (plist-get meta :count))
+	 (per-page (plist-get meta :per_page))
+	 (pages (ceiling (/ (float count) per-page)))
+	 (results (plist-get data :results))
+	 (next-page (format "[[elisp:(oa-query \"%s\" %s :page \"%s\")][Next page: %s]]"
+			    endpoint 
+			    (string-join (cl-loop for x in filter
+						  collect
+						  (if (keywordp x)
+						      (format "%s" x)
+						    (format "%S" x)))
+					 " ")
+			    (+ page 1)
+			    (+ page 1)))
+	 (buf (get-buffer-create "*OpenAlex - Query*")))
+
+    (with-current-buffer buf
+      (erase-buffer)
+      (org-mode)
+      (insert (concat
+	       (format "#+title: %s
+** Results
+:PROPERTIES:
+:FILTER: %s
+:COUNT: %s
+:END:
+
+%s
+\n\n"
+		       filter-string
+		       filter-string
+		       count
+		       next-page)
+	       (string-join
+		(cl-loop for wrk in results collect
+			 (s-format "*** ${(oa--title wrk)}
+:PROPERTIES:
+:HOST: ${primary_location.source.display_name}
+:YEAR: ${publication_year}
+:CITED_BY_COUNT: ${cited_by_count}
+:AUTHOR: ${(oa--authors wrk)}
+:DOI: ${doi}
+:OPENALEX: ${id}
+:CREATED_DATE: ${created_date}
+:END:
+
+
+${(oa--elisp-get-bibtex wrk)}
+
+- ${(oa--elisp-get-oa-refs wrk)}
+- ${(oa--elisp-get-oa-related wrk)}
+- ${(oa--elisp-get-oa-cited-by wrk)}
+
+${(oa--abstract wrk)}
+
+"
+				   'oa--replacer wrk))
+		"\n"))))
+    (pop-to-buffer buf)
+    (goto-char (point-min))))
 
 
 ;; * Work object
@@ -211,10 +337,6 @@ elisp:org-columns    elisp:org-columns-quit
     (pop-to-buffer buf)))
 
 
-;; There is something funny about pages here, maybe 25 results per page?
-;; https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/paging I
-;; am not sure how to do pages in this approach, so I am just getting these 25
-;; at a time.
 (defun oa--related-works (entity-id)
   "Show the Related works buffer for ENTITY-ID."
   (let* ((wrk (oa--work entity-id))
@@ -490,6 +612,8 @@ ${(oa--abstract result)}
 
 
 (defun oa--author-candidates ()
+  "Retrieve autocomplete authors from OpenAlex.
+Returns a list of (hint . openalex-id)."
   (let* ((str (read-string "Author: ")) 
 	 (url (format "https://api.openalex.org/autocomplete/authors?q=%s"
 		      (url-hexify-string str)))
@@ -551,16 +675,8 @@ plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per 
     "Gnuplot required to see citation graph. Please install it."))
 
 
-(defun oa-author (entity-id)
-  "View Author for ENTITY-ID in an org-buffer.
-ENTITY-ID is usually a url, e.g. to OpenAlex or orcid.
-See https://docs.openalex.org/api-entities/authors/get-a-single-author.
-
-When run interactively, you are queried for a name and an
-autocomplete set of candidates is provided."
-  (interactive
-   (list (let ((candidates (oa--author-candidates)))
-	   (cdr (assoc (completing-read "Author: " candidates) candidates)))))
+(defun oa--author-org (entity-id)
+  "Generate an org-buffer for an author with ENTITY-ID."
   (let* ((buf (get-buffer-create "*OpenAlex - Author*"))
 	 (data (oa--author entity-id))
 	 (citations-image (oa--counts-by-year data))
@@ -601,6 +717,25 @@ ${citations-image}
       (goto-char (point-min))
       (org-next-visible-heading 1))
     (pop-to-buffer buf)))
+
+
+(defun oa-author ()
+  "Get data and act on it for an author."
+  (interactive)
+  
+  (ivy-read "Author: " (oa--author-candidates)
+	    :action
+	    '(1
+	      ("o" (lambda (candidate)
+		     (oa--author-org (cdr candidate)))
+	       "Open org file")
+	      ("l" (lambda (candidate)
+		     (insert (format "[[%s][%s]]"
+				     (cdr candidate)
+				     (car candidate)))))
+	      ("u" (lambda (candidate)
+		     (browse-url (cdr candidate)))
+	       "Open in browser"))))
 
 
 ;; * Full text search
