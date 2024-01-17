@@ -510,6 +510,21 @@ With prefix arg ASCENDING sort from low to high."
   (interactive)
   (oa--cited-by-works (concat "doi:" (org-ref-get-doi-at-point))))
 
+(defun oa-open ()
+  "Open the cite at point in OpenAlex."
+  (interactive)
+  (let* ((url (concat
+	       "https://api.openalex.org/works/https://doi.org/"
+	       (org-ref-get-doi-at-point)))
+	 (req (request url :sync t :parser 'oa--response-parser))
+	 (data (request-response-data req)))
+    (browse-url (plist-get data :id))))
+
+
+(defhydra+ org-ref-citation-hydra ()
+  "Add open from action to `org-ref-citation-hydra'."
+  ("xa" oa-open "Open in OpenAlex" :column "OpenAlex"))
+
 
 (defhydra+ org-ref-citation-hydra ()
   "Add related documents action to `org-ref-citation-hydra'."
