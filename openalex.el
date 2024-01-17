@@ -366,7 +366,10 @@ elisp:org-columns    elisp:org-columns-quit
 :DOI: ${doi}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
-:END:" 'oa--replacer wrk))
+:END:
+
+Found ${(length entries)} results.
+" 'oa--replacer wrk))
      entries)))
 
 
@@ -397,7 +400,10 @@ elisp:org-columns    elisp:org-columns-quit
 :DOI: ${doi}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
-:END:" 'oa--replacer wrk))
+:END:
+
+Found ${(length entries)} results.
+" 'oa--replacer wrk))
      entries)))
 
 
@@ -438,7 +444,11 @@ elisp:org-columns    elisp:org-columns-quit
 :DOI: ${doi}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
-:END:\n\n" 'oa--replacer wrk))
+:END:
+
+Found ${(length entries)} results.
+
+" 'oa--replacer wrk))
      entries)))
 
 
