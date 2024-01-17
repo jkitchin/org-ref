@@ -38,7 +38,7 @@
 ;;; Code:
 
 (require 'org-ref-core)
-
+(require 'openalex)
 
 (setq org-ref-insert-link-function 'org-ref-insert-link
       org-ref-insert-cite-function 'org-ref-insert-cite-link
