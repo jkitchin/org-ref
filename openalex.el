@@ -67,7 +67,8 @@ and value is what you want to filter on. The following logic is supported:
 value1+value2 is and within a field
 value1|value2 is or within a field
 
-Your 
+Your email address will be added if `user-mail-address' is
+non-nil, and `oa-api-key' if it is non-nil to the API url.
 "
   (let* ((page (if (plist-get filter :page)
 		   (prog1
@@ -108,8 +109,8 @@ Your
 					 " ")
 			    (+ page 1)
 			    (+ page 1)))
-	 (buf (get-buffer-create "*OpenAlex - Query*")))
-
+	 (buf (generate-new-buffer "*OpenAlex - Query*")))
+    
     (with-current-buffer buf
       (erase-buffer)
       (org-mode)
