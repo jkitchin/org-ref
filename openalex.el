@@ -688,6 +688,7 @@ set style line 1 lc rgb \"grey\"
 set ylabel \"Citation count\"
 set y2label \"Document count\"
 set y2tics nomirror
+set key left top
 plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per year\", \"\" using 1:4 axes x1y2 with lines title \"Document count\"
 "
 			      pngfile
