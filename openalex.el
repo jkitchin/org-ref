@@ -510,6 +510,7 @@ With prefix arg ASCENDING sort from low to high."
   (interactive)
   (oa--cited-by-works (concat "doi:" (org-ref-get-doi-at-point))))
 
+
 (defun oa-open ()
   "Open the cite at point in OpenAlex."
   (interactive)
@@ -607,6 +608,7 @@ ${(oa--abstract result)}
 
     " 'oa--replacer result)))))
     entries))
+
 
 (defun oa--abstract (wrk)
   "Construct an abstract from a WRK."
