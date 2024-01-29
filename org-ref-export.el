@@ -212,17 +212,16 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
       (suffix . ,suffix)
       (locator . ,locator)
       (label . ,(when label (org-ref-dealias-label (string-trim label))))
-      ;; TODO: proof of concept and not complete. I did not go through all the
-      ;; types to see what else should be in here.
-      (suppress-author . ,(not (null (member type
-					     '("citenum"
-					       "citeyear"
-					       "citeyear*"
-					       "citedate"
-					       "citedate*"
-					       "citetitle"
-					       "citetitle*"
-					       "citeurl"))))))))
+      ;; [2024-01-29 Mon] see
+      ;; https://github.com/jkitchin/org-ref/issues/1103#issuecomment-1915028374
+      ;; and related comments at
+      ;; https://github.com/andras-simonyi/citeproc-el/issues/151. It seems I
+      ;; should not be adding this. TODO: proof of concept and not complete. I
+      ;; did not go through all the types to see what else should be in here.
+      ;; (suppress-author . ,(not (null (member type '("citenum" "citeyear"
+      ;; "citeyear*" "citedate" "citedate*" "citetitle" "citetitle*"
+      ;; "citeurl")))))
+      )))
 
 (declare-function org-ref-find-bibliography "org-ref-core")
 
