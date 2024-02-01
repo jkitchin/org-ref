@@ -31,6 +31,8 @@
 (require 'dash)
 (require 'request)
 
+(declare-function org-ref-citation-hydra "org-ref-citation-links")
+
 (defcustom oa-api-key
   nil
   "Your API key if you have one."
@@ -50,6 +52,39 @@
 
 
 ;; * General query
+(defun oa--query-all-data (endpoint &rest filter)
+  (let* ((page 1)
+	 (base-url "https://api.openalex.org")
+	 (url (concat base-url "/" endpoint "?filter="))
+	 (filter-string (string-join
+			 (cl-loop for key in (plist-get-keys filter) collect
+				  (concat (substring (symbol-name key) 1)
+					  ":"
+					  (url-hexify-string
+					   (plist-get filter key))))
+			 ","))
+	 (url (concat url filter-string 
+		      (if user-mail-address
+			  (concat "&mailto=" user-mail-address)
+			"")
+		      (if oa-api-key
+			  (concat "&api_key=" oa-api-key)
+			"")))
+	 (purl (concat url (format "&page=%s" page)))
+	 (req (request purl :sync t :parser 'oa--response-parser))
+	 (data (request-response-data req))
+	 (meta (plist-get data :meta))
+	 (count (plist-get meta :count))
+	 (per-page (plist-get meta :per_page))
+	 (pages (ceiling (/ (float count) per-page)))
+	 (results (plist-get data :results)))
+    (cl-loop for i from 2 to pages do
+	     (setq purl (concat url (format "&page=%s" i))
+		   req (request purl :sync t :parser 'oa--response-parser)
+		   data (request-response-data req)
+		   results (append results (plist-get data :results))))
+    results))
+
 
 (defun oa-query (endpoint &rest filter)
   "Run a query at ENDPOINT with FILTER.
@@ -128,9 +163,11 @@ non-nil, and `oa-api-key' if it is non-nil to the API url.
 		       filter-string
 		       count
 		       next-page)
-	       (string-join
-		(cl-loop for wrk in results collect
-			 (s-format "*** ${(oa--title wrk)}
+	       (cond
+		((string= endpoint "works")
+		 (string-join
+		  (cl-loop for wrk in results collect
+			   (s-format "*** ${(oa--title wrk)}
 :PROPERTIES:
 :HOST: ${primary_location.source.display_name}
 :YEAR: ${publication_year}
@@ -151,8 +188,11 @@ ${(oa--elisp-get-bibtex wrk)}
 ${(oa--abstract wrk)}
 
 "
-				   'oa--replacer wrk))
-		"\n"))))
+				     'oa--replacer wrk))
+		  "\n"))
+		(t
+		 (format "%s" results)
+		 )))))
     (pop-to-buffer buf)
     (goto-char (point-min))))
 
@@ -241,7 +281,7 @@ OBJECT is a plist, usually from a Work request."
 The string is a comma-separated list of links to author pages in OpenAlex."
   (s-join ", " (cl-loop for author in (plist-get wrk :authorships)
 			collect
-			(format "[[elisp:(oa-author \"%s\")][%s]]"
+			(format "[[elisp:(oa--author-org \"%s\")][%s]]"
 				(plist-get
 				 (plist-get author :author)
 				 :id)
