@@ -53,6 +53,7 @@
 (require 'org-ref-utils)
 (require 'org-ref-bibtex)
 (require 'org-ref-glossary)
+(require 'openalex)
 
 
 ;;* Custom variables
