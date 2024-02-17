@@ -137,9 +137,9 @@ Returns a formatted BibTeX entry."
 		  (org-ref-replace-nonascii)
                   (bibtex-generate-autokey)))
 	   (doi (assq 'doi entry)))
-      (if doi
-	  (doi-utils-doi-to-bibtex-string (nth 2 doi))
-	;; no doi, so we fall back to the simple template
+      (unless (and doi
+	           (ignore-errors (doi-utils-doi-to-bibtex-string (nth 2 doi))))
+	;; no doi or inactive doi, so we fall back to the simple template
 	(format arxiv-entry-format-string key title names year arxiv-number category abstract url)))))
 
 
