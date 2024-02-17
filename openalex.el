@@ -31,7 +31,7 @@
 (require 'dash)
 (require 'request)
 
-(declare-function org-ref-citation-hydra "org-ref-citation-links")
+(require 'org-ref-citation-links)
 
 (defcustom oa-api-key
   nil
@@ -49,6 +49,56 @@
 	(json-false nil)
 	(json-encoding-pretty-print nil))
     (json-read)))
+
+
+(defun oa-get (data query &optional iterable)
+  "Get fields from DATA with QUERY.
+QUERY is a dot notation string.
+key1.key2.key3 represents a nested item.
+key1.key2[].key3 represents key3 on all items in key1.key2.
+
+Tested with up to two [] in the query.
+
+Assumes data is in plist form."
+  (let* ((fields (and query (split-string query "\\.")))
+	 (current-field (and fields (pop fields))))
+
+    (cond
+     ;; return condition
+     ((null query)
+      data)
+
+     ;; query[] means get query then turn iteration on
+     ((and (s-ends-with-p "[]" current-field) (null iterable))
+      (setq current-field (substring current-field 0 -2))
+      (oa-get (plist-get data (intern-soft (concat ":" current-field)))
+	      (when fields
+		(string-join fields "."))
+	      t))
+
+     ;; this means another level of iteration. You already have a collection. we
+     ;; have to iterate over each one I think.
+     ((and (s-ends-with-p "[]" current-field) iterable)
+      (setq current-field (substring current-field 0 -2))
+      (cl-loop for item in data collect
+	       (oa-get (plist-get item (intern-soft (concat ":" current-field)))
+		       (when fields
+			 (string-join fields "."))
+		       t)))
+
+     ;; single keyword, iterate over collection
+     (iterable
+      (oa-get (cl-loop for item in data collect
+		       (plist-get item (intern-soft (concat ":" current-field))))
+	      (when fields
+		(string-join fields "."))
+	      t))
+
+     ;; single keyword
+     (t
+      (oa-get (plist-get data (intern-soft (concat ":" current-field)))
+	      (when fields
+		(string-join fields ".")))))))
 
 
 ;; * General query
