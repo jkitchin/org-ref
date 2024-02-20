@@ -1051,16 +1051,16 @@ If not on a key, but on a cite, prompt for key."
    (t
     (let ((el (org-element-context))
 	  (org-ref-activate-cite-links t)) ;; temporary
-      (and
-       (eq (org-element-type el) 'link)
-       (assoc (org-element-property :type el) org-ref-cite-types))
-      (save-excursion
-	;; We activate just this one link
-	(org-ref-cite-activate
-	 (org-element-property :begin el)
-	 (org-element-property :end el)
-	 (org-element-property :path el)
-	 nil))
+      (when (and
+	     (eq (org-element-type el) 'link)
+	     (assoc (org-element-property :type el) org-ref-cite-types))
+	(save-excursion
+	  ;; We activate just this one link
+	  (org-ref-cite-activate
+	   (org-element-property :begin el)
+	   (org-element-property :end el)
+	   (org-element-property :path el)
+	   nil)))
       ;; Now we have to handle some cases.
       (cond
        ;; on a key, return a key
