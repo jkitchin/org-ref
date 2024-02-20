@@ -1,4 +1,4 @@
-;;; contrib.el --- Code contributed by users
+;;; contrib.el --- Code contributed by users -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; 
