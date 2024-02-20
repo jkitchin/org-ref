@@ -66,11 +66,14 @@
 
 
 (defcustom org-ref-cite-internal-links 'auto
-  "Should be one of
-- 'bib-links :: link cites to bibliography entries
-- 'no-links :: do not link cites to bibliography entries
-- nil or 'auto :: add links based on the style."
-  :type '(choice bib-links no-links auto nil)
+  "Should be one of these symbols (quoted)
+- bib-links :: link cites to bibliography entries
+- no-links :: do not link cites to bibliography entries
+- nil or auto :: add links based on the style."
+  :type '(choice symbol (sexp :tag bib-links)
+		 symbol (sexp :tag no-links)
+		 symbol (sexp :tag auto-links)
+		 symbol (sexp :tag nil))
   :group 'org-ref)
 
 
