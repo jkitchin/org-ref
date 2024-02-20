@@ -1,4 +1,4 @@
-;;; x2bib.el --- Bibliography conversion to Bibtex
+;;; x2bib.el --- Bibliography conversion to Bibtex -*- lexical-binding: t; -*-
 
 ;;; Header:
 
