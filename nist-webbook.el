@@ -1,4 +1,4 @@
-;;; nist-webbook.el --- Integration of Emacs with NIST Webbook
+;;; nist-webbook.el --- Integration of Emacs with NIST Webbook -*- lexical-binding: t; -*-
 ;; Integration of Emacs with NIST webbook
 
 ;;; Commentary:
