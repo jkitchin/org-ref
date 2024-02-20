@@ -1003,8 +1003,7 @@ Recently published papers are probably missing.
     ;; Now results is a list of your publications. We need to iterate over each
     ;; one, and accumulate author information
     (cl-loop for result in results do
-	     (let ((year (plist-get result :publication_year))
-		   authors)
+	     (let ((year (plist-get result :publication_year)))
 	       (when (> year (- current-year 5))
 		 (cl-loop for authorship in (plist-get result :authorships) do
 			  (let* ((author (plist-get authorship :author))
