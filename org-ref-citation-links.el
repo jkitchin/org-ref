@@ -47,7 +47,7 @@
 ;; natmove like preprocessing is provided with `org-ref-cite-natmove'.
 ;;
 ;;; Code:
-
+(require 'org-keys)
 (require 'hydra)
 (require 'xref)
 (eval-when-compile (require 'subr-x))
