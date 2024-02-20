@@ -512,9 +512,9 @@ VISIBLE-ONLY BODY-ONLY and INFO."
   "Export the buffer to PDF via LaTeX and open.
 See `org-export-as' for the meaning of ASYNC SUBTREEP
 VISIBLE-ONLY BODY-ONLY and INFO."
-  (let ((org-export-before-parsing-hook (append
-					 org-export-before-parsing-hook
-					 '(org-ref-csl-preprocess-buffer))))
+  (let ((org-export-before-parsing-functions (append
+					      org-export-before-parsing-functions
+					      '(org-ref-csl-preprocess-buffer))))
     (org-open-file (org-latex-export-to-pdf async subtreep visible-only
 					    body-only info))))
 
@@ -594,8 +594,8 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 	(?e "to email" org-ref-export-to-message)
 	(?w "to docx" org-ref-export-to-docx))))
 
-;; An alternative to this exporter is to use an  `org-export-before-parsing-hook'
-;; (add-hook 'org-export-before-parsing-hook 'org-ref-csl-preprocess-buffer)
+;; An alternative to this exporter is to use an  `org-export-before-parsing-functions'
+;; (add-hook 'org-export-before-parsing-functions 'org-ref-csl-preprocess-buffer)
 
 (defun org-ref-csl-preprocess-buffer (backend)
   "Preprocess the buffer in BACKEND export.
@@ -626,27 +626,27 @@ I am not positive on this though."
   (when (and org-ref/citeproc org-ref/bblproc)
     (error "You cannot use CSL and BBL at the same time."))
   
-  (let ((org-export-before-parsing-hook org-export-before-parsing-hook))
+  (let ((org-export-before-parsing-functions org-export-before-parsing-functions))
     (when org-ref/citeproc
-      (cl-pushnew 'org-ref-csl-preprocess-buffer org-export-before-parsing-hook))
+      (cl-pushnew 'org-ref-csl-preprocess-buffer org-export-before-parsing-functions))
 
     (when org-ref/refproc
-      (cl-pushnew 'org-ref-refproc org-export-before-parsing-hook))
+      (cl-pushnew 'org-ref-refproc org-export-before-parsing-functions))
 
     (when org-ref/acrossproc
-      (cl-pushnew 'org-ref-acrossproc org-export-before-parsing-hook))
+      (cl-pushnew 'org-ref-acrossproc org-export-before-parsing-functions))
 
     (when org-ref/idxproc
-      (cl-pushnew 'org-ref-idxproc org-export-before-parsing-hook))
+      (cl-pushnew 'org-ref-idxproc org-export-before-parsing-functions))
 
     (when org-ref/bblproc
       (unless (featurep 'org-ref-natbib-bbl-citeproc)
 	(require 'org-ref-natbib-bbl-citeproc))
-      (cl-pushnew 'org-ref-bbl-preprocess org-export-before-parsing-hook))
+      (cl-pushnew 'org-ref-bbl-preprocess org-export-before-parsing-functions))
     
     ;; this goes last since it moves cites before they might get replaced.
     (when org-ref/natmove
-      (cl-pushnew 'org-ref-cite-natmove org-export-before-parsing-hook))
+      (cl-pushnew 'org-ref-cite-natmove org-export-before-parsing-functions))
 
     (org-export-dispatch arg)))
 
