@@ -888,10 +888,11 @@ PAGE is optional, and loads that page of results. Defaults to 1."
 	 (per-page (plist-get metadata :per_page))
 	 (npages (+ (/ count per-page) (if (= 0 (mod count per-page)) 0 1)))
 	 (results (plist-get data :results))
-	 (next-page (format "[[elisp:(oa-fulltext-search \"%s\" %s)][Next page: %s]]"
+	 (next-page (format "[[elisp:(oa-fulltext-search \"%s\" %s)][Next page: %s of %s]]"
 			    query
 			    (+ page 1)
-			    (+ page 1)))
+			    (+ page 1)
+			    npages))
 	 (buf (get-buffer-create "*OpenAlex Full-text search*")))
     
     (with-current-buffer buf
