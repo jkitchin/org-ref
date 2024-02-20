@@ -4,6 +4,13 @@
 ;; 
 
 ;;; Code:
+(defvar org-ref-cite-types)
+(declare-function org-element-context "org-element")
+(declare-function org-element-type "org-element")
+(declare-function org-element-property "org-element")
+(declare-function bibtex-completion-apa-format-reference "bibtex-completion")
+(declare-function org-ref-parse-cite-path "org-ref-citation-links")
+
 
 ;; * Add messages in minibuffer
 ;; Contributed in https://github.com/jkitchin/org-ref/issues/938 by @DiogoFerrari
