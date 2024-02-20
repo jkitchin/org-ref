@@ -1462,3 +1462,7 @@ See functions in `org-ref-clean-bibtex-entry-hook'."
 (provide 'org-ref-bibtex)
 
 ;;; org-ref-bibtex.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings-wide)
+;; End:

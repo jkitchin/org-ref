@@ -1093,3 +1093,7 @@ Operates on headings with a DOI property."
 (provide 'openalex)
 
 ;;; openalex.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings-wide)
+;; End:

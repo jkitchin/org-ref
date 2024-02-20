@@ -338,3 +338,7 @@ provide their own version."
 (provide 'org-ref-core)
 
 ;;; org-ref-core.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings-wide)
+;; End:

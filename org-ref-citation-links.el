@@ -1423,3 +1423,7 @@ Here is an example use:
 (provide 'org-ref-citation-links)
 
 ;;; org-ref-citation-links.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings-wide)
+;; End:
