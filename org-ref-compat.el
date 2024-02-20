@@ -1,4 +1,4 @@
-;;; org-ref-compat.el --- Compatibility functions for org-cite
+;;; org-ref-compat.el --- Compatibility functions for org-cite -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;;
@@ -35,7 +35,8 @@ There is no way to get them all though, there are conflicting
 translations with some biblatex and some natbib commands. This
 list maps the natbib commands. I have also opted to use the full
 names rather than the short names."
-  :group 'org-ref)
+  :group 'org-ref
+  :type '(list (cons string string)))
 
 
 (defun org-ref-to-org-cite ()
