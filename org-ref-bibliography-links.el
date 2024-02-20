@@ -1,4 +1,4 @@
-;;; org-ref-bibliography-links.el --- Bibliography and bibliographystyle links
+;;; org-ref-bibliography-links.el --- Bibliography and bibliographystyle links -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021  John Kitchin
 
