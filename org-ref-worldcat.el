@@ -1,4 +1,4 @@
-;;; org-ref-worldcat.el --- Worldcat library
+;;; org-ref-worldcat.el --- Worldcat library -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; Provides a function to query world cat
