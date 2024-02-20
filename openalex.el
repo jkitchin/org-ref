@@ -29,6 +29,7 @@
 ;; cited by, references and related documents in OpenAlex.
 
 (require 'dash)
+(require 's)
 (require 'request)
 (require 'doi-utils)
 (require 'org-ref-citation-links)
