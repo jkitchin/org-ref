@@ -41,7 +41,7 @@
 
 ;;; Code:
 (require 'bibtex)
-(require 'org-ref-core)
+
 
 ;;* RIS to bibtex
 
@@ -74,7 +74,7 @@ and convert it to bib format in place."
              (shell-command-on-region (region-beginning) (region-end)
                                       "ris2xml 2> /dev/null | xml2bib -w 2> /dev/null" nil
                                       t)
-                  nil))))
+             nil))))
     ;; make some lines into comments.
     (when result
       (setq result (replace-regexp-in-string
@@ -136,7 +136,7 @@ Display output if VERBOSE is non-nil."
   "Map over bibtex entries and clean them."
   (interactive)
   (bibtex-map-entries
-   (lambda (a b c)
+   (lambda (_ _ _)
      (ignore-errors
        (org-ref-clean-bibtex-entry)))))
 
