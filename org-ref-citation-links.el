@@ -52,6 +52,7 @@
 (require 'xref)
 (eval-when-compile (require 'subr-x))
 
+(defvar bibtex-completion-cache)
 (declare-function bibtex-completion-format-citation-cite "bibtex-completion")
 
 (defgroup org-ref-faces nil
