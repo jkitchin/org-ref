@@ -221,7 +221,7 @@ font-lock."
 	  (when (string= label (match-string-no-properties 1))
 	    (save-match-data (org-mark-ring-push))
 	    (goto-char (match-beginning 1))
-	    (org-show-entry)
+	    (org-fold-show-entry)
 	    (substitute-command-keys
 	     "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'.")
 	    (throw 'found t)))))))
