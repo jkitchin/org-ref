@@ -42,7 +42,6 @@ names rather than the short names."
 (defun org-ref-to-org-cite ()
   (interactive)
   (let ((ref-cites (reverse (org-ref-get-cite-links)))
-	ref-type
 	path
 	beg end)
     ;; This takes care of the cite links
