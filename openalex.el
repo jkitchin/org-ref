@@ -1,4 +1,4 @@
-;;; openalex.el --- Org-ref interface to OpenAlex
+;;; openalex.el --- Org-ref interface to OpenAlex -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; This is an elisp interface to OpenAlex (https://docs.openalex.org/) for org-ref.
@@ -30,7 +30,8 @@
 
 (require 'dash)
 (require 'request)
-
+(require 'doi-utils)
+(require 'org-ref-core)
 (require 'org-ref-citation-links)
 
 (defcustom oa-api-key
@@ -558,7 +559,7 @@ With prefix arg ASCENDING, sort in ascending order (old to new)"
 		      (lambda () (string-to-number (or (org-entry-get (point) "YEAR") "0")))
 		      (lambda (y1 y2)
 			(> y1 y2))))
-  (org-show-all))
+  (org-fold-show-all))
 
 
 (defun oa-buffer-sort-cited-by-count (&optional ascending)
@@ -579,7 +580,7 @@ With prefix arg ASCENDING sort from low to high."
 			  (org-entry-get (point) "CITED_BY_COUNT")
 			  "0")))
 		      #'>))
-  (org-show-all))
+  (org-fold-show-all))
 
 
 ;; * Interactive versions for org-ref citations
@@ -979,7 +980,8 @@ Recently published papers are probably missing.
 	 (pages 1)
 	 (results (plist-get works-data :results))
 	 (current-year (string-to-number (format-time-string "%Y" (current-time))))
-	 (current-authors '()))
+	 (current-authors '())
+	 purl)
 
     ;; Now we need to accumulate the rest of the results from other pages
     (when (> (mod count per-page) 0) (cl-incf pages))
