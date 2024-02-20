@@ -33,6 +33,7 @@
 (require 'doi-utils)
 (require 'org-ref-citation-links)
 
+(declare-function org-ref-possible-bibfiles "org-ref-core")
 (declare-function org-ref-find-bibliography "org-ref-core")
 (declare-function org-ref-get-bibtex-key-and-file "org-ref-core")
 (declare-function bibtex-completion-show-entry "bibtex-completion")
