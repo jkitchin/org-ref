@@ -347,8 +347,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 
 		 ;; in a latex environment
 		 ((equal (org-element-type object) 'latex-environment)
-		  (let ((value (org-element-property :value object))
-			label)
+		  (let ((value (org-element-property :value object)))
 		    (when (string-match "\\\\label{\\(?1:[+a-zA-Z0-9:\\._-]*\\)}" value)
 		      (match-string-no-properties 1 value))))
 
