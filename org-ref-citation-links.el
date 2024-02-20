@@ -54,6 +54,7 @@
 
 (defvar bibtex-completion-cache)
 (declare-function bibtex-completion-format-citation-cite "bibtex-completion")
+(declare-function bibtex-completion-show-entry "bibtex-completion")
 
 (defgroup org-ref-faces nil
   "A group for faces in `org-ref'."
