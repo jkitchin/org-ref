@@ -1,4 +1,4 @@
-;;; org-ref-scifinder.el --- Emacs interface to SciFinder
+;;; org-ref-scifinder.el --- Emacs interface to SciFinder -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2015  John Kitchin
 
