@@ -24,7 +24,7 @@ If not on a key, but on a cite, prompt for key."
       key
     ;; point is not on a key, but may still be on a cite link
     (let ((el (org-element-context))
-	  data
+	  data text
 	  keys)
       (cond
        ;; on a cite-link type
@@ -40,7 +40,7 @@ If not on a key, but on a cite, prompt for key."
 	(dolist (key keys)
 	  (search-forward key)
 	  (goto-char (match-beginning 0))
-	  (get-text-property (point) 'cite-key)
+	  ;; (get-text-property (point) 'cite-key)
 	  ;; (message (bibtex-completion-apa-format-reference key))
 	  (setq text (concat text "\n" (bibtex-completion-apa-format-reference key))))))))
   (message (string-trim-left text)))
@@ -52,7 +52,8 @@ If not on a key, but on a cite, prompt for key."
 
 (defcustom org-ref-message-interval 0.5
   "Time in seconds to wait for the idle timer that displays the cite message."
-  :group 'org-ref)
+  :group 'org-ref
+  :type 'float)
 
 
 (defun org-ref-link-message ()
