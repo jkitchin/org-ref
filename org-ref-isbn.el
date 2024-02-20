@@ -25,7 +25,7 @@
 ;;; Code:
 (require 'f)
 (require 'org)
-(require 'org-ref-core)
+
 
 (defvar url-http-end-of-headers)
 
