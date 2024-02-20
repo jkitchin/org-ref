@@ -1,4 +1,4 @@
-;;; doi-utils.el --- DOI utilities for making bibtex entries -*- lexical-binding: t; -*-
+;;; doi-utils.el --- DOI utilities for making bibtex entries
 
 ;; Copyright (C) 2015-2021  John Kitchin
 
