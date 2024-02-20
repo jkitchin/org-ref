@@ -1290,3 +1290,7 @@ which will CLOBBER the file."
 
 (provide 'org-ref-utils)
 ;;; org-ref-utils.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings-wide)
+;; End:
