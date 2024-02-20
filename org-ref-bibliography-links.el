@@ -310,3 +310,7 @@ Optional argument BACKEND is the export backend."
 (provide 'org-ref-bibliography-links)
 
 ;;; org-ref-bibliography-links.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings)
+;; End:

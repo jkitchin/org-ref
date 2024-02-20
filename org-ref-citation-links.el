@@ -1425,5 +1425,5 @@ Here is an example use:
 ;;; org-ref-citation-links.el ends here
 
 ;; Local Variables:
-;; byte-compile-warnings: (not docstrings-wide)
+;; byte-compile-warnings: (not docstrings docstrings-wide)
 ;; End:

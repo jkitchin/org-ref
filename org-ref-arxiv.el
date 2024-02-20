@@ -301,3 +301,7 @@ key."
 
 (provide 'org-ref-arxiv)
 ;;; org-ref-arxiv.el ends here
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings)
+;; End:
