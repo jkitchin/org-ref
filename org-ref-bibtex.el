@@ -67,6 +67,7 @@
 (require 's)
 (require 'doi-utils)
 (require 'avy)
+(require 'sgml-mode)
 
 (defvar bibtex-completion-bibliography)
 (declare-function bibtex-completion-show-entry "bibtex-completion")
