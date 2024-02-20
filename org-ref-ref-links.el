@@ -162,8 +162,7 @@ font-lock."
 	    (rx (string-join org-ref-ref-label-regexps "\\|"))
 	    (labels '())
 	    oe ;; org-element
-	    context
-	    data)
+	    context)
 	(save-excursion
 	  (org-with-wide-buffer
 	   (goto-char (point-min))
