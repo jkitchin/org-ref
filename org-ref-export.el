@@ -52,6 +52,8 @@
 
 (require 'citeproc)
 
+(defvar org-cite-csl-styles-dir)
+
 (defcustom org-ref-backend-csl-formats
   '((html . html)
     (latex . latex)
