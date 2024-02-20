@@ -469,7 +469,7 @@ You need a LaTeX file and a bbl file for it. This hook generates
 those, then gets the data, replaces the citations and the
 bibliography.
 "
-  (let* ((org-export-before-parsing-hook nil)
+  (let* ((org-export-before-parsing-functions nil)
 	 (tex-file (org-latex-export-to-latex))
 	 (bbl-file (concat (file-name-sans-extension tex-file) ".bbl"))
 	 natbib-options bibdata org-ref-natmove
