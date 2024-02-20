@@ -52,6 +52,8 @@
 (require 'xref)
 (eval-when-compile (require 'subr-x))
 
+(declare-function bibtex-completion-format-citation-cite "bibtex-completion")
+
 (defgroup org-ref-faces nil
   "A group for faces in `org-ref'."
   :group 'org-ref-faces)
@@ -1048,11 +1050,7 @@ If not on a key, but on a cite, prompt for key."
    
    (t
     (let ((el (org-element-context))
-	  (cp (point))
-	  (org-ref-activate-cite-links t) ;; temporary
-	  data
-	  keys
-	  )
+	  (org-ref-activate-cite-links t)) ;; temporary
       (and
        (eq (org-element-type el) 'link)
        (assoc (org-element-property :type el) org-ref-cite-types))
