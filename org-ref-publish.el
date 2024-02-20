@@ -1,4 +1,4 @@
-;;; org-ref-publish.el --- org-publish with org-ref
+;;; org-ref-publish.el --- org-publish with org-ref -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; First draft proposed by madhu 230826 (Madhu <enometh@meer.net>)
