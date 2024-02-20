@@ -31,8 +31,13 @@
 (require 'dash)
 (require 'request)
 (require 'doi-utils)
-(require 'org-ref-core)
 (require 'org-ref-citation-links)
+
+(declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function org-ref-get-bibtex-key-and-file "org-ref-core")
+(declare-function bibtex-completion-show-entry "bibtex-completion")
+(declare-function bibtex-completion-apa-format-reference "bibtex-completion")
+(declare-function ivy-read "ivy")
 
 (defcustom oa-api-key
   nil
