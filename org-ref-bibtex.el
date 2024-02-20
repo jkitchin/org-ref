@@ -1172,7 +1172,7 @@ will clobber the file."
 			     (format "%s = %s,\n" f v))))
 	        (-uniq other-fields) "\n")
 	       "\n}"))
-      (bibtex-find-entry key)
+      (bibtex-search-entry key)
       (bibtex-fill-entry)
       (bibtex-clean-entry))))
 
@@ -1202,7 +1202,7 @@ will clobber the file."
 			(cdr (assoc field entry))))
 	      entry-fields "\n")
 	     "\n}\n\n"))
-    (bibtex-find-entry key)
+    (bibtex-search-entry key)
     (bibtex-fill-entry)
     (bibtex-clean-entry)))
 
