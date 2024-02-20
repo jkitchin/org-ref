@@ -101,7 +101,7 @@ cover any math (yet)."
 		 (setq p4 (point)
 		       p3 (- (point) 1))
 		 (setq ss (string-trim (buffer-substring p2 p3)))
-		 (setf (buffer-substring p1 p4) (format fmt ss))))
+		 (cl--set-buffer-substring p1 p4 (format fmt ss))))
 
       ;; {text} for protecting case. This is tricky to do reliably. I try to check
       ;; if this is not part of a command, and skip it if so. This leaves
@@ -414,8 +414,8 @@ Argument BACKEND is the export format."
 				    replacement)
 		p2 (+ 1 (org-element-property :end link))))))
 
-    (setf (buffer-substring p1 p2)
-	  (concat replacement (make-string (org-element-property :post-blank link) ? )))))
+    (cl--set-buffer-substring p1 p2
+			      (concat replacement (make-string (org-element-property :post-blank link) ? )))))
 
 
 (defun org-ref-bbl-replace-bibliography (bib-link bibdata NATBIB-OPTIONS backend)
