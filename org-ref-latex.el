@@ -25,8 +25,8 @@
 
 (require 'org-ref-citation-links)
 (require 'bibtex-completion)
+(require 'tex-mode)
 
-(defvar latex-mode-map)
 (defvar org-ref-cite-types)
 
 (defcustom orl-cite-keymap
@@ -43,7 +43,15 @@
 				  (bibtex-completion-show-entry (list (org-ref-latex-key-at-point)))
 				  (bibtex-beginning-of-entry))))
     map)
-  "Key map for cite keys.")
+  "Key map for cite keys."
+  :group 'org-ref-latex
+  :type '(restricted-sexp
+          :match-alternatives
+          ((lambda (x)
+             (or (keymapp x) ; Can be a keymap var.
+		 (and (symbolp x)
+                      (boundp x)
+                      (keymapp (symbol-value x))))))))
 
 
 (defvar org-ref-latex-cite-re
