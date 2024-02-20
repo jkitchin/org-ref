@@ -1,4 +1,4 @@
-;;; org-ref-bibtex.el -- org-ref-bibtex utilities
+;;; org-ref-bibtex.el -- org-ref-bibtex utilities -*- lexical-binding: t; -*-
 
 ;; Copyright(C) 2014-2021 John Kitchin
 
