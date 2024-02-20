@@ -70,6 +70,7 @@
 (require 'sgml-mode)
 
 (defvar bibtex-completion-bibliography)
+(defvar bibtex-completion-library-path)
 (declare-function bibtex-completion-show-entry "bibtex-completion")
 (declare-function org-ref-find-bibliography "org-ref-core")
 (declare-function org-element-property "org-element")
