@@ -1,4 +1,4 @@
-;;; openalex.el --- Org-ref interface to OpenAlex -*- lexical-binding: t; -*-
+;;; openalex.el --- Org-ref interface to OpenAlex 
 
 ;;; Commentary:
 ;; This is an elisp interface to OpenAlex (https://docs.openalex.org/) for org-ref.
@@ -112,24 +112,19 @@ Assumes data is in plist form."
 ;; * General query
 (defun oa--query-all-data (endpoint &rest filter)
   (let* ((page 1)
-	 (base-url "https://api.openalex.org")
-	 (url (concat base-url "/" endpoint "?filter="))
-	 (filter-string (string-join
-			 (cl-loop for key in (plist-get-keys filter) collect
-				  (concat (substring (symbol-name key) 1)
-					  ":"
-					  (url-hexify-string
-					   (plist-get filter key))))
-			 ","))
-	 (url (concat url filter-string 
-		      (if user-mail-address
-			  (concat "&mailto=" user-mail-address)
-			"")
-		      (if oa-api-key
-			  (concat "&api_key=" oa-api-key)
-			"")))
-	 (purl (concat url (format "&page=%s" page)))
-	 (req (request purl :sync t :parser 'oa--response-parser))
+	 (url (concat "https://api.openalex.org/" endpoint))
+	 (filter-string (string-join (cl-loop for key in (plist-get-keys filter) collect
+					      (concat (substring (symbol-name key) 1)
+						      ":"
+						      (url-hexify-string
+						       (plist-get filter key))))
+				     ","))
+	 (params `(("mailto" . ,user-mail-address)
+		   ("api_key" . ,oa-api-key)
+		   ("filter" . ,filter-string)
+		   ("page" . ,page)))
+	 
+	 (req (request url :sync t :parser 'oa--response-parser :params params))
 	 (data (request-response-data req))
 	 (meta (plist-get data :meta))
 	 (count (plist-get meta :count))
@@ -137,8 +132,8 @@ Assumes data is in plist form."
 	 (pages (ceiling (/ (float count) per-page)))
 	 (results (plist-get data :results)))
     (cl-loop for i from 2 to pages do
-	     (setq purl (concat url (format "&page=%s" i))
-		   req (request purl :sync t :parser 'oa--response-parser)
+	     (setf (cdr (assoc "page" params)) i)
+	     (setq req (request purl :sync t :parser 'oa--response-parser :params params)
 		   data (request-response-data req)
 		   results (append results (plist-get data :results))))
     results))
@@ -177,15 +172,12 @@ non-nil, and `oa-api-key' if it is non-nil to the API url.
 					  (url-hexify-string
 					   (plist-get filter key))))
 			 ","))
-	 (url (concat url filter-string
-		      (format "&page=%s" page) 
-		      (if user-mail-address
-			  (concat "&mailto=" user-mail-address)
-			"")
-		      (if oa-api-key
-			  (concat "&api_key=" oa-api-key)
-			"")))
-	 (req (request url :sync t :parser 'oa--response-parser))
+	 
+	 (req (request url :sync t :parser 'oa--response-parser
+		:params `(("mailto" . ,user-mail-address)
+			  ("api_key" . ,oa-api-key)
+			  ("filter" . ,filter-string)
+			  ("page" . ,page))))
 	 (data (request-response-data req))
 	 (meta (plist-get data :meta))
 	 (count (plist-get meta :count))
@@ -225,28 +217,42 @@ non-nil, and `oa-api-key' if it is non-nil to the API url.
 		((string= endpoint "works")
 		 (string-join
 		  (cl-loop for wrk in results collect
-			   (s-format "*** ${(oa--title wrk)}
+			   (s-format "*** ${title}
 :PROPERTIES:
 :HOST: ${primary_location.source.display_name}
 :YEAR: ${publication_year}
 :CITED_BY_COUNT: ${cited_by_count}
-:AUTHOR: ${(oa--authors wrk)}
+:AUTHOR: ${authors}
 :DOI: ${doi}
 :OPENALEX: ${id}
 :CREATED_DATE: ${created_date}
 :END:
 
 
-${(oa--elisp-get-bibtex wrk)}
+${get-bibtex}
 
-- ${(oa--elisp-get-oa-refs wrk)}
-- ${(oa--elisp-get-oa-related wrk)}
-- ${(oa--elisp-get-oa-cited-by wrk)}
+- ${oa-refs}
+- ${oa-related}
+- ${oa-cited}
 
-${(oa--abstract wrk)}
+${abstract}
 
 "
-				     'oa--replacer wrk))
+				     (lambda (key data)
+				       (or (cdr (assoc key data)) ""))
+				     `(("title" . ,(oa--title wrk))
+				       ("primary_location.source.display_name" . ,(oa-get wrk primary_location.source.display_name))
+				       ("publication_year" . ,(oa-get wrk "publication_year"))
+				       ("cited_by_count" . ,(oa-get wrk "cited_by_count"))
+				       ("authors" . ,(oa--authors wrk))
+				       ("doi" . ,(oa-get wrk "doi"))
+				       ("id" . ,(oa-get wrk "id"))
+				       ("created_date" . ,(oa-get wrk "created_date"))
+				       ("get-bibtex" . ,(oa--elisp-get-bibtex wrk))
+				       ("oa-refs" . ,(oa--elisp-get-oa-refs wrk))
+				       ("oa-related" . ,(oa--elisp-get-oa-related wrk))
+				       ("oa-cited" . ,(oa--elisp-get-oa-cited-by wrk))
+				       ("abstract" . ,(oa--abstract wrk)))))
 		  "\n"))
 		(t
 		 (format "%s" results)
@@ -267,21 +273,11 @@ If FILTER is non-nil it should be a string like \"filter=openalex:\"
 
 https://docs.openalex.org/api-entities/works"
 
-  (let* ((url (concat  "https://api.openalex.org/works"
-		       (if filter
-			   (concat "?" filter entity-id)
-			 (concat "/" entity-id))
-		       (if user-mail-address
-			   (if filter
-			       (concat "&mailto=" user-mail-address)
-			     (concat "?mailto=" user-mail-address))
-			 "")
-		       (if oa-api-key
-			   (if filter
-			       (concat "&api_key=" oa-api-key)
-			     (concat "?api_key=" oa-api-key))
-			 "")))
-	 (req (request url :sync t :parser 'oa--response-parser))
+  (let* ((url (concat "https://api.openalex.org/works" entity-id))
+	 (req (request url :sync t :parser 'oa--response-parser
+		:params `(("mailto" . ,user-mail-address)
+			  ("api_key" . ,oa-api-key)
+			  ("filter" . ,filter))))
 	 (data (request-response-data req)))
     ;; this is for convenience to inspect data in a browser, e.g. you can click
     ;; on the url in Emacs and it opens in a browser.
@@ -289,44 +285,41 @@ https://docs.openalex.org/api-entities/works"
     data))
 
 
+;; * autocomplete works
+
+(defun oa--works-candidates (query)
+  "Retrieve autocomplete works from OpenAlex."
+  (or
+   (ivy-more-chars)
+   (let* ((url "https://api.openalex.org/autocomplete/works")
+	  (req (request url :sync t :parser 'oa--response-parser
+		 :params `(("mailto" . ,user-mail-address)
+			   ("api_key" . ,oa-api-key)
+			   ("q" . ,query))))
+	  (data (request-response-data req))
+	  (results (plist-get data :results)))
+     (cl-loop for work in results collect
+	      (propertize
+	       (format "%s, %s"
+		       (plist-get work :display_name)
+		       (plist-get work :hint))
+	       'oaid (plist-get work :id))))))
+
+
+(defun oa-works ()
+  "Autocomplete works.
+This doesn't seem as useful as it could be."
+  (interactive)
+  
+  (ivy-read "Work: " #'oa--works-candidates
+	    :dynamic-collection t
+	    :action
+	    '(1 
+	      ("o" (lambda (candidate)
+		     (browse-url (get-text-property 0 'oaid candidate)))
+	       "Open in browser"))))
+
 ;; * Viewing works
-;;
-;; This section provides a replacer and helper function to format org-entries
-;; from the results returned in OpenAlex.
-
-(defun oa--replacer (key object)
-  "Replacer function for `s-format'.
-QUERY is a string that is either a sexp for a function to
-evaluate or a dot notation path to data in OBJECT. If QUERY is a
-sexp, it is read and evaluated. Otherwise, the path is split, and
-looked up sequentially in object.
-
-OBJECT is a plist, usually from a Work request."
-  (cond
-   ((s-starts-with? "(" key)
-    ;; this is potentially janky and might mess up things with dynamic scoping
-    ;; and other lexical things. It does seem to work.
-    (eval (read key)))
-
-   ;; in principle this should be a variable you want to put in the template. it
-   ;; is tricky though, and I don't understand why, sometimes it appears that
-   ;; something is bound, but then it isn't. I wonder if it is related to
-   ;; lexical binding or something. This seems to do what I want.
-   ((and (boundp (intern-soft key))
-	 (symbol-value (intern-soft key))) 
-    (symbol-value (intern-soft key)))
-   
-   (t
-    ;; just get data
-    (let ((fields (s-split "\\." key))
-	  result)
-      ;; sequentially process the dot-notation field by field
-      (while fields
-	(setq object (plist-get object (intern-soft (concat ":" (pop fields))))))
-      (or
-       ;; I find it useful to remove line breaks
-       (string-replace "\\n" "" (format "%s" object))
-       "Not found")))))
 
 
 ;; ** help functions for complex data
@@ -393,20 +386,32 @@ WORKS is a list of results from OpenAlex."
 :HOST: ${primary_location.source.display_name}
 :YEAR: ${publication_year}
 :CITED_BY_COUNT: ${cited_by_count}
-:AUTHOR: ${(oa--authors wrk)}
+:AUTHOR: ${authors}
 :DOI: ${doi}
 :OPENALEX: ${id}
 :END:
 
 
-${(oa--elisp-get-bibtex wrk)}
+${get-bibtex}
 
-- ${(oa--elisp-get-oa-refs wrk)}
-- ${(oa--elisp-get-oa-related wrk)}
-- ${(oa--elisp-get-oa-cited-by wrk)}
+- ${oa-refs}
+- ${oa-related}
+- ${oa-cited}
 
 "
-		     'oa--replacer wrk)))
+		     (lambda (key data)
+		       (or (cdr (assoc key data)) ""))
+		     `(("title" . ,(oa-get wrk "title"))
+		       ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
+		       ("publication_year" . ,(oa-get wrk "publication_year"))
+		       ("cited_by_count" . ,(oa-get wrk "cited_by_count"))
+		       ("authors" . ,(oa--authors wrk))
+		       ("doi" . ,(oa-get wrk "doi"))
+		       ("id" . ,(oa-get wrk "id"))
+		       ("get-bibtex" . ,(oa--elisp-get-bibtex wrk))
+		       ("oa-refs" . ,(oa--elisp-get-oa-refs wrk))
+		       ("oa-related" . ,(oa--elisp-get-oa-related wrk))
+		       ("oa-cited" . ,(oa--elisp-get-oa-cited-by wrk))))))
 
 
 (defun oa--works-buffer (bufname header entries)
@@ -461,14 +466,23 @@ elisp:org-columns    elisp:org-columns-quit
 	     (s-format ":PROPERTIES:
 :TITLE: ${title}
 :HOST: ${primary_location.source.display_name}
-:AUTHOR: ${(oa--authors wrk)}
+:AUTHOR: ${authors}
 :DOI: ${doi}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
 :END:
 
-Found ${(length entries)} results.
-" 'oa--replacer wrk))
+Found ${nentries} results.
+"
+		       (lambda (key data)
+			 (or (cdr (assoc key data)) ""))
+		       `(("title" . ,(oa-get wrk "title"))
+			 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
+			 ("authors" . ,(oa--authors wrk))
+			 ("doi" . ,(oa-get wrk "doi"))
+			 ("publication_year" . ,(oa-get wrk "publication_year"))
+			 ("id" . ,(oa-get wrk "id"))
+			 ("nentries" . ,(length entries)))))
      entries)))
 
 
@@ -495,14 +509,23 @@ Found ${(length entries)} results.
 	     (s-format ":PROPERTIES:
 :TITLE: ${title}
 :HOST: ${primary_location.source.display_name}
-:AUTHOR: ${(oa--authors wrk)}
+:AUTHOR: ${authors}
 :DOI: ${doi}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
 :END:
 
-Found ${(length entries)} results.
-" 'oa--replacer wrk))
+Found ${nentries} results.
+"
+		       (lambda (key data)
+			 (or (cdr (assoc key data)) ""))
+		       `(("title" . ,(oa-get wrk "title"))
+			 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
+			 ("authors" . ,(oa--authors wrk))
+			 ("doi" . ,(oa-get wrk "doi"))
+			 ("publication_year" . ,(oa-get wrk "publication_year"))
+			 ("id" . ,(oa-get wrk "id"))
+			 ("nentries" . ,(length entries)))))
      entries)))
 
 
@@ -515,7 +538,9 @@ Found ${(length entries)} results.
 	 (cited-by-works (request-response-data
 			  (request url
 			    :sync t
-			    :parser 'oa--response-parser)))
+			    :parser 'oa--response-parser
+			    :params `(("mailto" . ,user-mail-address)
+				      ("api_key" . ,oa-api-key)))))
 	 (count (plist-get (plist-get cited-by-works :meta) :count))
 	 (per-page (plist-get (plist-get cited-by-works :meta) :per_page))
 	 (entries '())
@@ -524,9 +549,12 @@ Found ${(length entries)} results.
     (setq entries (oa--works-entries cited-by-works))
     (while (> count (* per-page (- page 1)))
       (setq cited-by-works (request-response-data
-			    (request (format "%s&page=%s" url page)
+			    (request url
 			      :sync t
-			      :parser 'oa--response-parser)))
+			      :parser 'oa--response-parser
+			      :params `(("mailto" . ,user-mail-address)
+					("api_key" . ,oa-api-key)
+					("page" . ,page)))))
       (setq entries (append entries (oa--works-entries cited-by-works)))
       (cl-incf page))
     
@@ -539,15 +567,24 @@ Found ${(length entries)} results.
 	     (s-format ":PROPERTIES:
 :TITLE: ${title}
 :HOST: ${primary_location.source.display_name}
-:AUTHOR: ${(oa--authors wrk)}
+:AUTHOR: ${authors}
 :DOI: ${doi}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
 :END:
 
-Found ${(length entries)} results.
+Found ${nentries} results.
 
-" 'oa--replacer wrk))
+"
+		       (lambda (key data)
+			 (or (cdr (assoc key data)) ""))
+		       `(("title" . ,(oa-get wrk "title"))
+			 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
+			 ("authors" . ,(oa--authors wrk))
+			 ("doi" . ,(oa-get wrk "doi"))
+			 ("publication_year" . ,(oa-get wrk "publication_year"))
+			 ("id" . ,(oa-get wrk "id"))
+			 ("nentries" . ,(length entries)))))
      entries)))
 
 
@@ -647,18 +684,11 @@ With prefix arg ASCENDING sort from low to high."
   "Get an Author object for ENTITY-ID.
 FILTER is an optional string to add to the URL."
   (let* ((url (concat  "https://api.openalex.org/authors"
-		       (if filter
-			   (concat "?" filter entity-id)
-			 (concat "/" entity-id))
-		       (if user-mail-address
-			   (concat "?mailto=" user-mail-address)
-			 "")
-		       (if oa-api-key
-			   (if filter
-			       (concat "&api_key=" oa-api-key)
-			     (concat "?api_key=" oa-api-key))
-			 "")))
-	 (req (request url :sync t :parser 'oa--response-parser))
+		       entity-id))
+	 (req (request url :sync t :parser 'oa--response-parser
+		:params `(("mailto" . ,user-mail-address)
+			  ("api_key" . ,oa-api-key)
+			  ("filter" . ,filter))))
 	 (data (request-response-data req))) 
     ;; this is for convenience to inspect data in a browser.
     (plist-put data :oa-url url)
@@ -679,33 +709,52 @@ FILTER is an optional string to add to the URL."
     ;; Now we have to loop through the pages
     (cl-loop for i from 1 to pages
 	     do
-	     (setq purl (concat url (format "&page=%s" i))
-		   works-data (request-response-data
-			       (request purl
+	     (setq works-data (request-response-data
+			       (request url
 				 :sync t
-				 :parser 'oa--response-parser))
+				 :parser 'oa--response-parser
+				 :params `(("mailto" . ,user-mail-address)
+					   ("api_key" . ,oa-api-key)
+					   ("page" . ,i))))
 		   entries (append entries
 				   (cl-loop for result in (plist-get works-data :results)
 					    collect
-					    (s-format "*** ${(oa--title result)}
+					    (s-format "*** ${title}
 :PROPERTIES:
 :ID: ${id}
 :DOI: ${ids.doi}
+:PDF: ${primary_location.pdf_url}
+:LANDING_PAGE: ${primary_location.landing_page_url}
 :YEAR: ${publication_year}
 :HOST_VENUE: ${primary_location.source.display_name}
-:AUTHORS: ${(oa--authors result)}
+:AUTHORS: ${authors}
 :CITED_BY_COUNT: ${cited_by_count}
 :END:
 
-${(oa--elisp-get-bibtex result)}
+${get-bibtex}
 
-- ${(oa--elisp-get-oa-refs result)}
-- ${(oa--elisp-get-oa-related result)}
-- ${(oa--elisp-get-oa-cited-by result)}
+- ${oa-refs}
+- ${oa-related}
+- ${oa-cited}
 
-${(oa--abstract result)}
+${abstract}
 
-    " 'oa--replacer result)))))
+    " (lambda (key data)
+	(or (cdr (assoc key data)) ""))
+    `(("title" . ,(oa--title result))
+      ("id" . ,(oa-get result "id"))
+      ("ids.doi" . ,(oa-get result "ids.doi"))
+      ("publication_year" . ,(oa-get result "publication_year"))
+      ("primary_location.pdf_url" . ,(oa-get result "primary_location.pdf_url"))
+      ("primary_location.landing_page_url" . ,(oa-get result "primary_location.landing_page_url"))
+      ("primary_location.source.display_name" . ,(oa-get result "primary_location.source.display_name"))
+      ("authors" . ,(oa--authors result))
+      ("cited_by_count" . ,(oa-get result "cited_by_count"))
+      ("get-bibtex" . ,(oa--elisp-get-bibtex result))
+      ("oa-refs" . ,(oa--elisp-get-oa-refs result))
+      ("oa-related" . ,(oa--elisp-get-oa-related result))
+      ("oa-cited" . ,(oa--elisp-get-oa-cited-by result))
+      ("abstract" . ,(oa--abstract result))))))))
     entries))
 
 
@@ -737,23 +786,24 @@ ${(oa--abstract result)}
 		 " ")))
 
 
-(defun oa--author-candidates ()
-  "Retrieve autocomplete authors from OpenAlex.
-Returns a list of (hint . openalex-id)."
-  (let* ((str (read-string "Author: ")) 
-	 (url (format "https://api.openalex.org/autocomplete/authors?q=%s"
-		      (url-hexify-string str)))
-	 (req (request url :sync t :parser 'oa--response-parser))
-	 (data (request-response-data req))
-	 (results (plist-get data :results))
-	 (candidates (cl-loop for author in results collect
-			      (cons
-			       (format "%s - %s"
-				       (plist-get author :display_name)
-				       (plist-get
-					author :hint))
-			       (plist-get author :id)))))
-    candidates))
+(defun oa--author-candidates (query)
+  "Retrieve autocomplete authors from OpenAlex."
+  (or
+   (ivy-more-chars)
+   (let* ((url "https://api.openalex.org/autocomplete/authors")
+	  (req (request url :sync t :parser 'oa--response-parser
+		 :params `(("mailto" . ,user-mail-address)
+			   ("api_key" . ,oa-api-key)
+			   ("q" . ,query))))
+	  (data (request-response-data req))
+	  (results (plist-get data :results)))
+     (cl-loop for author in results collect
+	      (propertize
+	       (format "%s - %s"
+		       (plist-get author :display_name)
+		       (plist-get
+			author :hint))
+	       'oaid (plist-get author :id))))))
 
 
 (defun oa--counts-by-year (data)
@@ -812,7 +862,9 @@ plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per 
 	 (works-data (request-response-data
 		      (request works-url
 			:sync t
-			:parser 'oa--response-parser))))
+			:parser 'oa--response-parser
+			:params `(("mailto" . ,user-mail-address)
+				  ("api_key" . ,oa-api-key))))))
     (with-current-buffer buf
       (erase-buffer)
       (insert (s-format "* ${display_name} ([[${oa-url}][json]])
@@ -837,7 +889,17 @@ ${citations-image}
 | cited by | [[elisp:(oa-buffer-sort-cited-by-count t)][low first]] | [[elisp:(oa-buffer-sort-cited-by-count)][high first]] |
 
 "
-			'oa--replacer data))
+			(lambda (key data)
+			  (or (cdr (assoc key data)) ""))
+			`(("display_name" . ,(oa-get data "display_name"))
+			  ("oa-url" . ,(oa-get data "oa-url"))
+			  ("id" . ,(oa-get data "id"))
+			  ("orcid" . ,(oa-get data "orcid"))
+			  ("ids.scopus" . ,(oa-get data "ids.scopus"))
+			  ("works_count" . ,(oa-get data "works_count"))
+			  ("last_known_institution.display_name" . ,(oa-get data "last_known_institution.display_name"))
+			  ("last_known_institution.country_code" . ,(oa-get data "last_known_institution.country_code"))
+			  ("citations-image" . ,citations-image))))
       (insert (s-join "\n" (oa--author-entries works-data works-url)))
 
       (org-mode)
@@ -850,18 +912,19 @@ ${citations-image}
   "Get data and act on it for an author."
   (interactive)
   
-  (ivy-read "Author: " (oa--author-candidates)
+  (ivy-read "Author: " #'oa--author-candidates
+	    :dynamic-collection t
 	    :action
 	    '(1
 	      ("o" (lambda (candidate)
-		     (oa--author-org (cdr candidate)))
+		     (oa--author-org (get-text-property 0 'oaid candidate)))
 	       "Open org file")
 	      ("l" (lambda (candidate)
 		     (insert (format "[[%s][%s]]"
-				     (cdr candidate)
-				     (car candidate)))))
+				     (get-text-property 0 'oaid candidate)
+				     candidate))))
 	      ("u" (lambda (candidate)
-		     (browse-url (cdr candidate)))
+		     (browse-url (get-text-property 0 'oaid candidate)))
 	       "Open in browser"))))
 
 
@@ -874,16 +937,14 @@ PAGE is optional, and loads that page of results. Defaults to 1."
   (interactive (list (read-string "Query: ")
 		     nil))
   (when (null page) (setq page 1))
-  (let* ((url (format "https://api.openalex.org/works?filter=fulltext.search:%s&page=%s&mailto=%s%s"
-		      (url-hexify-string query)
-		      page
-		      user-mail-address
-		      (if oa-api-key
-			  (concat "&api_key=" oa-api-key)
-			"")))
+  (let* ((url "https://api.openalex.org/works")
 	 (req (request url
 		:sync t
-		:parser #'oa--response-parser))
+		:parser #'oa--response-parser
+		:params `(("mailto" . ,user-mail-address)
+			  ("api_key" . ,oa-api-key)
+			  ("page" . ,page)
+			  ("filter" . ,(format "fulltext.search:%s" query)))))
 	 (data (request-response-data req))
 	 (metadata (plist-get data :meta))
 	 (count (plist-get metadata :count))
@@ -903,31 +964,49 @@ PAGE is optional, and loads that page of results. Defaults to 1."
       (insert (s-format "#+title: Full-text search: ${query}
 
 [[elisp:(oa-fulltext-search \"${query}\" ${page})]]"
-			'oa--replacer data))
+			'aget
+			`(("query" . ,query)
+			  ("page" . ,page))))
       (insert (s-format
 	       "
-${meta.count} results: Page ${meta.page} of ${(format \"%s\" npages)} ${(format \"%s\" next-page)}
+${meta.count} results: Page ${meta.page} of ${s1} ${s2}
 \n\n"
-	       'oa--replacer data))
+	       (lambda (key data)
+		 (or (cdr (assoc key data)) ""))
+	       `(("meta.page" . ,(oa-get data "meta.page"))
+		 ("s1" . ,(format "%s" npages))
+		 ("s2" . ,(format "%s" next-page)))))
       
       (insert
-       (cl-loop for result in results concat
+       (cl-loop for result in results concat 
 		(s-format "* ${title}
 :PROPERTIES:
 :JOURNAL: ${primary_location.source.display_name}
-:AUTHOR: ${(oa--authors result)}
+:AUTHOR: ${authors}
 :YEAR: ${publication_year}
 :OPENALEX: ${id}
 :DOI: ${ids.doi}
 :END:
 
-${(oa--elisp-get-bibtex result)}
+${get-bibtex}
 
-- ${(oa--elisp-get-oa-refs result)}
-- ${(oa--elisp-get-oa-related result)}
-- ${(oa--elisp-get-oa-cited-by result)}
+- ${oa-refs}
+- ${oa-related}
+- ${oa-cited}
 
-" 'oa--replacer result)))
+" (lambda (key data)
+    (or (cdr (assoc key data)) ""))
+
+`(("title" . ,(oa--title result))
+  ("primary_location.source.display_name" . ,(oa-get result "primary_location.source.display_name"))
+  ("authors" . ,(oa--authors result))
+  ("publication_year" . ,(oa-get result "publication_year"))
+  ("id" . ,(oa-get result "id"))
+  ("ids.doi" . ,(oa-get result "ids.doi"))
+  ("get-bibtex" . ,(oa--elisp-get-bibtex result))
+  ("oa-refs" . ,(oa--elisp-get-oa-refs result))
+  ("oa-related" . ,(oa--elisp-get-oa-related result))
+  ("oa-cited" . ,(oa--elisp-get-oa-cited-by result))))))
 
       (insert next-page)
       
@@ -981,7 +1060,9 @@ Recently published papers are probably missing.
 	 (works-data (request-response-data
 		      (request works-url
 			:sync t
-			:parser 'oa--response-parser)))
+			:parser 'oa--response-parser
+			:params `(("mailto" . ,user-mail-address)
+				  ("api_key" . ,oa-api-key)))))
 	 (meta (plist-get works-data :meta))
 	 (count (plist-get meta :count))
 	 (per-page (plist-get meta :per_page))
@@ -996,11 +1077,13 @@ Recently published papers are probably missing.
 
     (cl-loop for i from 2 to pages
 	     do
-	     (setq purl (concat works-url (format "&page=%s" i))
-		   works-data (request-response-data
-			       (request purl
+	     (setq works-data (request-response-data
+			       (request works-url
 				 :sync t
-				 :parser 'oa--response-parser))
+				 :parser 'oa--response-parser
+				 :params `(("mailto" . ,user-mail-address)
+					   ("api_key" . ,oa-api-key)
+					   ("page" . ,i))))
 		   results (append results (plist-get works-data :results))))
     
     ;; Now results is a list of your publications. We need to iterate over each
