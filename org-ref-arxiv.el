@@ -223,15 +223,7 @@ Returns a formatted BibTeX entry."
           (arxiv-maybe-arxiv-id-from-current-kill))
          (read-string
           "PDF: ")))
-  (let ((pdf-url (with-current-buffer
-                     (url-retrieve-synchronously
-                      (concat
-                       "http://arxiv.org/abs/" arxiv-number))
-                   ;; <meta name="citation_pdf_url" content="http://arxiv.org/pdf/0801.1144" />
-                   (goto-char (point-min))
-                   (search-forward-regexp
-                    "name=\\\"citation_pdf_url\\\" content=\\\"\\(.*\\)\\\"")
-                   (match-string 1))))
+  (let ((pdf-url (format "https://arxiv.org/pdf/%s" arxiv-number)))
     (url-copy-file pdf-url pdf)
     ;; now check if we got a pdf
     (unless (org-ref-pdf-p pdf)
