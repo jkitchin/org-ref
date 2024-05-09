@@ -273,7 +273,7 @@ If FILTER is non-nil it should be a string like \"filter=openalex:\"
 
 https://docs.openalex.org/api-entities/works"
 
-  (let* ((url (concat "https://api.openalex.org/works" entity-id))
+  (let* ((url (concat "https://api.openalex.org/works/" entity-id))
 	 (req (request url :sync t :parser 'oa--response-parser
 		:params `(("mailto" . ,user-mail-address)
 			  ("api_key" . ,oa-api-key)
