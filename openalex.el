@@ -668,21 +668,9 @@ With prefix arg ASCENDING sort from low to high."
 
 (defhydra+ org-ref-citation-hydra ()
   "Add open from action to `org-ref-citation-hydra'."
-  ("xa" oa-open "Open in OpenAlex" :column "OpenAlex"))
-
-
-(defhydra+ org-ref-citation-hydra ()
-  "Add related documents action to `org-ref-citation-hydra'."
-  ("xr" oa-related-works "Related documents" :column "OpenAlex"))
-
-
-(defhydra+ org-ref-citation-hydra ()
-  "Add cited by documents action to `org-ref-citation-hydra'."
-  ("xc" oa-cited-by-works "Cited by documents" :column "OpenAlex"))
-
-
-(defhydra+ org-ref-citation-hydra ()
-  "Add references from action to `org-ref-citation-hydra'."
+  ("xa" oa-open "Open in OpenAlex" :column "OpenAlex")
+  ("xr" oa-related-works "Related documents" :column "OpenAlex")
+  ("xc" oa-cited-by-works "Cited by documents" :column "OpenAlex")
   ("xf" oa-referenced-works "References from" :column "OpenAlex"))
 
 
