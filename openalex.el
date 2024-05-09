@@ -273,7 +273,16 @@ If FILTER is non-nil it should be a string like \"filter=openalex:\"
 
 https://docs.openalex.org/api-entities/works"
 
-  (let* ((url (concat "https://api.openalex.org/works/" entity-id))
+  (let* ((url (concat "https://api.openalex.org/works"
+		      ;; This is hackier than I prefer, but sometimes entity-id
+		      ;; is nil, or starts with ? for a filter, and I couldn't
+		      ;; see a cleaner way to solve this. this function is used
+		      ;; in a lot of places.
+		      (cond
+		       ((string-prefix-p "?" entity-id)
+			entity-id)
+		       (t
+			(format "/%s" entity-id)))))
 	 (req (request url :sync t :parser 'oa--response-parser
 		:params `(("mailto" . ,user-mail-address)
 			  ("api_key" . ,oa-api-key)
@@ -454,8 +463,7 @@ elisp:org-columns    elisp:org-columns-quit
       ;; split is what we process now
       (setq entries (append entries
 			    (oa--works-entries
-			     (oa--work (s-join "|" (nth 0 split))
-				       "filter=openalex:")))))
+			     (oa--work (format "?filter=openalex:%s" (s-join "|" (nth 0 split))))))))
     
     (oa--works-buffer
      "*OpenAlex - Related works*"
@@ -498,8 +506,8 @@ Found ${nentries} results.
       ;; split is what we process now
       (setq entries (append entries
 			    (oa--works-entries
-			     (oa--work (s-join "|" (nth 0 split))
-				       "filter=openalex:")))))
+			     (oa--work (format "?filter=openalex:%s"    
+					       (s-join "|" (nth 0 split))))))))
     (oa--works-buffer
      "*OpenAlex - References*"
      (format "* OpenAlex - References from %s ([[%s][json]])
