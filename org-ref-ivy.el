@@ -1,6 +1,6 @@
 ;;; org-ref-ivy.el --- org-ref with ivy completion -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016-2021  John Kitchin
+;; Copyright (C) 2016-2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
