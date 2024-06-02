@@ -1,6 +1,6 @@
 ;;; org-ref-natbib-bbl-citeproc.el --- A bibtex + natbib BBL-based citeproc -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2021  John Kitchin
+;; Copyright (C) 2021-2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
