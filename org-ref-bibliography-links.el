@@ -1,6 +1,6 @@
 ;;; org-ref-bibliography-links.el --- Bibliography and bibliographystyle links -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2021  John Kitchin
+;; Copyright (C) 2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords: convenience
