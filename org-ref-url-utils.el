@@ -1,6 +1,6 @@
 ;;; org-ref-url-utils.el --- Utility functions to scrape DOIs from urls  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015-2021  John Kitchin
+;; Copyright (C) 2015-2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
