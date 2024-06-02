@@ -1,6 +1,6 @@
 ;;; org-ref-scopus.el --- Emacs-lisp interface to the Scopus API  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
