@@ -1046,8 +1046,9 @@ This only gets the coauthors in publications known to OpenAlex.
 Recently published papers are probably missing.
 "
   (interactive (list
-		(let ((candidates (oa--author-candidates)))
-		  (cdr (assoc (completing-read "Author: " candidates) candidates)))
+		(get-text-property 0 'oaid
+				   (ivy-read "Author: " #'oa--author-candidates
+					     :dynamic-collection t))
 		(when (y-or-n-p "Save to file?")
 		  (read-file-name "File: "))))
   
