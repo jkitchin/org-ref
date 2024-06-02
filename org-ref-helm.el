@@ -1,6 +1,6 @@
 ;;; org-ref-helm.el --- org-ref interface to helm-bibtex -*- lexical-binding: t; -*-
 
-;; Copyright(C) 2014-2022 John Kitchin
+;; Copyright(C) 2014-2024 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
