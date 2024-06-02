@@ -156,8 +156,7 @@ value1+value2 is and within a field
 value1|value2 is or within a field
 
 Your email address will be added if `user-mail-address' is
-non-nil, and `oa-api-key' if it is non-nil to the API url.
-"
+non-nil, and `oa-api-key' if it is non-nil to the API url."
   (let* ((page (if (plist-get filter :page)
 		   (prog1
 		       (string-to-number (plist-get filter :page))
@@ -241,7 +240,7 @@ ${abstract}
 				     (lambda (key data)
 				       (or (cdr (assoc key data)) ""))
 				     `(("title" . ,(oa--title wrk))
-				       ("primary_location.source.display_name" . ,(oa-get wrk primary_location.source.display_name))
+				       ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
 				       ("publication_year" . ,(oa-get wrk "publication_year"))
 				       ("cited_by_count" . ,(oa-get wrk "cited_by_count"))
 				       ("authors" . ,(oa--authors wrk))
