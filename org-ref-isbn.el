@@ -1,6 +1,6 @@
 ;;; org-ref-isbn.el --- utilities for generating bibtex entries from an ISBN  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  John Kitchin
+;; Copyright (C) 2015-2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords: convenience
