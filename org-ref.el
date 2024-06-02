@@ -4,7 +4,7 @@
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
-;; Version: 3.0
+;; Version: 3.1
 ;; Keywords: org-mode, cite, ref, label
 ;; Package-Requires: ((org "9.4") (dash "0") (s "0") (f "0") (htmlize "0") (hydra "0") (avy "0") (parsebib "0") (bibtex-completion "0") (citeproc "0") (ox-pandoc "0") (request "0"))
 ;; This file is not currently part of GNU Emacs.
