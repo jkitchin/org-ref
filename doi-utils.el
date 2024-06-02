@@ -43,6 +43,10 @@
 (declare-function org-bibtex-yank "org-bibtex")
 (declare-function org-ref-possible-bibfiles "org-ref-core")
 
+(declare-function f-ext? "f")
+(declare-function f-entries "f")
+(declare-function s-match "s")
+
 (eval-when-compile
   (require 'cl-lib))
 (require 'bibtex)
