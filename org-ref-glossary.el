@@ -1,6 +1,6 @@
 ;;; org-ref-glossary.el --- glossary support in org-ref  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016-2021  John Kitchin
+;; Copyright (C) 2016-2024  John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; Keywords:
