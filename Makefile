@@ -26,7 +26,7 @@ orgtest:
 	${CASK_EXEC} ${emacs} -Q -batch  -l ${INIT}  -l test/org-test-setup.el -l test/org-ert.el -f org-ert-tangle-tests
 
 mytest: orgtest
-	${CASK_EXEC} ${emacs} -Q -batch  -l ${INIT}  -l test/org-test-setup.el -l test/*-test.el -f ert-run-tests-batch-and-exit
+	${CASK_EXEC} ${emacs} -Q -batch -l ${INIT}  -l test/org-test-setup.el -l test/*-test.el -f ert-run-tests-batch-and-exit
 
 compile:
 	${CASK} build

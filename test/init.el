@@ -33,5 +33,4 @@
 
 (require 'org-ref)
 
-
 (message "done")

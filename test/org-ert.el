@@ -6,6 +6,8 @@
 
 (require 'ert)
 (require 'lispy)
+(require 'cl-lib)
+
 ;;; Code:
 
 (defun org-src-test-p ()
@@ -49,7 +51,7 @@ Returns the result unless an error comes up, and then it returns 'error."
     (let ((results '())
 	  (i 0))
       (while (org-goto-next-test-block)
-	(incf i)
+	(cl-incf i)
 	(org-babel-remove-result)
 	(save-restriction
 	  (org-narrow-to-block)
@@ -76,7 +78,7 @@ Returns the result unless an error comes up, and then it returns 'error."
     (let ((test-string "")
 	  (i 0))
       (while (org-goto-next-test-block)
-	(incf i)
+	(cl-incf i)
 	(setq test-string
 	      (concat test-string
 		      (format "(ert-deftest %s ()\n%s)\n\n"

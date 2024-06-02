@@ -835,3 +835,6 @@ bibliography:%s"
     (org-ref-process-buffer 'html)
     t))
 
+(ert-deftest load-org-ref-latex ()
+  (require 'org-ref-latex))
+
