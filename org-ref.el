@@ -1,6 +1,6 @@
 ;;; org-ref.el --- citations, cross-references and bibliographies in org-mode -*- lexical-binding: t; -*-
 
-;; Copyright(C) 2014-2021 John Kitchin
+;; Copyright(C) 2014-2024 John Kitchin
 
 ;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
 ;; URL: https://github.com/jkitchin/org-ref
