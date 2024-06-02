@@ -1006,7 +1006,9 @@ Opening %s" json-data url))
       (url        (plist-get results :URL))
       (booktitle  (plist-get results :container-title))
       (school     (or (plist-get results :school)
-                      (plist-get (plist-get results :institution) :name)))))
+                      (plist-get (plist-get results :institution) :name)))
+      ;; I am not sure how general this is. This gets the first name.
+      (institution (plist-get (car (plist-get results :institution)) :name))))
 
   ;; Next, we need to define the different bibtex types. Each type has a bibtex
   ;; type (for output) and the type as provided in the doi record. Finally, we
@@ -1066,13 +1068,17 @@ MATCHING-TYPES."
 (doi-utils-def-bibtex-type inproceedings ("proceedings-article" "paper-conference")
                            author title booktitle year month pages doi url)
 
-(doi-utils-def-bibtex-type book ("book")
+(doi-utils-def-bibtex-type book ("book" "edited-book")
                            author title series publisher year pages doi url)
 
 (doi-utils-def-bibtex-type inbook ("chapter" "book-chapter" "reference-entry")
                            author title booktitle series publisher year pages doi url)
+
 (doi-utils-def-bibtex-type phdthesis ("phdthesis" "thesis" "dissertation")
-                  author title school publisher year)
+			   author title school publisher year)
+
+(doi-utils-def-bibtex-type techreport ("report")
+			   institution author title publisher year doi url)
 
 ;; this is what preprints in chemrxiv look like for now
 (doi-utils-def-bibtex-type misc ("posted-content")
