@@ -1062,7 +1062,7 @@ Recently published papers are probably missing.
 	 (meta (plist-get works-data :meta))
 	 (count (plist-get meta :count))
 	 (per-page (plist-get meta :per_page))
-	 (pages 1)
+	 (pages (/ count per-page))
 	 (results (plist-get works-data :results))
 	 (current-year (string-to-number (format-time-string "%Y" (current-time))))
 	 (current-authors '())
