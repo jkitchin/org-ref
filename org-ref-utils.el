@@ -628,7 +628,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	    (cl-loop for label in (split-string (plist-get plist :path) ",")
 		     do
 		     (unless (-contains? labels label)
-		       (goto-char (plist-get plist :begin))
+		       (goto-char (org-element-property :begin link))
 		       (add-to-list
 			'bad-refs
 			(cons label (point-marker)))))))))
