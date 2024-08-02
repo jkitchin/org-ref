@@ -604,7 +604,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	      (cl-loop for ref in (plist-get (org-ref-parse-cite-path (plist-get plist :path)) :references)
 		       do
 		       (when (not (member (plist-get ref :key) bibtex-keys))
-			 (goto-char (plist-get plist :begin))
+			 (goto-char (org-element-property :begin link))
 			 (re-search-forward (plist-get ref :key))
 			 (push (cons (plist-get ref :key) (point-marker)) bad-citations)))))))
       ;; add with-affiliates to get cites in caption
