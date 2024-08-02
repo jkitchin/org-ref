@@ -45,7 +45,7 @@
 ;; #+name: acronyms
 ;; | key  | abbreviation | full form                      |
 ;; |------+--------------+--------------------------------|
-;; | mimo |              | multiple-input multiple output |
+;; | mimo | mimo         | multiple-input multiple output |
 ;; | qos  | QoS          | quality-of-service             |
 ;; | bb   | BB           | branch and bound               |
 ;;
@@ -102,7 +102,7 @@ This is not always fast, so we provide a way to disable it."
   :group 'org-ref-glossary)
 
 
-(defvar org-ref-glsentries '()
+(defcustom org-ref-glsentries '()
   "Variable to hold locations of glsentries load files.")
 
 
@@ -152,7 +152,7 @@ changes."
     ;; We don't have a cache, or an entry in it, so we find it.
     ;; No cache? we make one
     (unless org-ref-glossary-cache
-      (setq-local org-ref-glossary-cache (make-hash-table)))
+      (setq-local org-ref-glossary-cache (make-hash-table :test 'equal)))
 
     ;; Now we search to get the data
     (save-excursion
@@ -171,13 +171,14 @@ changes."
 									 external))))
 						org-ref-glsentries)
 				    (cdr (assoc external org-ref-glsentries))))))
-	     key value p1 p2)
+	     key value p1 p2 position)
 	(setq data
 	      (catch 'data
 		;; look inside first for latex-headers
 		(goto-char (point-min))
 		(when (re-search-forward
 		       (format "\\newglossaryentry{%s}" entry) nil t)
+		  (setq position (match-beginning 0))
 		  (re-search-forward "{")
 		  (save-excursion
 		    (backward-char)
@@ -206,7 +207,8 @@ changes."
 		    (setq data (append data
 				       (list :label entry)
 				       (list (intern (format ":%s" key)))
-				       (list value))))
+				       (list value)
+				       (list :position position))))
 		  (throw 'data data))
 
 		;; check for a glossary table
@@ -218,11 +220,15 @@ changes."
 				      (lambda (el)
 					(when (string= "glossary" (org-element-property :name el))
 					  (goto-char (org-element-property :contents-begin el))
+					  (setq position (point))
 					  (throw 'found
 						 (nthcdr 2 (org-babel-read-table)))))))))
 		       (result (assoc entry entries)))
 		  (when result
-		    (throw 'data (list :label entry :name (cl-second result) :description (cl-third result)))))
+		    (throw 'data (list :label entry
+				       :name (cl-second result)
+				       :description (cl-third result)
+				       :position position))))
 
 		;; then external
 		(when (and glsentries
@@ -231,7 +237,7 @@ changes."
 		  (with-current-buffer (find-file-noselect glsentries)
 		    (goto-char (point-min))
 		    (when (re-search-forward
-			   (format "\\newglossaryentry{%s}" entry) nil t)
+			   (format "\\newglossaryentry{%s}" entry) nil t) 
 		      (re-search-forward "{")
 		      (save-excursion
 			(backward-char)
@@ -255,65 +261,56 @@ changes."
 			(setq data (append data
 					   (list :label entry)
 					   (list (intern (format ":%s" key)))
-					   (list value))))
+					   (list value)
+					   (list :position nil))))
 		      (throw 'data data))))))
 	(puthash entry data org-ref-glossary-cache)
 	data))))
 
 
-;;;###autoload
-(defun org-ref-add-glossary-entry (label name description)
-  "Insert a new glossary entry.
-LABEL is how you refer to it with links.
-NAME is the name of the entry to be defined.
-DESCRIPTION is the definition of the entry.
-Entry gets added after the last #+latex_header line.
-
-This is not a preferred way to add entries. It is preferred to
-manually add them to the glossary table."
-  (interactive "sLabel: \nsName: \nsDescription: ") 
-  (save-excursion
-    (goto-char (point-max))
-    ;; get to the last latex_header line
-    (re-search-backward "#\\+latex_header" nil t)
-    (forward-line)
-    (when (not (looking-at "^$"))
-      (beginning-of-line)
-      (insert "\n")
-      (forward-line -1))
-    (insert (format "#+latex_header_extra: \\newglossaryentry{%s}{name={%s},description={%s}}\n"
-		    label name description))))
-
-
-(defun org-ref-glossary-face-fn (label)
-  "Return a face for a glossary link."
-  (if org-ref-activate-glossary-links
-      (save-match-data
-	(cond
-	 ((or-parse-glossary-entry label)
-	  'org-ref-glossary-face)
-	 (t
-	  'font-lock-warning-face)))
-    'org-ref-glossary-face))
-
 
 ;;** Glossary links
+
+(defun or-activate-glossary (start end path bracketp)
+  "Activate function for a glossary link.
+set data on text with properties
+Set face property, and help-echo."
+  (let ((data (or (or-parse-glossary-entry path)
+		  (or-parse-acronym-entry path))))
+    (add-text-properties
+     start end
+     (list 'or-glossary data
+	   'face (if data
+		     'org-ref-glossary-face
+		   'font-lock-warning-face)))))
+
+(defface org-ref-glossary-face
+  `((t (:inherit org-link :foreground "Mediumpurple3")))
+  "Face for glossary links.")
+
+
 (defun or-follow-glossary (entry)
   "Goto beginning of the glossary ENTRY."
   (org-mark-ring-push)
-  
-  (cond 
-   ;; Try finding in the table
-   ((progn (goto-char (point-min))
-	   (and (re-search-forward "#\\+name: glossary" nil t)
-		(re-search-forward entry nil t)))
-    nil)
+  (goto-char (plist-get (get-text-property (point) 'or-glossary) :position)))
 
-   ((progn (goto-char (point-min)) (re-search-forward (format "\\newglossaryentry{%s}" entry) nil t))
-    (goto-char (match-beginning 0)))   
 
-   (t
-    (message "no entry found for %s" entry))))
+(defun or-glossary-tooltip (_window _object position)
+  "Return tooltip for the glossary entry.
+The entry is in WINDOW and OBJECT at POSITION.
+Used in fontification."
+  (let* ((data (get-text-property position 'or-glossary))
+	 (name (or (plist-get data :name)
+		   (plist-get data :abbrv)))
+	 (description (or (plist-get data :description)
+			  (plist-get data :full))))
+    (format
+     "%s: %s"
+     name
+     (with-temp-buffer
+       (insert (concat  description "."))
+       (fill-paragraph)
+       (buffer-string)))))
 
 
 (defvar org-ref-glossary-gls-commands
@@ -330,7 +327,7 @@ manually add them to the glossary table."
 (dolist (command org-ref-glossary-gls-commands)
   (org-link-set-parameters (cl-first command)
 			   :follow #'or-follow-glossary
-			   :face 'org-ref-glossary-face-fn
+			   :activate-func #'or-activate-glossary 
 			   :help-echo 'or-glossary-tooltip
 			   :export (lambda (path _ format)
 				     (cond
@@ -342,6 +339,7 @@ manually add them to the glossary table."
 
 (org-link-set-parameters "glslink"
 			 :follow #'or-follow-glossary
+			 :activate-func #'or-activate-glossary
 			 :face 'org-ref-glossary-face-fn
 			 :help-echo 'or-glossary-tooltip
 			 :export (lambda (path desc format)
@@ -351,32 +349,7 @@ manually add them to the glossary table."
 				    (t
 				     (format "%s" path)))))
 
-;;** Tooltips on glossary entries
-(defface org-ref-glossary-face
-  `((t (:inherit org-link :foreground "Mediumpurple3")))
-  "Face for glossary links.")
 
-
-(defun or-glossary-tooltip (_window _object position)
-  "Return tooltip for the glossary entry.
-The entry is in WINDOW and OBJECT at POSITION.
-Used in fontification."
-  (save-excursion
-    (goto-char position)
-    (let* ((label (org-element-property :path (org-element-context)))
-	   (data (or (or-parse-glossary-entry label)
-		     (or-parse-acronym-entry label)))
-	   (name (or (plist-get data :name)
-		     (plist-get data :abbrv)))
-	   (description (or (plist-get data :description)
-			    (plist-get data :full))))
-      (format
-       "%s: %s"
-       name
-       (with-temp-buffer
-	 (insert (concat  description "."))
-	 (fill-paragraph)
-	 (buffer-string))))))
 
 
 ;; **  printglossaries links
@@ -440,26 +413,6 @@ This is intended to be run in `org-export-before-parsing-hook'."
 
 ;;* Acronyms
 
-;;;###autoload
-(defun org-ref-add-acronym-entry (label abbrv full)
-  "Add an acronym entry with LABEL.
-  ABBRV is the abbreviated form.
-  FULL is the expanded acronym.
-
-This is not the preferred way to add acronyms, you should add
-them manually to the acronyms table."
-  (interactive "sLabel: \nsAcronym: \nsFull name: ")
-  (save-excursion
-    (re-search-backward "#\\+latex_header" nil t)
-    (forward-line)
-    (when (not (looking-at "^$"))
-      (beginning-of-line)
-      (insert "\n")
-      (forward-line -1))
-    (insert (format "#+latex_header_extra: \\newacronym{%s}{%s}{%s}\n"
-		    label abbrv full))))
-
-
 (defun or-parse-acronym-entry (label)
   "Parse an acronym entry LABEL to a plist.
 Returns (:abbrv abbrv :full full :label label)
@@ -470,7 +423,7 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
     ;; We don't have a cache, or an label in it, so we find it.
     ;; No cache? we make one
     (unless org-ref-acronym-cache
-      (setq-local org-ref-acronym-cache (make-hash-table)))
+      (setq-local org-ref-acronym-cache (make-hash-table :test 'equal )))
 
     ;; Now search for the data
     (save-excursion
@@ -539,10 +492,24 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
 (defun org-ref-glossary-invalidate-caches ()
   "Function to invalidate the caches."
   (interactive)
-  (setq-local org-ref-acronym-cache (make-hash-table))
-  (setq-local org-ref-glossary-cache (make-hash-table)))
+  (setq-local org-ref-acronym-cache (make-hash-table :test 'equal))
+  (setq-local org-ref-glossary-cache (make-hash-table :test 'equal)))
 
 ;;** Acronym links
+
+(defun or-activate-acronym (start end path bracketp)
+  "Activate function for an acronym link.
+set data on text with properties
+Set face property, and help-echo."
+  (let ((data (or-parse-acronym-entry path)))
+    (add-text-properties
+     start end
+     (list 'or-glossary data
+	   'face (if data
+		     'org-ref-acronym-face
+		   'font-lock-warning-face)))))
+
+
 (defun or-follow-acronym (label)
   "Go to the definition of the acronym LABEL."
   (org-mark-ring-push)
@@ -558,6 +525,29 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
 
    (t
     (message "no entry found for %s" label))))
+
+
+;;** Tooltips on acronyms
+(defface org-ref-acronym-face
+  `((t (:inherit org-link :foreground "Darkorange2")))
+  "Face for acronym links.")
+
+
+(defun or-acronym-tooltip (_window _object position)
+  "Return tooltip for the acronym entry.
+The entry is in WINDOW and OBJECT at POSITION.
+Used in fontification.
+WINDOW and OBJECT are ignored."
+  (save-excursion
+    (goto-char position)
+    (let* ((acronym-data (get-text-property position 'or-glossary))
+	   (abbrv (plist-get acronym-data :abbrv))
+	   (full (plist-get acronym-data :full)))
+      (if acronym-data
+	  (format
+	   "%s: %s"
+	   abbrv full)
+	(format "This is not defined in this file.")))))
 
 
 (defvar org-ref-acronym-types
@@ -587,8 +577,8 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
 (cl-dolist (mapping org-ref-acronym-types)
   (org-link-set-parameters (cl-first mapping)
 			   :follow #'or-follow-acronym
-			   :face 'org-ref-acronym-face-fn
-			   :help-echo 'or-acronym-tooltip
+			   :activate-func #'or-activate-acronym 
+			   :help-echo #'or-acronym-tooltip
 			   :export (lambda (path _ format)
 				     (cond
 				      ((memq format '(latex beamer))
@@ -597,40 +587,6 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
 				       (format "%s" (upcase path)))))))
 
 
-;;** Tooltips on acronyms
-(defface org-ref-acronym-face
-  `((t (:inherit org-link :foreground "Darkorange2")))
-  "Face for acronym links.")
-
-
-(defun org-ref-acronym-face-fn (label)
-  "Return a face for an acronym link."
-  (if org-ref-activate-glossary-links
-      (save-match-data
-	(cond
-	 ((or-parse-acronym-entry label)
-	  'org-ref-acronym-face)
-	 (t
-	  'font-lock-warning-face)))
-    'org-ref-acronym-face))
-
-
-(defun or-acronym-tooltip (_window _object position)
-  "Return tooltip for the acronym entry.
-The entry is in WINDOW and OBJECT at POSITION.
-Used in fontification.
-WINDOW and OBJECT are ignored."
-  (save-excursion
-    (goto-char position)
-    (let* ((label (org-element-property :path (org-element-context)))
-	   (acronym-data (or-parse-acronym-entry label))
-	   (abbrv (plist-get acronym-data :abbrv))
-	   (full (plist-get acronym-data :full)))
-      (if acronym-data
-	  (format
-	   "%s: %s"
-	   abbrv full)
-	(format "%s is not defined in this file." label)))))
 
 
 ;; ** Exporting with an acronym table
