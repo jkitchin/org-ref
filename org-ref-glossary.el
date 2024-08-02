@@ -276,7 +276,7 @@ changes."
 set data on text with properties
 Set face property, and help-echo."
   (let ((data (or (or-parse-glossary-entry path)
-		  (or-parse-acronym-entry path))))
+		  (or-parse-acronym-entry path)))) 
     (add-text-properties
      start end
      (list 'or-glossary data
@@ -295,22 +295,23 @@ Set face property, and help-echo."
   (goto-char (plist-get (get-text-property (point) 'or-glossary) :position)))
 
 
-(defun or-glossary-tooltip (_window _object position)
+(defun or-glossary-tooltip (_window buffer position)
   "Return tooltip for the glossary entry.
 The entry is in WINDOW and OBJECT at POSITION.
-Used in fontification."
-  (let* ((data (get-text-property position 'or-glossary))
-	 (name (or (plist-get data :name)
-		   (plist-get data :abbrv)))
-	 (description (or (plist-get data :description)
-			  (plist-get data :full))))
-    (format
-     "%s: %s"
-     name
-     (with-temp-buffer
-       (insert (concat  description "."))
-       (fill-paragraph)
-       (buffer-string)))))
+Used in fontification." 
+  (with-current-buffer buffer
+    (let* ((data (get-text-property position 'or-glossary))
+	   (name (or (plist-get data :name)
+		     (plist-get data :abbrv)))
+	   (description (or (plist-get data :description)
+			    (plist-get data :full))))
+      (format
+       "%s: %s"
+       name
+       (with-temp-buffer
+	 (insert (concat  description "."))
+	 (fill-paragraph)
+	 (buffer-string))))))
 
 
 (defvar org-ref-glossary-gls-commands
@@ -533,21 +534,22 @@ Set face property, and help-echo."
   "Face for acronym links.")
 
 
-(defun or-acronym-tooltip (_window _object position)
+(defun or-acronym-tooltip (_window buffer position)
   "Return tooltip for the acronym entry.
 The entry is in WINDOW and OBJECT at POSITION.
 Used in fontification.
 WINDOW and OBJECT are ignored."
-  (save-excursion
-    (goto-char position)
-    (let* ((acronym-data (get-text-property position 'or-glossary))
-	   (abbrv (plist-get acronym-data :abbrv))
-	   (full (plist-get acronym-data :full)))
-      (if acronym-data
-	  (format
-	   "%s: %s"
-	   abbrv full)
-	(format "This is not defined in this file.")))))
+  (with-current-buffer buffer
+    (save-excursion
+      (goto-char position)
+      (let* ((acronym-data (get-text-property position 'or-glossary))
+	     (abbrv (plist-get acronym-data :abbrv))
+	     (full (plist-get acronym-data :full)))
+	(if acronym-data
+	    (format
+	     "%s: %s"
+	     abbrv full)
+	  (format "This is not defined in this file."))))))
 
 
 (defvar org-ref-acronym-types
