@@ -55,9 +55,11 @@ Copies the string to the clipboard."
     (setq org-version (with-temp-buffer
 			(insert-file-contents org-ref-el)
 			(goto-char (point-min))
-			(re-search-forward ";; Version:")
-			(s-trim (buffer-substring (point)
-						  (line-end-position)))))
+			(if
+			    (re-search-forward ";; Version:" nil t)
+			    (s-trim (buffer-substring (point)
+						      (line-end-position)))
+			  org-ref-dir)))
 
     (setq git-commit
 	  ;; If in git, get current commit
