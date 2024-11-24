@@ -177,7 +177,7 @@ org-ref no longer binds keyboard shortcuts for you. You have some options here. 
 
 - C-c ] :: insert a citation
 - C-u C-c ] :: insert a cross-reference
-- Cu C-u C-c ] :: insert a label
+- C-u C-u C-c ] :: insert a label
 
 or
 
