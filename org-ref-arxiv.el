@@ -288,7 +288,8 @@ key."
       (when (file-exists-p (concat pdfdir key ".pdf"))
 	(bibtex-end-of-entry)
 	(backward-char)
-	(insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))))))
+	(insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))))
+    (save-buffer)))
 
 
 (provide 'org-ref-arxiv)
