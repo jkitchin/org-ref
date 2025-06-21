@@ -104,9 +104,12 @@ and return the buffer."
   (interactive "MOpenReview ID: ")
   (let* ((url (concat "https://openreview.net/forum?id=" id))
 	 (html-buffer (org-ref--html-buffer url)))
+    (with-current-buffer html-buffer
+      (replace-string-in-region "\\\\n" "\\n" (point-min) (point-max)))
     (org-ref--extract-entry-from-html
      html-buffer
-     '("\"_bibtex\":\\({\"value\":\\)?\"\\(@.+?}\\)\"" . 2)
+     '("\\\\\"_bibtex\\\\\":\\({\\\\\"value\\\\\":\\)?\\\\\"\\(@.+?}\\)\\\\\""
+       . 2)
      (replace-regexp-in-string "forum" "pdf" url)
      '("abstract" .
        ("<meta name=\"citation_abstract\" content=\"\\(.+?\\(\n.*?\\)*?\\)\"/>" . 1))
