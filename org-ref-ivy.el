@@ -29,6 +29,15 @@
 ;; citation selection looks like `ivy-bibtex' but it is a customized ivy
 ;; function with customized actions.
 
+;; ivy-bibtex is optional, and it causes compiling errors if not installed. I
+;; think this might fix that.
+(when (and (bound-and-true-p byte-compile-current-file)
+           (not (locate-library "ivy-bibtex")))
+  (message "org-ref-ivy: skipping byte-compile; ivy-bibtex not installed.")
+  (setq byte-compile-current-file nil)
+  (throw 'byte-compile-top-level nil))
+
+
 (require 'org-ref-core)
 (require 'ivy-bibtex)
 

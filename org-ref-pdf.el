@@ -32,6 +32,15 @@
 ;; get a doi. This needs a reliable title/citation.
 
 ;;; Code:
+
+;; pdf-tools is optional, and I think this will skip compiling this file and
+;; outputting an error.
+(when (and (bound-and-true-p byte-compile-current-file)
+           (not (locate-library "pdf-tools")))
+  (message "org-ref-pdf: skipping byte-compile; pdf-tools not installed.")
+  (setq byte-compile-current-file nil)
+  (throw 'byte-compile-top-level nil))
+
 (require 'pdf-tools)
 
 (require 'f)
