@@ -40,6 +40,7 @@
 (declare-function bibtex-completion-show-entry "bibtex-completion")
 (declare-function bibtex-completion-apa-format-reference "bibtex-completion")
 (declare-function ivy-read "ivy")
+(declare-function ivy-more-chars "ivy")
 
 (defcustom oa-api-key
   nil
