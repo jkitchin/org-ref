@@ -124,7 +124,7 @@ Assumes data is in plist form."
 		   ("api_key" . ,oa-api-key)
 		   ("filter" . ,filter-string)
 		   ("page" . ,page)))
-	 
+
 	 (req (request url :sync t :parser 'oa--response-parser :params params))
 	 (data (request-response-data req))
 	 (meta (plist-get data :meta))
@@ -172,7 +172,7 @@ non-nil, and `oa-api-key' if it is non-nil to the API url."
 					  (url-hexify-string
 					   (plist-get filter key))))
 			 ","))
-	 
+
 	 (req (request url :sync t :parser 'oa--response-parser
 		:params `(("mailto" . ,user-mail-address)
 			  ("api_key" . ,oa-api-key)
@@ -185,7 +185,7 @@ non-nil, and `oa-api-key' if it is non-nil to the API url."
 	 (pages (ceiling (/ (float count) per-page)))
 	 (results (plist-get data :results))
 	 (next-page (format "[[elisp:(oa-query \"%s\" %s :page \"%s\")][Next page: %s]]"
-			    endpoint 
+			    endpoint
 			    (string-join (cl-loop for x in filter
 						  collect
 						  (if (keywordp x)
@@ -195,7 +195,7 @@ non-nil, and `oa-api-key' if it is non-nil to the API url."
 			    (+ page 1)
 			    (+ page 1)))
 	 (buf (generate-new-buffer "*OpenAlex - Query*")))
-    
+
     (with-current-buffer buf
       (erase-buffer)
       (org-mode)
@@ -319,11 +319,11 @@ https://docs.openalex.org/api-entities/works"
   "Autocomplete works.
 This doesn't seem as useful as it could be."
   (interactive)
-  
+
   (ivy-read "Work: " #'oa--works-candidates
 	    :dynamic-collection t
 	    :action
-	    '(1 
+	    '(1
 	      ("o" (lambda (candidate)
 		     (browse-url (get-text-property 0 'oaid candidate)))
 	       "Open in browser"))))
@@ -429,7 +429,7 @@ HEADER is the first thing in the buffer
 WORKS is usually a list of results from OpenAlex.
 Argument ENTRIES A list of strings for each org entry."
   (let ((buf (get-buffer-create bufname)))
-    
+
     (with-current-buffer buf
       (erase-buffer)
       (insert header)
@@ -459,12 +459,12 @@ elisp:org-columns    elisp:org-columns-quit
     (while related-work
       (setq split (-split-at 25 related-work)
 	    related-work (nth 1 split))
-      
+
       ;; split is what we process now
       (setq entries (append entries
 			    (oa--works-entries
 			     (oa--work (format "?filter=openalex:%s" (s-join "|" (nth 0 split))))))))
-    
+
     (oa--works-buffer
      "*OpenAlex - Related works*"
      (format "* OpenAlex - Related works for %s ([[%s][json]])
@@ -506,7 +506,7 @@ Found ${nentries} results.
       ;; split is what we process now
       (setq entries (append entries
 			    (oa--works-entries
-			     (oa--work (format "?filter=openalex:%s"    
+			     (oa--work (format "?filter=openalex:%s"
 					       (s-join "|" (nth 0 split))))))))
     (oa--works-buffer
      "*OpenAlex - References*"
@@ -565,7 +565,7 @@ Found ${nentries} results.
 					("page" . ,page)))))
       (setq entries (append entries (oa--works-entries cited-by-works)))
       (cl-incf page))
-    
+
     (oa--works-buffer
      "*OpenAlex - Cited by*"
      (format "* OpenAlex - %s Cited by ([[%s][json]])
@@ -685,7 +685,7 @@ FILTER is an optional string to add to the URL."
 		:params `(("mailto" . ,user-mail-address)
 			  ("api_key" . ,oa-api-key)
 			  ("filter" . ,filter))))
-	 (data (request-response-data req))) 
+	 (data (request-response-data req)))
     ;; this is for convenience to inspect data in a browser.
     (plist-put data :oa-url url)
     data))
@@ -906,7 +906,7 @@ ${citations-image}
 (defun oa-author ()
   "Get data and act on it for an author."
   (interactive)
-  
+
   (ivy-read "Author: " #'oa--author-candidates
 	    :dynamic-collection t
 	    :action
@@ -952,7 +952,7 @@ PAGE is optional, and loads that page of results. Defaults to 1."
 			    (+ page 1)
 			    npages))
 	 (buf (get-buffer-create "*OpenAlex Full-text search*")))
-    
+
     (with-current-buffer buf
       (erase-buffer)
       (org-mode)
@@ -971,9 +971,9 @@ ${meta.count} results: Page ${meta.page} of ${s1} ${s2}
 	       `(("meta.page" . ,(oa-get data "meta.page"))
 		 ("s1" . ,(format "%s" npages))
 		 ("s2" . ,(format "%s" next-page)))))
-      
+
       (insert
-       (cl-loop for result in results concat 
+       (cl-loop for result in results concat
 		(s-format "* ${title}
 :PROPERTIES:
 :JOURNAL: ${primary_location.source.display_name}
@@ -1004,7 +1004,7 @@ ${get-bibtex}
   ("oa-cited" . ,(oa--elisp-get-oa-cited-by result))))))
 
       (insert next-page)
-      
+
       (goto-char (point-min)))
     (pop-to-buffer buf)))
 
@@ -1050,9 +1050,9 @@ Recently published papers are probably missing.
 					     :dynamic-collection t))
 		(when (y-or-n-p "Save to file?")
 		  (read-file-name "File: "))))
-  
+
   (let* ((data (oa--author entity-id))
-	 (works-url (plist-get data :works_api_url)) 
+	 (works-url (plist-get data :works_api_url))
 	 (works-data (request-response-data
 		      (request works-url
 			:sync t
@@ -1080,7 +1080,7 @@ Recently published papers are probably missing.
 					   ("api_key" . ,oa-api-key)
 					   ("page" . ,i))))
 		   results (append results (plist-get works-data :results))))
-    
+
     ;; Now results is a list of your publications. We need to iterate over each
     ;; one, and accumulate author information
     (cl-loop for result in results do
@@ -1092,30 +1092,30 @@ Recently published papers are probably missing.
 				 (name-parts (mapcar #'capitalize (split-string name)))
 				 (name-string (concat (car (last name-parts)) ", "
 						      (string-join (butlast name-parts) " ")))
-				 
-				 (institutions (plist-get authorship :institutions)) 
+
+				 (institutions (plist-get authorship :institutions))
 				 (institution (plist-get (car institutions) :display_name)))
 			    ;; name, institution, contact info, last-active
 			    ;; we won't have contact info from openalex.
 			    (push (list name-string institution "" year
 					(plist-get result :publication_date))
 				  current-authors))))))
-    
+
     (setq current-authors (sort current-authors
 				(lambda (a b)
 				  "Sort first on name, then on year in descending order"
 				  (if (string= (nth 0 a) (nth 0 b))
 				      (> (nth 3 a) (nth 3 b))
 				    (string< (car a) (car b))))))
-    
+
     ;; now filter for unique authors
     (setq current-authors (cl-loop for group in (seq-group-by (lambda (x)
 								(car x))
-							      current-authors)	   
+							      current-authors)
    				   collect (cadr group)))
 
     ;; Finally lets fix the year so Excel reads it correctly. I use the publication date
-    (setq current-authors (cl-loop for row in current-authors 
+    (setq current-authors (cl-loop for row in current-authors
 				   collect
 				   (list "A:"
 					 (nth 0 row)
@@ -1131,7 +1131,7 @@ Recently published papers are probably missing.
 						row)
 					"\t")
 			   "\n")))
-      
+
 
       (kill-new (mapconcat (lambda (row)
 			     (concat (string-join (mapcar (lambda (x)
@@ -1164,7 +1164,7 @@ Operates on headings with a DOI property."
      (lambda ()
        (kill-new (org-entry-get (point) "DOI"))
        (doi-utils-add-bibtex-entry-from-doi
-	(doi-utils-maybe-doi-from-region-or-current-kill) 
+	(doi-utils-maybe-doi-from-region-or-current-kill)
 	bibfile))
      "DOI<>\"\"")))
 
