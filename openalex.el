@@ -1,4 +1,4 @@
-;;; openalex.el --- Org-ref interface to OpenAlex 
+;;; openalex.el --- Org-ref interface to OpenAlex  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; This is an elisp interface to OpenAlex (https://docs.openalex.org/) for org-ref.
