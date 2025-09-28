@@ -134,7 +134,7 @@ Assumes data is in plist form."
 	 (results (plist-get data :results)))
     (cl-loop for i from 2 to pages do
 	     (setf (cdr (assoc "page" params)) i)
-	     (setq req (request purl :sync t :parser 'oa--response-parser :params params)
+	     (setq req (request url :sync t :parser 'oa--response-parser :params params)
 		   data (request-response-data req)
 		   results (append results (plist-get data :results))))
     results))
@@ -693,15 +693,14 @@ FILTER is an optional string to add to the URL."
 
 (defun oa--author-entries (works-data url)
   "Get entries from WORKS-DATA."
-  (let* ((meta (plist-get works-data :meta)) 
+  (let* ((meta (plist-get works-data :meta))
 	 (per-page (plist-get meta :per_page))
 	 (count (plist-get meta :count))
 	 (pages (/ count per-page))
-	 (entries '())
-	 purl)
+	 (entries '()))
     ;; if there is a remainder we need to get the rest
     (when (> (mod count per-page) 0) (cl-incf pages))
-    
+
     ;; Now we have to loop through the pages
     (cl-loop for i from 1 to pages
 	     do
@@ -1066,8 +1065,7 @@ Recently published papers are probably missing.
 	 (pages (/ count per-page))
 	 (results (plist-get works-data :results))
 	 (current-year (string-to-number (format-time-string "%Y" (current-time))))
-	 (current-authors '())
-	 purl)
+	 (current-authors '()))
 
     ;; Now we need to accumulate the rest of the results from other pages
     (when (> (mod count per-page) 0) (cl-incf pages))
