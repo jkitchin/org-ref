@@ -50,6 +50,8 @@
 (require 'org-keys)
 (require 'hydra)
 (require 'xref)
+(require 's)
+(require 'dash)
 (eval-when-compile (require 'subr-x))
 
 (defvar bibtex-completion-cache)
@@ -360,19 +362,6 @@ to a path string."
 (defvar bibtex-completion-bibliography)
 (defvar bibtex-completion-display-formats-internal)
 
-;; (defun org-ref-valid-keys ()
-;;   "Return a list of valid bibtex keys for this buffer.
-;; This is used a lot in `org-ref-cite-activate' so it needs to be
-;; fast, but also up to date."
-;;   ;; this seems to be needed, but we don't want to do this every time
-;;   (unless bibtex-completion-display-formats-internal
-;;     (bibtex-completion-init))
-
-;;   (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-;;     (cl-loop for entry in (bibtex-completion-candidates)
-;; 	     collect
-;; 	     (cdr (assoc "=key=" (cdr entry))))))
-
 
 (defun org-ref-valid-keys ()
   "Return a list of valid bibtex keys for this buffer.
@@ -380,6 +369,8 @@ This is used a lot in `org-ref-cite-activate' so it needs to be
 fast, but also up to date."
 
   ;; this seems to be needed, but we don't want to do this every time
+  ;; I found when bibtex-completion-display-formats-internal is nil
+  ;;  we have to run this init function
   (unless bibtex-completion-display-formats-internal
     (bibtex-completion-init))
 
@@ -394,7 +385,9 @@ fast, but also up to date."
 		  for file in files
 		  append (cddr (assoc file bibtex-completion-cache)))
 		 collect (cdr (assoc "=key=" (cdr entry))))
-      ;; you need to get a cache because one or more of the files was not in the cache.
+      ;; you need to get a cache because one or more of the files was not in the
+      ;; cache. The cache should be automatically made by
+      ;; bibtex-completion-candidates
       (let ((bibtex-completion-bibliography files))
 	(cl-loop for entry in (bibtex-completion-candidates)
 		 collect
@@ -405,11 +398,15 @@ fast, but also up to date."
 (defvar-local org-ref-valid-keys-cache  nil)
 
 (defun org-ref-valid-keys-cached ()
-  "Update `org-ref-valid-keys-cache` only when files changed."
+  "Update `org-ref-valid-keys-cache` only when files changed or it is empty.
+Returns a hash-table you can use to test key validity.
+
+(gethash key (org-ref-valid-keys-cached)"
 
   (let ((local-hashes (cons bibtex-completion-bibliography
                             (mapcar 'cadr bibtex-completion-cache))))
-    (when (not (equal local-hashes org-ref-valid-keys-hashes))
+    (when (or (null org-ref-valid-keys-cache)
+	      (not (equal local-hashes org-ref-valid-keys-hashes)))
       (setq-local org-ref-valid-keys-hashes local-hashes)
       (setq-local org-ref-valid-keys-cache (make-hash-table :test 'equal))
       (cl-loop for entry in (org-ref-valid-keys)
@@ -1046,10 +1043,10 @@ If not on a key, but on a cite, prompt for key."
 	      (prog1
 		  (get-text-property (point) 'cite-key)
 		(goto-char cp)))))))))
-   
+
    ;; org-ref-activate-cite-links is nil so font-lock does not put
    ;; text-properties on keys. We temporarily activate this
-   
+
    (t
     (let ((el (org-element-context))
 	  (org-ref-activate-cite-links t)) ;; temporary
