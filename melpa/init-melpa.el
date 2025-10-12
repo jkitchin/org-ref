@@ -36,13 +36,13 @@
 (require 'org-ref-ivy)
 (require 'org-ref-helm)
 
-(setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
+(setq org-ref-insert-link-function 'org-ref-insert-link-menu
       org-ref-insert-cite-function 'org-ref-cite-insert-ivy
       org-ref-insert-label-function 'org-ref-insert-label-link
       org-ref-insert-ref-function 'org-ref-insert-ref-link
-      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
+      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-menu)))
 
 (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
-(define-key org-mode-map (kbd "s-[") 'org-ref-insert-link-hydra/body)
+(define-key org-mode-map (kbd "s-[") 'org-ref-insert-link-menu)
 
 (find-file "test-1.org")

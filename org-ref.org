@@ -143,9 +143,9 @@ Here is the setup I use.
 	bibtex-autokey-titlewords 2
 	bibtex-autokey-titlewords-stretch 1
 	bibtex-autokey-titleword-length 5)
-  (define-key bibtex-mode-map (kbd "H-b") 'org-ref-bibtex-hydra/body)
+  (define-key bibtex-mode-map (kbd "H-b") 'org-ref-bibtex-entry-menu)
   (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
-  (define-key org-mode-map (kbd "s-[") 'org-ref-insert-link-hydra/body)
+  (define-key org-mode-map (kbd "s-[") 'org-ref-insert-link-menu)
   (require 'org-ref-ivy)
   (require 'org-ref-arxiv)
   (require 'org-ref-scopus)
@@ -155,11 +155,11 @@ Here is the setup I use.
 (use-package org-ref-ivy
   :ensure nil
   :load-path (lambda () (expand-file-name "org-ref" scimax-dir))
-  :init (setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
+  :init (setq org-ref-insert-link-function 'org-ref-insert-link-menu
 	      org-ref-insert-cite-function 'org-ref-cite-insert-ivy
 	      org-ref-insert-label-function 'org-ref-insert-label-link
 	      org-ref-insert-ref-function 'org-ref-insert-ref-link
-	      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body))))
+	      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-menu))))
 #+END_SRC
 
 
@@ -189,7 +189,7 @@ org-ref uses the [[bibliography link]] to determine which bibtex files to get ci
 
 For simple citation needs, org-ref is simple to use. At the point you want to insert a citation, you select the "Org -> org-ref -> Insert citation" menu (or use the key-binding you chose for inserting org-ref links), select the reference(s) you want in the completion buffer and press enter. The citation will be inserted automatically into your org-file. You "select" an entry by using the arrow keys (or ~C-n~ and ~C-p~) to move up and down to the entry you want. You can also narrow the selection by typing a pattern to match, e.g. author name, title words, year, BibTeX key and entry types. If you want to match any other field, you need to add it to the variable ~bibtex-completion-additional-search-fields~.
 
-If the cursor is on a citation key, you should see a tooltip that summarizes which citation it refers to. If you click on a key, you should get a hydra menu with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
+If the cursor is on a citation key, you should see a tooltip that summarizes which citation it refers to. If you click on a key, you should get a transient menu with some actions to choose, including opening the bibtex entry, opening/getting a pdf for the entry, searching the entry in Web of Science, etc...
 
 The default citation type is customizable (=org-ref-default-citation-link=), and set to "cite".
 
@@ -283,7 +283,7 @@ You can also refer to an org-ref label link as in Table ref:tab-ydata.
 
 To help you insert ref links, use the "Org -> org-ref -> Insert ref" menu, or run the command = org-ref-insert-ref-link=.
 
-ref links are functional. If you put the cursor on a ref link, you will see a tooltip with some context of the corresponding label. If you click on the ref link, you will get a hydra to jump to it or change the ref type.
+ref links are functional. If you put the cursor on a ref link, you will see a tooltip with some context of the corresponding label. If you click on the ref link, you will open a transient menu to jump to it or change the ref type.
 
 You can make a ref link to a section with a CUSTOM_ID. For this to work, you should set ~org-latex-prefer-user-labels~ to t.
 
@@ -695,22 +695,22 @@ These functions are compatible with ~bibtex-map-entries~, so it is possible to c
 - org-ref-bibtex-next-entry :: bound to M-n
 - org-ref-bibtex-previous-entry :: bound to M-p
 
-*** Hydra menus for bibtex entries and files
+*** Transient menus for bibtex entries and files
 
 - Functions to act on a bibtex entry or file
-  - org-ref-bibtex-hydra/body :: gives a hydra menu to a lot of useful functions
+  - org-ref-bibtex-entry-menu :: opens a transient menu with many useful functions
        like opening the pdf, or the entry in a browser, or searching in a
        variety of scientific search engines.
-  - org-ref-bibtex-new-entry/body :: gives a hydra menu to add new bibtex entries.
-  - org-ref-bibtex-file/body :: gives a hydra menu of actions for the bibtex file.
+  - org-ref-bibtex-new-entry-menu :: opens a transient menu to add new bibtex entries.
+  - org-ref-bibtex-file-menu :: opens a transient menu of actions for the bibtex file.
 
-You will want to bind the hydra menus to a key. You only need to bind the first one, as the second and third can be accessed from the first hydra.
+You will want to bind the transient menus to a key. You only need to bind the first one, as the second and third can be accessed from the first menu.
 
 *** Formatted bibtex entry citations
 
 If you click on a citation link, there should be a menu option to copy a formatted citation, which will copy the citation string to the clipboard. This is a lightly formatted version using bibtex-completion.
 
-If you are on a bibtex entry, the `org-ref-bibtex-hydra/body' has an option to copy a formatted citation for the entry your cursor is in.
+If you are on a bibtex entry, the `org-ref-bibtex-entry-menu' has an option to copy a formatted citation for the entry your cursor is in.
 
 
 ** org-ref-wos
@@ -749,7 +749,7 @@ Open a basic search in Scopus: [[scopus-search:alloy Au segregation]]
 
 Open an advanced search in Scopus: scopus-advanced-search:au-id(7004212771). See http://www.scopus.com/search/form.url?display=advanced&clear=t for details on the codes and syntax, and http://help.elsevier.com/app/answers/detail/a_id/2347/p/8150/incidents.c$portal_account_name/26389.
 
-A functional link to a document in Scopus by its "EID": eid:2-s2.0-72649092395. Clicking on this link will open a hydra menu to open the document in Scopus, find different kinds of related documents by keywords, authors or references, and to open a page in Scopus of citing documents.
+A functional link to a document in Scopus by its "EID": eid:2-s2.0-72649092395. Clicking on this link will open a transient menu to open the document in Scopus, find different kinds of related documents by keywords, authors or references, and to open a page in Scopus of citing documents.
 
 There is also a scopusid link for authors that will open their author page in Scopus: scopusid:7004212771
 

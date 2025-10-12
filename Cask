@@ -16,6 +16,5 @@
  (depends-on "helm-bibtex")
  (depends-on "ivy-bibtex")
  (depends-on "avy")
- (depends-on "pdf-tools")	
- (depends-on "hydra"))
-
+ (depends-on "pdf-tools") 	
+ (depends-on "transient"))

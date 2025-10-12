@@ -24,7 +24,6 @@
 ;;; Code:
 (eval-and-compile (require 'org-macs))
 (eval-and-compile (require 'ol))
-(require 'hydra)
 
 (defcustom org-ref-default-ref-type "ref"
   "Default ref link type to use when inserting ref links."

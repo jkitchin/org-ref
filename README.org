@@ -150,7 +150,7 @@ I also find these settings helpful for automatically generating bibtex keys.
       bibtex-autokey-titlewords-stretch 1
       bibtex-autokey-titleword-length 5)
 
-(define-key bibtex-mode-map (kbd "H-b") 'org-ref-bibtex-hydra/body)
+(define-key bibtex-mode-map (kbd "H-b") 'org-ref-bibtex-entry-menu)
 #+END_SRC
 
 After you set those options, you have these options to load org-ref.
@@ -182,7 +182,7 @@ org-ref no longer binds keyboard shortcuts for you. You have some options here. 
 or
 
 #+BEGIN_SRC emacs-lisp
-(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link-hydra/body)
+(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link-menu)
 #+END_SRC
 
 - C-c ] [:: insert a citation

@@ -2,7 +2,7 @@
   '((dash "0")
     (s "0")
     (f "0")
-    (hydra "0")
+    (transient "0")
     (htmlize "0")
     (parsebib "0")
     (bibtex-completion "0")
