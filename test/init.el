@@ -1,3 +1,5 @@
+;;; init.el --- Test initialization file -*- lexical-binding: t; -*-
+
 (setq user-emacs-directory "./elpa-for-orgref")
 (require 'package)
 

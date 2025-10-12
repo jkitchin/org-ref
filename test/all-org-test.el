@@ -1,3 +1,5 @@
+;;; all-org-test.el --- Tests for org-ref -*- lexical-binding: t; -*-
+
 (ert-deftest or-key-file-p ()
 "Check `org-ref-key-in-file-p'"
 (should
