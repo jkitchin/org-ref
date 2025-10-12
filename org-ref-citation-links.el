@@ -635,13 +635,13 @@ Use with apply-partially."
 			   (format "[%s]" (cl-second prefix-suffix)))
 			  (t
 			   ""))))
-	    (org-ref--format-template "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
+	    (org-ref--format-template "\\${cmd}${prefix}${suffix}{${keys}}"
 		      `(("cmd" . ,cmd)
 			("prefix" . ,(string-trim prefix))
 			("suffix" . ,(string-trim suffix))
 			("keys" . ,(string-join keys ","))))))
 	 (3
-	  (org-ref--format-template "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
+	  (org-ref--format-template "\\${cmd}${prefix}${suffix}{${keys}}"
 		    `(("cmd" . ,cmd)
 		      ;; if there is more than one key, we only do global
 		      ;; prefix/suffix But for one key, we should allow local
@@ -746,7 +746,7 @@ Use with apply-partially."
   (pcase backend
     ('latex
      (let ((cite (org-ref-parse-cite-path path)))
-       (org-ref--format-template "\\${cmd}${global-prefix}${global-suffix}${keys}" 'aget
+       (org-ref--format-template "\\${cmd}${global-prefix}${global-suffix}${keys}"
 		 `(("cmd" . ,cmd)
 		   ("global-prefix" . ,(cond
 					((plist-get cite :prefix)
