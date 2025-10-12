@@ -32,10 +32,52 @@
 (defvar org-ref-cite-types)
 (defvar pdftotext-executable)
 
-(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
-(declare-function 'org-ref-find-bibliography "org-ref-core.el")
-(declare-function 'org-ref-bib-citation "org-ref-core.el")
-(declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
+(declare-function org-ref-get-bibtex-key-and-file "org-ref-core.el")
+(declare-function org-ref-find-bibliography "org-ref-core.el")
+(declare-function org-ref-bib-citation "org-ref-core.el")
+(declare-function org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
+(declare-function org-ref-parse-cite-path "org-ref-citation-links.el")
+(declare-function org-ref-get-labels "org-ref-ref-links.el")
+
+;; org-element functions (org.el)
+(declare-function org-element-parse-buffer "org-element")
+(declare-function org-element-map "org-element")
+(declare-function org-element-property "org-element")
+(declare-function org-mark-ring-push "org")
+
+;; bibtex functions
+(declare-function bibtex-kill-entry "bibtex")
+(declare-function bibtex-validate "bibtex")
+(declare-function bibtex-global-key-alist "bibtex")
+(declare-function bibtex-autokey-get-field "bibtex")
+(declare-function bibtex-search-entry "bibtex")
+(declare-function bibtex-set-dialect "bibtex")
+(declare-function bibtex-copy-entry-as-kill "bibtex")
+(declare-function parsebib-find-bibtex-dialect "parsebib")
+
+;; bibtex-completion functions
+(declare-function bibtex-completion-get-entry "bibtex-completion")
+(declare-function bibtex-completion-get-value "bibtex-completion")
+(declare-function bibtex-completion-show-entry "bibtex-completion")
+(declare-function bibtex-completion-edit-notes "bibtex-completion")
+(declare-function bibtex-completion-find-pdf "bibtex-completion")
+(declare-function bibtex-completion-find-pdf-in-library "bibtex-completion")
+(declare-function bibtex-completion-apa-format-reference "bibtex-completion")
+
+;; doi-utils functions
+(declare-function doi-utils-ads "doi-utils")
+(declare-function doi-utils-wos "doi-utils")
+(declare-function doi-utils-wos-citing "doi-utils")
+(declare-function doi-utils-wos-related "doi-utils")
+(declare-function doi-utils-pubmed "doi-utils")
+(declare-function doi-utils-crossref "doi-utils")
+(declare-function doi-utils-get-bibtex-entry-pdf "doi-utils")
+
+;; other functions
+(declare-function biblio-lookup "biblio")
+(declare-function message-goto-body "message")
+(declare-function message-goto-subject "message")
+(declare-function org-ref-bibtex-get-file-move-func "org-ref-bibtex")
 
 ;;; Code:
 
