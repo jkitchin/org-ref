@@ -93,7 +93,7 @@
   (let* ((width (- (frame-width) 2))
 	 (idx (get-text-property 1 'idx candidate))
 	 (entry (cdr (nth idx (ivy-state-collection ivy-last)))))
-    (s-concat (if (s-starts-with-p ivy-mark-prefix candidate) ivy-mark-prefix "")
+    (concat (if (string-prefix-p ivy-mark-prefix candidate) ivy-mark-prefix "")
 	      (bibtex-completion-format-entry entry width))))
 
 

@@ -304,10 +304,10 @@ This is meant to be used with `apply-partially' in the link definitions."
 			    ;; caption paragraph may have a name which we use if it is there
 			    (org-element-property :name parent)
 			  ;; else search caption
-			  (let ((caption (s-join
-					  ""
+			  (let ((caption (string-join
 					  (mapcar 'org-no-properties
-						  (org-export-get-caption parent))))) 
+						  (org-export-get-caption parent))
+					  "")))
 			    (when (string-match org-ref-label-re caption)
 			      (match-string 1 caption))))))))
 
@@ -318,8 +318,8 @@ This is meant to be used with `apply-partially' in the link definitions."
 		      (org-element-property :name object)
 
 		    ;; See if it is in the caption name
-		    (let ((caption (s-join "" (mapcar 'org-no-properties
-						      (org-export-get-caption object)))))
+		    (let ((caption (string-join (mapcar 'org-no-properties
+							(org-export-get-caption object)) "")))
 		      (when (string-match org-ref-label-re caption)
 			(match-string 1 caption)))))
 
@@ -331,7 +331,7 @@ This is meant to be used with `apply-partially' in the link definitions."
 		    (goto-char (org-table-begin))
 		    (let* ((table (org-element-context))
 			   (label (org-element-property :name table))
-			   (caption (s-join "" (mapcar 'org-no-properties
+			   (caption (string-join "" (mapcar 'org-no-properties
 						       (org-export-get-caption table)))))
 		      (when (null label)
 			;; maybe there is a label in the caption?

@@ -1,3 +1,64 @@
+* Tasks
+
+
+** TODO remove dependencies
+DEADLINE: <2025-10-17 Fri +1w>
+
+- [X] hydra (transient is built in)
+- [ ] s (I think there are builtins for this now)
+- [X] dash (I think there are builtins for this now)
+- [ ] f
+- [ ] ivy? (I am not sure I can remove this and maintain the features I like)
+
+*** DONE Test transient menus and commit changes when they are ok
+CLOSED: [2025-10-12 Sun 13:01] DEADLINE: <2025-10-14 Tue>
+
+** fix native compiler issues
+
+⛔ Warning (native-compiler): org-ref-utils.el:1314:17: Warning: the function ‘bibtex-kill-entry’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:1006:21: Warning: the function ‘bibtex-validate’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:707:31: Warning: the function ‘org-ref-get-labels’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:676:29: Warning: the function ‘bibtex-global-key-alist’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:574:23: Warning: the function ‘org-element-parse-buffer’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:574:6: Warning: the function ‘org-element-map’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:563:6: Warning: the function ‘message-goto-subject’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:550:27: Warning: the function ‘org-ref-parse-cite-path’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:548:6: Warning: the function ‘message-goto-body’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:538:4: Warning: the function ‘doi-utils-crossref’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:531:4: Warning: the function ‘doi-utils-pubmed’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:520:4: Warning: the function ‘biblio-lookup’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:513:8: Warning: the function ‘bibtex-completion-get-entry’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:511:7: Warning: the function ‘bibtex-completion-get-value’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:500:4: Warning: the function ‘doi-utils-wos-related’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:493:4: Warning: the function ‘doi-utils-wos-citing’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:486:4: Warning: the function ‘doi-utils-wos’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:479:4: Warning: the function ‘doi-utils-ads’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:454:14: Warning: the function ‘org-ref-bib-citation’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:436:6: Warning: the function ‘bibtex-completion-edit-notes’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:434:19: Warning: the function ‘org-ref-get-bibtex-key-under-cursor’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:393:31: Warning: the function ‘org-ref-bibtex-get-file-move-func’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:360:11: Warning: the function ‘doi-utils-get-bibtex-entry-pdf’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:344:15: Warning: the function ‘bibtex-completion-find-pdf’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:343:42: Warning: the function ‘org-ref-find-bibliography’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:322:17: Warning: the function ‘bibtex-autokey-get-field’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:320:28: Warning: the function ‘parsebib-find-bibtex-dialect’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:320:8: Warning: the function ‘bibtex-set-dialect’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:316:20: Warning: the function ‘org-ref-get-bibtex-key-and-file’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:301:19: Warning: the function ‘bibtex-completion-find-pdf-in-library’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:281:6: Warning: the function ‘bibtex-copy-entry-as-kill’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:280:6: Warning: the function ‘bibtex-completion-show-entry’ is not known to be defined.
+⛔ Warning (native-compiler): org-ref-utils.el:274:4: Warning: the function ‘bibtex-completion-apa-format-reference’ is not known to be defined.
+
+
+** TODO Fix org-ref issues
+DEADLINE: <2025-10-12 Sun +1w>
+
+https://github.com/jkitchin/org-ref/issues
+
+- [ ] followup on #1121 if no issues
+
+* Notes
+
 This document is mostly for me (John Kitchin) to document how to add features in a reasonable way to org-ref.
 
 First make sure the repo is on master, and up to date.
@@ -31,3 +92,5 @@ If that goes ok, then delete the branch:
 #+BEGIN_SRC sh
 git branch -d issue-453
 #+END_SRC
+
+*

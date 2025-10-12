@@ -101,14 +101,14 @@ The clickable part are the keys.")
 					       :optional-1 ,(match-string-no-properties 2)
 					       :optional-2 ,(match-string-no-properties 3)
 					       :keys ,(mapcar
-						       #'s-trim
-						       (s-split
-							","
-							(match-string-no-properties 4))))))
-    
+						       #'string-trim
+						       (split-string
+							(match-string-no-properties 4)
+							",")))))
+
     (goto-char (match-beginning 0))
     (let ((end (match-end 0)))
-      (cl-loop for key in (mapcar #'s-trim (split-string (match-string-no-properties 4) ","))
+      (cl-loop for key in (mapcar #'string-trim (split-string (match-string-no-properties 4) ","))
 	       unless (string-empty-p key)
 	       do
 	       (save-match-data
@@ -212,7 +212,7 @@ Should DWIM inserting into existing or new citations."
     (setq cite-string (concat (format "\\%s" (plist-get data :cite-type))
 			      (or (plist-get data :optional-1) "")
 			      (or (plist-get data :optional-2) "")
-			      (format  "{%s}" (s-join "," (plist-get data :keys)))))
+			      (format  "{%s}" (string-join (plist-get data :keys) ","))))
     (cl--set-buffer-substring (plist-get data :cite-begin)
 			      (plist-get data :cite-end)
 			      cite-string)
@@ -263,7 +263,7 @@ With prefix arg DESCENDING, sort in descending order."
     (setq cite-string (concat (format "\\%s" (plist-get data :cite-type))
 			      (or (plist-get data :optional-1) "")
 			      (or (plist-get data :optional-2) "")
-			      (format  "{%s}" (s-join "," (plist-get data :keys)))))
+			      (format  "{%s}" (string-join (plist-get data :keys) ","))))
     (cl--set-buffer-substring (plist-get data :cite-begin)
 			      (plist-get data :cite-end)
 			      cite-string)

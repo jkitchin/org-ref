@@ -45,7 +45,6 @@
 
 (declare-function f-ext? "f")
 (declare-function f-entries "f")
-(declare-function s-match "s")
 
 (eval-when-compile
   (require 'cl-lib))
@@ -1171,31 +1170,31 @@ Argument BIBFILE the bibliography to use."
      ;; DOI raw
      ;; Ex: 10.1109/MALWARE.2014.6999410
      ((and (stringp the-active-region)
-           (s-match (concat "^" doi-regexp) the-active-region))
+           (org-ref--string-match (concat "^" doi-regexp) the-active-region))
       the-active-region)
      ;; DOI url
      ;; Ex: https://doi.org/10.1109/MALWARE.2014.6999410
      ((and (stringp the-active-region)
-           (s-match (concat doi-url-prefix-regexp doi-regexp) the-active-region))
+           (org-ref--string-match (concat doi-url-prefix-regexp doi-regexp) the-active-region))
       (replace-regexp-in-string doi-url-prefix-regexp "" the-active-region))
      ;; DOI url as customized
      ((and (stringp the-active-region)
-           (s-match (regexp-quote doi-utils-dx-doi-org-url) the-active-region))
+           (org-ref--string-match (regexp-quote doi-utils-dx-doi-org-url) the-active-region))
       (replace-regexp-in-string (regexp-quote doi-utils-dx-doi-org-url) "" the-active-region))
      ;; Check if DOI can be found in the current kill
      ;; DOI raw
      ;; Ex: 10.1109/MALWARE.2014.6999410
      ((and (stringp the-current-kill)
-           (s-match (concat "^" doi-regexp) the-current-kill))
+           (org-ref--string-match (concat "^" doi-regexp) the-current-kill))
       the-current-kill)
      ;; DOI url
      ;; Ex: https://doi.org/10.1109/MALWARE.2014.6999410
      ((and (stringp the-current-kill)
-           (s-match (concat doi-url-prefix-regexp doi-regexp) the-current-kill))
+           (org-ref--string-match (concat doi-url-prefix-regexp doi-regexp) the-current-kill))
       (replace-regexp-in-string doi-url-prefix-regexp "" the-current-kill))
      ;; DOI url as customized
      ((and (stringp the-current-kill)
-           (s-match (regexp-quote doi-utils-dx-doi-org-url) the-current-kill))
+           (org-ref--string-match (regexp-quote doi-utils-dx-doi-org-url) the-current-kill))
       (replace-regexp-in-string (regexp-quote doi-utils-dx-doi-org-url) "" the-current-kill))
      ;; otherwise, return nil
      (t

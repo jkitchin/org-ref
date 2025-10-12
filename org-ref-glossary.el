@@ -165,7 +165,7 @@ changes."
 	     (glsentries (and external
 			      (or (cdr (assoc external org-ref-glsentries))
 				  (progn
-				    (cl-pushnew (cons external (s-trim
+				    (cl-pushnew (cons external (string-trim
 								(shell-command-to-string
 								 (format "kpsewhich tex %s"
 									 external))))
@@ -437,7 +437,7 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
 			      (or (cdr (assoc external org-ref-glsentries))
 				  (progn
 				    (cl-pushnew (cons external
-						      (s-trim (shell-command-to-string
+						      (string-trim (shell-command-to-string
 							       (format "kpsewhich tex %s" external))))
 						org-ref-glsentries)
 				    (cdr (assoc external org-ref-glsentries))))))

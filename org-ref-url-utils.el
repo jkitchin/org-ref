@@ -52,7 +52,7 @@
 
 (require 'doi-utils)
 (require 'f)
-(require 's)
+(require 'org-ref-utils)
 (eval-when-compile
   (require 'cl-lib))
 
@@ -260,7 +260,7 @@ Fields include author, title, url, urldate, and year."
       (goto-char (point-min))
       (when (re-search-forward org-ref-url-title-re nil t)
 	(push (cons :title
-		    (s-trim (decode-coding-string (match-string 1) 'utf-8)))
+		    (string-trim (decode-coding-string (match-string 1) 'utf-8)))
 	      fields)))
 
     ;; Finally add nil value to missing fields
@@ -276,7 +276,7 @@ one in the minibuffer."
 		   (list (buffer-file-name))
 		 (list (completing-read "Bibtex file: " (org-ref-find-bibliography)))))
   (let ((url (if url url
-	       (if (s-match "^http" (current-kill 0 'do-not-move))
+	       (if (org-ref--string-match "^http" (current-kill 0 'do-not-move))
 		   (format "%s" (current-kill 0 'do-not-move))
 		 (read-from-minibuffer "URL: ")))))
     (with-current-buffer
@@ -284,12 +284,12 @@ one in the minibuffer."
       ;; Maybe check dialect if set as local variable
       (let* ((dialect bibtex-dialect)
 	     (alist (org-ref-url-html-read url))
-	     (entry (s-format
+	     (entry (org-ref--format-template
 		     ;; Check dialect and format entry accordingly
 		     (if (eq dialect 'biblatex)
 			 org-ref-url-biblatex-template
 		       org-ref-url-bibtex-template)
-		     'aget alist)))
+		     alist)))
 	(goto-char (point-max))
 	;; Place new entry one line after the last entry. Sometimes we are in a
 	;; new file though, in which case we don't want to do this.

@@ -26,6 +26,7 @@
 
 (require 'org)
 (eval-and-compile (require 'org-macs))
+(require 'subr-x) ; for string-trim and string-blank-p
 
 
 (defvar org-ref-cite-types)
@@ -79,6 +80,41 @@ Compatible replacement for dash's `-insert-at'."
           (list element)
           (seq-drop list index)))
 
+;;** S.el replacement utilities
+
+;; These functions replace s.el dependencies with native Emacs equivalents.
+;; Most use built-in functions, some require subr-x (Emacs 24.4+).
+
+(defun org-ref--format-template (template alist)
+  "Format TEMPLATE string replacing ${key} with values from ALIST.
+ALIST should be an association list of (KEY . VALUE) pairs where
+KEY is a string. If a key in the template is not found in ALIST,
+it is replaced with an empty string.
+Compatible replacement for s-format with ${var} template syntax."
+  (let ((result template))
+    (dolist (pair alist)
+      (let* ((key (car pair))
+             (value (cdr pair))
+             (pattern (format "${%s}" key))
+             (replacement (if value (format "%s" value) "")))
+        (setq result (string-replace pattern replacement result))))
+    result))
+
+(defun org-ref--string-match (regexp string &optional start)
+  "Match REGEXP against STRING and return list of match groups.
+Returns a list where the first element is the entire match,
+and subsequent elements are the captured groups (subexpressions).
+Returns nil if no match is found.
+Optional START specifies where to start searching in STRING.
+Compatible replacement for s-match."
+  (when (string-match regexp string start)
+    (let ((result nil)
+          (i 0))
+      (while (match-beginning i)
+        (push (match-string i string) result)
+        (setq i (1+ i)))
+      (nreverse result))))
+
 ;;** org-ref functions
 ;;;###autoload
 (defun org-ref-version ()
@@ -100,7 +136,7 @@ Copies the string to the clipboard."
 			(goto-char (point-min))
 			(if
 			    (re-search-forward ";; Version:" nil t)
-			    (s-trim (buffer-substring (point)
+			    (string-trim (buffer-substring (point)
 						      (line-end-position)))
 			  org-ref-dir)))
 
@@ -112,8 +148,8 @@ Copies the string to the clipboard."
 		   (or (file-directory-p ".git") (file-exists-p ".git"))
 		   (= 0 (shell-command "git rev-parse --git-dir")))
 	      (format "%s in %s"
-		      (s-trim (shell-command-to-string "git rev-parse HEAD"))
-		      (s-trim (shell-command-to-string "git rev-parse --show-toplevel"))))))
+		      (string-trim (shell-command-to-string "git rev-parse HEAD"))
+		      (string-trim (shell-command-to-string "git rev-parse --show-toplevel"))))))
 
     (setq version-string (format "org-ref: Version %s%s"
 				 org-version
@@ -149,7 +185,7 @@ Opens https://github.com/jkitchin/org-ref/issues/new."
   (erase-buffer)
   (org-mode)
   (insert
-   (s-format "#+TITLE: org-ref debug
+   (org-ref--format-template "#+TITLE: org-ref debug
 
 ${org-ref-version}
 
@@ -195,7 +231,6 @@ You set =pdftotext-executable= to ${pdftotext-executable} (exists: ${pdftotext-e
 
 - org-latex-pdf-process :: ${org-latex-pdf-process}
 "
-	     'aget
 	     `(("org-ref-version" . ,(org-ref-version))
 	       ("org-latex-pdf-process" . ,(format "%S" org-latex-pdf-process))
 	       ("org-ref-location" . ,(format "%s" (locate-library "org-ref")))
@@ -375,13 +410,13 @@ in a directory. Optional PREFIX argument toggles between
         ;; I like this better than bibtex-url which does not always find
         ;; the urls
         (catch 'done
-          (let ((url (s-trim (bibtex-autokey-get-field "url"))))
-            (unless (s-blank? url)
+          (let ((url (string-trim (bibtex-autokey-get-field "url"))))
+            (unless (string-blank-p url)
               (browse-url url)
               (throw 'done nil)))
 
-          (let ((doi (s-trim (bibtex-autokey-get-field "doi"))))
-            (unless (s-blank? doi)
+          (let ((doi (string-trim (bibtex-autokey-get-field "doi"))))
+            (unless (string-blank-p doi)
               (if (string-match "^http" doi)
                   (browse-url doi)
                 (browse-url (format "http://dx.doi.org/%s" doi)))
@@ -980,7 +1015,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	   (goto-char (point-min))
 	   (while (re-search-forward "^@\\(.*?\\)[({]" nil t)
 	     (when (and (not (string= "string" (downcase (match-string-no-properties 1))))
-			(not (member (s-trim (downcase (match-string-no-properties 1)))
+			(not (member (string-trim (downcase (match-string-no-properties 1)))
 				     (cdr (assoc bibtex-dialect
 						 (list
 						  (cons 'BibTeX (mapcar (lambda (e) (downcase (car e)))
@@ -1209,9 +1244,9 @@ if FORCE is non-nil reparse the buffer no matter what."
 
       (insert "\n* Warnings\n")
       (if (get-buffer "*Warnings*")
-	  (cl-loop for line in (s-split "\n" (with-current-buffer "*Warnings*"
+	  (cl-loop for line in (split-string "\n" (with-current-buffer "*Warnings*"
 					       (buffer-string)))
-		   if (s-starts-with?  "Warning (org-ref):" line)
+		   if (string-prefix-p  "Warning (org-ref):" line)
 		   do
 		   (insert " - " line "\n"))
 	(insert "- No (org-ref) Warnings found."))

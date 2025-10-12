@@ -97,7 +97,7 @@ strings, or nil."
 	;; I don't know how to avoid a trailing . on some dois with the
 	;; expression above, so if it is there, I chomp it off here.
 	(let ((doi (match-string 0)))
-	  (when (or (s-ends-with? "." doi) (s-ends-with? ";" doi))
+	  (when (or (string-suffix-p "." doi) (string-suffix-p ";" doi))
 	    (setq doi (substring doi 0 (- (length doi) 1))))
 	  (cl-pushnew doi matches :test #'equal)))
       matches)))

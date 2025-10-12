@@ -50,7 +50,6 @@
 (require 'org-keys)
 (require 'transient)
 (require 'xref)
-(require 's)
 (eval-when-compile (require 'subr-x))
 
 (defvar bibtex-completion-cache)
@@ -423,7 +422,7 @@ PATH has the citations in it."
 	     ;; path containing @ which makes it likely to be an org-cite. Maybe
 	     ;; a text property is better, in case this is an issue in the
 	     ;; future.
-	     (not (s-contains-p "@" path)))
+	     (not (string-match-p (regexp-quote "@") path)))
     (let* ((valid-keys (org-ref-valid-keys))
 	   valid-key
 	   substrings)
@@ -636,13 +635,13 @@ Use with apply-partially."
 			   (format "[%s]" (cl-second prefix-suffix)))
 			  (t
 			   ""))))
-	    (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
+	    (org-ref--format-template "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
 		      `(("cmd" . ,cmd)
 			("prefix" . ,(string-trim prefix))
 			("suffix" . ,(string-trim suffix))
 			("keys" . ,(string-join keys ","))))))
 	 (3
-	  (s-format "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
+	  (org-ref--format-template "\\${cmd}${prefix}${suffix}{${keys}}" 'aget
 		    `(("cmd" . ,cmd)
 		      ;; if there is more than one key, we only do global
 		      ;; prefix/suffix But for one key, we should allow local
@@ -747,7 +746,7 @@ Use with apply-partially."
   (pcase backend
     ('latex
      (let ((cite (org-ref-parse-cite-path path)))
-       (s-format "\\${cmd}${global-prefix}${global-suffix}${keys}" 'aget
+       (org-ref--format-template "\\${cmd}${global-prefix}${global-suffix}${keys}" 'aget
 		 `(("cmd" . ,cmd)
 		   ("global-prefix" . ,(cond
 					((plist-get cite :prefix)

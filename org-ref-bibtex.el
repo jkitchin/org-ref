@@ -63,7 +63,6 @@
 (require 'bibtex)
 (require 'transient)
 (require 'message)
-(require 's)
 (require 'doi-utils)
 (require 'avy)
 (require 'sgml-mode)
@@ -419,7 +418,7 @@ START and END allow you to use this with `bibtex-map-entries'"
                           (lambda (row)
                             (cons  (nth 2 row) (nth 0 row)))
                           org-ref-bibtex-journal-abbreviations))
-           (journal (s-trim (bibtex-autokey-get-field "journal")))
+           (journal (string-trim (bibtex-autokey-get-field "journal")))
            (bstring (or
                      (cdr (assoc journal full-names))
                      (cdr (assoc journal abbrev-names)))))
@@ -512,18 +511,18 @@ books."
 				  word)
 				 ;; these words should not be capitalized, unless they
 				 ;; are the first word
-				 ((member (s-downcase word) org-ref-lower-case-words)
-				  (s-downcase word))
+				 ((member (downcase word) org-ref-lower-case-words)
+				  (downcase word))
 				 ;; Words that are quoted
-				 ((s-starts-with? "\"" word)
-				  (concat "\"" (s-capitalize (substring word 1))))
+				 ((string-prefix-p "\"" word)
+				  (concat "\"" (capitalize (substring word 1))))
 				 (t
-				  (s-capitalize word))))
+				  (capitalize word))))
 			      words))
 
 		 ;; Check if first word should be capitalized
 		 (when (member (car words) org-ref-lower-case-words)
-		   (setf (car words) (s-capitalize (car words))))
+		   (setf (car words) (capitalize (car words))))
 
 		 (setq title (mapconcat 'identity words " "))
 
@@ -577,11 +576,11 @@ all the title entries in articles."
                          ;; LaTeX or protected words
                          (string-match "\\$\\|{\\|}\\|\\\\" word)
                          word
-                       (s-downcase word)))
+                       (downcase word)))
                    words))
 
       ;; capitalize first word
-      (setf (car words) (s-capitalize (car words)))
+      (setf (car words) (capitalize (car words)))
 
       ;; join the words
       (setq title (mapconcat 'identity words " "))

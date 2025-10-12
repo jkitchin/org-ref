@@ -28,7 +28,6 @@
 ;; This library extends the `org-ref-citation-menu' and adds keys to get to
 ;; cited by, references and related documents in OpenAlex.
 
-(require 's)
 (require 'request)
 (require 'doi-utils)
 (require 'org-ref-citation-links)
@@ -78,7 +77,7 @@ Assumes data is in plist form."
       data)
 
      ;; query[] means get query then turn iteration on
-     ((and (s-ends-with-p "[]" current-field) (null iterable))
+     ((and (string-suffix-p "[]" current-field) (null iterable))
       (setq current-field (substring current-field 0 -2))
       (oa-get (plist-get data (intern-soft (concat ":" current-field)))
 	      (when fields
@@ -87,7 +86,7 @@ Assumes data is in plist form."
 
      ;; this means another level of iteration. You already have a collection. we
      ;; have to iterate over each one I think.
-     ((and (s-ends-with-p "[]" current-field) iterable)
+     ((and (string-suffix-p "[]" current-field) iterable)
       (setq current-field (substring current-field 0 -2))
       (cl-loop for item in data collect
 	       (oa-get (plist-get item (intern-soft (concat ":" current-field)))
@@ -114,12 +113,13 @@ Assumes data is in plist form."
 (defun oa--query-all-data (endpoint &rest filter)
   (let* ((page 1)
 	 (url (concat "https://api.openalex.org/" endpoint))
-	 (filter-string (string-join (cl-loop for key in (plist-get-keys filter) collect
-					      (concat (substring (symbol-name key) 1)
-						      ":"
-						      (url-hexify-string
-						       (plist-get filter key))))
-				     ","))
+	 (filter-string (string-join
+			 (cl-loop for key in (plist-get-keys filter) collect
+				  (concat (substring (symbol-name key) 1)
+					  ":"
+					  (url-hexify-string
+					   (plist-get filter key))))
+			 ","))
 	 (params `(("mailto" . ,user-mail-address)
 		   ("api_key" . ,oa-api-key)
 		   ("filter" . ,filter-string)
@@ -217,7 +217,7 @@ non-nil, and `oa-api-key' if it is non-nil to the API url."
 		((string= endpoint "works")
 		 (string-join
 		  (cl-loop for wrk in results collect
-			   (s-format "*** ${title}
+			   (org-ref--format-template "*** ${title}
 :PROPERTIES:
 :HOST: ${primary_location.source.display_name}
 :YEAR: ${publication_year}
@@ -238,8 +238,6 @@ ${get-bibtex}
 ${abstract}
 
 "
-				     (lambda (key data)
-				       (or (cdr (assoc key data)) ""))
 				     `(("title" . ,(oa--title wrk))
 				       ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
 				       ("publication_year" . ,(oa-get wrk "publication_year"))
@@ -339,7 +337,7 @@ This doesn't seem as useful as it could be."
 (defun oa--authors (wrk)
   "Return an author string for WRK.
 The string is a comma-separated list of links to author pages in OpenAlex."
-  (s-join ", " (cl-loop for author in (plist-get wrk :authorships)
+  (string-join (cl-loop for author in (plist-get wrk :authorships)
 			collect
 			(format "[[elisp:(oa--author-org \"%s\")][%s]]"
 				(plist-get
@@ -347,7 +345,8 @@ The string is a comma-separated list of links to author pages in OpenAlex."
 				 :id)
 				(plist-get
 				 (plist-get author :author)
-				 :display_name)))))
+				 :display_name)))
+	       ", "))
 
 
 (defun oa--title (wrk)
@@ -359,7 +358,7 @@ The string is a comma-separated list of links to author pages in OpenAlex."
 ;; be nice to integrate M-, navigation.
 (defun oa--elisp-get-bibtex (wrk)
   "Return a elisp link to get a bibtex entry for WRK if there is a doi."
-  (if-let ((doi (plist-get wrk :doi)))
+  (if-let* ((doi (plist-get wrk :doi)))
       (format "[[elisp:(doi-add-bibtex-entry \"%s\")][Get bibtex entry]]" doi)
     ""))
 
@@ -390,7 +389,7 @@ The string is a comma-separated list of links to author pages in OpenAlex."
 WORKS is a list of results from OpenAlex."
   (cl-loop for wrk in (plist-get works :results)
 	   collect
-	   (s-format "** ${title}
+	   (org-ref--format-template "** ${title}
 :PROPERTIES:
 :HOST: ${primary_location.source.display_name}
 :YEAR: ${publication_year}
@@ -408,8 +407,6 @@ ${get-bibtex}
 - ${oa-cited}
 
 "
-		     (lambda (key data)
-		       (or (cdr (assoc key data)) ""))
 		     `(("title" . ,(oa-get wrk "title"))
 		       ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
 		       ("publication_year" . ,(oa-get wrk "publication_year"))
@@ -442,7 +439,7 @@ elisp:org-columns    elisp:org-columns-quit
 | cited by | [[elisp:(oa-buffer-sort-cited-by-count t)][low first]] | [[elisp:(oa-buffer-sort-cited-by-count)][high first]] |
 
 ")
-      (insert (s-join "\n" entries))
+      (insert (string-join entries "\n"))
       (org-mode)
       (goto-char (point-min))
       (org-next-visible-heading 1))
@@ -463,7 +460,7 @@ elisp:org-columns    elisp:org-columns-quit
       ;; split is what we process now
       (setq entries (append entries
 			    (oa--works-entries
-			     (oa--work (format "?filter=openalex:%s" (s-join "|" (nth 0 split))))))))
+			     (oa--work (format "?filter=openalex:%s" (string-join (nth 0 split) "|")))))))
 
     (oa--works-buffer
      "*OpenAlex - Related works*"
@@ -471,7 +468,7 @@ elisp:org-columns    elisp:org-columns-quit
 %s\n\n"
 	     entity-id
 	     (plist-get wrk :oa-url)
-	     (s-format ":PROPERTIES:
+	     (org-ref--format-template ":PROPERTIES:
 :TITLE: ${title}
 :HOST: ${primary_location.source.display_name}
 :AUTHOR: ${authors}
@@ -482,15 +479,13 @@ elisp:org-columns    elisp:org-columns-quit
 
 Found ${nentries} results.
 "
-		       (lambda (key data)
-			 (or (cdr (assoc key data)) ""))
-		       `(("title" . ,(oa-get wrk "title"))
-			 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
-			 ("authors" . ,(oa--authors wrk))
-			 ("doi" . ,(oa-get wrk "doi"))
-			 ("publication_year" . ,(oa-get wrk "publication_year"))
-			 ("id" . ,(oa-get wrk "id"))
-			 ("nentries" . ,(length entries)))))
+				       `(("title" . ,(oa-get wrk "title"))
+					 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
+					 ("authors" . ,(oa--authors wrk))
+					 ("doi" . ,(oa-get wrk "doi"))
+					 ("publication_year" . ,(oa-get wrk "publication_year"))
+					 ("id" . ,(oa-get wrk "id"))
+					 ("nentries" . ,(length entries)))))
      entries)))
 
 
@@ -507,14 +502,14 @@ Found ${nentries} results.
       (setq entries (append entries
 			    (oa--works-entries
 			     (oa--work (format "?filter=openalex:%s"
-					       (s-join "|" (nth 0 split))))))))
+					       (string-join (nth 0 split) "|")))))))
     (oa--works-buffer
      "*OpenAlex - References*"
      (format "* OpenAlex - References from %s ([[%s][json]])
 %s\n\n"
 	     entity-id
 	     (plist-get wrk :oa-url)
-	     (s-format ":PROPERTIES:
+	     (org-ref--format-template ":PROPERTIES:
 :TITLE: ${title}
 :HOST: ${primary_location.source.display_name}
 :AUTHOR: ${authors}
@@ -525,15 +520,13 @@ Found ${nentries} results.
 
 Found ${nentries} results.
 "
-		       (lambda (key data)
-			 (or (cdr (assoc key data)) ""))
-		       `(("title" . ,(oa-get wrk "title"))
-			 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
-			 ("authors" . ,(oa--authors wrk))
-			 ("doi" . ,(oa-get wrk "doi"))
-			 ("publication_year" . ,(oa-get wrk "publication_year"))
-			 ("id" . ,(oa-get wrk "id"))
-			 ("nentries" . ,(length entries)))))
+				       `(("title" . ,(oa-get wrk "title"))
+					 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
+					 ("authors" . ,(oa--authors wrk))
+					 ("doi" . ,(oa-get wrk "doi"))
+					 ("publication_year" . ,(oa-get wrk "publication_year"))
+					 ("id" . ,(oa-get wrk "id"))
+					 ("nentries" . ,(length entries)))))
      entries)))
 
 
@@ -572,7 +565,7 @@ Found ${nentries} results.
 %s"
 	     entity-id
 	     url
-	     (s-format ":PROPERTIES:
+	     (org-ref--format-template ":PROPERTIES:
 :TITLE: ${title}
 :HOST: ${primary_location.source.display_name}
 :AUTHOR: ${authors}
@@ -584,8 +577,6 @@ Found ${nentries} results.
 Found ${nentries} results.
 
 "
-		       (lambda (key data)
-			 (or (cdr (assoc key data)) ""))
 		       `(("title" . ,(oa-get wrk "title"))
 			 ("primary_location.source.display_name" . ,(oa-get wrk "primary_location.source.display_name"))
 			 ("authors" . ,(oa--authors wrk))
@@ -717,7 +708,7 @@ FILTER is an optional string to add to the URL."
 		   entries (append entries
 				   (cl-loop for result in (plist-get works-data :results)
 					    collect
-					    (s-format "*** ${title}
+					    (org-ref--format-template "*** ${title}
 :PROPERTIES:
 :ID: ${id}
 :DOI: ${ids.doi}
@@ -737,9 +728,7 @@ ${get-bibtex}
 
 ${abstract}
 
-    " (lambda (key data)
-	(or (cdr (assoc key data)) ""))
-    `(("title" . ,(oa--title result))
+    " `(("title" . ,(oa--title result))
       ("id" . ,(oa-get result "id"))
       ("ids.doi" . ,(oa-get result "ids.doi"))
       ("publication_year" . ,(oa-get result "publication_year"))
@@ -865,7 +854,7 @@ plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per 
 				  ("api_key" . ,oa-api-key))))))
     (with-current-buffer buf
       (erase-buffer)
-      (insert (s-format "* ${display_name} ([[${oa-url}][json]])
+      (insert (org-ref--format-template "* ${display_name} ([[${oa-url}][json]])
 :PROPERTIES:
 :OPENALEX: ${id}
 :ORCID: ${orcid}
@@ -887,8 +876,6 @@ ${citations-image}
 | cited by | [[elisp:(oa-buffer-sort-cited-by-count t)][low first]] | [[elisp:(oa-buffer-sort-cited-by-count)][high first]] |
 
 "
-			(lambda (key data)
-			  (or (cdr (assoc key data)) ""))
 			`(("display_name" . ,(oa-get data "display_name"))
 			  ("oa-url" . ,(oa-get data "oa-url"))
 			  ("id" . ,(oa-get data "id"))
@@ -898,7 +885,7 @@ ${citations-image}
 			  ("last_known_institution.display_name" . ,(oa-get data "last_known_institution.display_name"))
 			  ("last_known_institution.country_code" . ,(oa-get data "last_known_institution.country_code"))
 			  ("citations-image" . ,citations-image))))
-      (insert (s-join "\n" (oa--author-entries works-data works-url)))
+      (insert (string-join (oa--author-entries works-data works-url) "\n"))
 
       (org-mode)
       (goto-char (point-min))
@@ -959,25 +946,23 @@ PAGE is optional, and loads that page of results. Defaults to 1."
     (with-current-buffer buf
       (erase-buffer)
       (org-mode)
-      (insert (s-format "#+title: Full-text search: ${query}
+      (insert (org-ref--format-template "#+title: Full-text search: ${query}
 
 [[elisp:(oa-fulltext-search \"${query}\" ${page})]]"
-			'aget
 			`(("query" . ,query)
 			  ("page" . ,page))))
-      (insert (s-format
+      (insert (org-ref--format-template
 	       "
 ${meta.count} results: Page ${meta.page} of ${s1} ${s2}
 \n\n"
-	       (lambda (key data)
-		 (or (cdr (assoc key data)) ""))
-	       `(("meta.page" . ,(oa-get data "meta.page"))
+	       `(("meta.count" . ,count)
+		 ("meta.page" . ,(oa-get data "meta.page"))
 		 ("s1" . ,(format "%s" npages))
 		 ("s2" . ,(format "%s" next-page)))))
 
       (insert
        (cl-loop for result in results concat
-		(s-format "* ${title}
+		(org-ref--format-template "* ${title}
 :PROPERTIES:
 :JOURNAL: ${primary_location.source.display_name}
 :AUTHOR: ${authors}
@@ -992,10 +977,7 @@ ${get-bibtex}
 - ${oa-related}
 - ${oa-cited}
 
-" (lambda (key data)
-    (or (cdr (assoc key data)) ""))
-
-`(("title" . ,(oa--title result))
+" `(("title" . ,(oa--title result))
   ("primary_location.source.display_name" . ,(oa-get result "primary_location.source.display_name"))
   ("authors" . ,(oa--authors result))
   ("publication_year" . ,(oa-get result "publication_year"))
@@ -1154,7 +1136,7 @@ Recently published papers are probably missing.
   (interactive)
   (cl-loop for buf in (buffer-list)
 	   do
-	   (when (s-starts-with? "*OpenAlex" (buffer-name buf))
+	   (when (string-prefix-p "*OpenAlex" (buffer-name buf))
 	     (kill-buffer buf))))
 
 

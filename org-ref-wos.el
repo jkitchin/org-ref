@@ -24,7 +24,6 @@
 ;;; and an org-mode link for a link to an Accession number.
 
 (require 'org)
-(require 's)
 (require 'org-ref-utils)
 
 ;;; Code:
@@ -45,13 +44,13 @@
 			 :follow (lambda (path)
 				   (browse-url
 				    (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-					     (s-join "+" (split-string path)))))
+					     (string-join (split-string path) "+"))))
 			 :export (lambda (link desc format)
 				   (cond
 				    ((eq format 'html)
 				     (format "<a href=\"%s\">%s</a>"
 					     (format  "http://gateway.webofknowledge.com/gateway/Gateway.cgi?topic=%s&GWVersion=2&SrcApp=WEB&SrcAuth=HSB&DestApp=UA&DestLinkType=GeneralSearchSummary"
-						      (s-join "+" (split-string link)))
+						      (string-join (split-string link) "+"))
 					     (or desc link))))))
 
 ;;;###autoload

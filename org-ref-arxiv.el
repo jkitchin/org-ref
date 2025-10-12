@@ -28,7 +28,6 @@
 (require 'bibtex)
 (require 'f)
 (require 'org)
-(require 's)
 (require 'org-ref-utils)
 (require 'parsebib)
 
@@ -126,7 +125,7 @@ Returns a formatted BibTeX entry."
            (title (nth 2 (assq 'title entry)))
            (names (arxiv-bibtexify-authors authors))
            (category (cdar (nth 1 (assq 'primary_category entry))))
-           (abstract (s-trim (nth 2 (assq 'summary entry))))
+           (abstract (string-trim (nth 2 (assq 'summary entry))))
            (url (nth 2 (assq 'id entry)))
            (temp-bibtex (format arxiv-entry-format-string "" title names year arxiv-number category abstract url))
            (key (with-temp-buffer
@@ -144,11 +143,12 @@ Returns a formatted BibTeX entry."
 
 (defun arxiv-bibtexify-authors (authors)
   "Return names in 'SURNAME, FIRST NAME' format from AUTHORS list."
-  (s-join " and "
+  (string-join
           (mapcar (lambda (it)
                     (concat (car (last it)) ", "
-                            (s-join " " (butlast it))))
-                  (mapcar (lambda (it) (s-split " +" it)) authors))))
+                            (string-join (butlast it) " ")))
+                  (mapcar (lambda (it) (split-string it " +")) authors))
+          " and "))
 
 
 (defun arxiv-maybe-arxiv-id-from-current-kill ()
@@ -167,22 +167,22 @@ Returns a formatted BibTeX entry."
      (;; check if current-kill looks like an arxiv ID
       ;; if so, return it
       ;; Ex: 1304.4404v2
-      (s-match (concat "^" arxiv-id-regexp) the-current-kill)
+      (org-ref--string-match (concat "^" arxiv-id-regexp) the-current-kill)
       the-current-kill)
      (;; check if current-kill looks like an arxiv cite
       ;; if so, remove the prefix and return
       ;; Ex: arXiv:1304.4404v2 --> 1304.4404v2
-      (s-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp "$") the-current-kill)
+      (org-ref--string-match (concat arxiv-cite-prefix-regexp arxiv-id-regexp "$") the-current-kill)
       (replace-regexp-in-string arxiv-cite-prefix-regexp "" the-current-kill))
      (;; check if current-kill looks like an arxiv url
       ;; if so, remove the url prefix and return
       ;; Ex: https://arxiv.org/abs/1304.4404 --> 1304.4404
-      (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp "$") the-current-kill)
+      (org-ref--string-match (concat arxiv-url-prefix-regexp arxiv-id-regexp "$") the-current-kill)
       (replace-regexp-in-string arxiv-url-prefix-regexp "" the-current-kill))
      (;; check if current-kill looks like an arxiv PDF url
       ;; if so, remove the url prefix, the .pdf suffix, and return
       ;; Ex: https://arxiv.org/pdf/1304.4404.pdf --> 1304.4404
-      (s-match (concat arxiv-url-prefix-regexp arxiv-id-regexp "\\.pdf$") the-current-kill)
+      (org-ref--string-match (concat arxiv-url-prefix-regexp arxiv-id-regexp "\\.pdf$") the-current-kill)
       (replace-regexp-in-string arxiv-url-prefix-regexp "" (substring the-current-kill 0 (- (length the-current-kill) 4))))
      ;; otherwise, return nil
      (t

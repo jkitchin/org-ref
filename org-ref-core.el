@@ -36,7 +36,6 @@
 (require 'org-element)
 
 (require 'f)
-(require 's)
 
 (require 'parsebib)
 (require 'bibtex-completion)
