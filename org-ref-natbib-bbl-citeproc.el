@@ -475,10 +475,10 @@ bibliography.
 	 natbib-options bibdata org-ref-natmove
 	 buf)
 
-    (when-let (buf (find-buffer-visiting tex-file))
+    (when-let* (buf (find-buffer-visiting tex-file))
       (kill-buffer buf))
 
-    (when-let (buf (find-buffer-visiting bbl-file))
+    (when-let* (buf (find-buffer-visiting bbl-file))
       (kill-buffer buf))
 
     ;; refresh these

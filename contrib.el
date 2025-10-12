@@ -19,7 +19,7 @@
 (defun org-ref-get-bibtex-key-under-cursor--display ()
   "Return key under the cursor in `org-mode'.
 If not on a key, but on a cite, prompt for key."
-  (if-let ((key (get-text-property (point) 'cite-key)))
+  (if-let* ((key (get-text-property (point) 'cite-key)))
       ;; Point is on a key, so we get it directly
       key
     ;; point is not on a key, but may still be on a cite link

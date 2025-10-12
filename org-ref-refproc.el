@@ -176,7 +176,7 @@ environments)."
 
 					     ;; Listings of code blocks
 					     ('src-block
-					      (when-let (name (org-element-property :name e))
+					      (when-let* (name (org-element-property :name e))
 						name)))))))))
     ;; the align equation environment needs to be flattened
     (cl-loop for type in referencables

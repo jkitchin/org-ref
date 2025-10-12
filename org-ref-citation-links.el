@@ -340,14 +340,14 @@ to a path string."
      (string-join (cl-loop for ref in (plist-get data :references) collect (plist-get ref :key)) ","))
     (3
      (concat
-      (when-let (prefix (plist-get data :prefix)) (concat prefix ";"))
+      (when-let* ((prefix (plist-get data :prefix))) (concat prefix ";"))
       (string-join (cl-loop for ref in (plist-get data :references) collect
 			    (concat
 			     (plist-get ref :prefix)
 			     "&" (plist-get ref :key)
 			     (plist-get ref :suffix)))
 		   ";")
-      (when-let (suffix (plist-get data :suffix)) (concat ";" suffix))))))
+      (when-let* ((suffix (plist-get data :suffix))) (concat ";" suffix))))))
 
 
 ;; * Activating citation links
@@ -1004,7 +1004,7 @@ arg COMMON, edit the common prefixes instead."
 If not on a key, but on a cite, prompt for key."
   (cond
    (org-ref-activate-cite-links
-    (if-let ((key (get-text-property (point) 'cite-key)))
+    (if-let* ((key (get-text-property (point) 'cite-key)))
 	;; Point is on a key, so we get it directly
 	key
       ;; point is not on a key, but may still be on a cite link
@@ -1169,10 +1169,10 @@ If not on a key, but on a cite, prompt for key."
 Otherwise run `right-word'. If the cursor moves off the link,
 move to the beginning of the next cite link after this one."
   (interactive)
-  (when-let (next (next-single-property-change (point) 'cite-key))
+  (when-let* ((next (next-single-property-change (point) 'cite-key)))
     (goto-char next))
   (unless (get-text-property (point) 'cite-key)
-    (when-let (next (next-single-property-change (point) 'cite-key))
+    (when-let* ((next (next-single-property-change (point) 'cite-key)))
       (goto-char next))))
 
 
@@ -1182,10 +1182,10 @@ move to the beginning of the next cite link after this one."
 Otherwise run `left-word'. If the cursor moves off the link,
 move to the beginning of the previous cite link after this one."
   (interactive)
-  (when-let (prev (previous-single-property-change (point) 'cite-key))
+  (when-let* ((prev (previous-single-property-change (point) 'cite-key)))
     (goto-char prev))
   (unless (get-text-property (point) 'cite-key)
-    (when-let (prev (previous-single-property-change (point) 'cite-key))
+    (when-let* ((prev (previous-single-property-change (point) 'cite-key)))
       (goto-char prev))))
 
 (defvar avy-goto-key)

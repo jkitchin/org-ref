@@ -120,7 +120,7 @@ and return the buffer."
        ("\\(Summary\\|TL;DR\\).*?\"note-content-value\">\\(.+?\\)</span>" . 2))
      ;; Should we proactively download supplementary materials too?
      (cons "supp"
-	   (if-let ((supp (org-ref--extract
+	   (if-let* ((supp (org-ref--extract
 			   html-buffer
 			   ">Supplementary Material<.*?href=\"\\([^\"]+\\)" 1)))
 	       (concat "https://openreview.net" supp))))))
@@ -163,7 +163,7 @@ and return the buffer."
      '("abstract" . ("<h4>Abstract</h4>[ \n]*?\\(<p>\\)+\\(.+?\\)</p>" . 2))
      ;; Should we proactively download supplementary materials too?
      (cons "supp"
-	   (if-let
+	   (if-let*
 	       ((supp (org-ref--extract
 		       html-buffer
 		       "href=[\"']\\([^\"']+-Supplemental[^\"']*\\)[\"']" 1)))

@@ -899,7 +899,7 @@ every field.")
 
 (defun doi-utils-get-json-metadata (doi)
   "Try to get json metadata for DOI.  Open the DOI in a browser if we do not get it."
-  (if-let ((data (cdr (assoc doi doi-utils-cache))))
+  (if-let* ((data (cdr (assoc doi doi-utils-cache))))
       ;; We have the data already, so we return it.
       data
     (let ((url-request-method "GET")
