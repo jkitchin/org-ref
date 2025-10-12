@@ -41,6 +41,10 @@
 (require 'org-ref-core)
 (require 'ivy-bibtex)
 
+;; Declare variable before any potential use (including in macros)
+;; Initialize with nil to avoid "void variable" error
+(defvar org-ref-citation-alternate-insert-actions nil
+  "Actions for ivy citation insertion. Set by defcustom below.")
 
 ;; all these functions are defined in ivy-bibtex, but not in a variable. Here
 ;; you can set them as you see fit.

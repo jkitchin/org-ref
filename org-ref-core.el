@@ -41,7 +41,7 @@
 
 (require 'parsebib)
 (require 'bibtex-completion)
-(require 'hydra)
+(require 'transient)
 
 (require 'org-ref-bibliography-links)
 (require 'org-ref-citation-links)
@@ -236,65 +236,106 @@ provide their own version."
 
 
 ;; This is an alternative that doesn't rely on prefix args.
-(defhydra org-ref-insert-link-hydra (:color red :hint nil)
-  "Insert an org-ref link
-"
-  ("[" (funcall org-ref-insert-cite-function) "Citation" :column "org-ref")
-  ("]" (funcall org-ref-insert-ref-function) "Cross-reference" :column "org-ref")
-  ("\\" (funcall org-ref-insert-label-function) "Label"  :column "org-ref")
-  
-  ("bs" (insert (org-ref-bibliographystyle-complete-link)) "Bibliographystyle" :column "Bibliography" :color blue)
-  ("bf" (insert (org-ref-bibliography-complete)) "Bibliography" :column "Bibliography" :color blue)
-  ("nb" (insert (org-ref-nobibliography-complete)) "Bibliography" :column "Bibliography" :color blue)
-  
-  ("g" org-ref-insert-glossary-link "Glossary link" :column "Glossary" :color blue)
-  ("a" org-ref-insert-acronym-link "Acronym link" :column "Glossary" :color blue)
-  ("ng" (progn
-	  (org-mark-ring-push)
-	  (goto-char (point-min))
-	  (if (re-search-forward "#\\+name: glossary" nil t)
-	      (progn
-		(goto-char (org-element-property :contents-end (org-element-context)))
-		(backward-char)
-		(org-table-insert-row '(4)))
-	    ;; no table found
-	    (goto-char (point-max))
-	    (insert "\n\n#+name: glossary
+(defun org-ref-insert-link-menu--insert-citation ()
+  (interactive)
+  (funcall org-ref-insert-cite-function))
+
+(defun org-ref-insert-link-menu--insert-reference ()
+  (interactive)
+  (funcall org-ref-insert-ref-function))
+
+(defun org-ref-insert-link-menu--insert-label ()
+  (interactive)
+  (funcall org-ref-insert-label-function))
+
+(defun org-ref-insert-link-menu--open-bibliography ()
+  (interactive)
+  (find-file (completing-read "Bibliography: " (org-ref-find-bibliography))))
+
+(defun org-ref-insert-link-menu--ensure-table (name template)
+  (org-mark-ring-push)
+  (goto-char (point-min))
+  (if (re-search-forward (format "#\\+name: %s" name) nil t)
+      (progn
+        (goto-char (org-element-property :contents-end (org-element-context)))
+        (backward-char)
+        (org-table-insert-row '(4)))
+    (goto-char (point-max))
+    (insert template)
+    (beginning-of-line)
+    (forward-char)))
+
+(defun org-ref-insert-link-menu--new-glossary-term ()
+  (interactive)
+  (org-ref-insert-link-menu--ensure-table
+   "glossary"
+   "\n\n#+name: glossary
 | label | term    | definition                    |
 |-------+---------+-------------------------------|
-|       |         |                               |")
-	    (beginning-of-line)
-	    (forward-char)))
-   "New glossary term" :column "Glossary")
-  
-  ("na" (progn
-	  (org-mark-ring-push)
-	  (goto-char (point-min))
-	  (if (re-search-forward "#\\+name: acronym" nil t)
-	      (progn
-		(goto-char (org-element-property :contents-end (org-element-context)))
-		(backward-char)
-		(org-table-insert-row '(4)))
-	    ;; no table found
-	    (goto-char (point-max))
-	    (insert "\n\n#+name: acronyms
+|       |         |                               |"))
+
+(defun org-ref-insert-link-menu--new-acronym-term ()
+  (interactive)
+  (org-ref-insert-link-menu--ensure-table
+   "acronym"
+   "\n\n#+name: acronyms
 | label | abbreviation | full form                  |
 |-------+--------------+----------------------------|
-|       |              |                            |")
-	    (beginning-of-line)
-	    (forward-char)))
-   "New acronym term" :column "Glossary")
+|       |              |                            |"))
 
-  ("bd" doi-add-bibtex-entry "Add bibtex entry from a DOI" :column "Bibtex")
-  ("bc" crossref-add-bibtex-entry "Add bibtex entry from Crossref" :column "Bibtex")
-  ("bo" (find-file (completing-read "Bibliography: " (org-ref-find-bibliography)))
-   "Open bibtex file" :column "Bibtex")
-  
-  ("t" (insert "[[list-of-tables:]]\n") "List of tables" :column "Misc")
-  ("f" (insert "[[list-of-figures:]]\n") "List of figures" :column "Misc")
-  ("i" (insert (format "[[index:%s]]" (string-trim (read-string "Index entry: ")))) "Index entry" :column "Misc")
-  ("pi" (insert "[[printindex:]]") "Print index" :column "Misc")
-  ("pg" (insert "[[printglossaries:]]") "Print glossary" :column "Misc"))
+(defun org-ref-insert-link-menu--insert-string (string)
+  (insert string))
+
+(defun org-ref-insert-link-menu--insert-index (prompt template)
+  (org-ref-insert-link-menu--insert-string
+   (format template (string-trim (read-string prompt)))))
+
+(transient-define-prefix org-ref-insert-link-menu ()
+  "Insert an org-ref link."
+  [["org-ref"
+    ("]" "Citation" org-ref-insert-link-menu--insert-citation :transient t)
+    ("r" "Cross-reference" org-ref-insert-link-menu--insert-reference :transient t)
+    ("\\" "Label" org-ref-insert-link-menu--insert-label :transient t)]
+   ["Bibliography"
+    ("bs" "Bibliographystyle" (lambda () (interactive)
+            (org-ref-insert-link-menu--insert-string
+             (org-ref-bibliographystyle-complete-link))))
+    ("bf" "Bibliography" (lambda () (interactive)
+            (org-ref-insert-link-menu--insert-string
+             (org-ref-bibliography-complete))))
+    ("nb" "Nobibliography" (lambda () (interactive)
+            (org-ref-insert-link-menu--insert-string
+             (org-ref-nobibliography-complete))))]
+   ["Glossary"
+    ("g" "Glossary link" org-ref-insert-glossary-link)
+    ("a" "Acronym link" org-ref-insert-acronym-link)
+    ("ng" "New glossary term" org-ref-insert-link-menu--new-glossary-term :transient t)
+    ("na" "New acronym term" org-ref-insert-link-menu--new-acronym-term :transient t)]
+   ["Bibtex"
+    ("bd" "Add bibtex entry from a DOI" doi-add-bibtex-entry :transient t)
+    ("bc" "Add bibtex entry from Crossref" crossref-add-bibtex-entry :transient t)
+    ("bo" "Open bibtex file" org-ref-insert-link-menu--open-bibliography :transient t)]
+   ["Misc"
+    ("t" "List of tables" (lambda () (interactive)
+           (org-ref-insert-link-menu--insert-string "[[list-of-tables:]]\n"))
+     :transient t)
+    ("f" "List of figures" (lambda () (interactive)
+           (org-ref-insert-link-menu--insert-string "[[list-of-figures:]]\n"))
+     :transient t)
+    ("i" "Index entry" (lambda () (interactive)
+           (org-ref-insert-link-menu--insert-index
+            "Index entry: " "[[index:%s]]"))
+     :transient t)
+    ("pi" "Print index" (lambda () (interactive)
+            (org-ref-insert-link-menu--insert-string "[[printindex:]]"))
+     :transient t)
+    ("pg" "Print glossary" (lambda () (interactive)
+            (org-ref-insert-link-menu--insert-string "[[printglossaries:]]"))
+     :transient t)
+    ("q" "Quit" transient-quit-one)]])
+
+(define-obsolete-function-alias 'org-ref-insert-link-hydra/body
+  #'org-ref-insert-link-menu "3.1")
 
 
 ;;* org-ref-help

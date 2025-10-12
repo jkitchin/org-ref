@@ -53,16 +53,16 @@
 ;; org-ref-replace-nonascii :: replace nonascii characters in a bibtex
 ;; entry.  Replacements are in `org-ref-nonascii-latex-replacements'.
 ;;
-;; ** hydra menu for bibtex files
-;; `org-ref-bibtex-hydra/body' gives a hydra menu to a lot of useful functions.
-;; `org-ref-bibtex-new-entry/body' gives a hydra menu to add new bibtex entries.
-;; `org-ref-bibtex-file/body' gives a hydra menu of actions for the bibtex file
+;; ** Transient menu for bibtex files
+;; `org-ref-bibtex-entry-menu' gives access to many useful functions.
+;; `org-ref-bibtex-new-entry-menu' presents commands to add new bibtex entries.
+;; `org-ref-bibtex-file-menu' collects actions for entire bibtex files.
 ;;
 ;;; Code
 
 (require 'bibtex)
 (require 'dash)
-(require 'hydra)
+(require 'transient)
 (require 'message)
 (require 's)
 (require 'doi-utils)
@@ -817,132 +817,137 @@ a directory. Optional PREFIX argument toggles between
 
 ;;* Hydra menus
 ;;** Hydra menu for bibtex entries
-;; hydra menu for actions on bibtex entries
-(defhydra org-ref-bibtex-hydra (:color blue :hint nil)
-  "Bibtex actions:
-"
-  ;; Open-like actions
-  ("p" org-ref-open-bibtex-pdf "PDF" :column "Open")
-  ("n" org-ref-open-bibtex-notes "Notes" :column "Open")
-  ("b" org-ref-open-in-browser "URL" :column "Open")
-
-  ;; edit/modify
-  ("K" (lambda ()
-         (interactive)
-         (org-ref-set-bibtex-keywords
-          (read-string "Keywords: "
-                       (bibtex-autokey-get-field "keywords"))
-          t))
-   "Keywords" :column "Edit")
-  ("a" org-ref-replace-nonascii "Replace nonascii" :column "Edit")
-  ("s" org-ref-sort-bibtex-entry "Sort fields" :column "Edit")
-  ("T" org-ref-title-case-article "Title case" :column "Edit")
-  ("S" org-ref-sentence-case-article "Sentence case" :column "Edit")
-  ("U" (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi)) "Update entry" :column "Edit")
-  ("u" doi-utils-update-field "Update field" :column "Edit" :color red)
-  ("<backspace>" (cl--set-buffer-substring (line-beginning-position) (+ 1 (line-end-position)) "")
-   "Delete line" :column "Edit" :color red)
-  ("d" bibtex-kill-entry "Kill entry" :column "Edit")
-  ("L" org-ref-clean-bibtex-entry "Clean entry" :column "Edit")
-  ("A" org-ref-bibtex-assoc-pdf-with-entry "Add pdf" :column "Edit")
-  ("r" (lambda ()
-	 (interactive)
-         (bibtex-beginning-of-entry)
-         (bibtex-kill-entry)
-         (find-file (completing-read
-                     "Bibtex file: "
-		     (append bibtex-completion-bibliography
-			     (f-entries "." (lambda (f) (f-ext? f "bib"))))))
-         (goto-char (point-max))
-         (bibtex-yank)
-         (save-buffer)
-         (kill-buffer))
-   "Refile entry" :column "Edit")
-
-  ;; www
-  ("P" org-ref-bibtex-pubmed "Pubmed" :column "WWW")
-  ("w" org-ref-bibtex-wos "WOS" :column "WWW")
-  ("c" org-ref-bibtex-wos-citing "WOS citing" :column "WWW")
-  ("a" org-ref-bibtex-wos-related "WOS related" :column "WWW")
-  ("R" org-ref-bibtex-crossref "Crossref" :column "WWW")
-  ("g" org-ref-bibtex-google-scholar "Google Scholar" :column "WWW")
-  ("e" org-ref-email-bibtex-entry "Email" :column "WWW")
-
-
-  ;; Copy
-  ("o" (lambda ()
-	 (interactive)
-	 (bibtex-copy-entry-as-kill)
-	 (message "Use %s to paste the entry"
-		  (substitute-command-keys (format "\\[bibtex-yank]"))))
-   "Copy entry" :column "Copy")
-
-  ("y" (save-excursion
-	 (bibtex-beginning-of-entry)
-	 (when (looking-at bibtex-entry-maybe-empty-head)
-	   (kill-new (bibtex-key-in-head))))
-   "Copy key" :column "Copy")
-
-  ("f" (save-excursion
-	 (bibtex-beginning-of-entry)
-	 (kill-new (bibtex-completion-apa-format-reference
-		    (cdr (assoc "=key=" (bibtex-parse-entry t))))))
-   "Formatted entry" :column "Copy")
-
-  ;; Navigation
-  ("[" org-ref-bibtex-next-entry "Next entry" :column "Navigation" :color red)
-  ("]" org-ref-bibtex-previous-entry "Previous entry" :column "Navigation" :color red)
-  ("<down>" next-line "Next line" :column "Navigation" :color red)
-  ("<up>" previous-line "Previous line" :column "Navigation" :color red)
-  ("<next>" scroll-up-command "Scroll up" :column "Navigation" :color red)
-  ("<prior>" scroll-down-command "Scroll down" :column "Navigation" :color red)
-  ("v" org-ref-bibtex-visible-entry "Visible entry" :column "Navigation" :color red)
-  ("V" org-ref-bibtex-visible-field "Visible field" :column "Navigation" :color red)
-
-
-  ;; Miscellaneous
-  ("F" org-ref-bibtex-file/body "File hydra" :column "Misc")
-  ("N" org-ref-bibtex-new-entry/body "New entry" :column "Misc")
-  ("q" nil))
+;; transient menu for actions on bibtex entries
+(transient-define-prefix org-ref-bibtex-entry-menu ()
+  "Bibtex actions."
+  [["Open"
+    ("p" "PDF" org-ref-open-bibtex-pdf)
+    ("n" "Notes" org-ref-open-bibtex-notes)
+    ("b" "URL" org-ref-open-in-browser)]
+   ["Edit"
+    ("K" "Keywords" (lambda ()
+                      (interactive)
+                      (org-ref-set-bibtex-keywords
+                       (read-string "Keywords: "
+                                    (bibtex-autokey-get-field "keywords"))
+                       t)))
+    ("a" "Replace nonascii" org-ref-replace-nonascii)
+    ("s" "Sort fields" org-ref-sort-bibtex-entry)
+    ("T" "Title case" org-ref-title-case-article)
+    ("S" "Sentence case" org-ref-sentence-case-article)
+    ("U" "Update entry" (lambda ()
+                          (interactive)
+                          (doi-utils-update-bibtex-entry-from-doi (org-ref-bibtex-entry-doi))))
+    ("u" "Update field" doi-utils-update-field :transient t)
+    ("<backspace>" "Delete line" (lambda ()
+                                    (interactive)
+                                    (cl--set-buffer-substring
+                                     (line-beginning-position)
+                                     (1+ (line-end-position))
+                                     "")) :transient t)
+    ("d" "Kill entry" bibtex-kill-entry)
+    ("L" "Clean entry" org-ref-clean-bibtex-entry)
+    ("A" "Add pdf" org-ref-bibtex-assoc-pdf-with-entry)
+    ("r" "Refile entry" (lambda ()
+                          (interactive)
+                          (bibtex-beginning-of-entry)
+                          (bibtex-kill-entry)
+                          (find-file (completing-read
+                                     "Bibtex file: "
+                                     (append bibtex-completion-bibliography
+                                             (f-entries "." (lambda (f) (f-ext? f "bib"))))))
+                          (goto-char (point-max))
+                          (bibtex-yank)
+                          (save-buffer)
+                          (kill-buffer)))]
+   ["WWW"
+    ("P" "Pubmed" org-ref-bibtex-pubmed)
+    ("w" "WOS" org-ref-bibtex-wos)
+    ("c" "WOS citing" org-ref-bibtex-wos-citing)
+    ("a" "WOS related" org-ref-bibtex-wos-related)
+    ("R" "Crossref" org-ref-bibtex-crossref)
+    ("g" "Google Scholar" org-ref-bibtex-google-scholar)
+    ("e" "Email" org-ref-email-bibtex-entry)]
+   ["Copy"
+    ("o" "Copy entry" (lambda ()
+                        (interactive)
+                        (bibtex-copy-entry-as-kill)
+                        (message "Use %s to paste the entry"
+                                (substitute-command-keys (format "\\[bibtex-yank]")))))
+    ("y" "Copy key" (lambda ()
+                      (interactive)
+                      (save-excursion
+                        (bibtex-beginning-of-entry)
+                        (when (looking-at bibtex-entry-maybe-empty-head)
+                          (kill-new (bibtex-key-in-head))))))
+    ("f" "Formatted entry" (lambda ()
+                             (interactive)
+                             (save-excursion
+                               (bibtex-beginning-of-entry)
+                               (kill-new (bibtex-completion-apa-format-reference
+                                         (cdr (assoc "=key=" (bibtex-parse-entry t))))))))]
+   ["Navigation"
+    ("[" "Next entry" org-ref-bibtex-next-entry :transient t)
+    ("]" "Previous entry" org-ref-bibtex-previous-entry :transient t)
+    ("<down>" "Next line" next-line :transient t)
+    ("<up>" "Previous line" previous-line :transient t)
+    ("<next>" "Scroll up" scroll-up-command :transient t)
+    ("<prior>" "Scroll down" scroll-down-command :transient t)
+    ("v" "Visible entry" org-ref-bibtex-visible-entry :transient t)
+    ("V" "Visible field" org-ref-bibtex-visible-field :transient t)]
+   ["Misc"
+    ("F" "File menu" org-ref-bibtex-file-menu)
+    ("N" "New entry" org-ref-bibtex-new-entry-menu)
+    ("q" "Quit" transient-quit-one)]])
 
 
 (declare-function biblio-lookup "biblio")
 (declare-function arxiv-add-bibtex-entry "org-ref-arxiv")
 (declare-function doi-insert-bibtex "doi-utils")
 
-;;** Hydra menu for new bibtex entries
-;; A hydra for adding new bibtex entries.
-(defhydra org-ref-bibtex-new-entry (:color blue)
-  "New Bibtex entry:"
-  ("d" doi-insert-bibtex "from DOI" :column "Automatic")
-  ("c" crossref-add-bibtex-entry "from Crossref" :column "Automatic")
-  ("a" arxiv-add-bibtex-entry "From Arxiv" :column "Automatic")
-  ("b" biblio-lookup "From biblio" :column "Automatic")
-  ;; Bibtex types
-  ("ma" bibtex-Article "Article" :column "Manual")
-  ("mb" bibtex-Book "Book" :column "Manual")
-  ("mi" bibtex-InBook "In book" :column "Manual")
-  ("ml" bibtex-Booklet "Booklet" :column "Manual")
-  ("mP" bibtex-Proceedings "Proceedings" :column "Manual")
-  ("mp" bibtex-InProceedings "In proceedings" :column "Manual")
-  ("mm" bibtex-Misc "Misc." :column "Manual")
-  ("mM" bibtex-Manual "Manual" :column "Manual")
-  ("mT" bibtex-PhdThesis "PhD Thesis" :column "Manual")
-  ("mt" bibtex-MastersThesis "MS Thesis" :column "Manual")
-  ("mR" bibtex-TechReport "Report" :column "Manual")
-  ("mu" bibtex-Unpublished "unpublished" :column "Manual")
-  ("mc" bibtex-InCollection "Article in collection" :column "Manual")
-  ("q" nil "quit"))
+;;** Transient menu for new bibtex entries
+;; A transient for adding new bibtex entries.
+(transient-define-prefix org-ref-bibtex-new-entry-menu ()
+  "New Bibtex entry."
+  [["Automatic"
+    ("d" "from DOI" doi-insert-bibtex)
+    ("c" "from Crossref" crossref-add-bibtex-entry)
+    ("a" "From Arxiv" arxiv-add-bibtex-entry)
+    ("b" "From biblio" biblio-lookup)]
+   ["Manual"
+    ("ma" "Article" bibtex-Article)
+    ("mb" "Book" bibtex-Book)
+    ("mi" "In book" bibtex-InBook)
+    ("ml" "Booklet" bibtex-Booklet)
+    ("mP" "Proceedings" bibtex-Proceedings)
+    ("mp" "In proceedings" bibtex-InProceedings)
+    ("mm" "Misc." bibtex-Misc)
+    ("mM" "Manual" bibtex-Manual)
+    ("mT" "PhD Thesis" bibtex-PhdThesis)
+    ("mt" "MS Thesis" bibtex-MastersThesis)
+    ("mR" "Report" bibtex-TechReport)
+    ("mu" "unpublished" bibtex-Unpublished)
+    ("mc" "Article in collection" bibtex-InCollection)
+    ("q" "Quit" transient-quit-one)]])
 
 
-;;** Hydra menu of functions to act on a bibtex file.
-(defhydra org-ref-bibtex-file (:color blue)
-  "Bibtex file functions: "
-  ("v" bibtex-validate "Validate entries")
-  ("s" bibtex-sort-buffer "Sort entries")
-  ("r" bibtex-reformat "Reformat entries")
-  ("c" bibtex-count-entries "Count entries")
-  ("p" org-ref-build-full-bibliography "PDF bibliography"))
+;;** Transient menu of functions to act on a bibtex file.
+(transient-define-prefix org-ref-bibtex-file-menu ()
+  "Bibtex file functions."
+  [["Commands"
+    ("v" "Validate entries" bibtex-validate)
+    ("s" "Sort entries" bibtex-sort-buffer)
+    ("r" "Reformat entries" bibtex-reformat)
+    ("c" "Count entries" bibtex-count-entries)
+    ("p" "PDF bibliography" org-ref-build-full-bibliography)
+    ("q" "Quit" transient-quit-one)]])
+
+(define-obsolete-function-alias 'org-ref-bibtex-hydra/body
+  #'org-ref-bibtex-entry-menu "3.1")
+(define-obsolete-function-alias 'org-ref-bibtex-new-entry/body
+  #'org-ref-bibtex-new-entry-menu "3.1")
+(define-obsolete-function-alias 'org-ref-bibtex-file/body
+  #'org-ref-bibtex-file-menu "3.1")
 
 
 ;;* Email a bibtex entry

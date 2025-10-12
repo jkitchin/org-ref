@@ -41,8 +41,7 @@
 ;;
 
 ;;; Code:
-(eval-when-compile
-  (require 'hydra))
+(require 'transient)
 
 (defvar hfy-user-sheet-assoc)  		; to quiet compiler
 
@@ -614,23 +613,67 @@ I am not positive on this though."
 					 (org-at-heading-p)))))
 
 
-;; A hydra exporter with preprocessors
-(defhydradio org-ref ()
-  (natmove "natmove")
-  (citeproc "CSL citations")
-  (refproc "cross-references")
-  (acrossproc "Acronyms, glossary")
-  (idxproc "Index")
-  (bblproc "BBL citations"))
+;; A transient exporter with preprocessors
+(defvar org-ref/natmove nil
+  "Toggle for moving natbib citations before export.")
+
+(defvar org-ref/citeproc nil
+  "Toggle for running citeproc before export.")
+
+(defvar org-ref/refproc nil
+  "Toggle for running refproc before export.")
+
+(defvar org-ref/acrossproc nil
+  "Toggle for running acrossproc before export.")
+
+(defvar org-ref/idxproc nil
+  "Toggle for running idxproc before export.")
+
+(defvar org-ref/bblproc nil
+  "Toggle for running bblproc before export.")
+
+(defun org-ref-export--toggle (var)
+  (set var (not (symbol-value var)))
+  (message "%s %s"
+           (capitalize (replace-regexp-in-string "/" " " (symbol-name var)))
+           (if (symbol-value var) "enabled" "disabled"))
+  (symbol-value var))
+
+(defun org-ref-export-toggle-natmove ()
+  (interactive)
+  (org-ref-export--toggle 'org-ref/natmove))
+
+(defun org-ref-export-toggle-citeproc ()
+  (interactive)
+  (org-ref-export--toggle 'org-ref/citeproc))
+
+(defun org-ref-export-toggle-refproc ()
+  (interactive)
+  (org-ref-export--toggle 'org-ref/refproc))
+
+(defun org-ref-export-toggle-acrossproc ()
+  (interactive)
+  (org-ref-export--toggle 'org-ref/acrossproc))
+
+(defun org-ref-export-toggle-idxproc ()
+  (interactive)
+  (org-ref-export--toggle 'org-ref/idxproc))
+
+(defun org-ref-export-toggle-bblproc ()
+  (interactive)
+  (org-ref-export--toggle 'org-ref/bblproc))
+
+(defun org-ref-export--toggle-description (label var)
+  (format "%s %s" label (if (symbol-value var) "[on]" "[off]")))
 
 
-(defun org-ref-export-from-hydra (&optional arg)
-  "Run the export dispatcher with the desired hooks selected in `org-ref-export/body'."
+(defun org-ref-export-dispatch (&optional arg)
+  "Run the export dispatcher with the desired hooks selected in the export menu."
   (interactive "P")
 
   (when (and org-ref/citeproc org-ref/bblproc)
     (error "You cannot use CSL and BBL at the same time."))
-  
+
   (let ((org-export-before-parsing-functions org-export-before-parsing-functions))
     (when org-ref/citeproc
       (cl-pushnew 'org-ref-csl-preprocess-buffer org-export-before-parsing-functions))
@@ -648,28 +691,37 @@ I am not positive on this though."
       (unless (featurep 'org-ref-natbib-bbl-citeproc)
 	(require 'org-ref-natbib-bbl-citeproc))
       (cl-pushnew 'org-ref-bbl-preprocess org-export-before-parsing-functions))
-    
+
     ;; this goes last since it moves cites before they might get replaced.
     (when org-ref/natmove
       (cl-pushnew 'org-ref-cite-natmove org-export-before-parsing-functions))
 
     (org-export-dispatch arg)))
 
+(transient-define-prefix org-ref-export-menu ()
+  "Select export preprocessors and dispatch export."
+  [["Preprocessors"
+    ("n" org-ref-export-toggle-natmove :transient t
+     :description (lambda () (org-ref-export--toggle-description "natmove" 'org-ref/natmove)))
+    ("c" org-ref-export-toggle-citeproc :transient t
+     :description (lambda () (org-ref-export--toggle-description "citeproc" 'org-ref/citeproc)))
+    ("r" org-ref-export-toggle-refproc :transient t
+     :description (lambda () (org-ref-export--toggle-description "refproc" 'org-ref/refproc)))
+    ("a" org-ref-export-toggle-acrossproc :transient t
+     :description (lambda () (org-ref-export--toggle-description "acrossproc" 'org-ref/acrossproc)))
+    ("i" org-ref-export-toggle-idxproc :transient t
+     :description (lambda () (org-ref-export--toggle-description "idxproc" 'org-ref/idxproc)))
+    ("b" org-ref-export-toggle-bblproc :transient t
+     :description (lambda () (org-ref-export--toggle-description "bblproc" 'org-ref/bblproc)))]
+   ["Actions"
+    ("e" "Export" org-ref-export-dispatch)
+    ("q" "Quit" transient-quit-one)]])
 
-(defhydra org-ref-export (:color red)
-  "
-_C-n_: natmove % -15`org-ref/natmove       _C-c_: citeproc % -15`org-ref/citeproc^^^  _C-r_: refproc % -15`org-ref/refproc^^^
-_C-a_: acrossproc % -15`org-ref/acrossproc    _C-i_: idxproc % -15`org-ref/idxproc^^^   _C-b_: bblproc % -15`org-ref/bblproc^^^
-"
-  ("C-n" (org-ref/natmove) nil)
-  ("C-c" (org-ref/citeproc) nil)
-  ("C-r" (org-ref/refproc) nil)
-  ("C-a" (org-ref/acrossproc) nil)
-  ("C-i" (org-ref/idxproc) nil)
-  ("C-b" (org-ref/bblproc) nil)
+(define-obsolete-function-alias 'org-ref-export/body
+  #'org-ref-export-menu "3.1")
 
-  ("e" org-ref-export-from-hydra "Export" :color blue)
-  ("q" nil "quit"))
+(define-obsolete-function-alias 'org-ref-export-from-hydra
+  #'org-ref-export-dispatch "3.1")
 
 (provide 'org-ref-export)
 

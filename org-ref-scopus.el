@@ -22,14 +22,14 @@
 ;;  See http://dev.elsevier.com/index.html for more information about the Scopus API
 ;;
 ;; New org-links:
-;; eid:2-s2.0-72649092395 with a hydra menu
+;; eid:2-s2.0-72649092395 with a transient menu
 ;; [[scopus-search:alloy Au segregation]]
 ;; [[scopus-advanced-search:au-id(24176978500)]]
 
 ;;; Code:
 
 (require 'org)
-(require 'hydra)
+(require 'transient)
 (require 'xml)
 (require 'org-ref-utils)
 
@@ -142,28 +142,45 @@ Requires `*scopus-api-key*' to be defined."
 
 
 ;;; Org-mode EID link and an action menu
-;; These functions use a global var *hydra-eid*
-(defvar *hydra-eid* nil
-  "Global variable to pass an EID from an ‘org-mode’ link to a hydra function.")
+;; These functions use a global var to track the current EID.
+(defvar org-ref-scopus--current-eid nil
+  "Global variable to pass an EID from an `org-mode' link to a transient function.")
 
+(define-obsolete-variable-alias '*hydra-eid* 'org-ref-scopus--current-eid "3.1")
 
-(defhydra scopus-hydra (:color blue)
-  ("o" (scopus-open-eid *hydra-eid*) "Open in Scopus")
-  ("a" (browse-url (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=aut&zone=relatedDocuments" *hydra-eid*))
-   "Related by author")
-  ("k" (browse-url (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=key&zone=relatedDocuments" *hydra-eid*))
-   "Related by keyword")
-  ("r" (browse-url (format "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=ref&zone=relatedDocuments" *hydra-eid*))
-   "Related by references")
-  ("c" (browse-url (format "http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite=%s&src=s&imp=t&sot=cite&sdt=a&sl=0&origin=recordpage" *hydra-eid*))
-   "Citing articles"))
+(transient-define-prefix org-ref-scopus-menu ()
+  "Scopus actions for the current EID."
+  [["Open"
+    ("o" "Open in Scopus" (lambda () (interactive) (scopus-open-eid org-ref-scopus--current-eid)))]
+   ["Related"
+    ("a" "Related by author" (lambda () (interactive)
+           (browse-url (format
+                        "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=aut&zone=relatedDocuments"
+                        org-ref-scopus--current-eid))))
+    ("k" "Related by keyword" (lambda () (interactive)
+           (browse-url (format
+                        "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=key&zone=relatedDocuments"
+                        org-ref-scopus--current-eid))))
+    ("r" "Related by references" (lambda () (interactive)
+           (browse-url (format
+                        "http://www.scopus.com/search/submit/mlt.url?eid=%s&src=s&all=true&origin=recordpage&method=ref&zone=relatedDocuments"
+                        org-ref-scopus--current-eid))))
+    ("c" "Citing articles" (lambda () (interactive)
+           (browse-url (format
+                        "http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite=%s&src=s&imp=t&sot=cite&sdt=a&sl=0&origin=recordpage"
+                        org-ref-scopus--current-eid))))]
+   ["Quit"
+    ("q" "Quit" transient-quit-one)]])
+
+(define-obsolete-function-alias 'scopus-hydra/body
+  #'org-ref-scopus-menu "3.1")
 
 
 (org-link-set-parameters "eid"
 			 :follow (lambda (eid)
-				   "Opens the hydra menu."
-				   (setq *hydra-eid* eid)
-				   (scopus-hydra/body))
+				   "Opens the transient menu."
+				   (setq org-ref-scopus--current-eid eid)
+				   (org-ref-scopus-menu))
 			 :export (lambda (keyword desc format)
 				   (cond
 				    ((eq format 'html)

@@ -60,7 +60,7 @@
 (require 'url-http)
 (require 'url-handlers)
 (require 'org-ref-utils)
-(require 'hydra)
+(require 'transient)
 
 ;;* Customization
 (defgroup doi-utils nil
@@ -1454,23 +1454,40 @@ May be empty if none are found."
 
 (declare-function org-element-property "org-element")
 
-(defhydra doi-link-follow (:color blue :hint nil)
-  "DOI actions:
-"
-  ("o" (doi-utils-open (org-element-property :path (org-element-context))) "open")
-  ("w" (doi-utils-wos (org-element-property :path (org-element-context))) "wos")
-  ("c" (doi-utils-wos-citing (org-element-property :path (org-element-context))) "wos citing articles")
-  ("r" (doi-utils-wos-related (org-element-property :path (org-element-context))) "wos related articles" )
-  ("a" (doi-utils-ads (org-element-property :path (org-element-context))) "ads")
-  ("s" (doi-utils-google-scholar (org-element-property :path (org-element-context))) "Google Scholar")
-  ("f" (doi-utils-crossref (org-element-property :path (org-element-context))) "CrossRef")
-  ("p" (doi-utils-pubmed (org-element-property :path (org-element-context))) "Pubmed")
-  ("b" (doi-utils-open-bibtex (org-element-property :path (org-element-context))) "open in bibtex")
-  ("g" (doi-utils-add-bibtex-entry-from-doi (org-element-property :path (org-element-context))) "get bibtex entry"))
+(defun doi-utils--context-doi ()
+  (org-element-property :path (org-element-context)))
+
+(transient-define-prefix doi-link-follow-menu ()
+  "DOI actions."
+  [["Actions"
+    ("o" "open" (lambda () (interactive)
+                  (doi-utils-open (doi-utils--context-doi))))
+    ("w" "wos" (lambda () (interactive)
+                 (doi-utils-wos (doi-utils--context-doi))))
+    ("c" "wos citing articles" (lambda () (interactive)
+                                  (doi-utils-wos-citing (doi-utils--context-doi))))
+    ("r" "wos related articles" (lambda () (interactive)
+                                   (doi-utils-wos-related (doi-utils--context-doi))))
+    ("a" "ads" (lambda () (interactive)
+                 (doi-utils-ads (doi-utils--context-doi))))
+    ("s" "Google Scholar" (lambda () (interactive)
+                            (doi-utils-google-scholar (doi-utils--context-doi))))
+    ("f" "CrossRef" (lambda () (interactive)
+                      (doi-utils-crossref (doi-utils--context-doi))))
+    ("p" "Pubmed" (lambda () (interactive)
+                    (doi-utils-pubmed (doi-utils--context-doi))))
+    ("b" "open in bibtex" (lambda () (interactive)
+                             (doi-utils-open-bibtex (doi-utils--context-doi))))
+    ("g" "get bibtex entry" (lambda () (interactive)
+                               (doi-utils-add-bibtex-entry-from-doi (doi-utils--context-doi))))
+    ("q" "quit" transient-quit-one)]])
+
+(define-obsolete-function-alias 'doi-link-follow/body
+  #'doi-link-follow-menu "3.1")
 
 
 (org-link-set-parameters "doi"
-			 :follow (lambda (_) (doi-link-follow/body))
+			 :follow (lambda (_) (doi-link-follow-menu))
 			 :export (lambda (doi desc format)
 				   (cond
 				    ((eq format 'html)

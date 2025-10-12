@@ -25,7 +25,7 @@
 ;; `user-mail-address' value will be added to the queries if it exists so you
 ;; will get the polite pool.
 ;;
-;; This library extends the `org-ref-citation-hydra' and adds keys to get to
+;; This library extends the `org-ref-citation-menu' and adds keys to get to
 ;; cited by, references and related documents in OpenAlex.
 
 (require 'dash)
@@ -666,12 +666,15 @@ With prefix arg ASCENDING sort from low to high."
     (browse-url (plist-get data :id))))
 
 
-(defhydra+ org-ref-citation-hydra ()
-  "Add open from action to `org-ref-citation-hydra'."
-  ("xa" oa-open "Open in OpenAlex" :column "OpenAlex")
-  ("xr" oa-related-works "Related documents" :column "OpenAlex")
-  ("xc" oa-cited-by-works "Cited by documents" :column "OpenAlex")
-  ("xf" oa-referenced-works "References from" :column "OpenAlex"))
+(with-eval-after-load 'org-ref-citation-links
+  (transient-append-suffix 'org-ref-citation-menu "u"
+    '("xa" "Open in OpenAlex" oa-open))
+  (transient-append-suffix 'org-ref-citation-menu "xa"
+    '("xr" "Related documents" oa-related-works))
+  (transient-append-suffix 'org-ref-citation-menu "xr"
+    '("xc" "Cited by documents" oa-cited-by-works))
+  (transient-append-suffix 'org-ref-citation-menu "xc"
+    '("xf" "References from" oa-referenced-works)))
 
 
 ;; * Author object

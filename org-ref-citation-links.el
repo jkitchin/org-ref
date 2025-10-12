@@ -28,8 +28,8 @@
 ;; indicate the pre/post-note structure. They also have tooltips that show
 ;; information from the bibtex entry.
 ;;
-;; Each link is functional, and clicking on one will open a hydra menu
-;; `org-ref-citation-hydra/body' of actions that range from opening the bibtex
+;; Each link is functional, and clicking on one will open a transient menu
+;; `org-ref-citation-menu' of actions that range from opening the bibtex
 ;; entry, notes, pdf or associated URL, to searching the internet for related
 ;; articles.
 ;;
@@ -48,7 +48,7 @@
 ;;
 ;;; Code:
 (require 'org-keys)
-(require 'hydra)
+(require 'transient)
 (require 'xref)
 (require 's)
 (require 'dash)
@@ -519,64 +519,67 @@ PATH has the citations in it."
 
 (declare-function org-ref-get-bibtex-key-and-file "org-ref-core")
 
-(defhydra org-ref-citation-hydra (:color blue :hint nil)
-  "Citation actions
-"
-  ("o" org-ref-open-citation-at-point  "Bibtex" :column "Open")
-  ("p" org-ref-open-pdf-at-point "PDF" :column "Open")
-  ("n" org-ref-open-notes-at-point "Notes" :column "Open")
-  ("u" org-ref-open-url-at-point "URL" :column "Open")
-
-  ;; WWW actions
-  ("ww" org-ref-wos-at-point "WOS" :column "WWW")
-  ("wr" org-ref-wos-related-at-point "WOS related" :column "WWW")
-  ("wc" org-ref-wos-citing-at-point "WOS citing" :column "WWW")
-  ("wg" org-ref-google-scholar-at-point "Google Scholar" :column "WWW")
-  ("wp" org-ref-pubmed-at-point "Pubmed" :column "WWW")
-  ("wf" org-ref-crossref-at-point "Crossref" :column "WWW")
-  ("wb" org-ref-biblio-at-point "Biblio" :column "WWW")
-  ("e" org-ref-email-at-point "Email" :column "WWW")
-
-  ;; Copyish actions
-  ("K" (save-window-excursion
-	 (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
-	   (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))
-	   (bibtex-copy-entry-as-kill)
-	   (kill-new (pop bibtex-entry-kill-ring))))
-   "Copy bibtex" :column "Copy")
-  ("a" org-ref-add-pdf-at-point "add pdf to library" :column "Copy")
-  ("k" (kill-new (car (org-ref-get-bibtex-key-and-file))) "Copy key" :column "Copy")
-  ("f" (kill-new (bibtex-completion-apa-format-reference
-		  (org-ref-get-bibtex-key-under-cursor)))
-   "Copy formatted" :column "Copy")
-  ("h" (kill-new
-	(format "* %s\n\n cite:&%s"
-		(bibtex-completion-apa-format-reference
-		 (org-ref-get-bibtex-key-under-cursor))
-		(car (org-ref-get-bibtex-key-and-file))))
-   "Copy org heading"
-   :column "Copy")
-
-  ;; Editing actions
-  ("<left>" org-ref-cite-shift-left "Shift left" :color red :column "Edit")
-  ("<right>" org-ref-cite-shift-right "Shift right" :color red :column "Edit")
-  ("<up>" org-ref-sort-citation-link "Sort by year" :column "Edit")
-  ("i" (funcall org-ref-insert-cite-function) "Insert cite" :column "Edit")
-  ("t" org-ref-change-cite-type "Change cite type" :column "Edit")
-  ("d" org-ref-delete-citation-at-point "Delete at point" :column "Edit")
-  ("r" org-ref-replace-citation-at-point "Replace cite" :column "Edit")
-  ("P" org-ref-edit-pre-post-notes "Edit pre/suffix" :column "Edit")
-
-  ;; Navigation
-  ("[" org-ref-previous-key "Previous key" :column "Navigation" :color red)
-  ("]"  org-ref-next-key "Next key" :column "Navigation" :color red)
-  ("v" org-ref-jump-to-visible-key "Visible key" :column "Navigation" :color red)
-  ("q" nil "Quit"))
+(transient-define-prefix org-ref-citation-menu ()
+  "Citation actions."
+  [["Open"
+    ("o" "Bibtex" org-ref-open-citation-at-point)
+    ("p" "PDF" org-ref-open-pdf-at-point)
+    ("n" "Notes" org-ref-open-notes-at-point)
+    ("u" "URL" org-ref-open-url-at-point)]
+   ["WWW"
+    ("ww" "WOS" org-ref-wos-at-point)
+    ("wr" "WOS related" org-ref-wos-related-at-point)
+    ("wc" "WOS citing" org-ref-wos-citing-at-point)
+    ("wg" "Google Scholar" org-ref-google-scholar-at-point)
+    ("wp" "Pubmed" org-ref-pubmed-at-point)
+    ("wf" "Crossref" org-ref-crossref-at-point)
+    ("wb" "Biblio" org-ref-biblio-at-point)
+    ("e" "Email" org-ref-email-at-point)]
+   ["Copy"
+    ("K" "Copy bibtex" (lambda ()
+                         (interactive)
+                         (save-window-excursion
+                           (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+                             (bibtex-completion-show-entry (list (org-ref-get-bibtex-key-under-cursor)))
+                             (bibtex-copy-entry-as-kill)
+                             (kill-new (pop bibtex-entry-kill-ring))))))
+    ("a" "Add pdf to library" org-ref-add-pdf-at-point)
+    ("k" "Copy key" (lambda ()
+                      (interactive)
+                      (kill-new (car (org-ref-get-bibtex-key-and-file)))))
+    ("f" "Copy formatted" (lambda ()
+                            (interactive)
+                            (kill-new (bibtex-completion-apa-format-reference
+                                      (org-ref-get-bibtex-key-under-cursor)))))
+    ("h" "Copy org heading" (lambda ()
+                              (interactive)
+                              (kill-new
+                               (format "* %s\n\n cite:&%s"
+                                       (bibtex-completion-apa-format-reference
+                                        (org-ref-get-bibtex-key-under-cursor))
+                                       (car (org-ref-get-bibtex-key-and-file))))))]
+   ["Edit"
+    ("<left>" "Shift left" org-ref-cite-shift-left :transient t)
+    ("<right>" "Shift right" org-ref-cite-shift-right :transient t)
+    ("<up>" "Sort by year" org-ref-sort-citation-link)
+    ("i" "Insert cite" (lambda () (interactive) (funcall org-ref-insert-cite-function)))
+    ("t" "Change cite type" org-ref-change-cite-type)
+    ("d" "Delete at point" org-ref-delete-citation-at-point)
+    ("r" "Replace cite" org-ref-replace-citation-at-point)
+    ("P" "Edit pre/suffix" org-ref-edit-pre-post-notes)]
+   ["Navigation"
+    ("[" "Previous key" org-ref-previous-key :transient t)
+    ("]" "Next key" org-ref-next-key :transient t)
+    ("v" "Visible key" org-ref-jump-to-visible-key :transient t)
+    ("q" "Quit" transient-quit-one)]])
 
 
 (defun org-ref-cite-follow (_path)
   "Follow a cite link."
-  (org-ref-citation-hydra/body))
+  (org-ref-citation-menu))
+
+(define-obsolete-function-alias 'org-ref-citation-hydra/body
+  #'org-ref-citation-menu "3.1")
 
 
 ;; * Citation links tooltips
