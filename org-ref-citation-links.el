@@ -51,7 +51,6 @@
 (require 'transient)
 (require 'xref)
 (require 's)
-(require 'dash)
 (eval-when-compile (require 'subr-x))
 
 (defvar bibtex-completion-cache)
@@ -858,7 +857,7 @@ Use with apply-partially."
 	(setq i (seq-position references key (lambda (el key)
 					       (string= key (plist-get el :key)))))
 	;; delete i'th reference
-	(setq references (-remove-at i references))
+	(setq references (org-ref--remove-at i references))
 	(setq data (plist-put data :references references))
 	(save-excursion
 	  (goto-char begin)
@@ -1316,7 +1315,7 @@ Rules:
 				  (string= key-at-point (plist-get el1 :key)))))
 
       (setq data (plist-put data :references
-			    (-insert-at
+			    (org-ref--insert-at
 			     (+ index (if (and (= 3 version) (looking-at "&"))
 					  0
 					1))

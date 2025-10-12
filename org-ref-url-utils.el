@@ -272,7 +272,7 @@ Fields include author, title, url, urldate, and year."
   "Convert URL to a bibtex or biblatex entry in BIBFILE.
 If URL is the first in the kill ring, use it. Otherwise, prompt for
 one in the minibuffer."
-  (interactive (if (-contains? (org-ref-find-bibliography) (buffer-file-name))
+  (interactive (if (member (buffer-file-name) (org-ref-find-bibliography))
 		   (list (buffer-file-name))
 		 (list (completing-read "Bibtex file: " (org-ref-find-bibliography)))))
   (let ((url (if url url

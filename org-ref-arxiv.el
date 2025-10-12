@@ -26,7 +26,6 @@
 
 ;;; Code:
 (require 'bibtex)
-(require 'dash)
 (require 'f)
 (require 'org)
 (require 's)
@@ -121,8 +120,8 @@ Returns a formatted BibTeX entry."
                                (match-beginning 0))
                         (point-max)))
            (entry (assq 'entry parse-tree))
-           (authors (--map (nth 2 (nth 2 it))
-                           (--filter (and (listp it) (eq (car it) 'author)) entry)))
+           (authors (mapcar (lambda (it) (nth 2 (nth 2 it)))
+                           (seq-filter (lambda (it) (and (listp it) (eq (car it) 'author))) entry)))
            (year (format-time-string "%Y" (date-to-time (nth 2 (assq 'published entry)))))
            (title (nth 2 (assq 'title entry)))
            (names (arxiv-bibtexify-authors authors))
@@ -146,8 +145,10 @@ Returns a formatted BibTeX entry."
 (defun arxiv-bibtexify-authors (authors)
   "Return names in 'SURNAME, FIRST NAME' format from AUTHORS list."
   (s-join " and "
-          (--map (concat (-last-item it) ", " (s-join " " (-remove-last 'stringp it)))
-                 (--map (s-split " +" it) authors))))
+          (mapcar (lambda (it)
+                    (concat (car (last it)) ", "
+                            (s-join " " (butlast it))))
+                  (mapcar (lambda (it) (s-split " +" it)) authors))))
 
 
 (defun arxiv-maybe-arxiv-id-from-current-kill ()

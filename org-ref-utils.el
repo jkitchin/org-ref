@@ -37,6 +37,49 @@
 (declare-function 'org-ref-get-bibtex-key-under-cursor "org-ref-core.el")
 
 ;;; Code:
+
+;;** Dash.el replacement utilities
+
+;; These functions replace dash.el dependencies with native Emacs equivalents.
+;; They use seq.el (Emacs 25+) and cl-lib (built-in).
+
+(defun org-ref--flatten-list (list)
+  "Flatten nested LIST structure.
+Compatible replacement for dash's `-flatten'.
+For Emacs 27+, consider using `flatten-tree' instead."
+  (cond ((null list) nil)
+        ((listp list)
+         (append (org-ref--flatten-list (car list))
+                 (org-ref--flatten-list (cdr list))))
+        (t (list list))))
+
+(defun org-ref--split-at (n list)
+  "Split LIST at position N, returning (FIRST REST).
+Compatible replacement for dash's `-split-at'."
+  (list (seq-take list n) (seq-drop list n)))
+
+(defun org-ref--remove-at-indices (indices list)
+  "Remove elements at INDICES from LIST.
+Compatible replacement for dash's `-remove-at-indices'."
+  (cl-loop for item in list
+           for i from 0
+           unless (member i indices)
+           collect item))
+
+(defun org-ref--remove-at (index list)
+  "Remove element at INDEX from LIST.
+Compatible replacement for dash's `-remove-at'."
+  (append (seq-take list index)
+          (seq-drop list (1+ index))))
+
+(defun org-ref--insert-at (index element list)
+  "Insert ELEMENT at INDEX in LIST.
+Compatible replacement for dash's `-insert-at'."
+  (append (seq-take list index)
+          (list element)
+          (seq-drop list index)))
+
+;;** org-ref functions
 ;;;###autoload
 (defun org-ref-version ()
   "Provide a version string for org-ref.
@@ -635,7 +678,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	  (when (assoc (plist-get plist ':type)  org-ref-ref-types)
 	    (cl-loop for label in (split-string (plist-get plist :path) ",")
 		     do
-		     (unless (-contains? labels label)
+		     (unless (member label labels)
 		       (goto-char (org-element-property :begin link))
 		       (add-to-list
 			'bad-refs
@@ -653,7 +696,7 @@ if FORCE is non-nil reparse the buffer no matter what."
        (goto-char (point-min))
        (while (re-search-forward rx nil t)
 	 (cl-pushnew (match-string-no-properties 1) labels))))
-    (-count (lambda (x) (and (stringp x) (string= x label))) labels)))
+    (cl-count-if (lambda (x) (and (stringp x) (string= x label))) labels)))
 
 
 (defun org-ref-bad-label-candidates ()
@@ -883,7 +926,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 	     bib-candidates)))))
 
     ;; check for multiple bibliography links
-    (let* ((bib-links (-filter
+    (let* ((bib-links (seq-filter
                        (lambda (el)
 			 (string= (org-element-property :type el) "bibliography"))
                        (org-element-map (org-element-parse-buffer) 'link 'identity)))
@@ -1014,7 +1057,7 @@ if FORCE is non-nil reparse the buffer no matter what."
 			    (org-element-property :path el))))))
 	    (cl-loop for (label . p) in matches
 		     do
-		     (when (and label (not (-contains? refs label)))
+		     (when (and label (not (member label refs)))
 		       (cl-pushnew
 			(cons label (set-marker (make-marker) p))
 			unreferenced-labels)))))))

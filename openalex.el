@@ -28,11 +28,11 @@
 ;; This library extends the `org-ref-citation-menu' and adds keys to get to
 ;; cited by, references and related documents in OpenAlex.
 
-(require 'dash)
 (require 's)
 (require 'request)
 (require 'doi-utils)
 (require 'org-ref-citation-links)
+(require 'org-ref-utils)
 
 (declare-function org-ref-possible-bibfiles "org-ref-core")
 (declare-function org-ref-find-bibliography "org-ref-core")
@@ -457,7 +457,7 @@ elisp:org-columns    elisp:org-columns-quit
 	 split
 	 entries)
     (while related-work
-      (setq split (-split-at 25 related-work)
+      (setq split (org-ref--split-at 25 related-work)
 	    related-work (nth 1 split))
 
       ;; split is what we process now
@@ -501,7 +501,7 @@ Found ${nentries} results.
 	 split
 	 (entries '()))
     (while referenced-work
-      (setq split (-split-at 25 referenced-work)
+      (setq split (org-ref--split-at 25 referenced-work)
 	    referenced-work (nth 1 split))
       ;; split is what we process now
       (setq entries (append entries

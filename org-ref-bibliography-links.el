@@ -257,7 +257,7 @@ Returns `org-ref-bst-styles' or sets it and returns it."
       (setq org-ref-bst-styles
 	    (mapcar 'file-name-nondirectory
 		    (mapcar 'file-name-sans-extension
-			    (-flatten
+			    (org-ref--flatten-list
 			     (mapcar (lambda (path)
 				       (setq path (replace-regexp-in-string "!" "" path))
 				       (when (file-directory-p path)

@@ -61,7 +61,6 @@
 ;;; Code
 
 (require 'bibtex)
-(require 'dash)
 (require 'transient)
 (require 'message)
 (require 's)
@@ -513,8 +512,7 @@ books."
 				  word)
 				 ;; these words should not be capitalized, unless they
 				 ;; are the first word
-				 ((-contains? org-ref-lower-case-words
-					      (s-downcase word))
+				 ((member (s-downcase word) org-ref-lower-case-words)
 				  (s-downcase word))
 				 ;; Words that are quoted
 				 ((s-starts-with? "\"" word)
@@ -524,7 +522,7 @@ books."
 			      words))
 
 		 ;; Check if first word should be capitalized
-		 (when (-contains? org-ref-lower-case-words (car words))
+		 (when (member (car words) org-ref-lower-case-words)
 		   (setf (car words) (s-capitalize (car words))))
 
 		 (setq title (mapconcat 'identity words " "))
@@ -1156,7 +1154,7 @@ will clobber the file."
 
     ;;these are the other fields in the entry, and we sort them alphabetically.
     (setq other-fields
-	  (sort (-remove (lambda(x) (member x field-order)) entry-fields)
+	  (sort (cl-remove-if (lambda(x) (member x field-order)) entry-fields)
 		'string<))
 
     (save-restriction
@@ -1176,7 +1174,7 @@ will clobber the file."
 		  (cl-loop for (f . v) in entry concat
 			   (when (string= f field)
 			     (format "%s = %s,\n" f v))))
-	        (-uniq other-fields) "\n")
+	        (delete-dups other-fields) "\n")
 	       "\n}"))
       (bibtex-search-entry key)
       (bibtex-fill-entry)
@@ -1371,7 +1369,7 @@ If not, issue a warning."
              (journal (cdr (assoc "journal" entry))))
         (when (null journal)
           (warn "Unable to get journal for this entry."))
-        (unless (member journal (-flatten org-ref-bibtex-journal-abbreviations))
+        (unless (member journal (org-ref--flatten-list org-ref-bibtex-journal-abbreviations))
           (message "Journal \"%s\" not found in org-ref-bibtex-journal-abbreviations." journal))))))
 
 

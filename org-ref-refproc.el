@@ -180,7 +180,7 @@ environments)."
 						name)))))))))
     ;; the align equation environment needs to be flattened
     (cl-loop for type in referencables
-	     collect (cons (car type) (-flatten (cdr type))))))
+	     collect (cons (car type) (org-ref--flatten-list (cdr type))))))
 
 
 (defun org-ref-refproc-get-type (label referenceables)

@@ -35,7 +35,6 @@
 
 (require 'org-element)
 
-(require 'dash)
 (require 'f)
 (require 's)
 
@@ -188,7 +187,7 @@ set in `bibtex-completion-bibliography'"
 
 (defun org-ref-possible-bibfiles ()
   "Make a unique list of possible bibliography files for completing-read"
-  (-uniq
+  (delete-dups
    (append
     ;; see if we should add it to a bib-file defined in the file
     (org-ref-find-bibliography)

@@ -50,7 +50,6 @@
 (eval-when-compile
   (require 'cl-lib))
 (require 'bibtex)
-(require 'dash)
 (require 'json)
 (require 'org)                          ; org-add-link-type
 
@@ -309,7 +308,7 @@ https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/anie.201310461?download=tr
       (setq p2 (replace-regexp-in-string
                 "^http\\(s?\\)://scitation.aip.org/" "" *doi-utils-redirect*))
       (setq s (split-string p2 "/"))
-      (setq p1 (mapconcat 'identity (-remove-at-indices '(0 6) s) "/"))
+      (setq p1 (mapconcat 'identity (org-ref--remove-at-indices '(0 6) s) "/"))
       (setq p3 (concat "/" (nth 0 s) (nth 1 s) "/" (nth 2 s) "/" (nth 3 s)))
       (format "http://scitation.aip.org/deliver/fulltext/%s.pdf?itemId=/%s&mimeType=pdf&containerItemId=%s"
               p1 p2 p3))))
@@ -1056,7 +1055,7 @@ MATCHING-TYPES."
                            fields)
                (concat
                 ,@(doi-utils-concat-prepare
-                   (-flatten
+                   (org-ref--flatten-list
                     (list (concat "@" (symbol-name name) "{,\n")
                           ;; there seems to be some bug with mapcan,
                           ;; so we fall back to flatten
@@ -1097,7 +1096,7 @@ MATCHING-TYPES."
   (let* ((results (funcall doi-utils-metadata-function doi))
          (type (plist-get results :type)))
     ;; (format "%s" results) ; json-data
-    (or (-some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
+    (or (cl-some (lambda (g) (funcall g type results)) doi-utils-bibtex-type-generators)
         (message "%s not supported yet\n%S." type results))))
 
 ;; That is just the string for the entry. To be useful, we need a function that
@@ -1252,7 +1251,7 @@ Optional argument NODELIM see `bibtex-make-field'."
 
 (defun plist-get-keys (plist)
   "Return keys in a PLIST."
-  (-slice plist 0 nil 2))
+  (cl-loop for (key _value) on plist by #'cddr collect key))
 
 
 ;;;###autoload

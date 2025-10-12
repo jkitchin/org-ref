@@ -52,7 +52,7 @@ Ignore figures in COMMENTED sections."
 			   (goto-char (org-element-property :begin link))
 			   (not (or (org-in-commented-heading-p)
 				    (org-at-comment-p)
-				    (-intersection (org-get-tags) org-export-exclude-tags)))))
+				    (seq-intersection (org-get-tags) org-export-exclude-tags)))))
 		  (cl-incf counter)
 
 		  (let* ((start (org-element-property :begin link))
@@ -112,7 +112,7 @@ ARG does nothing."
 		  (when
 		      ;; ignore commented sections
 		      (not (or (org-in-commented-heading-p)
-			       (-intersection (org-get-tags) org-export-exclude-tags)
+			       (seq-intersection (org-get-tags) org-export-exclude-tags)
 			       (looking-at "#\\+RESULTS:") ))
 		    (cl-incf counter)
 		    (let* ((start (org-element-property :begin table))
