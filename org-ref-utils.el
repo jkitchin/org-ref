@@ -594,8 +594,14 @@ if FORCE is non-nil reparse the buffer no matter what."
                             (lambda (x)
                               (file-name-directory (file-truename x)))
                             bibtex-files ":"))
-         (bibtex-keys (mapcar (lambda (x) (car x))
-                              (bibtex-global-key-alist)))
+         (bibtex-key-alist (bibtex-global-key-alist))
+         ;; Handle both old alist format and new completion table format
+         (bibtex-keys (if (functionp bibtex-key-alist)
+                          ;; New format: completion table (function)
+                          ;; Call with nil to get all completions
+                          (all-completions "" bibtex-key-alist)
+                        ;; Old format: alist
+                        (mapcar (lambda (x) (car x)) bibtex-key-alist)))
          (bad-citations '()))
 
     (org-element-map (org-ref-parse-buffer) 'link
