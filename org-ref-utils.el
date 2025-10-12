@@ -115,6 +115,41 @@ Compatible replacement for s-match."
         (setq i (1+ i)))
       (nreverse result))))
 
+;;** F.el replacement utilities
+
+;; These functions replace f.el dependencies with native Emacs equivalents.
+;; Uses file-name-extension, directory-files, and file-name-concat (Emacs 28+).
+
+(defun org-ref--file-ext-p (file ext)
+  "Return t if FILE has extension EXT.
+EXT should not include the dot and comparison is case-insensitive.
+Compatible replacement for f-ext?."
+  (when file
+    (string= (downcase (or (file-name-extension file) ""))
+             (downcase ext))))
+
+(defun org-ref--directory-files (directory predicate)
+  "Return files in DIRECTORY matching PREDICATE.
+PREDICATE is a function that takes a filename and returns non-nil
+if the file should be included. Excludes . and .. entries.
+Compatible replacement for f-entries."
+  (when (file-directory-p directory)
+    (seq-filter predicate
+                (directory-files directory t "^[^.]"))))
+
+(defun org-ref--file-join (&rest parts)
+  "Join PARTS into a file path.
+Uses file-name-concat if available (Emacs 28+), otherwise uses
+expand-file-name for compatibility with older Emacs versions.
+Compatible replacement for f-join."
+  (if (fboundp 'file-name-concat)
+      (apply #'file-name-concat parts)
+    ;; Fallback for Emacs < 28
+    (let ((path (car parts)))
+      (dolist (part (cdr parts))
+        (setq path (expand-file-name part path)))
+      path)))
+
 ;;** org-ref functions
 ;;;###autoload
 (defun org-ref-version ()

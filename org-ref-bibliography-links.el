@@ -261,7 +261,7 @@ Returns `org-ref-bst-styles' or sets it and returns it."
 			     (mapcar (lambda (path)
 				       (setq path (replace-regexp-in-string "!" "" path))
 				       (when (file-directory-p path)
-					 (f-entries path (lambda (f) (f-ext? f "bst")))))
+					 (org-ref--directory-files path (lambda (f) (org-ref--file-ext-p f "bst")))))
 				     (split-string
 				      ;; https://tex.stackexchange.com/questions/431948/get-a-list-of-installed-bibliography-styles-with-kpsewhich?noredirect=1#comment1082436_431948
 				      (shell-command-to-string "kpsewhich -expand-path '$BSTINPUTS'")

@@ -43,8 +43,8 @@
 (declare-function org-bibtex-yank "org-bibtex")
 (declare-function org-ref-possible-bibfiles "org-ref-core")
 
-(declare-function f-ext? "f")
-(declare-function f-entries "f")
+(declare-function org-ref--file-ext-p "org-ref-utils")
+(declare-function org-ref--directory-files "org-ref-utils")
 
 (eval-when-compile
   (require 'cl-lib))
@@ -1655,7 +1655,7 @@ Get a list of possible matches. Choose one with completion."
                    nil)))
                 (completing-read
                  "Bibfile: "
-                 (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+                 (append (org-ref--directory-files "." (lambda (f) (org-ref--file-ext-p f "bib")))
                          bibtex-completion-bibliography))))
   (let* ((json-data (with-temp-buffer
 		      (url-insert

@@ -43,7 +43,7 @@
 
 (require 'pdf-tools)
 
-(require 'f)
+(require 'org-ref-utils)
 
 
 (eval-when-compile
@@ -135,7 +135,7 @@ BIB is an optional filename to get the entry from."
   "Add pdf of current buffer to bib file and save pdf. The pdf
 should be open in Emacs using the `pdf-tools' package."
   (interactive)
-  (when (not (f-ext? (downcase (buffer-file-name)) "pdf"))
+  (when (not (org-ref--file-ext-p (downcase (buffer-file-name)) "pdf"))
     (error "Buffer is not a pdf file"))
   ;; Get doi from pdf of current buffer
   (let* ((dois (org-ref-extract-doi-from-pdf (buffer-file-name)))

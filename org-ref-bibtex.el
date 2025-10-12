@@ -852,7 +852,7 @@ a directory. Optional PREFIX argument toggles between
                           (find-file (completing-read
                                      "Bibtex file: "
                                      (append bibtex-completion-bibliography
-                                             (f-entries "." (lambda (f) (f-ext? f "bib"))))))
+                                             (org-ref--directory-files "." (lambda (f) (org-ref--file-ext-p f "bib"))))))
                           (goto-char (point-max))
                           (bibtex-yank)
                           (save-buffer)
@@ -1025,7 +1025,7 @@ keywords.  Optional argument ARG prefix arg to replace keywords."
   (cl-loop for buffer in (buffer-list)
 	   do
 	   (with-current-buffer buffer
-	     (when (and (buffer-file-name) (f-ext? (buffer-file-name) "bib"))
+	     (when (and (buffer-file-name) (org-ref--file-ext-p (buffer-file-name) "bib"))
 	       (save-buffer)))))
 
 

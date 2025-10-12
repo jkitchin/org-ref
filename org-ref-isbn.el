@@ -23,7 +23,7 @@
 ;; Provides functions to download bibtex entries from isbn numbers.
 
 ;;; Code:
-(require 'f)
+(require 'org-ref-utils)
 (require 'org)
 
 

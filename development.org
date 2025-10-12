@@ -5,9 +5,9 @@
 DEADLINE: <2025-10-17 Fri +1w>
 
 - [X] hydra (transient is built in)
-- [ ] s (I think there are builtins for this now)
+- [X] s (I think there are builtins for this now)
 - [X] dash (I think there are builtins for this now)
-- [ ] f
+- [X] f
 - [ ] ivy? (I am not sure I can remove this and maintain the features I like)
 
 *** DONE Test transient menus and commit changes when they are ok

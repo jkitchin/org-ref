@@ -35,7 +35,7 @@
 
 (require 'org-element)
 
-(require 'f)
+(require 'org-ref-utils)
 
 (require 'parsebib)
 (require 'bibtex-completion)
@@ -191,9 +191,9 @@ set in `bibtex-completion-bibliography'"
     ;; see if we should add it to a bib-file defined in the file
     (org-ref-find-bibliography)
     ;; or any bib-files that exist in the current directory
-    (f-entries "." (lambda (f)
+    (org-ref--directory-files "." (lambda (f)
 		     (and (not (string-match "#" f))
-			  (f-ext? f "bib"))))
+			  (org-ref--file-ext-p f "bib"))))
     ;; and last in the default bibliography
     (if (stringp bibtex-completion-bibliography)
 	(list bibtex-completion-bibliography)

@@ -254,14 +254,14 @@ BACKEND is the org export backend."
 		    style)
 		   ;; In a user-dir
 		   ((and (bound-and-true-p org-cite-csl-styles-dir)
-			 (file-exists-p (f-join org-cite-csl-styles-dir style)))
-		    (f-join org-cite-csl-styles-dir style))
+			 (file-exists-p (org-ref--file-join org-cite-csl-styles-dir style)))
+		    (org-ref--file-join org-cite-csl-styles-dir style))
 		   ;; provided by org-ref
 		   ((file-exists-p (expand-file-name style
-						     (f-join (file-name-directory
+						     (org-ref--file-join (file-name-directory
 							      (locate-library "org-ref"))
 							     "citeproc/csl-styles")))
-		    (expand-file-name style (f-join
+		    (expand-file-name style (org-ref--file-join
 					     (file-name-directory
 					      (locate-library "org-ref"))
 					     "citeproc/csl-styles")))
@@ -273,7 +273,7 @@ BACKEND is the org export backend."
 		  ;; locale getter
 		  (citeproc-locale-getter-from-dir (if (bound-and-true-p org-cite-csl-locales-dir)
 						       org-cite-csl-locales-dir
-						     (f-join (file-name-directory
+						     (org-ref--file-join (file-name-directory
 							      (locate-library "org-ref"))
 							     "citeproc/csl-locales")))
 		  ;; the actual locale

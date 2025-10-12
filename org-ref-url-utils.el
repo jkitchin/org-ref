@@ -51,7 +51,6 @@
 (declare-function dnd--unescape-uri "dnd")
 
 (require 'doi-utils)
-(require 'f)
 (require 'org-ref-utils)
 (eval-when-compile
   (require 'cl-lib))
@@ -139,7 +138,7 @@ there is more than one, we offer a completion buffer of selections. If
 no DOI is found, we create a misc entry, with a prompt for a key."
   ;; make sure we are on a bib-file
   (if (and (buffer-file-name)
-	   (f-ext? (buffer-file-name) "bib"))
+	   (org-ref--file-ext-p (buffer-file-name) "bib"))
       (let ((dois (org-ref-url-scrape-dois url)))
 	(cond
 	 ;; One doi found. Assume it is what we want.
@@ -172,7 +171,7 @@ no DOI is found, we create a misc entry, with a prompt for a key."
   "Protocol for when a doi is dragged onto a bibtex file.
 A doi will be either doi:10.xxx  or 10.xxx."
   (if (and (buffer-file-name)
-	   (f-ext? (buffer-file-name) "bib"))
+	   (org-ref--file-ext-p (buffer-file-name) "bib"))
       (let ((doi (dnd--unescape-uri doi)))
 	;; Get the actual doi now
 	(string-match "\\(?:DOI\\|doi\\)?:? *\\(10.*\\)" doi)

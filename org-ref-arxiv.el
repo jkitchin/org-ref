@@ -26,7 +26,6 @@
 
 ;;; Code:
 (require 'bibtex)
-(require 'f)
 (require 'org)
 (require 'org-ref-utils)
 (require 'parsebib)
@@ -200,7 +199,7 @@ Returns a formatted BibTeX entry."
          ;;  now get the bibfile to add it to
          (completing-read
           "Bibfile: "
-          (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+          (append (org-ref--directory-files "." (lambda (f) (org-ref--file-ext-p f "bib")))
 		  (if (stringp bibtex-completion-bibliography)
 		      (list bibtex-completion-bibliography)
 		    bibtex-completion-bibliography)))))
@@ -246,7 +245,7 @@ key."
          ;;  now get the bibfile to add it to
          (completing-read
           "Bibfile: "
-          (append (f-entries "." (lambda (f) (f-ext? f "bib")))
+          (append (org-ref--directory-files "." (lambda (f) (org-ref--file-ext-p f "bib")))
                   bibtex-completion-bibliography))
 	 (cond
 	  ((stringp bibtex-completion-library-path)
