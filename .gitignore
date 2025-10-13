@@ -44,4 +44,5 @@ styles.xml
 *.pyg
 /.ipynb_checkpoints/
 /examples/ltximg/
+/test/ltximg/
 /melpa/sandbox/

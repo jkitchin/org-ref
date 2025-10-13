@@ -14,7 +14,6 @@ To test this feature:
 4. Hover over the equation references below
 
 #+BEGIN_SRC emacs-lisp
-(load-file "../org-ref-ref-links.el")
 (setq org-ref-show-equation-images-in-tooltips t)
 (org-latex-preview '(16))
 #+END_SRC
