@@ -221,6 +221,26 @@ If you plan to build PDF files via LaTeX you need to make sure that org-latex-pd
 
 Go forth and citate.
 
+** Equation image tooltips
+
+org-ref can display rendered equation images in tooltips when you hover over equation references (like =eqref:eq:1=). This feature requires that you have already generated preview images for your equations using org-mode's =org-latex-preview= (=C-c C-x C-l=).
+
+To enable this feature:
+
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-show-equation-images-in-tooltips t)
+#+END_SRC
+
+When enabled:
+- Hovering over an equation reference will show the rendered equation image in a tooltip (GUI Emacs only)
+- If no preview exists, shows the LaTeX code (default behavior)
+- Automatically falls back to text display in terminal Emacs
+- Works with all reference types (=eqref=, =ref=, =autoref=, =cref=, etc.)
+- Supports both =\label{...}= and =#+name:= style labels
+- Uses caching for good performance
+
+This feature is compatible with org-mode's built-in =org-latex-preview= and also works with the =math-preview= package.
+
 * Some other useful libraries in org-ref
 
 Note many of these have been renamed with an org-ref prefix.

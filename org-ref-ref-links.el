@@ -39,6 +39,20 @@ links. Set this to nil to turn off activation."
   :group 'org-ref)
 
 
+(defcustom org-ref-show-equation-images-in-tooltips nil
+  "If non-nil, show rendered equation images in tooltips for equation references.
+Requires that equations have been previewed with `org-latex-preview' or
+a compatible preview package (like math-preview).
+
+When enabled, hovering over an equation reference (eqref, ref, etc.) will
+display the rendered equation image in a tooltip instead of raw LaTeX code.
+
+This feature works best in GUI Emacs. In terminal Emacs, falls back to
+text display."
+  :type 'boolean
+  :group 'org-ref)
+
+
 (defface org-ref-ref-face
   `((t (:inherit org-link :foreground "dark red")))
   "Face for ref links in org-ref."
@@ -129,6 +143,14 @@ The label should always be in group 1.")
 
 (defvar-local org-ref-buffer-chars-modified-tick nil
   "Buffer-local variable to hold `buffer-chars-modified-tick'.")
+
+
+(defvar-local org-ref-preview-image-cache nil
+  "Buffer-local cache of (label . image-spec) for preview images.")
+
+
+(defvar-local org-ref-preview-cache-tick nil
+  "Buffer modification tick when preview image cache was last updated.")
 
 
 (defun org-ref-get-labels ()
@@ -225,10 +247,97 @@ font-lock."
 	    (throw 'found t)))))))
 
 
+(defun org-ref-find-overlay-with-image (begin end)
+  "Find an overlay with an image display property between BEGIN and END.
+Returns the image display spec or nil if none found."
+  (catch 'found
+    (let ((pos begin))
+      (while (< pos end)
+        (dolist (ov (overlays-at pos))
+          ;; Check for org-mode preview overlay or math-preview overlay
+          (when (or (eq (overlay-get ov 'org-overlay-type) 'org-latex-overlay)
+                    (overlay-get ov 'preview-image))
+            (let ((display (overlay-get ov 'display)))
+              (when (and display (listp display) (eq (car display) 'image))
+                (throw 'found display)))))
+        (setq pos (next-overlay-change pos))))
+    nil))
+
+
+(defun org-ref-get-preview-image-at-label (label)
+  "Return the preview image display spec for LABEL if it exists.
+Searches for LABEL in the buffer (both \\label{LABEL} and #+name: LABEL forms)
+and checks if there is an org-latex preview overlay at that location.
+Returns the image display spec that can be used in a propertized string,
+or nil if no preview exists.
+
+Uses caching for performance - cache is invalidated when buffer is modified."
+  ;; Check cache first
+  (let ((cached (and org-ref-preview-image-cache
+                     (equal org-ref-preview-cache-tick (buffer-chars-modified-tick))
+                     (assoc label org-ref-preview-image-cache))))
+    (if cached
+        (cdr cached)
+      ;; Not in cache, search for it
+      (let ((image-spec
+             (save-excursion
+               (save-restriction
+                 (widen)
+                 (goto-char (point-min))
+                 (or
+                  ;; Try 1: Search for \label{LABEL} in LaTeX environments
+                  (when (re-search-forward (format "\\\\label{%s}" (regexp-quote label)) nil t)
+                    (let* ((elem (org-element-context))
+                           (begin (org-element-property :begin elem))
+                           (end (org-element-property :end elem)))
+                      (when (and begin end (eq (org-element-type elem) 'latex-environment))
+                        (org-ref-find-overlay-with-image begin end))))
+
+                  ;; Try 2: Search for #+name: LABEL before latex-environment
+                  (progn
+                    (goto-char (point-min))
+                    (when (re-search-forward (format "^[ \t]*#\\+name:[ \t]+%s[ \t]*$"
+                                                    (regexp-quote label)) nil t)
+                      (forward-line 1)
+                      (let* ((elem (org-element-context))
+                             (begin (org-element-property :begin elem))
+                             (end (org-element-property :end elem)))
+                        (when (and begin end (eq (org-element-type elem) 'latex-environment))
+                          (org-ref-find-overlay-with-image begin end))))))))))
+
+        ;; Update cache
+        (when (or (null org-ref-preview-cache-tick)
+                  (not (equal org-ref-preview-cache-tick (buffer-chars-modified-tick))))
+          (setq org-ref-preview-image-cache nil
+                org-ref-preview-cache-tick (buffer-chars-modified-tick)))
+
+        ;; Add to cache (even if nil, to avoid repeated searches)
+        (push (cons label image-spec) org-ref-preview-image-cache)
+
+        image-spec))))
+
+
 (defun org-ref-ref-help-echo (_win _obj position)
-  "Tooltip for context on a ref label.
-POSITION is the point under the mouse I think."
-  (cdr (assoc (get-text-property position 'org-ref-ref-label) (org-ref-get-labels))))
+  "Tooltip for context on a ref label with optional image support.
+POSITION is the point under the mouse.
+
+If `org-ref-show-equation-images-in-tooltips' is non-nil and a preview
+image exists for the referenced label, returns a propertized string
+containing the image. Otherwise returns the text context."
+  (let* ((label (get-text-property position 'org-ref-ref-label))
+         (context (cdr (assoc label (org-ref-get-labels)))))
+    (if (and org-ref-show-equation-images-in-tooltips
+             label
+             (display-graphic-p))  ; Images only work in GUI
+        ;; Try to find preview image
+        (let ((image-spec (org-ref-get-preview-image-at-label label)))
+          (if image-spec
+              ;; Return propertized string with image for tooltip
+              (propertize " " 'display image-spec)
+            ;; No image found, return text context
+            context))
+      ;; Feature disabled or terminal mode, return text
+      context)))
 
 
 (defun org-ref-ref-activate (start _end path _bracketp)
