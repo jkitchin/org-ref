@@ -321,38 +321,41 @@ Uses caching for performance - cache is invalidated when buffer is modified."
   "Tooltip for context on a ref label with optional image support.
 POSITION is the point under the mouse.
 
-Strategy: If previews exist on equations, show them. Otherwise show text.
+Strategy: If previews exist on equations, show them in the minibuffer.
+Otherwise show text.
 
 When `org-ref-show-equation-images-in-tooltips' is non-nil and running in
 GUI Emacs, checks if a preview image exists for the referenced equation.
-If found, displays the image in the tooltip. Otherwise, displays the
-LaTeX text context as usual."
+If found, displays the image in the minibuffer using message. Otherwise,
+displays the LaTeX text context as usual."
   (let* ((label (get-text-property position 'org-ref-ref-label))
          (context (cdr (assoc label (org-ref-get-labels)))))
-    ;; Return context (text) as default
-    (or
-     ;; Try to show image if conditions are met
-     (and org-ref-show-equation-images-in-tooltips
-          label
-          (display-graphic-p)  ; Images only work in GUI
-          ;; Try to find and display preview image
-          (let ((image-spec (org-ref-get-preview-image-at-label label)))
-            (when image-spec
-              ;; Extract file and type from the overlay's image spec
-              (let* ((file (plist-get (cdr image-spec) :file))
-                     (type (plist-get (cdr image-spec) :type)))
-                ;; Only create image if file exists
-                (when (and file (file-exists-p file))
-                  (condition-case nil
-                      ;; Build a clean image spec for the tooltip
-                      ;; Don't use create-image as it adds :scale default which breaks tooltips
-                      (propertize " " 'display (list 'image :type type
-                                                     :file (expand-file-name file)
-                                                     :ascent 'center))
-                    ;; If image creation fails, return nil to fall through to text
-                    (error nil)))))))
-     ;; Fallback: show text context
-     context)))
+    ;; Try to show image if conditions are met
+    (if (and org-ref-show-equation-images-in-tooltips
+             label
+             (display-graphic-p))  ; Images only work in GUI
+        ;; Try to find and display preview image
+        (let ((image-spec (org-ref-get-preview-image-at-label label)))
+          (if image-spec
+              ;; Extract file from the overlay's image spec
+              (let ((file (plist-get (cdr image-spec) :file)))
+                ;; Only show image if file exists
+                (if (and file (file-exists-p file))
+                    (condition-case nil
+                        ;; Show image in minibuffer using message
+                        (progn
+                          (message "%s" (propertize " " 'display
+                                                   (create-image (expand-file-name file))))
+                          ;; Still return context for any fallback tooltip
+                          context)
+                      ;; If image display fails, show text
+                      (error context))
+                  ;; File doesn't exist, show text
+                  context))
+            ;; No image spec found, show text
+            context))
+      ;; Feature disabled or not in GUI, show text
+      context)))
 
 
 (defun org-ref-ref-activate (start _end path _bracketp)
