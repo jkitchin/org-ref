@@ -321,29 +321,35 @@ Uses caching for performance - cache is invalidated when buffer is modified."
   "Tooltip for context on a ref label with optional image support.
 POSITION is the point under the mouse.
 
-If `org-ref-show-equation-images-in-tooltips' is non-nil and a preview
-image exists for the referenced label, returns a propertized string
-containing the image. Otherwise returns the text context."
+Strategy: If previews exist on equations, show them. Otherwise show text.
+
+When `org-ref-show-equation-images-in-tooltips' is non-nil and running in
+GUI Emacs, checks if a preview image exists for the referenced equation.
+If found, displays the image in the tooltip. Otherwise, displays the
+LaTeX text context as usual."
   (let* ((label (get-text-property position 'org-ref-ref-label))
          (context (cdr (assoc label (org-ref-get-labels)))))
-    (if (and org-ref-show-equation-images-in-tooltips
-             label
-             (display-graphic-p))  ; Images only work in GUI
-        ;; Try to find preview image
-        (let ((image-spec (org-ref-get-preview-image-at-label label)))
-          (if image-spec
-              ;; Get the file from the image spec and create a fresh image
+    ;; Return context (text) as default
+    (or
+     ;; Try to show image if conditions are met
+     (and org-ref-show-equation-images-in-tooltips
+          label
+          (display-graphic-p)  ; Images only work in GUI
+          ;; Try to find and display preview image
+          (let ((image-spec (org-ref-get-preview-image-at-label label)))
+            (when image-spec
+              ;; Extract file and type from the overlay's image spec
               (let* ((file (plist-get (cdr image-spec) :file))
                      (type (plist-get (cdr image-spec) :type)))
-                (if (and file (file-exists-p file))
-                    ;; Create a new image spec for the tooltip
-                    (propertize " " 'display (create-image file type nil :ascent 'center))
-                  ;; File doesn't exist, fallback to text
-                  context))
-            ;; No image found, return text context
-            context))
-      ;; Feature disabled or terminal mode, return text
-      context)))
+                ;; Only create image if file exists
+                (when (and file (file-exists-p file))
+                  (condition-case nil
+                      ;; Create a fresh image for the tooltip
+                      (propertize " " 'display (create-image file type nil :ascent 'center))
+                    ;; If image creation fails, return nil to fall through to text
+                    (error nil)))))))
+     ;; Fallback: show text context
+     context)))
 
 
 (defun org-ref-ref-activate (start _end path _bracketp)

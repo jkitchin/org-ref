@@ -13,6 +13,13 @@ To test this feature:
 3. Generate previews with =C-c C-x C-l= (org-latex-preview)
 4. Hover over the equation references below
 
+#+BEGIN_SRC emacs-lisp
+(load-file "../org-ref-ref-links.el")
+#+END_SRC
+
+#+RESULTS:
+: t
+
 ** Test 1: Simple Equation
 
 Here is a simple equation:
