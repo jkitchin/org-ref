@@ -344,8 +344,11 @@ LaTeX text context as usual."
                 ;; Only create image if file exists
                 (when (and file (file-exists-p file))
                   (condition-case nil
-                      ;; Create a fresh image for the tooltip
-                      (propertize " " 'display (create-image file type nil :ascent 'center))
+                      ;; Build a clean image spec for the tooltip
+                      ;; Don't use create-image as it adds :scale default which breaks tooltips
+                      (propertize " " 'display (list 'image :type type
+                                                     :file (expand-file-name file)
+                                                     :ascent 'center))
                     ;; If image creation fails, return nil to fall through to text
                     (error nil)))))))
      ;; Fallback: show text context
