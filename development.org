@@ -13,7 +13,8 @@ DEADLINE: <2025-10-17 Fri +1w>
 *** DONE Test transient menus and commit changes when they are ok
 CLOSED: [2025-10-12 Sun 13:01] DEADLINE: <2025-10-14 Tue>
 
-** fix native compiler issues
+** DONE fix native compiler issues
+CLOSED: [2025-10-12 Sun 16:52]
 
 ⛔ Warning (native-compiler): org-ref-utils.el:1314:17: Warning: the function ‘bibtex-kill-entry’ is not known to be defined.
 ⛔ Warning (native-compiler): org-ref-utils.el:1006:21: Warning: the function ‘bibtex-validate’ is not known to be defined.

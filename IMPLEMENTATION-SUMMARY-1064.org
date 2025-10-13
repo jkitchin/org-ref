@@ -152,8 +152,58 @@ Works with all ref link types:
 - Defcustoms added: 1
 - Test files created: 1
 
+** Troubleshooting
+
+If the feature isn't working, check these items:
+
+1. **Is the feature enabled?**
+   #+begin_src elisp
+   ;; Check the value
+   org-ref-show-equation-images-in-tooltips  ; Should be t
+
+   ;; Enable it
+   (setq org-ref-show-equation-images-in-tooltips t)
+   #+end_src
+
+2. **Have you generated previews?**
+   - Use =C-c C-x C-l= (org-latex-preview) to generate equation previews
+   - You should see images replacing the LaTeX code in the buffer
+   - If previews don't generate, check your LaTeX installation
+
+3. **Are you in GUI Emacs?**
+   #+begin_src elisp
+   (display-graphic-p)  ; Should return t
+   #+end_src
+
+4. **Have you reloaded org-ref?**
+   After modifying the code, reload:
+   #+begin_src elisp
+   (load-file "/path/to/org-ref-ref-links.el")
+   #+end_src
+
+5. **Debug the tooltip:**
+   Load the debug helper:
+   #+begin_src elisp
+   (load-file "/path/to/debug-tooltip.el")
+
+   ;; Place cursor on an eqref link and run:
+   (org-ref-debug-tooltip-at-point)
+
+   ;; Place cursor on equation and check overlays:
+   (org-ref-list-overlays-at-point)
+
+   ;; Test label search:
+   (org-ref-test-equation-search "eq:1")
+   #+end_src
+
+6. **Check the label format:**
+   - Labels should be either =\label{eq:1}= or =#+name: eq:1=
+   - The label must be inside or just before a LaTeX environment
+   - Verify the label name matches exactly in the eqref link
+
 ** References
 
 - Issue: https://github.com/jkitchin/org-ref/issues/1064
 - Blog post: https://kitchingroup.cheme.cmu.edu/blog/2016/03/16/Getting-graphical-feedback-as-tooltips-in-Emacs/
 - Implementation plan: =implementation-plan-issue-1064.org=
+- Debug helpers: =debug-tooltip.el=

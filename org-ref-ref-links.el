@@ -332,8 +332,14 @@ containing the image. Otherwise returns the text context."
         ;; Try to find preview image
         (let ((image-spec (org-ref-get-preview-image-at-label label)))
           (if image-spec
-              ;; Return propertized string with image for tooltip
-              (propertize " " 'display image-spec)
+              ;; Get the file from the image spec and create a fresh image
+              (let* ((file (plist-get (cdr image-spec) :file))
+                     (type (plist-get (cdr image-spec) :type)))
+                (if (and file (file-exists-p file))
+                    ;; Create a new image spec for the tooltip
+                    (propertize " " 'display (create-image file type nil :ascent 'center))
+                  ;; File doesn't exist, fallback to text
+                  context))
             ;; No image found, return text context
             context))
       ;; Feature disabled or terminal mode, return text
