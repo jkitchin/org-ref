@@ -343,9 +343,9 @@ displays the LaTeX text context as usual."
                 (if (and file (file-exists-p file))
                     (condition-case nil
                         ;; Show image in minibuffer using message
+                        ;; Use the same image-spec from the overlay to preserve size
                         (progn
-                          (message "%s" (propertize " " 'display
-                                                   (create-image (expand-file-name file))))
+                          (message "%s" (propertize " " 'display image-spec))
                           ;; Still return context for any fallback tooltip
                           context)
                       ;; If image display fails, show text
