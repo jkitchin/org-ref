@@ -25,6 +25,23 @@
 (eval-and-compile (require 'org-macs))
 (eval-and-compile (require 'ol))
 
+;; Declare functions from org-element
+(declare-function org-element-context "org-element" (&optional element))
+(declare-function org-element-property "org-element" (property element))
+(declare-function org-element-type "org-element" (element))
+(declare-function org-element-parse-buffer "org-element" (&optional granularity visible-only))
+(declare-function org-element-map "org-element" (data types fun &optional info first-match no-recursion with-affiliated))
+(declare-function org-element-interpret-data "org-element" (data))
+
+;; Declare functions from org
+(declare-function org-mark-ring-push "org" (&optional pos buffer))
+(declare-function org-file-image-p "org" (file &optional extensions))
+(declare-function org-at-table-p "org" (&optional table-type))
+(declare-function org-table-begin "org" (&optional table-type))
+
+;; Declare functions from ox (org-export)
+(declare-function org-export-get-caption "ox" (element &optional short))
+
 (defcustom org-ref-default-ref-type "ref"
   "Default ref link type to use when inserting ref links."
   :type 'string

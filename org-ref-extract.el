@@ -22,6 +22,11 @@
 
 ;;
 
+;;; Code:
+
+(declare-function org-ref-clean-bibtex-entry "org-ref-bibtex" ())
+(declare-function xml-substitute-special "xml" ())
+
 
 (defun org-ref--extract (html-buffer rx num)
   "Return content matched within HTML-BUFFER by RX at parenthesized

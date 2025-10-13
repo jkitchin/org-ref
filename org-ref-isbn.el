@@ -26,6 +26,8 @@
 (require 'org-ref-utils)
 (require 'org)
 
+(declare-function org-ref-possible-bibfiles "org-ref-core" ())
+(declare-function org-ref-clean-bibtex-entry "org-ref-bibtex" ())
 
 (defvar url-http-end-of-headers)
 

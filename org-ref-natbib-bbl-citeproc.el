@@ -48,6 +48,9 @@
 ;;
 ;;; Code:
 
+(declare-function org-ref-get-cite-links "org-ref-core" ())
+(declare-function org-ref-parse-cite-path "org-ref-core" (path))
+
 (defvar org-ref-natmove)  			;silence compiler
 
 (defun org-bbl-clean-string (s)

@@ -2,9 +2,11 @@
 
 ;;; Commentary:
 ;; First draft proposed by madhu 230826 (Madhu <enometh@meer.net>)
-;; This code provides publishing capability that leverages 
+;; This code provides publishing capability that leverages
 
 ;;; Code:
+
+(declare-function org-ref-process-buffer "org-ref-core" (backend &optional subtreep))
 
 ;; modified from org-publish-org-to to call org-ref-process-buffer before
 ;; calling org-export-to-file

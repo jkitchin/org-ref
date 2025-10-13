@@ -44,8 +44,9 @@
 (defvar org-ref-cite-types)
 (defvar org-cliplink-escape-alist)
 
-(declare-function 'org-ref-get-bibtex-key-and-file "org-ref-core.el")
-(declare-function 'org-ref-find-bibliography "org-ref-core.el")
+(declare-function org-ref-get-bibtex-key-and-file "org-ref-core")
+(declare-function org-ref-find-bibliography "org-ref-core")
+(declare-function org-ref-clean-bibtex-entry "org-ref-bibtex")
 
 (declare-function dnd-handle-one-url "dnd")
 (declare-function dnd--unescape-uri "dnd")

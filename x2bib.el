@@ -42,6 +42,8 @@
 ;;; Code:
 (require 'bibtex)
 
+(declare-function org-ref-clean-bibtex-entry "org-ref-bibtex" ())
+
 
 ;;* RIS to bibtex
 

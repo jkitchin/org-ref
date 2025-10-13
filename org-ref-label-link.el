@@ -23,6 +23,8 @@
 
 ;;; Code:
 
+(declare-function org-ref-get-labels "org-ref-ref-links" ())
+
 
 (defface org-ref-label-face
   `((t (:inherit org-link :foreground "dark magenta")))
