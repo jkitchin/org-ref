@@ -15,10 +15,14 @@ To test this feature:
 
 #+BEGIN_SRC emacs-lisp
 (load-file "../org-ref-ref-links.el")
+(setq org-ref-show-equation-images-in-tooltips t)
+(org-latex-preview '(16))
 #+END_SRC
 
 #+RESULTS:
-: t
+: Creating LaTeX previews in buffer... done.
+
+
 
 ** Test 1: Simple Equation
 
@@ -89,3 +93,83 @@ Reference: eqref:eq:complex
 
 - When =org-ref-show-equation-images-in-tooltips= is =nil=:
   - Always shows LaTeX text (current behavior)
+
+
+
+#+BEGIN_SRC emacs-lisp
+(defun image-tooltip (window object position)
+  (save-excursion
+    (goto-char position)
+    (let* ((img-file (format "%s.png" (thing-at-point 'word)))
+           (s (propertize "Look in the minbuffer"
+                          'display (create-image (expand-file-name img-file)))))
+      (message "%s" s))))
+
+(font-lock-add-keywords
+ nil
+ '(("\\<kiwi\\>\\|\\<grapes\\>\\|strawberry" 0 '(face font-lock-keyword-face
+                                                      help-echo image-tooltip))))
+#+END_SRC
+
+#+RESULTS:
+| t | ((\<kiwi\>\ | \<grapes\>\ | strawberry 0 '(face font-lock-keyword-face help-echo image-tooltip)) (\(^\ | [[:space:]]\ | \s(\)[^[]?\(?2:#\(?1:[[:alnum:]]+\)\) (2 '(face (link) keymap (keymap (13 . #[nil ((save-excursion (while (not (looking-at hashtag-regexp)) (forward-char (- (or nil 1))))) (hashtag/body)) (t) nil nil nil]) (mouse-1 . #[(event) ((let ((click-pos (posn-point (event-end event)))) (let ((saved-marker (save-mark-and-excursion--save))) (unwind-protect (save-excursion (let ((saved-match-data (match-data))) (unwind-protect (progn (goto-char (or (previous-single-property-change click-pos 'button-lock) (point-min))) (while (not (looking-at hashtag-regexp)) (forward-char (- (or nil 1)))) (hashtag/body)) (set-match-data saved-match-data t)))) (save-mark-and-excursion--restore saved-marker))))) (t) nil nil e])) button-lock t mouse-face button-lock-mouse-face help-echo Click me to open the hashtag. rear-nonsticky t) append)) (org-font-lock-hook) (^\(\**\)\(\* \)\(.*\) (1 (org-get-level-face 1)) (2 (org-get-level-face 2)) (3 (org-get-level-face 3))) (^[ 	]*\(\( | \ | \+-[-+]\).*\S-\) |
+
+
+a kiwi, grapes, and a strawberry
+
+
+#+BEGIN_SRC emacs-lisp
+(defun show-image-tooltip ()
+  "Display a tooltip with an image."
+  (interactive)
+  (let ((image-spec '(image :type png
+                           :file "grapes.png"
+                           :scale 0.5)))
+    (tooltip-show (propertize " " 'display image-spec))))
+#+END_SRC
+
+#+RESULTS:
+: show-image-tooltip
+
+#+BEGIN_SRC emacs-lisp
+;; Check what image types are supported
+(message "Supported image types: %s" image-types)
+#+END_SRC
+
+#+RESULTS:
+: Supported image types: (heic svg webp png gif tiff jpeg xpm xbm pbm)
+
+
+#+BEGIN_SRC emacs-lisp
+(defun debug-image-tooltip (image-path)
+  "Create image tooltip with debugging info."
+  (interactive "fImage file: ")
+  (let* ((full-path (expand-file-name image-path))
+         (image-type (image-type-from-file-name full-path)))
+
+    ;; Debug information
+    (message "File exists: %s" (file-exists-p full-path))
+    (message "Image type: %s" image-type)
+    (message "Type available: %s" (image-type-available-p image-type))
+    (message "Full path: %s" full-path)
+
+    (if (and (file-exists-p full-path)
+             (image-type-available-p image-type))
+        (let ((image-spec `(image :type ,image-type
+                                 :file ,full-path
+                                 :scale 1.0)))
+          ;; Test if image can be created
+          (condition-case err
+              (let ((img (create-image full-path)))
+                (message "Image created successfully")
+                (insert (propertize "🖼️ Image tooltip"
+                                   'help-echo (propertize " " 'display image-spec)
+                                   'face 'bold)))
+            (error (message "Error creating image: %s" err))))
+      (message "Image file or type not supported"))))
+#+END_SRC
+
+#+RESULTS:
+: debug-image-tooltip
+
+🖼️ Image tooltip
