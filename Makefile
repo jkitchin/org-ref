@@ -18,6 +18,11 @@ github-actions:
 test: clean
 	${CASK_EXEC} ert-runner
 
+# Run all test-*.el files directly (without cask/ert-runner dependencies)
+# This is useful for CI environments or local testing without Cask
+test-direct: clean
+	${emacs} -batch -L . -L test -l test/run-tests.el
+
 unit:
 	${CASK_EXEC} ${emacs} -Q -batch -L "." -l ${INIT} -l org -l org-ref.el -l test/org-ref-test.el --eval "(ert t)"
 
@@ -65,4 +70,4 @@ devel:
 vanilla:
 	${CASK_EXEC} ${emacs} -Q  -l ${INIT} tests/test-1.org
 
-.PHONY:	all test package clean-elc test-melpa
+.PHONY:	all test test-direct package clean-elc test-melpa unit orgtest mytest
