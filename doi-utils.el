@@ -42,6 +42,7 @@
 (declare-function bibtex-completion-edit-notes "bibtex-completion")
 (declare-function org-bibtex-yank "org-bibtex")
 (declare-function org-ref-possible-bibfiles "org-ref-core")
+(declare-function org-ref-normalize-bibtex-completion-bibliography "org-ref-utils")
 
 (declare-function org-ref--file-ext-p "org-ref-utils")
 (declare-function org-ref--directory-files "org-ref-utils")
@@ -1414,9 +1415,7 @@ May be empty if none are found."
 (defun doi-utils-open-bibtex (doi)
   "Search through variable `bibtex-completion-bibliography' for DOI."
   (interactive "sDOI: ")
-  (cl-loop for f in (if (listp bibtex-completion-bibliography)
-			bibtex-completion-bibliography
-		      (list bibtex-completion-bibliography))
+  (cl-loop for f in (org-ref-normalize-bibtex-completion-bibliography)
 	   when (progn (find-file f)
 		       (when (search-forward doi (point-max) t)
 			 (bibtex-beginning-of-entry)))

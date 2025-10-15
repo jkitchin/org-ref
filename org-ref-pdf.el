@@ -49,6 +49,9 @@
 (eval-when-compile
   (require 'cl-lib))
 
+(declare-function org-ref-normalize-bibtex-completion-bibliography "org-ref-utils")
+
+(defvar bibtex-completion-bibliography)
 
 (defgroup org-ref-pdf nil
   "Customization group for org-ref-pdf"
@@ -119,9 +122,7 @@ Used when multiple dois are found in a pdf file."
   "Return a bibtex entry's key from a DOI.
 BIB is an optional filename to get the entry from."
   (catch 'key
-    (cl-loop for bibfile in (if (stringp bibtex-completion-bibliography)
-				(list bibtex-completion-bibliography)
-			      bibtex-completion-bibliography)
+    (cl-loop for bibfile in (org-ref-normalize-bibtex-completion-bibliography)
 	     do
 	     (with-temp-buffer
 	       (insert-file-contents (expand-file-name bibfile))

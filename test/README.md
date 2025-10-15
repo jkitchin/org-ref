@@ -8,6 +8,7 @@ All test files follow the naming convention `test-*.el`:
 
 - **test-equation-image-tooltips.el** - Tests for equation image tooltip functionality
 - **test-native-compilation-warnings.el** - Tests for native compilation warnings across all org-ref files
+- **test-bibtex-completion-bibliography-normalization.el** - Tests for bibtex-completion-bibliography normalization (issue #1119)
 - **run-tests.el** - Master test runner that loads and executes all tests
 
 ## Running Tests

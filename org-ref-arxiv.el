@@ -39,6 +39,7 @@
 
 (declare-function parsebib-find-bibtex-dialect "parsebib")
 (declare-function org-ref-clean-bibtex-entry "org-ref-core")
+(declare-function org-ref-normalize-bibtex-completion-bibliography "org-ref-utils")
 ;; this is a C function
 (declare-function libxml-parse-xml-region "xml")
 
@@ -200,9 +201,7 @@ Returns a formatted BibTeX entry."
          (completing-read
           "Bibfile: "
           (append (org-ref--directory-files "." (lambda (f) (org-ref--file-ext-p f "bib")))
-		  (if (stringp bibtex-completion-bibliography)
-		      (list bibtex-completion-bibliography)
-		    bibtex-completion-bibliography)))))
+		  (org-ref-normalize-bibtex-completion-bibliography)))))
   (save-window-excursion
     (find-file bibfile)
     (goto-char (point-max))
@@ -246,7 +245,7 @@ key."
          (completing-read
           "Bibfile: "
           (append (org-ref--directory-files "." (lambda (f) (org-ref--file-ext-p f "bib")))
-                  bibtex-completion-bibliography))
+                  (org-ref-normalize-bibtex-completion-bibliography)))
 	 (cond
 	  ((stringp bibtex-completion-library-path)
 	   bibtex-completion-library-path)

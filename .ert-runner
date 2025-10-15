@@ -1,1 +1,1 @@
--l test/org-ref-test-init.el
+-l test/org-ref-test-init.el -l test/test-bibtex-completion-bibliography-normalization.el -l test/test-equation-image-tooltips.el -l test/test-native-compilation-warnings.el

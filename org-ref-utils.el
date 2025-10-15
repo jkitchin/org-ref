@@ -192,6 +192,26 @@ Compatible replacement for f-join."
         (setq path (expand-file-name part path)))
       path)))
 
+;;** bibtex-completion-bibliography utilities
+
+(defvar bibtex-completion-bibliography)
+
+(defun org-ref-normalize-bibtex-completion-bibliography ()
+  "Return `bibtex-completion-bibliography' as a list of strings.
+This function handles three cases:
+1. If it's a function, call it and return the result
+2. If it's a list, return it as-is
+3. If it's a string, return it wrapped in a list
+
+This ensures consistent handling across org-ref functions."
+  (cond
+   ((functionp bibtex-completion-bibliography)
+    (funcall bibtex-completion-bibliography))
+   ((listp bibtex-completion-bibliography)
+    bibtex-completion-bibliography)
+   (t
+    (list bibtex-completion-bibliography))))
+
 ;;** org-ref functions
 ;;;###autoload
 (defun org-ref-version ()

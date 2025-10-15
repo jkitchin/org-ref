@@ -170,9 +170,7 @@ set in `bibtex-completion-bibliography'"
              (throw 'result (nreverse (delete-dups (mapcar 'org-ref-get-bibfile-path org-ref-bibliography-files)))))))
 	;; we did not find anything. use defaults. Make sure we have a list in
         ;; case it is a single string. 
-	(throw 'result (if (listp bibtex-completion-bibliography)
-			   bibtex-completion-bibliography
-			 (list bibtex-completion-bibliography)))))))
+	(throw 'result (org-ref-normalize-bibtex-completion-bibliography))))))
 
 
 (defun org-ref-key-in-file-p (key filename)
@@ -195,9 +193,7 @@ set in `bibtex-completion-bibliography'"
 		     (and (not (string-match "#" f))
 			  (org-ref--file-ext-p f "bib"))))
     ;; and last in the default bibliography
-    (if (stringp bibtex-completion-bibliography)
-	(list bibtex-completion-bibliography)
-      bibtex-completion-bibliography))))
+    (org-ref-normalize-bibtex-completion-bibliography))))
 
 
 (defun org-ref-get-bibtex-key-and-file (&optional key)
