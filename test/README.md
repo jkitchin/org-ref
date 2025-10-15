@@ -4,11 +4,12 @@ This directory contains the test suite for org-ref.
 
 ## Test Files
 
-All test files follow the naming convention `test-*.el`:
+All test files follow the naming convention `*-test.el`:
 
-- **test-equation-image-tooltips.el** - Tests for equation image tooltip functionality
-- **test-native-compilation-warnings.el** - Tests for native compilation warnings across all org-ref files
-- **test-bibtex-completion-bibliography-normalization.el** - Tests for bibtex-completion-bibliography normalization (issue #1119)
+- **equation-image-tooltips-test.el** - Tests for equation image tooltip functionality
+- **native-compilation-warnings-test.el** - Tests for native compilation warnings across all org-ref files
+- **bibtex-completion-bibliography-normalization-test.el** - Tests for bibtex-completion-bibliography normalization (issue #1119)
+- **all-org-test.el** - Tangled tests from org files
 - **run-tests.el** - Master test runner that loads and executes all tests
 
 ## Running Tests
@@ -42,22 +43,22 @@ Or run individual test files:
 
 ```bash
 emacs -batch -L . -L test \
-  -l test/test-equation-image-tooltips.el \
+  -l test/equation-image-tooltips-test.el \
   -f ert-run-tests-batch-and-exit
 ```
 
 ## Writing New Tests
 
-1. Create a new file following the naming convention: `test-<feature>.el`
+1. Create a new file following the naming convention: `<feature>-test.el`
 2. Use the standard ERT test framework
 3. Include proper `require` statements at the top
-4. Add `(provide 'test-<feature>)` at the end
+4. Add `(provide '<feature>-test)` at the end
 5. Tests will be automatically discovered and run by the test runner
 
 Example structure:
 
 ```elisp
-;;; test-my-feature.el --- Tests for my feature -*- lexical-binding: t; -*-
+;;; my-feature-test.el --- Tests for my feature -*- lexical-binding: t; -*-
 
 (require 'ert)
 (require 'org-ref)
@@ -66,9 +67,9 @@ Example structure:
   "Test basic functionality."
   (should (equal 1 1)))
 
-(provide 'test-my-feature)
+(provide 'my-feature-test)
 
-;;; test-my-feature.el ends here
+;;; my-feature-test.el ends here
 ```
 
 ## Test Configuration

@@ -8,7 +8,7 @@
 ;; Usage:
 ;;   emacs -batch -L . -L test -l test/run-tests.el
 ;;
-;; This will automatically load and run all test-*.el files in the test directory.
+;; This will automatically load and run all *-test.el files in the test directory.
 
 ;;; Code:
 
@@ -21,7 +21,7 @@
 ;; Load all test files
 (dolist (test-file (directory-files (expand-file-name "test")
                                     t
-                                    "^test-.*\\.el$"))
+                                    ".*-test\\.el$"))
   (message "Loading test file: %s" test-file)
   (load-file test-file))
 
