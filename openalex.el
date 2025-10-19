@@ -59,6 +59,22 @@
     (json-read)))
 
 
+(defun oa--params (&rest params)
+  "Build API request parameters, excluding nil values.
+PARAMS should be an alist of (key . value) pairs.
+The mailto and api_key parameters are added automatically."
+  (let ((result (when user-mail-address
+		  `(("mailto" . ,user-mail-address)))))
+    ;; Only add api_key if it's set and non-empty
+    (when (and oa-api-key (not (string-empty-p oa-api-key)))
+      (push `("api_key" . ,oa-api-key) result))
+    ;; Add other params, filtering out nil values
+    (dolist (param params)
+      (when (cdr param)
+	(push param result)))
+    (nreverse result)))
+
+
 (defun oa-get (data query &optional iterable)
   "Get fields from DATA with QUERY.
 QUERY is a dot notation string.
@@ -120,10 +136,8 @@ Assumes data is in plist form."
 					  (url-hexify-string
 					   (plist-get filter key))))
 			 ","))
-	 (params `(("mailto" . ,user-mail-address)
-		   ("api_key" . ,oa-api-key)
-		   ("filter" . ,filter-string)
-		   ("page" . ,page)))
+	 (params (oa--params `("filter" . ,filter-string)
+			     `("page" . ,page)))
 
 	 (req (request url :sync t :parser 'oa--response-parser :params params))
 	 (data (request-response-data req))
@@ -174,10 +188,8 @@ non-nil, and `oa-api-key' if it is non-nil to the API url."
 			 ","))
 
 	 (req (request url :sync t :parser 'oa--response-parser
-		:params `(("mailto" . ,user-mail-address)
-			  ("api_key" . ,oa-api-key)
-			  ("filter" . ,filter-string)
-			  ("page" . ,page))))
+		:params (oa--params `("filter" . ,filter-string)
+				    `("page" . ,page))))
 	 (data (request-response-data req))
 	 (meta (plist-get data :meta))
 	 (count (plist-get meta :count))
@@ -282,9 +294,7 @@ https://docs.openalex.org/api-entities/works"
 		       (t
 			(format "/%s" entity-id)))))
 	 (req (request url :sync t :parser 'oa--response-parser
-		:params `(("mailto" . ,user-mail-address)
-			  ("api_key" . ,oa-api-key)
-			  ("filter" . ,filter))))
+		:params (oa--params `("filter" . ,filter))))
 	 (data (request-response-data req)))
     ;; this is for convenience to inspect data in a browser, e.g. you can click
     ;; on the url in Emacs and it opens in a browser.
@@ -300,9 +310,10 @@ https://docs.openalex.org/api-entities/works"
    (ivy-more-chars)
    (let* ((url "https://api.openalex.org/autocomplete/works")
 	  (req (request url :sync t :parser 'oa--response-parser
-		 :params `(("mailto" . ,user-mail-address)
-			   ("api_key" . ,oa-api-key)
-			   ("q" . ,query))))
+		 :params (let ((params `(("q" . ,query))))
+			   (when user-mail-address
+			     (push `("mailto" . ,user-mail-address) params))
+			   (nreverse params))))
 	  (data (request-response-data req))
 	  (results (plist-get data :results)))
      (cl-loop for work in results collect
@@ -540,8 +551,7 @@ Found ${nentries} results.
 			  (request url
 			    :sync t
 			    :parser 'oa--response-parser
-			    :params `(("mailto" . ,user-mail-address)
-				      ("api_key" . ,oa-api-key)))))
+			    :params (oa--params))))
 	 (count (plist-get (plist-get cited-by-works :meta) :count))
 	 (per-page (plist-get (plist-get cited-by-works :meta) :per_page))
 	 (entries '())
@@ -553,9 +563,7 @@ Found ${nentries} results.
 			    (request url
 			      :sync t
 			      :parser 'oa--response-parser
-			      :params `(("mailto" . ,user-mail-address)
-					("api_key" . ,oa-api-key)
-					("page" . ,page)))))
+			      :params (oa--params `("page" . ,page)))))
       (setq entries (append entries (oa--works-entries cited-by-works)))
       (cl-incf page))
 
@@ -676,9 +684,7 @@ FILTER is an optional string to add to the URL."
   (let* ((url (concat  "https://api.openalex.org/authors"
 		       entity-id))
 	 (req (request url :sync t :parser 'oa--response-parser
-		:params `(("mailto" . ,user-mail-address)
-			  ("api_key" . ,oa-api-key)
-			  ("filter" . ,filter))))
+		:params (oa--params `("filter" . ,filter))))
 	 (data (request-response-data req)))
     ;; this is for convenience to inspect data in a browser.
     (plist-put data :oa-url url)
@@ -702,9 +708,7 @@ FILTER is an optional string to add to the URL."
 			       (request url
 				 :sync t
 				 :parser 'oa--response-parser
-				 :params `(("mailto" . ,user-mail-address)
-					   ("api_key" . ,oa-api-key)
-					   ("page" . ,i))))
+				 :params (oa--params `("page" . ,i))))
 		   entries (append entries
 				   (cl-loop for result in (plist-get works-data :results)
 					    collect
@@ -779,9 +783,10 @@ ${abstract}
    (ivy-more-chars)
    (let* ((url "https://api.openalex.org/autocomplete/authors")
 	  (req (request url :sync t :parser 'oa--response-parser
-		 :params `(("mailto" . ,user-mail-address)
-			   ("api_key" . ,oa-api-key)
-			   ("q" . ,query))))
+		 :params (let ((params `(("q" . ,query))))
+			   (when user-mail-address
+			     (push `("mailto" . ,user-mail-address) params))
+			   (nreverse params))))
 	  (data (request-response-data req))
 	  (results (plist-get data :results)))
      (cl-loop for author in results collect
@@ -791,6 +796,20 @@ ${abstract}
 		       (plist-get
 			author :hint))
 	       'oaid (plist-get author :id))))))
+
+
+(defun oa--format-institution (data)
+  "Format institution from DATA, handling nil values gracefully.
+Extracts the first institution from last_known_institutions array."
+  (let* ((institutions (plist-get data :last_known_institutions))
+	 (first-inst (and institutions (listp institutions) (car institutions)))
+	 (name (and first-inst (plist-get first-inst :display_name)))
+	 (country (and first-inst (plist-get first-inst :country_code))))
+    (cond
+     ((and name country) (format "%s, %s" name country))
+     (name name)
+     (country country)
+     (t ""))))
 
 
 (defun oa--counts-by-year (data)
@@ -850,8 +869,7 @@ plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per 
 		      (request works-url
 			:sync t
 			:parser 'oa--response-parser
-			:params `(("mailto" . ,user-mail-address)
-				  ("api_key" . ,oa-api-key))))))
+			:params (oa--params)))))
     (with-current-buffer buf
       (erase-buffer)
       (insert (org-ref--format-template "* ${display_name} ([[${oa-url}][json]])
@@ -861,7 +879,7 @@ plot $counts using 1:3:xtic(2) with boxes lc rgb \"grey\" title \"Citations per 
 :SCOPUS: ${ids.scopus}
 :WORKS_COUNT: ${works_count}
 :CITED_BY_COUNT: ${cited_by_count}
-:INSTITUTION: ${last_known_institution.display_name}, ${last_known_institution.country_code}
+:INSTITUTION: ${institution}
 :END:
 
 #+COLUMNS: %25ITEM %YEAR %CITED_BY_COUNT
@@ -882,8 +900,8 @@ ${citations-image}
 			  ("orcid" . ,(oa-get data "orcid"))
 			  ("ids.scopus" . ,(oa-get data "ids.scopus"))
 			  ("works_count" . ,(oa-get data "works_count"))
-			  ("last_known_institution.display_name" . ,(oa-get data "last_known_institution.display_name"))
-			  ("last_known_institution.country_code" . ,(oa-get data "last_known_institution.country_code"))
+			  ("cited_by_count" . ,(oa-get data "cited_by_count"))
+			  ("institution" . ,(oa--format-institution data))
 			  ("citations-image" . ,citations-image))))
       (insert (string-join (oa--author-entries works-data works-url) "\n"))
 
@@ -926,10 +944,8 @@ PAGE is optional, and loads that page of results. Defaults to 1."
 	 (req (request url
 		:sync t
 		:parser #'oa--response-parser
-		:params `(("mailto" . ,user-mail-address)
-			  ("api_key" . ,oa-api-key)
-			  ("page" . ,page)
-			  ("filter" . ,(format "fulltext.search:%s" query)))))
+		:params (oa--params `("page" . ,page)
+				    `("filter" . ,(format "fulltext.search:%s" query)))))
 	 (data (request-response-data req))
 	 (metadata (plist-get data :meta))
 	 (count (plist-get metadata :count))
@@ -1042,8 +1058,7 @@ Recently published papers are probably missing.
 		      (request works-url
 			:sync t
 			:parser 'oa--response-parser
-			:params `(("mailto" . ,user-mail-address)
-				  ("api_key" . ,oa-api-key)))))
+			:params (oa--params))))
 	 (meta (plist-get works-data :meta))
 	 (count (plist-get meta :count))
 	 (per-page (plist-get meta :per_page))
@@ -1061,9 +1076,7 @@ Recently published papers are probably missing.
 			       (request works-url
 				 :sync t
 				 :parser 'oa--response-parser
-				 :params `(("mailto" . ,user-mail-address)
-					   ("api_key" . ,oa-api-key)
-					   ("page" . ,i))))
+				 :params (oa--params `("page" . ,i))))
 		   results (append results (plist-get works-data :results))))
 
     ;; Now results is a list of your publications. We need to iterate over each
