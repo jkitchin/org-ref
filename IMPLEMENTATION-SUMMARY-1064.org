@@ -61,10 +61,10 @@ From your 2016 blog post: help-echo can return a propertized string with a =disp
    - Added =org-ref-get-preview-image-at-label= function (line 242)
    - Enhanced =org-ref-ref-help-echo= function (line 274)
 
-2. =test/test-equation-tooltips.org=:
-   - New test file with example equations
-   - Documents expected behavior
-   - Provides test cases
+2. =test/equation-image-tooltips-test.el=:
+   - Comprehensive test suite for equation image tooltips
+   - Tests image detection and tooltip generation
+   - Provides test cases for various scenarios
 
 3. =implementation-plan-issue-1064.org=:
    - Detailed implementation plan
@@ -84,9 +84,11 @@ In an org file with equations:
 - Or customize =org-startup-with-latex-preview= to enable automatically
 
 *** Test
-1. Open =test/test-equation-tooltips.org=
-2. Enable the feature
-3. Generate previews
+1. Run the test suite:
+   #+begin_src bash
+   emacs --batch -L . -l test/equation-image-tooltips-test.el -f ert-run-tests-batch-and-exit
+   #+end_src
+2. Or manually test by enabling the feature and hovering over equation references
 4. Hover over eqref links
 5. Should see equation images in tooltips
 

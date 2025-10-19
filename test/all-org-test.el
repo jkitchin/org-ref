@@ -840,3 +840,7 @@ t))
 (ert-deftest load-org-ref-latex ()
 (require 'org-ref-latex))
 
+(provide 'all-org-test)
+
+;;; all-org-test.el ends here
+
