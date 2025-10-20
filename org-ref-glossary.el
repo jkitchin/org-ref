@@ -314,24 +314,24 @@ Returns nil if no glossary table is found in FILE."
       (insert-file-contents file)
       (org-mode)
       (let ((entries '()))
-        (catch 'found
-          (org-element-map
-              (org-element-parse-buffer)
-              'table
-            (lambda (el)
-              (when (string= "glossary" (org-element-property :name el))
-                (goto-char (org-element-property :contents-begin el))
-                (let ((table-data (nthcdr 2 (org-babel-read-table))))
-                  ;; Convert table rows to plists
-                  (dolist (row table-data)
-                    (when (and (listp row) (= 3 (length row)))
-                      (push (list :label (nth 0 row)
-                                  :name (nth 1 row)
-                                  :description (nth 2 row)
-                                  :file file)
-                            entries)))
-                  (throw 'found (nreverse entries)))))))
-        entries))))
+        (or (catch 'found
+              (org-element-map
+                  (org-element-parse-buffer)
+                  'table
+                (lambda (el)
+                  (when (string= "glossary" (org-element-property :name el))
+                    (goto-char (org-element-property :contents-begin el))
+                    (let ((table-data (nthcdr 2 (org-babel-read-table))))
+                      ;; Convert table rows to plists
+                      (dolist (row table-data)
+                        (when (and (listp row) (= 3 (length row)))
+                          (push (list :label (nth 0 row)
+                                      :name (nth 1 row)
+                                      :description (nth 2 row)
+                                      :file file)
+                                entries)))
+                      (throw 'found (nreverse entries)))))))
+            entries)))))
 
 
 (defun or-scan-file-for-acronym-table (file)
@@ -343,24 +343,24 @@ Returns nil if no acronym table is found in FILE."
       (insert-file-contents file)
       (org-mode)
       (let ((entries '()))
-        (catch 'found
-          (org-element-map
-              (org-element-parse-buffer)
-              'table
-            (lambda (el)
-              (when (string= "acronyms" (org-element-property :name el))
-                (goto-char (org-element-property :contents-begin el))
-                (let ((table-data (nthcdr 2 (org-babel-read-table))))
-                  ;; Convert table rows to plists
-                  (dolist (row table-data)
-                    (when (and (listp row) (= 3 (length row)))
-                      (push (list :label (nth 0 row)
-                                  :abbrv (nth 1 row)
-                                  :full (nth 2 row)
-                                  :file file)
-                            entries)))
-                  (throw 'found (nreverse entries)))))))
-        entries))))
+        (or (catch 'found
+              (org-element-map
+                  (org-element-parse-buffer)
+                  'table
+                (lambda (el)
+                  (when (string= "acronyms" (org-element-property :name el))
+                    (goto-char (org-element-property :contents-begin el))
+                    (let ((table-data (nthcdr 2 (org-babel-read-table))))
+                      ;; Convert table rows to plists
+                      (dolist (row table-data)
+                        (when (and (listp row) (= 3 (length row)))
+                          (push (list :label (nth 0 row)
+                                      :abbrv (nth 1 row)
+                                      :full (nth 2 row)
+                                      :file file)
+                                entries)))
+                      (throw 'found (nreverse entries)))))))
+            entries)))))
 
 
 (defun or-parse-glossary-entry-multi-file (label)
