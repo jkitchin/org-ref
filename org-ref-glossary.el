@@ -294,8 +294,12 @@ Set face property, and help-echo."
 	   'face (if data
 		     'org-ref-glossary-face
 		   'font-lock-warning-face)
-           ;; Suppress spell-checking (for jinx and other spell checkers)
-           'jinx-languages nil))))
+           ;; Suppress spell-checking with nospell property.
+           ;; For jinx users: add 'nospell to jinx-exclude-properties:
+           ;;   (setq jinx-exclude-properties '((org-mode read-only nospell)))
+           ;; Or exclude by face using jinx-exclude-faces:
+           ;;   (add-to-list 'jinx-exclude-faces 'org-ref-glossary-face)
+           'nospell t))))
 
 (defface org-ref-glossary-face
   `((t (:inherit org-link :foreground "Mediumpurple3")))
@@ -526,8 +530,12 @@ Set face property, and help-echo."
 	   'face (if data
 		     'org-ref-acronym-face
 		   'font-lock-warning-face)
-           ;; Suppress spell-checking (for jinx and other spell checkers)
-           'jinx-languages nil))))
+           ;; Suppress spell-checking with nospell property.
+           ;; For jinx users: add 'nospell to jinx-exclude-properties:
+           ;;   (setq jinx-exclude-properties '((org-mode read-only nospell)))
+           ;; Or exclude by face using jinx-exclude-faces:
+           ;;   (add-to-list 'jinx-exclude-faces 'org-ref-acronym-face)
+           'nospell t))))
 
 
 (defun or-follow-acronym (label)
@@ -951,6 +959,16 @@ Meant for non-LaTeX exports."
 						 (buffer-substring (org-element-property :contents-begin lnk)
 								   (org-element-property :contents-end lnk))
 						 (make-string (org-element-property :post-blank lnk) ? )))))))
+
+
+;;** Jinx spell-checker integration
+
+;; Automatically configure jinx to exclude glossary and acronym links from
+;; spell-checking if jinx is loaded. This prevents jinx from marking these
+;; links as typos.
+(with-eval-after-load 'jinx
+  (add-to-list 'jinx-exclude-faces 'org-ref-glossary-face)
+  (add-to-list 'jinx-exclude-faces 'org-ref-acronym-face))
 
 
 (provide 'org-ref-glossary)
