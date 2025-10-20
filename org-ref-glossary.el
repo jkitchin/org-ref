@@ -369,6 +369,7 @@ Uses timestamp-based caching to avoid re-scanning unchanged files.
 Returns plist with :label, :name, :description, :file."
   (when (and (boundp 'org-ref-glossary-enable-multi-file)
              org-ref-glossary-enable-multi-file
+             (boundp 'org-ref-glossary-file-cache)
              (buffer-file-name))
     (let* ((current-file (buffer-file-name))
            (included-files (org-ref-get-included-files))
@@ -398,6 +399,7 @@ Uses timestamp-based caching to avoid re-scanning unchanged files.
 Returns plist with :label, :abbrv, :full, :file."
   (when (and (boundp 'org-ref-glossary-enable-multi-file)
              org-ref-glossary-enable-multi-file
+             (boundp 'org-ref-acronym-file-cache)
              (buffer-file-name))
     (let* ((current-file (buffer-file-name))
            (included-files (org-ref-get-included-files))
