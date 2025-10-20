@@ -1153,12 +1153,22 @@ Meant for non-LaTeX exports."
 ;; This configuration applies immediately if jinx is already loaded, or will
 ;; take effect when jinx is loaded in the future.
 (defun org-ref-glossary--configure-jinx ()
-  "Add glossary and acronym faces to jinx-exclude-faces."
+  "Add glossary and acronym faces to jinx-exclude-faces for org-mode."
   (when (boundp 'jinx-exclude-faces)
-    (add-to-list 'jinx-exclude-faces 'org-ref-glossary-face)
-    (add-to-list 'jinx-exclude-faces 'org-ref-acronym-face)
-    (message "org-ref-glossary: Added glossary/acronym faces to jinx-exclude-faces: %S"
-             jinx-exclude-faces)))
+    ;; jinx-exclude-faces is an alist: ((mode face1 face2 ...) ...)
+    ;; We need to add our faces to the org-mode entry
+    (let ((org-entry (assq 'org-mode jinx-exclude-faces)))
+      (if org-entry
+          ;; org-mode entry exists, add our faces to it
+          (progn
+            (unless (memq 'org-ref-glossary-face org-entry)
+              (setcdr org-entry (cons 'org-ref-glossary-face (cdr org-entry))))
+            (unless (memq 'org-ref-acronym-face org-entry)
+              (setcdr org-entry (cons 'org-ref-acronym-face (cdr org-entry)))))
+        ;; org-mode entry doesn't exist, create it
+        (push '(org-mode org-ref-glossary-face org-ref-acronym-face)
+              jinx-exclude-faces)))
+    (message "org-ref-glossary: Configured jinx to exclude glossary/acronym faces in org-mode")))
 
 ;; Configure immediately if jinx is already loaded
 (when (featurep 'jinx)
