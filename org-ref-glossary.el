@@ -102,6 +102,17 @@ This is not always fast, so we provide a way to disable it."
   :group 'org-ref-glossary)
 
 
+(defcustom org-ref-glossary-show-tooltips t
+  "If non-nil, show tooltips when hovering over glossary and acronym links.
+When nil, tooltips are disabled entirely for glossary links, which can
+improve responsiveness if you find the tooltips distracting or slow.
+
+This is separate from `org-ref-activate-glossary-links' which controls
+whether links are fontified and clickable."
+  :type 'boolean
+  :group 'org-ref-glossary)
+
+
 (defcustom org-ref-glsentries '()
   "Variable to hold locations of glsentries load files.")
 
@@ -298,20 +309,24 @@ Set face property, and help-echo."
 (defun or-glossary-tooltip (_window buffer position)
   "Return tooltip for the glossary entry.
 The entry is in WINDOW and OBJECT at POSITION.
-Used in fontification." 
-  (with-current-buffer buffer
-    (let* ((data (get-text-property position 'or-glossary))
-	   (name (or (plist-get data :name)
-		     (plist-get data :abbrv)))
-	   (description (or (plist-get data :description)
-			    (plist-get data :full))))
-      (format
-       "%s: %s"
-       name
-       (with-temp-buffer
-	 (insert (concat  description "."))
-	 (fill-paragraph)
-	 (buffer-string))))))
+Used in fontification."
+  (when org-ref-glossary-show-tooltips
+    (with-current-buffer buffer
+      (let ((data (get-text-property position 'or-glossary)))
+        (if data
+            (let ((name (or (plist-get data :name)
+                            (plist-get data :abbrv)))
+                  (description (or (plist-get data :description)
+                                   (plist-get data :full))))
+              (when (and name description)
+                (format "%s: %s"
+                        name
+                        (with-temp-buffer
+                          (insert (concat description "."))
+                          (fill-paragraph)
+                          (buffer-string)))))
+          ;; No data found - return helpful message or nil
+          "This is not defined in this file.")))))
 
 
 (defvar org-ref-glossary-gls-commands
@@ -539,17 +554,17 @@ Set face property, and help-echo."
 The entry is in WINDOW and OBJECT at POSITION.
 Used in fontification.
 WINDOW and OBJECT are ignored."
-  (with-current-buffer buffer
-    (save-excursion
-      (goto-char position)
-      (let* ((acronym-data (get-text-property position 'or-glossary))
-	     (abbrv (plist-get acronym-data :abbrv))
-	     (full (plist-get acronym-data :full)))
-	(if acronym-data
-	    (format
-	     "%s: %s"
-	     abbrv full)
-	  (format "This is not defined in this file."))))))
+  (when org-ref-glossary-show-tooltips
+    (with-current-buffer buffer
+      (save-excursion
+        (goto-char position)
+        (let ((acronym-data (get-text-property position 'or-glossary)))
+          (if acronym-data
+              (let ((abbrv (plist-get acronym-data :abbrv))
+                    (full (plist-get acronym-data :full)))
+                (when (and abbrv full)
+                  (format "%s: %s" abbrv full)))
+            "This is not defined in this file."))))))
 
 
 (defvar org-ref-acronym-types
