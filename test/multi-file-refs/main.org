@@ -1,0 +1,32 @@
+#+TITLE: Multi-File Reference Test - Main Document
+#+AUTHOR: Test Suite
+#+DATE: 2025-10-19
+
+* About This Document
+
+This is a test document for multi-file references in org-ref.
+
+The document includes two chapters via #+INCLUDE directives.
+
+
+* Contents
+
+#+INCLUDE: "./chapter1.org"
+
+#+INCLUDE: "./chapter2.org"
+
+* Summary
+
+This main file can also reference labels from the included files:
+
+- Einstein's equation: eqref:eq:important
+- Sample figure: ref:fig:sample-figure
+- Another figure: ref:fig:another-figure
+- Data table: ref:tab:data
+- Results table: ref:tab:results
+- Introduction section: ref:sec:introduction
+- Analysis section: ref:sec:analysis
+- Newton's law: eqref:eq:theory
+- Quadratic formula: eqref:eq:result
+
+All of these references should work when multi-file references are enabled!

@@ -1,0 +1,43 @@
+#+TITLE: Chapter 2 - Analysis
+
+* Analysis
+:PROPERTIES:
+:CUSTOM_ID: sec:analysis
+:END:
+
+This chapter analyzes the concepts from the previous chapter.
+
+** Cross-References to Chapter 1
+
+Here we reference items from chapter1:
+- See Figure ref:fig:sample-figure for a visualization
+- The equation eqref:eq:important is fundamental
+- Table ref:tab:data shows the experimental data
+- See Section ref:sec:introduction for background
+- Newton's law is shown in eqref:eq:theory
+
+** Local Content
+
+We also have our own figures in this chapter:
+
+#+NAME: fig:another-figure
+#+CAPTION: Another figure specific to this chapter
+[[file:plot.png]]
+
+And we can reference our own local labels: ref:fig:another-figure
+
+** Results
+
+\begin{equation}
+\label{eq:result}
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+\end{equation}
+
+The quadratic formula in eqref:eq:result is well known.
+
+#+NAME: tab:results
+#+CAPTION: Analysis results
+| Test | Result |
+|------+--------|
+| T1   | Pass   |
+| T2   | Pass   |

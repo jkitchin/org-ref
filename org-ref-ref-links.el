@@ -70,6 +70,22 @@ text display."
   :group 'org-ref)
 
 
+(defcustom org-ref-enable-multi-file-references t
+  "If non-nil, collect labels from files included via #+INCLUDE directives.
+
+When enabled, org-ref will search for labels not only in the current buffer,
+but also in all files referenced via #+INCLUDE directives. This allows
+cross-references to work across multiple files in a project.
+
+Labels are cached per-file and only re-scanned when files change, using
+timestamp-based change detection for performance.
+
+For single-file documents, this feature has minimal overhead since no
+#+INCLUDE directives are present. Set to nil to disable if needed."
+  :type 'boolean
+  :group 'org-ref)
+
+
 (defface org-ref-ref-face
   `((t (:inherit org-link :foreground "dark red")))
   "Face for ref links in org-ref."
@@ -170,6 +186,154 @@ The label should always be in group 1.")
   "Buffer modification tick when preview image cache was last updated.")
 
 
+;; Multi-file reference support - global caches
+(defvar org-ref-project-label-cache (make-hash-table :test 'equal)
+  "Hash table mapping project-root -> ((file . labels-alist) ...).
+Used when `org-ref-enable-multi-file-references' is non-nil to cache
+labels from multiple files in a project.")
+
+
+(defvar org-ref-file-timestamps (make-hash-table :test 'equal)
+  "Hash table mapping file-path -> (mtime . size) for change detection.
+Used to determine if a file needs to be re-scanned for labels without
+actually opening and parsing the file.")
+
+
+(defun org-ref-get-included-files ()
+  "Return list of absolute paths to files included in current buffer.
+Parses #+INCLUDE directives and returns a list of existing files.
+Only returns files that actually exist on disk."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((files '()))
+      (while (re-search-forward "^[ \t]*#\\+INCLUDE:[ \t]+\"\\([^\"]+\\)\"" nil t)
+        (let* ((file (match-string-no-properties 1))
+               (expanded-file (expand-file-name file)))
+          (when (file-exists-p expanded-file)
+            (push expanded-file files))))
+      (nreverse files))))
+
+
+(defun org-ref-file-changed-p (file)
+  "Check if FILE has changed since last scan using timestamp and size.
+This is an O(1) operation that doesn't require parsing the file.
+Returns t if the file has changed or hasn't been scanned yet."
+  (let* ((attrs (file-attributes file))
+         (mtime (nth 5 attrs))
+         (size (nth 7 attrs))
+         (cached (gethash file org-ref-file-timestamps)))
+    (or (not cached)
+        (not (equal mtime (car cached)))
+        (not (equal size (cdr cached))))))
+
+
+(defun org-ref-mark-file-scanned (file)
+  "Record timestamp and size of FILE to detect future changes."
+  (let* ((attrs (file-attributes file))
+         (mtime (nth 5 attrs))
+         (size (nth 7 attrs)))
+    (puthash file (cons mtime size) org-ref-file-timestamps)))
+
+
+(defun org-ref-scan-buffer-for-labels ()
+  "Scan current buffer for labels and return list of (label . context) cons cells.
+This is the core scanning logic used by both single-file and multi-file modes."
+  (let ((case-fold-search t)
+        (rx (string-join org-ref-ref-label-regexps "\\|"))
+        (labels '())
+        oe ;; org-element
+        context)
+    (save-excursion
+      (org-with-wide-buffer
+       (goto-char (point-min))
+       (while (re-search-forward rx nil t)
+         (save-match-data
+           ;; Here we try to get some relevant context for different things you
+           ;; might reference.
+           (setq oe (org-element-context)
+                 context (string-trim
+                          (pcase (car oe)
+                            ('latex-environment (buffer-substring
+                                                 (org-element-property :begin oe)
+                                                 (org-element-property :end oe)))
+                            ;; figure
+                            ('paragraph (buffer-substring
+                                         (org-element-property :begin oe)
+                                         (org-element-property :end oe)))
+                            ('table (buffer-substring
+                                     (org-element-property :begin oe)
+                                     (org-element-property :end oe)))
+                            ;; Headings fall here.
+                            (_ (buffer-substring (line-beginning-position)
+                                                 (line-end-position)))))))
+         (cl-pushnew (cons (match-string-no-properties 1) context)
+                     labels))))
+    ;; reverse so they are in the order we find them.
+    (delete-dups (reverse labels))))
+
+
+(defun org-ref-get-labels-single-file ()
+  "Get labels from current buffer only (original single-file behavior).
+Uses buffer-local cache and buffer-chars-modified-tick for invalidation."
+  (if (or
+       ;; if we have not checked we have to check
+       (null org-ref-buffer-chars-modified-tick)
+       ;; Now check if buffer has changed since last time we looked. We check
+       ;; this with the buffer-chars-modified-tick which keeps track of changes.
+       ;; If this hasn't changed, no chars have been modified.
+       (not (= (buffer-chars-modified-tick)
+               org-ref-buffer-chars-modified-tick)))
+      ;; We need to search for all the labels either because we don't have them,
+      ;; or the buffer has changed since we looked last time.
+      (setq
+       org-ref-buffer-chars-modified-tick (buffer-chars-modified-tick)
+       org-ref-label-cache (org-ref-scan-buffer-for-labels))
+    ;; retrieve the cached data
+    org-ref-label-cache))
+
+
+(defun org-ref-scan-file-for-labels (file)
+  "Scan FILE for labels and return list of (label . context) cons cells.
+Opens the file in a temporary buffer and scans it."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (org-mode)
+    (org-ref-scan-buffer-for-labels)))
+
+
+(defun org-ref-get-labels-multi-file ()
+  "Get labels from current file and all included files.
+Only re-scans files that have actually changed (timestamp-based detection).
+Uses global project cache for efficiency."
+  (when (buffer-file-name)
+    (let* ((current-file (buffer-file-name))
+           (included-files (org-ref-get-included-files))
+           (all-files (cons current-file included-files))
+           (all-labels '()))
+
+      ;; For each file, check if it changed and re-scan only if needed
+      (dolist (file all-files)
+        (when (org-ref-file-changed-p file)
+          ;; File changed, re-scan it
+          (let ((file-labels (if (string= file current-file)
+                                 ;; For current file, use the regular scan
+                                 (org-ref-scan-buffer-for-labels)
+                               ;; For included files, scan from disk
+                               (org-ref-scan-file-for-labels file))))
+            ;; Cache the labels for this file
+            (puthash file file-labels org-ref-project-label-cache)
+            ;; Mark file as scanned
+            (org-ref-mark-file-scanned file)))
+
+        ;; Retrieve cached labels for this file
+        (let ((file-labels (gethash file org-ref-project-label-cache)))
+          (when file-labels
+            (setq all-labels (append all-labels file-labels)))))
+
+      ;; Remove duplicates (in case same label appears in multiple files)
+      (delete-dups all-labels))))
+
+
 (defun org-ref-get-labels ()
   "Return a list of referenceable labels in the document.
 You can reference:
@@ -184,60 +348,48 @@ See `org-ref-ref-label-regexps' for the patterns that find these.
 
 Returns a list of cons cells (label . context).
 
+If `org-ref-enable-multi-file-references' is non-nil, also includes
+labels from files referenced via #+INCLUDE directives.
+
 It is important for this function to be fast, since we use it in
 font-lock."
-  (if (or
-       ;; if we have not checked we have to check
-       (null org-ref-buffer-chars-modified-tick)
-       ;; Now check if buffer has changed since last time we looked. We check
-       ;; this with the buffer-chars-modified-tick which keeps track of changes.
-       ;; If this hasn't changed, no chars have been modified.
-       (not (= (buffer-chars-modified-tick)
-	       org-ref-buffer-chars-modified-tick)))
-      ;; We need to search for all the labels either because we don't have them,
-      ;; or the buffer has changed since we looked last time.
-      (let ((case-fold-search t)
-	    (rx (string-join org-ref-ref-label-regexps "\\|"))
-	    (labels '())
-	    oe ;; org-element
-	    context)
-	(save-excursion
-	  (org-with-wide-buffer
-	   (goto-char (point-min))
-	   (while (re-search-forward rx nil t)
-	     (save-match-data
-	       ;; Here we try to get some relevant context for different things you
-	       ;; might reference.
-	       (setq oe (org-element-context)
-		     context (string-trim
-			      (pcase (car oe)
-				('latex-environment (buffer-substring
-						     (org-element-property :begin oe)
-						     (org-element-property :end oe)))
-				;; figure
-				('paragraph (buffer-substring
-					     (org-element-property :begin oe)
-					     (org-element-property :end oe)))
-				('table (buffer-substring
-					 (org-element-property :begin oe)
-					 (org-element-property :end oe)))
-				;; Headings fall here.
-				(_ (buffer-substring (line-beginning-position)
-						     (line-end-position)))))))
-	     (cl-pushnew (cons (match-string-no-properties 1) context)
-			 labels))))
-	
-	;; reverse so they are in the order we find them.
-	(setq
-	 org-ref-buffer-chars-modified-tick (buffer-chars-modified-tick)
-	 org-ref-label-cache (delete-dups (reverse labels))))
+  (if org-ref-enable-multi-file-references
+      (org-ref-get-labels-multi-file)
+    (org-ref-get-labels-single-file)))
 
-    ;; retrieve the cached data
-    org-ref-label-cache))
+
+(defun org-ref-find-label-in-buffer (label)
+  "Search for LABEL in current buffer.
+Returns t if found and moves point to the label, nil otherwise."
+  (let ((case-fold-search t)
+        (rx (string-join org-ref-ref-label-regexps "\\|")))
+    (save-excursion
+      (goto-char (point-min))
+      (catch 'found
+        (while (re-search-forward rx nil t)
+          (when (string= label (match-string-no-properties 1))
+            (goto-char (match-beginning 1))
+            (throw 'found t)))))))
+
+
+(defun org-ref-find-label-in-file (label file)
+  "Search for LABEL in FILE.
+Returns the position if found, nil otherwise."
+  (with-current-buffer (find-file-noselect file)
+    (save-excursion
+      (goto-char (point-min))
+      (let ((case-fold-search t)
+            (rx (string-join org-ref-ref-label-regexps "\\|")))
+        (catch 'found
+          (while (re-search-forward rx nil t)
+            (when (string= label (match-string-no-properties 1))
+              (throw 'found (match-beginning 1)))))))))
 
 
 (defun org-ref-ref-jump-to (&optional path)
-  "Jump to the target for the ref link at point."
+  "Jump to the target for the ref link at point.
+If `org-ref-enable-multi-file-references' is non-nil and the label
+is not found in the current buffer, searches in included files."
   (interactive)
   (let ((case-fold-search t)
 	(label (get-text-property (point) 'org-ref-ref-label))
@@ -251,17 +403,45 @@ font-lock."
 	 (setq label (completing-read "Label: " labels)))))
     (when label
       (org-mark-ring-push)
+      ;; First, try to find in current buffer
       (widen)
       (goto-char (point-min))
-      (catch 'found
-	(while (re-search-forward rx)
-	  (when (string= label (match-string-no-properties 1))
-	    (save-match-data (org-mark-ring-push))
-	    (goto-char (match-beginning 1))
-	    (org-fold-show-entry)
-	    (substitute-command-keys
-	     "Go back with (org-mark-ring-goto) \`\\[org-mark-ring-goto]'.")
-	    (throw 'found t)))))))
+      (let ((found nil))
+        (catch 'found
+          (while (re-search-forward rx nil t)
+            (when (string= label (match-string-no-properties 1))
+              (save-match-data (org-mark-ring-push))
+              (goto-char (match-beginning 1))
+              (org-fold-show-entry)
+              (message
+               (substitute-command-keys
+                "Go back with (org-mark-ring-goto) \\[org-mark-ring-goto]."))
+              (setq found t)
+              (throw 'found t))))
+
+        ;; If not found in current buffer and multi-file mode is enabled,
+        ;; search in included files
+        (when (and (not found)
+                   org-ref-enable-multi-file-references
+                   (buffer-file-name))
+          (let ((included-files (org-ref-get-included-files)))
+            (catch 'found-in-file
+              (dolist (file included-files)
+                (let ((pos (org-ref-find-label-in-file label file)))
+                  (when pos
+                    ;; Found in an included file - open it and jump to position
+                    (find-file file)
+                    (goto-char pos)
+                    (org-fold-show-entry)
+                    (message
+                     (substitute-command-keys
+                      "Go back with (org-mark-ring-goto) \\[org-mark-ring-goto]."))
+                    (throw 'found-in-file t)))))
+
+            ;; If we get here, label wasn't found anywhere
+            (unless found
+              (message "Label '%s' not found in current file or included files" label))))))))
+
 
 
 (defun org-ref-find-overlay-with-image (begin end)

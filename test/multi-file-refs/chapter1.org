@@ -1,0 +1,47 @@
+#+TITLE: Chapter 1 - Introduction
+
+* Introduction
+:PROPERTIES:
+:CUSTOM_ID: sec:introduction
+:END:
+
+This chapter introduces the basic concepts.
+
+** Figures
+
+#+NAME: fig:sample-figure
+#+CAPTION: A sample figure showing the concept
+[[file:image.png]]
+
+** Important Equations
+
+The fundamental equation is:
+
+\begin{equation}
+\label{eq:important}
+E = mc^2
+\end{equation}
+
+This is Einstein's famous mass-energy equivalence equation.
+
+** Data Tables
+
+#+NAME: tab:data
+#+CAPTION: Sample data table
+| Item | Value | Unit |
+|------+-------+------|
+| A    |     1 | m    |
+| B    |     2 | kg   |
+| C    |     3 | s    |
+
+* Theory
+:PROPERTIES:
+:CUSTOM_ID: sec:theory
+:END:
+
+The theoretical framework is described here.
+
+\begin{equation}
+\label{eq:theory}
+F = ma
+\end{equation}
