@@ -966,9 +966,24 @@ Meant for non-LaTeX exports."
 ;; Automatically configure jinx to exclude glossary and acronym links from
 ;; spell-checking if jinx is loaded. This prevents jinx from marking these
 ;; links as typos.
+;;
+;; This configuration applies immediately if jinx is already loaded, or will
+;; take effect when jinx is loaded in the future.
+(defun org-ref-glossary--configure-jinx ()
+  "Add glossary and acronym faces to jinx-exclude-faces."
+  (when (boundp 'jinx-exclude-faces)
+    (add-to-list 'jinx-exclude-faces 'org-ref-glossary-face)
+    (add-to-list 'jinx-exclude-faces 'org-ref-acronym-face)
+    (message "org-ref-glossary: Added glossary/acronym faces to jinx-exclude-faces: %S"
+             jinx-exclude-faces)))
+
+;; Configure immediately if jinx is already loaded
+(when (featurep 'jinx)
+  (org-ref-glossary--configure-jinx))
+
+;; Also configure when jinx loads in the future
 (with-eval-after-load 'jinx
-  (add-to-list 'jinx-exclude-faces 'org-ref-glossary-face)
-  (add-to-list 'jinx-exclude-faces 'org-ref-acronym-face))
+  (org-ref-glossary--configure-jinx))
 
 
 (provide 'org-ref-glossary)
