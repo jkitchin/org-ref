@@ -1,0 +1,37 @@
+* Chapter 1: System Architecture
+
+** Introduction
+
+This chapter discusses system architecture components and how they interact.
+
+** Core Components
+
+The gls:cpu is the brain of the computer, working with gls:ram to execute
+programs. Modern systems use multiple cores to improve performance.
+
+The gls:compiler translates high-level code into machine instructions that
+the gls:cpu can execute. The gls:parser validates code syntax before compilation.
+
+** Data Management
+
+A gls:database stores structured information accessed via gls:sql queries.
+The gls:cache improves performance by storing frequently accessed data.
+
+The gls:queue data structure manages task ordering in the system. gls:encryption
+protects sensitive data at rest and in transit.
+
+** Communication
+
+Systems communicate through well-defined gls:interface using standardized
+gls:protocol. The gls:api provides programmatic access to system functionality.
+
+Web services use gls:http for communication, often with gls:rest architectural
+patterns. Data is exchanged in formats like gls:json or gls:html.
+
+** Performance Considerations
+
+The gls:algorithm choice significantly impacts system performance. Efficient
+use of gls:cache and minimizing gls:database queries are critical.
+
+The gls:tcp protocol ensures reliable data transmission across networks.
+Modern gls:server handle thousands of concurrent connections.

@@ -1,0 +1,17 @@
+* Acronym Definitions
+
+This file contains acronym definitions that will be included in the main document.
+
+#+name: acronyms
+| key  | abbreviation | full form                         |
+|------+--------------+-----------------------------------|
+| api  | API          | Application Programming Interface |
+| cpu  | CPU          | Central Processing Unit           |
+| ram  | RAM          | Random Access Memory              |
+| http | HTTP         | Hypertext Transfer Protocol       |
+| tcp  | TCP          | Transmission Control Protocol     |
+| sql  | SQL          | Structured Query Language         |
+| json | JSON         | JavaScript Object Notation        |
+| html | HTML         | Hypertext Markup Language         |
+| css  | CSS          | Cascading Style Sheets            |
+| rest | REST         | Representational State Transfer   |

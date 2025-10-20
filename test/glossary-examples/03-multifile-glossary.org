@@ -1,0 +1,17 @@
+* Glossary Definitions
+
+This file contains glossary term definitions that will be included in the main document.
+
+#+name: glossary
+| label      | name       | description                                            |
+|------------+------------+--------------------------------------------------------|
+| algorithm  | Algorithm  | A step-by-step procedure for solving a problem        |
+| server     | Server     | A computer that provides services to other computers   |
+| database   | Database   | An organized collection of structured information      |
+| interface  | Interface  | A shared boundary where components exchange information|
+| protocol   | Protocol   | A set of rules governing data communication            |
+| encryption | Encryption | The process of encoding information securely           |
+| compiler   | Compiler   | A program that translates source code                  |
+| parser     | Parser     | A program that analyzes text structure                 |
+| cache      | Cache      | Temporary storage for frequently accessed data         |
+| queue      | Queue      | A first-in-first-out data structure                    |

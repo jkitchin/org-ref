@@ -1,0 +1,277 @@
+#+TITLE: Large Glossary Example - Performance Test
+#+AUTHOR: Test
+#+LATEX_HEADER: \usepackage{glossaries}
+#+LATEX_HEADER: \makeglossaries
+
+* Introduction
+
+This file contains many glossary entries and acronyms to test performance
+with large documents. Try hovering over the gls: and acronym links throughout
+this document to test tooltip performance.
+
+** Glossary Definitions (50+ entries)
+
+#+name: glossary
+| label           | name            | description                                                    |
+|-----------------+-----------------+----------------------------------------------------------------|
+| algorithm       | Algorithm       | A step-by-step procedure for solving a problem                |
+| bandwidth       | Bandwidth       | The maximum rate of data transfer across a network path        |
+| cache           | Cache           | A hardware or software component that stores data temporarily  |
+| database        | Database        | An organized collection of structured information              |
+| encryption      | Encryption      | The process of encoding information to prevent unauthorized access |
+| firewall        | Firewall        | A network security system that monitors and controls traffic   |
+| gateway         | Gateway         | A network node that serves as an access point to another network |
+| hardware        | Hardware        | Physical components of a computer system                       |
+| interface       | Interface       | A shared boundary where components exchange information        |
+| kernel          | Kernel          | The core component of an operating system                      |
+| latency         | Latency         | The time delay between cause and effect in a system           |
+| middleware      | Middleware      | Software that connects different applications or services      |
+| node            | Node            | A connection point in a network                                |
+| operating-system| Operating System| Software that manages computer hardware and software resources |
+| protocol        | Protocol        | A set of rules governing data communication                    |
+| queue           | Queue           | A data structure following first-in-first-out principle        |
+| router          | Router          | A device that forwards data packets between networks           |
+| server          | Server          | A computer that provides services to other computers           |
+| thread          | Thread          | The smallest sequence of programmed instructions               |
+| variable        | Variable        | A storage location with an associated symbolic name            |
+| compiler        | Compiler        | A program that translates source code into machine code        |
+| debugger        | Debugger        | A tool used to test and debug programs                         |
+| editor          | Editor          | A program for creating and modifying text files                |
+| framework       | Framework       | A platform for developing software applications                |
+| graphics        | Graphics        | Visual images produced by a computer                           |
+| hyperlink       | Hyperlink       | A reference to data that the user can follow by clicking       |
+| interpreter     | Interpreter     | A program that directly executes instructions                  |
+| javascript      | JavaScript      | A high-level programming language for web development          |
+| keyboard        | Keyboard        | An input device for entering characters                        |
+| library         | Library         | A collection of precompiled routines                           |
+| memory          | Memory          | Storage space where data is kept for immediate access          |
+| network-card    | Network Card    | Hardware that connects a computer to a network                 |
+| object          | Object          | A self-contained entity with data and methods                  |
+| parser          | Parser          | A program that analyzes text according to grammar rules        |
+| query           | Query           | A request for data from a database                             |
+| registry        | Registry        | A database for storing configuration settings                  |
+| script          | Script          | A program written in a scripting language                      |
+| terminal        | Terminal        | An interface for entering commands to a computer               |
+| upload          | Upload          | The transmission of data to a remote system                    |
+| validation      | Validation      | The process of checking data for correctness                   |
+| website         | Website         | A collection of web pages under a single domain                |
+| xml             | XML             | Extensible Markup Language for encoding documents              |
+| yaml            | YAML            | A human-readable data serialization language                   |
+| zip             | ZIP             | A file format for data compression                             |
+
+** Acronym Definitions (50+ entries)
+
+#+name: acronyms
+| key  | abbreviation | full form                          |
+|------+--------------+------------------------------------|
+| api  | API          | Application Programming Interface  |
+| cpu  | CPU          | Central Processing Unit            |
+| gpu  | GPU          | Graphics Processing Unit           |
+| ram  | RAM          | Random Access Memory               |
+| rom  | ROM          | Read-Only Memory                   |
+| hdd  | HDD          | Hard Disk Drive                    |
+| ssd  | SSD          | Solid State Drive                  |
+| usb  | USB          | Universal Serial Bus               |
+| lan  | LAN          | Local Area Network                 |
+| wan  | WAN          | Wide Area Network                  |
+| dns  | DNS          | Domain Name System                 |
+| dhcp | DHCP         | Dynamic Host Configuration Protocol|
+| http | HTTP         | Hypertext Transfer Protocol        |
+| https| HTTPS        | HTTP Secure                        |
+| ftp  | FTP          | File Transfer Protocol             |
+| smtp | SMTP         | Simple Mail Transfer Protocol      |
+| tcp  | TCP          | Transmission Control Protocol      |
+| udp  | UDP          | User Datagram Protocol             |
+| ip   | IP           | Internet Protocol                  |
+| mac  | MAC          | Media Access Control               |
+| ssl  | SSL          | Secure Sockets Layer               |
+| tls  | TLS          | Transport Layer Security           |
+| vpn  | VPN          | Virtual Private Network            |
+| nat  | NAT          | Network Address Translation        |
+| url  | URL          | Uniform Resource Locator           |
+| uri  | URI          | Uniform Resource Identifier        |
+| html | HTML         | Hypertext Markup Language          |
+| css  | CSS          | Cascading Style Sheets             |
+| json | JSON         | JavaScript Object Notation         |
+| rest | REST         | Representational State Transfer    |
+| soap | SOAP         | Simple Object Access Protocol      |
+| sql  | SQL          | Structured Query Language          |
+| nosql| NoSQL        | Not Only SQL                       |
+| crud | CRUD         | Create Read Update Delete          |
+| gui  | GUI          | Graphical User Interface           |
+| cli  | CLI          | Command Line Interface             |
+| ide  | IDE          | Integrated Development Environment |
+| sdk  | SDK          | Software Development Kit           |
+| jvm  | JVM          | Java Virtual Machine               |
+| gcc  | GCC          | GNU Compiler Collection            |
+| bash | BASH         | Bourne Again Shell                 |
+| git  | GIT          | Global Information Tracker         |
+| ssh  | SSH          | Secure Shell                       |
+| ascii| ASCII        | American Standard Code for Information Interchange |
+| unicode| Unicode    | Universal Character Encoding Standard |
+| utf  | UTF          | Unicode Transformation Format      |
+| regex| RegEx        | Regular Expression                 |
+| pdf  | PDF          | Portable Document Format           |
+| png  | PNG          | Portable Network Graphics          |
+| jpeg | JPEG         | Joint Photographic Experts Group   |
+| mpeg | MPEG         | Moving Picture Experts Group       |
+
+* Chapter 1: System Architecture
+
+In modern computer systems, the gls:cpu works in conjunction with gls:ram
+to execute programs. The gls:operating-system manages the gls:hardware and
+provides an gls:interface for applications.
+
+Network communication relies on various gls:protocol such as gls:http and
+gls:https for web traffic, gls:ftp for file transfers, and gls:smtp for email.
+
+The gls:kernel is the core of the gls:operating-system, managing resources
+and providing services to applications through well-defined gls:api.
+
+* Chapter 2: Networking Fundamentals
+
+A gls:network consists of multiple gls:node connected through gls:router and
+switches. The gls:gateway serves as an entry point to other networks.
+
+Data transmission follows the gls:tcp/gls:ip gls:protocol stack. The gls:dns
+resolves domain names to gls:ip addresses, while gls:dhcp automatically assigns
+network configurations.
+
+Security is maintained through gls:firewall, gls:encryption, and gls:vpn
+technologies. The gls:ssl and gls:tls gls:protocol ensure secure communication
+over the internet.
+
+* Chapter 3: Data Storage and Databases
+
+A gls:database stores structured information that can be queried using gls:sql.
+Modern gls:nosql databases offer alternatives for specific use cases.
+
+Storage devices include traditional gls:hdd and faster gls:ssd. The gls:cache
+improves performance by storing frequently accessed data.
+
+gls:crud operations (Create, Read, Update, Delete) are fundamental to database
+interactions. Data gls:validation ensures information correctness.
+
+* Chapter 4: Web Technologies
+
+Web development uses gls:html for structure, gls:css for styling, and
+gls:javascript for interactivity. The gls:rest architectural style defines
+how web services communicate using gls:http methods.
+
+Data is commonly exchanged in gls:json or gls:xml formats. A gls:url
+identifies resources on the web, while gls:uri is the more general identifier.
+
+The gls:gui provides visual interaction, while the gls:cli offers text-based
+control. An gls:ide integrates tools for software development.
+
+* Chapter 5: Programming Concepts
+
+A gls:compiler translates source code into machine language, while an
+gls:interpreter executes code directly. The gls:debugger helps identify
+and fix errors.
+
+Code is organized using gls:library, gls:framework, and gls:middleware components.
+The gls:parser analyzes code structure according to grammar rules.
+
+gls:algorithm define step-by-step problem-solving procedures. A gls:thread
+represents the smallest unit of execution within a process.
+
+* Chapter 6: System Performance
+
+gls:latency and gls:bandwidth are critical performance metrics in distributed
+systems. The gls:queue data structure manages task ordering.
+
+Memory management involves various types of gls:memory including gls:ram,
+gls:rom, and virtual memory. gls:cache hierarchies improve access times.
+
+The gls:gpu accelerates graphics rendering and parallel computations. Modern
+gls:cpu include multiple cores for concurrent processing.
+
+* Chapter 7: Development Tools
+
+Software development uses tools like gls:git for version control, gls:gcc for
+compilation, and gls:bash for scripting.
+
+The gls:sdk provides libraries and tools for specific platforms. The gls:jvm
+executes bytecode across different systems.
+
+gls:regex patterns enable powerful text searching and manipulation. An
+gls:editor facilitates code writing with features like syntax highlighting.
+
+* Chapter 8: File Formats and Encoding
+
+Documents are stored in formats like gls:pdf, while images use gls:png or
+gls:jpeg. Videos employ gls:mpeg compression.
+
+Text encoding evolved from gls:ascii to gls:unicode, with gls:utf being a
+common implementation. The gls:zip format compresses files for storage.
+
+Web markup uses gls:html, styled with gls:css, and enhanced with gls:javascript.
+Data interchange relies on gls:json or gls:xml with gls:yaml as an alternative.
+
+* Chapter 9: Security and Networking
+
+Network security relies on gls:firewall, gls:vpn, and gls:encryption technologies.
+The gls:nat technique enables private networks to share public IP addresses.
+
+Secure communication uses gls:ssl or gls:tls gls:protocol. The gls:ssh provides
+encrypted remote access to systems.
+
+gls:mac addresses identify network hardware, while gls:ip addresses identify
+network locations. The gls:dns resolves names to addresses.
+
+* Chapter 10: Additional Content (Performance Testing)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+incididunt ut labore et dolore magna aliqua. The gls:server processes requests
+from multiple clients simultaneously using gls:thread pools.
+
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. The
+gls:middleware connects disparate systems through standardized gls:interface.
+
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
+eu fugiat nulla pariatur. The gls:registry stores configuration data accessed
+by the gls:operating-system.
+
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+deserunt mollit anim id est laborum. Modern gls:website use gls:javascript
+frameworks for interactive user experiences.
+
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
+doloremque laudantium. The gls:compiler optimizes code during translation
+to machine language.
+
+Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
+architecto beatae vitae dicta sunt explicabo. Database gls:query optimization
+improves application performance.
+
+Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.
+The gls:parser validates syntax according to language grammar rules.
+
+Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+gls:validation ensures data integrity before storage in the gls:database.
+
+Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur.
+The gls:graphics subsystem renders visual output using the gls:gpu.
+
+Adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore.
+File gls:upload transfers data from local to remote gls:server.
+
+Et dolore magnam aliquam quaerat voluptatem. The gls:terminal provides
+command-line access to the gls:operating-system.
+
+* Glossary
+
+[[printglossaries:]]
+
+* Performance Notes
+
+This file intentionally contains many glossary and acronym references.
+Try these tests:
+
+1. Hover over multiple links quickly in succession
+2. Scroll through the document (mouse will pass over many links)
+3. Move mouse rapidly over the same link multiple times
+4. Navigate using keyboard while mouse is over a link
+
+The fix should ensure no freezing occurs during any of these operations.

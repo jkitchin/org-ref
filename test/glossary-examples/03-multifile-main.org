@@ -1,0 +1,54 @@
+#+TITLE: Multi-File Glossary Example - Main Document
+#+AUTHOR: Test
+#+LATEX_HEADER: \usepackage{glossaries}
+#+LATEX_HEADER: \makeglossaries
+
+* About This Document
+
+This example demonstrates glossary and acronym functionality across multiple
+files using =#+INCLUDE:= directives.
+
+The definitions are spread across separate files:
+- Glossary terms in =03-multifile-glossary.org=
+- Acronyms in =03-multifile-acronyms.org=
+- Content chapters in separate files
+
+** Setup Note
+
+To test multi-file label references (if org-ref-enable-multi-file-references
+is enabled), this file includes glossary definitions from other files.
+
+* Glossary and Acronym Definitions
+
+#+INCLUDE: "./03-multifile-glossary.org"
+
+#+INCLUDE: "./03-multifile-acronyms.org"
+
+* Content Chapters
+
+#+INCLUDE: "./03-multifile-chapter1.org"
+
+#+INCLUDE: "./03-multifile-chapter2.org"
+
+* Main Document Content
+
+Here in the main file, we can also reference terms defined in the included files:
+
+- The gls:algorithm is implemented on the gls:server
+- We use gls:api to access the gls:database
+- The gls:cpu and gls:ram work together
+- Communication uses gls:http and gls:tcp protocols
+
+* Glossary
+
+[[printglossaries:]]
+
+* Testing Notes
+
+Test hovering over glossary links:
+1. In this main file
+2. Open the included files directly and hover there
+3. Verify tooltips work in both scenarios
+4. Check performance with multiple files loaded
+
+The multi-file structure should not cause performance degradation.

@@ -1,0 +1,54 @@
+#+TITLE: Small Glossary and Acronym Example
+#+AUTHOR: Test
+#+LATEX_HEADER: \usepackage{glossaries}
+#+LATEX_HEADER: \makeglossaries
+
+* Introduction
+
+This is a small example demonstrating glossary and acronym functionality in org-ref.
+
+** Glossary Table Method
+
+#+name: glossary
+| label    | name     | description                                    |
+|----------+----------+------------------------------------------------|
+| computer | Computer | A machine that performs computations           |
+| tree     | Tree     | A woody plant with a trunk and branches        |
+| network  | Network  | A group of interconnected computing devices    |
+
+** Acronym Table Method
+
+#+name: acronyms
+| key | abbreviation | full form                      |
+|-----+--------------+--------------------------------|
+| cpu | CPU          | Central Processing Unit        |
+| ram | RAM          | Random Access Memory           |
+| api | API          | Application Programming Interface |
+
+* Document Body
+
+When we talk about a gls:computer, we usually mean a device with a gls:cpu
+and some gls:ram. The gls:network allows multiple gls:computer devices to
+communicate via well-defined gls:api.
+
+A gls:tree, unlike a gls:computer, is a living organism that grows in nature.
+
+** Using Acronyms
+
+The glspl:cpu in modern computers are very fast. We often refer to glspl:api
+when discussing software architecture. The Gls:ram in your system determines
+how many applications you can run simultaneously.
+
+** Alternative Forms
+
+Using Gls:computer (capitalized) at the start of a sentence. Or glspl:tree
+(plural) when referring to multiple instances.
+
+* Glossary
+
+[[printglossaries:]]
+
+* Notes
+
+Hover over any of the gls: links above to see the tooltip.
+Click on them to navigate to the definition.

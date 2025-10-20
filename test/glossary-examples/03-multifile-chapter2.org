@@ -1,0 +1,52 @@
+* Chapter 2: Web Technologies
+
+** Overview
+
+This chapter explores web technologies and how they work together to create
+modern web applications.
+
+** Frontend Technologies
+
+Web pages are built with gls:html for structure, gls:css for styling, and
+JavaScript for interactivity. The gls:interface must be responsive and
+user-friendly.
+
+** Backend Architecture
+
+The gls:server processes requests and manages application logic. The gls:api
+exposes functionality to client applications following the gls:rest pattern.
+
+Data is stored in a gls:database and accessed via gls:sql queries. The
+gls:cache layer reduces gls:database load and improves response times.
+
+** Communication Protocols
+
+Web communication uses the gls:http protocol for data transfer. The gls:tcp
+protocol underneath ensures reliable packet delivery.
+
+Data exchange formats include gls:json for APIs and gls:html for web pages.
+The gls:parser validates and processes incoming data.
+
+** Processing Pipeline
+
+When a request arrives, the gls:server executes the appropriate gls:algorithm
+to process it. Results may be cached in the gls:cache for future requests.
+
+The gls:queue manages background tasks and asynchronous processing. The
+gls:compiler optimizes code for the gls:cpu architecture.
+
+** Security
+
+gls:encryption protects data in transit and at rest. The gls:protocol stack
+includes security measures at multiple layers.
+
+Access to the gls:database is controlled through the gls:api layer. The
+gls:interface validates all user input before processing.
+
+** Testing Across Files
+
+References in this file point to glossary terms defined in 03-multifile-glossary.org
+and acronyms defined in 03-multifile-acronyms.org.
+
+When you hover over these links, the tooltips should work correctly even though
+the definitions are in separate files that are included via #+INCLUDE directives.
