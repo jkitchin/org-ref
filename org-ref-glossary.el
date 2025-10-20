@@ -367,7 +367,9 @@ Returns nil if no acronym table is found in FILE."
   "Find glossary LABEL in current file or included files.
 Uses timestamp-based caching to avoid re-scanning unchanged files.
 Returns plist with :label, :name, :description, :file."
-  (when (and org-ref-glossary-enable-multi-file (buffer-file-name))
+  (when (and (boundp 'org-ref-glossary-enable-multi-file)
+             org-ref-glossary-enable-multi-file
+             (buffer-file-name))
     (let* ((current-file (buffer-file-name))
            (included-files (org-ref-get-included-files))
            (all-files (cons current-file included-files)))
@@ -394,7 +396,9 @@ Returns plist with :label, :name, :description, :file."
   "Find acronym LABEL in current file or included files.
 Uses timestamp-based caching to avoid re-scanning unchanged files.
 Returns plist with :label, :abbrv, :full, :file."
-  (when (and org-ref-glossary-enable-multi-file (buffer-file-name))
+  (when (and (boundp 'org-ref-glossary-enable-multi-file)
+             org-ref-glossary-enable-multi-file
+             (buffer-file-name))
     (let* ((current-file (buffer-file-name))
            (included-files (org-ref-get-included-files))
            (all-files (cons current-file included-files)))
