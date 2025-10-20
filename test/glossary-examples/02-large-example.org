@@ -9,6 +9,12 @@ This file contains many glossary entries and acronyms to test performance
 with large documents. Try hovering over the gls: and acronym links throughout
 this document to test tooltip performance.
 
+*Note:* Some glossary links in this file are intentionally undefined (e.g.,
+gls:network, gls:tcp/gls:ip) to test the warning behavior. These should
+appear in red (font-lock-warning-face) to indicate they are not defined in
+the glossary tables. This demonstrates that org-ref correctly warns users
+about broken glossary references.
+
 ** Glossary Definitions (50+ entries)
 
 #+name: glossary
@@ -275,3 +281,12 @@ Try these tests:
 4. Navigate using keyboard while mouse is over a link
 
 The fix should ensure no freezing occurs during any of these operations.
+
+* export                                                           :noexport:
+
+#+BEGIN_SRC emacs-lisp :results silent
+(let ((org-export-before-parsing-hook org-export-before-parsing-hook))
+  (add-hook 'org-export-before-parsing-hook 'org-ref-glossary-before-parsing)
+  (add-hook 'org-export-before-parsing-hook 'org-ref-acronyms-before-parsing)
+  (org-open-file (org-latex-export-to-pdf)))
+#+END_SRC
