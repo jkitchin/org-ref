@@ -378,8 +378,10 @@ Returns plist with :label, :name, :description, :file."
 
         ;; Scan each file (with caching)
         (dolist (file all-files)
-          (when (org-ref-file-changed-p file)
-            ;; File changed, re-scan it
+          ;; Scan if file changed OR if not in cache yet
+          (when (or (org-ref-file-changed-p file)
+                    (not (gethash file org-ref-glossary-file-cache)))
+            ;; File changed or not cached, scan it
             (let ((file-entries (or-scan-file-for-glossary-table file)))
               (puthash file file-entries org-ref-glossary-file-cache)
               (org-ref-mark-file-scanned file)))
@@ -409,8 +411,10 @@ Returns plist with :label, :abbrv, :full, :file."
 
         ;; Scan each file (with caching)
         (dolist (file all-files)
-          (when (org-ref-file-changed-p file)
-            ;; File changed, re-scan it
+          ;; Scan if file changed OR if not in cache yet
+          (when (or (org-ref-file-changed-p file)
+                    (not (gethash file org-ref-acronym-file-cache)))
+            ;; File changed or not cached, scan it
             (let ((file-entries (or-scan-file-for-acronym-table file)))
               (puthash file file-entries org-ref-acronym-file-cache)
               (org-ref-mark-file-scanned file)))

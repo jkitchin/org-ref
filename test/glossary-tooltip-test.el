@@ -51,8 +51,8 @@
         ;; Manually activate to ensure properties are set
         (or-activate-glossary begin end path nil)
 
-        ;; Get the tooltip
-        (let ((tooltip (or-glossary-tooltip nil (current-buffer) (point))))
+        ;; Get the tooltip (check at begin position, inside the link)
+        (let ((tooltip (or-glossary-tooltip nil (current-buffer) begin)))
           ;; Tooltip should contain the name and description
           (should (stringp tooltip))
           (should-not (string-match-p "nil:" tooltip))
@@ -78,8 +78,8 @@
              (path (org-element-property :path element)))
         (or-activate-glossary begin end path nil)
 
-        ;; Get the tooltip
-        (let ((tooltip (or-acronym-tooltip nil (current-buffer) (point))))
+        ;; Get the tooltip (check at begin position, inside the link)
+        (let ((tooltip (or-acronym-tooltip nil (current-buffer) begin)))
           ;; Tooltip should contain abbreviation and full form
           (should (stringp tooltip))
           (should-not (string-match-p "nil:" tooltip))
@@ -148,8 +148,8 @@
         ;; Activate the link
         (or-activate-glossary begin end path nil)
 
-        ;; Check that text property is set
-        (let ((data (get-text-property (point) 'or-glossary)))
+        ;; Check that text property is set (check at begin position, inside the link)
+        (let ((data (get-text-property begin 'or-glossary)))
           (should data)
           (should (plist-get data :name))
           (should (plist-get data :description)))))))
