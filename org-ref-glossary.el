@@ -86,6 +86,7 @@
 (require 'org-element)
 (require 'org-ref-utils)
 (require 'ox)
+(require 'org-ref-ref-links) ; For multi-file support utilities
 
 ;;; Code:
 (defgroup org-ref-glossary nil
@@ -113,6 +114,17 @@ whether links are fontified and clickable."
   :group 'org-ref-glossary)
 
 
+(defcustom org-ref-glossary-enable-multi-file t
+  "Enable scanning #+INCLUDE'd files for glossary/acronym definitions.
+When non-nil, glossary and acronym lookups will search in files included
+via #+INCLUDE directives, enabling multi-file document support.
+
+Uses timestamp-based caching to maintain performance. Only files that have
+changed since the last scan are re-parsed."
+  :type 'boolean
+  :group 'org-ref-glossary)
+
+
 (defcustom org-ref-glsentries '()
   "Variable to hold locations of glsentries load files.")
 
@@ -123,6 +135,18 @@ whether links are fontified and clickable."
 
 (defvar-local org-ref-acronym-cache nil
   "Buffer-local variable for acronym entry cache.")
+
+
+(defvar org-ref-glossary-file-cache (make-hash-table :test 'equal)
+  "Global cache of glossary entries per file.
+Maps file paths to lists of glossary entry plists.
+Used when `org-ref-glossary-enable-multi-file' is non-nil.")
+
+
+(defvar org-ref-acronym-file-cache (make-hash-table :test 'equal)
+  "Global cache of acronym entries per file.
+Maps file paths to lists of acronym entry plists.
+Used when `org-ref-glossary-enable-multi-file' is non-nil.")
 
 
 (defun or-find-closing-curly-bracket (&optional limit)
@@ -279,6 +303,119 @@ changes."
 	data))))
 
 
+;;** Multi-file glossary support
+
+(defun or-scan-file-for-glossary-table (file)
+  "Scan FILE and return list of glossary entries from #+name: glossary table.
+Returns list of plists with :label, :name, :description, :file.
+Returns nil if no glossary table is found in FILE."
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (org-mode)
+      (let ((entries '()))
+        (catch 'found
+          (org-element-map
+              (org-element-parse-buffer)
+              'table
+            (lambda (el)
+              (when (string= "glossary" (org-element-property :name el))
+                (goto-char (org-element-property :contents-begin el))
+                (let ((table-data (nthcdr 2 (org-babel-read-table))))
+                  ;; Convert table rows to plists
+                  (dolist (row table-data)
+                    (when (and (listp row) (= 3 (length row)))
+                      (push (list :label (nth 0 row)
+                                  :name (nth 1 row)
+                                  :description (nth 2 row)
+                                  :file file)
+                            entries)))
+                  (throw 'found (nreverse entries)))))))
+        entries))))
+
+
+(defun or-scan-file-for-acronym-table (file)
+  "Scan FILE and return list of acronym entries from #+name: acronyms table.
+Returns list of plists with :label, :abbrv, :full, :file.
+Returns nil if no acronym table is found in FILE."
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (org-mode)
+      (let ((entries '()))
+        (catch 'found
+          (org-element-map
+              (org-element-parse-buffer)
+              'table
+            (lambda (el)
+              (when (string= "acronyms" (org-element-property :name el))
+                (goto-char (org-element-property :contents-begin el))
+                (let ((table-data (nthcdr 2 (org-babel-read-table))))
+                  ;; Convert table rows to plists
+                  (dolist (row table-data)
+                    (when (and (listp row) (= 3 (length row)))
+                      (push (list :label (nth 0 row)
+                                  :abbrv (nth 1 row)
+                                  :full (nth 2 row)
+                                  :file file)
+                            entries)))
+                  (throw 'found (nreverse entries)))))))
+        entries))))
+
+
+(defun or-parse-glossary-entry-multi-file (label)
+  "Find glossary LABEL in current file or included files.
+Uses timestamp-based caching to avoid re-scanning unchanged files.
+Returns plist with :label, :name, :description, :file."
+  (when (and org-ref-glossary-enable-multi-file (buffer-file-name))
+    (let* ((current-file (buffer-file-name))
+           (included-files (org-ref-get-included-files))
+           (all-files (cons current-file included-files)))
+
+      ;; Scan each file (with caching)
+      (dolist (file all-files)
+        (when (org-ref-file-changed-p file)
+          ;; File changed, re-scan it
+          (let ((file-entries (or-scan-file-for-glossary-table file)))
+            (puthash file file-entries org-ref-glossary-file-cache)
+            (org-ref-mark-file-scanned file)))
+
+        ;; Look for label in this file's cache
+        (let ((entries (gethash file org-ref-glossary-file-cache)))
+          (when entries
+            (let ((entry (cl-find label entries
+                                  :key (lambda (e) (plist-get e :label))
+                                  :test 'string=)))
+              (when entry
+                (cl-return-from or-parse-glossary-entry-multi-file entry)))))))))
+
+
+(defun or-parse-acronym-entry-multi-file (label)
+  "Find acronym LABEL in current file or included files.
+Uses timestamp-based caching to avoid re-scanning unchanged files.
+Returns plist with :label, :abbrv, :full, :file."
+  (when (and org-ref-glossary-enable-multi-file (buffer-file-name))
+    (let* ((current-file (buffer-file-name))
+           (included-files (org-ref-get-included-files))
+           (all-files (cons current-file included-files)))
+
+      ;; Scan each file (with caching)
+      (dolist (file all-files)
+        (when (org-ref-file-changed-p file)
+          ;; File changed, re-scan it
+          (let ((file-entries (or-scan-file-for-acronym-table file)))
+            (puthash file file-entries org-ref-acronym-file-cache)
+            (org-ref-mark-file-scanned file)))
+
+        ;; Look for label in this file's cache
+        (let ((entries (gethash file org-ref-acronym-file-cache)))
+          (when entries
+            (let ((entry (cl-find label entries
+                                  :key (lambda (e) (plist-get e :label))
+                                  :test 'string=)))
+              (when entry
+                (cl-return-from or-parse-acronym-entry-multi-file entry)))))))))
+
 
 ;;** Glossary links
 
@@ -287,7 +424,10 @@ changes."
 set data on text with properties
 Set face property, and help-echo."
   (let ((data (or (or-parse-glossary-entry path)
-		  (or-parse-acronym-entry path))))
+		  (or-parse-acronym-entry path)
+                  ;; Try multi-file lookup if enabled and not found in current buffer
+                  (or-parse-glossary-entry-multi-file path)
+                  (or-parse-acronym-entry-multi-file path))))
     (add-text-properties
      start end
      (list 'or-glossary data
@@ -307,9 +447,30 @@ Set face property, and help-echo."
 
 
 (defun or-follow-glossary (entry)
-  "Goto beginning of the glossary ENTRY."
+  "Goto beginning of the glossary ENTRY.
+If entry is in an included file, opens that file and navigates to the glossary table."
   (org-mark-ring-push)
-  (goto-char (plist-get (get-text-property (point) 'or-glossary) :position)))
+  (let* ((data (get-text-property (point) 'or-glossary))
+         (file (plist-get data :file))
+         (label (plist-get data :label))
+         (position (plist-get data :position)))
+    (cond
+     ;; Entry in current buffer (has position)
+     (position
+      (goto-char position))
+     ;; Entry in external file
+     (file
+      (find-file file)
+      (goto-char (point-min))
+      (when (re-search-forward "^[ \t]*#\\+name:[ \t]+\\(glossary\\|acronyms\\)" nil t)
+        (when (re-search-forward (regexp-quote label) nil t)
+          (goto-char (line-beginning-position)))))
+     ;; Fallback: search in current buffer
+     (t
+      (goto-char (point-min))
+      (when (re-search-forward "^[ \t]*#\\+name:[ \t]+\\(glossary\\|acronyms\\)" nil t)
+        (when (re-search-forward (regexp-quote label) nil t)
+          (goto-char (line-beginning-position))))))))
 
 
 (defun or-glossary-tooltip (_window buffer position)
@@ -523,7 +684,9 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
   "Activate function for an acronym link.
 set data on text with properties
 Set face property, and help-echo."
-  (let ((data (or-parse-acronym-entry path)))
+  (let ((data (or (or-parse-acronym-entry path)
+                  ;; Try multi-file lookup if enabled and not found in current buffer
+                  (or-parse-acronym-entry-multi-file path))))
     (add-text-properties
      start end
      (list 'or-glossary data
@@ -539,20 +702,32 @@ Set face property, and help-echo."
 
 
 (defun or-follow-acronym (label)
-  "Go to the definition of the acronym LABEL."
+  "Go to the definition of the acronym LABEL.
+If entry is in an included file, opens that file and navigates to the acronym table."
   (org-mark-ring-push)
-  (cond
-   ;; table first
-   ((progn (goto-char (point-min))
-	   (and (re-search-forward "#\\+name: acronyms" nil t)
-		(re-search-forward label nil t)))
-    nil)
-   
-   ((progn (goto-char (point-min)) (re-search-forward (format "\\newacronym{%s}" label) nil t))
-    (goto-char (match-beginning 0)))
-
-   (t
-    (message "no entry found for %s" label))))
+  (let* ((data (get-text-property (point) 'or-glossary))
+         (file (plist-get data :file))
+         (entry-label (plist-get data :label)))
+    (cond
+     ;; Entry in external file
+     (file
+      (find-file file)
+      (goto-char (point-min))
+      (if (and (re-search-forward "^[ \t]*#\\+name:[ \t]+acronyms" nil t)
+               (re-search-forward (regexp-quote entry-label) nil t))
+          (goto-char (line-beginning-position))
+        (message "Entry %s not found in %s" entry-label file)))
+     ;; Entry in current buffer - try table first
+     ((progn (goto-char (point-min))
+             (and (re-search-forward "#\\+name: acronyms" nil t)
+                  (re-search-forward label nil t)))
+      nil)
+     ;; Try LaTeX format
+     ((progn (goto-char (point-min))
+             (re-search-forward (format "\\newacronym{%s}" label) nil t))
+      (goto-char (match-beginning 0)))
+     (t
+      (message "no entry found for %s" label)))))
 
 
 ;;** Tooltips on acronyms
