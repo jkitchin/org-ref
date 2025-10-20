@@ -27,12 +27,9 @@ unit:
 	${CASK_EXEC} ${emacs} -Q -batch -L "." -l ${INIT} -l org -l org-ref.el -l test/org-ref-test.el --eval "(ert t)"
 
 
-orgtest:
-	${CASK_EXEC} ${emacs} -Q -batch  -l ${INIT}  -l test/org-test-setup.el -l test/org-ert.el -f org-ert-tangle-tests
-
 TEST_FILES = $(wildcard test/*-test.el)
 
-mytest: orgtest
+mytest:
 	${CASK_EXEC} ${emacs} -Q -batch -l ${INIT}  -l test/org-test-setup.el $(patsubst %,-l %,${TEST_FILES}) -f ert-run-tests-batch-and-exit
 
 compile:
@@ -72,4 +69,4 @@ devel:
 vanilla:
 	${CASK_EXEC} ${emacs} -Q  -l ${INIT} tests/test-1.org
 
-.PHONY:	all test test-direct package clean-elc test-melpa unit orgtest mytest
+.PHONY:	all test test-direct package clean-elc test-melpa unit mytest

@@ -1,4 +1,4 @@
-;;;; org-test.el --- Tests for Org-mode
+;;;; org-test.el --- Tests for Org-mode -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2010-2015 Sebastian Rose, Eric Schulte
 ;; Authors:
