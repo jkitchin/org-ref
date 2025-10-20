@@ -371,26 +371,27 @@ Returns plist with :label, :name, :description, :file."
              org-ref-glossary-enable-multi-file
              (boundp 'org-ref-glossary-file-cache)
              (buffer-file-name))
-    (let* ((current-file (buffer-file-name))
-           (included-files (org-ref-get-included-files))
-           (all-files (cons current-file included-files)))
+    (cl-block or-parse-glossary-entry-multi-file
+      (let* ((current-file (buffer-file-name))
+             (included-files (org-ref-get-included-files))
+             (all-files (cons current-file included-files)))
 
-      ;; Scan each file (with caching)
-      (dolist (file all-files)
-        (when (org-ref-file-changed-p file)
-          ;; File changed, re-scan it
-          (let ((file-entries (or-scan-file-for-glossary-table file)))
-            (puthash file file-entries org-ref-glossary-file-cache)
-            (org-ref-mark-file-scanned file)))
+        ;; Scan each file (with caching)
+        (dolist (file all-files)
+          (when (org-ref-file-changed-p file)
+            ;; File changed, re-scan it
+            (let ((file-entries (or-scan-file-for-glossary-table file)))
+              (puthash file file-entries org-ref-glossary-file-cache)
+              (org-ref-mark-file-scanned file)))
 
-        ;; Look for label in this file's cache
-        (let ((entries (gethash file org-ref-glossary-file-cache)))
-          (when entries
-            (let ((entry (cl-find label entries
-                                  :key (lambda (e) (plist-get e :label))
-                                  :test 'string=)))
-              (when entry
-                (cl-return-from or-parse-glossary-entry-multi-file entry)))))))))
+          ;; Look for label in this file's cache
+          (let ((entries (gethash file org-ref-glossary-file-cache)))
+            (when entries
+              (let ((entry (cl-find label entries
+                                    :key (lambda (e) (plist-get e :label))
+                                    :test 'string=)))
+                (when entry
+                  (cl-return-from or-parse-glossary-entry-multi-file entry))))))))))
 
 
 (defun or-parse-acronym-entry-multi-file (label)
@@ -401,26 +402,27 @@ Returns plist with :label, :abbrv, :full, :file."
              org-ref-glossary-enable-multi-file
              (boundp 'org-ref-acronym-file-cache)
              (buffer-file-name))
-    (let* ((current-file (buffer-file-name))
-           (included-files (org-ref-get-included-files))
-           (all-files (cons current-file included-files)))
+    (cl-block or-parse-acronym-entry-multi-file
+      (let* ((current-file (buffer-file-name))
+             (included-files (org-ref-get-included-files))
+             (all-files (cons current-file included-files)))
 
-      ;; Scan each file (with caching)
-      (dolist (file all-files)
-        (when (org-ref-file-changed-p file)
-          ;; File changed, re-scan it
-          (let ((file-entries (or-scan-file-for-acronym-table file)))
-            (puthash file file-entries org-ref-acronym-file-cache)
-            (org-ref-mark-file-scanned file)))
+        ;; Scan each file (with caching)
+        (dolist (file all-files)
+          (when (org-ref-file-changed-p file)
+            ;; File changed, re-scan it
+            (let ((file-entries (or-scan-file-for-acronym-table file)))
+              (puthash file file-entries org-ref-acronym-file-cache)
+              (org-ref-mark-file-scanned file)))
 
-        ;; Look for label in this file's cache
-        (let ((entries (gethash file org-ref-acronym-file-cache)))
-          (when entries
-            (let ((entry (cl-find label entries
-                                  :key (lambda (e) (plist-get e :label))
-                                  :test 'string=)))
-              (when entry
-                (cl-return-from or-parse-acronym-entry-multi-file entry)))))))))
+          ;; Look for label in this file's cache
+          (let ((entries (gethash file org-ref-acronym-file-cache)))
+            (when entries
+              (let ((entry (cl-find label entries
+                                    :key (lambda (e) (plist-get e :label))
+                                    :test 'string=)))
+                (when entry
+                  (cl-return-from or-parse-acronym-entry-multi-file entry))))))))))
 
 
 ;;** Glossary links
