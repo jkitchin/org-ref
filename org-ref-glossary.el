@@ -287,13 +287,15 @@ changes."
 set data on text with properties
 Set face property, and help-echo."
   (let ((data (or (or-parse-glossary-entry path)
-		  (or-parse-acronym-entry path)))) 
+		  (or-parse-acronym-entry path))))
     (add-text-properties
      start end
      (list 'or-glossary data
 	   'face (if data
 		     'org-ref-glossary-face
-		   'font-lock-warning-face)))))
+		   'font-lock-warning-face)
+           ;; Suppress spell-checking (for jinx and other spell checkers)
+           'jinx-languages nil))))
 
 (defface org-ref-glossary-face
   `((t (:inherit org-link :foreground "Mediumpurple3")))
@@ -523,7 +525,9 @@ Set face property, and help-echo."
      (list 'or-glossary data
 	   'face (if data
 		     'org-ref-acronym-face
-		   'font-lock-warning-face)))))
+		   'font-lock-warning-face)
+           ;; Suppress spell-checking (for jinx and other spell checkers)
+           'jinx-languages nil))))
 
 
 (defun or-follow-acronym (label)
