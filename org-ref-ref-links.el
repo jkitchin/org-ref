@@ -524,35 +524,42 @@ Otherwise show text.
 When `org-ref-show-equation-images-in-tooltips' is non-nil and running in
 GUI Emacs, checks if a preview image exists for the referenced equation.
 If found, displays the image in the minibuffer using message. Otherwise,
-displays the LaTeX text context as usual."
+displays the LaTeX text context as usual.
+
+Always returns a string (empty string if no context is found)."
   (let* ((label (get-text-property position 'org-ref-ref-label))
-         (context (cdr (assoc label (org-ref-get-labels)))))
+         (context (cdr (assoc label (org-ref-get-labels))))
+         (fallback (if label
+                       (format "Reference to %s" label)
+                     "")))
     ;; Try to show image if conditions are met
-    (if (and org-ref-show-equation-images-in-tooltips
-             label
-             (display-graphic-p))  ; Images only work in GUI
-        ;; Try to find and display preview image
-        (let ((image-spec (org-ref-get-preview-image-at-label label)))
-          (if image-spec
-              ;; Extract file from the overlay's image spec
-              (let ((file (plist-get (cdr image-spec) :file)))
-                ;; Only show image if file exists
-                (if (and file (file-exists-p file))
-                    (condition-case nil
-                        ;; Show image in minibuffer using message
-                        ;; Use the same image-spec from the overlay to preserve size
-                        (progn
-                          (message "%s" (propertize " " 'display image-spec))
-                          ;; Still return context for any fallback tooltip
-                          context)
-                      ;; If image display fails, show text
-                      (error context))
-                  ;; File doesn't exist, show text
-                  context))
-            ;; No image spec found, show text
-            context))
-      ;; Feature disabled or not in GUI, show text
-      context)))
+    (or (if (and org-ref-show-equation-images-in-tooltips
+                 label
+                 (display-graphic-p))  ; Images only work in GUI
+            ;; Try to find and display preview image
+            (let ((image-spec (org-ref-get-preview-image-at-label label)))
+              (if image-spec
+                  ;; Extract file from the overlay's image spec
+                  (let ((file (plist-get (cdr image-spec) :file)))
+                    ;; Only show image if file exists
+                    (if (and file (file-exists-p file))
+                        (condition-case nil
+                            ;; Show image in minibuffer using message
+                            ;; Use the same image-spec from the overlay to preserve size
+                            (progn
+                              (message "%s" (propertize " " 'display image-spec))
+                              ;; Still return context for any fallback tooltip
+                              context)
+                          ;; If image display fails, show text
+                          (error context))
+                      ;; File doesn't exist, show text
+                      context))
+                ;; No image spec found, show text
+                context))
+          ;; Feature disabled or not in GUI, show text
+          context)
+        ;; Fallback when context is nil
+        fallback)))
 
 
 (defun org-ref-ref-activate (start _end path _bracketp)
