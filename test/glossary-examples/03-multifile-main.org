@@ -52,3 +52,12 @@ Test hovering over glossary links:
 4. Check performance with multiple files loaded
 
 The multi-file structure should not cause performance degradation.
+
+* export                                                           :noexport:
+
+#+BEGIN_SRC emacs-lisp :results silent
+(let ((org-export-before-parsing-hook org-export-before-parsing-hook))
+  (add-hook 'org-export-before-parsing-hook 'org-ref-glossary-before-parsing)
+  (add-hook 'org-export-before-parsing-hook 'org-ref-acronyms-before-parsing)
+  (org-open-file (org-latex-export-to-pdf)))
+#+END_SRC

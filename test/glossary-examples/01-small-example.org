@@ -52,3 +52,14 @@ Using Gls:computer (capitalized) at the start of a sentence. Or glspl:tree
 
 Hover over any of the gls: links above to see the tooltip.
 Click on them to navigate to the definition.
+
+* export                                                           :noexport:
+
+#+BEGIN_SRC emacs-lisp :results silent
+(require 'org-ref-glossary)
+
+(let ((org-export-before-parsing-hook org-export-before-parsing-hook))
+  (add-hook 'org-export-before-parsing-hook 'org-ref-glossary-before-parsing)
+  (add-hook 'org-export-before-parsing-hook 'org-ref-acronyms-before-parsing)
+  (org-open-file (org-latex-export-to-pdf)))
+#+END_SRC
