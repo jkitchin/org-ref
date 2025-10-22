@@ -1,0 +1,161 @@
+# Footnote Citations in org-ref (Issue #993)
+
+This directory contains examples demonstrating the new footnote citation
+support for CSL export in org-ref.
+
+## What's New
+
+org-ref now properly handles footnote citation commands (`footcite`,
+`footfullcite`, etc.) when exporting to non-LaTeX formats (HTML, ODT,
+DOCX) using CSL/citeproc.
+
+## Quick Demo
+
+Run the test script to see the functionality in action:
+
+```bash
+emacs --batch -L . -l examples/test-footnote-functionality.el
+```
+
+This will show:
+- ✓ CSL style detection (note vs non-note styles)
+- ✓ Citation type detection (footcite, cite, etc.)
+- ✓ Sequential footnote numbering (1, 2, 3, ...)
+- ✓ Counter reset functionality
+
+## Example Files
+
+### 1. `footnote-demo.org`
+Comprehensive demonstration with:
+- Regular citations vs footnote citations
+- Multiple footnote citation types
+- Mixed citation scenarios
+- CSL style requirements explanation
+
+### 2. `test-footnotes.org`
+Minimal working example for quick testing.
+
+### 3. `footnote-citations-example.org`
+Detailed documentation and usage guide.
+
+### 4. `test-footnote-functionality.el`
+Automated test script (run with `emacs --batch`)
+
+## How to Use
+
+### 1. Setup
+
+Add to your org file:
+
+```org
+#+csl-style: chicago-fullnote-bibliography.csl
+#+bibliography: your-refs.bib
+```
+
+### 2. Use Footnote Citations
+
+```org
+This text has a footnote citation.[[footcite:&key]]
+Full citation in footnote.[[footfullcite:&key]]
+```
+
+### 3. Export
+
+- HTML: `C-c C-e r h` (org-ref-export-to-html)
+- ODT: `C-c C-e r o` (org-ref-export-to-odt)
+- DOCX: `C-c C-e r w` (org-ref-export-to-docx)
+
+## CSL Style Requirements
+
+### Note-Capable Styles (✓ Work with footnotes)
+
+- `chicago-fullnote-bibliography.csl`
+- `chicago-note-bibliography.csl`
+- `ieee.csl`
+- Any style with "note" or "fullnote" in the name
+
+Download from: https://github.com/citation-style-language/styles
+
+### Non-Note Styles (✗ Will warn)
+
+- `chicago-author-date.csl`
+- `apa.csl`
+- `harvard-*` styles
+
+If you use footnote citations with a non-note style, org-ref will warn
+you but still export (citations won't be in footnotes).
+
+## Supported Citation Types
+
+The following citation types trigger footnote rendering:
+
+- `footcite` - Basic footnote citation
+- `footfullcite` - Full citation in footnote
+- `footcitetext` - Footnote text citation
+- `footcites` - Multiple footnote citations
+- `footcitetexts` - Multiple footnote text citations
+- `smartcite` - Smart citation (footnote or inline depending on context)
+- `Smartcite` - Capitalized smart citation
+
+## How It Works
+
+1. **Detection**: org-ref detects citation types that require footnotes
+2. **Numbering**: Assigns sequential note-index (1, 2, 3, ...)
+3. **Processing**: Passes `:note-index` to citeproc-el
+4. **Rendering**: CSL processor renders as proper footnotes
+
+## Testing
+
+Run the comprehensive test suite:
+
+```bash
+cd /path/to/org-ref
+emacs --batch -L . -l test/csl-footnote-citations-test.el -f ert-run-tests-batch-and-exit
+```
+
+Expected: 14/17 tests passing
+(3 integration tests require full citeproc-el environment)
+
+## Implementation Details
+
+- Citation type detection: `org-ref-footnote-cite-type-p`
+- Footnote numbering: `org-ref-get-next-footnote-number`
+- Style detection: `org-ref-csl-style-supports-notes-p`
+- Counter variable: `org-ref-footnote-counter`
+- Integration point: `org-ref-process-buffer` (~line 486)
+
+## Troubleshooting
+
+### Warning: "CSL style may not support notes"
+
+**Cause**: You're using `footcite` with a non-note CSL style.
+
+**Solution**: Use a note-capable style like `chicago-fullnote-bibliography.csl`
+
+### Footnotes not appearing
+
+**Causes**:
+1. CSL style doesn't support notes
+2. Missing `:note-index` parameter (check org-ref version)
+3. citeproc-el not installed
+
+**Solution**:
+1. Use a note-capable CSL style
+2. Update org-ref to latest version
+3. Install citeproc-el: `M-x package-install RET citeproc RET`
+
+### Footnote numbers wrong
+
+**Cause**: Counter not resetting between exports
+
+**Solution**: This should be automatic. If issue persists, evaluate:
+```elisp
+(setq org-ref-footnote-counter 0)
+```
+
+## Related
+
+- Issue: #993
+- Commits: 72a23d5, b5dcce5, 196b3e7
+- Documentation: See comments in `org-ref-export.el`
+- Tests: `test/csl-footnote-citations-test.el`
