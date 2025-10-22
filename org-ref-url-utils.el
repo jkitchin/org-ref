@@ -82,7 +82,7 @@ the DOI."
 
 
 (defvar org-ref-url-title-re
-  "<title.?+?>\\([[:ascii:][:nonascii:]]*?\\|.+\\)</title>"
+  "<title[^>]*>\\(.*?\\)</title>"
   "Regular expression for matching title.")
 
 
@@ -92,7 +92,7 @@ the DOI."
 
 
 (defvar org-ref-url-date-re
-  "<[a-z].+ class=\\(.?+date.[^>]*\\)>\\([[:ascii:][:nonascii:]]*?\\)</[a-z].+>"
+  "<[a-z][^>]+ class=\\([^>]*date[^>]*\\)>\\(.*?\\)</[a-z][^>]+>"
   "Regular expression for matching date.")
 
 

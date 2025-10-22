@@ -83,7 +83,7 @@
   (with-current-buffer
       (url-retrieve-synchronously (format "https://ui.adsabs.harvard.edu/abs/%s/exportcitation" arxiv-bibliographic-code))
     (when (re-search-forward
-	   "<textarea.*>\\(.*\\(?:\n.*\\)*?\\(?:\n\\s-*\n\\|\\'\\)\\)</textarea>"
+	   "<textarea.*>\\(.*\\(?:\n.*\\)*?\\)\\(?:\n\\s-*\n\\)</textarea>"
 	   nil t)
       (xml-substitute-special (match-string 1)))))
 
