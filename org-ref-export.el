@@ -39,6 +39,23 @@
 ;; export is your goal, you may want to use org-ref-refproc.el to handle
 ;; cross-references.
 ;;
+;;; Formatting Limitations:
+;;
+;; Different export backends have different formatting capabilities. HTML and
+;; LaTeX support full CSL formatting including small caps, italics, bold, etc.
+;;
+;; The org-mode backend has limitations because org-mode syntax does not support
+;; small caps. Many CSL citation styles use small caps for author names, so these
+;; will not render correctly when exporting to formats that use the org backend
+;; (like DOCX by default).
+;;
+;; For DOCX export with better formatting support, set
+;; `org-ref-docx-use-html-backend' to t. This causes citations to be rendered
+;; as HTML which pandoc can convert to DOCX while preserving formatting.
+;;
+;; See `org-ref-backend-csl-formats' to customize backend mappings for different
+;; export formats.
+;;
 
 ;;; Code:
 (require 'transient)
@@ -61,7 +78,24 @@
     (ascii . plain)
     (odt . org-odt)
     (docx . org))
-  "Mapping of export backend to csl-backends."
+  "Mapping of export backend to csl-backends.
+
+Each entry maps an org export backend symbol to a citeproc-el backend
+format used for rendering citations and bibliographies.
+
+Note: The 'org backend has formatting limitations because org-mode
+syntax does not support small caps. CSL styles that use small caps
+(common for author names) will not render correctly when using the
+'org backend. For DOCX export, consider setting
+`org-ref-docx-use-html-backend' to t to use HTML formatting which
+pandoc can convert while preserving small caps and other formatting.
+
+Available citeproc backends:
+- html: Full HTML formatting with CSS styles
+- latex: Full LaTeX formatting with commands like \\textsc{}
+- org: Org-mode markup (limited, no small caps support)
+- org-odt: ODT-specific XML formatting
+- plain: Plain text with no formatting"
   :type '(alist :key-type (symbol) :value-type (symbol))
   :group 'org-ref)
 
@@ -88,6 +122,30 @@ Should be a csl filename, or an absolute path to a csl filename."
 (defcustom org-ref-csl-default-locale "en-US"
   "Default csl locale to use."
   :type 'string
+  :group 'org-ref)
+
+
+(defcustom org-ref-docx-use-html-backend nil
+  "Use HTML backend for DOCX export to preserve CSL formatting.
+
+When non-nil, citations exported to DOCX will be rendered using the
+HTML backend, which preserves formatting like small caps and italics
+that pandoc can convert to DOCX.
+
+When nil (default), uses the org backend which has limited formatting
+support due to org-mode syntax limitations. Specifically, org-mode has
+no native syntax for small caps, so CSL styles that use small caps
+(common for author names in many citation styles) will not render
+correctly in DOCX output.
+
+Note: This option only affects DOCX export via pandoc. Other export
+formats (HTML, LaTeX, ODT) are not affected.
+
+See also `org-ref-backend-csl-formats' to customize backend mappings
+for other export formats.
+
+Related to issue #981: https://github.com/jkitchin/org-ref/issues/981"
+  :type 'boolean
   :group 'org-ref)
 
 
@@ -237,6 +295,10 @@ BACKEND is the org export backend."
     (when subtreep
       (org-narrow-to-subtree))
     (let* ((csl-backend (or (cdr (assoc backend org-ref-backend-csl-formats)) 'plain))
+	   ;; Use HTML backend for DOCX if requested for better formatting
+	   (csl-backend (if (and (eq backend 'docx) org-ref-docx-use-html-backend)
+			    'html
+			  csl-backend))
 
 	   (style (or (cadr (assoc "CSL-STYLE"
 				   (org-collect-keywords
@@ -546,6 +608,11 @@ VISIBLE-ONLY BODY-ONLY and INFO."
 (defun org-ref-export-to-docx (&optional async subtreep visible-only
 					 body-only info)
   "Export the buffer to docx via pandoc and open.
+
+Note: By default, DOCX export uses the org backend for citations which
+has formatting limitations (no small caps support). Set
+`org-ref-docx-use-html-backend' to t for better formatting preservation.
+
 See `org-export-as' for the meaning of ASYNC SUBTREEP
 VISIBLE-ONLY BODY-ONLY and INFO."
   (org-ref-export-to 'docx async subtreep visible-only
