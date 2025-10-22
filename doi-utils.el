@@ -120,6 +120,35 @@ If nil use `doi-utils-get-bibtex-entry-pdf' synchronously."
   :group 'doi-utils)
 
 
+(defun doi-utils-pdf-filename-from-key ()
+  "Generate PDF filename from bibtex entry key.
+This is the default function for `doi-utils-pdf-filename-function'.
+Returns the bibtex entry key as the filename (without extension or path)."
+  (cdr (assoc "=key=" (bibtex-parse-entry))))
+
+
+(defcustom doi-utils-pdf-filename-function
+  'doi-utils-pdf-filename-from-key
+  "Function to generate PDF filename from bibtex entry.
+The function is called with no arguments while point is in the bibtex
+entry, and should return a string to use as the PDF filename (without
+the .pdf extension or directory path).
+
+The directory path is determined separately by `bibtex-completion-library-path'.
+
+The default function uses the bibtex entry key as the filename.
+
+Example: To use the title field as the filename:
+  (setq doi-utils-pdf-filename-function
+        (lambda () (bibtex-autokey-get-field \"title\")))
+
+Note: The function is responsible for ensuring the returned filename
+is valid for the filesystem. Special characters in fields like title
+may cause issues on some systems."
+  :type 'function
+  :group 'doi-utils)
+
+
 ;;* Getting pdf files from a DOI
 
 ;; The idea here is simple. When you visit http://dx.doi.org/doi or
@@ -762,7 +791,7 @@ too. "
           (doi (replace-regexp-in-string
                 "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
-          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
+          (base-name (funcall doi-utils-pdf-filename-function))
           (pdf-url)
           (pdf-file))
 
@@ -774,7 +803,7 @@ too. "
 		      (car bibtex-completion-library-path))
 		     (t
 		      (completing-read "Dir: " bibtex-completion-library-path)))
-		    key ".pdf"))
+		    base-name ".pdf"))
 
       (unless doi (error "No DOI found to get a pdf for"))
 
@@ -834,7 +863,7 @@ checked."
           (doi (replace-regexp-in-string
                 "https?://\\(dx.\\)?.doi.org/" ""
                 (bibtex-autokey-get-field "doi")))
-          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
+          (base-name (funcall doi-utils-pdf-filename-function))
           (pdf-url)
           (pdf-file))
 
@@ -846,7 +875,7 @@ checked."
 		      (car bibtex-completion-library-path))
 		     (t
 		      (completing-read "Dir: " bibtex-completion-library-path)))
-		    key ".pdf"))
+		    base-name ".pdf"))
       ;; now get file if needed.
       (unless (file-exists-p pdf-file)
 	(cond
