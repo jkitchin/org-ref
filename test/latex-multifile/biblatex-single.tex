@@ -1,0 +1,21 @@
+% Single-file document using biblatex
+\documentclass{article}
+
+\usepackage[backend=biber,style=authoryear]{biblatex}
+
+\addbibresource{bibliography.bib}
+\addbibresource{supplements.bib}
+
+\begin{document}
+
+\title{BibLaTeX Single File}
+\author{Test Author}
+\maketitle
+
+\section{Introduction}
+
+This uses biblatex \cite{kitchin-2015-examp}.
+
+\printbibliography
+
+\end{document}

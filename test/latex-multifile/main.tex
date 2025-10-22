@@ -1,0 +1,22 @@
+% Main file for a multi-file LaTeX project
+\documentclass{article}
+
+\usepackage{natbib}
+
+\begin{document}
+
+\title{Multi-File LaTeX Project}
+\author{Test Author}
+\maketitle
+
+\section{Introduction}
+
+This is the main file.
+
+\input{chapter1}
+\input{chapter2}
+
+\bibliographystyle{plain}
+\bibliography{references,database}
+
+\end{document}

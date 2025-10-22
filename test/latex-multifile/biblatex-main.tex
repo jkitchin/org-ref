@@ -1,0 +1,23 @@
+% Main file for biblatex multi-file project
+\documentclass{article}
+
+\usepackage[backend=biber,style=authoryear]{biblatex}
+
+\addbibresource{bibliography.bib}
+\addbibresource{extra-sources.bib}
+
+\begin{document}
+
+\title{BibLaTeX Multi-File Project}
+\author{Test Author}
+\maketitle
+
+\section{Introduction}
+
+Main file introduction.
+
+\input{biblatex-chapter}
+
+\printbibliography
+
+\end{document}

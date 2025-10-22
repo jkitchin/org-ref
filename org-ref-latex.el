@@ -68,21 +68,67 @@
 The clickable part are the keys.")
 
 
-(defun org-ref-latex-get-bibliography ()
-  "Find bibliographies in the tex file."
+(defun org-ref-latex--scan-buffer-for-bibliography ()
+  "Scan current buffer for bibliography commands.
+Returns a list of bibliography files found via \\bibliography{}
+and \\addbibresource{} commands.
+
+This is a helper function for `org-ref-latex-get-bibliography'."
   (save-excursion
     (let ((bibliography '()))
+      ;; Look for \bibliography{file1,file2,...} (BibTeX format)
       (goto-char (point-min))
       (while (re-search-forward "\\\\bibliography{\\(?1:.*\\)}" nil t)
-	(setq bibliography (append bibliography
-				   (mapcar (lambda (f)
-					     (concat f ".bib"))
-					   (split-string (match-string-no-properties 1) ",")))))
+        (setq bibliography
+              (append bibliography
+                      (mapcar (lambda (f)
+                                (concat f ".bib"))
+                              (split-string (match-string-no-properties 1) ",")))))
+      ;; Look for \addbibresource{file.bib} (BibLaTeX format)
       (goto-char (point-min))
       (while (re-search-forward "\\\\addbibresource{\\(?1:.*\\)}" nil t)
-	(setq bibliography (append bibliography (list (match-string-no-properties 1)))))
-
+        (setq bibliography
+              (append bibliography
+                      (list (match-string-no-properties 1)))))
       bibliography)))
+
+(defun org-ref-latex-get-bibliography ()
+  "Find bibliographies in the tex file.
+
+First searches the current buffer for \\bibliography{} or
+\\addbibresource{} commands.
+
+If no bibliography is found and the `TeX-master' variable is set
+to a filename (indicating this is an included file in a multi-file
+project), searches the master file for bibliography commands.
+
+This enables bibliography discovery in multi-file LaTeX projects
+where chapter/section files are included into a main file that
+contains the bibliography declaration.
+
+Returns a list of bibliography file paths."
+  (let ((bibliography (org-ref-latex--scan-buffer-for-bibliography)))
+    ;; If no bibliography found in current buffer, check TeX-master
+    (when (and (null bibliography)
+               (boundp 'TeX-master)
+               (stringp TeX-master))
+      ;; TeX-master is a filename (relative or absolute)
+      ;; Build the full path to the master file
+      (let* ((master-file
+              (expand-file-name
+               ;; Add .tex extension if not present
+               (if (string-match-p "\\.tex\\'" TeX-master)
+                   TeX-master
+                 (concat TeX-master ".tex"))
+               ;; Resolve relative to current buffer's directory
+               (file-name-directory (buffer-file-name))))
+             (master-buffer
+              (when (file-exists-p master-file)
+                (find-file-noselect master-file))))
+        (when master-buffer
+          (with-current-buffer master-buffer
+            (setq bibliography (org-ref-latex--scan-buffer-for-bibliography))))))
+    bibliography))
 
 
 (defun org-ref-next-latex-cite (&optional limit)
