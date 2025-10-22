@@ -1,0 +1,37 @@
+#+title: Test Footnote Citations
+#+author: Test
+#+options: toc:nil
+#+csl-style: chicago-fullnote-bibliography.csl
+#+bibliography: basic.bib
+
+* Introduction
+
+This is a simple test of footnote citations for issue #993.
+
+** Regular Citation
+
+Here is a regular citation: [[cite:&kitchin-2015-examp-effec]].
+
+** Footnote Citations
+
+This text has a footnote citation.[[footcite:&kitchin-2015-examp-effec]]
+
+This has a full citation in a footnote.[[footfullcite:&kitchin-2015-examp-effec]]
+
+Another footnote reference.[[footcite:&kitchin-2015-examp-effec]]
+
+* Bibliography
+
+bibliography:basic.bib
+
+* Build                                                            :noexport:
+
+To test this example:
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-ref-export)
+(let ((org-export-before-parsing-hook '(org-ref-csl-preprocess-buffer)))
+  (org-export-to-file 'html "test-footnotes.html"))
+#+END_SRC
+
+Or simply: C-c C-e r h

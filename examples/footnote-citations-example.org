@@ -1,0 +1,109 @@
+#+title: Footnote Citations Example (Issue #993)
+#+author: org-ref
+#+options: toc:nil
+
+* Introduction
+
+This example demonstrates footnote citation support in org-ref when
+exporting to non-LaTeX formats using CSL.
+
+** Note about CSL Styles
+
+For footnote citations to work properly, you need a CSL style that
+supports notes. Common note-based styles include:
+
+- chicago-fullnote-bibliography.csl
+- chicago-note-bibliography.csl
+- ieee.csl (uses numeric notes)
+
+This example uses chicago-fullnote-bibliography-16th-edition.csl which
+should be downloaded from the CSL repository.
+
+** Example Citations
+
+*** Regular citation (not in footnote)
+
+Here is a regular citation [[cite:&kitchin-2015-examp-effec]].
+
+*** Footnote citation using footcite
+
+This text has a footnote citation at the end.[[footcite:&kitchin-2015-examp-effec]]
+
+*** Footnote citation using footfullcite
+
+This gives a full citation in the footnote.[[footfullcite:&kitchin-2015-examp-effec]]
+
+*** Multiple footnote citations
+
+First reference.[[footcite:&kitchin-2015-examp-effec]]
+Second reference.[[footcite:&kitchin-2015-examp-effec]]
+Third reference.[[footcite:&kitchin-2015-examp-effec]]
+
+These should be numbered 2, 3, 4 (since the first footcite above is 1).
+
+* Export Instructions
+
+** For HTML Export
+
+To export this file to HTML with CSL:
+
+1. Download chicago-fullnote-bibliography-16th-edition.csl from:
+   https://github.com/citation-style-language/styles
+
+2. Place it in the same directory as this file, or in your
+   =org-cite-csl-styles-dir=
+
+3. Add these lines at the top of the file:
+   #+BEGIN_EXAMPLE
+   #+csl-style: chicago-fullnote-bibliography-16th-edition.csl
+   #+bibliography: basic.bib
+   #+END_EXAMPLE
+
+4. Export with: C-c C-e r h (org-ref-export-to-html)
+
+** For ODT Export
+
+Same setup as HTML, but export with: C-c C-e r o (org-ref-export-to-odt)
+
+** For DOCX Export (via pandoc)
+
+Same setup, export with: C-c C-e r w (org-ref-export-to-docx)
+
+* Expected Results
+
+When exported with a note-capable CSL style:
+
+- Regular [[cite:]] links render as inline citations
+- [[footcite:]] and [[footfullcite:]] render as footnotes
+- Footnotes are numbered sequentially (1, 2, 3, ...)
+- The bibliography appears at the end
+
+* Warning Test
+
+If you try to export this with a non-note style (like
+chicago-author-date or APA), org-ref will warn you that the style
+doesn't support notes.
+
+* Bibliography
+
+bibliography:basic.bib
+
+* Build Examples                                                  :noexport:
+
+** Test with different styles
+
+You can test by changing the =#+csl-style:= line above.
+
+*** With note-capable style
+#+BEGIN_EXAMPLE
+#+csl-style: chicago-fullnote-bibliography-16th-edition.csl
+#+END_EXAMPLE
+
+Should work perfectly - footnotes numbered 1, 2, 3, 4
+
+*** With non-note style (will warn)
+#+BEGIN_EXAMPLE
+#+csl-style: chicago-author-date-16th-edition.csl
+#+END_EXAMPLE
+
+Will show warnings but still export (citations won't be in footnotes)

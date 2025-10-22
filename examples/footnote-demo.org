@@ -1,0 +1,122 @@
+#+title: Footnote Citations Demo (Issue #993)
+#+author: org-ref
+#+date: 2025-10-22
+#+options: toc:nil num:nil
+#+csl-style: chicago-fullnote-bibliography.csl
+#+bibliography: basic.bib
+
+* Footnote Citations in org-ref
+
+This document demonstrates the new footnote citation support for CSL
+export in org-ref (Issue #993).
+
+* How It Works
+
+When using citation types like =footcite= or =footfullcite= with a
+CSL style that supports notes (like Chicago Manual of Style footnote
+styles), org-ref now:
+
+1. Detects the citation type requires footnotes
+2. Assigns sequential note numbers (1, 2, 3, ...)
+3. Passes the =:note-index= parameter to citeproc-el
+4. The CSL processor renders them as proper footnotes
+
+* Examples
+
+** Regular Citation (not a footnote)
+
+This is how regular citations work: [[cite:&kitchin-2015-examp-effec]].
+
+They appear inline in the text.
+
+** Footnote Citation
+
+This sentence has a footnote citation.[[footcite:&kitchin-2015-examp-effec]]
+
+** Full Footnote Citation
+
+This gives the full citation in the footnote.[[footfullcite:&kitchin-2015-examp-effec]]
+
+** Multiple Footnote Citations
+
+Here is one reference.[[footcite:&kitchin-2015-examp-effec]]
+
+Here is another.[[footcite:&kitchin-2015-examp-effec]]
+
+And a third.[[footcite:&kitchin-2015-examp-effec]]
+
+These should be numbered sequentially in the output.
+
+* Testing Different Scenarios
+
+** Mixed Citation Types
+
+Regular citation: [[cite:&kitchin-2015-examp-effec]]
+
+Followed by footnote: [[footcite:&kitchin-2015-examp-effec]]
+
+Then another regular: [[cite:&kitchin-2015-examp-effec]]
+
+And another footnote: [[footfullcite:&kitchin-2015-examp-effec]]
+
+** Footnote Counter Reset
+
+The footnote counter resets for each export. The first footnote citation
+in a document always gets note-index 1.
+
+* CSL Style Requirements
+
+** Note-Capable Styles (Work with footnote citations)
+
+- chicago-fullnote-bibliography.csl ✓
+- chicago-note-bibliography.csl ✓
+- ieee.csl ✓ (numeric notes)
+- Any style with "note" or "fullnote" in the name
+
+** Non-Note Styles (Will warn)
+
+- chicago-author-date.csl ✗
+- apa.csl ✗
+- harvard styles ✗
+
+If you use =footcite= with a non-note style, org-ref will display a
+warning message but still export (citations won't be in footnotes).
+
+* Export This Document
+
+** Using org-ref export commands:
+
+- HTML: =C-c C-e r h= (org-ref-export-to-html)
+- ODT: =C-c C-e r o= (org-ref-export-to-odt)
+- DOCX: =C-c C-e r w= (org-ref-export-to-docx via pandoc)
+- PDF: =C-c C-e r p= (org-ref-export-to-pdf via LaTeX+CSL)
+
+** Programmatic export:
+
+#+BEGIN_SRC emacs-lisp :eval never
+(require 'org-ref-export)
+(org-ref-export-to-html)
+#+END_SRC
+
+* Expected Output
+
+When exported to HTML/ODT/DOCX with the Chicago fullnote style:
+
+1. Regular =cite= links → inline author-date citations
+2. =footcite= links → superscript numbers linking to footnotes
+3. =footfullcite= links → superscript numbers with full citations
+4. Bibliography appears at end
+
+* Implementation Details
+
+For developers interested in the implementation:
+
+- Citation type detection: =org-ref-footnote-cite-type-p=
+- Footnote numbering: =org-ref-get-next-footnote-number=
+- Style detection: =org-ref-csl-style-supports-notes-p=
+- Counter reset in: =org-ref-process-buffer=
+- Note-index assignment: Line ~486 in org-ref-export.el
+
+* Bibliography
+
+bibliography:basic.bib
