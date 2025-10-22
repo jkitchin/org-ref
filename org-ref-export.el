@@ -240,7 +240,8 @@ This function checks if the CSL style file contains note-related
 class attributes, which indicate it supports footnote formatting."
   (or
    ;; Check filename for common note-style indicators
-   (string-match-p "\\bnote\\b\\|\\bfootnote\\b" csl-style-file)
+   ;; Match: -note-, -note.csl, fullnote, footnote
+   (string-match-p "\\(\\bnote\\b\\|fullnote\\|footnote\\)" csl-style-file)
    ;; If we have the actual file, check its contents
    (when (file-exists-p csl-style-file)
      (with-temp-buffer
