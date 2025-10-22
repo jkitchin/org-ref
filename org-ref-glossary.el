@@ -195,7 +195,7 @@ changes."
       (let* (end-of-entry
 	     data
 	     (external (when (re-search-forward
-			      "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+			      "\\\\loadglsentries\\(\\[.*\\]\\)?{\\(?1:.*\\)}" nil t)
 			 (match-string 1)))
 	     (glsentries (and external
 			      (or (cdr (assoc external org-ref-glsentries))
@@ -625,7 +625,7 @@ The plist maps to \newacronym{<label>}{<abbrv>}{<full>}"
       (goto-char (point-min))
       (let* (abbrv
 	     full p1
-	     (external (when (re-search-forward "\\loadglsentries\\(\\[.*\\]\\){\\(?1:.*\\)}" nil t)
+	     (external (when (re-search-forward "\\\\loadglsentries\\(\\[.*\\]\\)?{\\(?1:.*\\)}" nil t)
 			 (match-string 1)))
 	     (glsentries (and external
 			      (or (cdr (assoc external org-ref-glsentries))

@@ -177,7 +177,7 @@ if the file should be included. Excludes . and .. entries.
 Compatible replacement for f-entries."
   (when (file-directory-p directory)
     (seq-filter predicate
-                (directory-files directory t "^[^.]"))))
+                (directory-files directory t "\\`[^.]"))))
 
 (defun org-ref--file-join (&rest parts)
   "Join PARTS into a file path.

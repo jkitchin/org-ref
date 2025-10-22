@@ -144,7 +144,7 @@ cover any math (yet)."
   "Return natbib-options (including the brackets).
 Defaults to [numbers,super,sort]"
   (goto-char (point-min))
-  (if (re-search-forward "\\usepackage\\(?1:\\[.*\\]\\)?{natbib}")
+  (if (re-search-forward "\\\\usepackage\\(?1:\\[.*\\]\\)?{natbib}")
       (match-string 1)
     "[numbers,super,sort]"))
 
