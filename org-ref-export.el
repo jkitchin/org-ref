@@ -353,6 +353,9 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
   "Process the citations and bibliography in the org-buffer.
 Usually run on a copy of the buffer during export.
 BACKEND is the org export backend."
+  ;; Reset footnote counter for this export
+  (setq org-ref-footnote-counter 0)
+
   (save-restriction
     (when subtreep
       (org-narrow-to-subtree))
@@ -370,6 +373,24 @@ BACKEND is the org export backend."
 				    (org-collect-keywords
 				     '("CSL-LOCALE"))))
 		       org-ref-csl-default-locale))
+
+	   ;; Determine the actual style file path for checking note support
+	   (style-file (cond
+			((file-exists-p style)
+			 style)
+			((and (bound-and-true-p org-cite-csl-styles-dir)
+			      (file-exists-p (org-ref--file-join org-cite-csl-styles-dir style)))
+			 (org-ref--file-join org-cite-csl-styles-dir style))
+			((file-exists-p (expand-file-name style
+							  (org-ref--file-join (file-name-directory
+									       (locate-library "org-ref"))
+									      "citeproc/csl-styles")))
+			 (expand-file-name style (org-ref--file-join
+						  (file-name-directory
+						   (locate-library "org-ref"))
+						  "citeproc/csl-styles")))
+			(t
+			 style)))  ; Fallback to style name itself
 
 	   (proc (citeproc-create
 		  ;; The style
@@ -461,8 +482,15 @@ BACKEND is the org export backend."
 						 "[A-Z]"
 						 (substring
 						  (org-element-property :type cl) 0 1))
-			      ;; I don't know where this information would come from.
-			      :note-index nil
+			      ;; Set note-index for footnote citation types (issue #993)
+			      :note-index (when (org-ref-footnote-cite-type-p
+						 (org-element-property :type cl))
+					    ;; Warn if using footnote citations with non-note style
+					    (unless (org-ref-csl-style-supports-notes-p style-file)
+					      (warn "Citation type '%s' is a footnote citation but CSL style '%s' may not support notes. Consider using a note-based style like chicago-fullnote-bibliography.csl"
+						    (org-element-property :type cl)
+						    style))
+					    (org-ref-get-next-footnote-number))
 			      :ignore-et-al nil
 			      :grouped nil))))
 
