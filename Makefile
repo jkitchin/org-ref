@@ -69,4 +69,33 @@ devel:
 vanilla:
 	${CASK_EXEC} ${emacs} -Q  -l ${INIT} tests/test-1.org
 
-.PHONY:	all test test-direct package clean-elc test-melpa unit mytest
+# Run relint to check for regexp issues
+relint:
+	@echo "Running relint on all .el files..."
+	@${emacs} --batch --eval "\
+	(progn \
+	  (require 'package) \
+	  (add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\")) \
+	  (package-initialize) \
+	  (unless (package-installed-p 'relint) \
+	    (message \"Installing relint...\") \
+	    (package-refresh-contents) \
+	    (package-install 'relint)) \
+	  (require 'relint) \
+	  (message \"Checking *.el files...\") \
+	  (relint-directory \".\"))" 2>&1 | grep -v "^Loading"
+
+# Run relint on a specific file
+# Usage: make relint-file FILE=org-ref-bibtex.el
+relint-file:
+	@${emacs} --batch --eval "\
+	(progn \
+	  (require 'package) \
+	  (package-initialize) \
+	  (unless (package-installed-p 'relint) \
+	    (package-refresh-contents) \
+	    (package-install 'relint)) \
+	  (require 'relint) \
+	  (relint-file \"$(FILE)\"))" 2>&1
+
+.PHONY:	all test test-direct package clean-elc test-melpa unit mytest relint relint-file
