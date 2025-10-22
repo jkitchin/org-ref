@@ -21,7 +21,7 @@
 ;; Load all test files
 (dolist (test-file (directory-files (expand-file-name "test")
                                     t
-                                    ".*-test\\.el$"))
+                                    ".*-test\\.el\\'"))
   (message "Loading test file: %s" test-file)
   (load-file test-file))
 
