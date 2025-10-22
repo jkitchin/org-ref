@@ -379,7 +379,7 @@ setting `pp-escape-newlines' to nil manually."
 			  (eval `(ert-deftest ,name ()
 				   :expected-result :failed (should nil))))))))
 		 (directory-files base 'full
-				  "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.el$"))))
+				  "\\`\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.el\\'"))))
 	  (rld (expand-file-name "lisp" org-test-dir))))
 
 (defun org-test-current-defun ()
@@ -401,7 +401,7 @@ setting `pp-escape-newlines' to nil manually."
 (defun org-test-touch-all-examples ()
   (dolist (file (directory-files
 		 org-test-example-dir 'full
-		 "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org$"))
+		 "\\`\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org\\'"))
     (unless (get-file-buffer file)
       (add-to-list 'org-test-buffers (find-file file)))))
 
@@ -414,7 +414,7 @@ setting `pp-escape-newlines' to nil manually."
   (org-id-update-id-locations
    (directory-files
     org-test-example-dir 'full
-    "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org$")))
+    "\\`\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org\\'")))
 
 (defun org-test-run-batch-tests (&optional org-test-selector)
   "Run all tests matching an optional regex which defaults to \"\\(org\\|ob\\)\".
