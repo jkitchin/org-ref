@@ -63,10 +63,10 @@
 (defvar hfy-user-sheet-assoc)  		; to quiet compiler
 
 (require 'ox-org)
-(if (executable-find "pandoc")
-    (require 'ox-pandoc))
+(when (executable-find "pandoc")
+  (ignore-errors (require 'ox-pandoc)))
 
-(require 'citeproc)
+(ignore-errors (require 'citeproc))
 
 (defvar org-cite-csl-styles-dir)
 
@@ -185,7 +185,7 @@ See https://github.com/citation-style-language/documentation/blob/master/specifi
   :group 'org-ref)
 
 
-(defcustom org-ref-export-suppress-affix-types 
+(defcustom org-ref-export-suppress-affix-types
   '("citet"
     "citet*"
     "citetitle"
@@ -196,6 +196,67 @@ See https://github.com/citation-style-language/documentation/blob/master/specifi
   "List of cite types to suppress affixes (usually parentheses) on."
   :type '(list (repeat string))
   :group 'org-ref)
+
+
+;;; Footnote citation support (issue #993)
+
+(defvar org-ref-footnote-counter 0
+  "Counter for footnote citations during export.
+Reset to 0 at the start of each export process.")
+
+(defcustom org-ref-footnote-cite-types
+  '("footcite"
+    "footfullcite"
+    "footcitetext"
+    "footcites"
+    "footcitetexts"
+    "smartcite"
+    "Smartcite")
+  "List of citation types that should be rendered as footnotes.
+These citation types will be given a :note-index parameter when
+passed to citeproc-el, which causes them to be rendered as notes/footnotes
+when using CSL styles that support note formatting."
+  :type '(repeat string)
+  :group 'org-ref)
+
+
+(defun org-ref-footnote-cite-type-p (cite-type)
+  "Return non-nil if CITE-TYPE should be rendered as a footnote.
+CITE-TYPE is a string like \"footcite\" or \"cite\"."
+  (member cite-type org-ref-footnote-cite-types))
+
+
+(defun org-ref-get-next-footnote-number ()
+  "Get the next footnote number and increment the counter.
+Returns the next sequential footnote number (1, 2, 3, ...)."
+  (setq org-ref-footnote-counter (1+ org-ref-footnote-counter)))
+
+
+(defun org-ref-csl-style-supports-notes-p (csl-style-file)
+  "Return non-nil if CSL-STYLE-FILE supports note/footnote formatting.
+CSL-STYLE-FILE is a filename like \"chicago-fullnote-bibliography.csl\".
+
+This function checks if the CSL style file contains note-related
+class attributes, which indicate it supports footnote formatting."
+  (or
+   ;; Check filename for common note-style indicators
+   (string-match-p "\\bnote\\b\\|\\bfootnote\\b" csl-style-file)
+   ;; If we have the actual file, check its contents
+   (when (file-exists-p csl-style-file)
+     (with-temp-buffer
+       (insert-file-contents csl-style-file)
+       (goto-char (point-min))
+       ;; Look for class="note" in the CSL XML
+       (re-search-forward "class=\"note\"" nil t)))))
+
+
+(defun org-ref-get-citation-note-index (citation-link)
+  "Get the note-index for CITATION-LINK if it's a footnote citation type.
+CITATION-LINK is an org-element link object.
+Returns a footnote number if this is a footnote citation, nil otherwise."
+  (when (org-ref-footnote-cite-type-p
+         (org-element-property :type citation-link))
+    (org-ref-get-next-footnote-number)))
 
 
 (defun org-ref-dealias-label (alias)
