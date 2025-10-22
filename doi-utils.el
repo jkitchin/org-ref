@@ -334,7 +334,7 @@ https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/anie.201310461?download=tr
 (defun ecs-pdf-url (*doi-utils-redirect*)
   "Get url to the pdf from *DOI-UTILS-REDIRECT*."
   (when (string-match "^http\\(s?\\)://jes.ecsdl.org" *doi-utils-redirect*)
-    (replace-regexp-in-string "\.abstract$" ".full.pdf" *doi-utils-redirect*)))
+    (replace-regexp-in-string "\\.abstract$" ".full.pdf" *doi-utils-redirect*)))
 
 ;; http://ecst.ecsdl.org/content/25/2/2769
 ;; http://ecst.ecsdl.org/content/25/2/2769.full.pdf

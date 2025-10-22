@@ -1293,7 +1293,7 @@ If optional NEW-YEAR set it to that, otherwise prompt for it."
 
 
 (defun orcb-& ()
-  "Replace naked & with \& in a bibtex entry."
+  "Replace naked & with \\& in a bibtex entry."
   (save-restriction
     (bibtex-narrow-to-entry)
     (bibtex-beginning-of-entry)
