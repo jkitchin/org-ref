@@ -1,0 +1,117 @@
+#+title: Sequential Footnote Numbering Demo (Issue #993)
+#+author: org-ref
+#+date: 2025-10-22
+#+options: toc:nil num:nil
+#+csl-style: chicago-fullnote-bibliography.csl
+#+bibliography: basic.bib
+
+* Sequential Footnote Numbering Demonstration
+
+This document demonstrates how org-ref assigns sequential footnote numbers
+(1, 2, 3, 4, 5...) to DIFFERENT citations when using =footcite= commands.
+Each footcite gets the next number regardless of which reference is cited.
+
+* Sequential Numbering Demonstration
+
+** First Citation
+
+The theory of relativity revolutionized physics.[[footcite:&einstein1905]]
+
+** Second Citation (Different Reference)
+
+Shannon's information theory laid the foundation for digital
+communications.[[footcite:&shannon1948]]
+
+** Third Citation (Another Different Reference)
+
+The TeXbook is the definitive guide to TeX typesetting.[[footcite:&knuth1984]]
+
+** Fourth Citation (Yet Another Reference)
+
+LaTeX simplified document preparation for technical
+writing.[[footcite:&lamport1986]]
+
+** Fifth Citation (One More Reference)
+
+Data sharing is essential for reproducible
+research.[[footcite:&kitchin-2015-examp-effec]]
+
+* Repeating a Citation
+
+When you cite the same reference again, it gets a new footnote
+number.[[footcite:&einstein1905]]
+
+Note that this second citation of Einstein's paper gets footnote number 6,
+not number 1.
+
+* Mixed Citation Types
+
+You can mix regular citations with footnote citations:
+
+** Regular Citation (Inline)
+
+This is a regular inline citation: [[cite:&shannon1948]].
+
+** Footnote Citation
+
+And here is a footnote citation.[[footcite:&knuth1984]]
+
+** Another Regular Citation
+
+Another inline: [[cite:&lamport1986]].
+
+** Another Footnote
+
+And another footnote.[[footfullcite:&einstein1905]]
+
+* What You Should See
+
+When this document is exported to HTML, ODT, or DOCX:
+
+1. Each =footcite= or =footfullcite= appears as a superscript number
+2. The numbers are sequential: [1], [2], [3], [4], [5], [6], [7], [8]
+3. Each number links to the full citation at the bottom
+4. Regular =cite= links appear as inline citations (e.g., [1])
+5. A bibliography appears at the end with all references
+
+* Expected Footnote Sequence
+
+Based on the citations above, the footnote numbering should be:
+
+| Footnote | Reference     | Type          |
+|----------+---------------+---------------|
+| [1]      | einstein1905  | footcite      |
+| [2]      | shannon1948   | footcite      |
+| [3]      | knuth1984     | footcite      |
+| [4]      | lamport1986   | footcite      |
+| [5]      | kitchin-2015  | footcite      |
+| [6]      | einstein1905  | footcite      |
+| [7]      | knuth1984     | footcite      |
+| [8]      | einstein1905  | footfullcite  |
+
+* Export Instructions
+
+To export this document:
+
+- HTML: =C-c C-e r h= (org-ref-export-to-html)
+- ODT: =C-c C-e r o= (org-ref-export-to-odt)
+- DOCX: =C-c C-e r w= (org-ref-export-to-docx)
+
+Or programmatically:
+
+#+BEGIN_SRC emacs-lisp :eval never
+(require 'org-ref-export)
+(org-ref-export-to-html)
+#+END_SRC
+
+* About the IEEE Style
+
+The IEEE style is a numeric citation style that:
+- Uses numbers [1], [2], [3] for citations
+- Supports footnotes when =class="note"= is specified
+- Provides concise, numbered references
+- Is widely used in engineering and computer science
+
+* Bibliography
+
+bibliography:basic.bib

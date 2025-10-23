@@ -25,21 +25,33 @@ This will show:
 
 ## Example Files
 
-### 1. `footnote-demo.org`
+### 1. `footnote-numeric-demo.org` ⭐ **START HERE**
+Best demonstration of sequential footnote numbering with **multiple different citations**:
+- Five different references (Einstein 1905, Shannon 1948, Knuth 1984, Lamport 1986, Kitchin 2015)
+- Shows clear sequential numbering: [1], [2], [3], [4], [5], [6], [7], [8]
+- Demonstrates that repeated citations get NEW footnote numbers
+- Includes expected numbering table for verification
+
+**Run the demonstration**: `emacs --batch -L . -l examples/test-numbering.el`
+
+### 2. `footnote-demo.org`
 Comprehensive demonstration with:
 - Regular citations vs footnote citations
 - Multiple footnote citation types
 - Mixed citation scenarios
 - CSL style requirements explanation
 
-### 2. `test-footnotes.org`
+### 3. `test-footnotes.org`
 Minimal working example for quick testing.
 
-### 3. `footnote-citations-example.org`
+### 4. `footnote-citations-example.org`
 Detailed documentation and usage guide.
 
-### 4. `test-footnote-functionality.el`
-Automated test script (run with `emacs --batch`)
+### 5. `test-footnote-functionality.el`
+Automated test script showing all features work (run with `emacs --batch`)
+
+### 6. `test-numbering.el`
+Script demonstrating sequential numbering with output to console
 
 ## How to Use
 
