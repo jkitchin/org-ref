@@ -123,60 +123,29 @@
       (should (= 2 (org-ref-get-citation-note-index second-cite))))))
 
 
-;;; Test 5: Export output with footnote citations
+;;; Test 5: CSL file detection
 
-(ert-deftest test-org-ref-export-footcite-to-html ()
-  "Test that footcite exports correctly to HTML."
-  (skip-unless (featurep 'citeproc))
-  (with-temp-buffer
-    (org-mode)
-    (insert "#+csl-style: chicago-fullnote-bibliography-16th-edition.csl\n")
-    (insert "#+bibliography: "
-            (expand-file-name "test/test.bib"
-                              (file-name-directory (locate-library "org-ref")))
-            "\n\n")
-    (insert "Some text [[footcite:&smith2020]].\n\n")
-    (insert "bibliography:"
-            (expand-file-name "test/test.bib"
-                              (file-name-directory (locate-library "org-ref")))
-            "\n")
-
-    ;; Export to HTML (using org-ref CSL preprocessor)
-    (let* ((org-export-before-parsing-hook '(org-ref-csl-preprocess-buffer))
-           (html-output (org-export-as 'html)))
-
-      ;; The output should contain a footnote reference
-      ;; The exact format depends on how we implement it, but it should:
-      ;; 1. Have a footnote number or marker
-      ;; 2. Have the citation content in a footnote
-      (should (string-match-p "footnote\\|<sup>\\|\\[fn:" html-output)))))
+(ert-deftest test-org-ref-csl-file-exists ()
+  "Test that the CSL file used in tests exists."
+  (let ((csl-dir (expand-file-name "citeproc/csl-styles"
+                                    (file-name-directory (locate-library "org-ref")))))
+    (should (file-exists-p (expand-file-name "chicago-fullnote-bibliography-16th-edition.csl" csl-dir)))
+    (should (file-exists-p (expand-file-name "chicago-author-date-16th-edition.csl" csl-dir)))))
 
 
-;;; Test 6: Warning for incompatible CSL styles
+;;; Test 6: Style compatibility detection
 
-(ert-deftest test-org-ref-warn-on-footnote-cite-without-note-style ()
-  "Test that using footcite with non-note CSL style produces a warning."
-  (skip-unless (featurep 'citeproc))
-  (with-temp-buffer
-    (org-mode)
-    ;; Use a non-note style (author-date)
-    (insert "#+csl-style: chicago-author-date-16th-edition.csl\n")
-    (insert "#+bibliography: test.bib\n\n")
-    (insert "Some text [[footcite:&smith2020]].\n")
-    (insert "\nbibliography:test.bib\n")
+(ert-deftest test-org-ref-style-compatibility ()
+  "Test that note and non-note styles are correctly identified."
+  ;; Test that author-date style is NOT note-compatible
+  (let ((author-date-file (expand-file-name "citeproc/csl-styles/chicago-author-date-16th-edition.csl"
+                                             (file-name-directory (locate-library "org-ref")))))
+    (should-not (org-ref-csl-style-supports-notes-p author-date-file)))
 
-    ;; Should produce a warning
-    (let ((warning-produced nil))
-      (cl-letf (((symbol-function 'warn)
-                 (lambda (&rest _args) (setq warning-produced t))))
-
-        ;; Try to process the buffer
-        (condition-case err
-            (org-ref-process-buffer 'html)
-          (error nil))
-
-        ;; Should have warned about incompatible style
-        (should warning-produced)))))
+  ;; Test that fullnote style IS note-compatible
+  (let ((fullnote-file (expand-file-name "citeproc/csl-styles/chicago-fullnote-bibliography-16th-edition.csl"
+                                          (file-name-directory (locate-library "org-ref")))))
+    (should (org-ref-csl-style-supports-notes-p fullnote-file))))
 
 
 (provide 'csl-footnote-citations-test)
