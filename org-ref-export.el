@@ -59,6 +59,8 @@
 
 ;;; Code:
 (require 'transient)
+(require 'org-ref-utils)
+(require 'org-ref-citation-links)
 
 (defvar hfy-user-sheet-assoc)  		; to quiet compiler
 

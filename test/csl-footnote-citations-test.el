@@ -127,6 +127,7 @@
 
 (ert-deftest test-org-ref-export-footcite-to-html ()
   "Test that footcite exports correctly to HTML."
+  (skip-unless (featurep 'citeproc))
   (with-temp-buffer
     (org-mode)
     (insert "#+csl-style: chicago-fullnote-bibliography-16th-edition.csl\n")
@@ -155,6 +156,7 @@
 
 (ert-deftest test-org-ref-warn-on-footnote-cite-without-note-style ()
   "Test that using footcite with non-note CSL style produces a warning."
+  (skip-unless (featurep 'citeproc))
   (with-temp-buffer
     (org-mode)
     ;; Use a non-note style (author-date)
