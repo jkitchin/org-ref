@@ -162,7 +162,7 @@ environments)."
 						     (org-element-property :name e)
 						     (string= "lemma" (org-element-property :type e)))
 						(org-element-property :name e))
-					       
+
 					       ((and (eq type 'corollary)
 						     (org-element-property :name e)
 						     (string= "corollary" (org-element-property :type e)))
@@ -176,7 +176,7 @@ environments)."
 
 					     ;; Listings of code blocks
 					     ('src-block
-					      (when-let* (name (org-element-property :name e))
+					      (when-let* ((name (org-element-property :name e)))
 						name)))))))))
     ;; the align equation environment needs to be flattened
     (cl-loop for type in referencables
@@ -351,7 +351,7 @@ REFERENCEABLES comes from `org-ref-refproc-referenceables'.
 If CAPITALIZE is non-nil, capitalize the first entry (this is for
 Cref) and is different than the capitalize option in #+refproc:
 which capitalizes each prefix."
-  (let* ((options (org-ref-refproc-get-options)) 
+  (let* ((options (org-ref-refproc-get-options))
 	 (labels (split-string (org-element-property :path ref-link) ","))
 	 (post-blanks (org-element-property :post-blank ref-link))
 	 (data (cl-loop for label in labels collect (org-ref-refproc-get-type label referenceables)))
