@@ -10,6 +10,9 @@ jobs:
       matrix:
         emacs_version:
           - 28.2
+          - 29.4
+          - 30.1
+          - release-snapshot
           - snapshot
 
     steps:
