@@ -912,10 +912,12 @@ The car is the BibTeX entry type, and the cdr is a template for `org-ref--format
      result (replace-regexp-in-string "[ \t\r\n]+" " " result))
     result))
 
+
 (defun org-ref-insert-formatted-reference ()
   "Insert a formatted reference at point."
   (interactive)
-  (let* ((candidates (bibtex-completion-candidates))
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (candidates (bibtex-completion-candidates))
 	 (key (completing-read "Key: " candidates
 			       nil t))
 	 (entry (assoc key candidates))
@@ -954,7 +956,8 @@ The car is the BibTeX entry type, and the cdr is a template for `org-ref--format
 (defun org-ref-insert-formatted-reference-csl (&optional arg)
   "Insert a formatted reference at point using citeproc."
   (interactive "P")
-  (let* ((candidates (bibtex-completion-candidates))
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (candidates (bibtex-completion-candidates))
 	 (ref (completing-read "Reference: " candidates
 			       nil t))
 	 (entry (assoc ref candidates))
