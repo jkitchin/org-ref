@@ -294,7 +294,7 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
   ;; and the rest is the suffix text.
   ;; For example: ch. 5, for example
   ;; would be label = ch., locator=5, ",for example" as suffix.
-  (let* ((full-suffix (string-trim (or (plist-get ref :suffix) ""))) 
+  (let* ((full-suffix (string-trim (or (plist-get ref :suffix) "")))
 	 locator
 	 label locator suffix)
 
@@ -317,10 +317,10 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
 		 ;; number or numeric ranges
 		 (group-n 2 (one-or-more digit) (optional "-" (one-or-more digit)))
 		 ;; everything else
-		 (group-n 3 (* "."))))	      
+		 (group-n 3 (* "."))))
 	      full-suffix)
 	     (match-string 2 full-suffix)
-	     (not (string= "" (match-string 2 full-suffix)))) 
+	     (not (string= "" (match-string 2 full-suffix))))
 	;; We found a locator
 	(setq label (match-string 1 full-suffix)
 	      locator (match-string 2 full-suffix)
@@ -328,11 +328,11 @@ REF is a plist data structure returned from `org-ref-parse-cite-path'."
       (setq label nil
 	    locator nil
 	    suffix full-suffix))
-    
+
     ;; Let's assume if you have a locator but not a label that you mean page.
     (when (and locator (string= "" (string-trim label)))
       (setq label "page"))
-    
+
     `((id . ,(plist-get ref :key))
       (prefix . ,(plist-get ref :prefix))
       (suffix . ,suffix)
@@ -553,14 +553,14 @@ BACKEND is the org export backend."
 	    (setq s1 (format
 		      "<style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 %dem;}</style>"
-		      ;; I hard coded this factor of 0.6 from the oc-csl code.  
+		      ;; I hard coded this factor of 0.6 from the oc-csl code.
 		      (* 0.6  (or (cdr (assq 'max-offset bib-parameters)) 0)))))
 
 	  ;; hard-coded the hanging indent. oc-csl uses a variable for this. I
 	  ;; guess we could too, but this seems simpler.
 	  (when (cdr (assq 'hanging-indent bib-parameters))
 	    (setq s2 "<style>.csl-entry{text-indent: -1.5em; margin-left: 1.5em;}</style>"))
-	  
+
 	  (setq rendered-bib (concat
 			      s1 s2
 			      rendered-bib)))))
@@ -617,7 +617,7 @@ VISIBLE-ONLY BODY-ONLY and INFO."
      (goto-char (marker-position mm))
      (org-ref-process-buffer backend subtreep)
      (set-marker mm nil)
-     
+
      (pcase backend
        ;; odt is a little bit special, and is missing one argument
        ('odt (org-open-file (org-odt-export-to-odt async subtreep visible-only
@@ -881,6 +881,96 @@ I am not positive on this though."
 
 (define-obsolete-function-alias 'org-ref-export-from-hydra
   #'org-ref-export-dispatch "3.1")
+
+;; * exporting formatted citations
+;; ** with user defined templates
+(defcustom org-ref-format-templates
+  '(("article" . "${author} (${year}). /${title}/. ${journal}, *${volume}(${number})*, ${pages}.${doi}")
+    ("inproceedings" . "${author} (${year}). ${title}. In ${editor}, ${booktitle} (pp. ${pages}). ${address}: ${publisher}.")
+    ("book" . "${author} (${year}). ${title}. ${address}: ${publisher}.")
+    ("phdthesis" .  "${author} (${year}). ${title} (Doctoral dissertation). ${school}, ${address}.")
+    ("inbook" . "${author} (${year}). ${chapter}. In ${editor} (Eds.), ${title} (pp. ${pages}). ${address}: ${publisher}.")
+    ("incollection" . "${author} (${year}). ${title}. In ${editor} (Eds.), ${booktitle} (pp. ${pages}). ${address}: ${publisher}.")
+    ("proceedings" . "${editor} (Eds.). (${year}). ${booktitle}. ${address}: ${publisher}.")
+    ("unpublished" . "${author} (${year}). ${title}. Unpublished manuscript.")
+    ("misc" . "${author} (${year}). ${title}."))
+  "a-list of templates for formatting references.
+The car is the BibTeX entry type, and the cdr is a template for `org-ref--format-template'.")
+
+
+(defun org-ref-format-reference (key)
+  "Insert a formatted reference at point using `org-ref-format-templates'."
+  (let* ((entry (org-ref-bibtex-get-entry key))
+	 (type (cdr (assoc "=type=" entry)))
+	 (fmt (cdr (assoc (downcase type) org-ref-format-templates)))
+	 (result (org-ref--format-template fmt entry)))
+
+    (setq
+     ;; remove ${...} patterns that were not filled in
+     result (replace-regexp-in-string "\\${[^}]*}" "" result)
+     ;; clean up multiple spaces/newlines/tabs
+     result (replace-regexp-in-string "[ \t\r\n]+" " " result))
+    result))
+
+(defun org-ref-insert-formatted-reference ()
+  "Insert a formatted reference at point."
+  (interactive)
+  (let* ((candidates (bibtex-completion-candidates))
+	 (key (completing-read "Key: " candidates
+			       nil t))
+	 (entry (assoc key candidates))
+	 (actual-key (cdr (assoc "=key=" entry))))
+    (insert (org-ref-format-reference actual-key))))
+
+
+;; ** with csl styles
+
+(defun org-ref-format-reference-csl (key &optional style-file)
+  "Return a formatted reference for KEY using CSL style.
+  STYLE-FILE is a path to a CSL style file. If nil, uses apa.csl
+  from the standard csl-styles location."
+  (let* ((bibfiles (org-ref-find-bibliography))
+         (style (or style-file (expand-file-name
+				org-ref-csl-default-style
+				(org-ref--file-join (file-name-directory
+						     (locate-library "org-ref"))
+						    "citeproc/csl-styles"))))
+         ;; Create item getter from your bib files
+         (item-getter (citeproc-hash-itemgetter-from-any bibfiles))
+         ;; Get the item data for this key
+         (item-data (cdr (car (funcall item-getter (list key)))))
+         ;; Create a minimal style object
+         (proc-style (citeproc-create-style
+                      style
+                      (citeproc-locale-getter-from-dir
+		       (org-ref--file-join (file-name-directory
+					    (locate-library "org-ref"))
+					   "citeproc/csl-locales")))))
+    (when item-data
+      ;; Render as org format with 'bib mode for bibliography-style output
+      (citeproc-render-item item-data proc-style 'bib 'org))))
+
+
+(defun org-ref-insert-formatted-reference-csl (&optional arg)
+  "Insert a formatted reference at point using citeproc."
+  (interactive "P")
+  (let* ((candidates (bibtex-completion-candidates))
+	 (ref (completing-read "Reference: " candidates
+			       nil t))
+	 (entry (assoc ref candidates))
+         (key (cdr (assoc "=key=" entry)))
+	 (style (if arg
+		    (read-file-name "CSL style file: "
+				    (org-ref--file-join (file-name-directory
+							 (locate-library "org-ref"))
+							"citeproc/csl-styles"))
+		  nil))
+	 (actual-key (or key ref))
+	 (result (org-ref-format-reference-csl key style)))
+    (insert (or result
+		(format "Could not format reference for %s"
+			actual-key)))))
+
 
 (provide 'org-ref-export)
 
