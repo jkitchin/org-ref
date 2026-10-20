@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "org-ref: citations and cross-references for org-mode"
+type: software
+authors:
+  - family-names: Kitchin
+    given-names: John R.
+    orcid: "https://orcid.org/0000-0003-2625-9232"
+    affiliation: Carnegie Mellon University
+repository-code: "https://github.com/jkitchin/org-ref"
+version: "3.1"
+date-released: "2026-10-20"
+license: GPL-3.0-or-later
+abstract: "org-mode modules for citations, cross-references, and bibliographies, with tools for managing BibTeX."
+keywords: [citations, bibliography, org-mode, emacs]
